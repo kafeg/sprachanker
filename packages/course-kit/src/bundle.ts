@@ -17,6 +17,7 @@ import {
 import { readFile } from "node:fs/promises";
 import { dirname, join } from "node:path";
 import {
+  bundlePathCourse,
   type CourseBundleManifest,
   CourseBundlePath,
   CourseIndex,
@@ -127,6 +128,8 @@ export async function courseBundleContent(
     [...paths]
       .sort()
       .filter((path) => CourseBundlePath.safeParse(path).success)
+      // A copy outside the course's own folder of `raw/` is no bundle's (it could be another's).
+      .filter((path) => !path.startsWith("raw/") || bundlePathCourse(path) === courseId)
       .flatMap((path) => {
         const file = fileOf(path);
         return file ? [{ path, file }] : [];
@@ -213,9 +216,8 @@ async function holds(file: string, want: { sha256: string; size: number }, known
 /**
  * What to unpack of a bundle: every library file; a media file or source copy only when the series
  * does not hold it already — the same content under its name is skipped, under another name of the
- * media index linked. A media file there with other content is a clash (the bundle cannot be
- * installed); a source copy there with other content is replaced (the exam's sources name the one
- * they were read from).
+ * media index linked. A media file or source copy there with other content is a clash (the bundle
+ * cannot be installed): nothing of the library is replaced by a bundle but the course's own folders.
  */
 export async function planBundle(
   libraryRoot: string,
@@ -243,7 +245,7 @@ export async function planBundle(
       continue;
     }
     const isMedia = f.path.startsWith("media/");
-    if (isMedia && existsSync(file)) {
+    if (existsSync(file)) {
       plan.clash.push(f.path);
       continue;
     }
@@ -340,6 +342,8 @@ export async function checkBundle(files: string, manifest: CourseBundleManifest)
   for (const path of paths) {
     if (path.startsWith("media/") && !named.has(path))
       problems.push(`${path}: a media file the course does not use`);
+    if (bundlePathCourse(path) !== undefined && bundlePathCourse(path) !== courseId)
+      problems.push(`${path}: not of ${manifest.course}`);
     if (path.startsWith("raw/") && !raw.has(path))
       problems.push(`${path}: a copy no exam's sources name`);
   }
@@ -414,7 +418,7 @@ export async function installBundle(options: {
     if (existsSync(join(seriesDir, path)) || !(await still(path, from, true)))
       throw new Error(`${path} changed in the library meanwhile`);
   for (const path of plan.unpack)
-    if (path.startsWith("media/") && existsSync(join(seriesDir, path)))
+    if (!isLibraryJson(path) && existsSync(join(seriesDir, path)))
       throw new Error(`${path} came into the library meanwhile`);
   const state = await seriesState(seriesDir);
   const before = await installedVersions(seriesDir, courseId, manifest.editions);

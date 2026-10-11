@@ -335,7 +335,8 @@ canonical/<course>/…                # the course's files: index, lessons, exam
 locale/<edition>/<course>/…         # each edition carried (a Downloaded card's: its own; the CLI's: all, or
                                     # those asked)
 media/<kind>/<name>                 # only the media those files name that are on disk, as stored
-raw/…                               # only the copies an exam's sources name (verify checks them)
+raw/<edition>/<course>/…            # only the copies an exam's sources name (verify checks them), in the
+                                    # course's own folder (any edition: canonical sources serve them all)
 ```
 
 - Not in it: the rest of `raw/` (a source's pages can be fetched again, and are the larger part:
@@ -349,9 +350,9 @@ raw/…                               # only the copies an exam's sources name (
   manifest read by its schema; its files exactly those listed. A media file or source copy the
   library holds already is not unpacked: the same name and content skipped, the same content under
   another name of `media.json` linked (that file hashed first: the index says what it held when
-  fetched; copied where the disk has no hard links); a media file there
-  under the same name with other content stops it (the two machines fetched different files under one
-  name). The rest unpacked streaming, each hashed — the first not as listed stops it. Then every
+  fetched; copied where the disk has no hard links); a media file or
+  source copy there under the same name with other content stops it (the two machines fetched
+  different files under one name; a bundle replaces nothing of the library but its course's folders). The rest unpacked streaming, each hashed — the first not as listed stops it. Then every
   library file read by its schema (strict), where its own keys put it (`libraryFile`), of the
   bundle's course and editions, the index and each edition's course file there, each media file one
   the files name, each source copy one an exam's sources name, each line of its `media.json` one

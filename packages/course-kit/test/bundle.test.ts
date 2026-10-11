@@ -316,6 +316,36 @@ test("a bundle's lines of media.json say what it holds: its file, of that kind, 
   ).toEqual(["media.json javascript:alert(1): not a media file of the bundle as listed"]);
 });
 
+test("a bundle replaces nothing of the library but its course's folders: a source copy there with other content is a clash, another course's copy no bundle's", async () => {
+  const { root } = await library();
+  const bundle = await bundled(root, ["ru-de"]);
+  const other = dir();
+  put(join(other, MINI_SERIES, "raw/de-de/basic/quiz.pdf"), "the quiz as read elsewhere");
+  expect((await planBundle(other, bundle.manifest)).clash).toEqual(["raw/de-de/basic/quiz.pdf"]);
+  // A copy in another course's folder, named by this course's exam sources.
+  const theirs = "raw/de-de/other/quiz.pdf";
+  cpSync(join(bundle.files, "raw/de-de/basic/quiz.pdf"), join(bundle.files, theirs));
+  const sources = join(bundle.files, "canonical/basic/sources/quiz.json");
+  writeFileSync(
+    sources,
+    readFileSync(sources, "utf8").replace("raw/de-de/basic/", "raw/de-de/other/"),
+  );
+  bundle.manifest.files.push({ path: theirs, size: 1, sha256: "0".repeat(64) });
+  expect(await checkBundle(bundle.files, bundle.manifest)).toContain(`${theirs}: not of ${COURSE}`);
+  // Nor is it exported.
+  const series = join(root, MINI_SERIES);
+  writeFileSync(
+    join(series, "canonical/basic/sources/quiz.json"),
+    readFileSync(join(series, "canonical/basic/sources/quiz.json"), "utf8").replace(
+      "raw/de-de/basic/",
+      "raw/de-de/other/",
+    ),
+  );
+  put(join(series, theirs), "another course's copy");
+  const content = await courseBundleContent(root, MINI_SERIES, "basic", ["ru-de"]);
+  expect(content.files.map((f) => f.path).filter((p) => p.startsWith("raw/"))).toEqual([]);
+});
+
 test("the same content under another name is linked only when that file holds it now, not as the index says", async () => {
   const { root } = await library();
   const bundle = await bundled(root, ["ru-de"]);
