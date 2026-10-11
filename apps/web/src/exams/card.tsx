@@ -61,7 +61,9 @@ export function ExamCard({
           className="size-14 sm:size-16"
         />
         <span className="min-w-0">
-          <span className="line-clamp-2 text-xl font-bold leading-tight">{title}</span>
+          <span dir="auto" className="line-clamp-2 text-xl font-bold leading-tight">
+            {title}
+          </span>
           <span className="block truncate text-sm text-muted-foreground">
             {exam.source?.publisher}
           </span>
