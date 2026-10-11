@@ -220,8 +220,9 @@ owner, no admin screens; server matters are the `sprachanker profiles` command's
   IPv4 address of the machine (the tailnet's left out) and its `.local` name, `http://<address>:<port>`;
   the tailnet while Tailscale runs here — its name, and `https://<name>` once `tailscale serve`
   proxies HTTPS to this port (from `tailscale serve status --json`), else the name alone (not
-  served). Each says whether it is a secure context (HTTPS or localhost). Where the app shows them:
-  plan, "Phones".
+  served). Each says whether it is a secure context (HTTPS or localhost). Gathered (Tailscale and
+  the `.local` name asked) at most every five seconds: calls together or soon after one another get
+  the same answer. Where the app shows them: plan, "Phones".
 - The PWA is installable (manifest, icons). No offline use: a request that fails shows its error with
   "Try again"; a lesson's unsent events stay in memory and are sent again (05, "Sending").
 

@@ -1,6 +1,7 @@
 import { describe, expect, test } from "bun:test";
 import { commandOutput } from "../src/runtime/network.ts";
 import {
+  ADDRESSES_MS,
   createNetwork,
   type ListensOn,
   type NetworkHost,
@@ -189,6 +190,7 @@ describe("a read that fails", () => {
     }
     // A logged-out Tailscale is an answer: the name goes.
     state.status = { ...running(), BackendState: "NeedsLogin" };
+    advance(ADDRESSES_MS);
     expect((await net.addresses()).tailnet).toBeUndefined();
     expect(await net.knows(NAME)).toBe(false);
     expect(asked.status).toBe(5);
@@ -263,6 +265,21 @@ describe("the addresses the app is reached at", () => {
     expect(await httpsOf({ ...serving("4580"), TCP: { 443: {} } })).toBeUndefined();
     expect(await httpsOf({})).toBeUndefined();
     expect(await httpsOf(undefined)).toBeUndefined();
+  });
+
+  test("gathered once for calls together and for a few seconds after", async () => {
+    let localNames = 0;
+    const { host, asked } = fakeHost({ status: running(), serve: serving("4580") });
+    const counting = { ...host, localName: async () => `study-mac-${++localNames}.local` };
+    const { net, advance } = network(counting, { hostname: "0.0.0.0", port: 4580 });
+    const [a, b] = await Promise.all([net.addresses(), net.addresses()]);
+    expect(b).toBe(a);
+    advance(ADDRESSES_MS - 1);
+    expect(await net.addresses()).toBe(a);
+    expect([asked.status, asked.serve, localNames]).toEqual([1, 1, 1]);
+    advance(1);
+    expect((await net.addresses()).localName?.url).toBe("http://study-mac-2.local:4580");
+    expect([asked.status, asked.serve, localNames]).toEqual([2, 2, 2]);
   });
 
   test("the route: a signed-in device only", async () => {

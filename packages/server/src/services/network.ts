@@ -26,6 +26,8 @@ export interface ListensOn {
 export const TAILNET_REREAD_MS = 60_000;
 /** After a read that failed (no answer from Tailscale), the soonest it is tried again. */
 export const TAILNET_RETRY_MS = 5000;
+/** The addresses gathered are given again for this long: a page asking twice runs no commands. */
+export const ADDRESSES_MS = 5000;
 /** A question to the machine left unanswered this long is taken as unanswered. */
 const ASK_MS = 6000;
 const TAILNET_NAME = /\.ts\.net$/;
@@ -174,6 +176,8 @@ export function createNetwork(config: {
   const due = () => now() - readAt >= TAILNET_REREAD_MS && now() - failedAt >= TAILNET_RETRY_MS;
   // Read at the start: the first request through the tailnet finds its name known.
   const started = read();
+  const gatherOnce = createOnce<ServerAddresses>();
+  let gathered: { at: number; value: ServerAddresses } | undefined;
 
   return {
     /** Whether a name the fixed rules refuse is this machine's on its tailnet — never another
@@ -191,23 +195,33 @@ export function createNetwork(config: {
       return t?.name === name && !t.funnel;
     },
 
-    /** The addresses the app is reached at, Tailscale asked afresh. */
+    /** The addresses the app is reached at, Tailscale asked afresh — at most every few seconds:
+     *  calls together, or soon after one another, get the same answer. */
     async addresses(): Promise<ServerAddresses> {
-      const { hostname, port } = listensOn;
-      const [t, localName] = await Promise.all([read(), within(host?.localName(), askMs)]);
-      const local = LOOPBACK.test(hostname);
-      const everywhere = ANY.has(hostname);
-      const network = local
-        ? []
-        : everywhere
-          ? (host?.ipv4() ?? []).filter((ip) => !t?.ips.includes(ip))
-          : [hostname];
-      return {
-        machine: local || everywhere ? address("localhost", port) : address(hostname, port),
-        network: network.map((ip) => address(ip, port)),
-        ...(localName && !local ? { localName: address(localName, port) } : {}),
-        ...(t ? { tailnet: tailnetAddress(t) } : {}),
-      };
+      if (gathered && now() - gathered.at < ADDRESSES_MS) return gathered.value;
+      return gatherOnce("addresses", async () => {
+        const value = await gather();
+        gathered = { at: now(), value };
+        return value;
+      });
     },
   };
+
+  async function gather(): Promise<ServerAddresses> {
+    const { hostname, port } = listensOn;
+    const [t, localName] = await Promise.all([read(), within(host?.localName(), askMs)]);
+    const local = LOOPBACK.test(hostname);
+    const everywhere = ANY.has(hostname);
+    const network = local
+      ? []
+      : everywhere
+        ? (host?.ipv4() ?? []).filter((ip) => !t?.ips.includes(ip))
+        : [hostname];
+    return {
+      machine: local || everywhere ? address("localhost", port) : address(hostname, port),
+      network: network.map((ip) => address(ip, port)),
+      ...(localName && !local ? { localName: address(localName, port) } : {}),
+      ...(t ? { tailnet: tailnetAddress(t) } : {}),
+    };
+  }
 }
