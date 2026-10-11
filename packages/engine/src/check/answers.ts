@@ -71,7 +71,7 @@ const ALTERNATIVES = /\s+\/\s+/;
  */
 export function linesToSay(item: { text?: string; reference?: string[] }): string[] | undefined {
   const { text, reference } = item;
-  if (reference && reference.some((s) => FRAME.test(s))) return undefined;
+  if (reference?.some((s) => FRAME.test(s))) return undefined;
   const said = reference ?? (text ? [text] : []);
   const lines = said
     .flatMap((s) => (reference || !s.includes("\n") ? s.split(ALTERNATIVES) : [s]))

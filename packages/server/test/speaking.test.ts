@@ -1,4 +1,6 @@
 import { expect, test } from "bun:test";
+import { readFileSync, writeFileSync } from "node:fs";
+import { join } from "node:path";
 import { FIXTURE_SERIES } from "@sprachanker/course-fixture";
 import type { SpeechHost } from "../src/services/local-engines.ts";
 import { setup } from "./setup.ts";
@@ -103,4 +105,52 @@ test("speaking: an answer said aloud checked against the item and the source's a
 
   const preview = await sendJson("POST", "/api/llm/speaking/prompt", { ...request, runId });
   expect(preview.body.response_format.json_schema.name).toBe("speaking_check");
+});
+
+test("speaking: a source's answer to say word for word is the word diff's (404); its frame is the model's to check", async () => {
+  const m = machine();
+  const { send, sendJson } = await setup({
+    fetch: m.fetch,
+    speech: m.speech,
+    // Two more items on the speaking exercise: the source's answer as a line, and as a frame.
+    editLibrary: (library) => {
+      const path = join(library, FIXTURE_SERIES, "canonical/demo/lessons/00-02.json");
+      const lesson = JSON.parse(readFileSync(path, "utf8"));
+      const { exercise } = lesson.pages.find(
+        (p: { exercise?: { key: string } }) => p.exercise?.key === EXERCISE,
+      );
+      exercise.items.push(
+        { key: `${EXERCISE}#3`, prompt: "Wie geht's?", reference: ["Mir geht es gut."] },
+        { key: `${EXERCISE}#4`, prompt: "Was trinkst du?", reference: ["Ich trinke …"] },
+      );
+      writeFileSync(path, JSON.stringify(lesson));
+    },
+  });
+  await send("PUT", "/api/llm/providers/custom", { baseUrl: "http://127.0.0.1:9/v1" });
+  await send("PUT", "/api/llm/route", { provider: "custom", model: "m" });
+  const runId = (
+    await sendJson("POST", "/api/runs", {
+      series: FIXTURE_SERIES,
+      lessonKey: LESSON,
+      edition: "ru-de",
+    })
+  ).run.id;
+  const ask = (index: number) =>
+    send("POST", "/api/llm/speaking", {
+      series: FIXTURE_SERIES,
+      lessonKey: LESSON,
+      edition: "ru-de",
+      exerciseKey: EXERCISE,
+      index,
+      transcript: "Mir geht es gut",
+      runId,
+      language: "ru",
+    });
+  expect((await ask(2)).status).toBe(404);
+  expect(m.bodies).toHaveLength(0);
+  const framed = await ask(3);
+  expect(framed.status).toBe(200);
+  expect(await framed.json()).toMatchObject({ itemKey: `${EXERCISE}#4` });
+  const prompt = (m.bodies[0]?.messages as Array<{ content: string }> | undefined)?.[1]?.content;
+  expect(prompt).toContain("The source's answer: Ich trinke …");
 });

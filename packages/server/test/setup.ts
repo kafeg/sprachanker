@@ -28,10 +28,13 @@ export async function setup(
     speech?: SpeechHost;
     piper?: PiperHost;
     readings?: ReadingCache;
+    /** Changes the fixture library before the app opens it (an item the fixture course lacks). */
+    editLibrary?: (libraryRoot: string) => void;
   } = {},
 ) {
   const root = mkdtempSync(join(tmpdir(), "sprachanker-data-"));
   await writeFixtureLibrary(join(root, "library"));
+  options.editLibrary?.(join(root, "library"));
   let clock = 1_000;
   const profiles = profileFiles(root);
   const app = createApp({
