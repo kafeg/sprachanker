@@ -10,9 +10,9 @@ import { type Take, useRecorder } from "@/audio/recorder.ts";
 import { TakeButton } from "@/audio/take-button.tsx";
 import { CourseHtml } from "@/ui/course-html.tsx";
 import { clock } from "@/ui/format.ts";
+import { keptTogether } from "@/ui/line-breaks.ts";
 import { useTargetLang } from "@/ui/target-lang.ts";
 import { cn } from "@/ui/utils.ts";
-import { keptTogether } from "./shared.tsx";
 import type { RendererProps } from "./types.ts";
 
 /** What the recogniser heard (08): against the phrase to say, its words matched and missed with a

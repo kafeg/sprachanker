@@ -1,7 +1,8 @@
 import { expect, test } from "bun:test";
 import type { Exercise, Outcome } from "@sprachanker/schema";
 import { ItemCard } from "../../src/exercises/item-card.tsx";
-import { keptTogether, numberedLines, TILE } from "../../src/exercises/shared.tsx";
+import { numberedLines, TILE } from "../../src/exercises/shared.tsx";
+import { keptTogether } from "../../src/ui/line-breaks.ts";
 import { TargetLang } from "../../src/ui/target-lang.ts";
 import { renderApp } from "../render.tsx";
 

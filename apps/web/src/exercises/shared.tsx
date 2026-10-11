@@ -9,6 +9,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/ui/components/select.tsx";
+import { keptTogether } from "@/ui/line-breaks.ts";
 import { useCoarsePointer } from "@/ui/pointer.ts";
 import { useTargetLang } from "@/ui/target-lang.ts";
 import { cn } from "@/ui/utils.ts";
@@ -93,13 +94,6 @@ export const shownOptions = (options: Option[], locale: LocaleItem | undefined):
     ...(locale?.options?.[o.id] !== undefined && { learnerText: locale.options[o.id] }),
     ...(locale?.alt?.[o.id] !== undefined && { alt: locale.alt[o.id] }),
   }));
-
-/** An exercise's line with no break where a lone piece would be left: an ellipsis stays with the
- *  word before it ("vielleicht, …?"), a number with its short unit ("2 km"). Pure. */
-export const keptTogether = (text: string) =>
-  text
-    .replace(/(?<=\S)[ \t]+(?=\.\.\.|…)/g, " ")
-    .replace(/(?<=\d) (?=(?:[\p{L}]{1,3}|[%°€$])(?![\p{L}]))/gu, " ");
 
 /** A prompt of numbered tasks run on in one line ("1. … 2. …"): each task on its own line, as the
  *  answers under it are. Only a text that begins with "1." and goes on with 2, 3… in turn. Pure. */

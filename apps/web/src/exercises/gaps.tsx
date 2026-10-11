@@ -1,6 +1,7 @@
 import { correctOptions, type ItemOf, type Option } from "@sprachanker/schema";
 import { createContext, useContext, useRef, useState } from "react";
 import { useTranslation } from "react-i18next";
+import { keptTogether } from "@/ui/line-breaks.ts";
 import { useTargetLang } from "@/ui/target-lang.ts";
 import { cn } from "@/ui/utils.ts";
 import { Chip, DragBoard, Slot } from "./dnd.tsx";
@@ -78,7 +79,7 @@ function Text({ segments, gap }: { segments: Segments; gap(id: string): ShownGap
     <p lang={lang} className="whitespace-pre-wrap text-xl leading-relaxed">
       {runs(segments).map((run, i) => {
         // biome-ignore lint/suspicious/noArrayIndexKey: segments are static
-        if ("text" in run) return <span key={i}>{run.text}</span>;
+        if ("text" in run) return <span key={i}>{keptTogether(run.text)}</span>;
         const { field, shown, right } = gap(run.gap);
         const tail = tailAfter(run.tail, shown);
         return (

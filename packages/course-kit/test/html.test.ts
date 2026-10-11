@@ -136,6 +136,10 @@ test("line breaks at a block's edges go, a run of them is one; lines of '- item'
   // One dash line is a dash, not a list; emphasis across lines stays as it is.
   for (const kept of ["<p>a<br />\n- b</p>", "<p><em>x</em><br />\n- a<br />\n- b</p>"])
     expect(sanitizeCourseHtml(kept, none)).toBe(kept);
+  // Emphasis cut in two with nothing between is one ("(Wer?)" no longer two runs).
+  expect(sanitizeCourseHtml("<p>(<em>Wer</em><em>?</em>) <em>a</em> <em>b</em></p>", none)).toBe(
+    "<p>(<em>Wer?</em>) <em>a</em> <em>b</em></p>",
+  );
 });
 
 test("a no-break space between letters wraps; one by a number or a mark stays", () => {

@@ -179,6 +179,10 @@
   .prose-course th {
     @apply border px-2 py-1 align-top;
   }
+  /* A header cell the source marks as one reads as a header. */
+  .prose-course th {
+    @apply bg-muted text-left font-semibold;
+  }
   .prose-course img {
     @apply my-2 max-h-80 rounded-lg;
   }

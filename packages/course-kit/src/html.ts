@@ -139,6 +139,8 @@ function withoutEmpty(html: string): string {
     prev = out;
     out = out
       .replace(/<(strong|b|em|i|small)>(\s*)<\/\1>/g, "$2")
+      // Emphasis cut in two where nothing is between ("<em>Wer</em><em>?</em>"): one.
+      .replace(/<\/(strong|b|em|i|small)><\1>/g, "")
       .replace(/<(p|figcaption|h3)>(?:\s|<br \/>)*<\/\1>/g, "");
   }
   return out;

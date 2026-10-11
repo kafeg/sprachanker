@@ -2,6 +2,7 @@
 // spec 02 at normalisation, so it can be rendered as is. Its pictures and links to course files are
 // library paths (`media/…`), resolved through CourseMedia, which the course and lesson screens set.
 import { createContext, useContext, useEffect, useRef } from "react";
+import { keptTogetherHtml } from "./line-breaks.ts";
 import { Panel } from "./panel.tsx";
 import { htmlSections } from "./sections.ts";
 import { cn } from "./utils.ts";
@@ -43,9 +44,11 @@ function useTableScroll(root: React.RefObject<HTMLElement | null>, html: string)
 export function CourseHtml({ html, className }: { html: string; className?: string }) {
   const url = useContext(CourseMedia);
   const root = useRef<HTMLDivElement>(null);
-  const resolved = url
-    ? html.replace(/\b(src|href)="(media\/[^"]+)"/g, (_, attr, path) => `${attr}="${url(path)}"`)
-    : html;
+  const resolved = keptTogetherHtml(
+    url
+      ? html.replace(/\b(src|href)="(media\/[^"]+)"/g, (_, attr, path) => `${attr}="${url(path)}"`)
+      : html,
+  );
   useTableScroll(root, resolved);
   return (
     <div

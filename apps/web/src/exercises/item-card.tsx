@@ -6,13 +6,14 @@ import type { Exercise, ItemOf, LocaleExercise, Outcome } from "@sprachanker/sch
 import { useTranslation } from "react-i18next";
 import { TakeButton } from "@/audio/take-button.tsx";
 import { CourseHtml } from "@/ui/course-html.tsx";
+import { keptTogether } from "@/ui/line-breaks.ts";
 import { AudioPlayer, MediaBlock } from "@/ui/media.tsx";
 import { panelClass } from "@/ui/panel.tsx";
 import { useRequiredTargetLang } from "@/ui/target-lang.ts";
 import { cn } from "@/ui/utils.ts";
 import { GapRoom, gapRoom } from "./gaps.tsx";
 import { correctAnswer, ExerciseItem, toHear } from "./index.tsx";
-import { keptTogether, numberedLines } from "./shared.tsx";
+import { numberedLines } from "./shared.tsx";
 
 /** The prompt every item of an exercise has alike (two items or more), to show once above them
  *  instead of in each card; else none. The data keeps it per item. */
