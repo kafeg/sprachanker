@@ -60,7 +60,7 @@ apps/web/src/
                    # profile" starts the onboarding), onboarding (name and colour — the profile made at its
                    # Next —, the AI step a slot from the router, speech, tour — app/tour.tsx: the sections,
                    # an icon and a line each), name-colour (the onboarding's and Settings → Profile's),
-                   # profile-settings, device-name, about, preferences (language, theme, playback speed),
+                   # profile-settings, device-name, about, other-devices (Settings → General's addresses to copy or scan; the sidebar's "On a phone"), preferences (language, theme, playback speed),
                    # experimental (stable sources always, experimental ones turned on), experimental-settings
   llm/             # AI assistant: settings (AssistantSetup: provider-cards, key-state, model-list over the
                    # pure model-filter; LM Studio), "Why is this wrong?", tutor (the chat view; the lesson's
@@ -78,7 +78,7 @@ apps/web/src/
                    # components (ui/components), rich-text (model Markdown), page (pages, empty states, back
                    # links), media, format (dates, numbers, durations), panel, history
                    # (rows that open, lists of earlier items), side-layout (a page with a side column: the
-                   # lesson player's, an exam run's; the column's head), plan-list (a plan's headings and rows), progress-ring, side-sheet, chip, section-tabs (a section's tabs as links, and a page's own — Settings' — in their look), video (the episode: HD by
+                   # lesson player's, an exam run's; the column's head), plan-list (a plan's headings and rows), progress-ring, side-sheet, qr-code (uqr's modules as SVG), chip, section-tabs (a section's tabs as links, and a page's own — Settings' — in their look), video (the episode: HD by
                    # default, SD switch, speed, subtitles toggle, its text; exercises showing it too),
                    # playback (one medium at a time, the speed button, useClip for short clips), sections (a course page's sections; CourseSections in course-html shows them as cards), activity-calendar (a
                    # year of days as squares), bar-chart (bars over time, each a button showing its value; a bar across), stat-tile, search-field (a page's search), checked-text (a model's check: verdict, the text

@@ -220,7 +220,8 @@ owner, no admin screens; server matters are the `sprachanker profiles` command's
   proxies HTTPS to this port (from `tailscale serve status --json`), else the name alone (not
   served). Each says whether it is a secure context (HTTPS or localhost). Gathered (Tailscale and
   the `.local` name asked) at most every five seconds: calls together or soon after one another get
-  the same answer. Where the app shows them: plan, "Phones". What protects them: the Host check
+  the same answer. Where the app shows them: Settings → General → Other devices, and the sidebar's
+  "On a phone" (09). What protects them: the Host check
   (a page of another site cannot read them) and the session check like every route but choosing a
   profile — which keeps out no one who reaches the server, since any device that does can sign in
   (no PINs, "Profiles and access"). So whoever reaches the server learns the machine's local IPv4

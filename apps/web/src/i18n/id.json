@@ -550,6 +550,26 @@
     "licence": "Lisensi: MIT",
     "source": "Kode sumber di GitHub"
   },
+  "addresses": {
+    "title": "Perangkat lain",
+    "onPhone": "Di ponsel",
+    "intro": "Buka SprachAnker di ponsel, tablet, atau komputer lain di salah satu alamat ini, lalu pilih di sana siapa yang belajar.",
+    "machine": "Komputer ini",
+    "network": "Jaringan lokal",
+    "tailnet": "Tailscale",
+    "onlyHere": "SprachAnker hanya bisa dibuka di komputer ini. Untuk membukanya bagi jaringan lokalmu, jalankan seperti ini:",
+    "notServed": "Tailscale berjalan di sini, tetapi belum menyajikan SprachAnker di alamat aman (https). Di komputer ini, jalankan:",
+    "noTailnet": "Tailscale tidak berjalan di komputer ini. Dengannya, ponselmu membuka SprachAnker di alamat aman (https) dari mana saja, dan mikrofon berfungsi di sana.",
+    "funnel": "Tailscale Funnel aktif untuk komputer ini: ia membuka SprachAnker bagi seluruh internet, dan profil tidak punya kata sandi. Alamat ini ditolak sampai Funnel dimatikan.",
+    "insecure": "Tidak ada mikrofon di alamat ini: mikrofon hanya berfungsi di alamat aman (https).",
+    "insecureServed": "Tidak ada mikrofon di alamat ini: mikrofon hanya berfungsi di alamat aman (https), seperti alamat Tailscale.",
+    "copy": "Salin alamat",
+    "copyCommand": "Salin perintah",
+    "copied": "Tersalin",
+    "showQr": "Kode QR",
+    "qrOf": "Kode QR untuk {url}",
+    "scan": "Pindai dengan kamera ponsel."
+  },
   "progress": {
     "resetCourse": "Atur ulang progres kursus",
     "removeCourse": "Hapus dari kursusku",

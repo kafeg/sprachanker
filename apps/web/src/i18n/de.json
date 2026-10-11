@@ -550,6 +550,26 @@
     "licence": "Lizenz: MIT",
     "source": "Quellcode auf GitHub"
   },
+  "addresses": {
+    "title": "Andere Geräte",
+    "onPhone": "Auf dem Handy",
+    "intro": "Öffne SprachAnker auf einem Handy, Tablet oder anderen Computer unter einer dieser Adressen und wähle dort, wer lernt.",
+    "machine": "Dieser Computer",
+    "network": "Lokales Netzwerk",
+    "tailnet": "Tailscale",
+    "onlyHere": "SprachAnker ist nur auf diesem Computer erreichbar. Um es für dein lokales Netzwerk zu öffnen, starte es so:",
+    "notServed": "Tailscale läuft hier, stellt SprachAnker aber noch nicht unter einer sicheren Adresse (https) bereit. Führe auf diesem Computer aus:",
+    "noTailnet": "Tailscale läuft auf diesem Computer nicht. Damit öffnen deine Handys SprachAnker von überall unter einer sicheren Adresse (https), und das Mikrofon funktioniert dort.",
+    "funnel": "Tailscale Funnel ist für diesen Computer eingeschaltet: Es öffnet SprachAnker für das ganze Internet, und Profile haben keine Passwörter. Diese Adresse wird abgelehnt, bis Funnel ausgeschaltet ist.",
+    "insecure": "Unter dieser Adresse kein Mikrofon: Es funktioniert nur unter einer sicheren (https).",
+    "insecureServed": "Unter dieser Adresse kein Mikrofon: Es funktioniert nur unter einer sicheren (https), etwa der Tailscale-Adresse.",
+    "copy": "Adresse kopieren",
+    "copyCommand": "Befehl kopieren",
+    "copied": "Kopiert",
+    "showQr": "QR-Code",
+    "qrOf": "QR-Code für {url}",
+    "scan": "Scanne ihn mit der Kamera des Handys."
+  },
   "progress": {
     "resetCourse": "Kursfortschritt zurücksetzen",
     "removeCourse": "Aus meinen Kursen entfernen",

@@ -550,6 +550,26 @@
     "licence": "Lisans: MIT",
     "source": "GitHub’da kaynak kodu"
   },
+  "addresses": {
+    "title": "Diğer cihazlar",
+    "onPhone": "Telefonda",
+    "intro": "SprachAnker’i bir telefonda, tablette ya da başka bir bilgisayarda bu adreslerden birinde aç, sonra orada kimin çalıştığını seç.",
+    "machine": "Bu bilgisayar",
+    "network": "Yerel ağ",
+    "tailnet": "Tailscale",
+    "onlyHere": "SprachAnker yalnızca bu bilgisayardan açılabiliyor. Yerel ağına açmak için onu şöyle başlat:",
+    "notServed": "Tailscale burada çalışıyor ama SprachAnker’i henüz güvenli bir adreste (https) sunmuyor. Bu bilgisayarda şunu çalıştır:",
+    "noTailnet": "Tailscale bu bilgisayarda çalışmıyor. Onunla telefonların SprachAnker’i her yerden güvenli bir adreste (https) açar ve mikrofon orada çalışır.",
+    "funnel": "Bu bilgisayar için Tailscale Funnel açık: SprachAnker’i tüm internete açıyor ve profillerin parolası yok. Funnel kapatılana kadar bu adres reddedilir.",
+    "insecure": "Bu adreste mikrofon yok: yalnızca güvenli bir adreste (https) çalışır.",
+    "insecureServed": "Bu adreste mikrofon yok: yalnızca güvenli bir adreste (https) çalışır; örneğin Tailscale adresinde.",
+    "copy": "Adresi kopyala",
+    "copyCommand": "Komutu kopyala",
+    "copied": "Kopyalandı",
+    "showQr": "QR kodu",
+    "qrOf": "{url} için QR kodu",
+    "scan": "Telefonun kamerasıyla tara."
+  },
   "progress": {
     "resetCourse": "Kurs ilerlemesini sıfırla",
     "removeCourse": "Kurslarımdan kaldır",

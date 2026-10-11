@@ -88,10 +88,19 @@ export function NotInstalled() {
   );
 }
 
-export function ErrorState({ error, onRetry }: { error: unknown; onRetry?: () => void }) {
+export function ErrorState({
+  error,
+  onRetry,
+  className,
+}: {
+  error: unknown;
+  onRetry?: () => void;
+  /** Its margin, when not a page's (`m-6`). */
+  className?: string;
+}) {
   const { t } = useTranslation();
   return (
-    <div className="m-6 rounded-xl border border-wrong/40 bg-wrong-soft p-4">
+    <div className={cn("m-6 rounded-xl border border-wrong/40 bg-wrong-soft p-4", className)}>
       <p>{errorText(t, error)}</p>
       {onRetry && (
         <button

@@ -1,8 +1,9 @@
-// Settings (09): five tabs in one row, as a section's — General (language, theme, storage with the
-// recordings kept, about, experimental), Profile (name, sign-in, devices, switching, deleting), Review
-// (daily limits, retention, card types), Speech (microphone, recognition, reading aloud), AI assistant
-// (providers, models, LM Studio, where it works; its prompts under Advanced). The open tab is kept in the URL hash; a section's own (#prompts, #about, #experimental) opens
-// its tab there, a folded one opened.
+// Settings (09): five tabs in one row, as a section's — General (language, theme, other devices,
+// storage with the recordings kept, about, experimental), Profile (name, sign-in, devices, switching,
+// deleting), Review (daily limits, retention, card types), Speech (microphone, recognition, reading
+// aloud), AI assistant (providers, models, LM Studio, where it works; its prompts under Advanced).
+// The open tab is kept in the URL hash; a section's own (#prompts, #other-devices, #about,
+// #experimental) opens its tab there, a folded one opened.
 import { useIsFetching } from "@tanstack/react-query";
 import { useLocation, useNavigate } from "@tanstack/react-router";
 import { useEffect, useRef } from "react";
@@ -11,6 +12,7 @@ import { useSetSetting, useSetting } from "@/api/settings.ts";
 import { AboutSection } from "@/app/about.tsx";
 import { ExperimentalSettings } from "@/app/experimental-settings.tsx";
 import { LanguageSwitch } from "@/app/language-switch.tsx";
+import { OtherDevicesSection } from "@/app/other-devices.tsx";
 import { ProfileSettings } from "@/app/profile-settings.tsx";
 import { SpeechSetup } from "@/audio/speech-settings.tsx";
 import { AiPlaces, PromptsSettings } from "@/llm/prompts-info.tsx";
@@ -27,7 +29,12 @@ import { StorageSection } from "./storage.tsx";
 const TABS = ["general", "profile", "review", "speech", "ai"] as const;
 type Tab = (typeof TABS)[number];
 /** Sections inside a tab that an address may name. */
-const SECTIONS: Record<string, Tab> = { prompts: "ai", about: "general", experimental: "general" };
+const SECTIONS: Record<string, Tab> = {
+  prompts: "ai",
+  about: "general",
+  experimental: "general",
+  "other-devices": "general",
+};
 const tabOf = (hash: string): Tab =>
   (TABS as readonly string[]).includes(hash) ? (hash as Tab) : (SECTIONS[hash] ?? "general");
 
@@ -62,6 +69,7 @@ function General() {
           onChange={(value) => set.mutate({ key: "theme", value })}
         />
       </Panel>
+      <OtherDevicesSection />
       <StorageSection />
       <AboutSection />
       <ExperimentalSettings />

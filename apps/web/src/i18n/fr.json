@@ -550,6 +550,26 @@
     "licence": "Licence : MIT",
     "source": "Code source sur GitHub"
   },
+  "addresses": {
+    "title": "Autres appareils",
+    "onPhone": "Sur un téléphone",
+    "intro": "Ouvre SprachAnker sur un téléphone, une tablette ou un autre ordinateur à l’une de ces adresses, puis choisis-y qui étudie.",
+    "machine": "Cet ordinateur",
+    "network": "Réseau local",
+    "tailnet": "Tailscale",
+    "onlyHere": "SprachAnker n’est accessible que sur cet ordinateur. Pour l’ouvrir à ton réseau local, lance-le ainsi :",
+    "notServed": "Tailscale tourne ici, mais ne sert pas encore SprachAnker à une adresse sécurisée (https). Sur cet ordinateur, exécute :",
+    "noTailnet": "Tailscale ne tourne pas sur cet ordinateur. Avec lui, tes téléphones ouvrent SprachAnker à une adresse sécurisée (https) depuis n’importe où, et le micro y fonctionne.",
+    "funnel": "Tailscale Funnel est activé pour cet ordinateur : il ouvre SprachAnker à tout Internet, et les profils n’ont pas de mot de passe. Cette adresse est refusée tant que Funnel n’est pas désactivé.",
+    "insecure": "Pas de micro à cette adresse : il ne fonctionne qu’à une adresse sécurisée (https).",
+    "insecureServed": "Pas de micro à cette adresse : il ne fonctionne qu’à une adresse sécurisée (https), comme celle de Tailscale.",
+    "copy": "Copier l’adresse",
+    "copyCommand": "Copier la commande",
+    "copied": "Copié",
+    "showQr": "Code QR",
+    "qrOf": "Code QR de {url}",
+    "scan": "Scanne-le avec l’appareil photo du téléphone."
+  },
   "progress": {
     "resetCourse": "Réinitialiser la progression du cours",
     "removeCourse": "Retirer de mes cours",
