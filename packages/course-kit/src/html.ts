@@ -71,9 +71,49 @@ export function sanitizeCourseHtml(html: string, options: SanitizeOptions): stri
   });
   // After sanitising: an entity (`&#8203;`) is a character by then.
   return nestedHeadingsAsBold(
-    withoutEmpty(oneCellLabels(breakable(clean.replace(NO_WIDTH, "")))),
+    withoutEmpty(dashLists(lineBreaks(oneCellLabels(breakable(clean.replace(NO_WIDTH, "")))))),
   ).trim();
 }
+
+const BLOCK = "p|li|td|th|h3|figcaption";
+const INLINE = "strong|b|em|i|small";
+/** Line breaks an editor left: at a block's start or end (through emphasis) none — they show as blank
+ *  lines —, two or more in a row one. */
+const lineBreaks = (html: string) =>
+  html
+    .replace(new RegExp(`(<(?:${BLOCK})>\\s*(?:<(?:${INLINE})>\\s*)*)(?:<br />\\s*)+`, "g"), "$1")
+    .replace(new RegExp(`(?:\\s*<br />)+(\\s*(?:</(?:${INLINE})>\\s*)*</(?:${BLOCK})>)`, "g"), "$1")
+    .replace(/<br \/>(?:\s*<br \/>)+/g, "<br />");
+
+/** A paragraph of plain lines, two or more of them "- item" (or "– ", "• "): those lines a list, the
+ *  others paragraphs around it ("Checkliste" over its items). */
+const dashLists = (html: string) =>
+  html.replace(/<p>((?:(?!<\/?p>)[\s\S])*?)<\/p>/g, (paragraph, body: string) => {
+    if (/<(?!br \/>)/.test(body)) return paragraph;
+    const lines = body.split(/\s*<br \/>\s*/).map((l) => l.trim());
+    const ITEM = /^[-–•]\s+/;
+    if (lines.filter((l) => ITEM.test(l)).length < 2) return paragraph;
+    let out = "";
+    let list: string[] = [];
+    let text: string[] = [];
+    const flush = () => {
+      if (text.length) out += `<p>${text.join("<br />\n")}</p>`;
+      if (list.length) out += `<ul>${list.map((l) => `<li>${l}</li>`).join("")}</ul>`;
+      text = [];
+      list = [];
+    };
+    for (const line of lines) {
+      if (ITEM.test(line)) {
+        if (text.length) flush();
+        list.push(line.replace(ITEM, ""));
+      } else if (line) {
+        if (list.length) flush();
+        text.push(line);
+      }
+    }
+    flush();
+    return out;
+  });
 
 /** A table of one cell with a line of text in it is a label (a case's name over its table): a bold
  *  paragraph, not a box. One holding paragraphs or lists (a framed note) stays a table. */

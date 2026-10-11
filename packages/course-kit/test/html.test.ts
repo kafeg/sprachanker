@@ -122,6 +122,22 @@ test("empty emphasis, paragraphs and captions go; titles inside tables are bold 
   ).toBe("<ul><li><p><strong>eins</strong></p></li></ul><h3>Zwei</h3>");
 });
 
+test("line breaks at a block's edges go, a run of them is one; lines of '- item' are a list", () => {
+  const none = { image: () => undefined };
+  expect(
+    sanitizeCourseHtml(
+      "<p><br>\nErstens.<br></p><p><em>a<br><br>\nb<br></em></p><td><p><br>\nc</p></td>",
+      none,
+    ),
+  ).toBe("<p>Erstens.</p><p><em>a<br />\nb</em></p><td><p>c</p></td>");
+  expect(sanitizeCourseHtml("<p>Liste<br>\n- eins<br>\n- zwei (A/B)<br>\nEnde</p>", none)).toBe(
+    "<p>Liste</p><ul><li>eins</li><li>zwei (A/B)</li></ul><p>Ende</p>",
+  );
+  // One dash line is a dash, not a list; emphasis across lines stays as it is.
+  for (const kept of ["<p>a<br />\n- b</p>", "<p><em>x</em><br />\n- a<br />\n- b</p>"])
+    expect(sanitizeCourseHtml(kept, none)).toBe(kept);
+});
+
 test("a no-break space between letters wraps; one by a number or a mark stays", () => {
   expect(
     sanitizeCourseHtml("<p>gesunden\u00a0und\u00a0leckeren 25\u00a0°C Bonjour\u00a0!</p>", {
