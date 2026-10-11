@@ -692,7 +692,7 @@
     },
     "examRuns": "Simulacros y práctica",
     "noExamRuns": "Aún no has entregado nada.",
-    "examWrong": "{count, plural, one {# pregunta respondida mal} other {# preguntas respondidas mal}} la última vez",
+    "examWrong": "{count, plural, one {# pregunta respondida mal la última vez} other {# preguntas respondidas mal la última vez}}",
     "section": {
       "review": "Repaso",
       "lesson": "Lecciones",
@@ -1236,7 +1236,7 @@
       "practice": "Práctica",
       "practiceText": "Pregunta a pregunta, cada respuesta se comprueba al momento: primero las que fallaste, luego las que no has visto.",
       "catalog": "Catálogo",
-      "catalogText": "{count, plural, one {La # pregunta} other {Las # preguntas}} con sus respuestas."
+      "catalogText": "{count, plural, one {La # pregunta con su respuesta.} other {Las # preguntas con sus respuestas.}}"
     },
     "begin": "Empezar",
     "practise": "Practicar",
@@ -1275,12 +1275,12 @@
     "handIn": "Entregar",
     "endPractice": "Terminar la práctica",
     "handInTitle": "¿Entregar el examen?",
-    "handInUnanswered": "{count, plural, one {Aún queda # pregunta sin responder} other {Aún quedan # preguntas sin responder}}: las preguntas sin responder cuentan como incorrectas.",
+    "handInUnanswered": "{count, plural, one {Aún queda # pregunta sin responder: las preguntas sin responder cuentan como incorrectas.} other {Aún quedan # preguntas sin responder: las preguntas sin responder cuentan como incorrectas.}}",
     "goOn": "Continuar",
     "leave": "Volver al examen",
     "answered": "Respondidas: {done, number} de {total, number}",
     "question": "Pregunta {n, number} de {total, number}",
-    "practiceScore": "{points, number} de {count, plural, one {# respuesta} other {# respuestas}} correctas",
+    "practiceScore": "{count, plural, one {{points, number} de # respuesta correcta} other {{points, number} de # respuestas correctas}}",
     "timeUp": "Se acabó el tiempo: cuentan las respuestas dadas hasta entonces.",
     "needed": "Se necesitan {points, number} de {max, number}",
     "practiseMistakes": "Practicar los errores",
@@ -1328,7 +1328,7 @@
     },
     "rating": {
       "title": "Valora tus respuestas",
-      "pending": "{count, plural, one {# respuesta aún no está valorada} other {# respuestas aún no están valoradas}}: cuentan como 0 hasta que {count, plural, one {la valores} other {las valores}}.",
+      "pending": "{count, plural, one {# respuesta aún no está valorada: cuenta como 0 hasta que la valores.} other {# respuestas aún no están valoradas: cuentan como 0 hasta que las valores.}}",
       "hint": "Se valora como lo hacen los evaluadores del examen; cambia una valoración cuando quieras.",
       "voided": "tarea no realizada: 0 para toda la respuesta",
       "unrated": "0 hasta que se valore «{criterion}»: decide si la respuesta cuenta",

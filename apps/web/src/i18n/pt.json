@@ -692,7 +692,7 @@
     },
     "examRuns": "Simulados e prática",
     "noExamRuns": "Nada entregue ainda.",
-    "examWrong": "{count, plural, =0 {# perguntas respondidas errado} one {# pergunta respondida errado} other {# perguntas respondidas errado}} da última vez",
+    "examWrong": "{count, plural, =0 {# perguntas respondidas errado da última vez} one {# pergunta respondida errado da última vez} other {# perguntas respondidas errado da última vez}}",
     "section": {
       "review": "Revisão",
       "lesson": "Lições",
@@ -1236,7 +1236,7 @@
       "practice": "Prática",
       "practiceText": "Pergunta por pergunta, cada resposta verificada na hora: primeiro as que você errou, depois as que ainda não viu.",
       "catalog": "Catálogo",
-      "catalogText": "{count, plural, =0 {Todas as # perguntas} one {A # pergunta} other {Todas as # perguntas}} com as respostas."
+      "catalogText": "{count, plural, =0 {Todas as # perguntas com as respostas.} one {A # pergunta com a resposta.} other {Todas as # perguntas com as respostas.}}"
     },
     "begin": "Começar",
     "practise": "Praticar",
@@ -1275,12 +1275,12 @@
     "handIn": "Entregar",
     "endPractice": "Encerrar a prática",
     "handInTitle": "Entregar o exame?",
-    "handInUnanswered": "{count, plural, =0 {# perguntas ainda não foram respondidas} one {# pergunta ainda não foi respondida} other {# perguntas ainda não foram respondidas}}: perguntas sem resposta contam como erradas.",
+    "handInUnanswered": "{count, plural, =0 {# perguntas ainda não foram respondidas: perguntas sem resposta contam como erradas.} one {# pergunta ainda não foi respondida: perguntas sem resposta contam como erradas.} other {# perguntas ainda não foram respondidas: perguntas sem resposta contam como erradas.}}",
     "goOn": "Continuar",
     "leave": "Voltar ao exame",
     "answered": "Respondidas: {done, number} de {total, number}",
     "question": "Pergunta {n, number} de {total, number}",
-    "practiceScore": "{points, number} de {count, plural, =0 {# respostas} one {# resposta} other {# respostas}} certas",
+    "practiceScore": "{count, plural, =0 {{points, number} de # respostas certas} one {{points, number} de # resposta certa} other {{points, number} de # respostas certas}}",
     "timeUp": "O tempo acabou: contam as respostas dadas até então.",
     "needed": "{points, number} de {max, number} necessários",
     "practiseMistakes": "Praticar os erros",
@@ -1328,7 +1328,7 @@
     },
     "rating": {
       "title": "Avalie as suas respostas",
-      "pending": "{count, plural, =0 {# respostas ainda não foram avaliadas} one {# resposta ainda não foi avaliada} other {# respostas ainda não foram avaliadas}}: contam como 0 até você {count, plural, =0 {avaliá-las} one {avaliá-la} other {avaliá-las}}.",
+      "pending": "{count, plural, =0 {# respostas ainda não foram avaliadas: contam como 0 até você avaliá-las.} one {# resposta ainda não foi avaliada: conta como 0 até você avaliá-la.} other {# respostas ainda não foram avaliadas: contam como 0 até você avaliá-las.}}",
       "hint": "Avaliado como fazem os avaliadores do exame; mude uma avaliação quando quiser.",
       "voided": "a tarefa não foi cumprida: 0 para a resposta inteira",
       "unrated": "0 até “{criterion}” ser avaliado: ele decide se a resposta conta",

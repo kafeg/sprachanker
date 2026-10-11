@@ -692,7 +692,7 @@
     },
     "examRuns": "Probni ispiti i vježbanje",
     "noExamRuns": "Još ništa nije predano.",
-    "examWrong": "{count, plural, one {# pitanje je prošli put odgovoreno pogrešno} few {# pitanja su prošli put odgovorena pogrešno} other {# pitanja je prošli put odgovoreno pogrešno}}",
+    "examWrong": "{count, plural, one {Na # pitanje je prošli put odgovoreno pogrešno} few {Na # pitanja je prošli put odgovoreno pogrešno} other {Na # pitanja je prošli put odgovoreno pogrešno}}",
     "section": {
       "review": "Ponavljanje",
       "lesson": "Lekcije",
@@ -1236,7 +1236,7 @@
       "practice": "Vježbanje",
       "practiceText": "Pitanje po pitanje, svaki odgovor se odmah provjerava: prvo pitanja s greškama, zatim ona koja još nisu prikazana.",
       "catalog": "Katalog",
-      "catalogText": "{count, plural, one {Sve # pitanje} few {Sva # pitanja} other {Svih # pitanja}} s odgovorima."
+      "catalogText": "{count, plural, =1 {# pitanje s odgovorom.} one {# pitanje s odgovorima.} few {Sva # pitanja s odgovorima.} other {Svih # pitanja s odgovorima.}}"
     },
     "begin": "Počni",
     "practise": "Vježbaj",
@@ -1275,12 +1275,12 @@
     "handIn": "Predaj",
     "endPractice": "Završi vježbanje",
     "handInTitle": "Predati ispit?",
-    "handInUnanswered": "{count, plural, one {# pitanje još nije odgovoreno} few {# pitanja još nisu odgovorena} other {# pitanja još nije odgovoreno}}: neodgovorena pitanja se računaju kao pogrešna.",
+    "handInUnanswered": "{count, plural, one {Na # pitanje još nije odgovoreno: neodgovorena pitanja se računaju kao pogrešna.} few {Na # pitanja još nije odgovoreno: neodgovorena pitanja se računaju kao pogrešna.} other {Na # pitanja još nije odgovoreno: neodgovorena pitanja se računaju kao pogrešna.}}",
     "goOn": "Nastavi",
     "leave": "Nazad na ispit",
     "answered": "Odgovoreno: {done, number} od {total, number}",
     "question": "Pitanje {n, number} od {total, number}",
-    "practiceScore": "Tačno: {points, number} od {count, plural, one {# odgovora} few {# odgovora} other {# odgovora}}",
+    "practiceScore": "{count, plural, one {Tačno: {points, number} od # odgovora} few {Tačno: {points, number} od # odgovora} other {Tačno: {points, number} od # odgovora}}",
     "timeUp": "Vrijeme je isteklo: računaju se odgovori dati do tada.",
     "needed": "Potrebno: {points, number} od {max, number}",
     "practiseMistakes": "Vježbaj greške",
@@ -1328,7 +1328,7 @@
     },
     "rating": {
       "title": "Ocijeni svoje odgovore",
-      "pending": "{count, plural, one {# odgovor još nije ocijenjen} few {# odgovora još nisu ocijenjena} other {# odgovora još nije ocijenjeno}}: računa se kao 0 dok {count, plural, one {ga ne ocijeniš} few {ih ne ocijeniš} other {ih ne ocijeniš}}.",
+      "pending": "{count, plural, one {# odgovor još nije ocijenjen: računa se kao 0 dok ga ne ocijeniš.} few {# odgovora još nisu ocijenjena: računaju se kao 0 dok ih ne ocijeniš.} other {# odgovora još nije ocijenjeno: računa se kao 0 dok ih ne ocijeniš.}}",
       "hint": "Ocjenjuje se kao što ocjenjuju ispitivači; ocjenu možeš promijeniti kad god želiš.",
       "voided": "zadatak nije urađen: 0 za cijeli odgovor",
       "unrated": "0 dok se ne ocijeni „{criterion}“: on odlučuje da li se odgovor računa",

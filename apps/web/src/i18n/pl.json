@@ -692,7 +692,7 @@
     },
     "examRuns": "Egzaminy próbne i treningi",
     "noExamRuns": "Jeszcze nic nie oddano.",
-    "examWrong": "{count, plural, one {# pytanie} few {# pytania} many {# pytań} other {# pytania}} z błędną odpowiedzią ostatnim razem",
+    "examWrong": "{count, plural, one {# pytanie z błędną odpowiedzią ostatnim razem} few {# pytania z błędną odpowiedzią ostatnim razem} many {# pytań z błędną odpowiedzią ostatnim razem} other {# pytania z błędną odpowiedzią ostatnim razem}}",
     "section": {
       "review": "Powtórki",
       "lesson": "Lekcje",
@@ -1236,7 +1236,7 @@
       "practice": "Trening",
       "practiceText": "Pytanie po pytaniu, każda odpowiedź sprawdzana od razu: najpierw te z błędną odpowiedzią, potem jeszcze niewidziane.",
       "catalog": "Katalog",
-      "catalogText": "{count, plural, one {# pytanie} few {Wszystkie # pytania} many {Wszystkie # pytań} other {Wszystkie # pytania}} z odpowiedziami."
+      "catalogText": "{count, plural, one {# pytanie z odpowiedzią.} few {Wszystkie # pytania z odpowiedziami.} many {Wszystkie # pytań z odpowiedziami.} other {Wszystkie # pytania z odpowiedziami.}}"
     },
     "begin": "Zacznij",
     "practise": "Trenuj",
@@ -1275,12 +1275,12 @@
     "handIn": "Oddaj",
     "endPractice": "Zakończ trening",
     "handInTitle": "Oddać egzamin?",
-    "handInUnanswered": "{count, plural, one {# pytanie nie ma jeszcze odpowiedzi} few {# pytania nie mają jeszcze odpowiedzi} many {# pytań nie ma jeszcze odpowiedzi} other {# pytania nie ma jeszcze odpowiedzi}}: pytania bez odpowiedzi liczą się jako błędne.",
+    "handInUnanswered": "{count, plural, one {# pytanie nie ma jeszcze odpowiedzi: pytania bez odpowiedzi liczą się jako błędne.} few {# pytania nie mają jeszcze odpowiedzi: pytania bez odpowiedzi liczą się jako błędne.} many {# pytań nie ma jeszcze odpowiedzi: pytania bez odpowiedzi liczą się jako błędne.} other {# pytania nie ma jeszcze odpowiedzi: pytania bez odpowiedzi liczą się jako błędne.}}",
     "goOn": "Kontynuuj",
     "leave": "Wróć do egzaminu",
     "answered": "Odpowiedziano: {done, number} z {total, number}",
     "question": "Pytanie {n, number} z {total, number}",
-    "practiceScore": "{points, number} z {count, plural, one {# odpowiedzi} few {# odpowiedzi} many {# odpowiedzi} other {# odpowiedzi}} dobrze",
+    "practiceScore": "{count, plural, one {{points, number} z # odpowiedzi dobrze} few {{points, number} z # odpowiedzi dobrze} many {{points, number} z # odpowiedzi dobrze} other {{points, number} z # odpowiedzi dobrze}}",
     "timeUp": "Czas minął: liczą się odpowiedzi udzielone do tego momentu.",
     "needed": "wymagane {points, number} z {max, number}",
     "practiseMistakes": "Przećwicz błędy",
@@ -1328,7 +1328,7 @@
     },
     "rating": {
       "title": "Oceń swoje odpowiedzi",
-      "pending": "{count, plural, one {# odpowiedź nie jest jeszcze oceniona} few {# odpowiedzi nie są jeszcze ocenione} many {# odpowiedzi nie jest jeszcze ocenionych} other {# odpowiedzi nie jest jeszcze ocenione}}: liczy się jako 0, dopóki {count, plural, one {jej nie ocenisz} few {ich nie ocenisz} many {ich nie ocenisz} other {ich nie ocenisz}}.",
+      "pending": "{count, plural, one {# odpowiedź nie jest jeszcze oceniona: liczy się jako 0, dopóki jej nie ocenisz.} few {# odpowiedzi nie są jeszcze ocenione: liczą się jako 0, dopóki ich nie ocenisz.} many {# odpowiedzi nie jest jeszcze ocenionych: liczą się jako 0, dopóki ich nie ocenisz.} other {# odpowiedzi nie jest jeszcze ocenione: liczą się jako 0, dopóki ich nie ocenisz.}}",
       "hint": "Oceniaj tak, jak robią to egzaminatorzy; ocenę możesz zmienić w każdej chwili.",
       "voided": "zadanie niewykonane: 0 za całą odpowiedź",
       "unrated": "0, dopóki „{criterion}” nie zostanie ocenione: od tego zależy, czy odpowiedź się liczy",
