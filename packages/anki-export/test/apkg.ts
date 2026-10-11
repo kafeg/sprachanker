@@ -2,6 +2,7 @@
 // Anki's older schema (`collection.anki2`, a JSON media list) or its newest (`collection.anki21b` and
 // the media zstd-compressed, the list a protobuf); and the Bun runtime that reads them.
 import { Database } from "bun:sqlite";
+import { zstdDecompressSync } from "node:zlib";
 import { strToU8, zipSync } from "fflate";
 import type { ApkgRuntime } from "../src/apkg.ts";
 
@@ -23,7 +24,14 @@ export const bunApkgRuntime: ApkgRuntime = {
       close: () => db.close(),
     };
   },
-  zstd: (bytes) => new Uint8Array(Bun.zstdDecompressSync(bytes)),
+  zstd(bytes, max) {
+    try {
+      return new Uint8Array(zstdDecompressSync(bytes, { maxOutputLength: max }));
+    } catch (error) {
+      if ((error as { code?: string }).code === "ERR_BUFFER_TOO_LARGE") return undefined;
+      throw error;
+    }
+  },
 };
 
 const MODEL_ID = 1700000000001;

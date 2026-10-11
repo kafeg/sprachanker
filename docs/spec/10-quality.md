@@ -40,7 +40,7 @@ table in the same commit with the reason.
 | PDF reading (importers) | `pdfjs-dist` (pdf.js, legacy build, its parser in the importer's thread): text with its place, pictures decoded; PNG written with `node:zlib` |
 | Markdown rendering | `markdown-it` with `html: false` |
 | Zip | `fflate` (`.apkg` packages: `packages/anki-export`; profile export when built) |
-| zstd, SQLite from bytes (`.apkg`) | the runtime's: `Bun.zstdDecompressSync`, `Database.deserialize` (`packages/server/src/runtime/decks.ts`) |
+| zstd, SQLite from bytes (`.apkg`) | the runtime's: `zstdDecompressSync` (`node:zlib`, its output capped), `Database.deserialize` (`packages/server/src/runtime/decks.ts`) |
 | Logging | `pino` (when first needed: structured logs; today `console.error` for what is left out or fails) |
 | Crypto | WebCrypto: AES-256-GCM (API keys), SHA-256 (device tokens) — runtime-agnostic, no adapter |
 | Web UI | React, Vite, Tailwind, shadcn/ui (Radix), Lucide; fonts bundled from `@fontsource` (no CDN): Fira Sans and Fira Sans Condensed, woff2 of the Latin, Latin Extended, Cyrillic and Greek subsets (`apps/web/src/fonts.css`; Greek for an el-de edition such as Nicos Weg's, monotonic only — no Greek Extended; 2026-10-11: Barlow has no Cyrillic — Russian text mixed two fonts —; Sofia Sans set smaller, IBM Plex Sans Condensed has no Cyrillic on @fontsource); Motion when an animation needs more than CSS |

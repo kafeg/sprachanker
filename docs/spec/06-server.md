@@ -79,7 +79,7 @@ JSON under `/api`, validated with zod and typed for the web client through Hono 
   its fields are named by, the first words with their translation in each, the deck here it would
   update), `POST /api/decks/import` (`{upload, title, lang, translationLang, file}`: a new deck, or the
   deck most of whose notes it holds, in the same languages, updated; 404 `deck_upload_gone`; 422
-  `not_a_deck`, `deck_without_words`; 413 `deck_too_large`), `DELETE /api/decks/:id` (409
+  `not_a_deck`, `deck_without_words`, `deck_unpacked_too_large`; 413 `deck_too_large`), `DELETE /api/decks/:id` (409
   `deck_in_use` while any profile has cards made from it). Bun takes bodies up to that size and waits
   up to 255 s on a request (`runtime/bun.ts`).
 - Settings: `GET` / `PUT /api/settings` (one key at a time): only the learner's preferences, each
@@ -109,7 +109,7 @@ JSON under `/api`, validated with zod and typed for the web client through Hono 
   `detail`, the AI's routes included), 403 (`missing_client_header`, `registration_closed`), 404
   (`not_installed` for a course, lesson or file that is not in the library; unknown ids), 409 (state:
   a run not active, an assistant not set up, a model already busy with the same thing), 413, 415, 422
-  (a deck file that does not read, or has no words), 421
+  (a deck file that does not read, unpacks too large or has no words), 421
   (a host name this machine is not reached by), 502 (the LLM provider, the speech engine); services raise `ServiceError(code, status)` (`src/errors.ts`). Anything else, a
   stored row that no longer parses included, is a 500 (`server_error`).
 - `/api/llm` (`routes/llm.ts`): `GET /` (state), `PUT route`, `PUT providers/:id`, `GET models`,

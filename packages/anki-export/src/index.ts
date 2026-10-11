@@ -3,6 +3,7 @@ export {
   type Apkg,
   ApkgError,
   type ApkgRuntime,
+  ApkgTooLarge,
   readApkg,
   type SqliteReader,
 } from "./apkg.ts";

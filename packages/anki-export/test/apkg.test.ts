@@ -1,6 +1,6 @@
 import { describe, expect, test } from "bun:test";
 import { strToU8, zipSync } from "fflate";
-import { ApkgError, readApkg } from "../src/apkg.ts";
+import { ApkgError, ApkgTooLarge, readApkg } from "../src/apkg.ts";
 import { fieldLanguages, fieldText } from "../src/fields.ts";
 import { lexemeOf, noteWords, posOf } from "../src/words.ts";
 import { buildApkg, bunApkgRuntime } from "./apkg.ts";
@@ -47,6 +47,14 @@ describe.each(["anki2", "anki21b"] as const)("a package in the %s format", (form
     ]);
     expect(apkg.media(["abend.mp3", "other.mp3"])).toEqual(new Map([["abend.mp3", SOUND]]));
     expect(apkg.media([]).size).toBe(0);
+  });
+
+  test("unpacking more than it may is refused: the collection, a batch of media", () => {
+    const bytes = buildApkg({ ...spec, media: { "abend.mp3": new Uint8Array(1_000_000) }, format });
+    expect(() => readApkg(bytes, bunApkgRuntime, { maxUnpacked: 1000 })).toThrow(ApkgTooLarge);
+    const apkg = readApkg(bytes, bunApkgRuntime, { maxUnpacked: 500_000 });
+    expect(apkg.notes).toHaveLength(2);
+    expect(() => apkg.media(["abend.mp3"])).toThrow(ApkgTooLarge);
   });
 });
 

@@ -45,6 +45,7 @@ export const ERROR_CODES = [
   "deck_too_large",
   "deck_in_use",
   "deck_upload_gone",
+  "deck_unpacked_too_large",
   // Settings.
   "unknown_setting",
   "invalid_setting",

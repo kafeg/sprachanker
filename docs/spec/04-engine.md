@@ -175,7 +175,8 @@ imported `.apkg` decks fit in. Scheduling and the queue are pure functions in
   `die (pl)` (plural only), `der, die` (either gender), only the first of several (`adj; adv`); a
   note that makes no word is left out. So a word a course has links to its card. Decks are the
   server's, every profile's to take (05, `decks/`); a package is uploaded once (kept beside the decks
-  until imported, at most 512 MB) and previewed — its deck's name, words with audio and examples, the
+  until imported, at most 512 MB, unpacking to at most 512 MB at a time — the collection, a batch of
+  its media: a decompression bomb is refused) and previewed — its deck's name, words with audio and examples, the
   languages its fields are named by, the first words — then imported. A file imported again — most
   of its notes those of a deck here (by guid), and that deck mostly them, in the same languages: the
   preview says so — updates that deck (another deck sharing a note, or the same in other languages,

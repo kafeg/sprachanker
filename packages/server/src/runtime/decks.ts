@@ -6,6 +6,7 @@ import { randomUUID } from "node:crypto";
 import { mkdirSync, readdirSync, readFileSync, renameSync, rmSync, statSync } from "node:fs";
 import { mkdir, writeFile } from "node:fs/promises";
 import { join } from "node:path";
+import { zstdDecompressSync } from "node:zlib";
 import type { ApkgRuntime } from "@sprachanker/anki-export";
 import type { DeckFiles } from "../services/decks.ts";
 
@@ -113,5 +114,13 @@ export const apkgRuntime: ApkgRuntime = {
       close: () => db.close(),
     };
   },
-  zstd: (bytes) => new Uint8Array(Bun.zstdDecompressSync(bytes)),
+  zstd(bytes, max) {
+    try {
+      return new Uint8Array(zstdDecompressSync(bytes, { maxOutputLength: max }));
+    } catch (error) {
+      // Stopped once past `max` bytes, not after.
+      if ((error as { code?: string }).code === "ERR_BUFFER_TOO_LARGE") return undefined;
+      throw error;
+    }
+  },
 };

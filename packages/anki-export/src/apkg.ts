@@ -1,8 +1,9 @@
 // Reading an .apkg, Anki's deck package (04, "Decks"): a zip holding the collection — SQLite;
 // `collection.anki21b` zstd-compressed in the newest format, else `collection.anki21` or
 // `collection.anki2` — and the media, numbered files named by the `media` map (JSON, or in the newest
-// format a zstd-compressed protobuf list, the files zstd-compressed too). SQLite and zstd are the
-// runtime's, passed in: this package stays runtime-free.
+// format a zstd-compressed protobuf list, the files zstd-compressed too), unpacked at most
+// `UNPACKED_MAX` bytes at a time. SQLite and zstd are the runtime's, passed in: this package stays
+// runtime-free.
 import { strFromU8, unzipSync } from "fflate";
 
 /** A database the runtime opened from bytes: rows of a query; closed once read. */
@@ -13,7 +14,8 @@ export interface SqliteReader {
 
 export interface ApkgRuntime {
   openSqlite(bytes: Uint8Array): SqliteReader;
-  zstd(bytes: Uint8Array): Uint8Array;
+  /** The bytes decompressed; undefined when they would pass `max` bytes. */
+  zstd(bytes: Uint8Array, max: number): Uint8Array | undefined;
 }
 
 /** One note as the collection keeps it: its note type's name and fields by name, values as stored
@@ -38,32 +40,59 @@ export interface Apkg {
 
 /** The file is no deck package Anki writes. */
 export class ApkgError extends Error {}
+/** The package unpacks to more than it may (a decompression bomb, or a deck too large). */
+export class ApkgTooLarge extends ApkgError {}
+
+/** The most a package unpacks to at once: the collection, or a batch of media. */
+export const UNPACKED_MAX = 512 * 1024 * 1024;
 
 const COLLECTIONS = ["collection.anki21b", "collection.anki21", "collection.anki2"];
 const ZSTD_MAGIC = [0x28, 0xb5, 0x2f, 0xfd];
 const isZstd = (b: Uint8Array) => ZSTD_MAGIC.every((m, i) => b[i] === m);
 
-function unzip(bytes: Uint8Array, names: (name: string) => boolean) {
+/** Files of the zip, at most `max` bytes in all as their entries declare them (fflate writes no more
+ *  than an entry declares). */
+function unzip(bytes: Uint8Array, names: (name: string) => boolean, max: number) {
+  let total = 0;
   try {
-    return unzipSync(bytes, { filter: (f) => names(f.name) });
+    return unzipSync(bytes, {
+      filter: (f) => {
+        if (!names(f.name)) return false;
+        total += f.originalSize;
+        if (total > max) throw new ApkgTooLarge(`the package unpacks to more than ${max} bytes`);
+        return true;
+      },
+    });
   } catch (error) {
+    if (error instanceof ApkgError) throw error;
     throw new ApkgError(`not a zip: ${String(error)}`);
   }
 }
 
-export function readApkg(bytes: Uint8Array, runtime: ApkgRuntime): Apkg {
-  const files = unzip(bytes, (name) => COLLECTIONS.includes(name) || name === "media");
+export function readApkg(
+  bytes: Uint8Array,
+  runtime: ApkgRuntime,
+  options: { maxUnpacked?: number } = {},
+): Apkg {
+  const max = options.maxUnpacked ?? UNPACKED_MAX;
+  const zstd = (b: Uint8Array) => {
+    const out = runtime.zstd(b, max);
+    if (!out) throw new ApkgTooLarge(`a file unpacks to more than ${max} bytes`);
+    return out;
+  };
+  const files = unzip(bytes, (name) => COLLECTIONS.includes(name) || name === "media", max);
   const name = COLLECTIONS.find((n) => files[n]);
   if (!name) throw new ApkgError("no collection in the package");
   const latest = name === "collection.anki21b";
   const raw = files[name] as Uint8Array;
+  const unpacked = rollbackJournal(latest ? zstd(raw) : raw);
   let db: SqliteReader;
   try {
-    db = runtime.openSqlite(rollbackJournal(latest ? runtime.zstd(raw) : raw));
+    db = runtime.openSqlite(unpacked);
   } catch (error) {
     throw new ApkgError(`the collection does not open: ${String(error)}`);
   }
-  const byName = mediaNames(files.media, runtime);
+  const byName = mediaNames(files.media, zstd);
   // Read whole at once: the database is let go before the package is used.
   let read: ReturnType<typeof collection>;
   try {
@@ -82,8 +111,8 @@ export function readApkg(bytes: Uint8Array, runtime: ApkgRuntime): Apkg {
       );
       const out = new Map<string, Uint8Array>();
       if (!wanted.size) return out;
-      for (const [entry, found] of Object.entries(unzip(bytes, (n) => wanted.has(n))))
-        out.set(wanted.get(entry) as string, isZstd(found) ? runtime.zstd(found) : found);
+      for (const [entry, found] of Object.entries(unzip(bytes, (n) => wanted.has(n), max)))
+        out.set(wanted.get(entry) as string, isZstd(found) ? zstd(found) : found);
       return out;
     },
   };
@@ -145,12 +174,11 @@ type ModelJson = Record<string, { name: string; flds: Array<{ name: string; ord:
 type DeckJson = Record<string, { name: string }>;
 
 /** The media map: a name → the numbered file in the zip holding it. */
-function mediaNames(file: Uint8Array | undefined, runtime: ApkgRuntime) {
+function mediaNames(file: Uint8Array | undefined, zstd: (bytes: Uint8Array) => Uint8Array) {
   const out = new Map<string, string>();
   if (!file?.length) return out;
   if (isZstd(file)) {
-    for (const [i, e] of mediaEntries(runtime.zstd(file)).entries())
-      out.set(e.name, String(e.zip ?? i));
+    for (const [i, e] of mediaEntries(zstd(file)).entries()) out.set(e.name, String(e.zip ?? i));
     return out;
   }
   try {

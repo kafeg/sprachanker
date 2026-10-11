@@ -8,6 +8,7 @@ import {
   type Apkg,
   ApkgError,
   type ApkgRuntime,
+  ApkgTooLarge,
   fieldLanguages,
   lexemeOf,
   type NoteWord,
@@ -81,12 +82,7 @@ export function createDecks(deps: {
   function open(upload: string): Apkg {
     const bytes = files.staged(upload);
     if (!bytes) throw new ServiceError("deck_upload_gone", 404);
-    try {
-      return readApkg(bytes, deps.apkg);
-    } catch (error) {
-      if (error instanceof ApkgError) throw new ServiceError("not_a_deck", 422);
-      throw error;
-    }
+    return refused(() => readApkg(bytes, deps.apkg));
   }
 
   /** The deck here most of whose notes a package holds, and that holds mostly them: the one it
@@ -267,10 +263,12 @@ export function createDecks(deps: {
         });
       let deck: Deck | undefined;
       // deck.json last, once the files its words name are known to be there.
-      await files.write(id, media(), () => {
-        deck = deckOfWords();
-        return `${JSON.stringify(deck, null, 2)}\n`;
-      });
+      await refused(() =>
+        files.write(id, media(), () => {
+          deck = deckOfWords();
+          return `${JSON.stringify(deck, null, 2)}\n`;
+        }),
+      );
       files.unstage(request.upload);
       read.delete(id);
       deps.onImport?.();
@@ -291,6 +289,21 @@ export function createDecks(deps: {
   };
 }
 export type Decks = ReturnType<typeof createDecks>;
+
+/** What reading a package throws, as the service refuses it. */
+function refused<T>(read: () => T): T {
+  const refuse = (error: unknown) => {
+    if (error instanceof ApkgTooLarge) throw new ServiceError("deck_unpacked_too_large", 422);
+    if (error instanceof ApkgError) throw new ServiceError("not_a_deck", 422);
+    throw error;
+  };
+  try {
+    const out = read();
+    return out instanceof Promise ? (out.catch(refuse) as T) : out;
+  } catch (error) {
+    return refuse(error);
+  }
+}
 
 /** A word with only the media the package held. */
 function withHeld(word: DeckWord, held: Set<string>): DeckWord {
