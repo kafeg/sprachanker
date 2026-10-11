@@ -242,7 +242,8 @@ by its snapshot, found by exercise key.
 - **Profile file** (built): one profile moved between one's own machines as a file (owner,
   2026-10-11: one's own machines only, nothing about sharing with others; default, owner may change).
   Below.
-- The library is re-downloadable and copied per series (02).
+- The library is re-downloadable and copied per series; a downloaded course moves to another of
+  one's machines as a bundle (02, "Course bundle").
 
 ## Profile file
 

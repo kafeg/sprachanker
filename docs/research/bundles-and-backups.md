@@ -2,7 +2,8 @@
 
 Facts and options gathered on 10 October 2026 for the open items "export/import of a profile",
 "Anki decks … .apkg" and the owner's question whether courses should be kept or shared as bundles.
-Nothing is built yet.
+Built since: profile files (05, "Profile file") and course bundles (02, "Course bundle"), the
+library kept unpacked.
 
 ## How comparable systems store and package content
 

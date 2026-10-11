@@ -2,6 +2,9 @@
 import { tmpdir } from "node:os";
 import { join } from "node:path";
 
+/** The data root the server runs on (written by fixture-data.ts before the run). */
+export const E2E_DATA = join(tmpdir(), "sprachanker-e2e");
+
 /** The signed-in profile's cookies (written by signed-in.setup.ts). */
 export const SIGNED_IN = join(tmpdir(), "sprachanker-e2e-signed-in.json");
 

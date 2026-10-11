@@ -39,27 +39,6 @@ Specs: 06, 09.
   fixed here.
 - **Accept**: a lesson with speaking and a review session done on each iPhone through Tailscale.
 
-### 5. Moving and keeping one's data (owner, 2026-10-10)
-Specs: 02, 05, 06, 09. Research: `docs/research/bundles-and-backups.md`.
-- Done, described in 05 ("Backups, export, import", "Profile file"), 06 and 09: a profile exported
-  (Settings → Profile, `profiles export`) and imported as a new one (who is studying, `profiles
-  import`), its API keys left out, the content it used that is not here named; what to keep listed
-  and `sprachanker backup`. The owner's open questions decided by default, each marked "default,
-  owner may change" in 05: one's own machines only; an import always a new profile; the extension
-  `.sprachanker-profile`; a documented list and a `backup` command; free space checked first.
-- Remaining: the content versions in a profile file's manifest (with the series manifest below; the
-  courses are named by key and edition today). An imported deck is named by its id, which another
-  machine's import of the same `.apkg` does not share: its cards there keep their display but not
-  their audio (with the deck bundles below).
-- **Course and exam bundles**: a downloaded course or exam as one file to move to another machine —
-  its library files, only the media it uses (stored as they are), a manifest with hashes (the series
-  manifest of 02); importing checks every hash and skips media already there. The library stays
-  unpacked on disk (served, normalised and backed up per file).
-- Open questions for the owner (bundles): `raw/` in a bundle by default; pruning media no course uses
-  (1.56 GB today, after checking what passes and cards name); a bundle's file extension.
-- **Accept**: a profile moved to a second data root and studied on (`e2e/profile-transfer.e2e.ts`;
-  on the owner's machines to do); a course and an exam moved as bundles and verified.
-
 ### 6. A week of real use
 - The owner's demo of cards, review and the Notebook on the Mac (open since 2026-10-07).
 - The owner and his wife study with it for at least a week — on the Mac, and on phones once item
@@ -86,8 +65,8 @@ Specs: 04, 07, 08, 09.
 
 ## Open items in built areas
 Taken along when an item above touches the area, or on request.
-- Library (02, 03): a key map for providers other than DW (keys stay when the source reorders), a
-  series manifest with `contentVersion`, `normalise <series>` from `raw/` offline, `verify` checks for manifest hashes and
+- Library (02, 03): a key map for providers other than DW (keys stay when the source reorders),
+  `normalise <series>` from `raw/` offline, `verify` checks for manifest hashes and
   rule ids; content updated while a run is active ends the run (05). A word the source leaves without
   a translation in one lesson takes the translation its lexeme has elsewhere in the same edition (DW:
   Persian A1 "alt", German A2 "der Spinat"; seen in the 2026-10-08 audit of all Nicos Weg editions).
@@ -95,6 +74,16 @@ Taken along when an item above touches the area, or on request.
   revision in the course data, read by `verify` and the course page (a library normalised before
   speaking items had `reference` still diffs a spoken answer against the question it answers).
 - Server (05, 06): structured logs.
+- Moving one's data (02 "Course bundle", 05 "Profile file"; research:
+  `docs/research/bundles-and-backups.md`): tried on the owner's machines — a profile moved and studied
+  on (`e2e/profile-transfer.e2e.ts` does it here), a course and an exam moved as bundles and verified
+  (`e2e/course-transfer.e2e.ts`). A profile file's manifest names its courses by key and edition, not
+  yet by content version (02, "Manifest"). An imported deck is named by its id, which another
+  machine's import of the same `.apkg` does not share: its cards there keep their display but not
+  their audio (with deck bundles). Open for the owner: pruning media no course uses (1.56 GB today,
+  after checking what passes and cards name); the defaults taken for bundles (02, "Course bundle":
+  `raw/` left out but an exam's source copies, `.sprachanker-course`, a course that differs replaced
+  rather than asked).
 - Tutor section (07): no tools yet — what it knows is the summary of the courses; the lesson tutor's
   tools across every course of the chat's language (where a word is taught, what a lesson covers,
   the mistakes of one lesson) when a summary proves too little.
