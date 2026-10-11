@@ -101,7 +101,7 @@ function CurrentText({
   preparing: boolean;
   onNew(): void;
   onDone?(): void;
-  onStored?(): void;
+  onStored?(): Promise<void> | void;
 }) {
   const { t, i18n } = useTranslation();
   const lang = useRequiredTargetLang();
@@ -121,11 +121,13 @@ function CurrentText({
     answer.mutate(
       { ...ids, language: i18n.language, id: text.id, question: n, answer: value },
       {
-        onSuccess: (after) => {
-          onStored?.();
+        onSuccess: async (after) => {
           const done = understandingStage(after.result, (k) =>
             after.answers.some((a) => a.question === k),
           );
+          // The run read again first: a last answer wrong puts going over mistakes in the plan
+          // before the step is done (the lesson is not completed without it).
+          await Promise.resolve(onStored?.()).catch(() => undefined);
           if (done.stage === "done") onDone?.();
         },
       },
@@ -224,7 +226,7 @@ export function UnderstandingStep({
   onDone,
   onStored,
   ...ids
-}: LessonSlotContext & { onDone?(): void; onStored?(): void }) {
+}: LessonSlotContext & { onDone?(): void; onStored?(): Promise<void> | void }) {
   const { t, i18n } = useTranslation();
   const llm = useLlm();
   const state = useUnderstanding(ids.lessonKey);

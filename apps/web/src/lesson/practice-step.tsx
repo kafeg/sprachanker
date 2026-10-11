@@ -53,7 +53,12 @@ export function PracticeStep({
       )}
       {slots.practice?.step(kind, {
         ...context,
+        runId: run.run?.id,
         onDone: () => mark(kind),
+        // Nothing to do in the run: skipped, unless done already.
+        onNothing: () => {
+          if (!done) mark(kind, true);
+        },
         onStored: run.retry,
       })}
       <StepBar

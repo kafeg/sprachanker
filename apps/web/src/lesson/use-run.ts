@@ -194,8 +194,8 @@ export function useRun(series: string, lessonKey: string, edition: string | unde
     attempts,
     error: query.error,
     /** Reads the run again — after a failed read, after the assistant kept an answer in it —, keeping
-     *  what is still on its way. */
-    retry: () => void query.refetch(),
+     *  what is still on its way; resolves once read. */
+    retry: () => query.refetch().then(() => undefined),
     /** Starts the lesson (or resumes its active run); `restart` begins it anew. */
     async start(restart = false) {
       if (!edition) return;

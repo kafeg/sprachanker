@@ -43,12 +43,19 @@ export interface LessonSlots {
     /** The kinds offered now, undefined while that is not known yet (the player waits: the flow
      *  resumes on a step only once it knows every step); a hook, called on every render. */
     useKinds(): readonly PracticeKind[] | undefined;
-    /** A practice step's page; `onDone` once the learner has done it
-     *  (a text checked, a Dialogue held, every question or new item answered); `onStored` once it kept
-     *  an answer in the run (the run is read again: a wrong one puts going over mistakes in the plan). */
+    /** A practice step's page in the run the lesson shows (`runId`); `onDone` once the learner has
+     *  done it (a text checked, a Dialogue held, every question or new item answered); `onNothing`
+     *  when it has nothing to do in the run (no mistakes to go over: skipped); `onStored` once it kept
+     *  an answer in the run — the run is read again, resolved once read: a wrong one puts going over
+     *  mistakes in the plan. */
     step(
       kind: PracticeKind,
-      context: LessonSlotContext & { onDone(): void; onStored(): void },
+      context: LessonSlotContext & {
+        runId?: string;
+        onDone(): void;
+        onNothing(): void;
+        onStored(): Promise<void>;
+      },
     ): ReactNode;
   };
 }

@@ -2,15 +2,18 @@
 // mistakes by type — at most three types, one at a time ("Type 1 of 3") —, each with the learner's
 // wrong parts only, a short explanation and two or three new items of the type, checked by the
 // server's engine as they are answered; the next type once these are answered, the score at the end.
-// The step is in the plan only while the pass has mistakes; the lesson's earlier reviews are listed
-// under it.
+// The review shown is the newest of the run the lesson shows; the step is done once its items are all
+// answered, and skipped when the run has nothing to go over. The step is in the plan only while the
+// pass has mistakes; the lesson's other reviews are listed under it.
 import { reviewAt } from "@sprachanker/engine";
 import { ChevronLeft, ChevronRight, ListChecks } from "lucide-react";
-import { useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { useTranslation } from "react-i18next";
+import { ApiError } from "@/api/client.ts";
 import type { LessonSlotContext } from "@/lesson/slots.ts";
 import {
   groupStart,
+  MoreMistakes,
   ReviewedMistakes,
   ReviewGroup,
   reviewScore,
@@ -26,19 +29,22 @@ import { ErrorLine, StartPrompt } from "./parts.tsx";
 import { PromptButton } from "./prompt-view.tsx";
 import { useLlm } from "./setup-api.ts";
 
-/** The latest review: one type at a time, the next once its items are answered. */
+/** Whether every new item of a review is answered. */
+const complete = (review: Review) =>
+  reviewAt(review.result, (n) => review.answers.some((a) => a.question === n)) ===
+  review.result.groups.length;
+
+/** The run's latest review: one type at a time, the next once its items are answered. */
 function CurrentReview({
   review,
   ids,
   preparing,
   onAgain,
-  onDone,
 }: {
   review: Review;
   ids: LessonSlotContext;
   preparing: boolean;
   onAgain(): void;
-  onDone?(): void;
 }) {
   const { t, i18n } = useTranslation();
   const lang = useRequiredTargetLang();
@@ -54,21 +60,18 @@ function CurrentReview({
   const start = groupStart(review.result, shown);
   const groupDone = group.items.every((_, k) => answered(start + k));
   const send = (question: number, value: unknown) =>
-    answer.mutate(
-      { ...ids, language: i18n.language, id: review.id, question, answer: value },
-      {
-        onSuccess: (after) => {
-          const all = reviewAt(after.result, (n) => after.answers.some((a) => a.question === n));
-          if (all === after.result.groups.length) onDone?.();
-        },
-      },
-    );
+    answer.mutate({ ...ids, language: i18n.language, id: review.id, question, answer: value });
   return (
     <Panel className="space-y-4">
       <div className="flex flex-wrap items-center gap-2">
         <p className="me-auto text-sm text-muted-foreground" aria-live="polite">
-          {t("goingOver.group", { n: shown + 1, total: groups.length })} · {when.format(review.ts)}{" "}
-          · {modelName(review.model)}
+          {[
+            t("goingOver.group", { n: shown + 1, total: groups.length }),
+            when.format(review.ts),
+            review.model && modelName(review.model),
+          ]
+            .filter(Boolean)
+            .join(" · ")}
         </p>
         <PromptButton request={() => ({ mistakes: { ...ids, language: i18n.language } })} />
         <Button
@@ -102,12 +105,13 @@ function CurrentReview({
             {t("goingOver.next")} <ChevronRight className="rtl:-scale-x-100" />
           </Button>
         )}
-        {done && (
+        {done && reviewScore(review.result, review.answers).total > 0 && (
           <p className="font-semibold">
             {t("goingOver.result", reviewScore(review.result, review.answers))}
           </p>
         )}
       </div>
+      <MoreMistakes review={review.result} />
     </Panel>
   );
 }
@@ -139,15 +143,36 @@ function PastReviews({ reviews }: { reviews: Review[] }) {
   );
 }
 
-/** The lesson's Going over mistakes step: the latest review (or a start), then the earlier ones;
- *  `onDone` once a review's new items are all answered. */
-export function GoingOverStep({ onDone, ...ids }: LessonSlotContext & { onDone?(): void }) {
+/** The lesson's Going over mistakes step: the latest review of the run the lesson shows (`runId`;
+ *  none yet: a start), then the lesson's other ones; `onDone` once its new items are all answered,
+ *  `onNothing` when the run has nothing to go over. */
+export function GoingOverStep({
+  runId,
+  onDone,
+  onNothing,
+  ...ids
+}: LessonSlotContext & { runId?: string; onDone?(): void; onNothing?(): void }) {
   const { t, i18n } = useTranslation();
   const llm = useLlm();
   const state = useGoingOver(ids.lessonKey);
   const start = useStartGoingOver(ids.lessonKey);
+  const reviews = state.data?.reviews ?? [];
+  const current = runId ? reviews.find((r) => r.runId === runId) : undefined;
+  const past = reviews.filter((r) => r !== current);
+  // Done once the run's review is answered through: also when the reply to its last answer was lost
+  // and the review is read again.
+  const finished = !!current && complete(current);
+  const nothing = start.error instanceof ApiError && start.error.message === "no_mistakes";
+  // The latest callbacks, so a new one each render records nothing again.
+  const on = useRef({ onDone, onNothing });
+  on.current = { onDone, onNothing };
+  useEffect(() => {
+    if (finished) on.current.onDone?.();
+  }, [finished]);
+  useEffect(() => {
+    if (nothing) on.current.onNothing?.();
+  }, [nothing]);
   if (!llm.data?.model || !state.data) return null;
-  const [current, ...past] = state.data.reviews;
   // Asked from here, or still being written on the server since before this page was opened.
   const preparing = start.isPending || state.data.preparing;
   const go = () => {
@@ -162,7 +187,6 @@ export function GoingOverStep({ onDone, ...ids }: LessonSlotContext & { onDone?(
           ids={ids}
           preparing={preparing}
           onAgain={go}
-          onDone={onDone}
         />
       ) : (
         <Panel className="space-y-3">

@@ -53,7 +53,7 @@ export const lessonAssistant: LessonSlots = {
       if (llm.isPending) return undefined;
       return llm.data?.model ? PRACTICE.filter((kind) => !off.includes(PLACE_OF[kind])) : [];
     },
-    step: (kind, { onDone, onStored, ...context }) =>
+    step: (kind, { runId, onDone, onNothing, onStored, ...context }) =>
       kind === "understanding" ? (
         <UnderstandingStep {...context} onDone={onDone} onStored={onStored} />
       ) : kind === "writing" ? (
@@ -61,7 +61,7 @@ export const lessonAssistant: LessonSlots = {
       ) : kind === "scene" ? (
         <DialogueStep {...context} onDone={onDone} />
       ) : (
-        <GoingOverStep {...context} onDone={onDone} />
+        <GoingOverStep {...context} runId={runId} onDone={onDone} onNothing={onNothing} />
       ),
   },
 };
