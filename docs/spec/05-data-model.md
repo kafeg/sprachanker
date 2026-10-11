@@ -244,8 +244,8 @@ by its snapshot, found by exercise key.
 
 ## Profile file
 
-`<name>-<date>.sprachanker-profile` (default, owner may change): a zip of stored entries (fflate, 10;
-no ZIP64, so at most 4 GB, `PROFILE_FILE_MAX_BYTES`), schema `profile-file.ts`:
+`<name>-<date>.sprachanker-profile` (default, owner may change): a zip of stored entries (course-kit
+`zip.ts`, 10; at most 4 GB, `PROFILE_FILE_MAX_BYTES`), schema `profile-file.ts`:
 
 ```
 manifest.json         # first: format `sprachanker-profile` and its version, the app's version, when;
@@ -283,7 +283,7 @@ recordings/<ulid>.<ext>
   1. the file streamed to disk (an upload: its length announced, 06; room for it twice — the file and
      what it unpacks to — checked first; 413 `profile_file_too_large` past 4 GB);
   2. read by its zip directory, believed only as far as it is checked: the directory right before the
-     end record, at most 16 MB and no larger than its entries need, short names and fields, each
+     end record (or the ZIP64 end record, right before its locator), at most 16 MB and no larger than its entries need, short names and fields, each
      entry's local header the same as its directory entry, the entries in order and none overlapping
      another; a manifest that reads, stored entries only, only `profile.sqlite` and
      `recordings/<ulid>.<ext>`, each once — else 422 `not_a_profile_file`; a newer format or a

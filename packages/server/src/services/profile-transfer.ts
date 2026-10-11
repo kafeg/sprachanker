@@ -48,6 +48,8 @@ export interface TransferFiles {
     apiKeys: string[];
     endpointLogins: string[];
   }>;
+  /** The length of the profile file `stream` makes of a snapshot. */
+  bytes(id: string, manifest: string, paths: string[]): number;
   /** A snapshot as a profile file: `manifest.json` first, then its files in the order given (stored
    *  entries); the transfer goes when the stream ends or is cancelled. */
   stream(id: string, manifest: string, paths: string[]): ReadableStream<Uint8Array>;
@@ -117,10 +119,6 @@ export type ContentKeys = ReturnType<typeof contentUsed>;
 
 /** An export prepared and not yet downloaded goes after an hour, its transfer with it. */
 export const PREPARED_MS = 60 * 60_000;
-
-/** A zip's bytes as fflate writes it: each entry's local header, data and descriptor, the directory. */
-const zipBytes = (names: string[], sizes: number) =>
-  names.reduce((n, name) => n + 30 + 16 + 46 + 2 * name.length, 0) + sizes + 22;
 
 /** A full disk, found before writing or while writing. */
 const noSpace = (error: unknown) => (error as { code?: string } | null)?.code === "ENOSPC";
@@ -292,10 +290,7 @@ export function createProfileTransfer(deps: {
         leftOut: { apiKeys: snap.apiKeys, endpointLogins: snap.endpointLogins },
         files: snap.files,
       } satisfies ProfileManifest);
-      const bytes = zipBytes(
-        ["manifest.json", ...paths],
-        new TextEncoder().encode(manifest).length + snap.files.reduce((n, f) => n + f.size, 0),
-      );
+      const bytes = files.bytes(snap.id, manifest, paths);
       if (bytes > PROFILE_FILE_MAX_BYTES) throw new ServiceError("profile_file_too_large", 422);
       const day = new Date(now()).toISOString().slice(0, 10);
       // A name a file system takes: no separators or characters reserved on Windows.
