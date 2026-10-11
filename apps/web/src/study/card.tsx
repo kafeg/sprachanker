@@ -19,8 +19,8 @@ import { useStudySlots } from "./slots.ts";
 
 export type Side = "question" | "answer";
 
-/** The card's face, the same on both sides. */
-/** The top padding keeps a long word clear of the recording's button in the corner. */
+/** The card's face, the same on both sides. The top padding keeps the question clear of the corner,
+ *  one row high: the recording's button and, to its left, the way to its deck. */
 const FACE =
   "grid min-h-56 w-full place-items-center rounded-3xl border bg-card px-6 pt-16 pb-8 text-center max-sm:flex-1 sm:min-h-72";
 
@@ -151,7 +151,10 @@ export function StudyCard({
       {/* In the card's corner: the recording, so a word without one keeps the same layout; with the
           answer, the way to its deck for what it has yet to make for the word (no recording: nothing
           plays, R does nothing). */}
-      <div className="absolute top-3 right-3 flex max-w-[60%] flex-col items-end gap-1 text-right">
+      <div
+        data-card-corner
+        className="absolute top-3 right-3 flex max-w-[60%] flex-row-reverse items-center gap-2 text-right"
+      >
         {src && wordShown && (
           <AudioButton ref={sound} src={src} label={display.target} className="size-11" />
         )}

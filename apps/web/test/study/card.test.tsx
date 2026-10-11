@@ -1,6 +1,7 @@
 import { expect, test } from "bun:test";
 import { cardAudioUrl } from "../../src/api/client.ts";
 import { StudyCard } from "../../src/study/card.tsx";
+import { StudySlotsProvider } from "../../src/study/slots.ts";
 import { TargetLang } from "../../src/ui/target-lang.ts";
 import { renderApp } from "../render.tsx";
 
@@ -115,4 +116,33 @@ test("a word without a recording is never read on the fly: no play button; with 
   );
   expect(read.getByRole("button", { name: /auch/ })).toBeTruthy();
   expect(read.queryByRole("link", { name: "Read the deck aloud" })).toBeNull();
+});
+
+test("the card's corner is one row — the way to its deck left of the recording's button — so on a phone it stays above the question; the question side has the recording alone", async () => {
+  const withAudio = { ...display, readAudio: "course~x~c/media/read-0123456789ab.wav" };
+  const corner = (side: "question" | "answer") =>
+    renderApp(
+      <StudySlotsProvider
+        value={{ corner: ({ scope }) => <a href={`/review/decks#${scope}`}>{scope}</a> }}
+      >
+        <TargetLang value="de">
+          <StudyCard cardId="c1" display={withAudio} face="recognition" side={side} />
+        </TargetLang>
+      </StudySlotsProvider>,
+      { path: "/review" },
+    );
+  const question = await corner("question");
+  const asked = question.container.querySelector("[data-card-corner]") as HTMLElement;
+  expect(asked.querySelectorAll("button")).toHaveLength(1);
+  expect(asked.querySelector("a")).toBeNull();
+  question.unmount();
+  const answer = await corner("answer");
+  const shown = answer.container.querySelector("[data-card-corner]") as HTMLElement;
+  // A row: the button (first, shown rightmost) and the link beside it, on one line.
+  expect(shown.className).toContain("flex-row-reverse");
+  expect(shown.className).toContain("items-center");
+  expect(shown.className).not.toContain("flex-col");
+  expect([...shown.children].map((c) => c.tagName)).toEqual(["BUTTON", "A"]);
+  // The row (44 px from 12 px down) above the face's top padding of 64 px.
+  expect(answer.container.querySelector("[data-study-card]")?.className).toContain("pt-16");
 });
