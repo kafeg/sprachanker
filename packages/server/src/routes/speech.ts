@@ -59,9 +59,6 @@ export function speechRoutes() {
         z.object({
           text: z.string().trim().min(1).max(SAY_MAX),
           lang: Lang,
-          /** The languages a text mixes (a tutor's reply quoting German): read whole, the engine
-           *  telling them apart where it can (Qwen3-TTS). */
-          langs: z.array(Lang).max(4).optional(),
           /** A voice to hear instead of the profile's (Settings: "Listen"). */
           voice: z.string().min(1).max(100).optional(),
         }),

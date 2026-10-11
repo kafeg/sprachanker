@@ -89,6 +89,17 @@ Specs: 02, 05, 06, 09. Research: `docs/research/bundles-and-backups.md`.
 - The owner and his wife study with it for at least a week — on the Mac, and on phones once item
   "Phones" is done; their findings decide the order of "After the week of use".
 
+### 8. Speaking practice with the AI (owner, 2026-10-11)
+Specs: 04, 07, 08, 09.
+- A section of AI practice for speaking, as scenes are held: the AI's lines read aloud (in the
+  language learnt only, its voice), the learner answers by voice; the answer heard by the recogniser
+  and judged by the model — was the line understood, does the answer fit it, is it said right (words,
+  grammar), with what to say better; kept as runs, read back in the Notebook. Later the base of exams'
+  speaking parts (Goethe Sprechen) held the same way.
+- Texts read aloud only in one language, given explicitly: no reading of texts mixing languages (the
+  tutor's replies are not read); no dictation where the task is writing (owner, 2026-10-11).
+- **Accept**: a speaking practice held by voice end to end in a lesson, its verdicts shown and kept.
+
 ## Open items in built areas
 Taken along when an item above touches the area, or on request.
 - Library (02, 03): a key map for providers other than DW (keys stay when the source reorders), a

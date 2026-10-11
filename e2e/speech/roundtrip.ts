@@ -1,9 +1,9 @@
 // Speech round-trip (10, "Speech round-trip"; 08): every text of corpus.json read by Qwen3-TTS and
 // heard back by Whisper on this Mac, through the app's own endpoints of the compiled binary, against a
-// throwaway data root whose models are an APFS clone of the real ones. Each text's words are scored by
-// language — a mixed text's quoted words are the language learnt, the rest the learner's — as the share
-// of the reference's words heard (the spoken check's word diff). Seeded synthesis and Whisper make it
-// repeat. `bun run speech:check` (`SPEECH_LIMIT=n` for the first n texts).
+// throwaway data root whose models are an APFS clone of the real ones. Each text is in the language
+// learnt, read in that language (a text mixing languages is never read aloud, 08) and scored as the
+// share of its words heard (the spoken check's word diff). Seeded synthesis and Whisper make it repeat.
+// `bun run speech:check` (`SPEECH_LIMIT=n` for the first n texts).
 import { execFileSync, spawn } from "node:child_process";
 import { existsSync, mkdirSync, readFileSync, rmSync, writeFileSync } from "node:fs";
 import { homedir, tmpdir } from "node:os";
@@ -19,18 +19,12 @@ const binary = resolve(import.meta.dirname, "../../apps/cli/dist/sprachanker");
 interface Text {
   lesson: string;
   edition: string;
-  kind: "target" | "mixed";
   text: string;
 }
 const corpus = JSON.parse(
   readFileSync(new URL("./corpus.json", import.meta.url), "utf8"),
 ) as Text[];
 const limit = Number(process.env.SPEECH_LIMIT ?? corpus.length);
-/** Which texts: `target`, `mixed`, or all. */
-const kind = process.env.SPEECH_KIND;
-/** How a mixed text is asked for (to compare): `auto` (its languages told, the model telling them
- *  apart; the app's way), `learner` or `target` (the whole text in that language). */
-const mixedAs = process.env.SPEECH_MIXED_AS ?? "auto";
 
 /** A WAV's PCM (16-bit mono) and rate. */
 function pcmOf(wav: Uint8Array) {
@@ -85,15 +79,6 @@ function to16k(wav: Uint8Array): Uint8Array<ArrayBuffer> {
   return file;
 }
 
-/** A text's words by language: a mixed one's quoted words the language learnt, the rest the learner's. */
-function parts(t: Text): Record<string, string> {
-  const [learner, target] = t.edition.split("-") as [string, string];
-  if (t.kind === "target") return { [target]: t.text };
-  const quoted = [...t.text.matchAll(/[«"“„]([^»"”“]+)[»"”“]/g)].map((m) => m[1]).join(" ");
-  const rest = t.text.replace(/[«"“„][^»"”“]+[»"”“]/g, " ");
-  return { [learner]: rest, [target]: quoted };
-}
-
 /** The share of the reference's words heard (words heard joined or split count as said). */
 function heard(lang: string, reference: string, transcript: string) {
   const { diff } = wordDiff(lang, reference, transcript, true);
@@ -130,62 +115,40 @@ try {
     body: JSON.stringify({ key: "speech.readEngine", value: "qwen" }),
   });
 
-  const rows: Array<{ t: Text; scores: Record<string, number>; heardAs: Record<string, string> }> =
-    [];
-  for (const t of corpus.filter((t) => !kind || t.kind === kind).slice(0, limit)) {
-    const own = parts(t);
-    const langs = Object.keys(own);
-    const [learner, target] = t.edition.split("-") as [string, string];
-    const lang = t.kind === "target" || mixedAs === "target" ? target : learner;
+  const rows: Array<{ t: Text; score: number; heardAs: string }> = [];
+  for (const t of corpus.slice(0, limit)) {
+    const lang = t.edition.split("-")[1] as string;
     const res = await fetch(`${BASE}/api/speech/say`, {
       method: "POST",
       headers,
-      body: JSON.stringify({
-        text: t.text,
-        lang,
-        ...(t.kind === "mixed" && mixedAs === "auto" && { langs }),
-      }),
+      body: JSON.stringify({ text: t.text, lang }),
     });
     if (!res.ok) throw new Error(`say ${res.status}: ${t.text}`);
     const wav = to16k(new Uint8Array(await res.arrayBuffer()));
-    const scores: Record<string, number> = {};
-    const heardAs: Record<string, string> = {};
-    for (const l of langs) {
-      const r = await fetch(`${BASE}/api/speech/transcribe?lang=${l}`, {
-        method: "POST",
-        headers: { "content-type": "audio/wav", "x-sprachanker": "1", cookie },
-        body: wav,
-      });
-      heardAs[l] = ((await r.json()) as { text: string }).text;
-      scores[l] = heard(l, own[l] as string, heardAs[l]);
-    }
-    rows.push({ t, scores, heardAs });
-    const shown = Object.entries(scores)
-      .map(([l, s]) => `${l} ${Math.round(s * 100)}%`)
-      .join(" · ");
-    console.log(`${t.kind.padEnd(6)} ${t.edition}  ${shown.padEnd(18)} ${t.text}`);
+    const r = await fetch(`${BASE}/api/speech/transcribe?lang=${lang}`, {
+      method: "POST",
+      headers: { "content-type": "audio/wav", "x-sprachanker": "1", cookie },
+      body: wav,
+    });
+    const heardAs = ((await r.json()) as { text: string }).text;
+    const score = heard(lang, t.text, heardAs);
+    rows.push({ t, score, heardAs });
+    console.log(`${t.edition}  ${`${Math.round(score * 100)}%`.padEnd(5)} ${t.text}`);
   }
   writeFileSync(join(ROOT, "results.json"), JSON.stringify(rows, null, 2));
 
-  // How it went, by edition, kind and language: the median and the lowest share of words heard.
+  // How it went, by edition: the median and the lowest share of words heard.
   const groups = new Map<string, number[]>();
-  for (const r of rows)
-    for (const [l, s] of Object.entries(r.scores)) {
-      const k = `${r.t.edition} ${r.t.kind} ${l}`;
-      groups.set(k, [...(groups.get(k) ?? []), s]);
-    }
+  for (const r of rows) groups.set(r.t.edition, [...(groups.get(r.t.edition) ?? []), r.score]);
   const median = (xs: number[]) => [...xs].sort((a, b) => a - b)[Math.floor(xs.length / 2)] ?? 0;
   const failures: string[] = [];
-  console.log("\nedition kind lang: median · lowest · texts");
+  console.log("\nedition: median · lowest · texts");
   for (const [k, xs] of [...groups].sort()) {
     const m = median(xs);
     console.log(
       `${k}: ${Math.round(m * 100)}% · ${Math.round(Math.min(...xs) * 100)}% · ${xs.length}`,
     );
-    // What is said in a text's own language is heard almost whole; a language quoted in another's,
-    // a word or two, less surely.
-    const quoted = k.includes("mixed") && !k.endsWith(` ${k.split(" ")[0]?.split("-")[0]}`);
-    if (m < (quoted ? 0.6 : 0.85)) failures.push(`${k}: median ${Math.round(m * 100)}%`);
+    if (m < 0.85) failures.push(`${k}: median ${Math.round(m * 100)}%`);
   }
   console.log(`\nresults: ${join(ROOT, "results.json")}`);
   if (failures.length) {

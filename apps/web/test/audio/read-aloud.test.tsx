@@ -5,7 +5,7 @@ import { ReadAloud } from "../../src/audio/read-aloud-settings.tsx";
 import { useReadLanguages } from "../../src/audio/read-languages.ts";
 import { samplesOf } from "../../src/audio/samples.ts";
 import { SpeakButton } from "../../src/audio/speak-button.tsx";
-import { ChatBubble, replyParts } from "../../src/llm/parts.tsx";
+import { ChatBubble } from "../../src/llm/parts.tsx";
 import { queryClient, renderApp } from "../render.tsx";
 
 /** The device's voices as a browser gives them, and what it was asked to say. */
@@ -61,27 +61,16 @@ afterEach(() => {
 /** The device finishes reading what it was given. */
 const finish = () => act(() => pending.at(-1)?.onend?.());
 
-test("a tutor's reply read part by part, each language in its best voice; a second tap stops it", async () => {
-  const parts = replyParts("Скажи: **Ich heiße Anna.** Это значит «меня зовут Анна».", "ru", "de");
+test("a line read in its one language with its voice; a second tap stops it", async () => {
   const view = await renderApp(
-    <ChatBubble from="other" say={parts}>
+    <ChatBubble from="other" say={[{ text: "Ich heiße Anna.", lang: "de" }]}>
       …
     </ChatBubble>,
     { data: [[["settings"], { "speech.readRate": 0.8 }]] },
   );
-  const button = view.getByRole("button", { name: /Read aloud/ });
-  fireEvent.click(button);
-  // One part at a time: the next when the device has said the last.
+  fireEvent.click(view.getByRole("button", { name: /Read aloud/ }));
   await waitFor(() => expect(said).toHaveLength(1));
-  await finish();
-  await waitFor(() => expect(said).toHaveLength(2));
-  await finish();
-  await waitFor(() => expect(said).toHaveLength(3));
-  expect(said).toEqual([
-    { text: "Скажи:", lang: "ru-RU", voice: "milena", rate: 0.8 },
-    { text: "Ich heiße Anna.", lang: "de-DE", voice: "petra", rate: 0.8 },
-    { text: "Это значит «меня зовут Анна».", lang: "ru-RU", voice: "milena", rate: 0.8 },
-  ]);
+  expect(said).toEqual([{ text: "Ich heiße Anna.", lang: "de-DE", voice: "petra", rate: 0.8 }]);
   const stop = view.getByRole("button", { name: "Stop reading" });
   expect(stop.getAttribute("aria-pressed")).toBe("true");
   fireEvent.click(stop);
@@ -259,7 +248,13 @@ test("reading with Piper: a language with a voice is said by the server, one wit
   };
   try {
     const view = await renderApp(
-      <SpeakButton parts={replyParts("Скажи: Ich heiße Anna.", "ru", "de")} label="reply" />,
+      <SpeakButton
+        parts={[
+          { text: "Скажи:", lang: "ru" },
+          { text: "Ich heiße Anna.", lang: "de" },
+        ]}
+        label="reply"
+      />,
       {
         data: [
           [["settings"], { "speech.readEngine": "piper" }],
@@ -346,9 +341,10 @@ test("Settings with Qwen3-TTS: its models (the one in use), each language's spea
   expect(row(/Large model/).textContent).toContain("In use");
   expect(row(/Small model/).textContent).not.toContain("In use");
   expect(within(row(/Small model/)).getByRole("button", { name: "Use" })).toBeTruthy();
-  // One voice for every language: no voice per language.
-  expect(view.getByRole("combobox", { name: "Voice" }).textContent).toBe("Automatic — Ryan");
-  expect(view.queryByRole("combobox", { name: "Voice for German" })).toBeNull();
+  // Each language its own speaker (automatic: the default one).
+  expect(view.getByRole("combobox", { name: "Voice for German" }).textContent).toBe(
+    "Automatic — Ryan",
+  );
   expect(view.getByText(/Qwen3-TTS does not speak Arabic/)).toBeTruthy();
   // It has no speed of its own: no speed slider with it.
   expect(view.queryByText(/^Speed:/)).toBeNull();

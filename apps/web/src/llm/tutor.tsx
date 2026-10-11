@@ -1,12 +1,10 @@
 // The lesson tutor: the chat of this lesson, in a side panel opened from the header, and inline on the
 // "Going over mistakes" step, which opens it with a request to go through the run's mistakes.
-import { parseEditionId } from "@sprachanker/schema";
 import { Link } from "@tanstack/react-router";
 import { MessageCircle, RotateCcw, Search } from "lucide-react";
 import { useEffect, useRef, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { useLesson } from "@/api/courses.ts";
-import type { SpokenPart } from "@/audio/speak.ts";
 import { Button } from "@/ui/components/button.tsx";
 import { Tabs, TabsContent } from "@/ui/components/tabs.tsx";
 import { panelClass } from "@/ui/panel.tsx";
@@ -29,7 +27,6 @@ import {
   ChatHeader,
   ErrorLine,
   PendingExchange,
-  replyParts,
   StartPrompt,
   useAbortable,
   useScrollToEnd,
@@ -49,20 +46,8 @@ interface TutorAsk {
 }
 
 /** A chat turn's bubble: the learner's ("user") or the tutor's (read aloud from its corner). */
-function Bubble({
-  from,
-  say,
-  children,
-}: {
-  from: "user" | "assistant";
-  say?: SpokenPart[];
-  children: React.ReactNode;
-}) {
-  return (
-    <ChatBubble from={from === "user" ? "learner" : "other"} say={say}>
-      {children}
-    </ChatBubble>
-  );
+function Bubble({ from, children }: { from: "user" | "assistant"; children: React.ReactNode }) {
+  return <ChatBubble from={from === "user" ? "learner" : "other"}>{children}</ChatBubble>;
 }
 
 /** What the model looked up for a reply (its tool calls), in plain words. */
@@ -198,14 +183,10 @@ function Suggestions({ context, onAsk }: { context: Context; onAsk(text: string)
 }
 
 /** The turns as bubbles: the learner's as typed, the tutor's as Markdown with what it looked up. */
-function Turns({ turns, say }: { turns: TutorTurn[]; say(text: string): SpokenPart[] }) {
+function Turns({ turns }: { turns: TutorTurn[] }) {
   return turns.map((turn, i) => (
-    <Bubble
-      // biome-ignore lint/suspicious/noArrayIndexKey: turns are append-only
-      key={i}
-      from={turn.role}
-      say={turn.role === "assistant" ? say(turn.text) : undefined}
-    >
+    // biome-ignore lint/suspicious/noArrayIndexKey: turns are append-only
+    <Bubble key={i} from={turn.role}>
       {turn.role === "user" ? (
         <p className="whitespace-pre-wrap">{turn.text}</p>
       ) : (
@@ -234,9 +215,6 @@ function Chat({
   const reset = useResetTutor(context.lessonKey);
   const chat = useTutorChat(context, onReply);
   const { turns, shown } = chat;
-  /** A reply read aloud in the learner's language, what it quotes in the language learnt. */
-  const sayReply = (text: string) =>
-    replyParts(text, i18n.language, parseEditionId(context.edition).target);
   const end = useScrollToEnd(`${turns.length}:${shown?.reply}`);
 
   // An ask from outside is sent once, as soon as the chat is ready.
@@ -295,7 +273,7 @@ function Chat({
           </div>
         )}
         {empty && !starter && <Suggestions context={context} onAsk={(text) => chat.send(text)} />}
-        <Turns turns={turns} say={sayReply} />
+        <Turns turns={turns} />
         {shown && <PendingExchange question={shown.question} reply={shown.reply} />}
         <ErrorLine error={chat.error} provider={llm.data.provider ?? undefined} />
         <div ref={end} />
@@ -306,7 +284,6 @@ function Chat({
         onSend={() => chat.send(chat.input)}
         onStop={chat.pending ? chat.stop : undefined}
         placeholder={t("tutor.placeholder")}
-        speak={[parseEditionId(context.edition).target, i18n.language]}
       />
     </>
   );

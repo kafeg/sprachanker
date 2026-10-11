@@ -1058,7 +1058,7 @@
       "removeModel": "Remove the model",
       "download": "Download",
       "read": "Read aloud",
-      "readHint": "What the AI writes — scene lines, the tutor's replies, a word's example — and words without a recording, read by a voice.",
+      "readHint": "A voice reads texts in one language: scene lines, a word's example and words without a recording. Each language has its own voice.",
       "engine": {
         "device": "This device's voices",
         "deviceLine": "{count, plural, one {# voice} other {# voices}}, nothing to install",
@@ -1094,8 +1094,6 @@
       },
       "qwenHint": "A neural voice that reads 10 languages (German, English, Russian, French, Spanish, Italian, Portuguese, Chinese, Japanese, Korean) with nine speakers. While it runs it holds about 3 GB of memory (more for the large model) and stops after 10 minutes without reading; the first reading after that waits about 20 s while it loads. Languages it does not speak are read by the device's voices.",
       "qwenNoLanguage": "Qwen3-TTS does not speak {language}: the device's voices read it.",
-      "qwenVoice": "Voice",
-      "qwenVoiceHint": "One voice reads every language; a text mixing languages is read whole, without switching voice mid-sentence.",
       "howMic": "The microphone beside a text box: tap to start recording, tap again to stop.",
       "howPhrase": "The phrase to repeat is hidden until your first try; you can show it sooner.",
       "howRecordings": "Your recordings are kept on this computer to listen to again in the Notebook; delete them in General → Storage.",

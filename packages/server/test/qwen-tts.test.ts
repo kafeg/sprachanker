@@ -25,7 +25,7 @@ test("Qwen3-TTS: a model downloaded with its codec; a text said in its language 
   });
 
   await send("PUT", "/api/settings", { key: "speech.readEngine", value: "qwen" });
-  await send("PUT", "/api/settings", { key: "speech.voices", value: { qwen: { "*": "serena" } } });
+  await send("PUT", "/api/settings", { key: "speech.voices", value: { qwen: { de: "serena" } } });
   const wav = await send("POST", "/api/speech/say", { text: "Guten Tag!", lang: "de" });
   expect(wav.status).toBe(200);
   expect(await wav.text()).toBe("Guten Tag!");
@@ -35,14 +35,15 @@ test("Qwen3-TTS: a model downloaded with its codec; a text said in its language 
     language: "German",
     response_format: "wav",
   });
-  // One voice reads every language.
+  // Each language its own speaker: English has none chosen, the default reads it, in English.
   await send("POST", "/api/speech/say", { text: "Hello", lang: "en" });
-  expect(q.asked[1]).toMatchObject({ voice: "serena", language: "English" });
-  // A text mixing languages is read whole, the model telling them apart.
-  const mixed = "Скажи: Ich heiße Anna. Это значит «меня зовут Анна».";
-  await send("POST", "/api/speech/say", { text: mixed, lang: "ru", langs: ["ru", "de"] });
-  expect(q.asked[2]).toMatchObject({ input: mixed, voice: "serena", language: "auto" });
-  // None chosen: one default voice for all.
+  expect(q.asked[1]).toMatchObject({ voice: "ryan", language: "English" });
+  // A language is always given, never detected: a mix is no more asked for.
+  expect(
+    (await send("POST", "/api/speech/say", { text: "Hallo", lang: "de", langs: ["ru", "de"] }))
+      .status,
+  ).toBe(200);
+  expect(q.asked[2]).toMatchObject({ voice: "serena", language: "German" });
   await send("PUT", "/api/settings", { key: "speech.voices", value: {} });
   await send("POST", "/api/speech/say", { text: "Hallo", lang: "de" });
   expect(q.asked[3]).toMatchObject({ voice: "ryan", language: "German" });

@@ -1,7 +1,6 @@
 // A profile's speech (08): the server's engines — recognition, Piper, Qwen3-TTS — with the profile's
 // choices in its settings: recognition on or off and its model, the engine reading aloud, its voices,
 // speed and Qwen3-TTS's model — also the engine and voice a deck's words are read with.
-import { ALL_LANGS } from "@sprachanker/schema";
 import { ServiceError } from "../errors.ts";
 import type { QwenTts } from "./qwen-tts.ts";
 import type { ReadAloud } from "./read-aloud.ts";
@@ -70,18 +69,15 @@ export function createProfileSpeech(deps: {
     warmQwen: () => qwenTts.warm(qwenModel()),
 
     /** A WAV of a text read by the profile's engine on this computer — Qwen3-TTS when chosen, else
-     *  Piper — with its voice (or `voice`, to hear one: Settings' "Listen") and speed. `langs`: the
-     *  languages the text mixes (a reply quoting German), read whole where the engine can. */
-    say(input: { text: string; lang: string; langs?: string[]; voice?: string }) {
+     *  Piper — with the voice chosen for its one language (or `voice`, to hear one: Settings'
+     *  "Listen") and speed. */
+    say(input: { text: string; lang: string; voice?: string }) {
       const { text, lang } = input;
       const engine = settings.value("speech.readEngine") === "qwen" ? "qwen" : "piper";
-      const own = settings.value("speech.voices")?.[engine];
-      // Qwen3-TTS reads every language with one voice (its speakers speak them all).
-      const chosen = input.voice ?? own?.[engine === "qwen" ? ALL_LANGS : lang];
+      const chosen = input.voice ?? settings.value("speech.voices")?.[engine]?.[lang];
       if (engine === "piper")
         return readAloud.say(text, lang, chosen, settings.value("speech.readRate"));
-      const mixed = new Set([lang, ...(input.langs ?? [])]).size > 1;
-      return qwenTts.say(text, lang, chosen, qwenModel(), mixed);
+      return qwenTts.say(text, lang, chosen, qwenModel());
     },
 
     /** The engine on this computer that reads a deck's words in `lang`, with its voice: the profile's
@@ -99,7 +95,7 @@ export function createProfileSpeech(deps: {
           if (voice)
             return { engine, voice, read: (text: string) => readAloud.say(text, lang, voice, 1) };
         } else {
-          const voice = qwenTts.voice(lang, own?.qwen?.[ALL_LANGS], qwenModel());
+          const voice = qwenTts.voice(lang, own?.qwen?.[lang], qwenModel());
           if (voice)
             return {
               engine,

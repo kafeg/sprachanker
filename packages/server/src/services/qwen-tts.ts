@@ -224,14 +224,13 @@ export function createQwenTts(deps: {
       return { model: model.id, speaker: speakerOf(choice) };
     },
 
-    /** A WAV of a text in a language, said with the profile's model by its speaker (else the default
-     *  one). `mixed`: the text mixes languages, read whole with the model telling them apart
-     *  ("auto"), never cut into each language's pieces. */
-    async say(text: string, lang: string, choice: unknown, modelChoice?: unknown, mixed = false) {
+    /** A WAV of a text in its one language (given, never detected), said with the profile's model by
+     *  its speaker (else the default one). */
+    async say(text: string, lang: string, choice: unknown, modelChoice?: unknown) {
       const model = inUse(modelChoice);
       if (!binary() || !model || !QWEN_LANGUAGES[lang])
         throw new ServiceError("speech_unavailable", 409);
-      const language = mixed ? "auto" : (QWEN_LANGUAGES[lang] as string);
+      const language = QWEN_LANGUAGES[lang] as string;
       const speaker = speakerOf(choice);
       const key = await sha256(`qwen\n${model.id}\n${speaker}\n${language}\n${text}`);
       return kept(key, () =>

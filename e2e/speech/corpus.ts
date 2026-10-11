@@ -51,14 +51,13 @@ const NAME: Record<string, Record<string, string>> = {
 function message(learner: string, target: string) {
   const t = NAME[learner]?.[target] ?? target;
   return learner === "ru"
-    ? `Мне нужны фразы для тренировки произношения. Напиши 6 разных коротких предложений на ${t} по теме этого урока — каждое отдельной строкой, начиная с «T: ». Потом 4 коротких объяснения на русском, в каждом — фраза на ${t} в кавычках «…» (строки начинай с «M: »). Только эти строки, без нумерации и другого текста.`
-    : `I need phrases to practise pronunciation. Write 6 different short sentences in ${t} on this lesson's topic — each on its own line starting with "T: ". Then 4 short explanations in English, each quoting a ${t} phrase in quotes "…" (lines starting with "M: "). Only these lines, no numbering, nothing else.`;
+    ? `Мне нужны фразы для тренировки произношения. Напиши 10 разных коротких предложений на ${t} по теме этого урока — каждое отдельной строкой, начиная с «T: ». Только эти строки, без нумерации и другого текста.`
+    : `I need phrases to practise pronunciation. Write 10 different short sentences in ${t} on this lesson's topic — each on its own line starting with "T: ". Only these lines, no numbering, nothing else.`;
 }
 
 const [base, cookie] = process.argv.slice(2) as [string, string];
 const headers = { "content-type": "application/json", "x-sprachanker": "1", cookie };
-const corpus: Array<{ lesson: string; edition: string; kind: "target" | "mixed"; text: string }> =
-  [];
+const corpus: Array<{ lesson: string; edition: string; text: string }> = [];
 for (const ask of LESSONS) {
   const [learner, target] = ask.edition.split("-") as [string, string];
   const res = await fetch(`${base}/api/llm/tutor`, {
@@ -77,14 +76,9 @@ for (const ask of LESSONS) {
     continue;
   }
   for (const line of reply.split("\n")) {
-    const m = /^\s*(T|M):\s*(.+?)\s*$/.exec(line);
-    if (m?.[2])
-      corpus.push({
-        lesson: ask.lessonKey,
-        edition: ask.edition,
-        kind: m[1] === "T" ? "target" : "mixed",
-        text: m[2].replace(/\*\*/g, ""),
-      });
+    const m = /^\s*T:\s*(.+?)\s*$/.exec(line);
+    if (m?.[1])
+      corpus.push({ lesson: ask.lessonKey, edition: ask.edition, text: m[1].replace(/\*\*/g, "") });
   }
   console.log(ask.lessonKey, corpus.length);
 }

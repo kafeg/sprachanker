@@ -72,13 +72,12 @@ export const warmQwen = () => api.speech.qwen.warm.$post().catch(() => {});
 export async function sayOnServer(
   text: string,
   lang: string,
-  options: { voice?: string; langs?: string[]; signal?: AbortSignal } = {},
+  options: { voice?: string; signal?: AbortSignal } = {},
 ): Promise<Blob> {
   const json = {
     text,
     lang,
     ...(options.voice && { voice: options.voice }),
-    ...(options.langs && { langs: options.langs }),
   };
   const res = await api.speech.say.$post({ json }, { init: { signal: options.signal } });
   if (!res.ok) throw await apiError(res);

@@ -1,7 +1,7 @@
 // The tutor's history (07, 09): the lesson's chats, newest first — the first question, when, how many
 // messages, the current one marked — each opening to its turns: the learner's with the time and the
 // exercise on screen, the tutor's replies; a chat can be deleted (confirmed: its turns go with it).
-import { type ExerciseKey, parseEditionId } from "@sprachanker/schema";
+import type { ExerciseKey } from "@sprachanker/schema";
 import { Trash2 } from "lucide-react";
 import { useState } from "react";
 import { useTranslation } from "react-i18next";
@@ -19,7 +19,7 @@ import {
   useTutorChat,
   useTutorChats,
 } from "./api.ts";
-import { ChatBubble, replyParts } from "./parts.tsx";
+import { ChatBubble } from "./parts.tsx";
 
 /** The lesson the chats are of, as the tutor is asked about it. */
 type Ids = Pick<TutorRequest, "series" | "lessonKey" | "edition">;
@@ -39,7 +39,7 @@ function useExerciseLabel({ series, lessonKey, edition }: Ids) {
 }
 
 function Turns({ ids, chat }: { ids: Ids; chat: TutorChat }) {
-  const { t, i18n } = useTranslation();
+  const { t } = useTranslation();
   const turns = useTutorChat(ids.lessonKey, chat.id);
   const when = useDateFormat("dayTime");
   const label = useExerciseLabel(ids);
@@ -60,11 +60,7 @@ function Turns({ ids, chat }: { ids: Ids; chat: TutorChat }) {
             </ChatBubble>
           </div>
         ) : (
-          <ChatBubble
-            key={`${turn.ts}-a`}
-            from="other"
-            say={replyParts(turn.text, i18n.language, parseEditionId(ids.edition).target)}
-          >
+          <ChatBubble key={`${turn.ts}-a`} from="other">
             <RichText text={turn.text} />
           </ChatBubble>
         ),

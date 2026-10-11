@@ -199,7 +199,7 @@ test("the engine: none here says so and starts nothing; Qwen3-TTS when the profi
   await both.send("PUT", "/api/settings", { key: "speech.readEngine", value: "qwen" });
   await both.send("PUT", "/api/settings", {
     key: "speech.voices",
-    value: { qwen: { "*": "serena" } },
+    value: { qwen: { de: "serena" } },
   });
   expect((await both.getJson(audio(scope))).reader).toEqual({
     engine: "qwen",

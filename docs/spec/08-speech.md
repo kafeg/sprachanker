@@ -59,19 +59,19 @@ off, its model, the engine, voice and speed reading aloud) are applied by `servi
   (without it the item says so and is left to skip).
 - ASR "autocorrects" learner errors: show "heard: …" literally; speech results are practice feedback,
   not pronunciation grading (sounds: a phoneme recogniser, set aside — plan, "Later").
-- **Saying instead of typing** (`audio/dictate.tsx`): a microphone beside the box of a free answer
-  (`respond`, in the answer's language; the take kept as the spoken answer's recording) and of the tutor and scenes (one per language — the learnt one and the learner's, "DE" / "RU"):
-  what was heard goes into the box, joined to what is typed, read over and changed before it is sent.
-  Tap to start and stop. Shown only while recognition is
-  on and ready.
+- **Saying instead of typing** (`audio/dictate.tsx`): a microphone beside the box of a scene's line
+  and of an exam's speaking part, in the language learnt only: what was heard goes into the box,
+  joined to what is typed, read over and changed before it is sent. Tap to start and stop. Shown only
+  while recognition is on and ready. Never where the task is writing — a free answer (`respond`), the
+  tutor, "Write it yourself" (owner, 2026-10-11).
 - Target: median server-side transcription ≤ 1.5 s for 3–5 s utterances on the owner's Mac.
 
 ## Reading aloud (TTS)
 
 Course audio is used whenever there is some; reading aloud is for what has none — mostly what the AI
 writes (owner, 2026-10-08).
-- **Where**: a speaker in the corner of the tutor's replies (in the chat and its history), of a
-  scene's partner lines and of a word's AI example; in a card's corner for a word without a
+- **Where**: a speaker in the corner of a scene's partner lines, an exam conversation's examiner and
+  a word's AI example — texts in one language; in a card's corner for a word without a
   recording (replayed with R and autoplayed like a recording). A second tap stops; one text is read at
   a time, and a recording or video starting stops it (and it stops them, `ui/playback.tsx`).
 - **A deck's words, read ahead** (04, "A deck's words read aloud"): on request from Review → Decks,
@@ -83,16 +83,9 @@ writes (owner, 2026-10-08).
   1 s a word after its start, 2–6 s and 100–290 KB a word (silence at the end). Whisper heard 28 of
   32 Piper words and 11 of 11 Qwen3-TTS words as written (the misses short verbs: "bitten" as
   "Bitte", "mögen" not at all).
-- **What is said** (`audio/speak.ts`): a model's Markdown without its markup; a tutor reply mixing the
-  learner's language and the one learnt (told apart by script — Cyrillic, Latin, …: `Intl.Locale`; one
-  voice when both share a script) is read whole by Qwen3-TTS, one voice, the model telling the
-  languages apart (`language: "auto"`); with a voice per language (the device's, Piper's) in parts —
-  never word by word: a run of fewer than three words of the other language stays with the text
-  around it (owner, 2026-10-10). Measured by the speech round-trip (10) on 72 mixed texts the tutor
-  wrote: with "auto" the learner's language is heard whole (median 100%) and a quoted phrase of the
-  language learnt at 67% (Russian → German, English → German) to 100% (Russian → English); read as
-  the language learnt the quote gains a little (German 75%) and the learner's text loses at worst — so
-  "auto" stays.
+- **What is said** (`audio/speak.ts`): only a text in one language, that language given explicitly
+  — never detected, never a text mixing languages (a tutor's reply quoting German is not read; owner,
+  2026-10-11) — by the voice chosen for that language.
 - **Engines** (the profile's `speech.readEngine`; owner, 2026-10-08/09): the device's voices (Web
   Speech API, the default), **Qwen3-TTS on this computer** (below), or **Piper on this computer** — Piper voices run by sherpa-onnx's
   `sherpa-onnx-offline-tts` (Apache-2.0; pinned in `native/piper/VERSION`, built static by `bun run
@@ -118,8 +111,8 @@ writes (owner, 2026-10-08).
   talker (0.6B or 1.7B: the profile's `speech.qwenModel`, else the 1.7B when it is there) and the codec they share, GGUF from Hugging Face at a
   fixed commit, sha256 checked — downloaded from Settings into `<data-root>/models`. Ten languages
   (German, English, Russian, French, Spanish, Italian, Portuguese, Chinese, Japanese, Korean), nine
-  named speakers (each speaks every language: the profile picks one for all — `speech.voices.qwen["*"]`
-  —, else Ryan; owner, 2026-10-10), seeded so a text always sounds the same; its readings kept with Piper's. On an
+  named speakers (each speaks every language; the profile picks one per language as with the other
+  engines — `speech.voices.qwen[<lang>]` —, else Ryan; owner, 2026-10-11), seeded so a text always sounds the same; its readings kept with Piper's. On an
   M2 Pro with the small model: about 3 GB of memory while it runs, a cold start of 5–20 s, then
   twice as fast as it speaks (2.5 s for 5.4 s of German). Warmed when a page that may read opens;
   stopped after 10 idle minutes. Not now: speed (it has no control for it), spoken answers on review
