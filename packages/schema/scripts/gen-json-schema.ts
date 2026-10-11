@@ -4,6 +4,7 @@ import { join } from "node:path";
 import { z } from "zod";
 import {
   CourseIndex,
+  Deck,
   Enrichment,
   Exam,
   ExamSources,
@@ -17,6 +18,7 @@ import {
 /** File name → schema of every stored file format. */
 const FORMATS: Record<string, z.ZodType> = {
   "course-index.schema.json": CourseIndex,
+  "deck.schema.json": Deck,
   "lesson.schema.json": Lesson,
   "exam.schema.json": Exam,
   "exam-sources.schema.json": ExamSources,

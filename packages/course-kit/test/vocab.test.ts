@@ -1,6 +1,6 @@
 import { expect, test } from "bun:test";
 import { courseKey, lessonKey, seriesKey } from "@sprachanker/schema";
-import { germanGender, shapeHeadword, vocabEntries } from "../src/vocab.ts";
+import { vocabEntries } from "../src/vocab.ts";
 
 const lesson = lessonKey(courseKey(seriesKey("test", "series"), "a1"), 1, 2);
 
@@ -48,27 +48,4 @@ test("entries in source order: numbered duplicates, skipped headwords, translati
     [`${lesson}/v-gehen`]: { translation: "to go", examples: ["I go."] },
   });
   expect(skipped.map((s) => s.target)).toEqual(["…"]);
-});
-
-test("shapeHeadword: one rule for every provider (02)", () => {
-  expect(shapeHeadword("de", "Wie geht's?")).toEqual({ lemma: "Wie geht's?", pos: "phrase" });
-  expect(shapeHeadword("de", "bis  nächste Woche")).toEqual({
-    lemma: "bis nächste Woche",
-    pos: "phrase",
-  });
-  expect(shapeHeadword("de", "guten Morgen")).toEqual({ lemma: "guten Morgen", pos: "word" });
-  expect(shapeHeadword("en", "to go")).toEqual({ lemma: "go", pos: "verb" });
-  expect(shapeHeadword("en", "to go out")).toEqual({ lemma: "to go out", pos: "phrase" });
-  expect(shapeHeadword("de", "to")).toEqual({ lemma: "to", pos: "word" });
-});
-
-test("a German noun's gender by its article", () => {
-  expect(["der", "die", "das", "Die", "den", undefined].map(germanGender)).toEqual([
-    "m",
-    "f",
-    "n",
-    "f",
-    undefined,
-    undefined,
-  ]);
 });

@@ -117,6 +117,27 @@ export const ruleId = (lang: Lang, area: string, slug: string) =>
 export const sceneKey = (series: SeriesKey, slug: string) =>
   SceneKey.parse(`${series}/scene-${slug}`);
 
+const GERMAN_ARTICLES: Record<string, Gender> = { der: "m", die: "f", das: "n" };
+
+/** A German noun's gender by its definite article (`der` → m, `die` → f, `das` → n); none for another
+ *  word. */
+export const germanGender = (article: string | undefined): Gender | undefined =>
+  article ? GERMAN_ARTICLES[article.toLowerCase()] : undefined;
+
+/**
+ * A headword nothing more is known about, by its shape (02): a sentence or three words or more is a
+ * phrase; English "to X" is a verb with lemma X; anything else is a word. Every provider and imported
+ * deck uses this, so the same entry gets the same lexeme everywhere.
+ */
+export function shapeHeadword(lang: Lang, text: string): { lemma: string; pos: PartOfSpeech } {
+  const lemma = text.trim().replace(/\s+/g, " ");
+  const words = lemma.split(" ");
+  if (/[.!?]$/.test(lemma) || words.length > 2) return { lemma, pos: "phrase" };
+  if (lang === "en" && words.length === 2 && words[0]?.toLowerCase() === "to")
+    return { lemma: words[1] as string, pos: "verb" };
+  return { lemma, pos: "word" };
+}
+
 const LETTERS = "abcdefghijklmnopqrstuvwxyz";
 /** Id of a choice option by its 0-based position: `a`…`z`, then `aa`…`zz` (`OptionId`). */
 export function optionId(i: number): string {

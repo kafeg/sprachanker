@@ -19,7 +19,7 @@ The spec is the source of truth for *what* and *why*. CLAUDE.md files only say *
 | `packages/engine` | Pure logic: lesson composition, exercise checking, learner model, FSRS. No I/O. | 04 | `packages/engine/CLAUDE.md` |
 | `packages/server` | HTTP API, SQLite, media, profiles, course downloads, sidecar supervision, speech recognition and reading aloud. | 05, 06, 08 | `packages/server/CLAUDE.md` |
 | `packages/llm` | LLM gateway, providers, tasks, prompts, structured outputs. | 07 | `packages/llm/CLAUDE.md` |
-| `packages/anki-export` | `.apkg` import/export (planned). | 04 | `packages/engine/CLAUDE.md` |
+| `packages/anki-export` | `.apkg` packages: reading one (notes, fields, media) and its notes as a deck's words; export planned. | 04 | `packages/anki-export/CLAUDE.md` |
 | `apps/web` | React UI for desktop and phone screens (installable PWA), components and exercise renderers. i18n en/ru/de. | 09 | `apps/web/CLAUDE.md` |
 | `apps/desktop` | Tauri 2 shell (planned): window, tray, starts the server binary, updates. | 06 | `apps/desktop/CLAUDE.md` |
 | `apps/cli` | The `sprachanker` binary: `serve` (starts the server), `import`, `verify`, `profiles`. Compiled with the web build embedded. | 03, 06 | `apps/cli/CLAUDE.md` |

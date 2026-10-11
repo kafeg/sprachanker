@@ -28,7 +28,8 @@ packages/course-kit/src/
   fingerprint.ts       # exercise fingerprints
   exercise-draft.ts    # draftExercise, Unmapped, unknownExercise, draftOrUnknown (a mapping run)
   key-map.ts           # keys kept by source id (`occurrences` for an id met twice)
-  vocab.ts             # Headword, shapeHeadword (the one part-of-speech rule), germanGender, a lesson's
+  vocab.ts             # Headword, shapeHeadword (the one part-of-speech rule) and germanGender (schema's,
+                       # re-exported: imported decks use them too), a lesson's
                        # vocabulary entries (keys, duplicates, translations), skippedWords
   text.ts              # plain text of HTML, entities decoded, characters of no width; scripts told apart
   html.ts              # the HTML sanitiser, spacing as written (tidySpacing), bold lines as section

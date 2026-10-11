@@ -1,0 +1,120 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "type": "object",
+  "properties": {
+    "format": {
+      "type": "number",
+      "const": 1
+    },
+    "id": {
+      "type": "string",
+      "maxLength": 80,
+      "pattern": "^[a-z0-9]+(?:-[a-z0-9]+)*$"
+    },
+    "title": {
+      "type": "string",
+      "minLength": 1,
+      "maxLength": 200
+    },
+    "lang": {
+      "type": "string",
+      "pattern": "^[a-z]{2,3}$",
+      "description": "BCP-47 primary language subtag"
+    },
+    "translationLang": {
+      "type": "string",
+      "pattern": "^[a-z]{2,3}$",
+      "description": "BCP-47 primary language subtag"
+    },
+    "source": {
+      "type": "object",
+      "properties": {
+        "file": {
+          "type": "string",
+          "maxLength": 400
+        },
+        "importedAt": {
+          "type": "integer",
+          "minimum": -9007199254740991,
+          "maximum": 9007199254740991
+        }
+      },
+      "required": [
+        "file",
+        "importedAt"
+      ],
+      "additionalProperties": false
+    },
+    "words": {
+      "minItems": 1,
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "key": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 200
+          },
+          "target": {
+            "type": "string",
+            "minLength": 1
+          },
+          "lexeme": {
+            "$ref": "#/$defs/LexemeKey"
+          },
+          "gender": {
+            "type": "string",
+            "enum": [
+              "m",
+              "f",
+              "n",
+              "pl"
+            ]
+          },
+          "plural": {
+            "type": "string"
+          },
+          "translation": {
+            "type": "string"
+          },
+          "tags": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          },
+          "audio": {
+            "type": "string",
+            "pattern": "^media\\/[^/\\\\]+$"
+          }
+        },
+        "required": [
+          "key",
+          "target",
+          "lexeme",
+          "tags"
+        ],
+        "additionalProperties": false
+      }
+    }
+  },
+  "required": [
+    "format",
+    "id",
+    "title",
+    "lang",
+    "translationLang",
+    "source",
+    "words"
+  ],
+  "additionalProperties": false,
+  "$defs": {
+    "LexemeKey": {
+      "type": "string",
+      "pattern": "^(?:lex:[a-z]{2,3}:[\\p{Ll}\\p{Lo}\\p{Lm}\\p{M}\\p{Nd}]+(?:-[\\p{Ll}\\p{Lo}\\p{Lm}\\p{M}\\p{Nd}]+)*:(?:noun|verb|adj|phrase|word)(?::(?:m|f|n|pl))?)$",
+      "title": "LexemeKey",
+      "description": "lex:<lang>:<lemma-slug>:<pos>[:<gender>]"
+    }
+  }
+}

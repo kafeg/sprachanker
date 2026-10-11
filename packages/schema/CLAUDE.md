@@ -11,7 +11,9 @@ src/
   library-state.ts   # the importer's and server's own files beside a series: media.json, keys.json, a
                      # download's marker (checked when read, no `format`)
   keys.ts            # key schemas (branded), builders, parsers, lemma slugs, Slug (the ids made of
-                     # one: a course's, a module's, a pass mark's), part of speech, gender, option ids
+                     # one: a course's, a module's, a pass mark's), part of speech, gender, option ids;
+                     # a headword's shape and a German noun's gender (the lexeme's rules: courses, decks)
+  deck.ts            # an imported deck (`decks/<id>/deck.json`): its id, words, languages, source
   common.ts          # sha256, media paths, media, library paths, localized text, `format` literal
   canonical.ts       # course index, lesson, vocab entries, unmapped
   exam.ts            # exam, sections, pools, thresholds; a question as a one-item exercise, an exam's language

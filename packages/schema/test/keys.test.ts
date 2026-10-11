@@ -7,6 +7,7 @@ import {
   examKey,
   examSectionKey,
   exerciseKey,
+  germanGender,
   ItemKey,
   itemKey,
   LessonKey,
@@ -26,6 +27,7 @@ import {
   sceneKey,
   seriesKey,
   seriesOf,
+  shapeHeadword,
   unitKey,
   VocabKey,
   vocabKey,
@@ -140,4 +142,27 @@ describe("parsers", () => {
 test("seriesOf: the series every key starts with", () => {
   expect<string>(seriesOf("dw.nicos-weg/a1-ru/00-01/ex-02#3" as ItemKey)).toBe("dw.nicos-weg");
   expect<string>(seriesOf("coerll.dib/dib" as CourseKey)).toBe("coerll.dib");
+});
+
+test("shapeHeadword: one rule for every provider and imported deck (02)", () => {
+  expect(shapeHeadword("de", "Wie geht's?")).toEqual({ lemma: "Wie geht's?", pos: "phrase" });
+  expect(shapeHeadword("de", "bis  nächste Woche")).toEqual({
+    lemma: "bis nächste Woche",
+    pos: "phrase",
+  });
+  expect(shapeHeadword("de", "guten Morgen")).toEqual({ lemma: "guten Morgen", pos: "word" });
+  expect(shapeHeadword("en", "to go")).toEqual({ lemma: "go", pos: "verb" });
+  expect(shapeHeadword("en", "to go out")).toEqual({ lemma: "to go out", pos: "phrase" });
+  expect(shapeHeadword("de", "to")).toEqual({ lemma: "to", pos: "word" });
+});
+
+test("a German noun's gender by its article", () => {
+  expect(["der", "die", "das", "Die", "den", undefined].map(germanGender)).toEqual([
+    "m",
+    "f",
+    "n",
+    "f",
+    undefined,
+    undefined,
+  ]);
 });

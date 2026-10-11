@@ -142,6 +142,14 @@
         "@types/node": "26.6.4",
       },
     },
+    "packages/anki-export": {
+      "name": "@sprachanker/anki-export",
+      "version": "0.0.0",
+      "dependencies": {
+        "@sprachanker/schema": "workspace:*",
+        "fflate": "0.8.2",
+      },
+    },
     "packages/course-kit": {
       "name": "@sprachanker/course-kit",
       "version": "0.0.0",
@@ -184,6 +192,7 @@
       "name": "@sprachanker/server",
       "version": "0.0.0",
       "dependencies": {
+        "@sprachanker/anki-export": "workspace:*",
         "@sprachanker/bamf-lid": "workspace:*",
         "@sprachanker/coerll-dib": "workspace:*",
         "@sprachanker/course-kit": "workspace:*",
@@ -505,6 +514,8 @@
 
     "@rolldown/pluginutils": ["@rolldown/pluginutils@1.0.1", "", {}, "sha512-2j9bGt5Jh8hj+vPtgzPtl72j0yRxHAyumoo6TNfAjsLB04UtpSvPbPcDcBMxz7n+9CYB0c1GxQFxYRg2jimqGw=="],
 
+    "@sprachanker/anki-export": ["@sprachanker/anki-export@workspace:packages/anki-export"],
+
     "@sprachanker/bamf-lid": ["@sprachanker/bamf-lid@workspace:courses/bamf-lid"],
 
     "@sprachanker/cli": ["@sprachanker/cli@workspace:apps/cli"],
@@ -760,6 +771,8 @@
     "escape-string-regexp": ["escape-string-regexp@4.0.0", "", {}, "sha512-TtpcNJ3XAzx3Gq8sWRzJaVajRs0uVxA2YAkdb1jm2YkPz4G6egUFAyA3n5vtEIZefPk5Wa4UXbKuS5fKkJWdgA=="],
 
     "fdir": ["fdir@6.5.0", "", { "peerDependencies": { "picomatch": "^3 || ^4" }, "optionalPeers": ["picomatch"] }, "sha512-tIbYtZbucOs0BRGqPJkshJUYdL+SDH7dVM8gjy+ERp3WAUjLEFJE+02kanyHtwjWOnwrKYBiwAmM0p4kLJAnXg=="],
+
+    "fflate": ["fflate@0.8.2", "", {}, "sha512-cPJU47OaAoCbg0pBvzsgpTPhmhqI5eJjh/JIu8tPj5q+T7iLvW/JAYUqmE7KOB4R1ZyEhzBaIQpQpardBF5z8A=="],
 
     "fsevents": ["fsevents@2.3.3", "", { "os": "darwin" }, "sha512-5xoDfX+fL7faATnagmWPpbFtwh/R77WmMMqqHGS65C3vvB0YHrgF+B1YmZ3441tMj5n63k0212XNoJwzlhffQw=="],
 
