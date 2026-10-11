@@ -10,6 +10,10 @@ const COLOUR: Record<Gender, string> = {
   pl: "text-plural",
 };
 
+/** A space after an article is a no-break one: "die Altenpfleger" never splits at a line's end. Pure. */
+export const articlesKept = (text: string) =>
+  text.replace(/(?<!\p{L})(der|die|das|den|dem|des) (?=\p{L})/giu, "$1 ");
+
 export function GenderWord({
   text,
   gender,
@@ -22,7 +26,7 @@ export function GenderWord({
   const lang = useTargetLang();
   return (
     <span lang={lang} className={cn("font-semibold", gender && COLOUR[gender], className)}>
-      {text}
+      {articlesKept(text)}
     </span>
   );
 }

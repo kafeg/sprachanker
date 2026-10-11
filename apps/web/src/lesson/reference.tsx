@@ -15,7 +15,7 @@ export const pageTitle = (
   t: (key: string, values?: Record<string, unknown>) => string,
 ) => {
   if (!page.title) return "";
-  return page.part ? `${page.title} · ${t("lesson.part", { n: page.part })}` : page.title;
+  return page.part ? `${page.title}\u00a0· ${t("lesson.part", { n: page.part })}` : page.title;
 };
 
 function VocabularyList({

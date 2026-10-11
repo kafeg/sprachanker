@@ -147,7 +147,7 @@
       "culture": "Culture",
       "practice": "Practice with AI"
     },
-    "part": "part {n}",
+    "part": "part\u00a0{n}",
     "why": "Why is this wrong?"
   },
   "ref": {

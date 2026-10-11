@@ -213,7 +213,7 @@ export function SpeechSelfrate({
             lang={lang}
             aria-hidden={!textShown}
             className={cn(
-              "whitespace-pre-line font-heading text-2xl font-semibold transition-[filter]",
+              "whitespace-pre-line font-heading text-2xl font-semibold text-balance transition-[filter]",
               !textShown && "select-none blur-md",
             )}
           >
@@ -325,7 +325,10 @@ export function SpeechRepeat({
     take?.url ?? (answer?.speech.recording && host ? host.src(answer.speech.recording) : undefined);
   return (
     <div className="space-y-3">
-      <p lang={lang} className="whitespace-pre-line font-heading text-2xl font-semibold">
+      <p
+        lang={lang}
+        className="whitespace-pre-line font-heading text-2xl font-semibold text-balance"
+      >
         {item.text}
       </p>
       {!readOnly && !outcome && (

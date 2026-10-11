@@ -147,7 +147,7 @@
       "culture": "Landeskunde",
       "practice": "Üben mit KI"
     },
-    "part": "Teil {n}",
+    "part": "Teil\u00a0{n}",
     "why": "Warum ist das falsch?"
   },
   "ref": {

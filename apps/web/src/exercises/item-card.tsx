@@ -40,11 +40,11 @@ export function SharedPrompt({
   return (
     <div className={className}>
       {shared.target && (
-        <p lang={lang} className="text-lg font-semibold">
+        <p lang={lang} className="text-lg font-semibold text-balance">
           {shared.target}
         </p>
       )}
-      {shared.learner && <p className="text-lg font-semibold">{shared.learner}</p>}
+      {shared.learner && <p className="text-lg font-semibold text-balance">{shared.learner}</p>}
     </div>
   );
 }
@@ -127,12 +127,12 @@ export function ItemCard({
       )}
       <div className="mb-3 empty:hidden">
         {item.prompt && !promptAbove && (
-          <p lang={lang} className="text-lg font-semibold">
+          <p lang={lang} className="text-lg font-semibold text-balance">
             {item.prompt}
           </p>
         )}
         {loc?.prompt && !promptAbove && !cueFirst && (
-          <p className="text-lg font-semibold">{loc.prompt}</p>
+          <p className="text-lg font-semibold text-balance">{loc.prompt}</p>
         )}
         {loc?.hintHtml && (
           <CourseHtml className="text-sm text-muted-foreground" html={loc.hintHtml} />

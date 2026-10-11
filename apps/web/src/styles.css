@@ -125,6 +125,14 @@
   h2,
   h3 {
     @apply font-heading tracking-tight;
+    /* A title's lines of even length: no last short word ("часть 3", "?") alone on its line. */
+    text-wrap: balance;
+  }
+  /* Text keeps a word or two with the last line rather than leave one alone there. */
+  p,
+  li,
+  figcaption {
+    text-wrap: pretty;
   }
   /* Text blocks take their direction from what they say: an Arabic or Persian line runs right to
      left, a German example in it left to right (courses explain in many languages, 09). */
