@@ -1385,6 +1385,7 @@
     "needsCourse": "Der Tutor spricht über den Stoff deiner Kurse: Beginne zuerst einen Kurs.",
     "off": "Der Tutor ist ausgeschaltet: Schalte ihn unter Einstellungen → KI-Assistent ein.",
     "all": "Alle Gespräche",
+    "more": "Mehr anzeigen",
     "suggest": {
       "grammar": "Ich habe eine Grammatikfrage",
       "text": "Geh mit mir einen Text durch",

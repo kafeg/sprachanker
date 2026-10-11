@@ -1385,6 +1385,7 @@
     "needsCourse": "El tutor habla de lo que has visto en tus cursos: empieza primero un curso.",
     "off": "El tutor está desactivado: actívalo en Ajustes → Asistente de IA.",
     "all": "Todas las conversaciones",
+    "more": "Mostrar más",
     "suggest": {
       "grammar": "Tengo una duda de gramática",
       "text": "Repasa un texto conmigo",

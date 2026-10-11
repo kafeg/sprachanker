@@ -1385,6 +1385,7 @@
     "needsCourse": "Le tuteur parle de ce que tu as vu dans tes cours : commence d’abord un cours.",
     "off": "Le tuteur est désactivé : active-le dans Réglages → Assistant IA.",
     "all": "Toutes les discussions",
+    "more": "Afficher plus",
     "suggest": {
       "grammar": "J’ai une question de grammaire",
       "text": "Parcours un texte avec moi",

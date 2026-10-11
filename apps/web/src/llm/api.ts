@@ -2,7 +2,7 @@
 // deck's words given examples (and a card's), exam ratings and conversations, and the request each would send (the prompt viewer). Its
 // setup — providers, models, LM Studio, the prompts — is setup-api.ts.
 import { CHAT_ID_HEADER, type LessonKey, STREAM_ERROR } from "@sprachanker/schema";
-import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
+import { useInfiniteQuery, useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import type { InferResponseType } from "hono/client";
 import { useEffect, useRef } from "react";
 import { withAttempt, withCheck, withScene, withTurns } from "@/api/cache.ts";
@@ -135,28 +135,64 @@ export const SECTION = null;
 type ChatsOf = string | typeof SECTION;
 const chatsQuery = (about: ChatsOf) => (about === SECTION ? {} : { lessonKey: about as LessonKey });
 
-/** The chats with the tutor about a lesson, newest first (the current one marked), or the Tutor
- *  section's, by their last message. */
-export const useTutorChats = (about: ChatsOf) =>
+/** The chats with the tutor about a lesson, newest first (the current one marked). */
+export const useTutorChats = (lessonKey: string) =>
   useQuery({
-    queryKey: ["tutor-chats", about],
-    queryFn: () =>
-      about === SECTION
-        ? json(api.llm.tutor.section.chats.$get({ query: {} }))
-        : json(api.llm.tutor.chats.$get({ query: { lessonKey: about as LessonKey } })),
+    queryKey: ["tutor-chats", lessonKey],
+    queryFn: () => json(api.llm.tutor.chats.$get({ query: { lessonKey: lessonKey as LessonKey } })),
   });
 export type TutorChat = NonNullable<ReturnType<typeof useTutorChats>["data"]>["chats"][number];
 
-/** One of the chats about a lesson (or the section's), turn by turn; read once there is an `id`. */
-export const useTutorChat = (about: ChatsOf, id: string | undefined) =>
+const fetchSectionChats = (offset: number) =>
+  json(api.llm.tutor.section.chats.$get({ query: offset ? { offset: String(offset) } : {} }));
+export type SectionChats = Awaited<ReturnType<typeof fetchSectionChats>>;
+
+/** The Tutor section's chats by their last message, a page at a time ("Show more": the next), and
+ *  whether a new one can begin (the first page says); read while `enabled`. */
+export const useSectionChats = (enabled = true) =>
+  useInfiniteQuery({
+    queryKey: ["tutor-chats", SECTION],
+    enabled,
+    queryFn: ({ pageParam }) => fetchSectionChats(pageParam),
+    initialPageParam: 0,
+    getNextPageParam: (last: SectionChats, pages: SectionChats[]) =>
+      last.more ? pages.reduce((n, p) => n + p.chats.length, 0) : undefined,
+  });
+
+const fetchChat = (about: ChatsOf, id: string) =>
+  json(api.llm.tutor.chats[":id"].$get({ param: { id }, query: chatsQuery(about) }));
+
+/** One of the chats about a lesson (or the section's), turn by turn; read once there is an `id` —
+ *  only shown from the cache while `fetch` is false (a new chat whose first reply is on its way). */
+export const useTutorChat = (about: ChatsOf, id: string | undefined, fetch = true) =>
   useQuery({
     queryKey: ["tutor-chat", id],
-    enabled: !!id,
-    queryFn: () =>
-      json(
-        api.llm.tutor.chats[":id"].$get({ param: { id: id as string }, query: chatsQuery(about) }),
-      ),
+    enabled: !!id && fetch,
+    queryFn: () => fetchChat(about, id as string),
   });
+
+/** Reads one of the section's chats anew into the cache, the list told of it: false when there is
+ *  no such chat (a new chat whose reply was never kept). */
+export function useReadSectionChat() {
+  const client = useQueryClient();
+  return (id: string) =>
+    client
+      .fetchQuery({
+        queryKey: ["tutor-chat", id],
+        queryFn: () => fetchChat(SECTION, id),
+        staleTime: 0,
+      })
+      .then(
+        () => {
+          void client.invalidateQueries({ queryKey: ["tutor-chats", SECTION] });
+          return true;
+        },
+        (error: unknown) => {
+          if (error instanceof ApiError && error.status === 404) return false;
+          throw error;
+        },
+      );
+}
 
 /** Deletes one of the chats about a lesson (or the section's) with its turns (on the learner's
  *  confirmation). */
@@ -175,16 +211,19 @@ export function useDeleteChat(about: ChatsOf) {
 export type SectionRequest = Parameters<typeof api.llm.tutor.section.$post>[0]["json"];
 export type SectionPromptRequest = Omit<SectionRequest, "message"> & { message: string };
 
-/** A message in the Tutor section, its reply streamed: the reply and the chat it is in (a new one's
- *  named by the server). */
+/** A message in the Tutor section, its reply streamed. The chat it is in — a new one's named by the
+ *  server — goes to `onChat` as soon as the reply begins, before it is read: a reply stopped or broken
+ *  off still tells it. */
 export async function streamSection(
   request: SectionRequest,
   onText: (text: string) => void,
   signal: AbortSignal,
-): Promise<{ reply: string; chatId: string | undefined }> {
+  onChat: (id: string) => void,
+): Promise<string> {
   const res = await api.llm.tutor.section.$post({ json: request }, { init: { signal } });
-  const chatId = res.headers.get(CHAT_ID_HEADER) ?? request.chatId;
-  return { reply: await readStream(res, onText), chatId };
+  const chatId = res.ok ? res.headers.get(CHAT_ID_HEADER) : null;
+  if (chatId) onChat(chatId);
+  return readStream(res, onText);
 }
 
 /** A section's chat as cached: a stored pair added at once, the list told of it. */

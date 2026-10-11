@@ -1385,6 +1385,7 @@
     "needsCourse": "A tutor a kurzusaid anyagáról beszél: előbb kezdj el egy kurzust.",
     "off": "A tutor ki van kapcsolva: kapcsold be itt: Beállítások → MI-asszisztens.",
     "all": "Összes beszélgetés",
+    "more": "Több megjelenítése",
     "suggest": {
       "grammar": "Nyelvtani kérdésem van",
       "text": "Nézz át velem egy szöveget",
