@@ -19,7 +19,7 @@
     "exercise": "dw.nicos-weg/a1-ru/03-03/ex-13",
     "field": "instructionHtml",
     "from": "Расположи слова в правильной последовательности",
-    "to": "Впиши слова в пропуски в правильной последовательности",
+    "to": "Впиши пропущенные слова",
     "why": "The items are typed gaps, not words to drag into order."
   },
   {
