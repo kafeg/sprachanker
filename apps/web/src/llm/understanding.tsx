@@ -94,12 +94,14 @@ function CurrentText({
   preparing,
   onNew,
   onDone,
+  onStored,
 }: {
   text: Understood;
   ids: LessonSlotContext;
   preparing: boolean;
   onNew(): void;
   onDone?(): void;
+  onStored?(): void;
 }) {
   const { t, i18n } = useTranslation();
   const lang = useRequiredTargetLang();
@@ -120,6 +122,7 @@ function CurrentText({
       { ...ids, language: i18n.language, id: text.id, question: n, answer: value },
       {
         onSuccess: (after) => {
+          onStored?.();
           const done = understandingStage(after.result, (k) =>
             after.answers.some((a) => a.question === k),
           );
@@ -216,8 +219,12 @@ function PastTexts({ texts }: { texts: Understood[] }) {
 }
 
 /** The lesson's Understanding step: the latest text (or a start), then the earlier ones; `onDone`
- *  once a text's questions are all answered. */
-export function UnderstandingStep({ onDone, ...ids }: LessonSlotContext & { onDone?(): void }) {
+ *  once a text's questions are all answered, `onStored` once an answer is kept in the run. */
+export function UnderstandingStep({
+  onDone,
+  onStored,
+  ...ids
+}: LessonSlotContext & { onDone?(): void; onStored?(): void }) {
   const { t, i18n } = useTranslation();
   const llm = useLlm();
   const state = useUnderstanding(ids.lessonKey);
@@ -239,6 +246,7 @@ export function UnderstandingStep({ onDone, ...ids }: LessonSlotContext & { onDo
           preparing={preparing}
           onNew={write}
           onDone={onDone}
+          onStored={onStored}
         />
       ) : (
         <StartPrompt

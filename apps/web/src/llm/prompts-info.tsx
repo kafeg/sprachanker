@@ -60,6 +60,7 @@ const PARTS = {
   conversation: ["exam", "partner", "conversation"],
   understanding: ["lesson", "place", "level", "lessonVocab", "knownVocab", "topics", "length"],
   understandingCheck: ["readText", "textQuestions"],
+  mistakes: ["lesson", "level", "lessonVocab", "knownVocab", "topics", "grammar", "mistakeGroups"],
   sceneSetup: ["lesson", "place", "level", "lessonVocab", "knownVocab", "topics", "grammar"],
   scene: ["lesson", "level", "lessonVocab", "knownVocab", "topics", "grammar", "history"],
   sceneSummary: ["level", "dialogueGoals", "dialogue"],

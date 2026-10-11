@@ -10,7 +10,9 @@ import {
   type StepId,
   type TypedEvent,
 } from "@sprachanker/schema";
-import { type ExerciseResult, exerciseState, lessonCoverage } from "../learner/progress.ts";
+import { understandingMistakes } from "../learner/going-over.ts";
+import { mistakesOf } from "../learner/mistakes.ts";
+import { type ExerciseResult, exerciseState } from "../learner/progress.ts";
 
 export type LessonStep =
   | { kind: "overview" }
@@ -127,31 +129,32 @@ export function resumeStep(
 
 /**
  * What opening a step records in an active run: an exercise page shown, a grammar or culture page read
- * (once; again in a run just started — `fresh` — whose `done` may still be the old run's), and the
- * mistakes gone over when there are none to go over (every exercise worked, all right at once).
+ * (once; again in a run just started — `fresh` — whose `done` may still be the old run's).
  */
 export function openingRecord(
   step: LessonStep,
-  run: {
-    lesson: Lesson;
-    results: Record<string, ExerciseResult>;
-    done: Map<StepId, "done" | "skipped">;
-    mistakes: number;
-    fresh: boolean;
-  },
+  run: { done: Map<StepId, "done" | "skipped">; fresh: boolean },
 ): { pageShown?: number; stepDone?: StepId } {
   if (step.kind === "exercise") return { pageShown: step.index };
   const id = recordedStep(step);
   if (!id) return {};
   if ((step.kind === "grammar" || step.kind === "culture") && (run.fresh || !run.done.has(id)))
     return { stepDone: id };
-  if (
-    step.kind === "mistakes" &&
-    !run.fresh &&
-    !run.done.has(id) &&
-    !run.mistakes &&
-    lessonCoverage(run.lesson, run.results).complete
-  )
-    return { stepDone: id };
   return {};
+}
+
+/**
+ * The AI practice a run's plan holds of the kinds offered: going over mistakes only while the run has
+ * some to go over — an item or an Understanding question answered wrong at first — or has the step
+ * recorded already (04, "AI practice in courses").
+ */
+export function practiceInPlan(
+  offered: readonly PracticeKind[],
+  events: TypedEvent[],
+): PracticeKind[] {
+  const goOver =
+    stepsDone(events).has("mistakes") ||
+    mistakesOf([{ events }]).length > 0 ||
+    understandingMistakes(events).length > 0;
+  return offered.filter((kind) => kind !== "mistakes" || goOver);
 }

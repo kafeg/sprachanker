@@ -61,8 +61,9 @@ const SceneLine = LessonRequest.extend({
   recording: Ulid.optional(),
 });
 
-/** An answer to a question of an Understanding text (the verdict that set it), checked by the engine. */
-const UnderstandingAnswer = LessonRequest.extend({
+/** An answer to a question the assistant set — an Understanding text's, a mistakes review's new item
+ *  (the verdict that set it, the question's number) —, checked by the engine. */
+const PracticeAnswer = LessonRequest.extend({
   id: Ulid,
   question: z.number().int().nonnegative(),
   answer: z.unknown(),
@@ -296,11 +297,25 @@ export function llmRoutes() {
       .post("/understanding", zod("json", LessonRequest), async (c) =>
         c.json(await c.var.s.understanding.start(c.req.valid("json"))),
       )
-      .post("/understanding/answer", zod("json", UnderstandingAnswer), (c) =>
+      .post("/understanding/answer", zod("json", PracticeAnswer), (c) =>
         c.json(c.var.s.understanding.answer(c.req.valid("json"))),
       )
       .post("/understanding/prompt", zod("json", LessonRequest), async (c) =>
         c.json(await c.var.s.understanding.prompt(c.req.valid("json"))),
+      )
+      // Going over mistakes: the lesson's reviews with their answers; the pass's mistakes gone over
+      // (kept in the lesson run), an answer to a new item checked and kept, the prompt it would send.
+      .get("/mistakes", zod("query", z.object({ lessonKey: LessonKey })), (c) =>
+        c.json(c.var.s.goingOver.state(c.req.valid("query").lessonKey)),
+      )
+      .post("/mistakes", zod("json", LessonRequest), async (c) =>
+        c.json(await c.var.s.goingOver.start(c.req.valid("json"))),
+      )
+      .post("/mistakes/answer", zod("json", PracticeAnswer), (c) =>
+        c.json(c.var.s.goingOver.answer(c.req.valid("json"))),
+      )
+      .post("/mistakes/prompt", zod("json", LessonRequest), async (c) =>
+        c.json(await c.var.s.goingOver.prompt(c.req.valid("json"))),
       )
       // Writing: the lesson's task and attempts; a task written, a text on it checked (each kept as
       // a verdict), the request either would send.

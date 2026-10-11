@@ -404,7 +404,8 @@
       "examples": "卡组单词的例句",
       "sceneSummary": "对话：总结",
       "understanding": "理解：文本",
-      "understandingCheck": "理解：第二遍阅读"
+      "understandingCheck": "理解：第二遍阅读",
+      "mistakes": "回顾错误"
     },
     "contextIntro": "从本课添加：",
     "contextIntroCourses": "从你的课程中添加（对话所练语言的课程）：",
@@ -446,7 +447,8 @@
       "readText": "它写的文本",
       "textQuestions": "题目及选项，不含答案",
       "writingTask": "题目：情境、三个要点和长度",
-      "levelCriteria": "课程级别的短文需要什么（写作考试的评分标准）"
+      "levelCriteria": "课程级别的短文需要什么（写作考试的评分标准）",
+      "mistakeGroups": "你本轮按类型整理的错误，每处只列出错的部分（包括“理解”中答错的问题）"
     },
     "upTo": "最多{chars, plural, other {#个字符}}",
     "debug": "显示“提示词”按钮",
@@ -505,7 +507,8 @@
       "examples": "为卡组中没有自带例句的每个单词写三到五个例句，每次五个单词（“复习 → 卡组”，“生成例句”），尽量使用你认识的单词，并翻译新单词。",
       "sceneSummary": "对话结束后进行总结：最重要的一两处更正，每处附上你那句话的正确说法，以及一句反馈。",
       "understanding": "用你学过的词，以你在学的语言写一篇短文——供听的对话或通知，或供读的菜单、告示——并附上考试式的题目（判断正误、a/b/c 选择、数字）。你的答案由应用批改，而不是由模型。",
-      "understandingCheck": "再读一遍文本，只根据文本回答自己的题目：答案与题目给出的不同、或认为不明确的题目会被去掉。"
+      "understandingCheck": "再读一遍文本，只根据文本回答自己的题目：答案与题目给出的不同、或认为不明确的题目会被去掉。",
+      "mistakes": "按类型回顾一轮学习中的错误：每种类型只列出错的部分（你的回答、正确答案、周围的词），附一段简短讲解，以及用你学过的词出的两三道同类新题。你的答案由应用批改，而不是模型。"
     }
   },
   "writing": {
@@ -545,10 +548,7 @@
     "items": "{count, plural, other {题目}}{items}",
     "fixed": "{count, plural, other {后来改正了#个}}",
     "none": "这一轮没有错误。",
-    "notYet": "还没有作答：请先做练习。",
-    "tutorIntro": "辅导老师会逐一讲解你的错误：哪里错了、背后的规则，再出一个简短的新例子来检验。",
-    "start": "和辅导老师一起回顾我的错误",
-    "message": "请帮我逐一回顾本课中的错误。"
+    "notYet": "还没有作答：请先做练习。"
   },
   "scene": {
     "intro": "围绕本课目标的简短口语对话：对方的话会被朗读出来，你用麦克风回答。对方知道一些信息，需要你去询问。",
@@ -1343,6 +1343,8 @@
     "unknown_setting": "此设置不存在（或已被移除）。",
     "unsupported_audio": "此浏览器录音所用的格式本应用无法保存。",
     "writing_busy": "本课的一篇文本正在批改中。请稍候。",
+    "mistakes_busy": "正在回顾本课的错误。请稍候。",
+    "no_mistakes": "本轮没有需要回顾的错误。",
     "other": "出错了：{message}",
     "exam_needs_setting": "请先选择你所在的联邦州：考试中有关于该州的问题。",
     "exam_time_over": "这次模拟考试的时间已到：已按当前状态交卷。",
@@ -1584,5 +1586,28 @@
     "readNow": "阅读文本并作答",
     "result": "{total, number}题中答对{right, number}题",
     "past": "本课以前的文本"
+  },
+  "goingOver": {
+    "title": "回顾错误",
+    "intro": "按类型整理你本轮的错误：错在哪里、背后的规则，以及每种类型两三道新题供你尝试——即时批改。",
+    "start": "回顾我的错误",
+    "preparing": "正在回顾你的错误…",
+    "again": "重新回顾",
+    "group": "第 {n, number} 类，共 {total, number} 类",
+    "yours": "你的错误",
+    "try": "现在轮到你",
+    "next": "下一类",
+    "previous": "上一类",
+    "result": "{total, number}题中答对{right, number}题",
+    "past": "本课之前的错误回顾",
+    "what": {
+      "ending": "词尾",
+      "word": "用词",
+      "choice": "选择",
+      "order": "语序",
+      "pair": "配对",
+      "spelling": "拼写",
+      "spoken": "口头回答"
+    }
   }
 }

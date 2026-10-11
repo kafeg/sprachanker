@@ -27,6 +27,7 @@ import { createExamRating } from "./exam-rating.ts";
 import { createExamples } from "./examples.ts";
 import { createExams } from "./exams.ts";
 import { createExplain } from "./explain.ts";
+import { createGoingOver } from "./going-over.ts";
 import { createLessonContext } from "./lesson-context.ts";
 import { createLessonJournal } from "./lesson-journal.ts";
 import { createLessons } from "./lessons.ts";
@@ -162,6 +163,7 @@ function profileServices(
   });
   const understanding = createUnderstanding({ store, session: lessons.shown, llm, lessonContext });
   const writing = createWriting({ store, session: lessons.shown, llm, lessonContext });
+  const goingOver = createGoingOver({ store, session: lessons.shown, llm, lessonContext });
   const scenes = createScenes({ store, llm, lessonContext });
   const explain = createExplain({ llm, lessonContext, lessonRun: lessons.lessonRun, store, now });
   const speaking = createSpeaking({
@@ -232,6 +234,7 @@ function profileServices(
     tutor,
     understanding,
     writing,
+    goingOver,
     scenes,
   };
 }

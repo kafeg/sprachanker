@@ -404,7 +404,8 @@
       "examples": "Examples for a deck's words",
       "sceneSummary": "Dialogue: the summary",
       "understanding": "Understanding: the text",
-      "understandingCheck": "Understanding: the second reading"
+      "understandingCheck": "Understanding: the second reading",
+      "mistakes": "Going over mistakes"
     },
     "contextIntro": "Added from the lesson:",
     "contextIntroCourses": "Added from your courses (those in the language the chat practises):",
@@ -446,7 +447,8 @@
       "readText": "the text it wrote",
       "textQuestions": "its questions with their options, without the answers",
       "writingTask": "the task: the situation, its three points and the length",
-      "levelCriteria": "what a text at the course's level needs (the writing exams' criteria)"
+      "levelCriteria": "what a text at the course's level needs (the writing exams' criteria)",
+      "mistakeGroups": "your mistakes in this pass by type, each only what was wrong (Understanding questions answered wrong too)"
     },
     "upTo": "up to {chars, plural, one {# character} other {# characters}}",
     "debug": "Show “Prompt” buttons",
@@ -505,7 +507,8 @@
       "examples": "Writes three to five example sentences for each word of a deck that has none of its own, five words at a time (Review → Decks, “Make examples”), with words you know where it can and the new ones translated.",
       "sceneSummary": "Sums up a dialogue once it is over: the one or two corrections that matter most, each with your line said well, and a word of feedback.",
       "understanding": "Writes a short text in the language you learn from the words you know — a dialogue or an announcement to listen to, or a menu or a notice to read — with questions as exams ask them (true/false, a/b/c, numbers). Your answers are checked by the app, not by the model.",
-      "understandingCheck": "Reads the text again and answers its own questions from the text alone: a question it answers otherwise, or finds unclear, is left out."
+      "understandingCheck": "Reads the text again and answers its own questions from the text alone: a question it answers otherwise, or finds unclear, is left out.",
+      "mistakes": "Goes over a pass's mistakes by type: each type's wrong parts only (what you gave, what is right, the words around it), a short explanation, and two or three new items of the type from words you know. Your answers are checked by the app, not by the model."
     }
   },
   "writing": {
@@ -545,10 +548,7 @@
     "items": "{count, plural, one {item} other {items}} {items}",
     "fixed": "{count, plural, one {# fixed later} other {# fixed later}}",
     "none": "No mistakes in this run.",
-    "notYet": "Nothing answered yet: do the exercises first.",
-    "tutorIntro": "The tutor goes through your mistakes one at a time: what went wrong, the rule behind it, and a short new example to check it.",
-    "start": "Go through my mistakes with the tutor",
-    "message": "Please go through my mistakes in this lesson."
+    "notYet": "Nothing answered yet: do the exercises first."
   },
   "scene": {
     "intro": "A short dialogue on the lesson's goals, by voice: your partner's lines are read aloud and you answer with the microphone. Your partner knows things you have to ask for.",
@@ -1343,6 +1343,8 @@
     "unknown_setting": "This setting does not exist (any more).",
     "unsupported_audio": "This browser records in a format the app cannot keep.",
     "writing_busy": "A text of this lesson is being checked. Wait for it.",
+    "mistakes_busy": "The mistakes of this lesson are being gone over. Wait for it.",
+    "no_mistakes": "No mistakes in this pass to go over.",
     "other": "Something went wrong: {message}",
     "exam_needs_setting": "Choose your federal state first: the exam asks questions about it.",
     "exam_time_over": "The time of this mock exam is up: it was handed in as it was.",
@@ -1584,5 +1586,28 @@
     "readNow": "Read the text and answer",
     "result": "{right, number} of {total, number} right",
     "past": "Earlier texts of this lesson"
+  },
+  "goingOver": {
+    "title": "Going over mistakes",
+    "intro": "Your mistakes in this pass, by type: what went wrong, the rule behind it, and two or three new items of each type to try — checked at once.",
+    "start": "Go over my mistakes",
+    "preparing": "Going over your mistakes…",
+    "again": "Go over again",
+    "group": "Type {n, number} of {total, number}",
+    "yours": "Your mistakes",
+    "try": "Now you",
+    "next": "Next type",
+    "previous": "Previous type",
+    "result": "{right, number} of {total, number} right",
+    "past": "Mistakes gone over earlier in this lesson",
+    "what": {
+      "ending": "Endings",
+      "word": "Words",
+      "choice": "Choices",
+      "order": "Word order",
+      "pair": "Pairs",
+      "spelling": "Spelling",
+      "spoken": "Said aloud"
+    }
   }
 }

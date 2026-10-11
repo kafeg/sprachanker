@@ -207,3 +207,131 @@ export const UnderstandingText = z.object({
   questions: z.array(UnderstandingQuestion).min(1).max(8),
 });
 export type UnderstandingText = z.infer<typeof UnderstandingText>;
+
+/** The closed types Going over mistakes sets new items of (04, "AI practice in courses"): an
+ *  exercise's own type, or the nearest of these (a multiple choice → one answer; dictation and
+ *  speech → a gap typed). */
+export const MistakeItemType = z.enum([
+  "single_choice",
+  "gap_text",
+  "gap_choice",
+  "order",
+  "match",
+]);
+export type MistakeItemType = z.infer<typeof MistakeItemType>;
+
+/** What went wrong in a part of an item: a word's ending, another word, the option chosen, the
+ *  order, a pair, a word's spelling, an answer said aloud. */
+export const MistakeKind = z.enum([
+  "ending",
+  "word",
+  "choice",
+  "order",
+  "pair",
+  "spelling",
+  "spoken",
+]);
+export type MistakeKind = z.infer<typeof MistakeKind>;
+
+/** One wrong part of a mistake — a gap, a pair, a choice, an order, words written or said — and only
+ *  it (engine `wrongParts`): what the learner gave, what is right, the words around it (a gap marked
+ *  [_], the other gaps filled right). */
+export const WrongPart = z.object({
+  /** The item it is in (an Understanding question: its text's verdict and number). */
+  itemKey: z.string(),
+  what: MistakeKind,
+  given: z.string(),
+  right: z.string(),
+  context: z.string().optional(),
+});
+export type WrongPart = z.infer<typeof WrongPart>;
+
+/** The marker of a gap in a new item's text. */
+export const GAP_MARK = /_{3,}/g;
+
+/** A new item Going over mistakes sets, in the target language, in one flat shape for every type
+ *  (`mistake_items`); shown and checked as an item of its group's type (engine
+ *  `mistakeItemExercise`), never by a model. */
+export const MistakeItem = z.object({
+  /** A choice's question; an instruction line for the others, if any. */
+  prompt: z.string().min(1).max(300).optional(),
+  /** single_choice: the options and the right one's index (0-based). */
+  options: z.array(z.string().min(1).max(200)).min(2).max(4).optional(),
+  answer: z.number().int().nonnegative().optional(),
+  /** gap_text, gap_choice: the sentence with each gap written "___". */
+  text: z.string().min(1).max(400).optional(),
+  /** Each gap in order: typed — every right way of writing it; chosen — its options and the right
+   *  one's index. */
+  gaps: z
+    .array(
+      z.object({
+        accepted: z.array(z.string().min(1).max(100)).min(1).max(6).optional(),
+        options: z.array(z.string().min(1).max(100)).min(2).max(4).optional(),
+        answer: z.number().int().nonnegative().optional(),
+      }),
+    )
+    .min(1)
+    .max(4)
+    .optional(),
+  /** order: the parts (words or phrases) in the right order. */
+  parts: z.array(z.string().min(1).max(120)).min(3).max(10).optional(),
+  /** match: the pairs, each left with its right. */
+  pairs: z
+    .array(z.object({ left: z.string().min(1).max(120), right: z.string().min(1).max(120) }))
+    .min(3)
+    .max(6)
+    .optional(),
+});
+export type MistakeItem = z.infer<typeof MistakeItem>;
+
+/** What keeps a new item from being set as an item of `type`; undefined when it holds. */
+export function mistakeItemProblem(type: MistakeItemType, item: MistakeItem): string | undefined {
+  const index = (options: string[] | undefined, answer: number | undefined) =>
+    !!options && answer !== undefined && answer < options.length;
+  switch (type) {
+    case "single_choice":
+      return item.prompt && index(item.options, item.answer)
+        ? undefined
+        : 'a choice needs "prompt", "options" and "answer" (the right option\'s index)';
+    case "gap_text":
+    case "gap_choice": {
+      const marks = item.text?.match(GAP_MARK)?.length ?? 0;
+      if (!marks || marks !== item.gaps?.length)
+        return 'a gap item needs "text" with each gap written ___ and one entry of "gaps" for each';
+      const ok = item.gaps.every((g) =>
+        type === "gap_text" ? !!g.accepted?.length : index(g.options, g.answer),
+      );
+      return ok
+        ? undefined
+        : type === "gap_text"
+          ? 'each gap needs "accepted"'
+          : 'each gap needs "options" and "answer" (the right option\'s index)';
+    }
+    case "order":
+      return item.parts ? undefined : 'an order item needs "parts" in the right order';
+    case "match": {
+      const pairs = item.pairs ?? [];
+      const distinct = (side: "left" | "right") => new Set(pairs.map((p) => p[side])).size;
+      return pairs.length && distinct("left") === pairs.length && distinct("right") === pairs.length
+        ? undefined
+        : 'a match item needs "pairs", each left and each right once';
+    }
+  }
+}
+
+/** A type of mistakes gone over: its wrong parts, a short explanation and new items of the type,
+ *  answered as `practice_answered` events on the review (counted across its groups). */
+export const MistakeGroup = z.object({
+  type: MistakeItemType,
+  what: MistakeKind,
+  mistakes: z.array(WrongPart).min(1).max(8),
+  /** The rule or pattern behind them, short, in the learner's language. */
+  explanation: z.string(),
+  items: z.array(MistakeItem).min(1).max(3),
+});
+export type MistakeGroup = z.infer<typeof MistakeGroup>;
+
+/** Going over a pass's mistakes (`mistake_items`; 04): its mistakes by type, at most three types,
+ *  kept as an `llm_verdict` (`task: mistakes`) in the lesson run. */
+export const MistakesReview = z.object({ groups: z.array(MistakeGroup).min(1).max(3) });
+export type MistakesReview = z.infer<typeof MistakesReview>;

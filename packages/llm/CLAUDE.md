@@ -39,9 +39,12 @@ src/
     lesson.ts          # LessonInfo (what tasks know of a lesson, with the knowledge snapshot: level,
                        # place, earlier words with translations, topics met) and its prompt lines
     describe.ts        # an exercise as text: its header (instruction, texts) and items (task, correct,
-                       # learner answer); a mistake as two lines naming lesson, exercise and item
+                       # learner answer); a mistake naming lesson, exercise and item with its wrong
+                       # parts only (wrongPartLine)
     exam-conversation.ts # exam_conversation: a speaking part — the examiner's and the partner's lines
-    explain-mistake.ts # explain_mistake: prompt + call
+    explain-mistake.ts # explain_mistake: prompt + call (where its topic was taught)
+    mistake-items.ts   # mistake_items: going over mistakes — an explanation and new items per type of
+                       # mistakes (the engine's groups), each item checked for its type
     chat-turn.ts       # chat_turn: the lesson tutor (lesson context, known words, exercise, mistakes, history)
     section-chat.ts    # section_chat_turn: the tutor on its own (what the learner met in their courses, history)
     writing-task.ts    # writing_task: a situation and three content points from the lesson; the length

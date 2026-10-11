@@ -24,6 +24,7 @@ import { type NotebookPass, useNotebookPass } from "@/api/notebook.ts";
 import { ItemCard, SharedPrompt, severalNote, sharedPrompt } from "@/exercises/item-card.tsx";
 import { ShuffleSeed } from "@/exercises/shared.tsx";
 import { ItemHistory } from "@/library/item-history.tsx";
+import { ReviewedMistakes, reviewScore } from "@/library/mistakes-review.tsx";
 import { SpokenCheckNote, spokenCheckOf } from "@/library/spoken-check.tsx";
 import { UnderstoodText, understandingScore } from "@/library/understanding-text.tsx";
 import { Button } from "@/ui/components/button.tsx";
@@ -165,20 +166,29 @@ function Pass({ pass }: { pass: NotebookPass }) {
   );
 }
 
-/** What else the pass did: Understanding's texts (each opening with its answers), texts checked,
- *  scenes, chats, words added. */
+/** What else the pass did: Understanding's texts and its mistakes gone over (each opening with its
+ *  answers), texts checked, scenes, chats, words added. */
 function More({ pass }: { pass: NotebookPass }) {
   const { t } = useTranslation();
-  const { understanding, writing, scenes, chats, words } = pass;
+  const { understanding, mistakes, writing, scenes, chats, words } = pass;
   const target = useTargetLang();
-  if (!understanding.length && !writing.length && !scenes.length && !chats.length && !words.length)
+  const answersTo = (id: string) =>
+    pass.events.flatMap((e) =>
+      e.type === "practice_answered" && e.payload.verdict === id ? [e.payload] : [],
+    );
+  if (
+    !understanding.length &&
+    !mistakes.length &&
+    !writing.length &&
+    !scenes.length &&
+    !chats.length &&
+    !words.length
+  )
     return null;
   return (
     <Panel title={t("notebook.alsoDone")} className="space-y-3">
       {understanding.map((u) => {
-        const answers = pass.events.flatMap((e) =>
-          e.type === "practice_answered" && e.payload.verdict === u.id ? [e.payload] : [],
-        );
+        const answers = answersTo(u.id);
         const score = understandingScore(u.result, answers);
         return (
           <details key={u.id} className="group">
@@ -189,6 +199,25 @@ function More({ pass }: { pass: NotebookPass }) {
             {target && (
               <div className="mt-2">
                 <UnderstoodText id={u.id} text={u.result} answers={answers} lang={target} />
+              </div>
+            )}
+          </details>
+        );
+      })}
+      {mistakes.map((r) => {
+        const answers = answersTo(r.id);
+        return (
+          <details key={r.id} className="group">
+            <summary className="cursor-pointer pointer-coarse:min-h-11">
+              {t("goingOver.title")}{" "}
+              <span className="text-muted-foreground">
+                · {r.result.groups.map((g) => t(`goingOver.what.${g.what}`)).join(", ")} ·{" "}
+                {t("goingOver.result", reviewScore(r.result, answers))}
+              </span>
+            </summary>
+            {target && (
+              <div className="mt-2">
+                <ReviewedMistakes id={r.id} review={r.result} answers={answers} lang={target} />
               </div>
             )}
           </details>

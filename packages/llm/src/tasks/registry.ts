@@ -5,6 +5,7 @@ import { CHECK_SPEAKING_BUDGETS, checkSpeakingRules } from "./check-speaking.ts"
 import { CHECK_WRITING_BUDGETS, checkWritingRules } from "./check-writing.ts";
 import { EXAM_CONVERSATION_BUDGETS, examConversationRules } from "./exam-conversation.ts";
 import { EXPLAIN_MISTAKE_BUDGETS, explainMistakeRules } from "./explain-mistake.ts";
+import { MISTAKE_ITEMS_BUDGETS, mistakeItemsRules } from "./mistake-items.ts";
 import { RATE_EXAM_ANSWER_BUDGETS, rateExamAnswerRules } from "./rate-exam-answer.ts";
 import type { TaskRules } from "./rules.ts";
 import {
@@ -39,6 +40,7 @@ export const TASK_PROMPTS = {
   conversation: { rules: examConversationRules, budgets: EXAM_CONVERSATION_BUDGETS },
   understanding: { rules: understandingTextRules, budgets: UNDERSTANDING_BUDGETS },
   understandingCheck: { rules: understandingCheckRules, budgets: {} },
+  mistakes: { rules: mistakeItemsRules, budgets: MISTAKE_ITEMS_BUDGETS },
   sceneSetup: {
     rules: sceneSetupRules,
     budgets: {

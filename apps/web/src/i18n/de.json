@@ -404,7 +404,8 @@
       "examples": "Beispiele für die Wörter eines Stapels",
       "sceneSummary": "Dialog: die Zusammenfassung",
       "understanding": "Verstehen: der Text",
-      "understandingCheck": "Verstehen: das zweite Lesen"
+      "understandingCheck": "Verstehen: das zweite Lesen",
+      "mistakes": "Fehler durchgehen"
     },
     "contextIntro": "Aus der Lektion kommt dazu:",
     "contextIntroCourses": "Aus deinen Kursen kommt dazu (denen in der Sprache, die das Gespräch übt):",
@@ -446,7 +447,8 @@
       "readText": "der geschriebene Text",
       "textQuestions": "seine Fragen mit den Antwortmöglichkeiten, ohne die Lösungen",
       "writingTask": "die Aufgabe: die Situation, ihre drei Punkte und die Länge",
-      "levelCriteria": "was ein Text auf dem Niveau des Kurses braucht (die Kriterien der Schreibprüfungen)"
+      "levelCriteria": "was ein Text auf dem Niveau des Kurses braucht (die Kriterien der Schreibprüfungen)",
+      "mistakeGroups": "deine Fehler in diesem Durchgang nach Art, jeder nur das Falsche (falsch beantwortete Fragen aus „Verstehen“ auch)"
     },
     "upTo": "bis {chars, number} Zeichen",
     "debug": "Schaltflächen „Prompt“ anzeigen",
@@ -505,7 +507,8 @@
       "examples": "Schreibt drei bis fünf Beispielsätze zu jedem Wort eines Stapels, das keine eigenen hat, fünf Wörter auf einmal (Wiederholen → Stapel, „Beispiele erstellen“), möglichst mit Wörtern, die du kennst, neue übersetzt.",
       "sceneSummary": "Fasst einen Dialog zusammen, wenn er vorbei ist: die ein oder zwei wichtigsten Korrekturen, jede mit deinem Satz, wie man ihn gut sagt, und eine kurze Rückmeldung.",
       "understanding": "Schreibt einen kurzen Text in der Sprache, die du lernst, aus den Wörtern, die du kennst — einen Dialog oder eine Durchsage zum Hören oder eine Speisekarte, einen Aushang zum Lesen — mit Fragen wie in Prüfungen (richtig/falsch, a/b/c, Zahlen). Deine Antworten prüft die App, nicht das Modell.",
-      "understandingCheck": "Liest den Text noch einmal und beantwortet die eigenen Fragen nur aus dem Text: Eine Frage, die es anders beantwortet oder unklar findet, fällt weg."
+      "understandingCheck": "Liest den Text noch einmal und beantwortet die eigenen Fragen nur aus dem Text: Eine Frage, die es anders beantwortet oder unklar findet, fällt weg.",
+      "mistakes": "Geht die Fehler eines Durchgangs nach Art durch: je Art nur die falschen Teile (was du gegeben hast, was richtig ist, die Wörter darum), eine kurze Erklärung und zwei, drei neue Aufgaben dieser Art aus Wörtern, die du kennst. Deine Antworten prüft die App, nicht das Modell."
     }
   },
   "writing": {
@@ -545,10 +548,7 @@
     "items": "{count, plural, one {Aufgabe} other {Aufgaben}} {items}",
     "fixed": "{count, plural, one {# später korrigiert} other {# später korrigiert}}",
     "none": "In diesem Durchgang keine Fehler.",
-    "notYet": "Noch nichts beantwortet: Mach zuerst die Übungen.",
-    "tutorIntro": "Der Tutor geht deine Fehler einzeln mit dir durch: was falsch war, die Regel dahinter und ein kurzes neues Beispiel zur Kontrolle.",
-    "start": "Fehler mit dem Tutor durchgehen",
-    "message": "Geh bitte meine Fehler in dieser Lektion mit mir durch."
+    "notYet": "Noch nichts beantwortet: Mach zuerst die Übungen."
   },
   "scene": {
     "intro": "Ein kurzer Dialog zu den Zielen der Lektion, gesprochen: Die Sätze deines Gegenübers werden vorgelesen, du antwortest mit dem Mikrofon. Dein Gegenüber weiß Dinge, nach denen du fragen musst.",
@@ -1343,6 +1343,8 @@
     "unknown_setting": "Diese Einstellung gibt es nicht (mehr).",
     "unsupported_audio": "Dieser Browser nimmt in einem Format auf, das die App nicht speichern kann.",
     "writing_busy": "Ein Text dieser Lektion wird gerade geprüft. Warte darauf.",
+    "mistakes_busy": "Die Fehler dieser Lektion werden gerade durchgegangen. Warte darauf.",
+    "no_mistakes": "In diesem Durchgang gibt es keine Fehler durchzugehen.",
     "other": "Etwas ist schiefgelaufen: {message}",
     "exam_needs_setting": "Wähle zuerst dein Bundesland: die Prüfung stellt Fragen dazu.",
     "exam_time_over": "Die Zeit dieser Probeprüfung ist um: sie wurde abgegeben, wie sie war.",
@@ -1584,5 +1586,28 @@
     "readNow": "Lies den Text und antworte",
     "result": "{right, number} von {total, number} richtig",
     "past": "Frühere Texte dieser Lektion"
+  },
+  "goingOver": {
+    "title": "Fehler durchgehen",
+    "intro": "Deine Fehler in diesem Durchgang nach Art: was falsch war, die Regel dahinter und zwei, drei neue Aufgaben jeder Art zum Ausprobieren — sofort geprüft.",
+    "start": "Meine Fehler durchgehen",
+    "preparing": "Deine Fehler werden durchgegangen…",
+    "again": "Noch einmal durchgehen",
+    "group": "Art {n, number} von {total, number}",
+    "yours": "Deine Fehler",
+    "try": "Jetzt du",
+    "next": "Nächste Art",
+    "previous": "Vorige Art",
+    "result": "{right, number} von {total, number} richtig",
+    "past": "Frühere Durchgänge der Fehler in dieser Lektion",
+    "what": {
+      "ending": "Endungen",
+      "word": "Wörter",
+      "choice": "Auswahl",
+      "order": "Wortstellung",
+      "pair": "Paare",
+      "spelling": "Rechtschreibung",
+      "spoken": "Gesprochenes"
+    }
   }
 }

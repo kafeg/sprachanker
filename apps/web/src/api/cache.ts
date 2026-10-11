@@ -24,18 +24,28 @@ export function withScene<T extends { id: string; done: boolean }>(
   return { scenes: [scene, ...(started ? rest.map((s) => ({ ...s, done: true })) : rest)] };
 }
 
-/** An Understanding text in its place when the lesson's list has it (an answer added to it), else on
- *  top (one just written). */
+/** A list newest first with `item` in its place when the list has it (an answer added to it), else on
+ *  top (one just made). */
+export function inPlace<T extends { id: string }>(list: T[], item: T): T[] {
+  return list.some((x) => x.id === item.id)
+    ? list.map((x) => (x.id === item.id ? item : x))
+    : [item, ...list];
+}
+
+/** An Understanding text in its place in the lesson's list, or on top (`inPlace`). */
 export function withText<T extends { id: string }, S extends { texts: T[] }>(
   state: S | undefined,
   text: T,
 ): S | undefined {
-  if (!state) return state;
-  const here = state.texts.some((t) => t.id === text.id);
-  return {
-    ...state,
-    texts: here ? state.texts.map((t) => (t.id === text.id ? text : t)) : [text, ...state.texts],
-  };
+  return state && { ...state, texts: inPlace(state.texts, text) };
+}
+
+/** A mistakes review in its place in the lesson's list, or on top (`inPlace`). */
+export function withReview<T extends { id: string }, S extends { reviews: T[] }>(
+  state: S | undefined,
+  review: T,
+): S | undefined {
+  return state && { ...state, reviews: inPlace(state.reviews, review) };
 }
 
 /** A chat with turns added at its end (the pair the server just stored); the rest of it kept. */

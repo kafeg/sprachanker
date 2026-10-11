@@ -99,6 +99,40 @@ const UNDERSTANDING_CHECK = {
   ],
 };
 
+/** Two new items of a type going over mistakes, as the model writes them. */
+const NEW_ITEMS: Record<string, unknown[]> = {
+  single_choice: [
+    { prompt: "FAKE: Wo ist Tom?", options: ["Im Café.", "Im Park."], answer: 0 },
+    { prompt: "FAKE: Wo ist Anna?", options: ["Im Café.", "Im Park."], answer: 0 },
+  ],
+  gap_text: [
+    { text: "Ich ___ Tee.", gaps: [{ accepted: ["trinke"] }] },
+    { text: "Du ___ Tee.", gaps: [{ accepted: ["trinkst"] }] },
+  ],
+  gap_choice: [
+    { text: "Ich ___ Tee.", gaps: [{ options: ["trinke", "trinkst"], answer: 0 }] },
+    { text: "Du ___ Tee.", gaps: [{ options: ["trinke", "trinkst"], answer: 1 }] },
+  ],
+  order: [{ parts: ["Ich", "trinke", "Tee."] }, { parts: ["Du", "trinkst", "Tee."] }],
+  match: [1, 2].map(() => ({
+    pairs: [
+      { left: "die Tasse", right: "cup" },
+      { left: "der Tee", right: "tea" },
+      { left: "das Glas", right: "glass" },
+    ],
+  })),
+};
+
+/** Going over mistakes: each group of the prompt ("Group 1 — …; new items: <type>, …") explained,
+ *  with two new items of its type. */
+const mistakeItems = (prompt: string) => ({
+  groups: [...prompt.matchAll(/^Group (\d+) — .*?; new items: (\w+),/gm)].map(([, n, type]) => ({
+    n: Number(n),
+    explanation: "FAKE: read the question again.",
+    items: NEW_ITEMS[type as string] ?? [],
+  })),
+});
+
 /** Three examples for each word numbered in <words> ("1. der Kaffee, die Kaffees — coffee (noun)" →
  *  "Hier ist der Kaffee heute."). */
 const wordExamples = (prompt: string) => {
@@ -208,9 +242,11 @@ if (import.meta.main) {
           : JSON.stringify(
               task === "word_examples"
                 ? wordExamples(body.messages.at(-1)?.content ?? "")
-                : task === "exam_conversation"
-                  ? conversation(body.messages.at(-1)?.content ?? "")
-                  : (STRUCTURED[task] ?? WRITING_CHECK),
+                : task === "mistake_items"
+                  ? mistakeItems(body.messages.at(-1)?.content ?? "")
+                  : task === "exam_conversation"
+                    ? conversation(body.messages.at(-1)?.content ?? "")
+                    : (STRUCTURED[task] ?? WRITING_CHECK),
             );
         return Response.json({ choices: [{ message: { role: "assistant", content } }] });
       }

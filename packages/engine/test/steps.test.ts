@@ -5,6 +5,7 @@ import {
   lessonSteps,
   openingRecord,
   planCoverage,
+  practiceInPlan,
   resumeStep,
   stepId,
   stepState,
@@ -108,8 +109,8 @@ test("resume: the exercise last shown while it is not worked, else the first ste
   expect(resumeStep(steps, lesson, {}, none, 9)).toBeUndefined();
 });
 
-test("opening a step records what it is: a page shown, a page read once, mistakes when there are none", () => {
-  const run = { lesson, results: {}, done: new Map(), mistakes: 0, fresh: false };
+test("opening a step records what it is: a page shown, a page read once", () => {
+  const run = { done: new Map(), fresh: false };
   expect(openingRecord({ kind: "exercise", index: 1 }, run)).toEqual({ pageShown: 1 });
   expect(openingRecord({ kind: "grammar", index: 0 }, run)).toEqual({ stepDone: "grammar:0" });
   const read = { ...run, done: new Map([["grammar:0", "done"]] as const) };
@@ -118,15 +119,52 @@ test("opening a step records what it is: a page shown, a page read once, mistake
   expect(openingRecord({ kind: "grammar", index: 0 }, { ...read, fresh: true })).toEqual({
     stepDone: "grammar:0",
   });
-  // Mistakes: only with every exercise worked and none to go over.
+  // Practice is done by its own work, never by being opened.
   expect(openingRecord({ kind: "mistakes" }, run)).toEqual({});
-  const worked = exerciseResults([
-    ev(1, "item_skipped", "s.x/c/01-01/ex-01#1", {}),
-    ev(2, "item_skipped", "s.x/c/01-01/ex-02#1", {}),
-  ]);
-  expect(openingRecord({ kind: "mistakes" }, { ...run, results: worked })).toEqual({
-    stepDone: "mistakes",
-  });
-  expect(openingRecord({ kind: "mistakes" }, { ...run, results: worked, mistakes: 2 })).toEqual({});
   expect(openingRecord({ kind: "words" }, run)).toEqual({});
+});
+
+test("going over mistakes is in the plan only while the run has some: an item or an Understanding question answered wrong, or the step recorded", () => {
+  const offered = ["understanding", "writing", "mistakes"] as const;
+  const right = { outcome: { result: "correct", score: 1 }, attempt: 1, ms: 1, answer: {} };
+  const wrong = { ...right, outcome: { result: "wrong", score: 0 } };
+  expect(practiceInPlan(offered, [])).toEqual(["understanding", "writing"]);
+  expect(practiceInPlan(offered, [ev(1, "answered", "s.x/c/01-01/ex-01#1", right)])).not.toContain(
+    "mistakes",
+  );
+  expect(practiceInPlan(offered, [ev(1, "answered", "s.x/c/01-01/ex-01#1", wrong)])).toContain(
+    "mistakes",
+  );
+  // An Understanding question answered wrong: a mistake to go over too.
+  const text = {
+    task: "understanding",
+    input: "",
+    model: "m",
+    latencyMs: 1,
+    result: {
+      kind: "reading",
+      title: "t",
+      situation: "",
+      lines: [{ text: "Kaffee 2 Euro" }],
+      glossary: [],
+      questions: [{ phase: "reading", question: "Kaffee?", options: ["2", "3"], answer: 0 }],
+    },
+  };
+  const answered = (result: string) => ({
+    verdict: "E1",
+    question: 0,
+    answer: { optionId: "b" },
+    outcome: { result, score: 0 },
+  });
+  const read = [ev(1, "llm_verdict", null, text)];
+  expect(
+    practiceInPlan(offered, [...read, ev(2, "practice_answered", null, answered("correct"))]),
+  ).not.toContain("mistakes");
+  expect(
+    practiceInPlan(offered, [...read, ev(2, "practice_answered", null, answered("wrong"))]),
+  ).toContain("mistakes");
+  // Recorded (done or skipped): it stays.
+  expect(
+    practiceInPlan(offered, [ev(1, "step_done", null, { step: "mistakes", skipped: true })]),
+  ).toContain("mistakes");
 });

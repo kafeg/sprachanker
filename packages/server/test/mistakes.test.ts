@@ -49,8 +49,11 @@ test("mistakes reach the tutor: fixed ones marked, redone lessons count afresh",
 
   const here = await prompt(CAFE);
   expect(here).toContain("In this lesson:");
-  expect(here).toContain("learner: Guten Tag, [Herr] Weber. (fixed later)");
-  expect(here).toContain('correct: "Im Café."; learner: "Im Park."');
+  // Only what was wrong in each: the gap with its words around it, the option chosen.
+  expect(here).toMatch(
+    /item 1\] \(fixed later\)\n {2}learner "Herr", correct "Frau" in "Guten Tag, \[_\] Weber."/,
+  );
+  expect(here).toContain('learner "Im Park.", correct "Im Café." to "Wo ist Lena?"');
   expect(here).not.toContain("In earlier lessons:");
 
   // From the next lesson they are earlier mistakes, with the lesson's title.

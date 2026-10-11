@@ -404,7 +404,8 @@
       "examples": "Mifano ya maneno ya seti",
       "sceneSummary": "Mazungumzo: muhtasari",
       "understanding": "Kuelewa: maandishi",
-      "understandingCheck": "Kuelewa: kusoma mara ya pili"
+      "understandingCheck": "Kuelewa: kusoma mara ya pili",
+      "mistakes": "Kupitia makosa"
     },
     "contextIntro": "Imeongezwa kutoka kwenye somo:",
     "contextIntroCourses": "Imeongezwa kutoka kwenye kozi zako (za lugha inayozoezwa katika mazungumzo):",
@@ -446,7 +447,8 @@
       "readText": "maandishi iliyoandika",
       "textQuestions": "maswali yake na chaguo zake, bila majibu",
       "writingTask": "kazi: hali, mambo yake matatu na urefu",
-      "levelCriteria": "kile maandishi ya kiwango cha kozi yanachohitaji (vigezo vya mitihani ya kuandika)"
+      "levelCriteria": "kile maandishi ya kiwango cha kozi yanachohitaji (vigezo vya mitihani ya kuandika)",
+      "mistakeGroups": "makosa yako katika mzunguko huu kwa aina, kila moja sehemu iliyokosewa tu (pamoja na maswali ya “Kuelewa” yaliyokosewa)"
     },
     "upTo": "hadi {chars, plural, one {herufi #} other {herufi #}}",
     "debug": "Onyesha vitufe vya “Maagizo”",
@@ -505,7 +507,8 @@
       "examples": "Huandika sentensi tatu hadi tano za mfano kwa kila neno la seti isiyo na mifano yake yenyewe, maneno matano kwa wakati (Marudio → Seti, “Tengeneza mifano”), kwa maneno unayoyajua inapowezekana na yale mapya yakiwa yametafsiriwa.",
       "sceneSummary": "Hufupisha mazungumzo yakiisha: marekebisho moja au mawili muhimu zaidi, kila moja na sentensi yako ikisemwa vizuri, na maoni mafupi.",
       "understanding": "Huandika maandishi mafupi kwa lugha unayojifunza kutoka kwa maneno unayoyajua — mazungumzo au tangazo la kusikiliza, au menyu au tangazo la kusoma — pamoja na maswali kama ya mitihani (kweli/si kweli, a/b/c, namba). Majibu yako hukaguliwa na programu, si na modeli.",
-      "understandingCheck": "Husoma maandishi tena na hujibu maswali yake mwenyewe kutokana na maandishi pekee: swali linalojibiwa tofauti, au lisiloeleweka, huondolewa."
+      "understandingCheck": "Husoma maandishi tena na hujibu maswali yake mwenyewe kutokana na maandishi pekee: swali linalojibiwa tofauti, au lisiloeleweka, huondolewa.",
+      "mistakes": "Hupitia makosa ya mzunguko kwa aina: kwa kila aina sehemu zilizokosewa tu (ulichotoa, kilicho sahihi, maneno yanayozunguka), maelezo mafupi, na mazoezi mapya mawili au matatu ya aina hiyo kwa maneno unayoyajua. Majibu yako hukaguliwa na programu, si modeli."
     }
   },
   "writing": {
@@ -545,10 +548,7 @@
     "items": "{count, plural, one {kipengele} other {vipengele}} {items}",
     "fixed": "{count, plural, one {# limesahihishwa baadaye} other {# yamesahihishwa baadaye}}",
     "none": "Hakuna makosa katika mzunguko huu.",
-    "notYet": "Bado hakuna kilichojibiwa: fanya mazoezi kwanza.",
-    "tutorIntro": "Mkufunzi hupitia makosa yako moja baada ya jingine: kilichokwenda vibaya, kanuni iliyo nyuma yake, na mfano mpya mfupi wa kukujaribu.",
-    "start": "Pitia makosa yangu na mkufunzi",
-    "message": "Tafadhali pitia makosa yangu katika somo hili."
+    "notYet": "Bado hakuna kilichojibiwa: fanya mazoezi kwanza."
   },
   "scene": {
     "intro": "Mazungumzo mafupi kwa sauti kuhusu malengo ya somo: sentensi za mwenzako husomwa kwa sauti na unajibu kwa maikrofoni. Mwenzako anajua mambo ambayo lazima uyaulize.",
@@ -1343,6 +1343,8 @@
     "unknown_setting": "Mpangilio huu haupo (tena).",
     "unsupported_audio": "Kivinjari hiki hurekodi katika muundo ambao programu haiwezi kuuhifadhi.",
     "writing_busy": "Maandishi ya somo hili yanakaguliwa. Subiri.",
+    "mistakes_busy": "Makosa ya somo hili yanapitiwa. Subiri.",
+    "no_mistakes": "Hakuna makosa katika mzunguko huu ya kupitia.",
     "other": "Hitilafu imetokea: {message}",
     "exam_needs_setting": "Chagua jimbo lako kwanza: mtihani unauliza maswali kulihusu.",
     "exam_time_over": "Muda wa mtihani huu wa majaribio umekwisha: umewasilishwa kama ulivyokuwa.",
@@ -1584,5 +1586,28 @@
     "readNow": "Soma maandishi na ujibu",
     "result": "{right, number} kati ya {total, number} sahihi",
     "past": "Maandishi ya awali ya somo hili"
+  },
+  "goingOver": {
+    "title": "Kupitia makosa",
+    "intro": "Makosa yako katika mzunguko huu, kwa aina: nini kilikosewa, kanuni iliyo nyuma yake, na mazoezi mapya mawili au matatu ya kila aina ya kujaribu — yanakaguliwa papo hapo.",
+    "start": "Pitia makosa yangu",
+    "preparing": "Makosa yako yanapitiwa…",
+    "again": "Pitia tena",
+    "group": "Aina {n, number} kati ya {total, number}",
+    "yours": "Makosa yako",
+    "try": "Sasa wewe",
+    "next": "Aina inayofuata",
+    "previous": "Aina iliyotangulia",
+    "result": "{right, number} kati ya {total, number} sahihi",
+    "past": "Mapitio ya awali katika somo hili",
+    "what": {
+      "ending": "Viishio",
+      "word": "Maneno",
+      "choice": "Machaguo",
+      "order": "Mpangilio wa maneno",
+      "pair": "Jozi",
+      "spelling": "Tahajia",
+      "spoken": "Yaliyosemwa kwa sauti"
+    }
   }
 }

@@ -404,7 +404,8 @@
       "examples": "Ejemplos para las palabras de un mazo",
       "sceneSummary": "Diálogo: el resumen",
       "understanding": "Comprensión: el texto",
-      "understandingCheck": "Comprensión: la segunda lectura"
+      "understandingCheck": "Comprensión: la segunda lectura",
+      "mistakes": "Repaso de errores"
     },
     "contextIntro": "Se añade de la lección:",
     "contextIntroCourses": "Se añade de tus cursos (los del idioma que practica la conversación):",
@@ -446,7 +447,8 @@
       "readText": "el texto que escribió",
       "textQuestions": "sus preguntas con las opciones, sin las respuestas",
       "writingTask": "la tarea: la situación, sus tres puntos y la extensión",
-      "levelCriteria": "lo que necesita un texto del nivel del curso (los criterios de los exámenes escritos)"
+      "levelCriteria": "lo que necesita un texto del nivel del curso (los criterios de los exámenes escritos)",
+      "mistakeGroups": "tus errores en esta vuelta por tipo, cada uno solo lo que estaba mal (también las preguntas de «Comprensión» falladas)"
     },
     "upTo": "hasta {chars, plural, one {# carácter} other {# caracteres}}",
     "debug": "Mostrar los botones «Prompt»",
@@ -505,7 +507,8 @@
       "examples": "Escribe de tres a cinco frases de ejemplo para cada palabra de un mazo que no tenga ejemplos propios, de cinco en cinco palabras (Repaso → Mazos, «Crear ejemplos»), con palabras que ya conoces siempre que puede y las nuevas traducidas.",
       "sceneSummary": "Resume un diálogo cuando termina: las una o dos correcciones más importantes, cada una con tu frase bien dicha, y un comentario breve.",
       "understanding": "Escribe un texto breve en el idioma que aprendes con las palabras que conoces —un diálogo o un anuncio para escuchar, o un menú o un aviso para leer— con preguntas como las de los exámenes (verdadero/falso, a/b/c, números). Tus respuestas las corrige la app, no el modelo.",
-      "understandingCheck": "Vuelve a leer el texto y responde a sus propias preguntas solo con el texto: una pregunta que responde de otra forma o que no ve clara se descarta."
+      "understandingCheck": "Vuelve a leer el texto y responde a sus propias preguntas solo con el texto: una pregunta que responde de otra forma o que no ve clara se descarta.",
+      "mistakes": "Repasa los errores de una vuelta por tipo: de cada tipo solo las partes erróneas (lo que diste, lo correcto, las palabras alrededor), una explicación breve y dos o tres ejercicios nuevos del tipo con palabras que conoces. Tus respuestas las corrige la app, no el modelo."
     }
   },
   "writing": {
@@ -545,10 +548,7 @@
     "items": "{count, plural, one {apartado} other {apartados}} {items}",
     "fixed": "{count, plural, one {# corregido después} other {# corregidos después}}",
     "none": "No hay errores en esta vuelta.",
-    "notYet": "Aún no has respondido nada: haz primero los ejercicios.",
-    "tutorIntro": "El tutor repasa tus errores uno a uno: qué salió mal, la regla que hay detrás y un ejemplo nuevo y corto para comprobarlo.",
-    "start": "Repasar mis errores con el tutor",
-    "message": "Por favor, repasa mis errores de esta lección."
+    "notYet": "Aún no has respondido nada: haz primero los ejercicios."
   },
   "scene": {
     "intro": "Un diálogo breve y hablado sobre los objetivos de la lección: las frases de tu interlocutor se leen en voz alta y respondes con el micrófono. Tu interlocutor sabe cosas que tendrás que preguntar.",
@@ -1343,6 +1343,8 @@
     "unknown_setting": "Este ajuste no existe (o ya no existe).",
     "unsupported_audio": "Este navegador graba en un formato que la aplicación no puede guardar.",
     "writing_busy": "Se está corrigiendo un texto de esta lección. Espera un momento.",
+    "mistakes_busy": "Ya se están repasando los errores de esta lección. Espera un momento.",
+    "no_mistakes": "No hay errores en esta vuelta que repasar.",
     "other": "Algo salió mal: {message}",
     "exam_needs_setting": "Primero elige tu estado federado: el examen hace preguntas sobre él.",
     "exam_time_over": "Se acabó el tiempo de este simulacro: se entregó tal como estaba.",
@@ -1584,5 +1586,28 @@
     "readNow": "Lee el texto y responde",
     "result": "{right, number} de {total, number} correctas",
     "past": "Textos anteriores de esta lección"
+  },
+  "goingOver": {
+    "title": "Repaso de errores",
+    "intro": "Tus errores en esta vuelta, por tipo: qué falló, la regla que hay detrás y dos o tres ejercicios nuevos de cada tipo para probar — corregidos al momento.",
+    "start": "Repasar mis errores",
+    "preparing": "Repasando tus errores…",
+    "again": "Repasar de nuevo",
+    "group": "Tipo {n, number} de {total, number}",
+    "yours": "Tus errores",
+    "try": "Ahora tú",
+    "next": "Siguiente tipo",
+    "previous": "Tipo anterior",
+    "result": "{right, number} de {total, number} correctas",
+    "past": "Repasos anteriores de esta lección",
+    "what": {
+      "ending": "Terminaciones",
+      "word": "Palabras",
+      "choice": "Opciones",
+      "order": "Orden de las palabras",
+      "pair": "Parejas",
+      "spelling": "Ortografía",
+      "spoken": "Dicho en voz alta"
+    }
   }
 }

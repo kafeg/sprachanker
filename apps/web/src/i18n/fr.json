@@ -404,7 +404,8 @@
       "examples": "Exemples pour les mots d’un paquet",
       "sceneSummary": "Dialogue : le bilan",
       "understanding": "Compréhension : le texte",
-      "understandingCheck": "Compréhension : la seconde lecture"
+      "understandingCheck": "Compréhension : la seconde lecture",
+      "mistakes": "Revoir ses erreurs"
     },
     "contextIntro": "Ajouté depuis la leçon :",
     "contextIntroCourses": "Ajouté depuis tes cours (ceux de la langue que pratique la discussion) :",
@@ -446,7 +447,8 @@
       "readText": "le texte écrit",
       "textQuestions": "ses questions avec leurs options, sans les réponses",
       "writingTask": "la tâche : la situation, ses trois points et la longueur",
-      "levelCriteria": "ce qu’il faut à un texte du niveau du cours (les critères des examens écrits)"
+      "levelCriteria": "ce qu’il faut à un texte du niveau du cours (les critères des examens écrits)",
+      "mistakeGroups": "tes erreurs de ce passage par type, chacune seulement ce qui était faux (les questions de « Compréhension » ratées aussi)"
     },
     "upTo": "jusqu’à {chars, plural, one {# caractère} many {# de caractères} other {# caractères}}",
     "debug": "Afficher les boutons « Prompt »",
@@ -505,7 +507,8 @@
       "examples": "Écrit trois à cinq phrases d’exemple pour chaque mot d’un paquet qui n’en a pas, cinq mots à la fois (Révision → Paquets, « Créer des exemples »), avec des mots que tu connais si possible et les nouveaux traduits.",
       "sceneSummary": "Fait le bilan d’un dialogue une fois terminé : la ou les deux corrections qui comptent le plus, chacune avec ta phrase bien dite, et un mot de retour.",
       "understanding": "Écrit un court texte dans la langue que tu apprends avec les mots que tu connais — un dialogue ou une annonce à écouter, ou un menu, un avis à lire — avec des questions comme aux examens (vrai/faux, a/b/c, nombres). Tes réponses sont corrigées par l’app, pas par le modèle.",
-      "understandingCheck": "Relit le texte et répond à ses propres questions à partir du texte seul : une question à laquelle il répond autrement, ou qu’il trouve floue, est retirée."
+      "understandingCheck": "Relit le texte et répond à ses propres questions à partir du texte seul : une question à laquelle il répond autrement, ou qu’il trouve floue, est retirée.",
+      "mistakes": "Revoit les erreurs d’un passage par type : pour chaque type, seules les parties fausses (ce que tu as donné, ce qui est juste, les mots autour), une courte explication et deux ou trois nouveaux exercices du type avec des mots que tu connais. Tes réponses sont corrigées par l’app, pas par le modèle."
     }
   },
   "writing": {
@@ -545,10 +548,7 @@
     "items": "{count, plural, one {élément} many {éléments} other {éléments}} {items}",
     "fixed": "{count, plural, one {# corrigée ensuite} many {# corrigées ensuite} other {# corrigées ensuite}}",
     "none": "Aucune erreur dans ce passage.",
-    "notYet": "Aucune réponse pour l’instant : fais d’abord les exercices.",
-    "tutorIntro": "Le tuteur revoit tes erreurs une par une : ce qui n’allait pas, la règle qui est derrière, et un court exemple nouveau pour vérifier.",
-    "start": "Revoir mes erreurs avec le tuteur",
-    "message": "Revois avec moi mes erreurs dans cette leçon, s’il te plaît."
+    "notYet": "Aucune réponse pour l’instant : fais d’abord les exercices."
   },
   "scene": {
     "intro": "Un court dialogue à l’oral sur les objectifs de la leçon : les répliques de ton interlocuteur sont lues à voix haute et tu réponds au micro. Ton interlocuteur sait des choses que tu dois lui demander.",
@@ -1343,6 +1343,8 @@
     "unknown_setting": "Ce réglage n’existe pas (ou plus).",
     "unsupported_audio": "Ce navigateur enregistre dans un format que l’appli ne peut pas conserver.",
     "writing_busy": "Un texte de cette leçon est en cours de vérification. Patiente.",
+    "mistakes_busy": "Les erreurs de cette leçon sont en cours de revue. Patiente.",
+    "no_mistakes": "Aucune erreur à revoir dans ce passage.",
     "other": "Une erreur s’est produite : {message}",
     "exam_needs_setting": "Choisis d’abord ton Land : l’examen pose des questions sur ce Land.",
     "exam_time_over": "Le temps de cet examen blanc est écoulé : il a été rendu tel quel.",
@@ -1584,5 +1586,28 @@
     "readNow": "Lis le texte et réponds",
     "result": "{right, number} sur {total, number} justes",
     "past": "Textes précédents de cette leçon"
+  },
+  "goingOver": {
+    "title": "Revoir ses erreurs",
+    "intro": "Tes erreurs de ce passage, par type : ce qui n’allait pas, la règle derrière, et deux ou trois nouveaux exercices de chaque type à essayer — corrigés aussitôt.",
+    "start": "Revoir mes erreurs",
+    "preparing": "Revue de tes erreurs…",
+    "again": "Revoir à nouveau",
+    "group": "Type {n, number} sur {total, number}",
+    "yours": "Tes erreurs",
+    "try": "À toi",
+    "next": "Type suivant",
+    "previous": "Type précédent",
+    "result": "{right, number} sur {total, number} justes",
+    "past": "Erreurs revues plus tôt dans cette leçon",
+    "what": {
+      "ending": "Terminaisons",
+      "word": "Mots",
+      "choice": "Choix",
+      "order": "Ordre des mots",
+      "pair": "Paires",
+      "spelling": "Orthographe",
+      "spoken": "Dit à voix haute"
+    }
   }
 }

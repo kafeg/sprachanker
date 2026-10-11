@@ -7,15 +7,19 @@ No network, no filesystem, no `Date.now()` — time and randomness are parameter
 
 ```
 src/
-  compose/        # steps.ts: the lesson plan as steps, what is done, where a run resumes
+  compose/        # steps.ts: the lesson plan as steps (going over mistakes only with some:
+                  # practiceInPlan), what is done, where a run resumes
   check/          # index.ts: checkItem(exercise, item, answer) → Outcome (+ diff, parts), one case per
                   # type; itemScored; answers.ts: checked or not, an answer complete, the words said;
-                  # understanding.ts: Understanding's questions as items of their types, its stage
+                  # understanding.ts: Understanding's questions as items of their types, its stage;
+                  # mistake-items.ts: going over mistakes' new items as items of their types, a
+                  # review's items numbered across its groups, where the learner is
   text/           # normalisation and word diff used by checkers and speech; words (a sentence's words
                   # met or new against a vocabulary; whether it uses a word, or a form given of it —
                   # irregular-verbs: the commonest German ones' forms no stem finds)
-  learner/        # mistakes, lesson progress, study days (activity: counted by module, the run's kind,
-                  # the time each took); series: a span cut into bars (days, weeks, months) for the
+  learner/        # mistakes, going-over (a mistake's wrong parts only, grouped by type; Understanding's
+                  # wrong answers as mistakes), lesson progress, study days (activity: counted by
+                  # module, the run's kind, the time each took); series: a span cut into bars (days, weeks, months) for the
                   # Notebook's pictures; planned: rule mastery, can-do
   exam/           # exams: the settings as an exam reads them, the questions open to a learner (a
                   # question's line), a mock exam drawn, practice's order, each

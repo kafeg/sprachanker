@@ -14,19 +14,20 @@ import {
   understandingCheckTask,
   understandingTextTask,
 } from "@sprachanker/llm";
-import {
-  type LessonKey,
-  type Outcome,
-  type PracticeAnsweredPayload,
-  parseEditionId,
-  type Run,
-} from "@sprachanker/schema";
+import { type LessonKey, type Outcome, parseEditionId, type Run } from "@sprachanker/schema";
 import { ServiceError } from "../errors.ts";
 import { createInFlight } from "./in-flight.ts";
 import type { LessonContexts } from "./lesson-context.ts";
 import type { Llm, PromptPreview } from "./llm.ts";
-import { HISTORY_LIMIT, payloadOf, type RunStore } from "./run-store.ts";
-import { keepVerdict, type Verdict, verdicts } from "./verdicts.ts";
+import { HISTORY_LIMIT, type RunStore } from "./run-store.ts";
+import {
+  keepPracticeAnswer,
+  keepVerdict,
+  type PracticeAnswer,
+  practiceAnswers,
+  type Verdict,
+  verdicts,
+} from "./verdicts.ts";
 
 export interface UnderstandingRequest {
   series: string;
@@ -43,9 +44,7 @@ export interface UnderstandingAnswer extends UnderstandingRequest {
 }
 
 /** A text as the step and the Notebook read it: the verdict with its answers in the order given. */
-export type Understood = Verdict<"understanding"> & {
-  answers: Array<PracticeAnsweredPayload & { ts: number }>;
-};
+export type Understood = Verdict<"understanding"> & { answers: PracticeAnswer[] };
 
 export function createUnderstanding(deps: {
   store: RunStore;
@@ -61,14 +60,10 @@ export function createUnderstanding(deps: {
   /** The lesson's texts in all its runs, newest first, each with its answers. */
   function texts(lessonKey: LessonKey): Understood[] {
     const where = { kind: "lesson" as const, about: lessonKey };
-    const answers = store.eventsWhere({ types: ["practice_answered"], ascending: true, ...where });
+    const answers = practiceAnswers(store, where);
     return verdicts(store, "understanding", where).map((v) => ({
       ...v,
-      answers: answers.flatMap((e) =>
-        e.type === "practice_answered" && e.payload.verdict === v.id
-          ? [payloadOf<PracticeAnsweredPayload>(e)]
-          : [],
-      ),
+      answers: answers.get(v.id) ?? [],
     }));
   }
 
@@ -154,31 +149,11 @@ export function createUnderstanding(deps: {
       } catch {
         throw new ServiceError("answer_does_not_fit");
       }
-      store.atomic(() => {
-        const given = store
-          .events(run.id, ["practice_answered"])
-          .some(
-            (e) =>
-              e.type === "practice_answered" &&
-              e.payload.verdict === request.id &&
-              e.payload.question === request.question,
-          );
-        if (given) return;
-        store.append(
-          run.id,
-          [
-            {
-              type: "practice_answered",
-              payload: {
-                verdict: request.id,
-                question: request.question,
-                answer: request.answer,
-                outcome,
-              },
-            },
-          ],
-          { anyStatus: true },
-        );
+      keepPracticeAnswer(store, run.id, {
+        verdict: request.id,
+        question: request.question,
+        answer: request.answer,
+        outcome,
       });
       return texts(request.lessonKey).find((t) => t.id === request.id) as Understood;
     },

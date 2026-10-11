@@ -53,9 +53,8 @@ export function PracticeStep({
       )}
       {slots.practice?.step(kind, {
         ...context,
-        hasMistakes: run.mistakes.length > 0,
-        done,
         onDone: () => mark(kind),
+        onStored: run.retry,
       })}
       <StepBar
         onBack={onBack}

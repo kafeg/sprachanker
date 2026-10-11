@@ -404,7 +404,8 @@
       "examples": "Primjeri za riječi špila",
       "sceneSummary": "Dijalog: sažetak",
       "understanding": "Razumijevanje: tekst",
-      "understandingCheck": "Razumijevanje: drugo čitanje"
+      "understandingCheck": "Razumijevanje: drugo čitanje",
+      "mistakes": "Pregled grešaka"
     },
     "contextIntro": "Dodano iz lekcije:",
     "contextIntroCourses": "Dodano iz tvojih kurseva (onih za jezik koji razgovor vježba):",
@@ -446,7 +447,8 @@
       "readText": "napisani tekst",
       "textQuestions": "njegova pitanja s ponuđenim odgovorima, bez rješenja",
       "writingTask": "zadatak: situacija, njegove tri tačke i dužina",
-      "levelCriteria": "šta tekst na nivou kursa treba (kriteriji pismenih ispita)"
+      "levelCriteria": "šta tekst na nivou kursa treba (kriteriji pismenih ispita)",
+      "mistakeGroups": "tvoje greške u ovom prolazu po vrstama, svaka samo ono što je bilo pogrešno (i pogrešno odgovorena pitanja iz „Razumijevanja“)"
     },
     "upTo": "do {chars, plural, one {# znaka} few {# znaka} other {# znakova}}",
     "debug": "Prikaži dugmad „Prompt“",
@@ -505,7 +507,8 @@
       "examples": "Piše tri do pet rečenica-primjera za svaku riječ špila koji nema svoje, po pet riječi odjednom (Ponavljanje → Špilovi, „Napravi primjere“), gdje može s riječima koje znaš, a nove prevodi.",
       "sceneSummary": "Sažima dijalog kad se završi: jedna ili dvije najvažnije ispravke, uz svaku tvoja rečenica rečena kako treba, i kratak komentar.",
       "understanding": "Piše kratak tekst na jeziku koji učiš, od riječi koje znaš — dijalog ili obavještenje za slušanje, ili jelovnik ili oglas za čitanje — s pitanjima kao na ispitima (tačno/netačno, a/b/c, brojevi). Tvoje odgovore provjerava aplikacija, ne model.",
-      "understandingCheck": "Ponovo čita tekst i odgovara na vlastita pitanja samo iz teksta: pitanje na koje odgovori drugačije ili koje mu je nejasno izostavlja se."
+      "understandingCheck": "Ponovo čita tekst i odgovara na vlastita pitanja samo iz teksta: pitanje na koje odgovori drugačije ili koje mu je nejasno izostavlja se.",
+      "mistakes": "Pregleda greške prolaza po vrstama: za svaku vrstu samo pogrešne dijelove (šta si dao, šta je tačno, riječi oko toga), kratko objašnjenje i dva-tri nova zadatka te vrste od riječi koje znaš. Tvoje odgovore provjerava aplikacija, ne model."
     }
   },
   "writing": {
@@ -545,10 +548,7 @@
     "items": "{count, plural, one {zadatak} few {zadaci} other {zadaci}} {items}",
     "fixed": "{count, plural, one {# kasnije ispravljen} few {# kasnije ispravljena} other {# kasnije ispravljeno}}",
     "none": "U ovom prolazu nema grešaka.",
-    "notYet": "Još nema odgovora: prvo uradi vježbe.",
-    "tutorIntro": "Tutor prolazi kroz tvoje greške jednu po jednu: šta nije bilo dobro, koje pravilo stoji iza toga i kratak novi primjer za provjeru.",
-    "start": "Prođi kroz moje greške s tutorom",
-    "message": "Molim te, prođi sa mnom kroz moje greške u ovoj lekciji."
+    "notYet": "Još nema odgovora: prvo uradi vježbe."
   },
   "scene": {
     "intro": "Kratak dijalog glasom o ciljevima lekcije: replike tvog sagovornika se čitaju naglas, a ti odgovaraš mikrofonom. Sagovornik zna stvari koje moraš pitati.",
@@ -1343,6 +1343,8 @@
     "unknown_setting": "Ova postavka (više) ne postoji.",
     "unsupported_audio": "Ovaj preglednik snima u formatu koji aplikacija ne može sačuvati.",
     "writing_busy": "Tekst ove lekcije se upravo provjerava. Sačekaj.",
+    "mistakes_busy": "Greške ove lekcije se upravo pregledaju. Sačekaj.",
+    "no_mistakes": "U ovom prolazu nema grešaka za pregled.",
     "other": "Nešto nije u redu: {message}",
     "exam_needs_setting": "Prvo izaberi svoju saveznu pokrajinu: ispit postavlja pitanja o njoj.",
     "exam_time_over": "Vrijeme ovog probnog ispita je isteklo: predan je onakav kakav je bio.",
@@ -1584,5 +1586,28 @@
     "readNow": "Pročitaj tekst i odgovori",
     "result": "{right, number} od {total, number} tačno",
     "past": "Raniji tekstovi ove lekcije"
+  },
+  "goingOver": {
+    "title": "Pregled grešaka",
+    "intro": "Tvoje greške u ovom prolazu po vrstama: šta je pogrešno, pravilo iza toga i dva-tri nova zadatka od svake vrste da ih probaš — provjeravaju se odmah.",
+    "start": "Pregledaj moje greške",
+    "preparing": "Pregledaju se tvoje greške…",
+    "again": "Pregledaj ponovo",
+    "group": "Vrsta {n, number} od {total, number}",
+    "yours": "Tvoje greške",
+    "try": "Sad ti",
+    "next": "Sljedeća vrsta",
+    "previous": "Prethodna vrsta",
+    "result": "{right, number} od {total, number} tačno",
+    "past": "Raniji pregledi u ovoj lekciji",
+    "what": {
+      "ending": "Nastavci",
+      "word": "Riječi",
+      "choice": "Izbor odgovora",
+      "order": "Red riječi",
+      "pair": "Parovi",
+      "spelling": "Pravopis",
+      "spoken": "Izgovoreno"
+    }
   }
 }

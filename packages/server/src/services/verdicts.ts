@@ -1,7 +1,49 @@
 // A model's verdicts (05: `llm_verdict` events), kept and read one way over the run store: explain,
-// writing and spoken checks, an exam answer's proposed rating (and word examples of earlier versions).
-import type { RunKind, VerdictOf, VerdictTask } from "@sprachanker/schema";
-import type { Context, ReadEvent, RunStore } from "./run-store.ts";
+// writing and spoken checks, an exam answer's proposed rating (and word examples of earlier versions);
+// and the answers to the questions a verdict set (`practice_answered`: an Understanding text's, a
+// mistakes review's new items), each kept once.
+import type { PracticeAnsweredPayload, RunKind, VerdictOf, VerdictTask } from "@sprachanker/schema";
+import { type Context, payloadOf, type ReadEvent, type RunStore } from "./run-store.ts";
+
+/** An answer to one of a verdict's questions, with when it was given. */
+export type PracticeAnswer = PracticeAnsweredPayload & { ts: number };
+
+/** The answers to the questions of verdicts in runs of a kind about a context, in the order given,
+ *  by verdict. */
+export function practiceAnswers(
+  store: RunStore,
+  where: { kind: RunKind; about: Context },
+): Map<string, PracticeAnswer[]> {
+  const out = new Map<string, PracticeAnswer[]>();
+  for (const e of store.eventsWhere({ types: ["practice_answered"], ascending: true, ...where }))
+    if (e.type === "practice_answered")
+      out.set(e.payload.verdict, [
+        ...(out.get(e.payload.verdict) ?? []),
+        payloadOf<PracticeAnsweredPayload>(e),
+      ]);
+  return out;
+}
+
+/** Keeps an answer to a verdict's question in the verdict's run (also an ended one): a question
+ *  answered already keeps its first answer. */
+export function keepPracticeAnswer(
+  store: RunStore,
+  runId: string,
+  answer: PracticeAnsweredPayload,
+) {
+  store.atomic(() => {
+    const given = store
+      .events(runId, ["practice_answered"])
+      .some(
+        (e) =>
+          e.type === "practice_answered" &&
+          e.payload.verdict === answer.verdict &&
+          e.payload.question === answer.question,
+      );
+    if (!given)
+      store.append(runId, [{ type: "practice_answered", payload: answer }], { anyStatus: true });
+  });
+}
 
 /** A verdict as every history reads it: its payload typed by its task, with where and when it was
  *  given. One shape for the services that keep verdicts and the Notebook. */

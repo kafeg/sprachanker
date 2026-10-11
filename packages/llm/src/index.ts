@@ -14,6 +14,7 @@ export * from "./tasks/describe.ts";
 export * from "./tasks/exam-conversation.ts";
 export * from "./tasks/explain-mistake.ts";
 export * from "./tasks/lesson.ts";
+export * from "./tasks/mistake-items.ts";
 export * from "./tasks/rate-exam-answer.ts";
 export * from "./tasks/registry.ts";
 export type { RulesInput, TaskRules } from "./tasks/rules.ts";

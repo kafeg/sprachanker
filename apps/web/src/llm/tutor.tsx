@@ -1,9 +1,9 @@
 // The tutor's chat view, and the lesson tutor: the chat of this lesson in a side panel opened from the
-// header, and inline on the "Going over mistakes" step, which opens it with a request to go through the
-// run's mistakes. The Tutor section's chats (tutor-section.tsx) are shown by the same view.
+// header — questions and explanations; practice is the lesson's AI steps (04). The Tutor section's
+// chats (tutor-section.tsx) are shown by the same view.
 import { Link } from "@tanstack/react-router";
 import { MessageCircle, RotateCcw, Search } from "lucide-react";
-import { useEffect, useRef, useState } from "react";
+import { useState } from "react";
 import { useTranslation } from "react-i18next";
 import { useLesson } from "@/api/courses.ts";
 import { Button } from "@/ui/components/button.tsx";
@@ -30,7 +30,6 @@ import {
   ChatHeader,
   ErrorLine,
   PendingExchange,
-  StartPrompt,
   useAbortable,
   useScrollToEnd,
 } from "./parts.tsx";
@@ -39,14 +38,6 @@ import { useLlm } from "./setup-api.ts";
 import { TutorHistory } from "./tutor-history.tsx";
 
 type Context = Omit<TutorRequest, "message" | "language" | "newChat">;
-
-/** A message to send on opening; `id` makes each ask new. */
-interface TutorAsk {
-  text: string;
-  id: number;
-  /** Opens a new chat for it (the current one stays in the history). */
-  newChat?: boolean;
-}
 
 /** A chat turn's bubble: the learner's ("user") or the tutor's. */
 function Bubble({ from, children }: { from: "user" | "assistant"; children: React.ReactNode }) {
@@ -71,13 +62,6 @@ function ToolsUsed({ tools }: { tools: Array<{ name: string; args?: unknown }> }
       <Search className="size-3" /> {t("tutor.toolsUsed", { tools: text })}
     </p>
   );
-}
-
-/** What an empty chat offers in place of the suggestions: one request, sent in a new chat. */
-interface Starter {
-  intro: string;
-  label: string;
-  text: string;
 }
 
 /** What a chat is read from and sent to: its stored turns (undefined while they are read), a pair
@@ -315,32 +299,11 @@ export function ChatFrame({
   );
 }
 
-function LessonChat({
-  ask,
-  starter,
-  onReply,
-  ...context
-}: Context & {
-  ask?: TutorAsk;
-  starter?: Starter;
-  /** A reply came in full. */
-  onReply?(): void;
-}) {
+function LessonChat(context: Context) {
   const { t, i18n } = useTranslation();
   const llm = useLlm();
   const reset = useResetTutor(context.lessonKey);
-  const chat = useChat(useLessonSource(context), onReply);
-
-  // An ask from outside is sent once, as soon as the chat is ready.
-  const sendLatest = useRef(chat.send);
-  sendLatest.current = chat.send;
-  const asked = useRef<number>(undefined);
-  const ready = chat.loaded && !!llm.data?.model;
-  useEffect(() => {
-    if (!ask || !ready || asked.current === ask.id) return;
-    asked.current = ask.id;
-    sendLatest.current(ask.text, ask.newChat);
-  }, [ask, ready]);
+  const chat = useChat(useLessonSource(context));
 
   if (!llm.data?.model) return <NeedsSetup />;
   return (
@@ -358,23 +321,7 @@ function LessonChat({
           </Button>
         )
       }
-      empty={
-        starter ? (
-          chat.loaded &&
-          asked.current === ask?.id && (
-            <div className="pt-2">
-              <StartPrompt
-                intro={starter.intro}
-                label={starter.label}
-                icon={MessageCircle}
-                onStart={() => chat.send(starter.text, true)}
-              />
-            </div>
-          )
-        ) : (
-          <LessonSuggestions context={context} onAsk={(text) => chat.send(text)} />
-        )
-      }
+      empty={<LessonSuggestions context={context} onAsk={(text) => chat.send(text)} />}
     />
   );
 }
@@ -422,38 +369,5 @@ export function LessonTutor(context: Context) {
   );
 }
 
-/** The box a chat shows in on a page of its own (the mistakes step, the Tutor section). */
+/** The box a chat shows in on a page of its own (the Tutor section). */
 export const chatBoxClass = cn(panelClass, "flex h-[70dvh] min-h-96 flex-col overflow-hidden pt-2");
-
-/**
- * The tutor going through the run's mistakes one at a time, in the lesson's chat shown on the step page.
- * Started by the learner (a new chat); shown at once when the step is done (the walk-through goes on).
- * `onDone` after the tutor's first reply.
- */
-export function MistakesTutor({
-  done,
-  onDone,
-  ...context
-}: Context & { done: boolean; onDone(): void }) {
-  const { t } = useTranslation();
-  const [ask, setAsk] = useState<TutorAsk>();
-  const starter = {
-    intro: t("mistakes.tutorIntro"),
-    label: t("mistakes.start"),
-    text: t("mistakes.message"),
-  };
-  if (!done && !ask)
-    return (
-      <StartPrompt
-        intro={starter.intro}
-        label={starter.label}
-        icon={MessageCircle}
-        onStart={() => setAsk({ text: starter.text, id: Date.now(), newChat: true })}
-      />
-    );
-  return (
-    <div className={chatBoxClass}>
-      <LessonChat {...context} ask={ask} starter={starter} onReply={onDone} />
-    </div>
-  );
-}

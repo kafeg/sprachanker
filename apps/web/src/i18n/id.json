@@ -404,7 +404,8 @@
       "examples": "Contoh untuk kata-kata dek",
       "sceneSummary": "Dialog: ringkasan",
       "understanding": "Pemahaman: teks",
-      "understandingCheck": "Pemahaman: bacaan kedua"
+      "understandingCheck": "Pemahaman: bacaan kedua",
+      "mistakes": "Membahas kesalahan"
     },
     "contextIntro": "Ditambahkan dari pelajaran:",
     "contextIntroCourses": "Ditambahkan dari kursus-kursusmu (yang mengajarkan bahasa percakapan ini):",
@@ -446,7 +447,8 @@
       "readText": "teks yang ditulisnya",
       "textQuestions": "pertanyaannya dengan pilihan, tanpa jawaban",
       "writingTask": "tugasnya: situasi, tiga poinnya, dan panjangnya",
-      "levelCriteria": "apa yang dibutuhkan teks di level kursus (kriteria ujian menulis)"
+      "levelCriteria": "apa yang dibutuhkan teks di level kursus (kriteria ujian menulis)",
+      "mistakeGroups": "kesalahanmu di putaran ini menurut jenis, masing-masing hanya yang salah (termasuk soal “Pemahaman” yang salah)"
     },
     "upTo": "hingga {chars, plural, other {# karakter}}",
     "debug": "Tampilkan tombol “Prompt”",
@@ -505,7 +507,8 @@
       "examples": "Menulis tiga sampai lima contoh kalimat untuk setiap kata dari dek yang tidak punya contoh sendiri, lima kata sekaligus (Pengulangan → Dek, “Buat contoh”), sebisa mungkin dengan kata-kata yang kamu kenal, dan kata baru diterjemahkan.",
       "sceneSummary": "Merangkum dialog setelah selesai: satu atau dua koreksi yang paling penting, masing-masing dengan kalimat Anda yang diucapkan dengan benar, dan sedikit umpan balik.",
       "understanding": "Menulis teks pendek dalam bahasa yang Anda pelajari dari kata-kata yang Anda kenal — dialog atau pengumuman untuk didengar, atau menu atau pemberitahuan untuk dibaca — dengan pertanyaan seperti di ujian (benar/salah, a/b/c, angka). Jawaban Anda diperiksa oleh aplikasi, bukan oleh model.",
-      "understandingCheck": "Membaca teks sekali lagi dan menjawab pertanyaannya sendiri hanya dari teks: pertanyaan yang dijawabnya berbeda atau yang dianggapnya tidak jelas dihapus."
+      "understandingCheck": "Membaca teks sekali lagi dan menjawab pertanyaannya sendiri hanya dari teks: pertanyaan yang dijawabnya berbeda atau yang dianggapnya tidak jelas dihapus.",
+      "mistakes": "Membahas kesalahan sebuah putaran menurut jenis: tiap jenis hanya bagian yang salah (jawabanmu, yang benar, kata di sekitarnya), penjelasan singkat, dan dua atau tiga soal baru jenis itu dari kata yang kamu kenal. Jawabanmu diperiksa aplikasi, bukan model."
     }
   },
   "writing": {
@@ -545,10 +548,7 @@
     "items": "{count, plural, other {soal}} {items}",
     "fixed": "{count, plural, other {# diperbaiki kemudian}}",
     "none": "Tidak ada kesalahan di putaran ini.",
-    "notYet": "Belum ada yang dijawab: kerjakan latihannya dulu.",
-    "tutorIntro": "Tutor membahas kesalahan kamu satu per satu: apa yang salah, aturan di baliknya, dan contoh baru yang singkat untuk mengujinya.",
-    "start": "Bahas kesalahanku bersama tutor",
-    "message": "Tolong bahas kesalahanku di pelajaran ini."
+    "notYet": "Belum ada yang dijawab: kerjakan latihannya dulu."
   },
   "scene": {
     "intro": "Dialog singkat secara lisan tentang tujuan pelajaran: kalimat lawan bicara dibacakan dan Anda menjawab dengan mikrofon. Lawan bicara mengetahui hal-hal yang harus Anda tanyakan.",
@@ -1343,6 +1343,8 @@
     "unknown_setting": "Pengaturan ini tidak (lagi) ada.",
     "unsupported_audio": "Browser ini merekam dalam format yang tidak bisa disimpan aplikasi.",
     "writing_busy": "Sebuah teks dari pelajaran ini sedang diperiksa. Tunggu sebentar.",
+    "mistakes_busy": "Kesalahan pelajaran ini sedang dibahas. Tunggu sebentar.",
+    "no_mistakes": "Tidak ada kesalahan di putaran ini untuk dibahas.",
     "other": "Terjadi kesalahan: {message}",
     "exam_needs_setting": "Pilih negara bagian kamu dulu: ujian ini menanyakan hal tentang negara bagian itu.",
     "exam_time_over": "Waktu simulasi ujian ini sudah habis: ujian diserahkan apa adanya.",
@@ -1584,5 +1586,28 @@
     "readNow": "Baca teks dan jawab",
     "result": "{right, number} dari {total, number} benar",
     "past": "Teks sebelumnya di pelajaran ini"
+  },
+  "goingOver": {
+    "title": "Membahas kesalahan",
+    "intro": "Kesalahanmu di putaran ini menurut jenisnya: apa yang salah, aturan di baliknya, dan dua atau tiga soal baru dari tiap jenis untuk dicoba — langsung diperiksa.",
+    "start": "Bahas kesalahanku",
+    "preparing": "Kesalahanmu sedang dibahas…",
+    "again": "Bahas lagi",
+    "group": "Jenis {n, number} dari {total, number}",
+    "yours": "Kesalahanmu",
+    "try": "Sekarang kamu",
+    "next": "Jenis berikutnya",
+    "previous": "Jenis sebelumnya",
+    "result": "{right, number} dari {total, number} benar",
+    "past": "Pembahasan sebelumnya di pelajaran ini",
+    "what": {
+      "ending": "Akhiran",
+      "word": "Kata",
+      "choice": "Pilihan",
+      "order": "Urutan kata",
+      "pair": "Pasangan",
+      "spelling": "Ejaan",
+      "spoken": "Diucapkan"
+    }
   }
 }

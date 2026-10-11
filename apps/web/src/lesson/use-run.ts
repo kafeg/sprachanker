@@ -189,9 +189,12 @@ export function useRun(series: string, lessonKey: string, edition: string | unde
     resumePage,
     results,
     mistakes,
+    /** Its events as the engine reads them (the plan's AI practice: practiceInPlan). */
+    events,
     attempts,
     error: query.error,
-    /** Reads the run again after a failed read, keeping what is still on its way. */
+    /** Reads the run again — after a failed read, after the assistant kept an answer in it —, keeping
+     *  what is still on its way. */
     retry: () => void query.refetch(),
     /** Starts the lesson (or resumes its active run); `restart` begins it anew. */
     async start(restart = false) {

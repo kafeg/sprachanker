@@ -404,7 +404,8 @@
       "examples": "Exemple pentru cuvintele unui pachet",
       "sceneSummary": "Dialog: rezumatul",
       "understanding": "Înțelegere: textul",
-      "understandingCheck": "Înțelegere: a doua citire"
+      "understandingCheck": "Înțelegere: a doua citire",
+      "mistakes": "Analiza greșelilor"
     },
     "contextIntro": "Adăugat din lecție:",
     "contextIntroCourses": "Adăugat din cursurile tale (cele ale limbii pe care o exersează conversația):",
@@ -446,7 +447,8 @@
       "readText": "textul scris",
       "textQuestions": "întrebările lui cu variantele, fără răspunsuri",
       "writingTask": "sarcina: situația, cele trei puncte ale ei și lungimea",
-      "levelCriteria": "de ce are nevoie un text la nivelul cursului (criteriile examenelor scrise)"
+      "levelCriteria": "de ce are nevoie un text la nivelul cursului (criteriile examenelor scrise)",
+      "mistakeGroups": "greșelile tale din această parcurgere pe tipuri, fiecare doar ce a fost greșit (și întrebările de la „Înțelegere” greșite)"
     },
     "upTo": "până la {chars, plural, one {# caracter} few {# caractere} other {# de caractere}}",
     "debug": "Arată butoanele „Prompt”",
@@ -505,7 +507,8 @@
       "examples": "Scrie trei-cinci propoziții exemplu pentru fiecare cuvânt al unui pachet care nu are exemple proprii, câte cinci cuvinte odată (Recapitulare → Pachete, „Creează exemple”), cu cuvinte pe care le știi unde se poate și cu cele noi traduse.",
       "sceneSummary": "Rezumă un dialog după ce s-a încheiat: una sau două corecturi care contează cel mai mult, fiecare cu replica ta spusă bine, și un scurt comentariu.",
       "understanding": "Scrie un text scurt în limba pe care o înveți, din cuvintele pe care le știi — un dialog sau un anunț de ascultat, ori un meniu sau un afiș de citit — cu întrebări ca la examene (adevărat/fals, a/b/c, numere). Răspunsurile tale le verifică aplicația, nu modelul.",
-      "understandingCheck": "Recitește textul și răspunde la propriile întrebări doar din text: o întrebare la care răspunde altfel sau pe care o găsește neclară este scoasă."
+      "understandingCheck": "Recitește textul și răspunde la propriile întrebări doar din text: o întrebare la care răspunde altfel sau pe care o găsește neclară este scoasă.",
+      "mistakes": "Analizează greșelile unei parcurgeri pe tipuri: la fiecare tip doar părțile greșite (ce ai dat, ce e corect, cuvintele din jur), o explicație scurtă și două-trei exerciții noi de acel tip din cuvinte cunoscute. Răspunsurile tale le verifică aplicația, nu modelul."
     }
   },
   "writing": {
@@ -545,10 +548,7 @@
     "items": "{count, plural, one {itemul} few {itemii} other {itemii}} {items}",
     "fixed": "{count, plural, one {# corectat ulterior} few {# corectați ulterior} other {# corectați ulterior}}",
     "none": "Nicio greșeală în această parcurgere.",
-    "notYet": "Încă nu ai răspuns la nimic: fă mai întâi exercițiile.",
-    "tutorIntro": "Tutorele îți analizează greșelile una câte una: ce n-a mers, regula din spate și un exemplu nou și scurt ca să verifici.",
-    "start": "Analizează greșelile mele cu tutorele",
-    "message": "Te rog, analizează cu mine greșelile din această lecție."
+    "notYet": "Încă nu ai răspuns la nimic: fă mai întâi exercițiile."
   },
   "scene": {
     "intro": "Un dialog scurt, vorbit, despre obiectivele lecției: replicile partenerului sunt citite cu voce tare, iar tu răspunzi la microfon. Partenerul știe lucruri pe care trebuie să le întrebi.",
@@ -1343,6 +1343,8 @@
     "unknown_setting": "Această setare nu există (sau nu mai există).",
     "unsupported_audio": "Acest browser înregistrează într-un format pe care aplicația nu îl poate păstra.",
     "writing_busy": "Un text din această lecție este în curs de verificare. Așteaptă.",
+    "mistakes_busy": "Greșelile acestei lecții se analizează acum. Așteaptă.",
+    "no_mistakes": "Nu sunt greșeli de analizat în această parcurgere.",
     "other": "Ceva n-a mers bine: {message}",
     "exam_needs_setting": "Alege mai întâi landul tău: examenul pune întrebări despre el.",
     "exam_time_over": "Timpul acestei simulări a expirat: a fost predată așa cum era.",
@@ -1584,5 +1586,28 @@
     "readNow": "Citește textul și răspunde",
     "result": "{right, number} din {total, number} corecte",
     "past": "Texte anterioare din această lecție"
+  },
+  "goingOver": {
+    "title": "Analiza greșelilor",
+    "intro": "Greșelile tale din această parcurgere, pe tipuri: ce n-a mers, regula din spate și două-trei exerciții noi din fiecare tip de încercat — verificate imediat.",
+    "start": "Analizează-mi greșelile",
+    "preparing": "Se analizează greșelile tale…",
+    "again": "Analizează din nou",
+    "group": "Tipul {n, number} din {total, number}",
+    "yours": "Greșelile tale",
+    "try": "Acum tu",
+    "next": "Tipul următor",
+    "previous": "Tipul anterior",
+    "result": "{right, number} din {total, number} corecte",
+    "past": "Analize anterioare în această lecție",
+    "what": {
+      "ending": "Terminații",
+      "word": "Cuvinte",
+      "choice": "Alegeri",
+      "order": "Ordinea cuvintelor",
+      "pair": "Perechi",
+      "spelling": "Ortografie",
+      "spoken": "Spus cu voce tare"
+    }
   }
 }

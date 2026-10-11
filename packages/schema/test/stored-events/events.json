@@ -375,6 +375,71 @@
         "model": "m",
         "latencyMs": 10
       }
+    },
+    {
+      "since": "2026-10-12",
+      "payload": {
+        "task": "mistakes",
+        "input": "",
+        "result": {
+          "groups": [
+            {
+              "type": "gap_text",
+              "what": "ending",
+              "mistakes": [
+                {
+                  "itemKey": "s.x/c/00-01/ex-08#1",
+                  "what": "ending",
+                  "given": "musst",
+                  "right": "muss",
+                  "context": "In der WG [_] Nina heute kochen."
+                }
+              ],
+              "explanation": "With ich and er/sie: muss.",
+              "items": [
+                {
+                  "text": "Er ___ arbeiten.",
+                  "gaps": [
+                    {
+                      "accepted": ["muss"]
+                    }
+                  ]
+                },
+                {
+                  "text": "Du ___ arbeiten.",
+                  "gaps": [
+                    {
+                      "accepted": ["musst"]
+                    }
+                  ]
+                }
+              ]
+            },
+            {
+              "type": "single_choice",
+              "what": "choice",
+              "mistakes": [
+                {
+                  "itemKey": "01HZY0000000000000000000AA#1",
+                  "what": "choice",
+                  "given": "3 Euro",
+                  "right": "2 Euro"
+                }
+              ],
+              "explanation": "Read the question again.",
+              "items": [
+                {
+                  "prompt": "Wo ist Tom?",
+                  "options": ["Im Café.", "Im Park."],
+                  "answer": 0
+                }
+              ]
+            }
+          ]
+        },
+        "model": "m",
+        "latencyMs": 10
+      }
     }
   ],
   "llm_turn": [

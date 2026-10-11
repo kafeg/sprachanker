@@ -404,7 +404,8 @@
       "examples": "Példák egy pakli szavaihoz",
       "sceneSummary": "Párbeszéd: az összegzés",
       "understanding": "Szövegértés: a szöveg",
-      "understandingCheck": "Szövegértés: a második olvasás"
+      "understandingCheck": "Szövegértés: a második olvasás",
+      "mistakes": "Hibák átnézése"
     },
     "contextIntro": "A leckéből hozzáadva:",
     "contextIntroCourses": "A kurzusaidból hozzáadva (azokból, amelyek a beszélgetés nyelvét tanítják):",
@@ -446,7 +447,8 @@
       "readText": "a megírt szöveg",
       "textQuestions": "a kérdései a válaszlehetőségekkel, megoldások nélkül",
       "writingTask": "a feladat: a helyzet, a három pontja és a hossz",
-      "levelCriteria": "mire van szüksége egy szövegnek a kurzus szintjén (az írásbeli vizsgák szempontjai)"
+      "levelCriteria": "mire van szüksége egy szövegnek a kurzus szintjén (az írásbeli vizsgák szempontjai)",
+      "mistakeGroups": "a hibáid ebben a körben fajtánként, mindegyikből csak ami rossz volt (a „Szövegértés” rosszul megválaszolt kérdései is)"
     },
     "upTo": "legfeljebb {chars, plural, one {# karakter} other {# karakter}}",
     "debug": "„Prompt” gombok megjelenítése",
@@ -505,7 +507,8 @@
       "examples": "Három-öt példamondatot ír egy pakli minden olyan szavához, amelynek nincs saját példája, egyszerre öt szóhoz (Ismétlés → Paklik, „Példák készítése”); ahol lehet, ismert szavakkal, az újakat lefordítva.",
       "sceneSummary": "Összegzi a párbeszédet, amikor véget ért: az egy-két legfontosabb javítás, mindegyik mellett a mondatod helyesen, és egy rövid visszajelzés.",
       "understanding": "Rövid szöveget ír a tanult nyelven az általad ismert szavakból — meghallgatandó párbeszédet vagy bemondást, illetve elolvasandó étlapot vagy hirdetményt — vizsgákhoz hasonló kérdésekkel (igaz/hamis, a/b/c, számok). A válaszaidat az app ellenőrzi, nem a modell.",
-      "understandingCheck": "Újra elolvassa a szöveget, és csak a szövegből válaszol a saját kérdéseire: az a kérdés, amelyre másképp válaszol, vagy amelyet nem talál egyértelműnek, kimarad."
+      "understandingCheck": "Újra elolvassa a szöveget, és csak a szövegből válaszol a saját kérdéseire: az a kérdés, amelyre másképp válaszol, vagy amelyet nem talál egyértelműnek, kimarad.",
+      "mistakes": "Fajtánként átnézi egy kör hibáit: minden fajtánál csak a hibás részeket (mit adtál meg, mi a helyes, a körülötte lévő szavakat), egy rövid magyarázatot és két-három új, ilyen fajtájú feladatot ismert szavakból. A válaszaidat az app ellenőrzi, nem a modell."
     }
   },
   "writing": {
@@ -545,10 +548,7 @@
     "items": "{count, plural, one {részfeladat:} other {részfeladatok:}} {items}",
     "fixed": "{count, plural, one {# később javítva} other {# később javítva}}",
     "none": "Ebben a körben nincs hiba.",
-    "notYet": "Még nincs válasz: előbb oldd meg a feladatokat.",
-    "tutorIntro": "A tutor egyenként végigmegy a hibáidon: mi ment félre, milyen szabály áll mögötte, és egy rövid új példa az ellenőrzéshez.",
-    "start": "Hibáim átnézése a tutorral",
-    "message": "Kérlek, nézzük át a hibáimat ebben a leckében."
+    "notYet": "Még nincs válasz: előbb oldd meg a feladatokat."
   },
   "scene": {
     "intro": "Rövid, szóbeli párbeszéd a lecke céljairól: a partnered mondatait felolvassa az app, te mikrofonnal válaszolsz. A partnered tud dolgokat, amelyeket meg kell kérdezned.",
@@ -1343,6 +1343,8 @@
     "unknown_setting": "Ez a beállítás (már) nem létezik.",
     "unsupported_audio": "Ez a böngésző olyan formátumban rögzít, amelyet az alkalmazás nem tud tárolni.",
     "writing_busy": "A lecke egyik szövegének ellenőrzése folyamatban van. Várj egy kicsit.",
+    "mistakes_busy": "Épp folyik ennek a leckének a hibaátnézése. Várj egy kicsit.",
+    "no_mistakes": "Ebben a körben nincs átnézendő hiba.",
     "other": "Hiba történt: {message}",
     "exam_needs_setting": "Előbb válaszd ki a szövetségi tartományodat: a vizsga kérdez róla.",
     "exam_time_over": "A próbavizsga ideje lejárt: a vizsga az addigi állapotában lett beadva.",
@@ -1584,5 +1586,28 @@
     "readNow": "Olvasd el a szöveget, és válaszolj",
     "result": "{right, number}/{total, number} helyes",
     "past": "A lecke korábbi szövegei"
+  },
+  "goingOver": {
+    "title": "Hibák átnézése",
+    "intro": "A hibáid ebben a körben, fajtánként: mi volt rossz, mi a szabály mögötte, és minden fajtából két-három új feladat kipróbálásra — azonnal ellenőrizve.",
+    "start": "Nézzük át a hibáimat",
+    "preparing": "A hibáid átnézése folyik…",
+    "again": "Átnézés újra",
+    "group": "{n, number}. fajta a(z) {total, number}-ból",
+    "yours": "A hibáid",
+    "try": "Most te",
+    "next": "Következő fajta",
+    "previous": "Előző fajta",
+    "result": "{right, number}/{total, number} helyes",
+    "past": "Korábbi hibaátnézések ebben a leckében",
+    "what": {
+      "ending": "Végződések",
+      "word": "Szavak",
+      "choice": "Választás",
+      "order": "Szórend",
+      "pair": "Párok",
+      "spelling": "Helyesírás",
+      "spoken": "Kimondva"
+    }
   }
 }

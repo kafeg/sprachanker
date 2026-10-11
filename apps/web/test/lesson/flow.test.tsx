@@ -14,6 +14,7 @@ function fakeRun(mode: "none" | "active" | "finished", events: TypedEvent[] = []
     results: exerciseResults(events),
     done: stepsDone(events),
     mistakes: [],
+    events,
     resumePage,
     pageShown: (i: number) => calls.push(`page ${i}`),
     stepDone: (id: StepId, skipped = false) => calls.push(`step ${id}${skipped ? " skipped" : ""}`),
@@ -132,6 +133,16 @@ test("every exercise worked and AI practice left: the run resumes on the practic
   expect(result.current.current).toBe("overview");
   rerender({ practice: ["writing"] });
   expect(result.current.current).toBe("writing");
+});
+
+test("going over mistakes is in the plan only once the run has a mistake", () => {
+  const practice = ["writing", "mistakes"] as const;
+  const plan = (events: TypedEvent[]) =>
+    renderHook(() =>
+      useLessonFlow({ lesson, locale, practice, run: fakeRun("active", events).run as never }),
+    ).result.current.ids;
+  expect(plan([answered("ex-01#1", "a")])).not.toContain("mistakes");
+  expect(plan([answered("ex-01#1", "b")])).toEqual(expect.arrayContaining(["writing", "mistakes"]));
 });
 
 test("a page opened on a step stays on it instead of resuming (a reload); moving updates the address", () => {

@@ -87,9 +87,9 @@ src/
                      #   (the knowledge snapshot every lesson task takes: level — `levelOf` —, place,
                      #   words and topics met), in-flight (calls outliving the page) shared; explain,
                      #   understanding (a text written, read again, its answers checked by the engine),
-                     #   writing (a task set, a text on it checked), speaking, tutor (+ tutor-tools;
-                     #   courses-context: the Tutor section's chats' context, languages), scene (the
-                     #   Dialogue: setup, lines, summary); exam-rating, exam-conversation; examples
+                     #   writing (a task set, a text on it checked), going-over (the pass's mistakes by
+                     #   type, new items checked by the engine), speaking, tutor (+ tutor-tools,
+                     #   courses-context), scene (the Dialogue), exam-rating, exam-conversation, examples
                      # - speech (08): speech (whisper-server), read-aloud (Piper; piper-voices.json from
                      #   scripts/piper-voices.ts), qwen-tts, local-engines (SpeechHost, ReadingCache,
                      #   engineSidecar), model-downloads, sidecar (the supervisor), profile-speech,

@@ -70,10 +70,13 @@ Specs: 04 ("AI practice in courses"), 07, 08, 09.
   engine and voices named), answered by ear, then read with its reading question; reading-type texts
   shown to read; the questions closed items checked by the engine. Remaining: tried on a real course
   with a real model and Piper or Qwen3-TTS (the e2e run uses the fake model and the device's voices).
-- Phase 3 (next): **Writing** on a task of three content points (length and criteria by level, at most three
-  corrections and a model text); **Going over mistakes** by type with new items checked by the engine
-  (`mistake_items`); "Why is this wrong?" saying where the topic was met; the tutor's practice
-  presets taken out.
+- Phase 3 (done, from the walkthrough of 2026-10-12): **Writing** on a task of three content points
+  set by the model (length and criteria by level; each point rated, at most three corrections, a
+  model text); **Going over mistakes** by type — the wrong parts only, an explanation and new items
+  per type checked by the engine (`mistake_items`), the step only with mistakes; "Why is this
+  wrong?" saying where the topic was taught; the tutor kept to explanations (practice presets out,
+  its rules from the walkthrough). Remaining: tried on a real course with a real model (the e2e run
+  uses the fake model).
 - **Accept**: each phase's exercises held end to end in a lesson on the fixture course (e2e) and on a
   real course with a real model.
 

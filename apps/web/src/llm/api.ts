@@ -6,7 +6,7 @@ import { CHAT_ID_HEADER, type LessonKey, STREAM_ERROR } from "@sprachanker/schem
 import { useInfiniteQuery, useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import type { InferResponseType } from "hono/client";
 import { useEffect, useRef } from "react";
-import { withAttempt, withCheck, withScene, withText, withTurns } from "@/api/cache.ts";
+import { withAttempt, withCheck, withReview, withScene, withText, withTurns } from "@/api/cache.ts";
 import { ApiError, api, apiError, json } from "@/api/client.ts";
 
 export type ExplainRequest = Parameters<typeof api.llm.explain.$post>[0]["json"];
@@ -262,6 +262,7 @@ export type PromptRequest =
   | { tutor: TutorPromptRequest }
   | { section: SectionPromptRequest }
   | { understanding: UnderstandingRequest }
+  | { mistakes: GoingOverRequest }
   | { writing: WritingPromptRequest }
   | { speaking: SpeakingRequest }
   | { scene: SceneLineRequest }
@@ -277,6 +278,7 @@ export function fetchPrompt(kind: PromptRequest): Promise<PromptPreview> {
   if ("understanding" in kind)
     return json(api.llm.understanding.prompt.$post({ json: kind.understanding }));
   if ("writing" in kind) return json(api.llm.writing.prompt.$post({ json: kind.writing }));
+  if ("mistakes" in kind) return json(api.llm.mistakes.prompt.$post({ json: kind.mistakes }));
   if ("speaking" in kind) return json(api.llm.speaking.prompt.$post({ json: kind.speaking }));
   if ("deckExamples" in kind)
     return json(api.decks.examples.prompt.$post({ json: kind.deckExamples }));
@@ -399,6 +401,51 @@ export function useAnswerUnderstanding(lessonKey: LessonKey) {
     scope: { id: `understanding:${lessonKey}` },
     mutationFn: (answer: UnderstandingAnswer) =>
       json(api.llm.understanding.answer.$post({ json: answer })),
+    onSuccess: shown,
+  });
+}
+
+type GoingOverRequest = Parameters<typeof api.llm.mistakes.$post>[0]["json"];
+type GoingOverAnswer = Parameters<typeof api.llm.mistakes.answer.$post>[0]["json"];
+type GoingOverState = Awaited<ReturnType<typeof fetchGoingOver>>;
+export type Review = GoingOverState["reviews"][number];
+const fetchGoingOver = (lessonKey: LessonKey) =>
+  json(api.llm.mistakes.$get({ query: { lessonKey } }));
+
+/** The lesson's mistakes reviews with their answers, newest first; asked again while one is being
+ *  written (from here or before). */
+export const useGoingOver = (lessonKey: LessonKey) =>
+  useQuery({
+    queryKey: ["going-over", lessonKey],
+    queryFn: () => fetchGoingOver(lessonKey),
+    refetchInterval: (query) => (query.state.data?.preparing ? WHILE_BUSY : false),
+  });
+
+/** Shows a review at once: on top when just written, in its place with an answer added. */
+function useReviewShown(lessonKey: LessonKey) {
+  const client = useQueryClient();
+  return (review: Review) =>
+    client.setQueryData(["going-over", lessonKey], (old: GoingOverState | undefined) =>
+      withReview(old, review),
+    );
+}
+
+/** Goes over the pass's mistakes (shown on top at once, also when the page that asked is gone). */
+export function useStartGoingOver(lessonKey: LessonKey) {
+  const shown = useReviewShown(lessonKey);
+  return useMutation({
+    mutationFn: (request: GoingOverRequest) => json(api.llm.mistakes.$post({ json: request })),
+    onSuccess: shown,
+  });
+}
+
+/** Keeps an answer to a review's new item, checked by the server; the review shown with it, one
+ *  answer after another. */
+export function useAnswerGoingOver(lessonKey: LessonKey) {
+  const shown = useReviewShown(lessonKey);
+  return useMutation({
+    scope: { id: `going-over:${lessonKey}` },
+    mutationFn: (answer: GoingOverAnswer) => json(api.llm.mistakes.answer.$post({ json: answer })),
     onSuccess: shown,
   });
 }

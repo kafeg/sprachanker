@@ -404,7 +404,8 @@
       "examples": "Przykłady do słów talii",
       "sceneSummary": "Dialog: podsumowanie",
       "understanding": "Rozumienie: tekst",
-      "understandingCheck": "Rozumienie: drugie czytanie"
+      "understandingCheck": "Rozumienie: drugie czytanie",
+      "mistakes": "Omówienie błędów"
     },
     "contextIntro": "Dodane z lekcji:",
     "contextIntroCourses": "Dodane z twoich kursów (tych w języku, który ćwiczy rozmowa):",
@@ -446,7 +447,8 @@
       "readText": "napisany tekst",
       "textQuestions": "jego pytania z odpowiedziami do wyboru, bez rozwiązań",
       "writingTask": "zadanie: sytuacja, jego trzy punkty i długość",
-      "levelCriteria": "czego potrzebuje tekst na poziomie kursu (kryteria egzaminów pisemnych)"
+      "levelCriteria": "czego potrzebuje tekst na poziomie kursu (kryteria egzaminów pisemnych)",
+      "mistakeGroups": "twoje błędy z tego podejścia według rodzaju, każdy tylko to, co było źle (także źle odpowiedziane pytania z „Rozumienia”)"
     },
     "upTo": "do {chars, plural, one {# znaku} few {# znaków} many {# znaków} other {# znaku}}",
     "debug": "Pokazuj przyciski „Prompt”",
@@ -505,7 +507,8 @@
       "examples": "Pisze od trzech do pięciu przykładowych zdań do każdego słowa talii, która nie ma własnych, po pięć słów naraz (Powtórki → Talie, „Utwórz przykłady”), w miarę możliwości ze znanymi ci słowami, a nowe tłumaczy.",
       "sceneSummary": "Podsumowuje dialog po jego zakończeniu: jedną lub dwie najważniejsze poprawki, każdą z twoim zdaniem powiedzianym dobrze, i krótką uwagę.",
       "understanding": "Pisze krótki tekst w języku, którego się uczysz, ze znanych ci słów — dialog lub komunikat do słuchania albo menu czy ogłoszenie do czytania — z pytaniami jak na egzaminach (prawda/fałsz, a/b/c, liczby). Twoje odpowiedzi sprawdza aplikacja, nie model.",
-      "understandingCheck": "Czyta tekst jeszcze raz i odpowiada na własne pytania tylko na podstawie tekstu: pytanie, na które odpowie inaczej albo które uzna za niejasne, odpada."
+      "understandingCheck": "Czyta tekst jeszcze raz i odpowiada na własne pytania tylko na podstawie tekstu: pytanie, na które odpowie inaczej albo które uzna za niejasne, odpada.",
+      "mistakes": "Omawia błędy podejścia według rodzaju: dla każdego rodzaju tylko błędne części (co podano, co jest dobrze, słowa wokół), krótkie wyjaśnienie i dwa–trzy nowe zadania tego rodzaju ze znanych słów. Odpowiedzi sprawdza aplikacja, nie model."
     }
   },
   "writing": {
@@ -545,10 +548,7 @@
     "items": "{count, plural, one {zadanie} few {zadania} many {zadania} other {zadania}} {items}",
     "fixed": "{count, plural, one {# poprawione później} few {# poprawione później} many {# poprawionych później} other {# poprawionego później}}",
     "none": "W tym podejściu nie ma błędów.",
-    "notYet": "Brak odpowiedzi: najpierw zrób ćwiczenia.",
-    "tutorIntro": "Tutor omawia twoje błędy po kolei: co poszło nie tak, jaka reguła za tym stoi i krótki nowy przykład do sprawdzenia.",
-    "start": "Omów moje błędy z tutorem",
-    "message": "Omów proszę moje błędy w tej lekcji."
+    "notYet": "Brak odpowiedzi: najpierw zrób ćwiczenia."
   },
   "scene": {
     "intro": "Krótki dialog na głos na temat celów lekcji: kwestie rozmówcy są czytane na głos, a ty odpowiadasz przez mikrofon. Rozmówca wie rzeczy, o które musisz zapytać.",
@@ -1343,6 +1343,8 @@
     "unknown_setting": "To ustawienie (już) nie istnieje.",
     "unsupported_audio": "Ta przeglądarka nagrywa w formacie, którego aplikacja nie może zapisać.",
     "writing_busy": "Tekst z tej lekcji jest właśnie sprawdzany. Poczekaj.",
+    "mistakes_busy": "Błędy tej lekcji są właśnie omawiane. Poczekaj.",
+    "no_mistakes": "W tym podejściu nie ma błędów do omówienia.",
     "other": "Coś poszło nie tak: {message}",
     "exam_needs_setting": "Najpierw wybierz swój kraj związkowy: egzamin zawiera pytania o niego.",
     "exam_time_over": "Czas tego egzaminu próbnego minął: został oddany w obecnym stanie.",
@@ -1584,5 +1586,28 @@
     "readNow": "Przeczytaj tekst i odpowiedz",
     "result": "{right, number} z {total, number} dobrze",
     "past": "Wcześniejsze teksty tej lekcji"
+  },
+  "goingOver": {
+    "title": "Omówienie błędów",
+    "intro": "Twoje błędy z tego podejścia według rodzaju: co było źle, reguła za tym i dwa–trzy nowe zadania każdego rodzaju do spróbowania — sprawdzane od razu.",
+    "start": "Omów moje błędy",
+    "preparing": "Omawiam twoje błędy…",
+    "again": "Omów ponownie",
+    "group": "Rodzaj {n, number} z {total, number}",
+    "yours": "Twoje błędy",
+    "try": "Teraz ty",
+    "next": "Następny rodzaj",
+    "previous": "Poprzedni rodzaj",
+    "result": "{right, number} z {total, number} dobrze",
+    "past": "Wcześniejsze omówienia błędów w tej lekcji",
+    "what": {
+      "ending": "Końcówki",
+      "word": "Słowa",
+      "choice": "Wybór",
+      "order": "Szyk wyrazów",
+      "pair": "Pary",
+      "spelling": "Pisownia",
+      "spoken": "Powiedziane na głos"
+    }
   }
 }

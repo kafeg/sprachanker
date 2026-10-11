@@ -404,7 +404,8 @@
       "examples": "Exemplos para as palavras de um baralho",
       "sceneSummary": "Diálogo: o resumo",
       "understanding": "Compreensão: o texto",
-      "understandingCheck": "Compreensão: a segunda leitura"
+      "understandingCheck": "Compreensão: a segunda leitura",
+      "mistakes": "Revisando os erros"
     },
     "contextIntro": "Adicionado da lição:",
     "contextIntroCourses": "Adicionado dos seus cursos (os do idioma que a conversa pratica):",
@@ -446,7 +447,8 @@
       "readText": "o texto escrito",
       "textQuestions": "as perguntas com as opções, sem as respostas",
       "writingTask": "a tarefa: a situação, os três pontos e a extensão",
-      "levelCriteria": "o que um texto do nível do curso precisa (os critérios das provas escritas)"
+      "levelCriteria": "o que um texto do nível do curso precisa (os critérios das provas escritas)",
+      "mistakeGroups": "seus erros nesta rodada por tipo, cada um só o que estava errado (também as perguntas de “Compreensão” erradas)"
     },
     "upTo": "até {chars, plural, =0 {# caracteres} one {# caractere} other {# caracteres}}",
     "debug": "Mostrar os botões “Prompt”",
@@ -505,7 +507,8 @@
       "examples": "Escreve de três a cinco frases de exemplo para cada palavra de um baralho que não tenha exemplos próprios, cinco palavras por vez (Revisão → Baralhos, “Criar exemplos”), com palavras que você já conhece sempre que possível e as novas traduzidas.",
       "sceneSummary": "Resume um diálogo quando termina: as uma ou duas correções mais importantes, cada uma com a sua frase bem dita, e um comentário breve.",
       "understanding": "Escreve um texto curto no idioma que você aprende com as palavras que você conhece — um diálogo ou um anúncio para ouvir, ou um cardápio ou um aviso para ler — com perguntas como as das provas (verdadeiro/falso, a/b/c, números). Suas respostas são corrigidas pelo app, não pelo modelo.",
-      "understandingCheck": "Lê o texto de novo e responde às próprias perguntas só pelo texto: uma pergunta que ele responde de outro jeito, ou que acha confusa, é retirada."
+      "understandingCheck": "Lê o texto de novo e responde às próprias perguntas só pelo texto: uma pergunta que ele responde de outro jeito, ou que acha confusa, é retirada.",
+      "mistakes": "Revisa os erros de uma rodada por tipo: de cada tipo só as partes erradas (o que você deu, o que é certo, as palavras em volta), uma explicação curta e dois ou três exercícios novos do tipo com palavras que você conhece. Suas respostas são corrigidas pelo app, não pelo modelo."
     }
   },
   "writing": {
@@ -545,10 +548,7 @@
     "items": "{count, plural, =0 {itens} one {item} other {itens}} {items}",
     "fixed": "{count, plural, =0 {# corrigidos depois} one {# corrigido depois} other {# corrigidos depois}}",
     "none": "Nenhum erro nesta rodada.",
-    "notYet": "Nada respondido ainda: faça os exercícios primeiro.",
-    "tutorIntro": "O tutor revisa os seus erros um por vez: o que deu errado, a regra por trás e um exemplo novo e curto para testar.",
-    "start": "Revisar meus erros com o tutor",
-    "message": "Por favor, revise os meus erros desta lição."
+    "notYet": "Nada respondido ainda: faça os exercícios primeiro."
   },
   "scene": {
     "intro": "Um diálogo curto, falado, sobre os objetivos da lição: as falas do seu interlocutor são lidas em voz alta e você responde com o microfone. O seu interlocutor sabe coisas que você precisa perguntar.",
@@ -1343,6 +1343,8 @@
     "unknown_setting": "Esta configuração não existe (mais).",
     "unsupported_audio": "Este navegador grava num formato que o app não consegue guardar.",
     "writing_busy": "Um texto desta lição está sendo corrigido. Aguarde.",
+    "mistakes_busy": "Os erros desta lição estão sendo revisados. Aguarde.",
+    "no_mistakes": "Não há erros nesta rodada para revisar.",
     "other": "Algo deu errado: {message}",
     "exam_needs_setting": "Escolha primeiro o seu estado: o exame faz perguntas sobre ele.",
     "exam_time_over": "O tempo deste simulado acabou: ele foi entregue como estava.",
@@ -1584,5 +1586,28 @@
     "readNow": "Leia o texto e responda",
     "result": "{right, number} de {total, number} certas",
     "past": "Textos anteriores desta lição"
+  },
+  "goingOver": {
+    "title": "Revisando os erros",
+    "intro": "Seus erros nesta rodada, por tipo: o que deu errado, a regra por trás e dois ou três exercícios novos de cada tipo para tentar — corrigidos na hora.",
+    "start": "Revisar meus erros",
+    "preparing": "Revisando seus erros…",
+    "again": "Revisar de novo",
+    "group": "Tipo {n, number} de {total, number}",
+    "yours": "Seus erros",
+    "try": "Agora você",
+    "next": "Próximo tipo",
+    "previous": "Tipo anterior",
+    "result": "{right, number} de {total, number} certas",
+    "past": "Revisões anteriores nesta lição",
+    "what": {
+      "ending": "Terminações",
+      "word": "Palavras",
+      "choice": "Escolhas",
+      "order": "Ordem das palavras",
+      "pair": "Pares",
+      "spelling": "Ortografia",
+      "spoken": "Dito em voz alta"
+    }
   }
 }

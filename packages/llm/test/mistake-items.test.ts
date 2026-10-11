@@ -1,0 +1,131 @@
+// mistake_items (04, "AI practice in courses"; 07): the groups as data — what went wrong, the new
+// items' type and fields, each mistake its wrong part only —; the rules (what is wrong, never why; new
+// items of the type, never a sentence again); every group answered once, each item valid for its type.
+import { expect, test } from "bun:test";
+import { mistakeLine, wrongPartLine } from "../src/tasks/describe.ts";
+import {
+  type MistakeItemsInput,
+  type MistakeItemsReply,
+  mistakeItemsRules,
+  mistakeItemsTask,
+} from "../src/tasks/mistake-items.ts";
+
+const input: MistakeItemsInput = {
+  language: "ru",
+  target: "de",
+  lesson: {
+    title: "In der WG",
+    goals: [],
+    grammarHtml: ["<p>Modalverben: ich muss, du musst</p>"],
+    vocab: [{ target: "kochen", translation: "готовить" }],
+    level: "A1",
+  },
+  groups: [
+    {
+      type: "gap_text",
+      what: "ending",
+      mistakes: [
+        {
+          itemKey: "k#1",
+          what: "ending",
+          given: "musst",
+          right: "muss",
+          context: "In der WG [_] Nina heute kochen.",
+        },
+      ],
+    },
+    {
+      type: "single_choice",
+      what: "choice",
+      mistakes: [
+        { itemKey: "k#2", what: "choice", given: "", right: "Im Café.", context: "Wo ist Lena?" },
+      ],
+    },
+  ],
+};
+
+test("the groups as data: what went wrong, the new items' type and fields, the wrong parts only", () => {
+  const { name, request } = mistakeItemsTask(input);
+  expect(name).toBe("mistake_items");
+  const [system, user] = request.messages.map((m) => String(m.content));
+  for (const part of [
+    "never guess why the learner chose it",
+    'a tendency ("usually") is no rule',
+    "never a sentence of the mistakes again",
+    "each with exactly one right answer",
+    "Write only in Russian and German",
+    "The learner's gender is unknown",
+  ])
+    expect(system).toContain(part);
+  expect(system).not.toContain("A1");
+  expect(system).toEndWith("Reply with the JSON object only.");
+  expect(user).toContain(
+    'Group 1 — what went wrong: the ending of a word; new items: gap_text, with "text" (a sentence with each gap written ___',
+  );
+  expect(user).toContain('- learner "musst", correct "muss" in "In der WG [_] Nina heute kochen."');
+  expect(user).toContain('- learner (no answer), correct "Im Café." to "Wo ist Lena?"');
+  expect(user).toContain("Grammar notes of this lesson:\nModalverben: ich muss, du musst");
+  expect(user).toEndWith("Remember: 2 groups; explanations in Russian, the items in German.");
+  expect(mistakeItemsRules("ru", "de")).toContain("explanation");
+});
+
+test("every group answered once, each item valid for its group's type; else repaired", () => {
+  const { check } = mistakeItemsTask(input);
+  const gap = { text: "Er ___ kochen.", gaps: [{ accepted: ["muss"] }] };
+  const choice = { prompt: "Wo ist Tom?", options: ["Im Café.", "Im Park."], answer: 0 };
+  const reply = (groups: MistakeItemsReply["groups"]) => check?.({ groups });
+  expect(
+    reply([
+      { n: 1, explanation: "…", items: [gap, gap] },
+      { n: 2, explanation: "…", items: [choice, choice] },
+    ]),
+  ).toBeUndefined();
+  // A group missing, a gap item whose gaps do not match its text, a choice without its answer.
+  expect(reply([{ n: 1, explanation: "…", items: [gap, gap] }])).toContain("group 2");
+  expect(
+    reply([
+      {
+        n: 1,
+        explanation: "…",
+        items: [gap, { text: "Er ___ und ___.", gaps: [{ accepted: ["a"] }] }],
+      },
+      { n: 2, explanation: "…", items: [choice, choice] },
+    ]),
+  ).toContain("group 1, item 2");
+  expect(
+    reply([
+      { n: 1, explanation: "…", items: [gap, gap] },
+      { n: 2, explanation: "…", items: [choice, { prompt: "?", options: ["a", "b"] }] },
+    ]),
+  ).toContain("group 2, item 2");
+});
+
+test("a mistake for the tutor: its wrong parts only, never the item whole; else its task cut at a word", () => {
+  const part = {
+    itemKey: "k#1",
+    what: "pair" as const,
+    given: "spoon",
+    right: "cup",
+    context: "die Tasse",
+  };
+  expect(wrongPartLine(part)).toBe('learner "spoon", correct "cup" for "die Tasse"');
+  const exercise = {
+    key: "s.x/c/01-01/ex-01",
+    type: "gap_text",
+    items: [
+      {
+        key: "s.x/c/01-01/ex-01#1",
+        prompt: `${"Ein sehr langer Satz ".repeat(20)}Ende`,
+        segments: ["Ich ", { gap: "g1" }, "."],
+        answer: { g1: { accepted: ["muss"] } },
+      },
+    ],
+  } as never;
+  const withParts = mistakeLine({ exercise, index: 0, answer: {}, fixed: true, parts: [part] });
+  expect(withParts).toBe(
+    '- [item 1] (fixed later)\n  learner "spoon", correct "cup" for "die Tasse"',
+  );
+  const whole = mistakeLine({ exercise, index: 0, answer: { g1: "musst" }, fixed: false });
+  // Cut at a word's end, never inside one.
+  expect(whole.split("\n")[0]).toMatch(/Satz …$|langer …$|sehr …$|Ein …$/);
+});

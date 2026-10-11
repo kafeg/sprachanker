@@ -4,6 +4,7 @@ import {
   Correction,
   DialogueSummary,
   ExamRatingProposal,
+  MistakesReview,
   SpokenCheck,
   UnderstandingText,
   WordExample,
@@ -207,6 +208,7 @@ const LlmVerdictPayload = z.discriminatedUnion("task", [
   verdict("exam", ExamRatingProposal),
   verdict("dialogue", DialogueSummary),
   verdict("understanding", UnderstandingText),
+  verdict("mistakes", MistakesReview),
 ]);
 type LlmVerdictPayload = z.infer<typeof LlmVerdictPayload>;
 export type VerdictTask = LlmVerdictPayload["task"];
@@ -354,9 +356,10 @@ export const ExamRatedPayload = z.object({
 });
 export type ExamRatedPayload = z.infer<typeof ExamRatedPayload>;
 
-/** An answer to a question the assistant set (an Understanding text's, 04): on the verdict that set
- *  it (`verdict`: its event's id) by the question's index, in the verdict's run, its outcome checked
- *  by the server with the engine as the item of its kind (never by a model). One answer a question. */
+/** An answer to a question the assistant set (an Understanding text's, a mistakes review's new items —
+ *  counted across its groups —; 04): on the verdict that set it (`verdict`: its event's id) by the
+ *  question's index, in the verdict's run, its outcome checked by the server with the engine as the
+ *  item of its kind (never by a model). One answer a question. */
 export const PracticeAnsweredPayload = z.object({
   verdict: Ulid,
   question: z.number().int().nonnegative(),
