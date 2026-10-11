@@ -87,7 +87,8 @@ JSON under `/api`, validated with zod and typed for the web client through Hono 
   has cards made from it). An import asked again with its upload's id — at once, or after it ended
   (within a day) — answers with the deck it made, so a retry after a dropped connection gets it. Bun
   takes bodies up to a deck file's size; the preview and the import wait as long as they take, every
-  other request Bun's 10 s (`runtime/bun.ts`).
+  other request up to 255 s of silence (Bun's most: a local model's first words, 07; `runtime/bun.ts`).
+  A deck's earlier audio is linked into its update, copied where the disk has no hard links.
 - Settings: `GET` / `PUT /api/settings` (one key at a time): only the learner's preferences, each
   checked against its schema (`packages/schema/src/settings.ts`); the assistant's endpoints and prompts
   are changed only through `/api/llm`.

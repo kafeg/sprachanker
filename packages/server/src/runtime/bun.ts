@@ -31,12 +31,15 @@ export function listen(
   const server = Bun.serve({
     fetch(request, bun) {
       // A deck file's preview and import read or write for minutes before they answer: they wait as
-      // long as they take, every other request Bun's 10 s.
+      // long as they take; every other request up to `idleTimeout` (a model's first words, 07).
       if (UNTIMED.test(new URL(request.url).pathname)) bun.timeout(request, 0);
       return fetch(request);
     },
     hostname: options.hostname,
     port: options.port,
+    // Bun's most: a local model may take minutes to its first token (07: 180 s), a speech engine to
+    // load; Bun's default 10 s would cut them.
+    idleTimeout: 255,
     // A deck file is the largest body taken (Bun's own limit is 128 MB); each route keeps its own
     // limit below it (app.ts).
     maxRequestBodySize: DECK_MAX_BYTES + 1024 * 1024,

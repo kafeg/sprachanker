@@ -55,6 +55,15 @@ describe.each(["anki2", "anki21b"] as const)("a package in the %s format", (form
     const apkg = readApkg(bytes, bunApkgRuntime, { maxUnpacked: 500_000 });
     expect(apkg.notes).toHaveLength(2);
     expect(() => apkg.media(["abend.mp3"])).toThrow(ApkgTooLarge);
+    // Files each within the bound but more than it together (zstd ones as they unpack).
+    const two = buildApkg({
+      ...spec,
+      media: { "a.mp3": new Uint8Array(300_000), "b.mp3": new Uint8Array(300_000) },
+      format,
+    });
+    const both = readApkg(two, bunApkgRuntime, { maxUnpacked: 500_000 });
+    expect(both.media(["a.mp3"]).size).toBe(1);
+    expect(() => both.media(["a.mp3", "b.mp3"])).toThrow(ApkgTooLarge);
   });
 });
 

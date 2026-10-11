@@ -75,8 +75,8 @@ export function readApkg(
   options: { maxUnpacked?: number } = {},
 ): Apkg {
   const max = options.maxUnpacked ?? UNPACKED_MAX;
-  const zstd = (b: Uint8Array) => {
-    const out = runtime.zstd(b, max);
+  const zstd = (b: Uint8Array, room = max) => {
+    const out = runtime.zstd(b, room);
     if (!out) throw new ApkgTooLarge(`a file unpacks to more than ${max} bytes`);
     return out;
   };
@@ -111,8 +111,14 @@ export function readApkg(
       );
       const out = new Map<string, Uint8Array>();
       if (!wanted.size) return out;
-      for (const [entry, found] of Object.entries(unzip(bytes, (n) => wanted.has(n), max)))
-        out.set(wanted.get(entry) as string, isZstd(found) ? zstd(found) : found);
+      // The batch's files counted together, zstd ones as they unpack.
+      let total = 0;
+      for (const [entry, found] of Object.entries(unzip(bytes, (n) => wanted.has(n), max))) {
+        const file = isZstd(found) ? zstd(found, max - total) : found;
+        total += file.length;
+        if (total > max) throw new ApkgTooLarge(`the files unpack to more than ${max} bytes`);
+        out.set(wanted.get(entry) as string, file);
+      }
       return out;
     },
   };

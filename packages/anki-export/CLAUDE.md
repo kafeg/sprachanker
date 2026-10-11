@@ -11,7 +11,8 @@ src/
   apkg.ts      # readApkg: the zip, the collection (anki21b zstd, else anki21, else anki2; a WAL header
                # read as a rollback journal), note types and decks (tables or `col` JSON), notes in
                # order, media by name (JSON list or the newest format's protobuf; zstd files) on demand,
-               # a batch at a time; at most UNPACKED_MAX bytes unpacked at once (ApkgTooLarge)
+               # a batch at a time; at most UNPACKED_MAX bytes unpacked at once — a batch's files, zstd
+               # ones as they unpack, counted together (ApkgTooLarge)
   fields.ts    # a field's role by its name: word, translation, plural, part of speech, or a language's
                # text, example sentence or audio (`german`, `sentence_1_german`, `audio_german`);
                # fieldLanguages; fieldText (HTML → text, `[sound:…]` out), soundOf

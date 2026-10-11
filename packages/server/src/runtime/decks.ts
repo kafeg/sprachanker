@@ -4,6 +4,7 @@
 import { Database } from "bun:sqlite";
 import { randomUUID } from "node:crypto";
 import {
+  copyFileSync,
   linkSync,
   mkdirSync,
   readdirSync,
@@ -27,6 +28,15 @@ const UPLOAD = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/;
 const UPLOAD_KEPT_MS = 24 * 60 * 60_000;
 /** A deck folder being written (`.<id>.tmp-<x>`), and the one it replaces (`… .old`). */
 const WRITING = /^\.(.+)\.tmp-[0-9a-f]{8}(\.old)?$/;
+
+/** A file linked to another name, else copied (a disk without hard links: exFAT, a network share). */
+function linked(from: string, to: string) {
+  try {
+    linkSync(from, to);
+  } catch {
+    copyFileSync(from, to);
+  }
+}
 
 export function deckFiles(dataRoot: string): DeckFiles {
   const root = join(dataRoot, "decks");
@@ -73,7 +83,7 @@ export function deckFiles(dataRoot: string): DeckFiles {
         if (had && statSync(earlier, { throwIfNoEntry: false })?.isDirectory())
           for (const name of readdirSync(earlier))
             if (!statSync(join(fresh, "media", name), { throwIfNoEntry: false }))
-              linkSync(join(earlier, name), join(fresh, "media", name));
+              linked(join(earlier, name), join(fresh, "media", name));
         if (had) renameSync(target, old);
         try {
           renameSync(fresh, target);
