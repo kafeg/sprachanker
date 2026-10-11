@@ -1268,6 +1268,7 @@
     "no_such_card": "Ta fiszka już nie istnieje.",
     "no_such_chat": "Tej rozmowy już nie ma.",
     "no_course_studied": "Najpierw zacznij kurs: tutor rozmawia o materiale twoich kursów.",
+    "language_not_studied": "Żaden z rozpoczętych przez ciebie kursów nie uczy tego języka: wybierz inny.",
     "ai_place_off": "Asystent jest tu wyłączony: włącz go w Ustawieniach → Asystent AI.",
     "no_such_item": "To ćwiczenie się zmieniło. Wczytaj lekcję ponownie.",
     "no_such_model": "Ten model nie jest oferowany.",
@@ -1470,6 +1471,8 @@
     "off": "Tutor jest wyłączony: włącz go w Ustawieniach → Asystent AI.",
     "all": "Wszystkie rozmowy",
     "more": "Pokaż więcej",
+    "language": "Język do ćwiczenia",
+    "practising": "Język do ćwiczenia: {language}",
     "suggest": {
       "grammar": "Mam pytanie o gramatykę",
       "text": "Omów ze mną tekst",

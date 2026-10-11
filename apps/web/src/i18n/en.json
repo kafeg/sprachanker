@@ -1268,6 +1268,7 @@
     "no_such_card": "This card no longer exists.",
     "no_such_chat": "This conversation is gone.",
     "no_course_studied": "Begin a course first: the tutor talks about what your courses have taught you.",
+    "language_not_studied": "None of the courses you have begun teaches this language: choose another one.",
     "ai_place_off": "The assistant is turned off here: turn it on in Settings → AI assistant.",
     "no_such_item": "This exercise has changed. Reload the lesson.",
     "no_such_model": "This model is not offered.",
@@ -1470,6 +1471,8 @@
     "off": "The tutor is turned off: turn it on in Settings → AI assistant.",
     "all": "All chats",
     "more": "Show more",
+    "language": "Language to practise",
+    "practising": "Language to practise: {language}",
     "suggest": {
       "grammar": "I have a grammar question",
       "text": "Go through a text with me",

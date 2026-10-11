@@ -1268,6 +1268,7 @@
     "no_such_card": "Este cartão não existe mais.",
     "no_such_chat": "Esta conversa não existe mais.",
     "no_course_studied": "Comece um curso primeiro: o tutor fala sobre o conteúdo dos seus cursos.",
+    "language_not_studied": "Nenhum dos cursos que você começou ensina este idioma: escolha outro.",
     "ai_place_off": "O assistente está desativado aqui: ative-o em Configurações → Assistente de IA.",
     "no_such_item": "Este exercício mudou. Recarregue a lição.",
     "no_such_model": "Este modelo não é oferecido.",
@@ -1470,6 +1471,8 @@
     "off": "O tutor está desativado: ative-o em Configurações → Assistente de IA.",
     "all": "Todas as conversas",
     "more": "Mostrar mais",
+    "language": "Idioma para praticar",
+    "practising": "Idioma para praticar: {language}",
     "suggest": {
       "grammar": "Tenho uma dúvida de gramática",
       "text": "Estude um texto comigo",

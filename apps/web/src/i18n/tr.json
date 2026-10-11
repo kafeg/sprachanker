@@ -1268,6 +1268,7 @@
     "no_such_card": "Bu kart artık yok.",
     "no_such_chat": "Bu sohbet artık yok.",
     "no_course_studied": "Önce bir kursa başla: öğretmen kurslarında gördüklerin hakkında konuşur.",
+    "language_not_studied": "Başladığın kursların hiçbiri bu dili öğretmiyor: başka bir dil seç.",
     "ai_place_off": "Asistan burada kapalı: Ayarlar → Yapay zekâ asistanı bölümünden aç.",
     "no_such_item": "Bu alıştırma değişti. Dersi yeniden yükle.",
     "no_such_model": "Bu model sunulmuyor.",
@@ -1470,6 +1471,8 @@
     "off": "Öğretmen kapalı: Ayarlar → Yapay zekâ asistanı bölümünden aç.",
     "all": "Tüm sohbetler",
     "more": "Daha fazla göster",
+    "language": "Pratik yapılacak dil",
+    "practising": "Pratik yapılacak dil: {language}",
     "suggest": {
       "grammar": "Bir dil bilgisi sorum var",
       "text": "Benimle bir metnin üzerinden geç",

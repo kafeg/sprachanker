@@ -4,6 +4,7 @@
 // mistakes —; the task cuts each part to its budget.
 import type { CoursesInfo, TutorMistake } from "@sprachanker/llm";
 import { type LessonKey, lessonOrder, parseEditionId } from "@sprachanker/schema";
+import { ServiceError } from "../errors.ts";
 import type { Content } from "./content.ts";
 import type { LessonContexts } from "./lesson-context.ts";
 import type { StudiedCourse } from "./lessons.ts";
@@ -109,22 +110,32 @@ export function createCoursesContext(deps: {
   }
 
   return {
-    /** Whether a new chat can begin: a course begun (what it would practise). */
-    async begun(): Promise<boolean> {
-      return (await deps.studied()).length > 0;
+    /** The languages a new chat can practise: those the courses begun teach, the latest course's
+     *  first (none: a new chat cannot begin). */
+    async targets(): Promise<string[]> {
+      return [...new Set((await deps.studied()).map((c) => parseEditionId(c.edition).target))];
     },
 
     /**
      * What a chat knows: the edition it practises — `edition`, a chat's own, or for a new one the
-     * edition the course studied last is studied in (none begun: undefined) — and what the learner has
-     * met in the courses of its language. The courses begun are read once for both.
+     * edition the latest course teaching `target` is studied in (no `target`: the course studied
+     * last; none begun: undefined; `target` taught by none of them: refused) — and what the learner
+     * has met in the courses of its language. The courses begun are read once for both.
      */
-    async get(edition?: string): Promise<{ edition: string; courses: CoursesInfo } | undefined> {
+    async get(chat: {
+      edition?: string;
+      target?: string;
+    }): Promise<{ edition: string; courses: CoursesInfo } | undefined> {
       const studied = await deps.studied();
-      const practised = edition ?? studied[0]?.edition;
-      return practised
-        ? { edition: practised, courses: await info(studied, practised) }
-        : undefined;
+      if (!chat.edition && !studied.length) return undefined;
+      const practised =
+        chat.edition ??
+        (chat.target
+          ? studied.find((c) => parseEditionId(c.edition).target === chat.target)
+          : studied[0]
+        )?.edition;
+      if (!practised) throw new ServiceError("language_not_studied", 400);
+      return { edition: practised, courses: await info(studied, practised) };
     },
   };
 }

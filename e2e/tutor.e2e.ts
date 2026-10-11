@@ -1,6 +1,6 @@
 // The Tutor section against the fake model (fake-llm.ts): a chat started from the section, kept,
-// listed after a reload, continued, deleted after asking; a start offered in a new chat; the section
-// gone from the navigation while the tutor's place is off.
+// listed after a reload, continued, deleted after asking; a start offered in a new chat, its language
+// shown; the section gone from the navigation while the tutor's place is off.
 import { expect, type Page, test } from "@playwright/test";
 import { CLIENT_HEADERS } from "@sprachanker/schema";
 import { beginCourse, put } from "./api.ts";
@@ -71,6 +71,9 @@ test("a chat started from the section, kept, continued later, deleted after aski
 
 test("a start offered in a new chat is its first message", async ({ page, request }) => {
   await page.goto("/tutor/new");
+  // The courses begun teach German alone: shown, nothing to choose.
+  await expect(page.getByTitle("Language to practise: German")).toBeVisible();
+  await expect(page.getByRole("combobox", { name: "Language to practise" })).toHaveCount(0);
   await page.getByRole("button", { name: "I have a grammar question" }).click();
   await expect(page.getByText(/^I have a grammar question\. Ask me what it is/)).toBeVisible();
   await expect(page.getByText(FAKE_TEXT)).toBeVisible();

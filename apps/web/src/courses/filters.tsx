@@ -5,18 +5,13 @@ import { parseEditionId } from "@sprachanker/schema";
 import { useTranslation } from "react-i18next";
 import { useSetSetting } from "@/api/settings.ts";
 import { languageName } from "@/i18n/index.ts";
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/ui/components/select.tsx";
 import { LanguageFlag, usePairName } from "@/ui/flags.tsx";
+import { SelectField } from "@/ui/select-field.tsx";
 import { ALL, filterCourses } from "./filter.ts";
 
 export { FILTERS } from "./filter.ts";
 
+/** A filter of the bar: "Any" first, then what it can offer. */
 function Filter({
   label,
   value,
@@ -30,22 +25,13 @@ function Filter({
 }) {
   const { t } = useTranslation();
   return (
-    <div className="w-full space-y-1 sm:w-64">
-      <p className="text-sm text-muted-foreground">{label}</p>
-      <Select value={value} onValueChange={onChange}>
-        <SelectTrigger className="h-11 w-full bg-card" aria-label={label}>
-          <SelectValue />
-        </SelectTrigger>
-        <SelectContent>
-          <SelectItem value={ALL}>{t("courses.any")}</SelectItem>
-          {options.map(([v, text]) => (
-            <SelectItem key={v} value={v}>
-              {text}
-            </SelectItem>
-          ))}
-        </SelectContent>
-      </Select>
-    </div>
+    <SelectField
+      className="w-full sm:w-64"
+      label={label}
+      value={value}
+      options={[[ALL, t("courses.any")], ...options]}
+      onChange={onChange}
+    />
   );
 }
 

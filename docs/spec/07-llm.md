@@ -201,11 +201,15 @@ Both tutors (the lesson's and the section's) take real-life language as in scope
   counted and ordered in one query. A reply the learner stops is kept as far as it came (the lesson
   tutor's too); a new chat is named to the client as soon as its reply begins, so one stopped is
   still continued. One chat continued from two places at once keeps both pairs in the order they
-  end — each a question with its own reply —, as the lesson tutor's current chat. **Language**: a new chat
-  practises the language the course studied most recently teaches (the course with the latest
-  lesson work), and keeps it — its run's edition is that course's edition then —, so a chat continued
-  later stays in its language; explanations are in the interface language of each message, as the
-  lesson tutor's. Without a course begun there is nothing to talk about yet: a new chat is refused
+  end — each a question with its own reply —, as the lesson tutor's current chat. **Language**
+  (owner, 2026-10-11): a new chat practises the language the learner chooses at its start among those
+  the courses begun teach — by default the one the course studied most recently teaches (the course
+  with the latest lesson work); with one, there is nothing to choose. The choice goes with the first
+  message, and the server takes only a language of a course begun (else 400 `language_not_studied`).
+  The chat keeps it — its run's edition is the edition of the latest course of that language then —,
+  so a chat continued later stays in its language (shown, not changed); explanations are in the
+  interface language of each message, as the lesson tutor's. The lesson tutor knows its lesson's
+  language and has no choice. Without a course begun there is nothing to talk about yet: a new chat is refused
   (409 `no_course_studied`) and the section says to begin one. **Context** (`courses-context` on the
   server, the courses of the chat's language, each read in the chat's edition where the course has it
   — translations and titles in the chat's language —, else in the one it is studied in; each part

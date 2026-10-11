@@ -72,6 +72,7 @@ export const ERROR_CODES = [
   "no_lesson_run",
   "no_such_chat",
   "no_course_studied",
+  "language_not_studied",
   "ai_place_off",
   "no_active_scene",
   "writing_busy",
