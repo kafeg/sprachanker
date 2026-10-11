@@ -1,7 +1,7 @@
 import { afterEach, expect, spyOn, test } from "bun:test";
-import { mkdtempSync, readdirSync, statSync, writeFileSync } from "node:fs";
+import { mkdirSync, mkdtempSync, readdirSync, statSync, writeFileSync } from "node:fs";
 import { tmpdir } from "node:os";
-import { join } from "node:path";
+import { dirname, join } from "node:path";
 import { profileAdmin } from "@sprachanker/server";
 import { main, serveOptions } from "../src/main.ts";
 
@@ -98,6 +98,93 @@ test("profiles export and import: a profile moved to another data root as a file
   expect((await cli("profiles", "export", "nobody", "--data", from, "--to", files)).out).toBe(
     "sprachanker: no profile nobody (sprachanker profiles lists them)",
   );
+});
+
+/** A data root with one course installed by hand: its index and an edition's course file. */
+function withCourse() {
+  const data = mkdtempSync(join(tmpdir(), "sprachanker-cli-"));
+  const put = (path: string, value: object) => {
+    const file = join(data, "library/sprachanker.cli", path);
+    mkdirSync(dirname(file), { recursive: true });
+    writeFileSync(file, JSON.stringify(value));
+  };
+  put("canonical/mini/course.json", {
+    format: 1,
+    key: "sprachanker.cli/mini",
+    units: [],
+    exams: [],
+    goals: [],
+  });
+  put("locale/ru-de/mini/course.json", {
+    format: 1,
+    edition: "ru-de",
+    course: "sprachanker.cli/mini",
+    sourceId: "1",
+    title: "Mini",
+    units: {},
+    goals: {},
+  });
+  return data;
+}
+
+test("courses export and import: a course moved to another data root as a file", async () => {
+  const from = withCourse();
+  const to = mkdtempSync(join(tmpdir(), "sprachanker-cli-"));
+  const files = mkdtempSync(join(tmpdir(), "sprachanker-cli-files-"));
+  expect((await cli("courses", "--data", from)).out).toBe("sprachanker.cli/mini  [ru-de]");
+  expect((await cli("courses", "--data", to)).out).toBe(`no courses installed in ${to}`);
+  const exported = await cli(
+    "courses",
+    "export",
+    "sprachanker.cli/mini",
+    "--data",
+    from,
+    "--to",
+    files,
+  );
+  expect(exported.code).toBe(0);
+  const [file] = readdirSync(files);
+  expect(file).toMatch(/^sprachanker\.cli-mini-ru-de-\d{4}-\d{2}-\d{2}\.sprachanker-course$/);
+  expect(exported.out).toStartWith(
+    `sprachanker.cli/mini [ru-de]: exported to ${join(files, file as string)} (`,
+  );
+  const bundle = join(files, file as string);
+  expect(await cli("courses", "import", bundle, "--data", to)).toEqual({
+    out: "sprachanker.cli/mini [ru-de]: installed\n  verify: ✓",
+    code: 0,
+  });
+  expect((await cli("courses", "import", bundle, "--data", to)).out).toStartWith(
+    "sprachanker.cli/mini [ru-de]: already here, the same: nothing changed",
+  );
+  expect((await cli("courses", "--data", to)).out).toBe("sprachanker.cli/mini  [ru-de]");
+
+  // Refusals in words.
+  expect(
+    (await cli("courses", "export", "sprachanker.cli/nope", "--data", from, "--to", files)).out,
+  ).toBe("sprachanker: no course sprachanker.cli/nope here (sprachanker courses lists them)");
+  expect(
+    (
+      await cli(
+        "courses",
+        "export",
+        "sprachanker.cli/mini",
+        "--editions",
+        "fr-de",
+        "--data",
+        from,
+        "--to",
+        files,
+      )
+    ).out,
+  ).toBe(
+    "sprachanker: sprachanker.cli/mini has no edition fr-de here (sprachanker courses lists them)",
+  );
+  const junk = join(files, "junk.sprachanker-course");
+  writeFileSync(junk, "not a zip");
+  expect(await cli("courses", "import", junk, "--data", to)).toEqual({
+    out: "sprachanker: this is not a SprachAnker course file (.sprachanker-course)",
+    code: 1,
+  });
 });
 
 test("backup needs a folder to write to", async () => {

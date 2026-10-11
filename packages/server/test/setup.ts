@@ -8,8 +8,10 @@ import { openLibrary } from "@sprachanker/course-kit";
 import { CLIENT_HEADERS } from "@sprachanker/schema";
 import { createApp } from "../src/app.ts";
 import { mediaBlob, openServerDb, profileFiles } from "../src/runtime/bun.ts";
+import { courseTransferFiles } from "../src/runtime/course-transfer.ts";
 import { apkgRuntime, deckFiles } from "../src/runtime/decks.ts";
 import { profileTransferFiles } from "../src/runtime/profile-transfer.ts";
+import type { CourseTransferFiles } from "../src/services/course-transfer.ts";
 import type { CourseInstaller } from "../src/services/downloads.ts";
 import type { CliHost, LmStudioHost } from "../src/services/llm.ts";
 import type { ReadingCache, SpeechHost } from "../src/services/local-engines.ts";
@@ -38,12 +40,16 @@ export async function setup(
     allowHosts?: string[];
     /** Profile files exported and imported: the runtime's over the data root unless given. */
     transfers?: (dataRoot: string) => TransferFiles;
+    /** Course bundles exported and imported: the runtime's over the data root unless given. */
+    courseTransfers?: (dataRoot: string) => CourseTransferFiles;
+    /** Without the fixture course: an empty library (a second machine). */
+    empty?: boolean;
     /** Changes the fixture library before the app opens it (an item the fixture course lacks). */
     editLibrary?: (libraryRoot: string) => void;
   } = {},
 ) {
   const root = mkdtempSync(join(tmpdir(), "sprachanker-data-"));
-  await writeFixtureLibrary(join(root, "library"));
+  if (!options.empty) await writeFixtureLibrary(join(root, "library"));
   options.editLibrary?.(join(root, "library"));
   let clock = 1_000;
   const profiles = profileFiles(root);
@@ -56,6 +62,7 @@ export async function setup(
     decks: deckFiles(root),
     apkg: apkgRuntime,
     transfers: options.transfers?.(root) ?? profileTransferFiles(root),
+    courseTransfers: options.courseTransfers?.(root) ?? courseTransferFiles(root),
     appVersion: "test",
     secretKey: new Uint8Array(32).fill(7),
     fetch: options.fetch,

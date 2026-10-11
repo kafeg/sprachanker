@@ -45,11 +45,53 @@ const byId = new Map(PROVIDERS.map((p) => [p.id, p]));
 
 export const providerIds = () => PROVIDERS.map((p) => p.id);
 
+/** The provider that writes a series (none for a series no provider writes: the fixture's). */
+export const providerOf = (series: string) =>
+  PROVIDERS.find((p) => p.series === series)?.id ?? null;
+
+/** A download's marker of a course: `<series>/.downloads/<course>.json` in the library. */
+export const downloadMarker = (libraryRoot: string, series: string, course: string) =>
+  join(libraryRoot, series, ".downloads", `${course}.json`);
+
+/** The series folders this process holds or waits for, each the end of its queue. */
+const heldHere = new Map<string, Promise<void>>();
+
 /**
- * Runs a provider into `<dataRoot>/library`. One import per series at a time, across processes (the
- * CLI and a server's download job share media.json): a lock folder with the owner's pid; a lock whose
- * process is gone (or is no SprachAnker) is taken over.
+ * Work that writes a series' shared files (media.json, keys.json): one at a time per series — in
+ * this process, in turn (a course bundle installed while a download of its series runs waits for
+ * it); across processes (the CLI beside a server) a lock folder with the owner's pid, a lock whose
+ * process is gone (or is no SprachAnker) taken over.
  */
+export async function withSeriesLock<T>(
+  libraryRoot: string,
+  series: string,
+  work: () => Promise<T>,
+): Promise<T> {
+  const folder = join(libraryRoot, series);
+  const before = heldHere.get(folder) ?? Promise.resolve();
+  let release = () => {};
+  const mine = new Promise<void>((resolve) => {
+    release = resolve;
+  });
+  const queue = before.then(() => mine);
+  heldHere.set(folder, queue);
+  await before;
+  try {
+    const lock = join(folder, ".import-lock");
+    await mkdir(folder, { recursive: true });
+    await takeLock(lock, series);
+    try {
+      return await work();
+    } finally {
+      await rm(lock, { recursive: true, force: true });
+    }
+  } finally {
+    release();
+    if (heldHere.get(folder) === queue) heldHere.delete(folder);
+  }
+}
+
+/** Runs a provider into `<dataRoot>/library`, one import per series at a time (withSeriesLock). */
 export async function importCourse(
   provider: string,
   request: ImportRequest,
@@ -57,14 +99,7 @@ export async function importCourse(
   const entry = byId.get(provider);
   if (!entry) throw new Error(`unknown provider ${provider}; known: ${providerIds().join(", ")}`);
   const libraryRoot = join(request.dataRoot, "library");
-  const lock = join(libraryRoot, entry.series, ".import-lock");
-  await mkdir(join(libraryRoot, entry.series), { recursive: true });
-  await takeLock(lock, entry.series);
-  try {
-    return await entry.import({ ...request, libraryRoot });
-  } finally {
-    await rm(lock, { recursive: true, force: true });
-  }
+  return withSeriesLock(libraryRoot, entry.series, () => entry.import({ ...request, libraryRoot }));
 }
 
 /**
@@ -115,8 +150,7 @@ export function downloadEnd(
 /** Downloads through the providers into `<dataRoot>/library` (the server's CourseInstaller). */
 export function courseInstaller(dataRoot: string, now: () => number = Date.now): CourseInstaller {
   const library = join(dataRoot, "library");
-  const markerFile = (series: string, course: string) =>
-    join(library, series, ".downloads", `${course}.json`);
+  const markerFile = (series: string, course: string) => downloadMarker(library, series, course);
   return {
     offers: () =>
       PROVIDERS.flatMap((p) =>
@@ -179,7 +213,8 @@ export function courseInstaller(dataRoot: string, now: () => number = Date.now):
     async storage() {
       const series: Array<{ series: string; bytes: number }> = [];
       const entries = existsSync(library) ? await readdir(library, { withFileTypes: true }) : [];
-      for (const entry of entries.filter((e) => e.isDirectory()))
+      // Series folders: not the transfers of course bundles (`.transfers`).
+      for (const entry of entries.filter((e) => e.isDirectory() && !e.name.startsWith(".")))
         series.push({ series: entry.name, bytes: await folderBytes(join(library, entry.name)) });
       const disk = await statfs(dataRoot).catch(() => undefined);
       return { dataRoot, series, free: disk ? disk.bavail * disk.bsize : null };

@@ -1308,7 +1308,14 @@
     "examples_without_word": "Las frases del modelo no usaron la palabra.",
     "length_required": "El archivo se envió sin su tamaño. Inténtalo de nuevo o en otro navegador.",
     "profile_import_busy": "Se está importando otro archivo de perfil. Inténtalo de nuevo cuando termine.",
-    "llm_url_with_login": "Deja el usuario y la contraseña fuera de la dirección: escribe la clave en el campo de la clave API."
+    "llm_url_with_login": "Deja el usuario y la contraseña fuera de la dirección: escribe la clave en el campo de la clave API.",
+    "course_export_gone": "Esta exportación ya no está: vuelve a exportar el curso.",
+    "not_a_course_bundle": "Este archivo no es un archivo de curso de SprachAnker (.sprachanker-course).",
+    "course_bundle_damaged": "Este archivo de curso está dañado o se modificó después de exportarlo.",
+    "course_bundle_too_large": "Este archivo de curso es demasiado grande (16 GB como máximo).",
+    "course_bundle_from_newer_app": "Este archivo de curso viene de una versión más reciente de SprachAnker: actualiza primero la aplicación aquí.",
+    "course_bundle_clash": "Este ordenador tiene otros archivos con los nombres de los archivos multimedia de este curso: descarga el curso aquí.",
+    "course_import_busy": "Se está importando otro archivo de curso. Inténtalo de nuevo cuando termine."
   },
   "exams": {
     "tabs": {
@@ -1482,6 +1489,24 @@
       "grammar": "Tengo una duda de gramática. Pregúntame cuál es y luego explícamela brevemente con ejemplos de lo que he aprendido.",
       "text": "Quiero repasar un texto contigo. Pídeme que lo pegue y luego ve frase por frase: tradúcela, explica lo nuevo y espérame antes de la siguiente.",
       "conversation": "Practiquemos una conversación. Propón una situación cotidiana de lo que he aprendido, empieza con una frase y espera mi respuesta; corrige mis errores sobre la marcha."
+    }
+  },
+  "bundle": {
+    "export": {
+      "button": "Exportar a un archivo",
+      "hint": "Este curso en un solo archivo, para importarlo en tu otro ordenador en «Descargados».",
+      "started": "Descargando «{file}» ({size})."
+    },
+    "import": {
+      "button": "Importar desde un archivo…",
+      "hint": "Un curso o examen exportado en tu otro ordenador (.sprachanker-course).",
+      "sending": "Enviando el archivo… {share, number, percent}",
+      "checking": "Comprobando el archivo e instalándolo…",
+      "added": "«{title}» ya está aquí.",
+      "same": "«{title}» ya estaba aquí, igual: no cambió nada.",
+      "replaced": "«{title}» es ahora la versión del archivo; tu progreso se conserva.",
+      "verified": "Comprobado: están todos los archivos.",
+      "problems": "Comprobado: {count, plural, one {se encontró # problema} other {se encontraron # problemas}} — «Comprobar» en su tarjeta los muestra."
     }
   }
 }

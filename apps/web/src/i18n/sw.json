@@ -1308,7 +1308,14 @@
     "examples_without_word": "Sentensi za modeli hazikutumia neno hilo.",
     "length_required": "Faili ilitumwa bila ukubwa wake. Jaribu tena, au kwenye kivinjari kingine.",
     "profile_import_busy": "Faili nyingine ya wasifu inaingizwa sasa. Jaribu tena itakapokamilika.",
-    "llm_url_with_login": "Usiweke jina la mtumiaji na nenosiri kwenye anwani: weka ufunguo kwenye sehemu ya ufunguo wa API."
+    "llm_url_with_login": "Usiweke jina la mtumiaji na nenosiri kwenye anwani: weka ufunguo kwenye sehemu ya ufunguo wa API.",
+    "course_export_gone": "Uhamishaji huu haupo tena: hamisha kozi tena.",
+    "not_a_course_bundle": "Faili hili si faili la kozi la SprachAnker (.sprachanker-course).",
+    "course_bundle_damaged": "Faili hili la kozi limeharibika au lilibadilishwa baada ya kuhamishwa.",
+    "course_bundle_too_large": "Faili hili la kozi ni kubwa mno (GB 16 kwa zaidi).",
+    "course_bundle_from_newer_app": "Faili hili la kozi limetoka kwenye toleo jipya zaidi la SprachAnker: sasisha programu hapa kwanza.",
+    "course_bundle_clash": "Kompyuta hii ina faili nyingine kwa majina ya faili za midia za kozi hii: badala yake pakua kozi hapa.",
+    "course_import_busy": "Faili nyingine ya kozi inaingizwa sasa. Jaribu tena itakapokamilika."
   },
   "exams": {
     "tabs": {
@@ -1482,6 +1489,24 @@
       "grammar": "Nina swali la sarufi. Niulize ni lipi, kisha lieleze kwa ufupi kwa mifano kutoka yale niliyojifunza.",
       "text": "Ningependa kupitia maandishi pamoja nawe. Niombe niyabandike, kisha chukua sentensi moja moja: itafsiri, eleza kilicho kipya na unisubiri kabla ya inayofuata.",
       "conversation": "Tujizoeze mazungumzo. Pendekeza hali ya kila siku kutoka yale niliyojifunza, anza kwa sentensi moja na usubiri jibu langu; sahihisha makosa yangu tunapoendelea."
+    }
+  },
+  "bundle": {
+    "export": {
+      "button": "Hamisha kwenye faili",
+      "hint": "Kozi hii kama faili moja, uiingize kwenye kompyuta yako nyingine chini ya “Zilizopakuliwa”.",
+      "started": "Inapakua “{file}” ({size})."
+    },
+    "import": {
+      "button": "Leta kutoka kwenye faili…",
+      "hint": "Kozi au mtihani uliohamishwa kwenye kompyuta yako nyingine (.sprachanker-course).",
+      "sending": "Inatuma faili… {share, number, percent}",
+      "checking": "Inakagua faili na kuisakinisha…",
+      "added": "“{title}” iko hapa.",
+      "same": "“{title}” ilikuwa hapa tayari, sawa kabisa: hakuna kilichobadilika.",
+      "replaced": "“{title}” sasa ni toleo la faili; maendeleo yako yamebaki.",
+      "verified": "Imekaguliwa: faili zote zipo.",
+      "problems": "Imekaguliwa: {count, plural, one {tatizo # limepatikana} other {matatizo # yamepatikana}} — “Kagua” kwenye kadi yake inayaonyesha."
     }
   }
 }

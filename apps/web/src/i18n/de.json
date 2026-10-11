@@ -1308,7 +1308,14 @@
     "examples_without_word": "Die Sätze des Modells enthielten das Wort nicht.",
     "length_required": "Die Datei wurde ohne ihre Größe gesendet. Versuch es noch einmal oder in einem anderen Browser.",
     "profile_import_busy": "Gerade wird eine andere Profildatei importiert. Versuch es noch einmal, wenn sie fertig ist.",
-    "llm_url_with_login": "Lass Benutzername und Passwort aus der Adresse weg: gib den Schlüssel im Feld für den API-Schlüssel ein."
+    "llm_url_with_login": "Lass Benutzername und Passwort aus der Adresse weg: gib den Schlüssel im Feld für den API-Schlüssel ein.",
+    "course_export_gone": "Dieser Export ist nicht mehr da: Exportiere den Kurs noch einmal.",
+    "not_a_course_bundle": "Diese Datei ist keine SprachAnker-Kursdatei (.sprachanker-course).",
+    "course_bundle_damaged": "Diese Kursdatei ist beschädigt oder wurde nach dem Export verändert.",
+    "course_bundle_too_large": "Diese Kursdatei ist zu groß (höchstens 16 GB).",
+    "course_bundle_from_newer_app": "Diese Kursdatei stammt aus einer neueren Version von SprachAnker: Aktualisiere die App hier zuerst.",
+    "course_bundle_clash": "Auf diesem Computer liegen unter den Namen der Mediendateien dieses Kurses andere Dateien: Lade den Kurs hier herunter.",
+    "course_import_busy": "Gerade wird eine andere Kursdatei importiert. Versuch es noch einmal, wenn sie fertig ist."
   },
   "exams": {
     "tabs": {
@@ -1482,6 +1489,24 @@
       "grammar": "Ich habe eine Grammatikfrage. Frag mich, worum es geht, und erkläre es dann kurz mit Beispielen aus dem, was ich gelernt habe.",
       "text": "Ich möchte mit dir einen Text durchgehen. Bitte mich, ihn einzufügen, und nimm ihn dann Satz für Satz: übersetze, erkläre, was neu ist, und warte auf mich, bevor du weitermachst.",
       "conversation": "Lass uns ein Gespräch üben. Schlag eine Alltagssituation aus dem vor, was ich gelernt habe, beginne dann mit einem Satz und warte auf meine Antwort; korrigiere meine Fehler unterwegs."
+    }
+  },
+  "bundle": {
+    "export": {
+      "button": "In eine Datei exportieren",
+      "hint": "Dieser Kurs als eine Datei, um ihn auf deinem anderen Computer unter „Heruntergeladen“ zu importieren.",
+      "started": "„{file}“ wird heruntergeladen ({size})."
+    },
+    "import": {
+      "button": "Aus einer Datei importieren…",
+      "hint": "Ein Kurs oder eine Prüfung, auf deinem anderen Computer exportiert (.sprachanker-course).",
+      "sending": "Datei wird gesendet… {share, number, percent}",
+      "checking": "Datei wird geprüft und installiert…",
+      "added": "„{title}“ ist da.",
+      "same": "„{title}“ ist schon da, genauso: nichts hat sich geändert.",
+      "replaced": "„{title}“ ist jetzt die Fassung aus der Datei; dein Fortschritt bleibt.",
+      "verified": "Geprüft: Alle Dateien sind da.",
+      "problems": "Geprüft: {count, plural, one {# Problem gefunden} other {# Probleme gefunden}} – „Prüfen“ auf seiner Karte zeigt sie."
     }
   }
 }

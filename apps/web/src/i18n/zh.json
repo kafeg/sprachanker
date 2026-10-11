@@ -1308,7 +1308,14 @@
     "examples_without_word": "模型生成的句子没有用到该单词。",
     "length_required": "文件发送时没有附带其大小。请重试，或换一个浏览器。",
     "profile_import_busy": "正在导入另一个个人资料文件。请在其完成后重试。",
-    "llm_url_with_login": "请勿在地址中写入用户名和密码：请在 API 密钥栏中输入密钥。"
+    "llm_url_with_login": "请勿在地址中写入用户名和密码：请在 API 密钥栏中输入密钥。",
+    "course_export_gone": "此导出已不在：请重新导出课程。",
+    "not_a_course_bundle": "此文件不是 SprachAnker 课程文件（.sprachanker-course）。",
+    "course_bundle_damaged": "此课程文件已损坏，或在导出后被修改过。",
+    "course_bundle_too_large": "此课程文件太大（最多 16 GB）。",
+    "course_bundle_from_newer_app": "此课程文件来自更新版本的 SprachAnker：请先更新这里的应用。",
+    "course_bundle_clash": "这台电脑上已有与此课程媒体文件同名的其他文件：请改为在这里下载课程。",
+    "course_import_busy": "正在导入另一个课程文件。请在其完成后重试。"
   },
   "exams": {
     "tabs": {
@@ -1482,6 +1489,24 @@
       "grammar": "我有一个语法问题。先问我是什么问题，然后用我学过的内容举例简要讲解。",
       "text": "我想和你一起读一段文本。请让我把它粘贴过来，然后一句一句来：翻译、讲解新的内容，等我回应后再讲下一句。",
       "conversation": "我们来练习对话吧。根据我学过的内容提出一个日常情境，你先说一句，然后等我回答；对话中随时纠正我的错误。"
+    }
+  },
+  "bundle": {
+    "export": {
+      "button": "导出为文件",
+      "hint": "将此课程存为一个文件，以便在你的另一台电脑的“已下载”中导入。",
+      "started": "正在下载“{file}”（{size}）。"
+    },
+    "import": {
+      "button": "从文件导入…",
+      "hint": "在你另一台电脑上导出的课程或考试（.sprachanker-course）。",
+      "sending": "正在发送文件… {share, number, percent}",
+      "checking": "正在检查并安装文件…",
+      "added": "“{title}”已在这里。",
+      "same": "“{title}”已经在这里，内容相同：没有任何变化。",
+      "replaced": "“{title}”现在是文件中的版本；你的进度保留。",
+      "verified": "已检查：所有文件都在。",
+      "problems": "已检查：{count, plural, other {发现#个问题}} — 点其卡片上的“检查”可查看。"
     }
   }
 }

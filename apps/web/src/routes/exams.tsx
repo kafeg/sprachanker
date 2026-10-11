@@ -7,6 +7,7 @@ import { useEdition } from "@/api/edition.ts";
 import { type ExamRow, useExams } from "@/api/exams.ts";
 import { offersOf, useShown } from "@/app/experimental.ts";
 import { ExamCard } from "@/exams/card.tsx";
+import { CourseImport } from "@/library/bundle.tsx";
 import { OfferCard } from "@/library/card.tsx";
 import { CardGrid, type LibraryTab, LibraryTabPage, NoneHere } from "@/library/tab-page.tsx";
 import { ErrorState, Loading } from "@/ui/page.tsx";
@@ -63,14 +64,19 @@ export function ExamsPage({ tab }: { tab: ExamsTab }) {
             }}
           />,
         )}
-      {tab === "downloaded" &&
-        list(
-          all,
-          <NoneHere
-            text={t("exams.noneDownloaded")}
-            link={{ to: "/exams/catalog", label: t("exams.choose") }}
-          />,
-        )}
+      {tab === "downloaded" && (
+        <>
+          {list(
+            all,
+            <NoneHere
+              text={t("exams.noneDownloaded")}
+              link={{ to: "/exams/catalog", label: t("exams.choose") }}
+            />,
+          )}
+          {/* An exam exported on another computer. */}
+          <CourseImport />
+        </>
+      )}
       {tab === "available" &&
         (!ready ? (
           <Loading />

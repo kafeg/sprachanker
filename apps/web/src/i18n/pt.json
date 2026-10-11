@@ -1308,7 +1308,14 @@
     "examples_without_word": "As frases do modelo não usaram a palavra.",
     "length_required": "O arquivo foi enviado sem o seu tamanho. Tente de novo, ou em outro navegador.",
     "profile_import_busy": "Outro arquivo de perfil está sendo importado. Tente de novo quando terminar.",
-    "llm_url_with_login": "Não coloque usuário e senha no endereço: digite a chave no campo da chave de API."
+    "llm_url_with_login": "Não coloque usuário e senha no endereço: digite a chave no campo da chave de API.",
+    "course_export_gone": "Esta exportação não está mais aqui: exporte o curso de novo.",
+    "not_a_course_bundle": "Este arquivo não é um arquivo de curso do SprachAnker (.sprachanker-course).",
+    "course_bundle_damaged": "Este arquivo de curso está danificado ou foi alterado depois de exportado.",
+    "course_bundle_too_large": "Este arquivo de curso é grande demais (16 GB no máximo).",
+    "course_bundle_from_newer_app": "Este arquivo de curso vem de uma versão mais nova do SprachAnker: atualize o app aqui primeiro.",
+    "course_bundle_clash": "Este computador tem outros arquivos com os nomes das mídias deste curso: baixe o curso aqui.",
+    "course_import_busy": "Outro arquivo de curso está sendo importado. Tente de novo quando terminar."
   },
   "exams": {
     "tabs": {
@@ -1482,6 +1489,24 @@
       "grammar": "Tenho uma dúvida de gramática. Pergunte qual é e depois explique brevemente com exemplos do que eu já aprendi.",
       "text": "Quero estudar um texto com você. Peça para eu colá-lo e depois vá frase por frase: traduza, explique o que é novo e espere por mim antes da próxima.",
       "conversation": "Vamos praticar uma conversa. Sugira uma situação do dia a dia com base no que aprendi, comece com uma fala e espere a minha resposta; corrija meus erros ao longo da conversa."
+    }
+  },
+  "bundle": {
+    "export": {
+      "button": "Exportar para um arquivo",
+      "hint": "Este curso em um único arquivo, para importar no seu outro computador em “Baixados”.",
+      "started": "Baixando “{file}” ({size})."
+    },
+    "import": {
+      "button": "Importar de um arquivo…",
+      "hint": "Um curso ou exame exportado no seu outro computador (.sprachanker-course).",
+      "sending": "Enviando o arquivo… {share, number, percent}",
+      "checking": "Verificando e instalando o arquivo…",
+      "added": "“{title}” está aqui.",
+      "same": "“{title}” já estava aqui, igual: nada mudou.",
+      "replaced": "“{title}” agora é a versão do arquivo; seu progresso continua.",
+      "verified": "Verificado: todos os arquivos estão aqui.",
+      "problems": "Verificado: {count, plural, =0 {# problemas encontrados} one {# problema encontrado} other {# problemas encontrados}} — “Verificar” no cartão dele os lista."
     }
   }
 }

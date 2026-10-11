@@ -15,6 +15,7 @@ import {
   secretKey,
 } from "./runtime/bun.ts";
 import { cliHost } from "./runtime/cli.ts";
+import { courseTransferFiles } from "./runtime/course-transfer.ts";
 import { holdDataRoot, serverOn } from "./runtime/data-root.ts";
 import { apkgRuntime, deckFiles } from "./runtime/decks.ts";
 import { lmStudioHost } from "./runtime/lmstudio.ts";
@@ -25,6 +26,7 @@ import { readingCache } from "./runtime/readings.ts";
 import { speechHost } from "./runtime/speech.ts";
 import { createCardStore } from "./services/card-store.ts";
 import { createContent } from "./services/content.ts";
+import { createCourseTransfer } from "./services/course-transfer.ts";
 import { contentUsed, createProfileTransfer } from "./services/profile-transfer.ts";
 import { createProfiles } from "./services/profiles.ts";
 import { createRunStore } from "./services/run-store.ts";
@@ -61,6 +63,7 @@ export function startServer(config: ServerConfig): Listening {
     decks: deckFiles(config.dataRoot),
     apkg: apkgRuntime,
     transfers: profileTransferFiles(config.dataRoot, { worker: config.profileDbWorker }),
+    courseTransfers: courseTransferFiles(config.dataRoot),
     appVersion: config.appVersion,
     // Outside the data root, so a copied data folder does not carry usable API keys.
     secretKey: secretKey(join(appDataDir(), "secret.key")),
@@ -149,6 +152,28 @@ export function profileAdmin(
       if (pid) throw new Error(`a server (pid ${pid}) is running on ${dataRoot}: stop it first`);
       profiles.remove(id);
     },
+    exportTo: transfer.exportTo,
+    importFile: transfer.importFile,
+  };
+}
+
+/**
+ * The data root's courses for the `sprachanker courses` command (02, "Course bundle"): those
+ * installed, one exported to a file, a file imported — also while a server runs on the data root (the
+ * series' import lock keeps them apart; the server reads the files anew).
+ */
+export function courseAdmin(dataRoot: string, appVersion = "") {
+  const library = openLibrary(join(dataRoot, "library"));
+  const transfer = createCourseTransfer({
+    files: courseTransferFiles(dataRoot, {
+      // A server running on the data root keeps its transfers: they are its to sweep.
+      sweeps: () => !serverOn(dataRoot),
+    }),
+    appVersion,
+    now: Date.now,
+  });
+  return {
+    list: () => library.courses(),
     exportTo: transfer.exportTo,
     importFile: transfer.importFile,
   };

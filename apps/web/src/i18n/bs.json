@@ -1308,7 +1308,14 @@
     "examples_without_word": "Rečenice modela nisu koristile tu riječ.",
     "length_required": "Datoteka je poslana bez svoje veličine. Pokušaj ponovo ili u drugom pregledniku.",
     "profile_import_busy": "Upravo se uvozi druga datoteka profila. Pokušaj ponovo kad se završi.",
-    "llm_url_with_login": "Izostavi korisničko ime i lozinku iz adrese: unesi ključ u polje za API ključ."
+    "llm_url_with_login": "Izostavi korisničko ime i lozinku iz adrese: unesi ključ u polje za API ključ.",
+    "course_export_gone": "Ovog izvoza više nema: izvezi kurs ponovo.",
+    "not_a_course_bundle": "Ova datoteka nije SprachAnker datoteka kursa (.sprachanker-course).",
+    "course_bundle_damaged": "Ova datoteka kursa je oštećena ili je izmijenjena nakon izvoza.",
+    "course_bundle_too_large": "Ova datoteka kursa je prevelika (najviše 16 GB).",
+    "course_bundle_from_newer_app": "Ova datoteka kursa potiče iz novije verzije SprachAnkera: prvo ažuriraj aplikaciju ovdje.",
+    "course_bundle_clash": "Na ovom računaru pod imenima medijskih datoteka ovog kursa postoje druge datoteke: umjesto toga preuzmi kurs ovdje.",
+    "course_import_busy": "Upravo se uvozi druga datoteka kursa. Pokušaj ponovo kad se završi."
   },
   "exams": {
     "tabs": {
@@ -1482,6 +1489,24 @@
       "grammar": "Imam pitanje o gramatici. Pitaj me o čemu se radi, pa ga ukratko objasni primjerima iz pređenog gradiva.",
       "text": "Želim s tobom proći kroz jedan tekst. Zamoli me da ga zalijepim, pa idi rečenicu po rečenicu: prevedi, objasni šta je novo i sačekaj me prije sljedeće.",
       "conversation": "Hajde da vježbamo razgovor. Predloži svakodnevnu situaciju iz pređenog gradiva, počni jednom replikom i sačekaj moj odgovor; usput ispravljaj moje greške."
+    }
+  },
+  "bundle": {
+    "export": {
+      "button": "Izvezi u datoteku",
+      "hint": "Ovaj kurs kao jedna datoteka, za uvoz na tvom drugom računaru pod „Preuzeti“.",
+      "started": "Preuzima se „{file}“ ({size})."
+    },
+    "import": {
+      "button": "Uvezi iz datoteke…",
+      "hint": "Kurs ili ispit izvezen na tvom drugom računaru (.sprachanker-course).",
+      "sending": "Datoteka se šalje… {share, number, percent}",
+      "checking": "Datoteka se provjerava i instalira…",
+      "added": "„{title}“ je ovdje.",
+      "same": "„{title}“ je već ovdje, isti: ništa se nije promijenilo.",
+      "replaced": "„{title}“ je sada verzija iz datoteke; tvoj napredak ostaje.",
+      "verified": "Provjereno: sve datoteke su tu.",
+      "problems": "Provjereno: {count, plural, one {pronađen # problem} few {pronađena # problema} other {pronađeno # problema}} — „Provjeri“ na njegovoj kartici ih prikazuje."
     }
   }
 }

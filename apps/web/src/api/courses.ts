@@ -2,7 +2,9 @@
 // they take, a progress reset.
 import type { ExamKey, LessonKey } from "@sprachanker/schema";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
+import type { InferResponseType } from "hono/client";
 import { api, json, STATIC } from "./client.ts";
+import { downloadReady, uploadFile } from "./files.ts";
 
 export const useCourses = () =>
   useQuery({ queryKey: ["courses"], queryFn: () => json(api.courses.$get()) });
@@ -54,3 +56,23 @@ export function useResetProgress() {
     onSuccess: () => void client.invalidateQueries({ predicate: (q) => q.meta?.static !== true }),
   });
 }
+
+// A course moved as a file (02, "Course bundle"): its file made ready (an edition's), downloaded once;
+// a course file sent and installed.
+export type ExportedCourse = InferResponseType<typeof api.courses.export.$post, 200>;
+export type ImportedCourse = InferResponseType<typeof api.courses.import.$post, 200>;
+
+/** A course's file made ready on the server: its id, name and size. */
+export const prepareCourseExport = (course: { series: string; course: string; edition: string }) =>
+  json(api.courses.export.$post({ json: course }));
+
+/** Where a prepared course file is downloaded (once). */
+export const courseExportUrl = (id: string) => `/api/courses/export/${id}`;
+
+/** Whether a prepared course file is still there to download (nothing taken). */
+export const courseExportReady = (id: string) =>
+  downloadReady(courseExportUrl(id), "course_export_gone");
+
+/** A course file sent to the server and installed, its progress heard. */
+export const uploadCourse = (file: File, onProgress: (sent: number) => void) =>
+  uploadFile<ImportedCourse>("/api/courses/import", file, onProgress);

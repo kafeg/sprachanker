@@ -1,8 +1,8 @@
 import { tmpdir } from "node:os";
-import { join, resolve } from "node:path";
+import { resolve } from "node:path";
 import { defineConfig, devices } from "@playwright/test";
 import { FAKE_LLM_PORT } from "./fake-llm.ts";
-import { E2E_PIPER, SIGNED_IN } from "./paths.ts";
+import { E2E_DATA, E2E_PIPER, SIGNED_IN } from "./paths.ts";
 
 const PORT = 4590;
 const ALL = !!process.env.CI || !!process.env.E2E_ALL;
@@ -12,8 +12,6 @@ const phone = { width: 375, height: 812 };
 // The compiled binary (`bun run build:bin`), started from an unrelated folder: everything it serves
 // must come from inside the binary.
 const binary = resolve(import.meta.dirname, "../apps/cli/dist/sprachanker");
-// Written by fixture-data.ts before the run (same path).
-const data = join(tmpdir(), "sprachanker-e2e");
 
 export default defineConfig({
   testDir: ".",
@@ -26,7 +24,7 @@ export default defineConfig({
   use: { baseURL: `http://127.0.0.1:${PORT}`, locale: "en-US", trace: "retain-on-failure" },
   webServer: [
     {
-      command: `"${binary}" serve --port ${PORT} --data "${data}"`,
+      command: `"${binary}" serve --port ${PORT} --data "${E2E_DATA}"`,
       cwd: tmpdir(),
       // Piper on paper (fixture-data.ts): a deck's words read aloud without the real engine.
       env: { ...(process.env as Record<string, string>), SPRACHANKER_PIPER: E2E_PIPER },

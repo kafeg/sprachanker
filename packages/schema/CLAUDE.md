@@ -39,6 +39,8 @@ src/
                      # tailnet), each with whether it is a secure context
   profile-file.ts    # a profile file (`.sprachanker-profile`): its manifest, the paths it may hold,
                      # the content a profile used, its size limit
+  course-bundle.ts   # a course bundle (`.sprachanker-course`): its manifest (content versions, its
+                     # lines of media.json and keys.json), the paths it may hold, its size limit
 json-schema/        # generated JSON Schemas, committed; `bun run --filter @sprachanker/schema gen`
 scripts/gen-json-schema.ts
 test/               # bun test (Bun types via tsconfig.dev.json; src has no runtime types)

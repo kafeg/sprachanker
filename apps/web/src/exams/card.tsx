@@ -2,13 +2,14 @@
 // library's card: a band with the language pair and the last mock exam's points, a ring with how ready
 // the learner is, the title and publisher, the last mock exam, and the ways in — a mock exam (continued
 // while one runs) and practice; on "My exams" its removal (its runs deleted), on "Downloaded" its
-// course's check and sync.
+// course's check, sync and export to a file.
 import { examPassed } from "@sprachanker/engine";
 import type { ExamKey } from "@sprachanker/schema";
 import { Link } from "@tanstack/react-router";
 import { ArrowRight, Dumbbell } from "lucide-react";
 import { useTranslation } from "react-i18next";
 import type { ExamRow } from "@/api/exams.ts";
+import { CourseExport } from "@/library/bundle.tsx";
 import { LibraryCard } from "@/library/card.tsx";
 import { examParams } from "@/library/exam-address.ts";
 import { CourseUpkeep } from "@/library/upkeep.tsx";
@@ -26,7 +27,7 @@ export function ExamCard({
   edition: string;
   /** In "My exams": the exam can be removed from there (its mock exams and practice deleted). */
   removable?: boolean;
-  /** In "Downloaded": its course's check and sync. */
+  /** In "Downloaded": its course's check, sync and export to a file. */
   upkeep?: boolean;
 }) {
   const { t } = useTranslation();
@@ -66,7 +67,11 @@ export function ExamCard({
           </span>
         </span>
       </Link>
-      {upkeep && <CourseUpkeep series={exam.series} course={exam.course} />}
+      {upkeep && (
+        <CourseUpkeep series={exam.series} course={exam.course}>
+          <CourseExport series={exam.series} course={exam.course} edition={edition} />
+        </CourseUpkeep>
+      )}
       <p className="mt-3 text-sm text-muted-foreground">
         {t("exams.ready", { percent: percent(exam.readiness) })}
       </p>

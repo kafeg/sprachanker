@@ -9,7 +9,7 @@ export const PROFILE_FILE_FORMAT = "sprachanker-profile";
 /** Bumped when a file of this version could not be read by an app that reads the previous one. */
 export const PROFILE_FILE_VERSION = 1;
 export const PROFILE_FILE_EXTENSION = ".sprachanker-profile";
-/** A zip without ZIP64 (fflate writes none) holds at most 4 GiB: a profile file stays below it. */
+/** A profile file is at most this large (a profile is its database and recordings: far less). */
 export const PROFILE_FILE_MAX_BYTES = 4_000_000_000;
 
 /** A file in a profile file besides its manifest: the database, or a recording (`<ulid>.<ext>`). */

@@ -33,6 +33,17 @@ JSON under `/api`, validated with zod and typed for the web client through Hono 
   queued, downloading, incomplete, ready), `GET` / `POST /api/downloads` (the jobs with progress and
   log; queue a download — first download, completing one and syncing with the source are the same
   idempotent import), `GET /api/storage` (the data folder, the space per series, the free space on the disk).
+- Course bundles (02, "Course bundle"; the server's, as downloads are: any profile): `POST
+  /api/courses/export` (`{series, course, edition?}`: the course's file made ready — that edition's,
+  else every one installed —: its id, file name, size, course and editions; 404 `not_installed`; 507
+  `not_enough_space`), `GET /api/courses/export/:id` (that file, streamed as a download with its
+  length, once; 404 `course_export_gone`; a `HEAD` takes nothing, as a profile file's), `POST
+  /api/courses/import` (a bundle as the body, with its `Content-Length` — 411 without —, at most 16 GB
+  — 413 `course_bundle_too_large`, checked before a byte is read —: the course with its kind,
+  editions and titles, `status` `added` | `same` | `replaced`, its media placed and kept, what
+  `verify` found (problems, media missing); 422 `not_a_course_bundle`, `course_bundle_damaged`,
+  `course_bundle_from_newer_app`; 409 `course_bundle_clash` (a media file here under its name holds
+  other content), `course_import_busy`; 507 `not_enough_space`).
 - Progress: `POST /api/progress/reset` (a course, one lesson, or one exam — its mock exams and practice, 05).
 - Profiles (without a session): `GET` / `POST /api/profiles` (who is studying and registration; a new
   profile, signed in), `POST /api/profiles/import` (a profile file as the body, with its
@@ -98,8 +109,8 @@ JSON under `/api`, validated with zod and typed for the web client through Hono 
   let go unimported: its sheet closed), `DELETE /api/decks/:id` (409 `deck_in_use` while any profile
   has cards made from it; the offers name them: `studiedBy`, the profiles' names). An import asked again with its upload's id — at once, or after it ended
   (within a day) — answers with the deck it made, so a retry after a dropped connection gets it. Bun
-  takes bodies up to a profile file's size (the largest); the deck's preview and import, a profile
-  file's import and download wait as long as they take, every
+  takes bodies up to a course bundle's size (the largest); the deck's preview and import, a profile
+  file's and a course bundle's import and download wait as long as they take, every
   other request up to 255 s of silence (Bun's most: a local model's first words, 07; `runtime/bun.ts`).
   A deck's earlier audio is linked into its update, copied where the disk has no hard links.
 - A deck's words read aloud (04, "Decks"; a course's or an imported deck's, `scope` as Review names
@@ -147,8 +158,9 @@ JSON under `/api`, validated with zod and typed for the web client through Hono 
   without their outcomes; practice's with them.
 - Bodies: every API route takes at most 1 MB (413 `request_too_large`) but those taking a file, each
   with its own limit — a recording (`recording_too_large`), audio to transcribe, a deck file
-  (`deck_too_large`), a profile file (`profile_file_too_large`). A body without `Content-Length` is
-  counted as it comes, held in memory, so the large files — a deck file, a profile file — are taken only
+  (`deck_too_large`), a profile file (`profile_file_too_large`), a course bundle
+  (`course_bundle_too_large`). A body without `Content-Length` is counted as it comes, held in memory,
+  so the large files — a deck file, a profile file, a course bundle — are taken only
   with their length announced (`Content-Length`, no `Transfer-Encoding`; else 411 `length_required`,
   before a byte is read; the web client's uploads send it) and streamed to disk up to that length.
 - Errors: `{error: <code>}`, the code one of `ERROR_CODES` (`schema/src/errors.ts`; the web has words
@@ -156,10 +168,10 @@ JSON under `/api`, validated with zod and typed for the web client through Hono 
   `detail`, the AI's routes included), 403 (`missing_client_header`, `registration_closed`), 404
   (`not_installed` for a course, lesson or file that is not in the library; unknown ids), 409 (state:
   a run not active, an assistant not set up, a model already busy with the same thing), 413, 415, 422
-  (a deck file that does not read, unpacks too large or has no words; a profile file that is none,
-  damaged or from a newer app), 421
+  (a deck file that does not read, unpacks too large or has no words; a profile file or a course
+  bundle that is none, damaged or from a newer app), 421
   (a host name this machine is not reached by), 411 (`length_required`: a file without its length), 502 (the LLM provider, the speech engine), 507 (no room
-  on the disk for a profile file, `not_enough_space`); services raise `ServiceError(code, status)` (`src/errors.ts`). Anything else, a
+  on the disk for a profile file or a course bundle, `not_enough_space`); services raise `ServiceError(code, status)` (`src/errors.ts`). Anything else, a
   stored row that no longer parses included, is a 500 (`server_error`).
 - `/api/llm` (`routes/llm.ts`): `GET /` (state), `PUT route`, `PUT providers/:id`, `GET models`,
   `GET key` (OpenRouter's key state); `GET lmstudio`, `POST lmstudio/start|download`; tasks —
@@ -288,7 +300,11 @@ it, so headless `serve` has every feature.
 
 Built (`apps/cli/src/main.ts`): `serve [--data] [--host] [--port] [--allow-host]...` ·
 `import <provider> [--data] [--courses] [--editions] [--refresh]` · `verify [--data] [--notes]` (02).
-`profiles` (above) · `backup [--data] --to <folder>` (05, "Backups": `server.sqlite` and each
+`profiles` (above) · `courses [--data]` (the installed courses and exams with their editions),
+`courses export <series/course> [--editions] --to <file|folder>` and `courses import <file>` (02,
+"Course bundle"; also while a server runs on the data root: the series' import lock keeps them apart,
+and the server reads the files anew; an import whose verify finds problems exits 1) ·
+`backup [--data] --to <folder>` (05, "Backups": `server.sqlite` and each
 `profile.sqlite` copied with `VACUUM INTO`, consistent while a server runs; the recordings, the
 imported decks and `<app-data>/secret.key`; into a new `sprachanker-backup-<date>-<time>` folder,
 its owner's only (0700: it holds the key, the command says to keep it private), never inside the

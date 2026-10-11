@@ -45,12 +45,12 @@ apps/web/src/
                    # pictures: pictures.tsx, bars over the span), lesson (passes), pass (in full), compare,
                    # exam (an exam's runs and questions as they stand), review-day (a deck's day: its answers), mark
   library/         # what feature folders share: card (a course's or an exam's, an offer, the publisher),
-                   # hero (their page's head), tab-page (Courses' and Exams' tabs), download, upkeep,
+                   # hero (their page's head), tab-page (Courses' and Exams' tabs), download, upkeep, bundle (a course to a file and back),
                    # reset-progress, exam-address, item-history (an item across passes), spoken-check
   api/             # client (Hono RPC, hono/client; no codegen) + TanStack Query hooks by area: settings
                    # (the app and its addresses, the profile's settings), courses, downloads, cards, decks (imported; a deck's
                    # words read aloud, polled while read), notebook,
-                   # recordings, speech, exams, session (profiles, signing in and out, devices, a profile's file); outbox (events in
+                   # recordings, speech, exams, session (profiles, signing in and out, devices, a profile's file), files (sent with progress, downloaded); outbox (events in
                    # order, retried, a refused batch dropped; tested), run-events (a lesson's or exam's
                    # run's events over it: per profile, the server's outcomes, on page close); edition:
                    # the edition a course is shown in; cache: pure cache updates

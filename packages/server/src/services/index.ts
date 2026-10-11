@@ -10,6 +10,11 @@ import { secretBox } from "../security/secrets.ts";
 import { createCardStore } from "./card-store.ts";
 import { createCards } from "./cards.ts";
 import { type Content, createContent } from "./content.ts";
+import {
+  type CourseTransfer,
+  type CourseTransferFiles,
+  createCourseTransfer,
+} from "./course-transfer.ts";
 import { createCoursesContext } from "./courses-context.ts";
 import { createDeckAudio, type DeckAudio } from "./deck-audio.ts";
 import { createDeckExamples, type DeckExamples } from "./deck-examples.ts";
@@ -65,6 +70,8 @@ export interface ServicesConfig {
   readings?: ReadingCache;
   /** Profile files exported and imported (runtime adapter). */
   transfers: TransferFiles;
+  /** Course bundles exported and imported (runtime adapter). */
+  courseTransfers: CourseTransferFiles;
   /** The imported decks' folders, and what reading a package needs of the runtime. */
   decks: DeckFiles;
   apkg: ApkgRuntime;
@@ -89,6 +96,7 @@ function profileServices(
     deckExtras: DeckExtrasStore;
     deckExamples: DeckExamples;
     downloads: Downloads;
+    courseTransfer: CourseTransfer;
     speech: Speech;
     readAloud: ReadAloud;
     qwenTts: QwenTts;
@@ -97,7 +105,7 @@ function profileServices(
   recordingFiles: RecordingFiles,
 ) {
   const { now } = config;
-  const { content, decks, deckAudio, deckExtras, deckExamples, downloads } = shared;
+  const { content, decks, deckAudio, deckExtras, deckExamples, downloads, courseTransfer } = shared;
   const { speech, readAloud, qwenTts } = shared;
   const settings = createSettings(db);
   const speechOfProfile = createProfileSpeech({ speech, readAloud, qwenTts, settings });
@@ -201,6 +209,7 @@ function profileServices(
       stop: deckAudio.stop,
     },
     downloads,
+    courseTransfer,
     settings,
     speech: speechOfProfile,
     recordings,
@@ -314,10 +323,21 @@ export function createServices(config: ServicesConfig) {
     now,
   });
 
+  // Courses moved as bundles (the server's, as downloads are); cards follow their words after one.
+  const courseTransfer = createCourseTransfer({
+    files: config.courseTransfers,
+    appVersion: config.appVersion,
+    now,
+    onInstalled: () => {
+      for (const s of open.values()) void relink(s);
+    },
+  });
+
   return {
     content,
     decks,
     downloads,
+    courseTransfer,
     profileTransfer,
     speech,
     network: createNetwork({ host: config.network, listensOn: config.listensOn, now }),
@@ -342,6 +362,7 @@ export function createServices(config: ServicesConfig) {
             deckExtras,
             deckExamples,
             downloads,
+            courseTransfer,
             speech,
             readAloud,
             qwenTts,

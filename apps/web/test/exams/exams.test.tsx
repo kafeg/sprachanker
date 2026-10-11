@@ -105,8 +105,10 @@ test("Exams in tabs as Courses: begun ones, downloaded with how ready and the la
       [["downloads"], { available: true, jobs: [] }],
     ],
   });
-  // Its course's check and sync, as a downloaded course's.
+  // Its course's check, sync and export, as a downloaded course's; an exam's file to import.
   expect(view.getByRole("button", { name: "Check" })).toBeTruthy();
+  expect(view.getByRole("button", { name: "Export to a file" })).toBeTruthy();
+  expect(view.getByRole("button", { name: "Import from a file…" })).toBeTruthy();
   expect(view.getByText("last: 2 of 2")).toBeTruthy();
   expect(view.getByText("You know 50% of the questions")).toBeTruthy();
   expect(view.getByText(/Last mock exam .*: passed/).className).toContain("text-correct");

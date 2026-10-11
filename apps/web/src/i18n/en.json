@@ -1308,7 +1308,14 @@
     "examples_without_word": "The model's sentences did not use the word.",
     "length_required": "The file was sent without its size. Try again, or in another browser.",
     "profile_import_busy": "Another profile file is being imported. Try again when it is done.",
-    "llm_url_with_login": "Leave the user name and password out of the address: enter the key in the API key field."
+    "llm_url_with_login": "Leave the user name and password out of the address: enter the key in the API key field.",
+    "course_export_gone": "This export is no longer here: export the course again.",
+    "not_a_course_bundle": "This file is not a SprachAnker course file (.sprachanker-course).",
+    "course_bundle_damaged": "This course file is damaged or was changed after it was exported.",
+    "course_bundle_too_large": "This course file is too large (16 GB at most).",
+    "course_bundle_from_newer_app": "This course file comes from a newer version of SprachAnker: update the app here first.",
+    "course_bundle_clash": "This computer has other files under the names of this course's media: download the course here instead.",
+    "course_import_busy": "Another course file is being imported. Try again when it is done."
   },
   "exams": {
     "tabs": {
@@ -1482,6 +1489,24 @@
       "grammar": "I have a grammar question. Ask me what it is, then explain it briefly with examples from what I have learnt.",
       "text": "I'd like to go through a text with you. Ask me to paste it, then take it one sentence at a time: translate it, explain what is new and wait for me before the next.",
       "conversation": "Let's practise a conversation. Suggest an everyday situation from what I have learnt, then start with one line and wait for my answer; correct my mistakes as we go."
+    }
+  },
+  "bundle": {
+    "export": {
+      "button": "Export to a file",
+      "hint": "This course as one file, to import on your other computer under Downloaded.",
+      "started": "Downloading “{file}” ({size})."
+    },
+    "import": {
+      "button": "Import from a file…",
+      "hint": "A course or exam exported on your other computer (.sprachanker-course).",
+      "sending": "Sending the file… {share, number, percent}",
+      "checking": "Checking the file and installing it…",
+      "added": "“{title}” is here.",
+      "same": "“{title}” is here already, the same: nothing changed.",
+      "replaced": "“{title}” is now the file's version; your progress is kept.",
+      "verified": "Checked: every file is there.",
+      "problems": "Checked: {count, plural, one {# problem found} other {# problems found}} — “Check” on its card lists them."
     }
   }
 }

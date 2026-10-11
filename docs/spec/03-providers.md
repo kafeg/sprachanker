@@ -79,8 +79,9 @@ runs (left out of progress), its pages say it is not installed.
   so the download stays marked incomplete. A robots.txt that could not be read is asked again later.
 - One download at a time (the job queue) and one import per series across processes (a lock folder
   with the owner's pid, made elsewhere and renamed into place so it is never seen without its owner;
-  taken over when that process is gone or is no SprachAnker), so the CLI and the server never write one `media.json`
-  together.
+  taken over when that process is gone or is no SprachAnker) and in turn within a process (a course
+  bundle installed waits for a download of its series, 02), so the CLI and the server never write one
+  `media.json` together.
 
 ## 1. DW Learn German (`courses/dw`)
 

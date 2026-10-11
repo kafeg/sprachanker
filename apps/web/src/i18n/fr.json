@@ -1308,7 +1308,14 @@
     "examples_without_word": "Les phrases du modèle n’utilisaient pas le mot.",
     "length_required": "Le fichier a été envoyé sans sa taille. Réessaie, ou dans un autre navigateur.",
     "profile_import_busy": "Un autre fichier de profil est en cours d’import. Réessaie quand il sera terminé.",
-    "llm_url_with_login": "Retire le nom d’utilisateur et le mot de passe de l’adresse : saisis la clé dans le champ de la clé API."
+    "llm_url_with_login": "Retire le nom d’utilisateur et le mot de passe de l’adresse : saisis la clé dans le champ de la clé API.",
+    "course_export_gone": "Cet export n’est plus là : exporte le cours à nouveau.",
+    "not_a_course_bundle": "Ce fichier n’est pas un fichier de cours SprachAnker (.sprachanker-course).",
+    "course_bundle_damaged": "Ce fichier de cours est endommagé ou a été modifié après l’export.",
+    "course_bundle_too_large": "Ce fichier de cours est trop volumineux (16 Go au plus).",
+    "course_bundle_from_newer_app": "Ce fichier de cours vient d’une version plus récente de SprachAnker : mets d’abord l’application à jour ici.",
+    "course_bundle_clash": "Cet ordinateur a d’autres fichiers sous les noms des médias de ce cours : télécharge plutôt le cours ici.",
+    "course_import_busy": "Un autre fichier de cours est en cours d’import. Réessaie quand il sera terminé."
   },
   "exams": {
     "tabs": {
@@ -1482,6 +1489,24 @@
       "grammar": "J’ai une question de grammaire. Demande-moi laquelle, puis explique-la brièvement avec des exemples tirés de ce que j’ai appris.",
       "text": "J’aimerais parcourir un texte avec toi. Demande-moi de le coller, puis avance phrase par phrase : traduis-la, explique ce qui est nouveau et attends-moi avant la suivante.",
       "conversation": "Entraînons-nous à une conversation. Propose une situation de tous les jours tirée de ce que j’ai appris, commence par une réplique et attends ma réponse ; corrige mes erreurs au fur et à mesure."
+    }
+  },
+  "bundle": {
+    "export": {
+      "button": "Exporter dans un fichier",
+      "hint": "Ce cours en un seul fichier, à importer sur ton autre ordinateur dans « Téléchargés ».",
+      "started": "Téléchargement de « {file} » ({size})."
+    },
+    "import": {
+      "button": "Importer depuis un fichier…",
+      "hint": "Un cours ou un examen exporté sur ton autre ordinateur (.sprachanker-course).",
+      "sending": "Envoi du fichier… {share, number, percent}",
+      "checking": "Vérification et installation du fichier…",
+      "added": "« {title} » est là.",
+      "same": "« {title} » est déjà là, identique : rien n’a changé.",
+      "replaced": "« {title} » est maintenant la version du fichier ; ta progression est conservée.",
+      "verified": "Vérifié : tous les fichiers sont là.",
+      "problems": "Vérifié : {count, plural, one {# problème trouvé} many {# de problèmes trouvés} other {# problèmes trouvés}} — « Vérifier » sur sa carte les liste."
     }
   }
 }

@@ -23,6 +23,7 @@ import { recordingsRoutes } from "./routes/recordings.ts";
 import { settingsRoutes } from "./routes/settings.ts";
 import { speechRoutes } from "./routes/speech.ts";
 import { hostGuard } from "./security/host.ts";
+import type { CourseTransferFiles } from "./services/course-transfer.ts";
 import type { DeckFiles } from "./services/decks.ts";
 import type { CourseInstaller } from "./services/downloads.ts";
 import { createServices } from "./services/index.ts";
@@ -50,6 +51,8 @@ export interface AppConfig {
   apkg: ApkgRuntime;
   /** Profile files exported and imported (runtime adapter: `profiles/.transfers`). */
   transfers: TransferFiles;
+  /** Course bundles exported and imported (runtime adapter: `library/.transfers`). */
+  courseTransfers: CourseTransferFiles;
   appVersion: string;
   /** 32-byte key that seals the profiles' API keys (06, "Secrets"). */
   secretKey: Uint8Array;
@@ -80,8 +83,9 @@ export interface AppConfig {
 }
 
 /** The routes that take a file, each with its own body limit: a recording, audio to hear, a deck file,
- *  a profile file. */
-const FILE_ROUTES = /^\/api\/(recordings|speech\/transcribe|decks\/preview|profiles\/import)$/;
+ *  a profile file, a course bundle. */
+const FILE_ROUTES =
+  /^\/api\/(recordings|speech\/transcribe|decks\/preview|profiles\/import|courses\/import)$/;
 const jsonBody = limitedBody(JSON_BODY_MAX, "request_too_large");
 
 export function createApp(config: AppConfig) {

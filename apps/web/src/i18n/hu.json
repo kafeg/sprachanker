@@ -1308,7 +1308,14 @@
     "examples_without_word": "A modell mondataiban nem szerepelt a szó.",
     "length_required": "A fájl a mérete nélkül érkezett. Próbáld újra, vagy egy másik böngészőben.",
     "profile_import_busy": "Épp egy másik profilfájl importálása folyik. Próbáld újra, ha végzett.",
-    "llm_url_with_login": "A felhasználónevet és a jelszót hagyd ki a címből: a kulcsot az API-kulcs mezőbe írd."
+    "llm_url_with_login": "A felhasználónevet és a jelszót hagyd ki a címből: a kulcsot az API-kulcs mezőbe írd.",
+    "course_export_gone": "Ez az exportálás már nincs meg: exportáld újra a kurzust.",
+    "not_a_course_bundle": "Ez a fájl nem SprachAnker-kurzusfájl (.sprachanker-course).",
+    "course_bundle_damaged": "Ez a kurzusfájl sérült, vagy az exportálás után módosították.",
+    "course_bundle_too_large": "Ez a kurzusfájl túl nagy (legfeljebb 16 GB).",
+    "course_bundle_from_newer_app": "Ez a kurzusfájl a SprachAnker egy újabb verziójából származik: előbb frissítsd itt az alkalmazást.",
+    "course_bundle_clash": "Ezen a számítógépen a kurzus médiafájljainak nevén más fájlok vannak: töltsd le inkább itt a kurzust.",
+    "course_import_busy": "Épp egy másik kurzusfájl importálása folyik. Próbáld újra, ha végzett."
   },
   "exams": {
     "tabs": {
@@ -1482,6 +1489,24 @@
       "grammar": "Nyelvtani kérdésem van. Kérdezd meg, mi az, aztán magyarázd el röviden példákkal abból, amit már tanultam.",
       "text": "Szeretnék veled átnézni egy szöveget. Kérd meg, hogy másoljam be, aztán haladj mondatról mondatra: fordítsd le, magyarázd el, mi új benne, és várj meg a következő előtt.",
       "conversation": "Gyakoroljunk egy beszélgetést. Javasolj egy hétköznapi helyzetet abból, amit tanultam, kezdj egy mondattal, és várd meg a válaszomat; menet közben javítsd a hibáimat."
+    }
+  },
+  "bundle": {
+    "export": {
+      "button": "Exportálás fájlba",
+      "hint": "Ez a kurzus egyetlen fájlban, hogy a másik számítógépeden a „Letöltve” alatt importáld.",
+      "started": "„{file}” letöltése ({size})."
+    },
+    "import": {
+      "button": "Importálás fájlból…",
+      "hint": "A másik számítógépeden exportált kurzus vagy vizsga (.sprachanker-course).",
+      "sending": "A fájl küldése… {share, number, percent}",
+      "checking": "A fájl ellenőrzése és telepítése…",
+      "added": "„{title}” itt van.",
+      "same": "„{title}” már itt van, ugyanígy: semmi sem változott.",
+      "replaced": "„{title}” most a fájlban lévő változat; a haladásod megmarad.",
+      "verified": "Ellenőrizve: minden fájl megvan.",
+      "problems": "Ellenőrizve: {count, plural, one {# probléma található} other {# probléma található}} – a kártyáján az „Ellenőrzés” felsorolja őket."
     }
   }
 }

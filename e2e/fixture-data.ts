@@ -1,13 +1,10 @@
 // Writes a fresh data root with the fixture course for the e2e run (bun e2e/fixture-data.ts), a
 // synthetic deck file to import, and Piper on paper with a German voice "installed".
 import { mkdirSync, rmSync, writeFileSync } from "node:fs";
-import { tmpdir } from "node:os";
 import { join } from "node:path";
 import { buildApkg } from "@sprachanker/anki-export/testing";
 import { writeFixtureLibrary } from "@sprachanker/course-fixture";
-import { E2E_DECK, E2E_PIPER, E2E_VOICE } from "./paths.ts";
-
-export const E2E_DATA = join(tmpdir(), "sprachanker-e2e");
+import { E2E_DATA, E2E_DECK, E2E_PIPER, E2E_VOICE } from "./paths.ts";
 
 /** Piper as the server runs it (`--output-filename=<wav>` among its arguments): 0.2 s of silence,
  *  22.05 kHz 16-bit mono. */

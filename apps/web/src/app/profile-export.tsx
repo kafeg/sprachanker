@@ -3,21 +3,12 @@
 import { useMutation } from "@tanstack/react-query";
 import { Download } from "lucide-react";
 import { useTranslation } from "react-i18next";
+import { startDownload } from "@/api/files.ts";
 import { type ExportedProfile, exportReady, exportUrl, prepareExport } from "@/api/session.ts";
 import { Button } from "@/ui/components/button.tsx";
 import { errorText } from "@/ui/error-text.ts";
 import { useBytes } from "@/ui/format.ts";
 import { Panel } from "@/ui/panel.tsx";
-
-/** A file downloaded by the browser, under its own name. */
-function startDownload(url: string, fileName: string) {
-  const link = document.createElement("a");
-  link.href = url;
-  link.download = fileName;
-  document.body.append(link);
-  link.click();
-  link.remove();
-}
 
 export function ProfileExport({
   prepare = prepareExport,

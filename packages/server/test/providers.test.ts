@@ -9,7 +9,38 @@ import {
   importCourse,
   PROVIDERS,
   providerIds,
+  withSeriesLock,
 } from "../src/providers.ts";
+
+test("a series is written by one at a time in this process too: the second waits for the first", async () => {
+  const library = mkdtempSync(join(tmpdir(), "sprachanker-lock-"));
+  const order: string[] = [];
+  let release = () => {};
+  const held = new Promise<void>((resolve) => {
+    release = resolve;
+  });
+  let entered = () => {};
+  const inside = new Promise<void>((resolve) => {
+    entered = resolve;
+  });
+  const first = withSeriesLock(library, "dw.nicos-weg", async () => {
+    order.push("first in");
+    entered();
+    await held;
+    order.push("first out");
+  });
+  const second = withSeriesLock(library, "dw.nicos-weg", async () => {
+    order.push("second");
+  });
+  await inside;
+  // Another series goes on beside them.
+  await withSeriesLock(library, "bamf.lid", async () => {
+    order.push("other");
+  });
+  release();
+  await Promise.all([first, second]);
+  expect(order).toEqual(["first in", "other", "first out", "second"]);
+});
 
 test("download markers on disk: interrupted and incomplete downloads, space per series", async () => {
   const root = mkdtempSync(join(tmpdir(), "sprachanker-installer-"));

@@ -9,6 +9,7 @@ import { CLIENT_HEADERS } from "@sprachanker/schema";
 import { createApp } from "../src/app.ts";
 import { profileAdmin } from "../src/index.ts";
 import { mediaBlob, openProfileDb, openServerDb, profileFiles } from "../src/runtime/bun.ts";
+import { courseTransferFiles } from "../src/runtime/course-transfer.ts";
 import { apkgRuntime, deckFiles } from "../src/runtime/decks.ts";
 import { profileTransferFiles } from "../src/runtime/profile-transfer.ts";
 import { setup } from "./setup.ts";
@@ -150,6 +151,7 @@ test("the single profile from before profiles existed becomes the first one, not
     decks: deckFiles(root),
     apkg: apkgRuntime,
     transfers: profileTransferFiles(root),
+    courseTransfers: courseTransferFiles(root),
     appVersion: "test",
     secretKey: new Uint8Array(32).fill(7),
     listensOn: { hostname: "127.0.0.1", port: 4580 },

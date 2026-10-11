@@ -1,0 +1,83 @@
+// What moving a file between one's machines shares, for profile files (05) and course bundles (02):
+// an export made ready once and downloaded once — let go after an hour —, one import at a time, and a
+// full disk said as the learner's error.
+import type { ErrorCode } from "@sprachanker/schema";
+import { ServiceError } from "../errors.ts";
+
+/** An export prepared and not yet downloaded goes after an hour, its transfer with it. */
+export const PREPARED_MS = 60 * 60_000;
+
+/** A full disk, found before writing or while writing. */
+const noSpace = (error: unknown) => (error as { code?: string } | null)?.code === "ENOSPC";
+
+/** A full disk as the learner's error (507 `not_enough_space`); anything else as it is. */
+export async function guarded<T>(work: () => Promise<T>): Promise<T> {
+  try {
+    return await work();
+  } catch (error) {
+    if (noSpace(error)) throw new ServiceError("not_enough_space", 507);
+    throw error;
+  }
+}
+
+/** Work that runs one at a time: another asked meanwhile is refused (409 `busy`). */
+export function oneAtATime(busy: ErrorCode) {
+  let running = false;
+  return async <T>(work: () => Promise<T>) => {
+    if (running) throw new ServiceError(busy, 409);
+    running = true;
+    try {
+      return await work();
+    } finally {
+      running = false;
+    }
+  };
+}
+
+/**
+ * Exports made ready, each its owner's (a profile, the server) until downloaded or an hour has
+ * passed; `discard` lets its transfer go. `gone`: the error of one not there (404).
+ */
+export function preparedExports<T extends { fileName: string; bytes: number }>(
+  discard: (id: string) => void,
+  gone: ErrorCode,
+) {
+  const prepared = new Map<
+    string,
+    { owner: string; value: T; timer: ReturnType<typeof setTimeout> }
+  >();
+  /** Forgets one: downloaded (its stream has the transfer now), or let go with it. */
+  const forget = (id: string, letGo: boolean) => {
+    const p = prepared.get(id);
+    if (!p) return;
+    clearTimeout(p.timer);
+    prepared.delete(id);
+    if (letGo) discard(id);
+  };
+  const self = {
+    /** Kept for `owner` until downloaded, an hour at most. */
+    keep(id: string, owner: string, value: T) {
+      const timer = setTimeout(() => forget(id, true), PREPARED_MS);
+      // Never what keeps the process (the command line) running.
+      (timer as { unref?: () => void }).unref?.();
+      prepared.set(id, { owner, value, timer });
+    },
+    /** One still there to download, `owner`'s: nothing taken (404 `gone` otherwise). */
+    ready(owner: string, id: string): T {
+      const p = prepared.get(id);
+      if (!p || p.owner !== owner) throw new ServiceError(gone, 404);
+      return p.value;
+    },
+    /** One taken to be downloaded, once. */
+    take(owner: string, id: string): T {
+      const value = self.ready(owner, id);
+      forget(id, false);
+      return value;
+    },
+    /** Every one of `owner`'s not downloaded let go. */
+    letGo(owner: string) {
+      for (const [id, p] of prepared) if (p.owner === owner) forget(id, true);
+    },
+  };
+  return self;
+}

@@ -1,3 +1,4 @@
+export * from "./bundle.ts";
 export * from "./canonical-json.ts";
 export * from "./dom.ts";
 export * from "./exercise-draft.ts";
@@ -17,3 +18,4 @@ export * from "./robots.ts";
 export * from "./text.ts";
 export * from "./verify.ts";
 export * from "./vocab.ts";
+export * from "./zip.ts";

@@ -29,6 +29,14 @@ export const ERROR_CODES = [
   "not_offered",
   "downloads_unavailable",
   "lesson_not_in_series",
+  // A course bundle: exported, imported (02, "Course bundle").
+  "course_export_gone",
+  "not_a_course_bundle",
+  "course_bundle_damaged",
+  "course_bundle_too_large",
+  "course_bundle_from_newer_app",
+  "course_bundle_clash",
+  "course_import_busy",
   // Lesson runs and their events.
   "no_such_run",
   "run_not_active",

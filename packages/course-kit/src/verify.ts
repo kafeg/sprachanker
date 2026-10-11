@@ -32,7 +32,7 @@ const problem = (kind: CourseProblem["kind"], at: string, text: string): CourseP
 const inconsistent = (at: string, text: string) => problem("inconsistent", at, text);
 
 /** Every `media/…` path inside a value (lesson, exercise, locale file). */
-function mediaPaths(value: unknown, out: Set<string>) {
+export function mediaPaths(value: unknown, out: Set<string>) {
   if (typeof value === "string") {
     // A library path (a value, or src="…" in HTML), not "multimedia/…" in a text.
     for (const m of value.matchAll(/(?<![\w/.-])media\/[^\s"'<>)]+/g)) out.add(m[0]);

@@ -21,7 +21,8 @@ import { CLIENT_HEADERS } from "@sprachanker/schema";
 import { strFromU8, strToU8, unzipSync, zipSync } from "fflate";
 import { ulid } from "ulid";
 import { profileTransferFiles } from "../src/runtime/profile-transfer.ts";
-import { PREPARED_MS, type TransferFiles } from "../src/services/profile-transfer.ts";
+import type { TransferFiles } from "../src/services/profile-transfer.ts";
+import { PREPARED_MS } from "../src/services/transfers.ts";
 import { setup } from "./setup.ts";
 
 const LESSON = "sprachanker.fixture/demo/00-01";

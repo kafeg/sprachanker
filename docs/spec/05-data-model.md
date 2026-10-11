@@ -8,6 +8,8 @@
 
 <data-root>/                     # --data, else $SPRACHANKER_DATA, else <app-data>/data
 ├── library/                     # installed courses (02)
+├── library/.transfers/<id>/     # a course bundle being exported or imported (02, "Course bundle"); swept
+│                                # as a profile file's transfer, a course folder an install put aside back
 ├── decks/<deck-id>/             # imported decks (04, "Decks"): deck.json (schema `deck.ts`: the words with
 │                                # the deck's own examples, their languages, the file it came from) and media/
 │                                # (the audio the .apkg brought, `<slug>-<hash of its name>.<ext>`; an update
@@ -240,12 +242,13 @@ by its snapshot, found by exercise key.
 - **Profile file** (built): one profile moved between one's own machines as a file (owner,
   2026-10-11: one's own machines only, nothing about sharing with others; default, owner may change).
   Below.
-- The library is re-downloadable and copied per series (02).
+- The library is re-downloadable and copied per series; a downloaded course moves to another of
+  one's machines as a bundle (02, "Course bundle").
 
 ## Profile file
 
-`<name>-<date>.sprachanker-profile` (default, owner may change): a zip of stored entries (fflate, 10;
-no ZIP64, so at most 4 GB, `PROFILE_FILE_MAX_BYTES`), schema `profile-file.ts`:
+`<name>-<date>.sprachanker-profile` (default, owner may change): a zip of stored entries (course-kit
+`zip.ts`, 10; at most 4 GB, `PROFILE_FILE_MAX_BYTES`), schema `profile-file.ts`:
 
 ```
 manifest.json         # first: format `sprachanker-profile` and its version, the app's version, when;
@@ -283,7 +286,7 @@ recordings/<ulid>.<ext>
   1. the file streamed to disk (an upload: its length announced, 06; room for it twice — the file and
      what it unpacks to — checked first; 413 `profile_file_too_large` past 4 GB);
   2. read by its zip directory, believed only as far as it is checked: the directory right before the
-     end record, at most 16 MB and no larger than its entries need, short names and fields, each
+     end record (or the ZIP64 end record, right before its locator), at most 16 MB and no larger than its entries need, short names and fields, each
      entry's local header the same as its directory entry, the entries in order and none overlapping
      another; a manifest that reads, stored entries only, only `profile.sqlite` and
      `recordings/<ulid>.<ext>`, each once — else 422 `not_a_profile_file`; a newer format or a

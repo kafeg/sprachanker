@@ -1308,7 +1308,14 @@
     "examples_without_word": "Propozițiile modelului nu au folosit cuvântul.",
     "length_required": "Fișierul a fost trimis fără dimensiunea lui. Încearcă din nou sau în alt browser.",
     "profile_import_busy": "Se importă deja alt fișier de profil. Încearcă din nou după ce se termină.",
-    "llm_url_with_login": "Lasă numele de utilizator și parola în afara adresei: introdu cheia în câmpul pentru cheia API."
+    "llm_url_with_login": "Lasă numele de utilizator și parola în afara adresei: introdu cheia în câmpul pentru cheia API.",
+    "course_export_gone": "Acest export nu mai este aici: exportă cursul din nou.",
+    "not_a_course_bundle": "Acest fișier nu este un fișier de curs SprachAnker (.sprachanker-course).",
+    "course_bundle_damaged": "Acest fișier de curs este deteriorat sau a fost modificat după export.",
+    "course_bundle_too_large": "Acest fișier de curs este prea mare (cel mult 16 GB).",
+    "course_bundle_from_newer_app": "Acest fișier de curs vine dintr-o versiune mai nouă a SprachAnker: actualizează mai întâi aplicația aici.",
+    "course_bundle_clash": "Pe acest calculator există alte fișiere cu numele fișierelor media ale acestui curs: descarcă mai bine cursul aici.",
+    "course_import_busy": "Se importă deja alt fișier de curs. Încearcă din nou după ce se termină."
   },
   "exams": {
     "tabs": {
@@ -1482,6 +1489,24 @@
       "grammar": "Am o întrebare de gramatică. Întreabă-mă care este, apoi explic-o pe scurt cu exemple din ce am învățat.",
       "text": "Aș vrea să parcurg un text cu tine. Cere-mi să-l lipesc, apoi ia-l propoziție cu propoziție: tradu, explică ce e nou și așteaptă-mă înainte de următoarea.",
       "conversation": "Hai să exersăm o conversație. Propune o situație de zi cu zi din ce am învățat, începe cu o replică și așteaptă răspunsul meu; corectează-mi greșelile pe parcurs."
+    }
+  },
+  "bundle": {
+    "export": {
+      "button": "Exportă într-un fișier",
+      "hint": "Acest curs într-un singur fișier, ca să-l imporți pe celălalt calculator al tău, la „Descărcate”.",
+      "started": "Se descarcă „{file}” ({size})."
+    },
+    "import": {
+      "button": "Importă dintr-un fișier…",
+      "hint": "Un curs sau un examen exportat pe celălalt calculator al tău (.sprachanker-course).",
+      "sending": "Se trimite fișierul… {share, number, percent}",
+      "checking": "Se verifică și se instalează fișierul…",
+      "added": "„{title}” este aici.",
+      "same": "„{title}” era deja aici, la fel: nu s-a schimbat nimic.",
+      "replaced": "„{title}” este acum versiunea din fișier; progresul tău rămâne.",
+      "verified": "Verificat: toate fișierele sunt aici.",
+      "problems": "Verificat: {count, plural, one {# problemă găsită} few {# probleme găsite} other {# de probleme găsite}} — „Verifică” pe cardul lui le arată."
     }
   }
 }
