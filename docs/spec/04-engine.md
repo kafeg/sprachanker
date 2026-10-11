@@ -229,9 +229,13 @@ imported `.apkg` decks fit in. Scheduling and the queue are pure functions in
   assumed to know (a course's words up to the words' lesson, an imported deck's up to them) and the
   level the course's or deck's name says ("a1-ru", "Wörter A2"), else beginners'. A sentence that
   does not use its word — found by its forms (engine `usesWord`), or by the form the model says it
-  used, every word of it in the sentence (`hasForm`: "ist" of "sein", "lädt … ein" of "einladen":
-  forms no ending rule finds) — is dropped; a word left without any is asked for once more
-  on its own; still none, it counts as failed with the reason. Kept beside the deck
+  used (`hasForm`, forms no ending rule finds), every word of it in the sentence and of the word:
+  three first letters in common with it (umlauts and a participle's "ge-" aside: "Äpfel" of "der
+  Apfel"), an irregular verb's form (a table of the commonest of A1–A2: "ist" of "sein", "kann" of
+  "können"), or a separable verb's prefix with a form of the verb ("lädt … ein" of "einladen"); never
+  a word that is surely a form of another word of the call or of those known ("trinke" is not "die
+  Tasse", "fahre" not "das Fahrrad") — is dropped; the words left without any are asked for once
+  more, together in one call; still none, they count as failed with the reason. Kept beside the deck
   (`extras.json`, 05) by lexeme and translation language — every profile's cards show them — with
   the model and when. A job per deck (as the audio's, `deck-extras.ts`): one at a time, the server's,
   its progress (words given examples of all, the words under way, failures and why, about how long

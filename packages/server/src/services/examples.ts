@@ -101,8 +101,9 @@ export function createExamples(deps: {
   }
 
   const write: ExampleWriter = async (notes) => {
-    const { result, model } = await llm.structured(wordExamplesTask(await inputOf(notes)));
-    return { result, model };
+    const input = await inputOf(notes);
+    const { result, model } = await llm.structured(wordExamplesTask(input));
+    return { result, model, known: input.known.map((target) => ({ target })) };
   };
 
   return {

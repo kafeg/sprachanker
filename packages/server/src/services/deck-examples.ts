@@ -4,13 +4,15 @@
 // lexeme and the language they are translated into (deck-extras.ts), so every profile's cards show
 // them. A sentence that does not use its word is dropped; a word left without any is asked for once
 // more on its own call. Server-wide, one job per deck; the model is the profile's that starts it.
-import { hasForm, usesWord } from "@sprachanker/engine";
+import { hasForm, usesWord, type VocabWord } from "@sprachanker/engine";
 import type { DeckMadeExamples, WordExamples } from "@sprachanker/schema";
 import { type DeckExtrasStore, type DeckJobSpec, type DeckNote, failureOf } from "./deck-extras.ts";
 
 /** What writes examples for a few words of one translation language: the profile's model
- *  (examples.ts), with the context of the deck. */
-export type ExampleWriter = (words: DeckNote[]) => Promise<{ result: WordExamples; model: string }>;
+ *  (examples.ts), with the context of the deck — the words it gave as known, too. */
+export type ExampleWriter = (
+  words: DeckNote[],
+) => Promise<{ result: WordExamples; model: string; known: VocabWord[] }>;
 
 /** Words a call. */
 export const EXAMPLES_BATCH = 5;
@@ -75,9 +77,13 @@ export function createDeckExamples(deps: { extras: DeckExtrasStore; now(): numbe
         for (const w of reply.result.words) {
           const note = asked[w.n - 1];
           if (!note || made.has(note)) continue;
-          // The word found by its forms, or as the model says the sentence uses it.
+          // The word found by its forms, or by the form the model says it used — of this word, not
+          // of another asked or known.
+          const others = [...step.filter((n) => n !== note).map((n) => n.display), ...reply.known];
           const good = w.examples.filter(
-            (e) => usesWord(e.sentence, note.display) || hasForm(e.sentence, e.form),
+            (e) =>
+              usesWord(e.sentence, note.display) ||
+              hasForm(e.sentence, e.form, note.display, others),
           );
           if (good.length) made.set(note, good.slice(0, KEPT));
         }

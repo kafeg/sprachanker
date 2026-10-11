@@ -28,12 +28,59 @@ test("a sentence uses the word by its main part, not by its article", () => {
 });
 
 test("a form no ending rule finds: each of its words in the sentence, case aside", () => {
-  expect(usesWord("Er ist zu Hause.", { target: "sein" })).toBe(false);
-  expect(hasForm("Er ist zu Hause.", "ist")).toBe(true);
-  expect(hasForm("Er lädt mich heute ein.", "lädt ein")).toBe(true);
-  expect(hasForm("Er lädt mich heute.", "lädt ein")).toBe(false);
-  expect(hasForm("Er kann schwimmen.", "kannst")).toBe(false);
-  expect(hasForm("Er kann schwimmen.", "")).toBe(false);
+  const sein = { target: "sein" };
+  const einladen = { target: "einladen" };
+  expect(usesWord("Er ist zu Hause.", sein)).toBe(false);
+  expect(hasForm("Er ist zu Hause.", "ist", sein)).toBe(true);
+  expect(hasForm("Er lädt mich heute ein.", "lädt ein", einladen)).toBe(true);
+  expect(hasForm("Er lädt mich heute.", "lädt ein", einladen)).toBe(false);
+  expect(hasForm("Er kann schwimmen.", "kannst", { target: "können" })).toBe(false);
+  expect(hasForm("Er kann schwimmen.", "", { target: "können" })).toBe(false);
+});
+
+test("a model's form counts only when it is of the word: a stem it shares, an irregular verb's, a separable verb's", () => {
+  const cases: Array<[string, string, string]> = [
+    ["Ich bin müde.", "bin", "sein"],
+    ["Er ist zu Hause.", "Ist", "sein"],
+    ["Ich kann gut kochen.", "kann", "können"],
+    ["Sie mag Tee.", "mag", "mögen"],
+    ["Ich möchte Tee.", "möchte", "mögen"],
+    ["Es wird kalt.", "wird", "werden"],
+    ["Sie hat Zeit.", "hat", "haben"],
+    ["Er lädt uns ein.", "lädt ein", "einladen"],
+    ["Er sieht oft fern.", "sieht fern", "fernsehen"],
+    ["Er hat Tee getrunken.", "getrunken", "trinken"],
+    ["Wir sind nach Berlin gefahren.", "gefahren", "fahren"],
+    ["Die Äpfel sind rot.", "Äpfel", "der Apfel"],
+    ["Er spricht Deutsch.", "spricht", "sprechen"],
+  ];
+  for (const [sentence, form, target] of cases)
+    expect([sentence, hasForm(sentence, form, { target })]).toEqual([sentence, true]);
+  // Not of the word: no stem in common, nothing irregular of it.
+  expect(hasForm("Ich trinke Kaffee.", "trinke", { target: "die Tasse" })).toBe(false);
+  expect(hasForm("Er ist zu Hause.", "ist", { target: "haben" })).toBe(false);
+  expect(hasForm("Er trinkt Tee ein.", "trinkt ein", { target: "einladen" })).toBe(false);
+  expect(hasForm("Er kommt heute.", "kommt", { target: "ankommen" })).toBe(false);
+});
+
+test("a model's form that is surely another word's — of the batch or known — is not the word's", () => {
+  const fahrrad = { target: "das Fahrrad" };
+  const sentence = "Ich fahre in die Stadt.";
+  expect(hasForm(sentence, "fahre", fahrrad)).toBe(true);
+  expect(hasForm(sentence, "fahre", fahrrad, [{ target: "fahren" }])).toBe(false);
+  // An irregular form of another verb.
+  expect(hasForm("Ich bin müde.", "bin", { target: "binden" })).toBe(true);
+  expect(hasForm("Ich bin müde.", "bin", { target: "binden" }, [{ target: "sein" }])).toBe(false);
+  // A separable verb keeps its form though the verb without the prefix is known.
+  expect(
+    hasForm("Er kommt um acht an.", "kommt an", { target: "ankommen" }, [{ target: "kommen" }]),
+  ).toBe(true);
+  // Another entry of the word itself is not another word.
+  expect(
+    hasForm("Die Äpfel sind rot.", "Äpfel", { target: "der Apfel" }, [
+      { target: "der Apfel, die Äpfel" },
+    ]),
+  ).toBe(true);
 });
 
 test("new words are marked, with the translation of the first glossary that has them", () => {

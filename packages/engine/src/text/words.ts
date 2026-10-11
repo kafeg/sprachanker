@@ -2,6 +2,7 @@
 // a headword's forms (its plural and the forms the course gives, "studiert, studierte, hat studiert")
 // or a form that differs only by an ending ("wohne" — "wohnen") — and which are new, with a translation where
 // a vocabulary has one. Rough by design: it marks words to look at, it checks no answer.
+import { IRREGULAR_VERBS } from "./irregular-verbs.ts";
 
 export interface VocabWord {
   /** Headword as the course shows it: "die Frau, die Frauen", "(etwas) studieren". */
@@ -55,28 +56,87 @@ export function sameWord(written: string, form: string, stem = 3): boolean {
  *  nor "Haus" "die Haut". */
 const GLOSS_STEM = 4;
 
+/** A word's main part: its longer forms ("frau" of "die Frau", not "die"), else all of them. */
+function mainForms(word: VocabWord): string[] {
+  const forms = wordForms(word);
+  return forms.some((f) => f.length >= 4) ? forms.filter((f) => f.length >= 4) : forms;
+}
+
 /** Whether a sentence uses the word: one of its words is a form of the word's main part (its
  *  longer words: "Frau" of "die Frau", not "die"). */
 export function usesWord(sentence: string, word: VocabWord): boolean {
-  const forms = wordForms(word);
-  const main = forms.some((f) => f.length >= 4) ? forms.filter((f) => f.length >= 4) : forms;
+  const main = mainForms(word);
   return sentence
     .split(WORD)
     .filter((part) => WORD.test(part))
     .some((w) => main.some((f) => sameWord(w, f)));
 }
 
-/** Whether a sentence has every word of `form` as written, case aside, anywhere in it: the form a
- *  model says it used ("ist" of "sein", "lädt … ein" of "einladen"), which no ending rule finds. */
-export function hasForm(sentence: string, form: string): boolean {
-  const split = (text: string) =>
-    text
-      .split(/[^\p{L}'’-]+/u)
-      .filter(Boolean)
-      .map(lower);
-  const words = new Set(split(sentence));
-  const parts = split(form);
-  return parts.length > 0 && parts.every((p) => words.has(p));
+/** Lower case, umlauts as their vowels ("lädt" — "ladt"): a vowel inflection changed. */
+const plain = (word: string) =>
+  lower(word).normalize("NFD").replace(/\p{M}/gu, "").normalize("NFC");
+
+const IRREGULAR = new Map(
+  Object.entries(IRREGULAR_VERBS).map(([verb, forms]) => [
+    plain(verb),
+    new Set(forms.split(" ").map(plain)),
+  ]),
+);
+
+/** How many first letters two words share. */
+function common(a: string, b: string): number {
+  let n = 0;
+  while (n < a.length && a[n] === b[n]) n++;
+  return n;
+}
+
+/** Whether a written word may be a form of a word's form (both plain): three first letters or more
+ *  in common, a participle's "ge-" aside ("gefahren" — "fahren"), or an irregular verb's form. */
+const mayBeForm = (written: string, form: string) =>
+  common(written, form) >= 3 ||
+  (written.startsWith("ge") && common(written.slice(2), form) >= 3) ||
+  !!IRREGULAR.get(form)?.has(written);
+
+/** Whether a written word is surely a form of `word`: by the ending rule, or an irregular form. */
+const surelyForm = (written: string, word: VocabWord) =>
+  usesWord(written, word) ||
+  mainForms(word).some((f) => !!IRREGULAR.get(plain(f))?.has(plain(written)));
+
+const wordsIn = (text: string) => text.split(/[^\p{L}'’-]+/u).filter(Boolean);
+
+/**
+ * Whether a sentence uses the word in the form a model says it used, which no ending rule finds:
+ * every word of `form` is in the sentence (case aside), and the form is of the word — one of its words
+ * shares three first letters with the word's main part (umlauts and a participle's "ge-" aside:
+ * "Äpfel" of "der Apfel", "gefahren" of "fahren") or is an irregular verb's form (`IRREGULAR_VERBS`:
+ * "ist" of "sein", "kann" of "können"), or it is a separable verb's prefix with a form of the verb
+ * without it ("lädt … ein" of "einladen", "sieht … fern" of "fernsehen"). A word of the form that is
+ * surely a form of one of `others` (the other words asked, the words known; an entry of the word itself
+ * aside) is theirs: "fahre" is of "fahren", not of "das Fahrrad".
+ */
+export function hasForm(
+  sentence: string,
+  form: string,
+  word: VocabWord,
+  others: readonly VocabWord[] = [],
+): boolean {
+  const written = new Set(wordsIn(sentence).map(lower));
+  const parts = wordsIn(form);
+  if (!parts.length || !parts.every((p) => written.has(lower(p)))) return false;
+  const plains = parts.map(plain);
+  const main = mainForms(word);
+  // Another entry of the word itself ("der Apfel, die Äpfel" among the known) is no other word.
+  const rivals = others.filter((o) => !mainForms(o).some((f) => main.includes(f)));
+  const ours = (i: number) => !rivals.some((o) => surelyForm(parts[i] as string, o));
+  return main
+    .map(plain)
+    .some((f) =>
+      plains.some((p, i) =>
+        plains.length > 1 && f.length > p.length && f.startsWith(p)
+          ? plains.some((q, j) => j !== i && mayBeForm(q, f.slice(p.length)))
+          : mayBeForm(p, f) && ours(i),
+      ),
+    );
 }
 
 /** Articles before a headword or its plural ("die Frau, die Frauen"): no word of a sentence they
