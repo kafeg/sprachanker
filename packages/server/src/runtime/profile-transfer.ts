@@ -294,6 +294,8 @@ export function profileTransferFiles(
         },
         async cancel() {
           await it.return(undefined);
+          // A stream cancelled before it began never ran the generator's `finally`.
+          discard(id);
         },
       });
     },

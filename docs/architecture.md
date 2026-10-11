@@ -60,7 +60,7 @@ only the router and the settings page import the optional `llm/` folder.
 | `packages/anki-export` | `.apkg` packages read (SQLite and zstd from the runtime), notes as a deck's words with lexemes by the courses' rules |
 | `packages/server` | HTTP API, SQLite with migrations and backups, services, downloads, the speech engines and their supervisor, security |
 | `apps/web` | screens for desktop and phone; checks answers locally with the engine for instant feedback |
-| `apps/cli` | `serve`, `import`, `verify`, `profiles` |
+| `apps/cli` | `serve`, `import`, `verify`, `profiles` (with a profile's export and import), `backup` |
 
 ## Server inside
 

@@ -285,12 +285,19 @@ export function createProfileTransfer(deps: {
       };
     },
 
-    /** A profile exported to a file (the command line). */
-    async exportTo(profileId: string, file: string) {
+    /** A profile exported to a file (the command line): where, given the file's own name. */
+    async exportTo(profileId: string, where: (fileName: string) => string) {
       const ready = await self.prepare(profileId);
       const { stream, bytes } = self.download(profileId, ready.id);
-      await guarded(() => files.save(stream, file, bytes));
-      return ready;
+      try {
+        const file = where(ready.fileName);
+        await guarded(() => files.save(stream, file, bytes));
+        return { ...ready, file };
+      } catch (error) {
+        // The transfer goes with its stream.
+        await stream.cancel().catch(() => undefined);
+        throw error;
+      }
     },
 
     /** A profile file uploaded (from "Who is studying?": registration open, or no profile yet) and
