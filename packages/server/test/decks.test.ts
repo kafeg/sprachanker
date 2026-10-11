@@ -37,31 +37,47 @@ async function withDecks() {
       },
       body,
     });
-  const importDeck = async (bytes = deck(), title = "Mein Deck", translationLang = "ru") =>
-    (
-      await upload(
-        `/api/decks/import?${new URLSearchParams({ title, lang: "de", translationLang, file: "mein.apkg" })}`,
-        bytes,
-      )
-    ).json() as Promise<{ id: string; words: number; withAudio: number; title: string }>;
-  return { ...api, upload, importDeck };
+  // biome-ignore lint/suspicious/noExplicitAny: test responses are inspected structurally.
+  const preview = async (bytes: Uint8Array): Promise<any> =>
+    (await upload("/api/decks/preview", bytes)).json();
+  /** A package uploaded, then imported by its upload's id. */
+  const importDeck = async (bytes = deck(), title = "Mein Deck", translationLang = "ru") => {
+    const { upload: id } = await preview(bytes);
+    return (await api.sendJson("POST", "/api/decks/import", {
+      upload: id,
+      title,
+      lang: "de",
+      translationLang,
+      file: "mein.apkg",
+    })) as { id: string; words: number; withAudio: number; withExamples: number; title: string };
+  };
+  return { ...api, upload, preview, importDeck };
 }
 
 test("a package previewed, imported as a deck with its audio; its media served from its folder alone", async () => {
-  const { upload, importDeck, getJson, get } = await withDecks();
-  const preview = await (await upload("/api/decks/preview", deck())).json();
-  expect(preview).toEqual({
+  const { upload, preview, importDeck, getJson, get, sendJson } = await withDecks();
+  const seen = await preview(deck());
+  expect(seen).toEqual({
+    upload: expect.stringMatching(/^[0-9a-f-]{36}$/),
     title: "Mein Deck",
     words: 4,
     withAudio: 1,
+    withExamples: 0,
+    languages: [],
     first: [
-      { target: "der Kaffee", translation: "кофе" },
-      { target: "die Leute", translation: "люди" },
-      { target: "der Apfel", translation: "яблоко" },
-      { target: "antworten", translation: "отвечать" },
+      { target: "der Kaffee", translations: { "": "кофе" } },
+      { target: "die Leute", translations: { "": "люди" } },
+      { target: "der Apfel", translations: { "": "яблоко" } },
+      { target: "antworten", translations: { "": "отвечать" } },
     ],
     updates: null,
   });
+  // An upload is imported once; another id is no upload.
+  const request = { title: "x", lang: "de", translationLang: "ru", file: "x.apkg" };
+  expect(
+    (await sendJson("POST", "/api/decks/import", { ...request, upload: crypto.randomUUID() }))
+      .error,
+  ).toBe("deck_upload_gone");
   const bad = await upload("/api/decks/preview", new Uint8Array([1, 2, 3]));
   expect([bad.status, ((await bad.json()) as { error: string }).error]).toEqual([
     422,
@@ -89,9 +105,7 @@ test("a package previewed, imported as a deck with its audio; its media served f
     expect((await get(`/decks/${summary.id}/${path}`)).status).toBe(404);
   // The same deck again (most of its notes here, the same languages) updates it in place, as its
   // preview says.
-  expect(
-    ((await (await upload("/api/decks/preview", deck())).json()) as { updates: unknown }).updates,
-  ).toEqual({
+  expect((await preview(deck())).updates).toEqual({
     id: summary.id,
     title: "Mein Deck",
     lang: "de",
@@ -113,13 +127,96 @@ test("a package previewed, imported as a deck with its audio; its media served f
     ],
     media: { "page.html": SOUND },
   });
-  expect(
-    ((await (await upload("/api/decks/preview", other)).json()) as { updates: unknown }).updates,
-  ).toBeNull();
+  expect((await preview(other)).updates).toBeNull();
   const andere = await importDeck(other, "Andere");
   expect(andere).toMatchObject({ words: 3, withAudio: 0 });
   expect((await importDeck(deck(), "Mein Deck (en)", "en")).id).not.toBe(summary.id);
   expect(await titles()).toEqual(["Andere", "Mein Deck (en)", "Mein Deck (neu)"]);
+});
+
+test("fields named by language: the translation in the language chosen, the deck's examples with their audio on the card", async () => {
+  const { preview, importDeck, getJson, sendJson, get } = await withDecks();
+  const fields = [
+    "id",
+    "part_of_speech",
+    "german",
+    "sentence_1_german",
+    "audio_german",
+    "audio_sentence_1_german",
+    "english",
+    "sentence_1_english",
+    "russian",
+    "sentence_1_russian",
+  ];
+  const core = buildApkg({
+    deck: "Core",
+    fields,
+    notes: [
+      {
+        guid: "c1",
+        fields: [
+          "1",
+          "nf",
+          "die Zeit",
+          "Ich habe Zeit.",
+          "[sound:die-zeit.mp3]",
+          "[sound:ich-habe-zeit.mp3]",
+          "time",
+          "I have time.",
+          "время",
+          "У меня есть время.",
+        ],
+      },
+      {
+        guid: "c2",
+        fields: ["2", "die (pl)", "Leute", "", "", "", "people", "", "люди", ""],
+      },
+    ],
+    media: { "die-zeit.mp3": SOUND, "ich-habe-zeit.mp3": SOUND },
+  });
+  const seen = await preview(core);
+  expect(seen).toMatchObject({
+    words: 2,
+    withAudio: 1,
+    withExamples: 1,
+    languages: ["de", "en", "ru"],
+  });
+  expect(seen.first[0]).toEqual({ target: "die Zeit", translations: { en: "time", ru: "время" } });
+  const summary = await importDeck(core, "Core");
+  expect(summary).toMatchObject({ words: 2, withAudio: 1, withExamples: 1 });
+  await sendJson("POST", "/api/cards/decks/take", { deck: summary.id });
+  const words = (await getJson("/api/cards")).words;
+  expect(words.map((w: { lexemeKey: string }) => w.lexemeKey).sort()).toEqual([
+    "lex:de:leute:noun:pl",
+    "lex:de:zeit:noun:f",
+  ]);
+  const zeit = words.find((w: { lexemeKey: string }) => w.lexemeKey === "lex:de:zeit:noun:f");
+  expect(zeit.display).toMatchObject({
+    target: "die Zeit",
+    gender: "f",
+    translation: "время",
+    audio: "media/die-zeit.mp3",
+    examples: [
+      {
+        sentence: "Ich habe Zeit.",
+        translation: "У меня есть время.",
+        audio: "media/ich-habe-zeit.mp3",
+      },
+    ],
+  });
+  expect((await get(`/decks/${summary.id}/media/ich-habe-zeit.mp3`)).status).toBe(200);
+  // In English: its own deck, the English translations.
+  const english = await importDeck(core, "Core (en)", "en");
+  expect(english.id).not.toBe(summary.id);
+  await sendJson("POST", "/api/cards/decks/take", { deck: english.id });
+  const inEnglish = (await getJson("/api/cards")).words.find(
+    (w: { lexemeKey: string; display: { deck?: string } }) =>
+      w.lexemeKey === "lex:de:zeit:noun:f" && w.display.deck === english.id,
+  );
+  expect(inEnglish.display).toMatchObject({
+    translation: "time",
+    examples: [{ translation: "I have time." }],
+  });
 });
 
 test("a deck taken as a course's: a word with a card keeps it, the deck studies it; left, its cards go or move", async () => {

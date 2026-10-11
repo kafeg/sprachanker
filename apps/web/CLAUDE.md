@@ -26,7 +26,7 @@ apps/web/src/
                    # its recording and autoplay), session (counts, Show answer, ratings, undo; one action
                    # at a time), reviewer-keys (Anki's keys: a pure mapping, tested), more-menu;
                    # tones (ratings and counts in our hues), time (intervals, next due), decks (deck names),
-                   # deck-import (a deck file previewed, named, its languages, imported), word-sheet (a word with cards in full: forms, faces, answers), guide (how review
+                   # deck-import (a deck file previewed, named, its languages, imported), examples (a deck's own), word-sheet (a word with cards in full: forms, faces, answers), guide (how review
                    # works: the method, buttons, card types, actions, keys), review-settings (Settings →
                    # Review: daily limits, retention, card types, how it works); slots (what optional features add: AI examples)
   exercises/       # one renderer per exercise type (index.tsx; speech: the speaking ones); dnd (chips

@@ -158,21 +158,32 @@ imported `.apkg` decks fit in. Scheduling and the queue are pure functions in
   and a form differing only by an ending: `text/words.ts`); the others are marked new, translated by
   the course's later lessons, else by the model's glossary.
 - **Imported decks** (plan, "Anki decks and word images"): an `.apkg` file (`packages/anki-export`:
-  the collection in any of Anki's formats, its notes and media) becomes a deck of words in a language
-  with translations in another, both chosen when importing. Each note is a word, its fields by name —
-  word (Wort, Word, Front…), translation (Übersetzung, Translation, Back…), plural, part of speech
-  (Wortart…) — else the first field the word and the second its translation; HTML as text, the first
-  `[sound:…]` its audio, kept with the deck (audio files only). Its lexeme is made by the courses' rules (schema
-  `shapeHeadword`, `germanGender`: "der Abend" a masculine noun — der/die/das before one word, or
-  before more when the deck says Nomen —, a phrase a phrase whatever the deck calls it, the deck's Verb
-  or Adjektiv taken; a note that makes no word is left out), so a word a course has links to its card. Decks are
-  the server's, every profile's to take (05, `decks/`); a file imported again — most of its notes those of a
-  deck here (by guid), and that deck mostly them, in the same languages: the preview says so — updates
-  that deck (another deck sharing a note, or the same in other languages, is one of its own), and cards follow their words (relinking); a deck is deleted
-  only while no profile has cards made from it (they leave it first: nobody's progress goes
-  unasked). Planned (phases after the import): audio read aloud by the server's engine for a deck's
-  words without it, and examples by the AI for a whole deck (plan, item 1), kept beside the deck
-  (`extras.json`, 05).
+  the collection in any of Anki's formats — `collection.anki21b`, else `.anki21`, else `.anki2`, never
+  merged — its notes and media) becomes a deck of words in a language with translations in another,
+  both chosen when importing. Each note is a word, its fields by name: word (Wort, Word, Front…),
+  translation (Übersetzung, Translation, Back…), plural, part of speech (Wortart, part_of_speech…); or
+  named by language, in English, German or the language itself (`german`, `russian`, `Deutsch`,
+  `Русский`): the field of the words' language is the word, that of the translation language its
+  translation, `audio_<language>` its audio, `sentence_<n>_<language>` with `audio_sentence_<n>_…`
+  the deck's own example sentences — in the words' language, with their translation and audio, shown
+  on the card's answer and in the word sheet; else the first field the word and the second its
+  translation. HTML as text, the first `[sound:…]` of the word's field its audio; the audio kept with
+  the deck (audio files only). Its lexeme is made by the courses' rules (schema `shapeHeadword`,
+  `germanGender`: "der Abend" a masculine noun — der/die/das before one word, or before more when the
+  deck says it is a noun —, a phrase a phrase whatever the deck calls it); the deck's part of speech
+  is taken where it names one: Nomen, Verb, Adjektiv…, and codes as `nf`/`nm`/`nn` (a noun's gender),
+  `die (pl)` (plural only), `der, die` (either gender), only the first of several (`adj; adv`); a
+  note that makes no word is left out. So a word a course has links to its card. Decks are the
+  server's, every profile's to take (05, `decks/`); a package is uploaded once (kept beside the decks
+  until imported, at most 512 MB) and previewed — its deck's name, words with audio and examples, the
+  languages its fields are named by, the first words — then imported. A file imported again — most
+  of its notes those of a deck here (by guid), and that deck mostly them, in the same languages: the
+  preview says so — updates that deck (another deck sharing a note, or the same in other languages,
+  is one of its own), and cards follow their words (relinking); a deck is deleted only while no
+  profile has cards made from it (they leave it first: nobody's progress goes unasked). Planned
+  (phases after the import): audio read aloud by the server's engine for a deck's words without it,
+  and examples by the AI for a whole deck's words without the deck's own (plan, item 1), kept beside
+  the deck (`extras.json`, 05).
 - **Decks to take** (owner, 2026-10-08/09): each course of My courses (begun) and language pair offers
   its words as one deck; so does each imported deck. Taking it makes every lesson's words cards at once, new and in course order
   (Anki: a deck imported); words with a card already keep it. **Leaving** a course's deck (after asking)

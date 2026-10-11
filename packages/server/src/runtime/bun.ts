@@ -12,6 +12,7 @@ import type { ServerDb } from "../db/server/db.ts";
 import { migrations as serverMigrations } from "../db/server/migrations/index.ts";
 import * as serverSchema from "../db/server/schema.ts";
 import type { MediaBlob } from "../media.ts";
+import { DECK_MAX_BYTES } from "../services/decks.ts";
 import type { ProfileFiles, RecordingFiles } from "../services/profiles.ts";
 import type { WebAssets } from "../web.ts";
 
@@ -24,7 +25,16 @@ export function listen(
   fetch: (request: Request) => Response | Promise<Response>,
   options: { hostname: string; port: number },
 ): Listening {
-  const server = Bun.serve({ fetch, hostname: options.hostname, port: options.port });
+  const server = Bun.serve({
+    fetch,
+    hostname: options.hostname,
+    port: options.port,
+    // A deck file is the largest body taken (Bun's own limit is 128 MB).
+    maxRequestBodySize: DECK_MAX_BYTES + 1024 * 1024,
+    // Bun's longest wait for a request that sends nothing yet (not its 10 s): a deck's import writes
+    // thousands of files before it answers.
+    idleTimeout: 255,
+  });
   return { url: server.url.href, stop: () => server.stop() };
 }
 

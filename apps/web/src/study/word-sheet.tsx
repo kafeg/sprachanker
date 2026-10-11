@@ -16,6 +16,7 @@ import { TargetLang } from "@/ui/target-lang.ts";
 import { cn } from "@/ui/utils.ts";
 import { GenderWord } from "@/word/word.tsx";
 import { useDeckName } from "./decks.ts";
+import { DeckExamples } from "./examples.tsx";
 import { useStudySlots } from "./slots.ts";
 import { useDueText } from "./time.ts";
 import { COUNT_TONE, ratingOf } from "./tones.ts";
@@ -64,6 +65,7 @@ function WordDetails({ word }: { word: MyWord }) {
             {d.example}
           </p>
         )}
+        <DeckExamples display={d} lang={word.lang} className="pt-1" />
         <div className="-ml-2">{slots.word?.({ cardId: word.cardId })}</div>
         {lesson ? (
           <Link

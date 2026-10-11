@@ -21,7 +21,8 @@ Specs: 04, 07, 09.
   on a card made one at a time goes; a card whose deck has none yet (examples on in Settings) offers
   to go to Decks and make them.
 - An imported deck's words without audio read aloud by the server's engine (Piper or Qwen3-TTS) for
-  the whole deck at once, kept with it; both kept beside the deck (`extras.json`, 05).
+  the whole deck at once; examples made only for words the deck brings none of its own for; both
+  kept beside the deck (`extras.json`, 05).
 - **Accept**: a deck's examples made in one run with its progress shown, resumable; cards show them;
   an imported deck without audio has it for every word.
 

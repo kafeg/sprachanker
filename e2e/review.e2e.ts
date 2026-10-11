@@ -166,7 +166,7 @@ test("a deck file imported in Decks, taken, studied as a course's deck; left and
   const sheet = page.getByRole("dialog");
   await expect(sheet.getByRole("heading", { name: "Import a deck" })).toBeVisible();
   await expect(sheet.getByLabel("Name")).toHaveValue("E2E Wörter");
-  await expect(sheet.getByText("3 words · no audio")).toBeVisible();
+  await expect(sheet.getByText("3 words · no audio · 3 with examples")).toBeVisible();
   await expect(sheet.getByText("der Apfel")).toBeVisible();
   await sheet.getByRole("combobox", { name: "Words in" }).click();
   await page.getByRole("option", { name: "German" }).click();
@@ -184,7 +184,10 @@ test("a deck file imported in Decks, taken, studied as a course's deck; left and
   const show = page.getByRole("button", { name: "Show answer" });
   await expect(show).toBeVisible();
   await show.click();
-  await expect(page.locator("[data-study-card]").first()).toContainText(/apple|pear|coffee/);
+  // The answer with the deck's own example sentence and its translation.
+  const answer = page.locator("[data-study-card]").first();
+  await expect(answer).toContainText(/apple|pear|table/);
+  await expect(answer).toContainText(/I eat an apple\.|The pear is sweet\.|The table is new\./);
   await page.getByRole("button", { name: "Good", exact: true }).click();
   await expect(show).toBeVisible();
   await clear();

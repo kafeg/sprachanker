@@ -1,5 +1,5 @@
-// Imported decks (04, "Decks"): the server's list, a deck file's preview, its import, a deck deleted.
-// Taking and leaving one is the profile's (cards.ts).
+// Imported decks (04, "Decks"): the server's list, a deck file uploaded and previewed, its import by
+// the upload's id, a deck deleted. Taking and leaving one is the profile's (cards.ts).
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import type { InferResponseType } from "hono/client";
 import { readCardsAgain } from "./cards.ts";
@@ -9,27 +9,18 @@ export const useImportedDecks = () =>
   useQuery({ queryKey: ["imported-decks"], queryFn: () => json(api.decks.$get()) });
 
 export type DeckPreview = InferResponseType<typeof api.decks.preview.$post, 200>;
-type Imported = InferResponseType<typeof api.decks.import.$post, 200>;
 
-/** What a deck file holds: its deck's name, how many words (with audio), the first of them. */
+/** A deck file uploaded (kept by the server until imported): its deck's name, words (with audio,
+ *  with examples), the languages its fields are named by, the first words, the deck it updates. */
 export const previewDeck = (file: File) =>
   sendBinary<DeckPreview>("/api/decks/preview", file, "application/octet-stream");
 
-/** A deck file imported; the decks and the decks to take read anew. */
+/** An uploaded deck file imported; the decks and the decks to take read anew. */
 export function useImportDeck() {
   const client = useQueryClient();
   return useMutation({
-    mutationFn: (input: { file: File; title: string; lang: string; translationLang: string }) =>
-      sendBinary<Imported>(
-        `/api/decks/import?${new URLSearchParams({
-          title: input.title,
-          lang: input.lang,
-          translationLang: input.translationLang,
-          file: input.file.name,
-        })}`,
-        input.file,
-        "application/octet-stream",
-      ),
+    mutationFn: (input: Parameters<typeof api.decks.import.$post>[0]["json"]) =>
+      json(api.decks.import.$post({ json: input })),
     onSuccess: () =>
       Promise.all([
         client.invalidateQueries({ queryKey: ["imported-decks"] }),

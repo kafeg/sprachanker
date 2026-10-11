@@ -10,9 +10,14 @@ and `fflate` only; runtime-free — SQLite and zstd come from the caller (`ApkgR
 src/
   apkg.ts      # readApkg: the zip, the collection (anki21b zstd, else anki21, else anki2; a WAL header
                # read as a rollback journal), note types and decks (tables or `col` JSON), notes in
-               # order, media by name (JSON list or the newest format's protobuf; zstd files) on demand
-  words.ts     # noteWords: each field's role by its name, else the first two fields; fieldText (HTML →
-               # text, `[sound:…]` out); lexemeOf: lemma, part of speech, gender by schema's rules
+               # order, media by name (JSON list or the newest format's protobuf; zstd files) on demand,
+               # a batch at a time
+  fields.ts    # a field's role by its name: word, translation, plural, part of speech, or a language's
+               # text, example sentence or audio (`german`, `sentence_1_german`, `audio_german`);
+               # fieldLanguages; fieldText (HTML → text, `[sound:…]` out), soundOf
+  words.ts     # noteWords: a note's word, translation in the language chosen, audio and the deck's
+               # examples, else the first two fields; posOf (decks' parts of speech and noun codes:
+               # nf, die (pl)…); lexemeOf: lemma, part of speech, gender by schema's rules
   index.ts
 test/
   apkg.ts      # buildApkg: synthetic packages in both formats (bun:sqlite, fflate) and the Bun runtime;

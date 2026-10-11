@@ -1,6 +1,7 @@
-// Importing a deck file (.apkg) in Review → Decks (09): the file chosen, the server's preview of it, then
-// a side panel to name the deck and say its languages — the words' (the learner's courses' here, else
-// German) and the translations' (the interface's) — with its first words, and Import.
+// Importing a deck file (.apkg) in Review → Decks (09): the file chosen and uploaded once, the server's
+// preview of it, then a side panel to name the deck and say its languages — the words' (the first its
+// fields are named by, else the learner's decks', else German) and the translations' (of those the deck
+// has, the interface's when it is one) — with its first words, and Import by the upload's id.
 import { Upload } from "lucide-react";
 import { useId, useRef, useState } from "react";
 import { useTranslation } from "react-i18next";
@@ -80,16 +81,23 @@ export function DeckImportSheet({
   const known = (useDecks().data?.decks ?? []).map((d) => d.language);
   const importDeck = useImportDeck();
   const nameId = useId();
-  // A deck here the file updates keeps its name and languages unless changed.
-  const { updates } = preview;
+  // A deck here the file updates keeps its name and languages unless changed; the languages its
+  // fields are named by come first: the first the words', the others their translations'.
+  const { updates, languages: own } = preview;
   const [title, setTitle] = useState(
     updates?.title || preview.title || file.name.replace(/\.apkg$/i, ""),
   );
-  const [lang, setLang] = useState(updates?.lang ?? known[0] ?? "de");
-  const [translationLang, setTranslationLang] = useState(updates?.translationLang ?? i18n.language);
+  const [lang, setLang] = useState(updates?.lang ?? own[0] ?? known[0] ?? "de");
+  const translations = own.length > 1 ? own.filter((l) => l !== lang) : [];
+  const [translationLang, setTranslationLang] = useState(
+    updates?.translationLang ??
+      (translations.length && !translations.includes(i18n.language)
+        ? (translations[0] as string)
+        : i18n.language),
+  );
   const updating = updates && updates.lang === lang && updates.translationLang === translationLang;
-  const languages = [...new Set([...COMMON, i18n.language, ...known])].sort();
-  const language = (label: string, value: string, set: (v: string) => void) => (
+  const all = [...new Set([...COMMON, i18n.language, ...known, ...own])].sort();
+  const language = (label: string, value: string, set: (v: string) => void, options: string[]) => (
     <div className="space-y-1">
       <p className="text-sm text-muted-foreground">{label}</p>
       <Select value={value} onValueChange={set}>
@@ -97,7 +105,7 @@ export function DeckImportSheet({
           <SelectValue />
         </SelectTrigger>
         <SelectContent>
-          {languages.map((code) => (
+          {options.map((code) => (
             <SelectItem key={code} value={code}>
               {languageName(code, i18n.language, true)}
             </SelectItem>
@@ -118,7 +126,13 @@ export function DeckImportSheet({
         onSubmit={(e) => {
           e.preventDefault();
           importDeck.mutate(
-            { file, title: title.trim(), lang, translationLang },
+            {
+              upload: preview.upload,
+              title: title.trim(),
+              lang,
+              translationLang,
+              file: file.name,
+            },
             { onSuccess: onClose },
           );
         }}
@@ -139,21 +153,33 @@ export function DeckImportSheet({
             className="h-11"
           />
         </div>
-        {language(t("decks.import.lang"), lang, setLang)}
-        {language(t("decks.import.translationLang"), translationLang, setTranslationLang)}
+        {language(t("decks.import.lang"), lang, setLang, all)}
+        {language(
+          t("decks.import.translationLang"),
+          translationLang,
+          setTranslationLang,
+          translations.length ? translations : all,
+        )}
         <section>
           <h3 className="mb-1 font-semibold">
-            {t("decks.import.words", { words: preview.words, audio: preview.withAudio })}
+            {t("decks.import.words", {
+              words: preview.words,
+              audio: preview.withAudio,
+              examples: preview.withExamples,
+            })}
           </h3>
           <ul className="divide-y rounded-xl border text-sm">
-            {preview.first.map((w) => (
-              <li key={w.target} className="flex gap-2 px-3 py-2">
-                <span lang={lang} className="font-medium">
-                  {w.target}
-                </span>
-                {w.translation && <span className="text-muted-foreground">· {w.translation}</span>}
-              </li>
-            ))}
+            {preview.first.map((w) => {
+              const translation = w.translations[translationLang] ?? w.translations[""];
+              return (
+                <li key={w.target} className="flex gap-2 px-3 py-2">
+                  <span lang={lang} className="font-medium">
+                    {w.target}
+                  </span>
+                  {translation && <span className="text-muted-foreground">· {translation}</span>}
+                </li>
+              );
+            })}
           </ul>
         </section>
         {importDeck.isError && (

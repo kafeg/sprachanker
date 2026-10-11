@@ -23,8 +23,8 @@ src/
                      # runs), readings.ts (what was read aloud, kept in cache/tts);
                      # backup.ts (a copy of each database a day);
                      # cli.ts (runs `claude` / `codex` for the command-line LLM providers);
-                     # decks.ts (imported decks' folders, written whole; SQLite from bytes and zstd for
-                     # reading an .apkg)
+                     # decks.ts (imported decks' folders, written whole; packages uploaded, streamed to
+                     # decks/.uploads; SQLite from bytes and zstd for reading an .apkg)
   db/
     server/          # Drizzle schema + migrations for server.sqlite
     profile/         # Drizzle schema + migrations for profile.sqlite

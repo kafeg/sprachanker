@@ -14,6 +14,7 @@ import { languageName } from "@/i18n/index.ts";
 import { AudioButton, type AudioControls } from "@/ui/media.tsx";
 import { useTargetLang } from "@/ui/target-lang.ts";
 import { GenderWord } from "@/word/word.tsx";
+import { DeckExamples } from "./examples.tsx";
 import { useStudySlots } from "./slots.ts";
 
 export type Side = "question" | "answer";
@@ -132,6 +133,7 @@ export function StudyCard({
             {question}
             <hr id="answer" className="w-3/4 border-border" />
             {answer}
+            <DeckExamples display={display} lang={lang} className="w-full max-w-md" />
             {cardId && slots.word?.({ cardId })}
             {lesson && (
               <Link

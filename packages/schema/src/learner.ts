@@ -228,6 +228,16 @@ const DisplayFields = {
   example: z.string().optional(),
   /** In the library of `series`, or in the folder of `deck`. */
   audio: z.string().optional(),
+  /** An imported deck's own example sentences, with their translations and audio (in its folder). */
+  examples: z
+    .array(
+      z.object({
+        sentence: z.string(),
+        translation: z.string().optional(),
+        audio: z.string().optional(),
+      }),
+    )
+    .optional(),
 };
 export const CardDisplay = z.union([
   /** Where the word was met: a course's lesson. */

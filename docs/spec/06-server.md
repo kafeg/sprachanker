@@ -74,11 +74,14 @@ JSON under `/api`, validated with zod and typed for the web client through Hono 
   each face's state and the answers given, newest first, those taken back left out). A rating carries its event id (sent again, it is not applied twice) and the
   face's review count as shown (a face rated meanwhile on another device is refused: 409 `card_changed`).
 - Imported decks (04, "Decks"; server-wide, as the library): `GET /api/decks` (each with its languages,
-  words and how many have audio), `POST /api/decks/preview` (a deck file `.apkg` as the body, at most
-  100 MB: its deck's name, words, the first of them, the deck here it would update), `POST
-  /api/decks/import?title=&lang=&translationLang=&file=` (the file as the body: a new deck, or the deck
-  most of whose notes it holds, in the same languages, updated; 422 `not_a_deck`, `deck_without_words`; 413 `deck_too_large`),
-  `DELETE /api/decks/:id` (409 `deck_in_use` while any profile has cards made from it).
+  words, how many have audio and examples), `POST /api/decks/preview` (a deck file `.apkg` as the body,
+  at most 512 MB, streamed to `decks/.uploads/`: the upload's id, its deck's name, words, the languages
+  its fields are named by, the first words with their translation in each, the deck here it would
+  update), `POST /api/decks/import` (`{upload, title, lang, translationLang, file}`: a new deck, or the
+  deck most of whose notes it holds, in the same languages, updated; 404 `deck_upload_gone`; 422
+  `not_a_deck`, `deck_without_words`; 413 `deck_too_large`), `DELETE /api/decks/:id` (409
+  `deck_in_use` while any profile has cards made from it). Bun takes bodies up to that size and waits
+  up to 255 s on a request (`runtime/bun.ts`).
 - Settings: `GET` / `PUT /api/settings` (one key at a time): only the learner's preferences, each
   checked against its schema (`packages/schema/src/settings.ts`); the assistant's endpoints and prompts
   are changed only through `/api/llm`.

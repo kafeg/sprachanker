@@ -70,6 +70,7 @@ export function createCards(deps: {
     ...(w.plural && { plural: w.plural }),
     ...(w.translation && { translation: w.translation }),
     ...(w.audio && { audio: w.audio }),
+    ...(w.examples?.length && { examples: w.examples }),
     deck: deck.id,
   });
 

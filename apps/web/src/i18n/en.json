@@ -889,7 +889,7 @@
       "name": "Name",
       "lang": "Words in",
       "translationLang": "Translations in",
-      "words": "{words, plural, one {# word} other {# words}} · {audio, plural, =0 {no audio} one {# with audio} other {# with audio}}",
+      "words": "{words, plural, one {# word} other {# words}} · {audio, plural, =0 {no audio} one {# with audio} other {# with audio}} · {examples, plural, =0 {no examples} one {# with examples} other {# with examples}}",
       "submit": "Import",
       "updates": "This file updates the deck {deck} here: its words become this file's, and the cards made from it follow them. In other languages it is a deck of its own."
     },
@@ -1183,7 +1183,8 @@
     "not_a_deck": "This file is not a deck file (.apkg) that can be read.",
     "deck_without_words": "This deck has no words to learn.",
     "deck_too_large": "This deck file is too large (100 MB at most).",
-    "deck_in_use": "A profile studies this deck: it can be deleted once nobody does."
+    "deck_in_use": "A profile studies this deck: it can be deleted once nobody does.",
+    "deck_upload_gone": "The uploaded deck file is no longer here: choose it again."
   },
   "exams": {
     "tabs": {

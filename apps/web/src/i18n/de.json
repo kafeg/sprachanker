@@ -889,7 +889,7 @@
       "name": "Name",
       "lang": "Sprache der Wörter",
       "translationLang": "Sprache der Übersetzungen",
-      "words": "{words, plural, one {# Wort} other {# Wörter}} · {audio, plural, =0 {ohne Audio} one {# mit Audio} other {# mit Audio}}",
+      "words": "{words, plural, one {# Wort} other {# Wörter}} · {audio, plural, =0 {ohne Audio} one {# mit Audio} other {# mit Audio}} · {examples, plural, =0 {ohne Beispiele} one {# mit Beispielen} other {# mit Beispielen}}",
       "submit": "Importieren",
       "updates": "Diese Datei aktualisiert den Stapel {deck}: seine Wörter werden die der Datei, die Karten daraus folgen ihnen. Mit anderen Sprachen wird sie ein eigener Stapel."
     },
@@ -1183,7 +1183,8 @@
     "not_a_deck": "Diese Datei lässt sich nicht als Stapeldatei (.apkg) lesen.",
     "deck_without_words": "Dieser Stapel hat keine Wörter zum Lernen.",
     "deck_too_large": "Diese Stapeldatei ist zu groß (höchstens 100 MB).",
-    "deck_in_use": "Ein Profil lernt diesen Stapel: Löschen geht, wenn ihn niemand mehr lernt."
+    "deck_in_use": "Ein Profil lernt diesen Stapel: Löschen geht, wenn ihn niemand mehr lernt.",
+    "deck_upload_gone": "Die hochgeladene Stapeldatei ist nicht mehr da: wähle sie noch einmal."
   },
   "exams": {
     "tabs": {

@@ -16,11 +16,53 @@ if (import.meta.main) {
     E2E_DECK,
     buildApkg({
       deck: "E2E Wörter",
-      fields: ["Wort", "Plural", "Übersetzung", "Wortart"],
+      // Fields named by language, each word with an example sentence, as many shared decks have them.
+      fields: [
+        "part_of_speech",
+        "german",
+        "sentence_1_german",
+        "english",
+        "sentence_1_english",
+        "russian",
+        "sentence_1_russian",
+      ],
       notes: [
-        { guid: "e2e-1", fields: ["der Apfel", "die Äpfel", "apple", "Nomen"] },
-        { guid: "e2e-2", fields: ["die Birne", "die Birnen", "pear", "Nomen"] },
-        { guid: "e2e-3", fields: ["der Kaffee", "die Kaffees", "coffee", "Nomen"] },
+        {
+          guid: "e2e-1",
+          fields: [
+            "nm",
+            "der Apfel",
+            "Ich esse einen Apfel.",
+            "apple",
+            "I eat an apple.",
+            "яблоко",
+            "Я ем яблоко.",
+          ],
+        },
+        {
+          guid: "e2e-2",
+          fields: [
+            "nf",
+            "die Birne",
+            "Die Birne ist süß.",
+            "pear",
+            "The pear is sweet.",
+            "груша",
+            "Груша сладкая.",
+          ],
+        },
+        {
+          guid: "e2e-3",
+          fields: [
+            "nm",
+            "der Tisch",
+            "Der Tisch ist neu.",
+            "table",
+            "The table is new.",
+            "стол",
+            "Стол новый.",
+          ],
+        },
       ],
     }),
   );

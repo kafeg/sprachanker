@@ -15,6 +15,15 @@ export type DeckId = z.infer<typeof DeckId>;
 /** A file inside a deck's folder: its own media (`media/<name>`). */
 export const DeckMediaPath = z.string().regex(/^media\/[^/\\]+$/);
 
+/** An example sentence a deck brings with its word: in the word's language, with its translation and
+ *  audio when the deck has them. */
+export const DeckExample = z.strictObject({
+  sentence: z.string().min(1),
+  translation: z.string().optional(),
+  audio: DeckMediaPath.optional(),
+});
+export type DeckExample = z.infer<typeof DeckExample>;
+
 /** One word of a deck, made from one note. */
 export const DeckWord = z.strictObject({
   /** The note's guid: the same note keeps it in every export of the deck. */
@@ -29,6 +38,7 @@ export const DeckWord = z.strictObject({
   /** The note's tags (Anki's: `thema::familie`). */
   tags: z.array(z.string()),
   audio: DeckMediaPath.optional(),
+  examples: z.array(DeckExample).optional(),
 });
 export type DeckWord = z.infer<typeof DeckWord>;
 

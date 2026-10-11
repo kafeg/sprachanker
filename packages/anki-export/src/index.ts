@@ -6,4 +6,5 @@ export {
   readApkg,
   type SqliteReader,
 } from "./apkg.ts";
-export { fieldText, lexemeOf, type NoteWord, noteWords } from "./words.ts";
+export { fieldLanguages, fieldText } from "./fields.ts";
+export { type DeckLanguages, lexemeOf, type NoteWord, noteWords, posOf } from "./words.ts";

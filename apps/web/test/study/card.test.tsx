@@ -49,6 +49,25 @@ test("an imported deck's word: no lesson to go to; its recording in the deck's f
   );
   expect(view.getByText("evening")).toBeTruthy();
   expect(view.queryByRole("link")).toBeNull();
+  // The deck's own examples under the answer, each with its translation and its recording.
+  const withExamples = await renderApp(
+    <TargetLang value="de">
+      <StudyCard
+        display={{
+          ...deckWord,
+          examples: [
+            { sentence: "Guten Abend!", translation: "Good evening!", audio: "media/g.mp3" },
+          ],
+        }}
+        face="production"
+        side="answer"
+      />
+    </TargetLang>,
+    { path: "/review" },
+  );
+  expect(withExamples.getByText("Guten Abend!").getAttribute("lang")).toBe("de");
+  expect(withExamples.getByText("Good evening!")).toBeTruthy();
+  expect(withExamples.getByRole("button", { name: /Guten Abend!/ })).toBeTruthy();
   expect(cardAudioUrl(deckWord)).toBe("/decks/a1-abc123/media/abend.mp3");
   expect(cardAudioUrl({ ...display, audio: "media/audio/auch.mp3" })).toBe(
     "/library/x/media/audio/auch.mp3",

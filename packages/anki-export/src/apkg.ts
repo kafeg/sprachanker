@@ -31,8 +31,9 @@ export interface Apkg {
   deckName: string | undefined;
   /** In the order they were made. */
   notes: AnkiNote[];
-  /** A media file's bytes by the name notes use (`[sound:<name>]`), read when asked. */
-  media(name: string): Uint8Array | undefined;
+  /** Media files' bytes by the names notes use (`[sound:<name>]`), read when asked: a batch at a
+   *  time, each read of the zip finding them all at once; names it does not hold are left out. */
+  media(names: string[]): Map<string, Uint8Array>;
 }
 
 /** The file is no deck package Anki writes. */
@@ -72,11 +73,18 @@ export function readApkg(bytes: Uint8Array, runtime: ApkgRuntime): Apkg {
   }
   return {
     ...read,
-    media(file) {
-      const entry = byName.get(file);
-      if (entry === undefined) return undefined;
-      const found = unzip(bytes, (n) => n === entry)[entry];
-      return found && isZstd(found) ? runtime.zstd(found) : found;
+    media(names) {
+      const wanted = new Map(
+        names.flatMap((n) => {
+          const entry = byName.get(n);
+          return entry === undefined ? [] : [[entry, n] as const];
+        }),
+      );
+      const out = new Map<string, Uint8Array>();
+      if (!wanted.size) return out;
+      for (const [entry, found] of Object.entries(unzip(bytes, (n) => wanted.has(n))))
+        out.set(wanted.get(entry) as string, isZstd(found) ? runtime.zstd(found) : found);
+      return out;
     },
   };
 }

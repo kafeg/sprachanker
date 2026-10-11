@@ -8,11 +8,12 @@
 
 <data-root>/                     # --data, else $SPRACHANKER_DATA, else <app-data>/data
 ├── library/                     # installed courses (02)
-├── decks/<deck-id>/             # imported decks (04, "Decks"): deck.json (schema `deck.ts`: the words, their
-│                                # languages, the file it came from) and media/ (the audio the .apkg brought);
-│                                # a folder written whole (beside, then renamed into place). Planned beside
-│                                # deck.json: extras.json (by word key: audio read aloud, AI examples), and
-│                                # folders for course decks too (`course~<series>~<course>~<edition>`)
+├── decks/<deck-id>/             # imported decks (04, "Decks"): deck.json (schema `deck.ts`: the words with
+│                                # the deck's own examples, their languages, the file it came from) and media/
+│                                # (the audio the .apkg brought); a folder written whole (beside, then renamed
+│                                # into place). Planned beside deck.json: extras.json (by word key: audio read
+│                                # aloud, AI examples), and folders for course decks (`course~<series>~…`)
+├── decks/.uploads/              # .apkg files uploaded and previewed, kept until imported (a day at most)
 ├── models/                      # downloaded speech models; voices/ Piper's voices; engines.pid (06) (08)
 ├── cache/tts/                   # texts read aloud by Piper (by voice, speed, text) and Qwen3-TTS (08)
 ├── server.sqlite                # profiles, devices, server settings
