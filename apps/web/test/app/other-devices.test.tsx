@@ -50,10 +50,10 @@ test("the local network and the tailnet served: each address, the Tailscale one'
   });
   for (const a of [MACHINE, LAN, LOCAL_NAME, https]) expect(view.getByText(a.url)).toBeTruthy();
   expect(view.queryByText(/listens only on this computer/)).toBeNull();
-  // Each address without a secure context says the microphone needs one — the Tailscale one is.
+  // The local network's addresses say once that the microphone needs a secure one — the Tailscale one is.
   expect(
-    view.getAllByText(/No microphone at this address: .*such as the Tailscale address/),
-  ).toHaveLength(2);
+    view.getAllByText(/No microphone at these addresses: .*such as the Tailscale address/),
+  ).toHaveLength(1);
   // The address a phone opens best has its QR code open; one at a time.
   expect(view.getAllByRole("img").map((i) => i.getAttribute("aria-label"))).toEqual([
     `QR code for ${https.url}`,
@@ -66,7 +66,7 @@ test("the local network and the tailnet served: each address, the Tailscale one'
 
 test("the local network without Tailscale: the microphone needs a secure address", async () => {
   const view = await show({ machine: MACHINE, network: [LAN] });
-  const note = view.getByText(/No microphone at this address/);
+  const note = view.getByText(/No microphone at these addresses/);
   expect(note.textContent).not.toContain("Tailscale");
   // The local network's address is a phone's: its QR code open.
   expect(view.getByRole("img", { name: `QR code for ${LAN.url}` })).toBeTruthy();

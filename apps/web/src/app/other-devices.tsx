@@ -76,7 +76,6 @@ function Addresses({ addresses }: { addresses: ServerAddresses }) {
       address={address}
       qr={shown === address.url}
       onQr={() => setChosen(shown === address.url ? null : address.url)}
-      tailnetServed={!!tailnet?.https}
     />
   );
   const lan = localName ? [...network, localName] : network;
@@ -86,7 +85,15 @@ function Addresses({ addresses }: { addresses: ServerAddresses }) {
       <Group title={t("addresses.machine")}>{row(machine)}</Group>
       <Group title={t("addresses.network")}>
         {lan.length ? (
-          lan.map(row)
+          <>
+            {lan.map(row)}
+            {lan.some((a) => !a.secure) && (
+              <p className="flex gap-1.5 text-xs text-muted-foreground">
+                <MicOff className="mt-px size-3.5 shrink-0" aria-hidden />
+                {t(tailnet?.https ? "addresses.insecureServed" : "addresses.insecure")}
+              </p>
+            )}
+          </>
         ) : (
           <Command
             text={t("addresses.onlyHere")}
@@ -136,18 +143,7 @@ function Url({ value }: { value: string }) {
   );
 }
 
-function AddressRow({
-  address,
-  qr,
-  onQr,
-  tailnetServed,
-}: {
-  address: ServerAddress;
-  qr: boolean;
-  onQr(): void;
-  /** The tailnet's HTTPS address is there: where the microphone works. */
-  tailnetServed: boolean;
-}) {
+function AddressRow({ address, qr, onQr }: { address: ServerAddress; qr: boolean; onQr(): void }) {
   const { t } = useTranslation();
   return (
     <div className="space-y-2">
@@ -165,12 +161,6 @@ function AddressRow({
           <QrCodeIcon />
         </Button>
       </div>
-      {!address.secure && (
-        <p className="flex gap-1.5 text-xs text-muted-foreground">
-          <MicOff className="mt-px size-3.5 shrink-0" aria-hidden />
-          {t(tailnetServed ? "addresses.insecureServed" : "addresses.insecure")}
-        </p>
-      )}
       {qr && (
         <figure className="flex flex-col items-center gap-1">
           <QrCode
