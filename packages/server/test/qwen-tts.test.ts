@@ -1,50 +1,6 @@
 import { expect, test } from "bun:test";
-import type { SpeechHost } from "../src/services/local-engines.ts";
 import { setup } from "./setup.ts";
-
-/** A machine with Qwen3-TTS on paper: model files "there" by name, the engine a local HTTP server
- *  that answers its health check and says what it is asked as bytes. */
-function qwen(files: string[] = []) {
-  const asked: Array<Record<string, unknown>> = [];
-  const talkers: string[] = [];
-  let spawned = 0;
-  const host: SpeechHost = {
-    qwen: {
-      binary: () => "/bin/tts-server",
-      spawn(_binary, { talker, codec }, port) {
-        spawned++;
-        talkers.push(talker);
-        expect([talker, codec].every((f) => f.startsWith("/models/"))).toBe(true);
-        const server = Bun.serve({
-          port,
-          async fetch(req) {
-            if (new URL(req.url).pathname === "/health") return Response.json({ status: "ok" });
-            const body = (await req.json()) as Record<string, unknown>;
-            asked.push(body);
-            return new Response(new TextEncoder().encode(String(body.input)));
-          },
-        });
-        return { exited: new Promise<number>(() => {}), kill: () => void server.stop(true) };
-      },
-    },
-    freePort: async () => {
-      const probe = Bun.serve({ port: 0, fetch: () => new Response() });
-      const port = probe.port as number;
-      probe.stop(true);
-      return port;
-    },
-    models: {
-      path: (file) => (files.includes(file) ? `/models/${file}` : undefined),
-      async download(_url, model) {
-        files.push(model.file);
-      },
-      remove(file) {
-        files.splice(files.indexOf(file), 1);
-      },
-    },
-  };
-  return { host, asked, files, talkers, spawned: () => spawned };
-}
+import { qwen } from "./speech-fakes.ts";
 
 test("Qwen3-TTS: a model downloaded with its codec; a text said in its language by the profile's speaker", async () => {
   const q = qwen();

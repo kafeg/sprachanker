@@ -1,37 +1,6 @@
 import { expect, test } from "bun:test";
-import type { ReadingCache } from "../src/services/local-engines.ts";
-import type { PiperHost, PiperVoice } from "../src/services/read-aloud.ts";
 import { setup } from "./setup.ts";
-
-/** A Piper host on paper: voices installed by id, what it was asked to say (under which key it is
- *  kept), a WAV per text. */
-function piper(installed: string[], built = true) {
-  const said: Array<{ key: string; id: string; text: string; lengthScale: number }> = [];
-  let key = "";
-  const readings: ReadingCache = {
-    kept(k, produce) {
-      key = k;
-      return produce();
-    },
-  };
-  const downloaded: string[] = [];
-  const host: PiperHost = {
-    binary: () => (built ? "/bin/sherpa" : undefined),
-    voiceDir: (id) => (installed.includes(id) ? `/voices/${id}` : undefined),
-    async download(_url, voice: PiperVoice) {
-      downloaded.push(voice.id);
-      installed.push(voice.id);
-    },
-    remove(id) {
-      installed.splice(installed.indexOf(id), 1);
-    },
-    async run(run) {
-      said.push({ key, id: run.id, text: run.text, lengthScale: run.lengthScale });
-      return new Uint8Array([82, 73, 70, 70]);
-    },
-  };
-  return { host, readings, said, downloaded };
-}
+import { piper } from "./speech-fakes.ts";
 
 test("reading aloud with Piper: the voices offered, one downloaded; a text said as a WAV with the best voice or the profile's", async () => {
   const p = piper(["de_DE-thorsten-medium"]);
