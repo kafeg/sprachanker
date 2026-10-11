@@ -250,8 +250,10 @@ test("Settings' five tabs fit a phone in every interface language, nothing scrol
     for (const { lang, msg } of [...catalogs.filter((c) => !last(c)), ...catalogs.filter(last)]) {
       const ai = msg("settings.tabs.ai");
       await put(request, "/api/settings", { key: "uiLanguage", value: lang });
+      // A fresh load each time (the same address with its hash would only move within the page).
+      await page.goto("about:blank");
       await page.goto("/settings#ai");
-      await page.reload();
+      await expect(page.locator("html")).toHaveAttribute("lang", lang);
       // The AI tab is short on a phone; its name stays whole.
       await expect(page.getByRole("tab", { name: ai })).toHaveAttribute("aria-selected", "true");
       await page.evaluate(() => document.fonts.ready);
