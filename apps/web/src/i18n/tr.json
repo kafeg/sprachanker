@@ -145,7 +145,8 @@
       "writing": "Kendin yaz",
       "scene": "Diyalog",
       "mistakes": "Hataların üzerinden geç",
-      "summary": "Özet"
+      "summary": "Özet",
+      "understanding": "Anlama"
     },
     "section": {
       "grammar": "Dil bilgisi",
@@ -235,6 +236,8 @@
     "provider": {
       "lmstudio": "LM Studio",
       "openrouter": "OpenRouter",
+      "openai": "OpenAI",
+      "anthropic": "Anthropic",
       "gemini": "Google Gemini",
       "groq": "Groq",
       "custom": "Ağdaki sunucu",
@@ -270,6 +273,8 @@
     "about": {
       "lmstudio": "Bu bilgisayardaki LM Studio: SprachAnker sunucusunu başlatır, seçilen modeli yükler ve önerilen modelleri LM Studio’ya indirebilir. Ücretsizdir ve hiçbir şey bilgisayardan dışarı çıkmaz. LM Studio başka bir bilgisayarda çalışıyorsa “Ağdaki sunucu” seçeneğini seç.",
       "openrouter": "Bulutta OpenRouter: birçok üreticinin yüzlerce modeli tek bir anahtarla, bazıları ücretsiz (günlük sınırlarla). Ders içeriği ve cevapların OpenRouter’a ve modelin sağlayıcısına gider.",
+      "openai": "OpenAI’ın modelleri (GPT-5, GPT-4.1, o serisi ve diğerleri) bulutta, API’si üzerinden, kullandıkça öde — bu bir ChatGPT aboneliği değil: onun için Codex’i seç. Ders içeriği ve cevapların OpenAI’a gider.",
+      "anthropic": "Anthropic’in Claude modelleri bulutta, API’si üzerinden, kullandıkça öde — bu bir Claude aboneliği değil: onun için Claude Code’u seç. Ders içeriği ve cevapların Anthropic’e gider.",
       "gemini": "Google’ın buluttaki Gemini modelleri, Google AI Studio’dan alınan bir anahtarla. Ücretsiz katman kart gerektirmez; dakika ve gün başına sınırları vardır. Bazı modeller faturalandırma ister. Ücretsiz katmanda Google gönderilenleri ürünlerini geliştirmek için kullanabilir: ders içeriği ve cevapların Google’a gider.",
       "groq": "Groq’un buluttaki hızlı donanımında açık modeller (Llama, Qwen, GPT-OSS ve diğerleri). Ücretsiz katman kart gerektirmez; her model için dakika ve gün başına sınırları vardır. Ders içeriği ve cevapların Groq’a gider.",
       "custom": "Başka bir bilgisayarda, OpenAI uyumlu API sunan herhangi bir sunucu: LM Studio, Ollama, llama.cpp, vLLM ve diğerleri. Adresini (/v1 ile biten) ve istiyorsa bir anahtar gir.",
@@ -310,6 +315,8 @@
     },
     "keyHintFor": {
       "openrouter": "openrouter.ai/keys adresinde bir anahtar oluştur. Bu bilgisayarda şifrelenmiş olarak saklanır ve bir daha gösterilmez.",
+      "openai": "platform.openai.com/api-keys adresinde bir anahtar oluştur. Bu bilgisayarda şifrelenmiş olarak saklanır ve bir daha gösterilmez.",
+      "anthropic": "platform.claude.com/settings/keys adresinde bir anahtar oluştur. Bu bilgisayarda şifrelenmiş olarak saklanır ve bir daha gösterilmez.",
       "gemini": "aistudio.google.com/apikey adresinde bir anahtar oluştur. Bu bilgisayarda şifrelenmiş olarak saklanır ve bir daha gösterilmez.",
       "groq": "console.groq.com/keys adresinde bir anahtar oluştur. Bu bilgisayarda şifrelenmiş olarak saklanır ve bir daha gösterilmez."
     }
@@ -402,7 +409,9 @@
       "sceneSetup": "Diyalog: kurgu",
       "scene": "Diyalog: bir cümle",
       "examples": "Bir destenin kelimeleri için örnekler",
-      "sceneSummary": "Diyalog: özet"
+      "sceneSummary": "Diyalog: özet",
+      "understanding": "Anlama: metin",
+      "understandingCheck": "Anlama: ikinci okuma"
     },
     "contextIntro": "Dersten eklenenler:",
     "contextIntroCourses": "Kurslarından eklenenler (sohbetin çalıştığı dildeki kurslar):",
@@ -439,7 +448,10 @@
       "place": "dersin kurstaki yeri: numarası ve ünitesi",
       "topics": "kursta şimdiye kadar görülen dil bilgisi konuları",
       "dialogueGoals": "durum ve ulaştığınız hedefler",
-      "dialogue": "diyalogdaki cümleler ve onlara yapılan düzeltmeler"
+      "dialogue": "diyalogdaki cümleler ve onlara yapılan düzeltmeler",
+      "length": "kursun seviyesinde metnin uzunluğu",
+      "readText": "yazdığı metin",
+      "textQuestions": "seçenekleriyle soruları, cevaplar olmadan"
     },
     "upTo": "en fazla {chars, plural, one {# karakter} other {# karakter}}",
     "debug": "“İstem” düğmelerini göster",
@@ -478,6 +490,10 @@
       "exam": {
         "name": "Sınav cevapları",
         "where": "bir cevabın ölçütlerinin üstündeki “Puan öner” ve konuşma şeklinde yürütülen sözlü bölümler"
+      },
+      "understanding": {
+        "name": "Anlama",
+        "where": "dersin bir adımı: dinlenecek ya da okunacak bir metin, sorularıyla"
       }
     },
     "about": {
@@ -491,7 +507,9 @@
       "sceneSetup": "Bir diyalog başlatır: dersin hedeflerinden ve bildiklerinden durumu, kiminle konuştuğunu, hedef kartını ve yalnızca karşındakinin bildiklerini — senin sorman gerekenleri — kurgular. Her diyalogda bir kez.",
       "scene": "Karşındaki kişiyi oynar: söylediğin (tanıma nasıl duyduysa) ya da yazdığın her cümleye cevap verir, anlaşılıp anlaşılmadığını ve uyup uymadığını söyler, içindeki en fazla iki hatayı düzeltir, çeviri verir ve ulaştığın hedefleri işaretler.",
       "examples": "Kendi örnekleri olmayan bir destenin her kelimesi için, her seferinde beş kelime olmak üzere üç ila beş örnek cümle yazar (Tekrar → Desteler, “Örnek oluştur”); mümkün olduğunca bildiğin kelimeleri kullanır, yenilerini çevirir.",
-      "sceneSummary": "Diyalog bitince özetler: en önemli bir ya da iki düzeltme, her biri cümlenin doğru söylenişiyle, ve kısa bir değerlendirme."
+      "sceneSummary": "Diyalog bitince özetler: en önemli bir ya da iki düzeltme, her biri cümlenin doğru söylenişiyle, ve kısa bir değerlendirme.",
+      "understanding": "Öğrendiğin dilde, bildiğin kelimelerle kısa bir metin yazar — dinlenecek bir diyalog ya da anons, veya okunacak bir menü ya da duyuru — sınavlardaki gibi sorularla (doğru/yanlış, a/b/c, sayılar). Cevaplarını model değil, uygulama kontrol eder.",
+      "understandingCheck": "Metni yeniden okur ve kendi sorularını yalnızca metne bakarak cevaplar: farklı cevapladığı ya da belirsiz bulduğu soru çıkarılır."
     }
   },
   "writing": {
@@ -821,7 +839,8 @@
       "doneTitle": "{when}: {count, plural, one {# ders tamamlandı} other {# ders tamamlandı}}, toplam {total, number}",
       "part": "{label}: {n, number}",
       "words": "Duruma göre kelimeler: {parts}"
-    }
+    },
+    "understanding": "{count, plural, one {# anlama metni} other {# anlama metni}}"
   },
   "study": {
     "listen": "Dinle ve anlamını hatırla",
@@ -1291,6 +1310,7 @@
     "llm_no_endpoint": "Sunucu adresini gir.",
     "llm_no_key": "API anahtarını gir.",
     "llm_not_configured": "Ayarlar → Yapay zekâ asistanı bölümünden bir model seç.",
+    "llm_overloaded": "Sağlayıcı şu anda aşırı yüklü. Birazdan tekrar dene.",
     "llm_rate_limited": "Sağlayıcının sınırına şimdilik ulaşıldı (ücretsiz katmanlar dakika ve gün başına istekleri sınırlar). Daha sonra tekrar dene ya da Ayarlar → Yapay zekâ asistanı bölümünden başka bir model seç.",
     "llm_timeout": "Modelin cevap vermesi çok uzun sürdü.",
     "llm_unauthorized": "API anahtarı kabul edilmedi.",
@@ -1327,7 +1347,7 @@
     "run_incomplete": "Ders henüz bitmedi.",
     "run_not_active": "Dersin bu turu bitti. Dersi yeniden yükle.",
     "run_without_edition": "Bu turun dil sürümü yok. Derse yeniden başla.",
-    "scene_busy": "Diyalog hâlâ cevap veriyor. Bekle.",
+    "scene_busy": "Konuşma partnerin hâlâ cevap veriyor ya da diyalog hazırlanıyor.",
     "server_error": "Sunucuda bir şeyler ters gitti.",
     "speaking_busy": "Bu cevap kontrol ediliyor. Biraz bekle.",
     "speech_engine_failed": "Konuşma tanıma cevap vermedi. Tekrar dene.",
@@ -1361,7 +1381,8 @@
     "course_bundle_from_newer_app": "Bu kurs dosyası SprachAnker'in daha yeni bir sürümünden: önce buradaki uygulamayı güncelle.",
     "course_bundle_clash": "Bu bilgisayarda bu kursun medya dosyalarının adlarını taşıyan başka dosyalar var: kursu bunun yerine burada indir.",
     "course_import_busy": "Şu anda başka bir kurs dosyası içe aktarılıyor. Bittiğinde yeniden dene.",
-    "series_busy": "Bu kaynaktan kurslar şu anda indiriliyor ya da içe aktarılıyor. Bittiğinde yeniden dene."
+    "series_busy": "Bu kaynaktan kurslar şu anda indiriliyor ya da içe aktarılıyor. Bittiğinde yeniden dene.",
+    "understanding_busy": "Bu ders için bir metin yazılıyor. Biraz bekle."
   },
   "exams": {
     "tabs": {
@@ -1554,5 +1575,28 @@
       "verified": "Denetlendi: bütün dosyalar burada.",
       "problems": "Denetlendi: {count, plural, one {# sorun bulundu} other {# sorun bulundu}} — kartındaki “Kontrol et” onları listeler."
     }
+  },
+  "understanding": {
+    "intro": "Bildiğin kelimelerle kısa bir metin. Diyalog ya da anons sesli okunur: dinle ve kulaktan cevapla, sonra metni oku ve bir soru daha cevapla. Menü ya da duyuru okumak içindir.",
+    "start": "Metin yaz",
+    "writing": "Metin yazılıyor…",
+    "new": "Yeni metin",
+    "kind": {
+      "dialogue": "dinlenecek bir diyalog",
+      "announcement": "dinlenecek bir anons",
+      "reading": "okunacak bir metin"
+    },
+    "listen": "Dinle",
+    "resume": "Devam",
+    "replay": "Baştan",
+    "line": "Cümle {n, number} / {total, number}",
+    "heard": "{count, plural, one {Bir kez dinlendi} other {# kez dinlendi}}",
+    "noVoice": "Burada {language} için sesli okuyan bir şey yok, bu yüzden metin okumak için gösteriliyor. Dinlemek için Ayarlar → Konuşma’dan bir ses seç.",
+    "byEar": "Kulaktan cevapla — metin sonra açılır.",
+    "text": "Metin",
+    "newWords": "Yeni kelimeler",
+    "readNow": "Metni oku ve cevapla",
+    "result": "{total, number} sorudan {right, number} doğru",
+    "past": "Bu dersin önceki metinleri"
   }
 }

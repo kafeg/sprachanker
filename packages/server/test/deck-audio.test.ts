@@ -5,6 +5,7 @@ import { buildApkg } from "@sprachanker/anki-export/testing";
 import { FIXTURE_SERIES } from "@sprachanker/course-fixture";
 import { COURSE, deck, study, withDecks } from "./deck-setup.ts";
 import { piper, qwen } from "./speech-fakes.ts";
+import { until } from "./until.ts";
 
 const VOICE = "de_DE-thorsten-medium";
 const COURSE_FOLDER = "course~sprachanker.fixture~demo";
@@ -16,12 +17,12 @@ type Shown = { cardId: string; lexemeKey: string; display: Record<string, string
 
 /** Waits until a deck's job is no longer running; its state then. */
 async function settled(getJson: (path: string) => Promise<unknown>, scope: string) {
-  for (let i = 0; i < 400; i++) {
-    const state = (await getJson(audio(scope))) as AudioState;
-    if (!["running", "stopping"].includes(state.job?.status ?? "")) return state;
-    await Bun.sleep(5);
-  }
-  throw new Error("the job did not end");
+  let state: AudioState | undefined;
+  await until(async () => {
+    state = (await getJson(audio(scope))) as AudioState;
+    return !["running", "stopping"].includes(state.job?.status ?? "");
+  });
+  return state as AudioState;
 }
 
 /** Readings held back until let go: what is being read while a job runs. `free` are read at once. */
@@ -40,7 +41,7 @@ function gate(free = 0) {
     },
     /** Waits until `n` readings are held. */
     async held(n: number) {
-      for (let i = 0; i < 200 && waiting.length < n; i++) await Bun.sleep(2);
+      await until(() => waiting.length >= n);
       expect(waiting.length).toBe(n);
     },
   };

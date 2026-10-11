@@ -145,7 +145,8 @@
       "writing": "Tulis sendiri",
       "scene": "Dialog",
       "mistakes": "Membahas kesalahan",
-      "summary": "Ringkasan"
+      "summary": "Ringkasan",
+      "understanding": "Pemahaman"
     },
     "section": {
       "grammar": "Tata bahasa",
@@ -235,6 +236,8 @@
     "provider": {
       "lmstudio": "LM Studio",
       "openrouter": "OpenRouter",
+      "openai": "OpenAI",
+      "anthropic": "Anthropic",
       "gemini": "Google Gemini",
       "groq": "Groq",
       "custom": "Server di jaringan",
@@ -270,6 +273,8 @@
     "about": {
       "lmstudio": "LM Studio di komputer ini: SprachAnker menjalankan servernya, memuat model yang dipilih, dan bisa mengunduh model yang disarankan ke dalamnya. Gratis, dan tidak ada data yang keluar dari komputer. Jika LM Studio berjalan di komputer lain, pilih “Server di jaringan”.",
       "openrouter": "OpenRouter di cloud: ratusan model dari banyak pembuat lewat satu kunci, sebagian gratis (dengan batas harian). Isi pelajaran dan jawaban kamu dikirim ke OpenRouter dan penyedia modelnya.",
+      "openai": "Model-model OpenAI (GPT-5, GPT-4.1, seri o, dan lainnya) di cloud lewat API-nya, bayar sesuai pemakaian — bukan langganan ChatGPT: untuk itu, pilih Codex. Isi pelajaran dan jawaban kamu dikirim ke OpenAI.",
+      "anthropic": "Model Claude dari Anthropic di cloud lewat API-nya, bayar sesuai pemakaian — bukan langganan Claude: untuk itu, pilih Claude Code. Isi pelajaran dan jawaban kamu dikirim ke Anthropic.",
       "gemini": "Model Gemini dari Google di cloud dengan kunci dari Google AI Studio. Paket gratisnya tidak memerlukan kartu dan punya batas per menit dan per hari; beberapa model memerlukan penagihan. Pada paket gratis, Google dapat memakai data yang dikirim untuk meningkatkan produknya: isi pelajaran dan jawaban kamu dikirim ke Google.",
       "groq": "Model terbuka (Llama, Qwen, GPT-OSS, dan lainnya) di perangkat keras Groq yang cepat di cloud. Paket gratisnya tidak memerlukan kartu dan punya batas per menit dan per hari untuk setiap model. Isi pelajaran dan jawaban kamu dikirim ke Groq.",
       "custom": "Server apa pun dengan API yang kompatibel dengan OpenAI di komputer lain: LM Studio, Ollama, llama.cpp, vLLM, dan lainnya. Masukkan alamatnya (berakhiran /v1) dan kunci jika diminta.",
@@ -310,6 +315,8 @@
     },
     "keyHintFor": {
       "openrouter": "Buat kunci di openrouter.ai/keys. Kunci disimpan terenkripsi di komputer ini dan tidak akan ditampilkan lagi.",
+      "openai": "Buat kunci di platform.openai.com/api-keys. Kunci disimpan terenkripsi di komputer ini dan tidak akan ditampilkan lagi.",
+      "anthropic": "Buat kunci di platform.claude.com/settings/keys. Kunci disimpan terenkripsi di komputer ini dan tidak akan ditampilkan lagi.",
       "gemini": "Buat kunci di aistudio.google.com/apikey. Kunci disimpan terenkripsi di komputer ini dan tidak akan ditampilkan lagi.",
       "groq": "Buat kunci di console.groq.com/keys. Kunci disimpan terenkripsi di komputer ini dan tidak akan ditampilkan lagi."
     }
@@ -402,7 +409,9 @@
       "sceneSetup": "Dialog: persiapan",
       "scene": "Dialog: satu kalimat",
       "examples": "Contoh untuk kata-kata dek",
-      "sceneSummary": "Dialog: ringkasan"
+      "sceneSummary": "Dialog: ringkasan",
+      "understanding": "Pemahaman: teks",
+      "understandingCheck": "Pemahaman: bacaan kedua"
     },
     "contextIntro": "Ditambahkan dari pelajaran:",
     "contextIntroCourses": "Ditambahkan dari kursus-kursusmu (yang mengajarkan bahasa percakapan ini):",
@@ -439,7 +448,10 @@
       "place": "letak pelajaran dalam kursus: nomor dan unitnya",
       "topics": "topik tata bahasa yang sudah dipelajari dalam kursus",
       "dialogueGoals": "situasinya dan tujuan yang sudah Anda capai",
-      "dialogue": "kalimat-kalimat dialog dengan koreksi yang diberikan"
+      "dialogue": "kalimat-kalimat dialog dengan koreksi yang diberikan",
+      "length": "seberapa panjang teks pada tingkat kursus",
+      "readText": "teks yang ditulisnya",
+      "textQuestions": "pertanyaannya dengan pilihan, tanpa jawaban"
     },
     "upTo": "hingga {chars, plural, other {# karakter}}",
     "debug": "Tampilkan tombol “Prompt”",
@@ -478,6 +490,10 @@
       "exam": {
         "name": "Jawaban ujian",
         "where": "“Usulkan penilaian” di atas kriteria jawaban, dan bagian berbicara yang dijalankan sebagai percakapan"
+      },
+      "understanding": {
+        "name": "Pemahaman",
+        "where": "salah satu langkah pelajaran: teks untuk didengar atau dibaca, dengan pertanyaan"
       }
     },
     "about": {
@@ -491,7 +507,9 @@
       "sceneSetup": "Memulai dialog: dari tujuan pelajaran dan apa yang sudah Anda ketahui, mengarang situasi, lawan bicara, kartu tujuan Anda, dan hal yang hanya diketahui lawan bicara — yang harus Anda tanyakan. Sekali per dialog.",
       "scene": "Memerankan lawan bicara Anda: menjawab setiap kalimat yang Anda ucapkan (seperti didengar pengenal ucapan) atau ketik, mengatakan apakah kalimat itu dipahami dan sesuai, membetulkan paling banyak dua kesalahan, memberi terjemahan, dan mencentang tujuan yang tercapai.",
       "examples": "Menulis tiga sampai lima contoh kalimat untuk setiap kata dari dek yang tidak punya contoh sendiri, lima kata sekaligus (Pengulangan → Dek, “Buat contoh”), sebisa mungkin dengan kata-kata yang kamu kenal, dan kata baru diterjemahkan.",
-      "sceneSummary": "Merangkum dialog setelah selesai: satu atau dua koreksi yang paling penting, masing-masing dengan kalimat Anda yang diucapkan dengan benar, dan sedikit umpan balik."
+      "sceneSummary": "Merangkum dialog setelah selesai: satu atau dua koreksi yang paling penting, masing-masing dengan kalimat Anda yang diucapkan dengan benar, dan sedikit umpan balik.",
+      "understanding": "Menulis teks pendek dalam bahasa yang Anda pelajari dari kata-kata yang Anda kenal — dialog atau pengumuman untuk didengar, atau menu atau pemberitahuan untuk dibaca — dengan pertanyaan seperti di ujian (benar/salah, a/b/c, angka). Jawaban Anda diperiksa oleh aplikasi, bukan oleh model.",
+      "understandingCheck": "Membaca teks sekali lagi dan menjawab pertanyaannya sendiri hanya dari teks: pertanyaan yang dijawabnya berbeda atau yang dianggapnya tidak jelas dihapus."
     }
   },
   "writing": {
@@ -821,7 +839,8 @@
       "doneTitle": "{when}: {count, plural, other {# pelajaran selesai}}, total {total, number}",
       "part": "{label}: {n, number}",
       "words": "Kata menurut status: {parts}"
-    }
+    },
+    "understanding": "{count, plural, other {# teks pemahaman}}"
   },
   "study": {
     "listen": "Dengarkan dan ingat artinya",
@@ -1291,6 +1310,7 @@
     "llm_no_endpoint": "Masukkan alamat server.",
     "llm_no_key": "Masukkan kunci API.",
     "llm_not_configured": "Pilih model di Pengaturan → Asisten AI.",
+    "llm_overloaded": "Penyedia sedang kelebihan beban. Coba lagi sebentar lagi.",
     "llm_rate_limited": "Batas penyedia sudah tercapai untuk saat ini (paket gratis membatasi permintaan per menit dan per hari). Coba lagi nanti, atau pilih model lain di Pengaturan → Asisten AI.",
     "llm_timeout": "Model terlalu lama menjawab.",
     "llm_unauthorized": "Kunci API tidak diterima.",
@@ -1327,7 +1347,7 @@
     "run_incomplete": "Pelajaran belum selesai.",
     "run_not_active": "Putaran pelajaran ini sudah berakhir. Muat ulang pelajaran.",
     "run_without_edition": "Putaran ini tidak punya versi bahasa. Mulai pelajaran lagi.",
-    "scene_busy": "Dialog masih menjawab. Tunggu sebentar.",
+    "scene_busy": "Lawan bicara Anda masih menjawab, atau dialog sedang disiapkan.",
     "server_error": "Terjadi kesalahan di server.",
     "speaking_busy": "Jawaban ini sedang diperiksa. Tunggu sebentar.",
     "speech_engine_failed": "Pengenal ucapan tidak merespons. Coba lagi.",
@@ -1361,7 +1381,8 @@
     "course_bundle_from_newer_app": "Berkas kursus ini berasal dari versi SprachAnker yang lebih baru: perbarui dulu aplikasinya di sini.",
     "course_bundle_clash": "Komputer ini punya berkas lain dengan nama berkas media kursus ini: unduh saja kursusnya di sini.",
     "course_import_busy": "Berkas kursus lain sedang diimpor. Coba lagi setelah selesai.",
-    "series_busy": "Kursus dari sumber ini sedang diunduh atau diimpor. Coba lagi setelah selesai."
+    "series_busy": "Kursus dari sumber ini sedang diunduh atau diimpor. Coba lagi setelah selesai.",
+    "understanding_busy": "Sebuah teks untuk pelajaran ini sedang ditulis. Tunggu sebentar."
   },
   "exams": {
     "tabs": {
@@ -1554,5 +1575,28 @@
       "verified": "Diperiksa: semua berkas ada.",
       "problems": "Diperiksa: {count, plural, other {# masalah ditemukan}} — “Periksa” di kartunya menampilkannya."
     }
+  },
+  "understanding": {
+    "intro": "Teks pendek dari kata-kata yang Anda kenal. Dialog atau pengumuman dibacakan: dengarkan dan jawab dari pendengaran, lalu baca teksnya dan jawab satu pertanyaan lagi. Menu atau pemberitahuan untuk dibaca.",
+    "start": "Tulis teks",
+    "writing": "Menulis teks…",
+    "new": "Teks baru",
+    "kind": {
+      "dialogue": "dialog untuk didengar",
+      "announcement": "pengumuman untuk didengar",
+      "reading": "teks untuk dibaca"
+    },
+    "listen": "Dengarkan",
+    "resume": "Lanjut",
+    "replay": "Dari awal",
+    "line": "Baris {n, number} dari {total, number}",
+    "heard": "{count, plural, other {Didengar # kali}}",
+    "noVoice": "Tidak ada yang membacakan bahasa {language} di sini, jadi teks ditampilkan untuk dibaca. Untuk mendengarkan, pilih suara di Pengaturan → Ucapan.",
+    "byEar": "Jawab dari pendengaran — teks terbuka sesudahnya.",
+    "text": "Teks",
+    "newWords": "Kata baru",
+    "readNow": "Baca teks dan jawab",
+    "result": "{right, number} dari {total, number} benar",
+    "past": "Teks sebelumnya di pelajaran ini"
   }
 }

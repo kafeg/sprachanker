@@ -145,7 +145,8 @@
       "writing": "Escreva você",
       "scene": "Diálogo",
       "mistakes": "Revisando os erros",
-      "summary": "Resumo"
+      "summary": "Resumo",
+      "understanding": "Compreensão"
     },
     "section": {
       "grammar": "Gramática",
@@ -235,6 +236,8 @@
     "provider": {
       "lmstudio": "LM Studio",
       "openrouter": "OpenRouter",
+      "openai": "OpenAI",
+      "anthropic": "Anthropic",
       "gemini": "Google Gemini",
       "groq": "Groq",
       "custom": "Servidor na rede",
@@ -270,6 +273,8 @@
     "about": {
       "lmstudio": "LM Studio neste computador: o SprachAnker inicia o servidor dele, carrega o modelo escolhido e pode baixar nele os modelos sugeridos. Gratuito, e nada sai do computador. Se o LM Studio roda em outro computador, escolha “Servidor na rede”.",
       "openrouter": "OpenRouter na nuvem: centenas de modelos de vários fabricantes com uma só chave, alguns gratuitos (com limites diários). O conteúdo das lições e as suas respostas vão para o OpenRouter e para o provedor do modelo.",
+      "openai": "Os modelos da OpenAI (GPT-5, GPT-4.1, a série o e outros) na nuvem pela API dela, pagos por uso — não é uma assinatura do ChatGPT: para isso, escolha o Codex. O conteúdo das lições e as suas respostas vão para a OpenAI.",
+      "anthropic": "Os modelos Claude da Anthropic na nuvem pela API dela, pagos por uso — não é uma assinatura do Claude: para isso, escolha o Claude Code. O conteúdo das lições e as suas respostas vão para a Anthropic.",
       "gemini": "Os modelos Gemini do Google na nuvem, com uma chave do Google AI Studio. O nível gratuito não pede cartão e tem limites por minuto e por dia; alguns modelos exigem faturamento. No nível gratuito, o Google pode usar o que é enviado para melhorar seus produtos: o conteúdo das lições e as suas respostas vão para o Google.",
       "groq": "Modelos abertos (Llama, Qwen, GPT-OSS e outros) no hardware rápido do Groq, na nuvem. O nível gratuito não pede cartão e tem limites por minuto e por dia para cada modelo. O conteúdo das lições e as suas respostas vão para o Groq.",
       "custom": "Qualquer servidor com uma API compatível com a da OpenAI em outro computador: LM Studio, Ollama, llama.cpp, vLLM e outros. Informe o endereço (terminado em /v1) e uma chave, se ele pedir.",
@@ -310,6 +315,8 @@
     },
     "keyHintFor": {
       "openrouter": "Crie uma chave em openrouter.ai/keys. Ela fica guardada criptografada neste computador e não é mostrada de novo.",
+      "openai": "Crie uma chave em platform.openai.com/api-keys. Ela fica guardada criptografada neste computador e não é mostrada de novo.",
+      "anthropic": "Crie uma chave em platform.claude.com/settings/keys. Ela fica guardada criptografada neste computador e não é mostrada de novo.",
       "gemini": "Crie uma chave em aistudio.google.com/apikey. Ela fica guardada criptografada neste computador e não é mostrada de novo.",
       "groq": "Crie uma chave em console.groq.com/keys. Ela fica guardada criptografada neste computador e não é mostrada de novo."
     }
@@ -402,7 +409,9 @@
       "sceneSetup": "Diálogo: a situação",
       "scene": "Diálogo: uma fala",
       "examples": "Exemplos para as palavras de um baralho",
-      "sceneSummary": "Diálogo: o resumo"
+      "sceneSummary": "Diálogo: o resumo",
+      "understanding": "Compreensão: o texto",
+      "understandingCheck": "Compreensão: a segunda leitura"
     },
     "contextIntro": "Adicionado da lição:",
     "contextIntroCourses": "Adicionado dos seus cursos (os do idioma que a conversa pratica):",
@@ -439,7 +448,10 @@
       "place": "onde a lição está no curso: o número e a unidade",
       "topics": "os temas de gramática vistos até agora no curso",
       "dialogueGoals": "a situação e os objetivos que atingiu",
-      "dialogue": "as falas do diálogo com as correções dadas"
+      "dialogue": "as falas do diálogo com as correções dadas",
+      "length": "o tamanho do texto no nível do curso",
+      "readText": "o texto escrito",
+      "textQuestions": "as perguntas com as opções, sem as respostas"
     },
     "upTo": "até {chars, plural, =0 {# caracteres} one {# caractere} other {# caracteres}}",
     "debug": "Mostrar os botões “Prompt”",
@@ -478,6 +490,10 @@
       "exam": {
         "name": "Respostas de exame",
         "where": "“Sugerir uma avaliação” acima dos critérios de uma resposta, e as partes orais feitas como conversa"
+      },
+      "understanding": {
+        "name": "Compreensão",
+        "where": "uma etapa da lição: um texto para ouvir ou ler, com perguntas"
       }
     },
     "about": {
@@ -491,7 +507,9 @@
       "sceneSetup": "Começa um diálogo: a partir dos objetivos da lição e do que você sabe, inventa a situação, com quem você fala, o seu cartão de objetivos e o que só o seu interlocutor sabe — que você precisa perguntar. Uma vez por diálogo.",
       "scene": "Faz o papel do seu interlocutor: responde a cada fala que você diz (como o reconhecimento a ouviu) ou digita, diz se foi entendida e se combina, corrige no máximo dois erros, dá uma tradução e marca os objetivos atingidos.",
       "examples": "Escreve de três a cinco frases de exemplo para cada palavra de um baralho que não tenha exemplos próprios, cinco palavras por vez (Revisão → Baralhos, “Criar exemplos”), com palavras que você já conhece sempre que possível e as novas traduzidas.",
-      "sceneSummary": "Resume um diálogo quando termina: as uma ou duas correções mais importantes, cada uma com a sua frase bem dita, e um comentário breve."
+      "sceneSummary": "Resume um diálogo quando termina: as uma ou duas correções mais importantes, cada uma com a sua frase bem dita, e um comentário breve.",
+      "understanding": "Escreve um texto curto no idioma que você aprende com as palavras que você conhece — um diálogo ou um anúncio para ouvir, ou um cardápio ou um aviso para ler — com perguntas como as das provas (verdadeiro/falso, a/b/c, números). Suas respostas são corrigidas pelo app, não pelo modelo.",
+      "understandingCheck": "Lê o texto de novo e responde às próprias perguntas só pelo texto: uma pergunta que ele responde de outro jeito, ou que acha confusa, é retirada."
     }
   },
   "writing": {
@@ -821,7 +839,8 @@
       "doneTitle": "{when}: {count, plural, one {# lição concluída} other {# lições concluídas}}, {total, number} no total",
       "part": "{label}: {n, number}",
       "words": "Palavras por estado: {parts}"
-    }
+    },
+    "understanding": "{count, plural, =0 {# textos de compreensão} one {# texto de compreensão} other {# textos de compreensão}}"
   },
   "study": {
     "listen": "Ouça e lembre o significado",
@@ -1291,6 +1310,7 @@
     "llm_no_endpoint": "Digite o endereço do servidor.",
     "llm_no_key": "Digite a chave de API.",
     "llm_not_configured": "Escolha um modelo em Configurações → Assistente de IA.",
+    "llm_overloaded": "O provedor está sobrecarregado agora. Tente de novo daqui a pouco.",
     "llm_rate_limited": "O limite do provedor foi atingido por enquanto (os níveis gratuitos limitam as solicitações por minuto e por dia). Tente mais tarde ou escolha outro modelo em Configurações → Assistente de IA.",
     "llm_timeout": "O modelo demorou demais para responder.",
     "llm_unauthorized": "A chave de API não foi aceita.",
@@ -1327,7 +1347,7 @@
     "run_incomplete": "A lição ainda não foi concluída.",
     "run_not_active": "Esta rodada da lição terminou. Recarregue a lição.",
     "run_without_edition": "Esta rodada não tem versão de idioma. Comece a lição de novo.",
-    "scene_busy": "O diálogo ainda está respondendo. Aguarde.",
+    "scene_busy": "Seu interlocutor ainda está respondendo ou o diálogo está sendo preparado.",
     "server_error": "Algo deu errado no servidor.",
     "speaking_busy": "Esta resposta está sendo verificada. Aguarde.",
     "speech_engine_failed": "O reconhecedor de fala não respondeu. Tente de novo.",
@@ -1361,7 +1381,8 @@
     "course_bundle_from_newer_app": "Este arquivo de curso vem de uma versão mais nova do SprachAnker: atualize o app aqui primeiro.",
     "course_bundle_clash": "Este computador tem outros arquivos com os nomes das mídias deste curso: baixe o curso aqui.",
     "course_import_busy": "Outro arquivo de curso está sendo importado. Tente de novo quando terminar.",
-    "series_busy": "Cursos desta fonte estão sendo baixados ou importados agora. Tente de novo quando terminar."
+    "series_busy": "Cursos desta fonte estão sendo baixados ou importados agora. Tente de novo quando terminar.",
+    "understanding_busy": "Um texto para esta lição está sendo escrito. Aguarde."
   },
   "exams": {
     "tabs": {
@@ -1554,5 +1575,28 @@
       "verified": "Verificado: todos os arquivos estão aqui.",
       "problems": "Verificado: {count, plural, =0 {# problemas encontrados} one {# problema encontrado} other {# problemas encontrados}} — “Verificar” no cartão dele os lista."
     }
+  },
+  "understanding": {
+    "intro": "Um texto curto com as palavras que você conhece. Um diálogo ou um anúncio é lido em voz alta: ouça e responda de ouvido, depois leia o texto e responda mais uma pergunta. Um cardápio ou um aviso é para ler.",
+    "start": "Escrever um texto",
+    "writing": "Escrevendo um texto…",
+    "new": "Novo texto",
+    "kind": {
+      "dialogue": "um diálogo para ouvir",
+      "announcement": "um anúncio para ouvir",
+      "reading": "um texto para ler"
+    },
+    "listen": "Ouvir",
+    "resume": "Continuar",
+    "replay": "Do início",
+    "line": "Frase {n, number} de {total, number}",
+    "heard": "{count, plural, one {Ouvido uma vez} other {Ouvido # vezes}}",
+    "noVoice": "Nada aqui lê em {language} em voz alta, então o texto aparece para ler. Para ouvir, escolha uma voz em Configurações → Fala.",
+    "byEar": "Responda de ouvido — o texto abre depois.",
+    "text": "O texto",
+    "newWords": "Palavras novas",
+    "readNow": "Leia o texto e responda",
+    "result": "{right, number} de {total, number} certas",
+    "past": "Textos anteriores desta lição"
   }
 }

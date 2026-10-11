@@ -5,6 +5,7 @@ import { buildApkg } from "@sprachanker/anki-export/testing";
 import { FIXTURE_SERIES } from "@sprachanker/course-fixture";
 import { COURSE, deck, withDecks } from "./deck-setup.ts";
 import { piper } from "./speech-fakes.ts";
+import { until } from "./until.ts";
 
 const FOLDER = "course~sprachanker.fixture~demo";
 const examplesOf = (scope: string, edition?: string) =>
@@ -84,12 +85,12 @@ async function settled(
   scope: string,
   edition?: string,
 ) {
-  for (let i = 0; i < 400; i++) {
-    const state = (await getJson(examplesOf(scope, edition))) as State;
-    if (!["running", "stopping"].includes(state.job?.status ?? "")) return state;
-    await Bun.sleep(5);
-  }
-  throw new Error("the job did not end");
+  let state: State | undefined;
+  await until(async () => {
+    state = (await getJson(examplesOf(scope, edition))) as State;
+    return !["running", "stopping"].includes(state.job?.status ?? "");
+  });
+  return state as State;
 }
 
 async function withModel(
@@ -221,7 +222,7 @@ test("a job stopped keeps the words written; started again it writes only the re
   expect(await getJson(examplesOf(scope, "ru-de"))).toMatchObject({ words: 6, missing: 6 });
   m.hold();
   await sendJson("POST", "/api/decks/examples", ru);
-  for (let i = 0; i < 100 && !m.held(); i++) await Bun.sleep(2);
+  await until(() => m.held() > 0);
   const stopping = await sendJson("DELETE", examplesOf(scope, "ru-de"), {});
   expect(stopping.job).toMatchObject({ status: "stopping", total: 6, done: 0 });
   m.release();
@@ -256,7 +257,7 @@ test("each call's examples are written at once: the next call under way, the ear
   // The first five, then the sixth held.
   m.hold(1);
   await sendJson("POST", "/api/decks/examples", { scope, edition: "ru-de" });
-  for (let i = 0; i < 100 && !m.held(); i++) await Bun.sleep(2);
+  await until(() => m.held() > 0);
   const extras = JSON.parse(readFileSync(join(root, "decks", FOLDER, "extras.json"), "utf8"));
   const inRussian = Object.values(extras.words).filter(
     (w) => (w as { examples?: { ru?: unknown } }).examples?.ru,
@@ -368,7 +369,7 @@ test("a deck imported again or deleted while its examples are written: the job i
   await sendJson("POST", "/api/cards/decks/take", { deck: id });
   m.hold();
   await sendJson("POST", "/api/decks/examples", { scope });
-  for (let i = 0; i < 100 && !m.held(); i++) await Bun.sleep(2);
+  await until(() => m.held() > 0);
   await importDeck(deck("яблоко", "der grüne Apfel"));
   m.release();
   for (let i = 0; i < 20; i++) await Bun.sleep(1);
@@ -378,7 +379,7 @@ test("a deck imported again or deleted while its examples are written: the job i
 
   m.hold();
   await sendJson("POST", "/api/decks/examples", { scope });
-  for (let i = 0; i < 100 && !m.held(); i++) await Bun.sleep(2);
+  await until(() => m.held() > 0);
   await sendJson("POST", "/api/cards/decks/leave", { scope, lang: "de" });
   expect((await send("DELETE", `/api/decks/${id}`, {})).status).toBe(200);
   m.release();
@@ -413,13 +414,12 @@ test("a deck's audio and examples made at once: each job's save keeps the other'
   expect(await settled(getJson, scope)).toMatchObject({ made: 4, job: { status: "done" } });
   expect([count((w) => w.examples?.ru), count((w) => w.audio)]).toEqual([4, 0]);
   // Then the audio, the readings let go: its saves keep the examples.
-  for (let i = 0; i < 400; i++) {
+  await until(async () => {
     const state = (await getJson(`/api/decks/audio?scope=${encodeURIComponent(scope)}`)) as {
       job: { status: string } | null;
     };
-    if (state.job?.status === "done") break;
     for (const go of waiting.splice(0)) go();
-    await Bun.sleep(5);
-  }
+    return state.job?.status === "done";
+  });
   expect([count((w) => w.examples?.ru), count((w) => w.audio)]).toEqual([4, 3]);
 });

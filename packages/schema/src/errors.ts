@@ -86,6 +86,7 @@ export const ERROR_CODES = [
   "language_not_studied",
   "ai_place_off",
   "no_active_scene",
+  "understanding_busy",
   "writing_busy",
   "scene_busy",
   "speaking_busy",
@@ -107,6 +108,7 @@ export const ERROR_CODES = [
   "llm_timeout",
   "llm_bad_response",
   "llm_rate_limited",
+  "llm_overloaded",
   "llm_invalid_output",
 ] as const;
 export type ErrorCode = (typeof ERROR_CODES)[number];

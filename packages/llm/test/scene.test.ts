@@ -8,8 +8,10 @@ import {
   cleanSceneTurn,
   type SceneTurn,
   sceneSetupTask,
+  sceneSummaryRules,
   sceneSummaryTask,
   sceneTurnRequest,
+  sceneTurnRules,
 } from "../src/tasks/scene.ts";
 
 const turn = (extra: Partial<SceneTurn>): SceneTurn => ({
@@ -29,8 +31,11 @@ const SETUP = {
   partner: "Кассир",
   goals: ["Узнать, когда идёт поезд", "Узнать цену"],
   opening: "Guten Tag! Wohin möchten Sie?",
+  openingTranslation: "Здравствуйте! Куда вы хотите?",
   partnerInfo: ["Der Zug nach Berlin fährt um 14:30.", "Das Ticket kostet 29 Euro."],
 };
+
+const RU_DE = { language: "ru", target: "de" };
 
 /** A model answering with `replies` in order. */
 const scripted = (replies: unknown[]): LlmClient => ({
@@ -48,7 +53,9 @@ test("cleanSceneTurn: only corrections of the new line, at most two; goals accum
         { wrong: "Max", right: "Max", explanation: "no-op" },
         // Capitals alone are no error (a spoken line's are the recogniser's).
         { wrong: "max.", right: "Max.", explanation: "case" },
-        { wrong: "heisst max", right: "heißt Max", explanation: "second" },
+        // Nor is punctuation: a quote compared without it, a change of it alone dropped.
+        { wrong: "Das ist Max", right: "Das ist Max!", explanation: "punctuation" },
+        { wrong: "Heisst Max?", right: "heißt Max", explanation: "second" },
         { wrong: "das ist", right: "dies ist", explanation: "third: one too many" },
       ],
       goalsMet: [1, 7],
@@ -56,6 +63,7 @@ test("cleanSceneTurn: only corrections of the new line, at most two; goals accum
     "Das ist Max, er  heisst max.",
     2,
     [0],
+    RU_DE,
   );
   expect(cleaned.corrections.map((c) => c.explanation)).toEqual(["new", "second"]);
   expect(cleaned.goalsMet).toEqual([0, 1]);
@@ -63,11 +71,18 @@ test("cleanSceneTurn: only corrections of the new line, at most two; goals accum
   expect([cleaned.understood, cleaned.fits]).toEqual([true, true]);
 });
 
+test("cleanSceneTurn: the model's `done` does not end a Dialogue whose goals are not all met", () => {
+  const early = cleanSceneTurn(turn({ done: true, goalsMet: [0] }), "Hallo", 2, [], RU_DE);
+  expect([early.goalsMet, early.done]).toEqual([[0], false]);
+  const met = cleanSceneTurn(turn({ done: false, goalsMet: [1] }), "Hallo", 2, [0], RU_DE);
+  expect(met.done).toBe(true);
+});
+
 test("sceneTurnRequest: user first, the opening kept, the partner's facts in the scene, a spoken line marked", () => {
   const base = {
     language: "ru",
     target: "de",
-    lesson: { title: "L", goals: [], vocab: [] },
+    lesson: { title: "L", goals: [], vocab: [], grammarHtml: [] },
     setup: SETUP,
     message: "wann fährt der zug nach berlin",
   };
@@ -105,6 +120,7 @@ test("sceneSetupTask: the level and place with the data; of many earlier words t
       title: "Im Café",
       goals: [],
       vocab: [],
+      grammarHtml: [],
       level: "A2",
       place: { n: 3, of: 30 },
       knownWords,
@@ -125,7 +141,7 @@ test("sceneSetupTask: a setup without the partner's facts is repaired once", asy
   const task = sceneSetupTask({
     language: "ru",
     target: "de",
-    lesson: { title: "Am Bahnhof", goals: [], vocab: [] },
+    lesson: { title: "Am Bahnhof", goals: [], vocab: [], grammarHtml: [] },
   });
   const { partnerInfo: _, ...withoutFacts } = SETUP;
   const setup = await runStructured(scripted([withoutFacts, SETUP]), "m", task);
@@ -136,7 +152,7 @@ test("sceneSummaryTask: the goals reached, the lines with their corrections; cle
   const task = sceneSummaryTask({
     language: "ru",
     target: "de",
-    lesson: { title: "Am Bahnhof", goals: [], vocab: [], level: "A1" },
+    lesson: { title: "Am Bahnhof", goals: [], vocab: [], grammarHtml: [], level: "A1" },
     setup: SETUP,
     goalsMet: [0],
     turns: [
@@ -168,9 +184,111 @@ test("sceneSummaryTask: the goals reached, the lines with their corrections; cle
       feedback: "Gut.",
     },
     ["wann fahrt der zug"],
+    RU_DE,
   );
   expect(cleaned.corrections.map((c) => [c.right, c.model])).toEqual([
     ["fährt", "Wann fährt der Zug?"],
     ["der Zug nach Berlin", "der Zug nach Berlin"],
   ]);
+});
+
+test("corrections that are no corrected wording are dropped: a remark in the learner's script, alternatives, arrows, nothing changed", () => {
+  const line = "Wann fängt deine Schule an und wann sie endet?";
+  const fix = (right: string) => ({ wrong: "wann sie endet", right, explanation: "…" });
+  const kept = (corrections: SceneTurn["corrections"], langs = RU_DE, said = line) =>
+    cleanSceneTurn(turn({ corrections }), said, 2, [], langs).corrections.map((c) => c.right);
+  expect(
+    kept([
+      fix("правильно"),
+      fix("wann sie endet -> und wann sie endet (ладно)"),
+      fix("wann endet sie → besser"),
+      fix("wirklich toll / echt gut"),
+      fix("wann sie endet"),
+      fix("   "),
+      fix("wann endet sie"),
+    ]),
+  ).toEqual(["wann endet sie"]);
+  // A learner whose language shares the learnt one's script: nothing to tell apart by script.
+  expect(kept([fix("wann endet sie")], { language: "en", target: "de" })).toEqual([
+    "wann endet sie",
+  ]);
+  // Learning a language in another script: its own letters (kana, Han) are right words.
+  expect(
+    kept(
+      [
+        { wrong: "すし", right: "так правильно", explanation: "…" },
+        { wrong: "すし", right: "寿司", explanation: "…" },
+      ],
+      { language: "ru", target: "ja" },
+      "すし を ください",
+    ),
+  ).toEqual(["寿司"]);
+});
+
+test("cleanSceneSummary: a model line that repeats its error gets the correction made in it", () => {
+  const cleaned = cleanSceneSummary(
+    {
+      corrections: [
+        {
+          wrong: "wann sie endet",
+          right: "wann endet sie",
+          explanation: "…",
+          model: "Wann fängt deine Schule an und wann sie endet?",
+        },
+      ],
+      feedback: "Gut.",
+    },
+    ["Wann fängt deine Schule an und wann sie endet?"],
+    RU_DE,
+  );
+  expect(cleaned.corrections[0]?.model).toBe("Wann fängt deine Schule an und wann endet sie?");
+});
+
+test("sceneSetupTask: the goal kinds of the level, the lesson's grammar and the card's language with the data; the rules name no level", () => {
+  const lesson = (level?: string) => ({
+    title: "Schule",
+    goals: ["Wünsche äußern"],
+    vocab: [],
+    grammarHtml: ["<h2>Konjunktiv II</h2><p>Wenn ich Zeit hätte, würde ich …</p>"],
+    ...(level && { level }),
+  });
+  const messages = (level?: string) =>
+    sceneSetupTask({ ...RU_DE, lesson: lesson(level) }).request.messages.map((m) =>
+      String(m.content),
+    );
+  const data = (level?: string) => messages(level)[1] ?? "";
+  expect(data("B1")).toContain("Goals at this level: B1 — give an opinion with a reason");
+  expect(data("A1–A2")).toContain("Goals at this level: A1 — ask for and give simple facts");
+  expect(data("A1–A2")).toContain("; A2 — arrange or ask for something");
+  // No level named: a beginner's.
+  expect(data()).toContain("Goals at this level: A1 — ");
+  expect(data("B1")).toContain("This lesson's grammar:\nKonjunktiv II");
+  // The card in the learner's language, even where the lesson's texts are in the learnt one.
+  expect(data("B1")).toEndWith("Remember: title, situation, partner and goals in Russian.");
+  const [system = ""] = messages("B1");
+  for (const rule of [
+    "never a character of the course",
+    "needs this lesson's grammar",
+    "asks nothing the learner cannot know",
+    "of the kinds given for the learner's level",
+    "gender is unknown",
+  ])
+    expect(system).toContain(rule);
+  expect(system).not.toMatch(/\b[ABC][12]\b/);
+});
+
+test("sceneTurnRules and sceneSummaryRules: the learner reaches the goals, the partner stays in role, corrections are the right words only; no gender, level or language assumed", () => {
+  const names = { language: "{language}", target: "{target}" };
+  const turnRules = sceneTurnRules("ru", "de", names);
+  expect(turnRules).not.toContain("towards the learner's goals");
+  expect(turnRules).toContain("never ask the learner's goal questions yourself");
+  expect(turnRules).toContain("never offer or hint at a fact");
+  expect(turnRules).toContain('Never correct the learner inside "reply"');
+  expect(turnRules).toContain("only those words corrected, in {target}");
+  const summaryRules = sceneSummaryRules("ru", "de", names);
+  expect(summaryRules).toContain("with every error in it fixed");
+  for (const rules of [turnRules, summaryRules]) {
+    expect(rules).toContain("gender is unknown");
+    expect(rules).not.toMatch(/\b[ABC][12]\b|German|Russian/);
+  }
 });

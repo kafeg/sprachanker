@@ -11,15 +11,24 @@ src/
   cli.ts           # command-line providers (claude -p, codex exec): command lines, prompt, output parsing;
                    # the process itself is started by a CliRunner the server passes in
   client.ts        # OpenAI-compatible endpoint: models(), streamed chat() with tool rounds, complete();
-                   # TimeLimit (to the first byte, then between chunks)
+                   # ApiQuirks (what sets a provider apart: reasoning switch, reasoners, token field)
+  anthropic.ts     # Anthropic's Messages API (fetch only): the chat in its shape, its stream as text and
+                   # tool calls, tool rounds with its blocks, paged models, its errors
+  http.ts          # what every HTTP provider shares: endpointCaller (errors mapped to LlmError),
+                   # TimeLimit (to the first byte, then between chunks), relaxing (asked again without an
+                   # option the provider refused)
+  tool-rounds.ts   # toolRounds: a streamed answer with tool rounds, the API's messages in its dialect
   models.ts        # modelInfo: the chat models of a `/models` list with their metadata
-  sse.ts           # a streamed reply's events: text deltas, tool calls; control tokens dropped
-  errors.ts        # LlmError and its codes
-  providers.ts     # presets: lmstudio, openrouter, gemini, groq, custom, claude-code, codex (endpoint,
-                   # key, CLI kind)
+  sse.ts           # server-sent events: any stream's data lines (sseData); an OpenAI-compatible reply's
+                   # text deltas and tool calls, control tokens dropped
+  errors.ts        # LlmError: its codes, the HTTP status, retry-after
+  providers.ts     # presets: lmstudio, openrouter, openai, anthropic, gemini, groq, custom, claude-code,
+                   # codex (kind, endpoint, key, API quirks, CLI kind); providerClient, providerRequest
+                   # (the viewer)
   lmstudio.ts      # LM Studio's own API: its models, load with 8k context, downloads; suggested models
   openrouter.ts    # OpenRouter's own API: the key's state (free tier, usage, limit, rate limit)
-  structured.ts    # JSON outputs: schema in the request, zod validation and the task's check, one repair
+  structured.ts    # JSON outputs: schema in the request (Anthropic: its system prompt), zod validation and
+                   # the task's check, one repair
   thinking.ts      # strips inline <think>…</think> from streamed text (client.ts also drops control tokens)
   text.ts          # course HTML → plain text for prompts
   tasks/
@@ -41,8 +50,11 @@ src/
     rate-exam-answer.ts # rate_exam_answer: an exam's open answer → a level of each of its criteria with
                        # the reason (checked against the levels), feedback
     scene.ts           # the Dialogue: scene_setup (goal card, the partner's hidden facts), scene_turn (a
-                       # line judged; cleanSceneTurn), scene_summary (key corrections, model lines)
+                       # line judged; cleanSceneTurn: remarks in place of corrections dropped), scene_summary
+                       # (key corrections, model lines without the error); goal kinds by level (data)
     tutor-tools.ts     # the tutor's tool definitions (progress, mistakes, word, lesson) and prompt lines
+    understanding.ts   # Understanding: understanding_text (a text to hear or read with its questions, its
+                       # length by the level), understanding_check (read again: settledQuestions)
     word-examples.ts   # word_examples: three to five sentences for each of a few words of a deck, in the
                        # words known up to them, at the level when known
 test/              # fake endpoints (no network); fixture course from @sprachanker/course-fixture

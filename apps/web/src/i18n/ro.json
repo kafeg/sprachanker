@@ -145,7 +145,8 @@
       "writing": "Scrie tu",
       "scene": "Dialog",
       "mistakes": "Analiza greșelilor",
-      "summary": "Rezumat"
+      "summary": "Rezumat",
+      "understanding": "Înțelegere"
     },
     "section": {
       "grammar": "Gramatică",
@@ -235,6 +236,8 @@
     "provider": {
       "lmstudio": "LM Studio",
       "openrouter": "OpenRouter",
+      "openai": "OpenAI",
+      "anthropic": "Anthropic",
       "gemini": "Google Gemini",
       "groq": "Groq",
       "custom": "Server în rețea",
@@ -270,6 +273,8 @@
     "about": {
       "lmstudio": "LM Studio pe acest computer: SprachAnker îi pornește serverul, încarcă modelul ales și poate descărca în el modelele sugerate. Gratuit, și nimic nu părăsește computerul. Dacă LM Studio rulează pe alt computer, alege „Server în rețea”.",
       "openrouter": "OpenRouter în cloud: sute de modele de la mulți producători cu o singură cheie, unele gratuite (cu limite zilnice). Conținutul lecțiilor și răspunsurile tale ajung la OpenRouter și la furnizorul modelului.",
+      "openai": "Modelele OpenAI (GPT-5, GPT-4.1, seria o și altele) în cloud prin API-ul său, plătite după utilizare — nu un abonament ChatGPT: pentru acesta, alege Codex. Conținutul lecțiilor și răspunsurile tale ajung la OpenAI.",
+      "anthropic": "Modelele Claude de la Anthropic în cloud prin API-ul său, plătite după utilizare — nu un abonament Claude: pentru acesta, alege Claude Code. Conținutul lecțiilor și răspunsurile tale ajung la Anthropic.",
       "gemini": "Modelele Gemini de la Google în cloud, cu o cheie din Google AI Studio. Nivelul gratuit nu cere card și are limite pe minut și pe zi; unele modele necesită facturare. Pe nivelul gratuit, Google poate folosi ce se trimite pentru a-și îmbunătăți produsele: conținutul lecțiilor și răspunsurile tale ajung la Google.",
       "groq": "Modele deschise (Llama, Qwen, GPT-OSS și altele) pe hardware-ul rapid al Groq, în cloud. Nivelul gratuit nu cere card și are limite pe minut și pe zi pentru fiecare model. Conținutul lecțiilor și răspunsurile tale ajung la Groq.",
       "custom": "Orice server cu un API compatibil OpenAI pe alt computer: LM Studio, Ollama, llama.cpp, vLLM și altele. Indică adresa lui (care se termină în /v1) și o cheie, dacă cere una.",
@@ -310,6 +315,8 @@
     },
     "keyHintFor": {
       "openrouter": "Creează o cheie pe openrouter.ai/keys. Se păstrează criptată pe acest computer și nu mai este afișată niciodată.",
+      "openai": "Creează o cheie pe platform.openai.com/api-keys. Se păstrează criptată pe acest computer și nu mai este afișată niciodată.",
+      "anthropic": "Creează o cheie pe platform.claude.com/settings/keys. Se păstrează criptată pe acest computer și nu mai este afișată niciodată.",
       "gemini": "Creează o cheie pe aistudio.google.com/apikey. Se păstrează criptată pe acest computer și nu mai este afișată niciodată.",
       "groq": "Creează o cheie pe console.groq.com/keys. Se păstrează criptată pe acest computer și nu mai este afișată niciodată."
     }
@@ -402,7 +409,9 @@
       "sceneSetup": "Dialog: situația",
       "scene": "Dialog: o replică",
       "examples": "Exemple pentru cuvintele unui pachet",
-      "sceneSummary": "Dialog: rezumatul"
+      "sceneSummary": "Dialog: rezumatul",
+      "understanding": "Înțelegere: textul",
+      "understandingCheck": "Înțelegere: a doua citire"
     },
     "contextIntro": "Adăugat din lecție:",
     "contextIntroCourses": "Adăugat din cursurile tale (cele ale limbii pe care o exersează conversația):",
@@ -439,7 +448,10 @@
       "place": "locul lecției în curs: numărul și unitatea ei",
       "topics": "temele de gramatică întâlnite până acum în curs",
       "dialogueGoals": "situația și obiectivele atinse",
-      "dialogue": "replicile dialogului cu corecturile primite"
+      "dialogue": "replicile dialogului cu corecturile primite",
+      "length": "cât de lung e textul la nivelul cursului",
+      "readText": "textul scris",
+      "textQuestions": "întrebările lui cu variantele, fără răspunsuri"
     },
     "upTo": "până la {chars, plural, one {# caracter} few {# caractere} other {# de caractere}}",
     "debug": "Arată butoanele „Prompt”",
@@ -478,6 +490,10 @@
       "exam": {
         "name": "Răspunsuri la examen",
         "where": "„Propune o notă” deasupra criteriilor unui răspuns și probele orale purtate ca o conversație"
+      },
+      "understanding": {
+        "name": "Înțelegere",
+        "where": "un pas al lecției: un text de ascultat sau de citit, cu întrebări"
       }
     },
     "about": {
@@ -491,7 +507,9 @@
       "sceneSetup": "Începe un dialog: din obiectivele lecției și din ce știi, inventează situația, cu cine vorbești, cartea ta de obiective și ce știe doar partenerul tău — trebuie să întrebi. O dată pe dialog.",
       "scene": "Joacă rolul partenerului tău: răspunde la fiecare replică pe care o spui (cum a auzit-o recunoașterea) sau o scrii, spune dacă a fost înțeleasă și dacă se potrivește, corectează cel mult două greșeli, dă o traducere și bifează obiectivele atinse.",
       "examples": "Scrie trei-cinci propoziții exemplu pentru fiecare cuvânt al unui pachet care nu are exemple proprii, câte cinci cuvinte odată (Recapitulare → Pachete, „Creează exemple”), cu cuvinte pe care le știi unde se poate și cu cele noi traduse.",
-      "sceneSummary": "Rezumă un dialog după ce s-a încheiat: una sau două corecturi care contează cel mai mult, fiecare cu replica ta spusă bine, și un scurt comentariu."
+      "sceneSummary": "Rezumă un dialog după ce s-a încheiat: una sau două corecturi care contează cel mai mult, fiecare cu replica ta spusă bine, și un scurt comentariu.",
+      "understanding": "Scrie un text scurt în limba pe care o înveți, din cuvintele pe care le știi — un dialog sau un anunț de ascultat, ori un meniu sau un afiș de citit — cu întrebări ca la examene (adevărat/fals, a/b/c, numere). Răspunsurile tale le verifică aplicația, nu modelul.",
+      "understandingCheck": "Recitește textul și răspunde la propriile întrebări doar din text: o întrebare la care răspunde altfel sau pe care o găsește neclară este scoasă."
     }
   },
   "writing": {
@@ -821,7 +839,8 @@
       "doneTitle": "{when}: {count, plural, one {# lecție terminată} few {# lecții terminate} other {# de lecții terminate}}, {total, number} în total",
       "part": "{label}: {n, number}",
       "words": "Cuvinte după stare: {parts}"
-    }
+    },
+    "understanding": "{count, plural, one {# text de înțelegere} few {# texte de înțelegere} other {# de texte de înțelegere}}"
   },
   "study": {
     "listen": "Ascultă și amintește-ți sensul",
@@ -1291,6 +1310,7 @@
     "llm_no_endpoint": "Introdu adresa serverului.",
     "llm_no_key": "Introdu cheia API.",
     "llm_not_configured": "Alege un model în Setări → Asistent AI.",
+    "llm_overloaded": "Furnizorul este supraîncărcat acum. Încearcă din nou peste puțin timp.",
     "llm_rate_limited": "Limita furnizorului a fost atinsă deocamdată (nivelurile gratuite limitează cererile pe minut și pe zi). Încearcă mai târziu sau alege alt model în Setări → Asistent AI.",
     "llm_timeout": "Modelul a întârziat prea mult cu răspunsul.",
     "llm_unauthorized": "Cheia API nu a fost acceptată.",
@@ -1327,7 +1347,7 @@
     "run_incomplete": "Lecția nu este încă terminată.",
     "run_not_active": "Această parcurgere a lecției s-a încheiat. Reîncarcă lecția.",
     "run_without_edition": "Această parcurgere nu are versiune lingvistică. Începe lecția din nou.",
-    "scene_busy": "Dialogul încă răspunde. Așteaptă.",
+    "scene_busy": "Partenerul tău încă răspunde sau dialogul se pregătește.",
     "server_error": "Ceva n-a mers bine pe server.",
     "speaking_busy": "Acest răspuns este în curs de verificare. Așteaptă.",
     "speech_engine_failed": "Recunoașterea vorbirii nu a răspuns. Încearcă din nou.",
@@ -1361,7 +1381,8 @@
     "course_bundle_from_newer_app": "Acest fișier de curs vine dintr-o versiune mai nouă a SprachAnker: actualizează mai întâi aplicația aici.",
     "course_bundle_clash": "Pe acest calculator există alte fișiere cu numele fișierelor media ale acestui curs: descarcă mai bine cursul aici.",
     "course_import_busy": "Se importă deja alt fișier de curs. Încearcă din nou după ce se termină.",
-    "series_busy": "Cursuri din această sursă se descarcă sau se importă chiar acum. Încearcă din nou după ce se termină."
+    "series_busy": "Cursuri din această sursă se descarcă sau se importă chiar acum. Încearcă din nou după ce se termină.",
+    "understanding_busy": "Se scrie un text pentru această lecție. Așteaptă."
   },
   "exams": {
     "tabs": {
@@ -1554,5 +1575,28 @@
       "verified": "Verificat: toate fișierele sunt aici.",
       "problems": "Verificat: {count, plural, one {# problemă găsită} few {# probleme găsite} other {# de probleme găsite}} — „Verifică” pe cardul lui le arată."
     }
+  },
+  "understanding": {
+    "intro": "Un text scurt din cuvintele pe care le știi. Un dialog sau un anunț e citit cu voce tare: ascultă și răspunde după auz, apoi citește textul și răspunde la încă o întrebare. Un meniu sau un afiș e de citit.",
+    "start": "Scrie un text",
+    "writing": "Se scrie textul…",
+    "new": "Text nou",
+    "kind": {
+      "dialogue": "un dialog de ascultat",
+      "announcement": "un anunț de ascultat",
+      "reading": "un text de citit"
+    },
+    "listen": "Ascultă",
+    "resume": "Continuă",
+    "replay": "De la început",
+    "line": "Replica {n, number} din {total, number}",
+    "heard": "{count, plural, one {Ascultat o dată} few {Ascultat de # ori} other {Ascultat de # de ori}}",
+    "noVoice": "Nimic de aici nu citește cu voce tare în {language}, așa că textul e afișat pentru citit. Ca să asculți, alege o voce în Setări → Vorbire.",
+    "byEar": "Răspunde după auz — textul se deschide apoi.",
+    "text": "Textul",
+    "newWords": "Cuvinte noi",
+    "readNow": "Citește textul și răspunde",
+    "result": "{right, number} din {total, number} corecte",
+    "past": "Texte anterioare din această lecție"
   }
 }

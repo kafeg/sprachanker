@@ -145,7 +145,8 @@
       "writing": "Napiši svoj tekst",
       "scene": "Dijalog",
       "mistakes": "Pregled grešaka",
-      "summary": "Sažetak"
+      "summary": "Sažetak",
+      "understanding": "Razumijevanje"
     },
     "section": {
       "grammar": "Gramatika",
@@ -235,6 +236,8 @@
     "provider": {
       "lmstudio": "LM Studio",
       "openrouter": "OpenRouter",
+      "openai": "OpenAI",
+      "anthropic": "Anthropic",
       "gemini": "Google Gemini",
       "groq": "Groq",
       "custom": "Server u mreži",
@@ -270,6 +273,8 @@
     "about": {
       "lmstudio": "LM Studio na ovom računaru: SprachAnker pokreće njegov server, učitava izabrani model i može u njega preuzeti predložene modele. Besplatno, i ništa ne napušta računar. Ako LM Studio radi na drugom računaru, izaberi „Server u mreži“.",
       "openrouter": "OpenRouter u oblaku: stotine modela mnogih proizvođača preko jednog ključa, neki od njih besplatni (s dnevnim ograničenjima). Sadržaj lekcija i tvoji odgovori idu OpenRouteru i dobavljaču modela.",
+      "openai": "OpenAI-jevi modeli (GPT-5, GPT-4.1, o-serija i drugi) u oblaku preko njihovog API-ja, plaćanje po korištenju — nije ChatGPT pretplata: za nju izaberi Codex. Sadržaj lekcija i tvoji odgovori idu OpenAI-ju.",
+      "anthropic": "Anthropicovi Claude modeli u oblaku preko njihovog API-ja, plaćanje po korištenju — nije Claude pretplata: za nju izaberi Claude Code. Sadržaj lekcija i tvoji odgovori idu Anthropicu.",
       "gemini": "Googleovi Gemini modeli u oblaku, s ključem iz Google AI Studija. Besplatni nivo ne traži karticu i ima ograničenja po minuti i po danu; neki modeli traže plaćanje. Na besplatnom nivou Google može koristiti poslane podatke za poboljšanje svojih proizvoda: sadržaj lekcija i tvoji odgovori idu Googleu.",
       "groq": "Otvoreni modeli (Llama, Qwen, GPT-OSS i drugi) na Groqovom brzom hardveru u oblaku. Besplatni nivo ne traži karticu i ima ograničenja po minuti i po danu za svaki model. Sadržaj lekcija i tvoji odgovori idu Groqu.",
       "custom": "Bilo koji server s API-jem kompatibilnim s OpenAI na drugom računaru: LM Studio, Ollama, llama.cpp, vLLM i drugi. Unesi njegovu adresu (završava na /v1) i ključ ako ga traži.",
@@ -310,6 +315,8 @@
     },
     "keyHintFor": {
       "openrouter": "Napravi ključ na openrouter.ai/keys. Čuva se šifrovan na ovom računaru i više se ne prikazuje.",
+      "openai": "Napravi ključ na platform.openai.com/api-keys. Čuva se šifrovan na ovom računaru i više se ne prikazuje.",
+      "anthropic": "Napravi ključ na platform.claude.com/settings/keys. Čuva se šifrovan na ovom računaru i više se ne prikazuje.",
       "gemini": "Napravi ključ na aistudio.google.com/apikey. Čuva se šifrovan na ovom računaru i više se ne prikazuje.",
       "groq": "Napravi ključ na console.groq.com/keys. Čuva se šifrovan na ovom računaru i više se ne prikazuje."
     }
@@ -402,7 +409,9 @@
       "sceneSetup": "Dijalog: postavka",
       "scene": "Dijalog: replika",
       "examples": "Primjeri za riječi špila",
-      "sceneSummary": "Dijalog: sažetak"
+      "sceneSummary": "Dijalog: sažetak",
+      "understanding": "Razumijevanje: tekst",
+      "understandingCheck": "Razumijevanje: drugo čitanje"
     },
     "contextIntro": "Dodano iz lekcije:",
     "contextIntroCourses": "Dodano iz tvojih kurseva (onih za jezik koji razgovor vježba):",
@@ -439,7 +448,10 @@
       "place": "gdje je lekcija u kursu: njen broj i cjelina",
       "topics": "gramatičke teme do sada pređene u kursu",
       "dialogueGoals": "situacija i ciljevi koje si postigao",
-      "dialogue": "rečenice dijaloga s ispravkama koje su dobile"
+      "dialogue": "rečenice dijaloga s ispravkama koje su dobile",
+      "length": "koliko je tekst dug na nivou kursa",
+      "readText": "napisani tekst",
+      "textQuestions": "njegova pitanja s ponuđenim odgovorima, bez rješenja"
     },
     "upTo": "do {chars, plural, one {# znaka} few {# znaka} other {# znakova}}",
     "debug": "Prikaži dugmad „Prompt“",
@@ -478,6 +490,10 @@
       "exam": {
         "name": "Odgovori na ispitu",
         "where": "„Predloži ocjenu“ iznad kriterija odgovora, i usmeni dijelovi vođeni kao razgovor"
+      },
+      "understanding": {
+        "name": "Razumijevanje",
+        "where": "korak lekcije: tekst za slušanje ili čitanje, s pitanjima"
       }
     },
     "about": {
@@ -491,7 +507,9 @@
       "sceneSetup": "Započinje dijalog: iz ciljeva lekcije i onoga što znaš smišlja situaciju, s kim razgovaraš, tvoju karticu ciljeva i ono što zna samo tvoj sagovornik — a ti to moraš pitati. Traži se jednom po dijalogu.",
       "scene": "Igra tvog sagovornika: odgovara na svaku tvoju izgovorenu (kako ju je prepoznavač čuo) ili napisanu repliku, kaže je li razumljiva i odgovara li, ispravlja najviše dvije greške u njoj, daje prijevod i označava postignute ciljeve.",
       "examples": "Piše tri do pet rečenica-primjera za svaku riječ špila koji nema svoje, po pet riječi odjednom (Ponavljanje → Špilovi, „Napravi primjere“), gdje može s riječima koje znaš, a nove prevodi.",
-      "sceneSummary": "Sažima dijalog kad se završi: jedna ili dvije najvažnije ispravke, uz svaku tvoja rečenica rečena kako treba, i kratak komentar."
+      "sceneSummary": "Sažima dijalog kad se završi: jedna ili dvije najvažnije ispravke, uz svaku tvoja rečenica rečena kako treba, i kratak komentar.",
+      "understanding": "Piše kratak tekst na jeziku koji učiš, od riječi koje znaš — dijalog ili obavještenje za slušanje, ili jelovnik ili oglas za čitanje — s pitanjima kao na ispitima (tačno/netačno, a/b/c, brojevi). Tvoje odgovore provjerava aplikacija, ne model.",
+      "understandingCheck": "Ponovo čita tekst i odgovara na vlastita pitanja samo iz teksta: pitanje na koje odgovori drugačije ili koje mu je nejasno izostavlja se."
     }
   },
   "writing": {
@@ -821,7 +839,8 @@
       "doneTitle": "{when}: završeno {count, plural, one {# lekcija} few {# lekcije} other {# lekcija}}, ukupno {total, number}",
       "part": "{label}: {n, number}",
       "words": "Riječi po stanju: {parts}"
-    }
+    },
+    "understanding": "{count, plural, one {# tekst za razumijevanje} few {# teksta za razumijevanje} other {# tekstova za razumijevanje}}"
   },
   "study": {
     "listen": "Slušaj i prisjeti se značenja",
@@ -1291,6 +1310,7 @@
     "llm_no_endpoint": "Unesi adresu servera.",
     "llm_no_key": "Unesi API ključ.",
     "llm_not_configured": "Izaberi model u Postavkama → AI asistent.",
+    "llm_overloaded": "Dobavljač je trenutno preopterećen. Pokušaj ponovo za trenutak.",
     "llm_rate_limited": "Ograničenje dobavljača je za sada dostignuto (besplatni nivoi ograničavaju zahtjeve po minuti i po danu). Pokušaj kasnije ili izaberi drugi model u Postavkama → AI asistent.",
     "llm_timeout": "Model je predugo odgovarao.",
     "llm_unauthorized": "API ključ nije prihvaćen.",
@@ -1327,7 +1347,7 @@
     "run_incomplete": "Lekcija još nije završena.",
     "run_not_active": "Ovaj prolaz lekcije je završen. Ponovo učitaj lekciju.",
     "run_without_edition": "Ovaj prolaz nema jezičku verziju. Ponovo počni lekciju.",
-    "scene_busy": "Dijalog još odgovara. Sačekaj.",
+    "scene_busy": "Sagovornik još odgovara ili se dijalog priprema.",
     "server_error": "Nešto nije u redu na serveru.",
     "speaking_busy": "Ovaj odgovor se upravo provjerava. Sačekaj.",
     "speech_engine_failed": "Prepoznavač govora nije odgovorio. Pokušaj ponovo.",
@@ -1361,7 +1381,8 @@
     "course_bundle_from_newer_app": "Ova datoteka kursa potiče iz novije verzije SprachAnkera: prvo ažuriraj aplikaciju ovdje.",
     "course_bundle_clash": "Na ovom računaru pod imenima medijskih datoteka ovog kursa postoje druge datoteke: umjesto toga preuzmi kurs ovdje.",
     "course_import_busy": "Upravo se uvozi druga datoteka kursa. Pokušaj ponovo kad se završi.",
-    "series_busy": "Kursevi iz ovog izvora se upravo preuzimaju ili uvoze. Pokušaj ponovo kad se to završi."
+    "series_busy": "Kursevi iz ovog izvora se upravo preuzimaju ili uvoze. Pokušaj ponovo kad se to završi.",
+    "understanding_busy": "Tekst za ovu lekciju se upravo piše. Sačekaj."
   },
   "exams": {
     "tabs": {
@@ -1554,5 +1575,28 @@
       "verified": "Provjereno: sve datoteke su tu.",
       "problems": "Provjereno: {count, plural, one {pronađen # problem} few {pronađena # problema} other {pronađeno # problema}} — „Provjeri“ na njegovoj kartici ih prikazuje."
     }
+  },
+  "understanding": {
+    "intro": "Kratak tekst od riječi koje znaš. Dijalog ili obavještenje čita se naglas: slušaj i odgovaraj po sluhu, zatim pročitaj tekst i odgovori na još jedno pitanje. Jelovnik ili oglas je za čitanje.",
+    "start": "Napiši tekst",
+    "writing": "Piše se tekst…",
+    "new": "Novi tekst",
+    "kind": {
+      "dialogue": "dijalog za slušanje",
+      "announcement": "obavještenje za slušanje",
+      "reading": "tekst za čitanje"
+    },
+    "listen": "Slušaj",
+    "resume": "Nastavi",
+    "replay": "Od početka",
+    "line": "Rečenica {n, number} od {total, number}",
+    "heard": "{count, plural, one {Preslušano # put} few {Preslušano # puta} other {Preslušano # puta}}",
+    "noVoice": "Ovdje ništa ne čita naglas jezik: {language}, pa je tekst prikazan za čitanje. Da slušaš, izaberi glas u Postavkama → Govor.",
+    "byEar": "Odgovaraj po sluhu — tekst se otvara poslije.",
+    "text": "Tekst",
+    "newWords": "Nove riječi",
+    "readNow": "Pročitaj tekst i odgovori",
+    "result": "{right, number} od {total, number} tačno",
+    "past": "Raniji tekstovi ove lekcije"
   }
 }

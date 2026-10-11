@@ -5,10 +5,13 @@ import type { Lang } from "@sprachanker/schema";
 import type { ChatMessage, LlmClient, TaskRequest } from "../client.ts";
 import { fitting, languageNames, recentTurns } from "../text.ts";
 import { mistakeLine, type TutorMistake } from "./describe.ts";
+import { levelLine } from "./lesson.ts";
 import { type RulesInput, systemPrompt } from "./rules.ts";
 
 /** What the learner has met in the courses of one language, the latest first (the server builds it). */
 export interface CoursesInfo {
+  /** The CEFR level the courses' ids say (their range: "A1–A2"); undefined when none says one. */
+  level?: string;
   courses: Array<{
     title: string;
     /** Lessons done, of all the course's lessons. */
@@ -53,7 +56,7 @@ export function sectionChatRules(
 ): string {
   const { language: l, target: t } = names;
   return [
-    `You are a friendly ${t} tutor in a language-learning app, outside any lesson. The learner speaks ${l} and studies ${t}; what they have met in their courses is listed below. They are a beginner unless the courses say otherwise.`,
+    `You are a friendly ${t} tutor in a language-learning app, outside any lesson. The learner speaks ${l} and studies ${t}; what they have met in their courses and their level are given below.`,
     `- Explain in ${l}. Write ${t} words, examples and practice lines in ${t}.`,
     "- Talk about whatever the learner asks: a grammar question, a text to go through, a conversation to practise, a word or a phrase.",
     "- Real-life language is in scope, not only the courses': slang, colloquial speech, swear words and insults the learner may hear on the street — say what they mean, how rude they are, who says them and when, and how to answer or react. Explain them plainly as a teacher would; never refuse because a topic is not in the course.",
@@ -105,6 +108,7 @@ export function sectionChatMessages(input: SectionChatInput): ChatMessage[] {
   const mistakes = fitting(courses.mistakes.map(mistakeLine), B.courseMistakes);
   const context = [
     "<courses>",
+    levelLine(courses),
     courses.courses.length
       ? `Courses studied (latest first):\n${courseLines(courses.courses)}`
       : "No course of this language is begun now (removed or started over): nothing is known of what the learner has met.",

@@ -50,6 +50,7 @@ import { createSpeech, type Speech } from "./speech.ts";
 import { createStudy } from "./study.ts";
 import { createTutor } from "./tutor.ts";
 import { createTutorTools } from "./tutor-tools.ts";
+import { createUnderstanding } from "./understanding.ts";
 import { createWords } from "./words.ts";
 import { createWriting } from "./writing.ts";
 
@@ -167,6 +168,7 @@ function profileServices(
     placeOn: () => !settings.value("llm.offIn").includes("tutor"),
     now,
   });
+  const understanding = createUnderstanding({ store, session: lessons.shown, llm, lessonContext });
   const writing = createWriting({ store, session: lessons.shown, llm, lessonContext });
   const scenes = createScenes({ store, llm, lessonContext });
   const explain = createExplain({ llm, lessonContext, lessonRun: lessons.lessonRun, store, now });
@@ -238,6 +240,7 @@ function profileServices(
     examConversation,
     examples,
     tutor,
+    understanding,
     writing,
     scenes,
   };

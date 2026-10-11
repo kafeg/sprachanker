@@ -7,6 +7,7 @@ import { type SpeechHost, SpeechProvider } from "../../src/audio/context.ts";
 import type { SceneState } from "../../src/llm/api.ts";
 import { DialogueStep } from "../../src/llm/dialogue.tsx";
 import { DialogueLine, type DialogueLineInput } from "../../src/llm/dialogue-line.tsx";
+import { claimPlayback } from "../../src/ui/playback.tsx";
 import { TargetLang } from "../../src/ui/target-lang.ts";
 import { lesson } from "../lesson/lesson.ts";
 import { renderApp } from "../render.tsx";
@@ -141,12 +142,20 @@ test("an open Dialogue: its goal card, who reads the lines, the learner's line s
   view.unmount();
 });
 
-test("a line said: what was heard is shown and sent as heard, with its take — or said again", async () => {
+test("a line said: what was heard is shown and sent as heard, with its take, kept until stored — or said again", async () => {
   microphoneHere();
   const sent: DialogueLineInput[] = [];
+  let stored = () => {};
   const view = await renderApp(
     <SpeechProvider value={host(true)}>
-      <DialogueLine lang="de" busy={false} onSend={(line) => sent.push(line)} />
+      <DialogueLine
+        lang="de"
+        busy={false}
+        onSend={(line, done) => {
+          sent.push(line);
+          stored = done;
+        }}
+      />
     </SpeechProvider>,
   );
   fireEvent.click(view.getByRole("button", { name: "Record yourself" }));
@@ -160,7 +169,74 @@ test("a line said: what was heard is shown and sent as heard, with its take — 
   expect(view.queryByRole("textbox")).toBeNull();
   fireEvent.click(view.getByRole("button", { name: "Send" }));
   expect(sent).toEqual([{ text: "wann fährt der zug", spoken: true, recording: TAKE }]);
+  // Not stored (the send failed): the line stays, to be sent again.
+  expect(view.getByRole("button", { name: "Send" })).toBeTruthy();
+  act(() => stored());
   expect(view.getByRole("button", { name: "Record yourself" })).toBeTruthy();
+});
+
+test("recording stops what is read aloud or played: the microphone never hears the partner's line", async () => {
+  microphoneHere();
+  let paused = 0;
+  const view = await renderApp(
+    <SpeechProvider value={host(true)}>
+      <DialogueLine lang="de" busy={false} onSend={() => {}} />
+    </SpeechProvider>,
+  );
+  // The partner's line being read aloud (the speaker claims playback as any medium does).
+  claimPlayback({ pause: () => paused++ });
+  await act(async () => {
+    fireEvent.click(view.getByRole("button", { name: "Record yourself" }));
+  });
+  await waitFor(() => view.getByRole("button", { name: "Stop recording" }));
+  expect(paused).toBe(1);
+  await act(async () => {
+    fireEvent.click(view.getByRole("button", { name: "Stop recording" }));
+  });
+  await waitFor(() => view.getByText("wann fährt der zug"));
+  // "Say it again" while the line is read again: stopped too.
+  claimPlayback({ pause: () => paused++ });
+  await act(async () => {
+    fireEvent.click(view.getByRole("button", { name: "Say it again" }));
+  });
+  await waitFor(() => view.getByRole("button", { name: "Stop recording" }));
+  expect(paused).toBe(2);
+  view.unmount();
+});
+
+test("who reads the lines is named once known: nothing while the server's voices are asked for; the hint is a button", async () => {
+  microphoneHere();
+  const real = globalThis.fetch;
+  // The server's voices not come yet.
+  globalThis.fetch = (() => new Promise(() => {})) as unknown as typeof fetch;
+  try {
+    const view = await renderApp(
+      <SpeechProvider value={host(true)}>
+        <TargetLang value="de">
+          <DialogueStep {...ids} />
+        </TargetLang>
+      </SpeechProvider>,
+      {
+        data: [
+          llm,
+          [["settings"], { "speech.readEngine": "piper" }],
+          [["scenes", ids.lessonKey], { scenes: [dialogue()], pending: null }],
+        ],
+      },
+    );
+    expect(view.queryByText(/^Read by/)).toBeNull();
+    view.unmount();
+  } finally {
+    globalThis.fetch = real;
+  }
+  const view = await step(dialogue());
+  const label = view.getByRole("button", { name: "Read by Piper · thorsten" });
+  // Reachable by keyboard and by a tap: the hint shows where to change it.
+  fireEvent.click(label);
+  await waitFor(() =>
+    expect(view.getAllByText(/chosen in Settings → Speech/).length).toBeGreaterThan(0),
+  );
+  view.unmount();
 });
 
 test("without recognition the line is typed, saying why", async () => {
@@ -207,6 +283,32 @@ test("a Dialogue over: the goals met, what the partner knew, the key corrections
   expect(view.getByText("Wann fährt der Zug?")).toBeTruthy();
   expect(view.getByText("Well asked.")).toBeTruthy();
   expect(view.queryByRole("button", { name: "Record yourself" })).toBeNull();
+  view.unmount();
+});
+
+test("a Dialogue just over: its last line shown while its summary is made", async () => {
+  microphoneHere();
+  const view = await renderApp(
+    <SpeechProvider value={host(true)}>
+      <TargetLang value="de">
+        <DialogueStep {...ids} />
+      </TargetLang>
+    </SpeechProvider>,
+    {
+      data: [
+        llm,
+        [["settings"], { "speech.readEngine": "piper" }],
+        [["piper-voices"], PIPER],
+        [
+          ["scenes", ids.lessonKey],
+          { scenes: [dialogue({ done: true })], pending: { summing: true } },
+        ],
+      ],
+    },
+  );
+  expect(view.getByText("Um 14:30.")).toBeTruthy();
+  expect(view.getByText("Summing up…")).toBeTruthy();
+  expect(view.queryByRole("button", { name: "Sum it up" })).toBeNull();
   view.unmount();
 });
 

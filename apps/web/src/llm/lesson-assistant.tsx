@@ -1,6 +1,6 @@
 // The AI assistant in the lesson player (09, 07): the tutor in the header, "Why is this wrong?" under a
-// wrong item, the check of an answer said aloud under it, and the practice steps of the plan — writing,
-// the Dialogue, and the tutor going through the run's mistakes — each where its place is on (Settings → AI
+// wrong item, the check of an answer said aloud under it, and the practice steps of the plan —
+// Understanding, writing, the Dialogue, and the tutor going through the run's mistakes — each where its place is on (Settings → AI
 // assistant). The router passes these slots to the player; nothing in lesson/ imports llm/.
 import { PRACTICE, type PracticeKind } from "@sprachanker/engine";
 import type { AiPlace } from "@sprachanker/schema";
@@ -11,6 +11,7 @@ import { ExplainMistake } from "./explain.tsx";
 import { useAiIn, useLlm } from "./setup-api.ts";
 import { SpokenAnswerCheck } from "./spoken-check.tsx";
 import { LessonTutor, MistakesTutor } from "./tutor.tsx";
+import { UnderstandingStep } from "./understanding.tsx";
 import { WritingTask } from "./writing.tsx";
 
 /** What the assistant shows in a place, while it works there (07). */
@@ -20,6 +21,7 @@ function In({ place, children }: { place: AiPlace; children: React.ReactNode }) 
 
 /** The practice steps and the place each belongs to ("Going over mistakes" is the tutor's). */
 const PLACE_OF: Record<PracticeKind, AiPlace> = {
+  understanding: "understanding",
   writing: "writing",
   scene: "scene",
   mistakes: "tutor",
@@ -51,7 +53,9 @@ export const lessonAssistant: LessonSlots = {
       return llm.data?.model ? PRACTICE.filter((kind) => !off.includes(PLACE_OF[kind])) : [];
     },
     step: (kind, { hasMistakes, done, onDone, ...context }) =>
-      kind === "writing" ? (
+      kind === "understanding" ? (
+        <UnderstandingStep {...context} onDone={onDone} />
+      ) : kind === "writing" ? (
         <WritingTask {...context} onDone={onDone} />
       ) : kind === "scene" ? (
         <DialogueStep {...context} onDone={onDone} />

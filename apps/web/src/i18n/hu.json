@@ -145,7 +145,8 @@
       "writing": "Írj saját szöveget",
       "scene": "Párbeszéd",
       "mistakes": "Hibák átnézése",
-      "summary": "Összegzés"
+      "summary": "Összegzés",
+      "understanding": "Szövegértés"
     },
     "section": {
       "grammar": "Nyelvtan",
@@ -235,6 +236,8 @@
     "provider": {
       "lmstudio": "LM Studio",
       "openrouter": "OpenRouter",
+      "openai": "OpenAI",
+      "anthropic": "Anthropic",
       "gemini": "Google Gemini",
       "groq": "Groq",
       "custom": "Szerver a hálózaton",
@@ -270,6 +273,8 @@
     "about": {
       "lmstudio": "LM Studio ezen a számítógépen: a SprachAnker elindítja a szerverét, betölti a kiválasztott modellt, és letöltheti bele a javasolt modelleket. Ingyenes, és semmi sem hagyja el a számítógépet. Ha az LM Studio egy másik számítógépen fut, válaszd a „Szerver a hálózaton” lehetőséget.",
       "openrouter": "OpenRouter a felhőben: több száz modell sok gyártótól egyetlen kulccsal, némelyik ingyenes (napi korlátokkal). A lecke tartalma és a válaszaid az OpenRouterhez és a modell szolgáltatójához kerülnek.",
+      "openai": "Az OpenAI modelljei (GPT-5, GPT-4.1, az o-sorozat és mások) a felhőben, az API-ján keresztül, használat szerinti fizetéssel — ez nem ChatGPT-előfizetés: ahhoz válaszd a Codexet. A lecke tartalma és a válaszaid az OpenAI-hoz kerülnek.",
+      "anthropic": "Az Anthropic Claude-modelljei a felhőben, az API-ján keresztül, használat szerinti fizetéssel — ez nem Claude-előfizetés: ahhoz válaszd a Claude Code-ot. A lecke tartalma és a válaszaid az Anthropichoz kerülnek.",
       "gemini": "A Google Gemini modelljei a felhőben, a Google AI Studióban létrehozott kulccsal. Az ingyenes csomaghoz nem kell bankkártya, és percenkénti és napi korlátai vannak; egyes modellekhez fizetős fiók kell. Az ingyenes csomagban a Google a beküldött adatokat termékei fejlesztésére használhatja: a lecke tartalma és a válaszaid a Google-hoz kerülnek.",
       "groq": "Nyílt modellek (Llama, Qwen, GPT-OSS és mások) a Groq gyors hardverén, a felhőben. Az ingyenes csomaghoz nem kell bankkártya, és minden modellre percenkénti és napi korlátok vonatkoznak. A lecke tartalma és a válaszaid a Groqhoz kerülnek.",
       "custom": "Bármely OpenAI-kompatibilis API-val rendelkező szerver egy másik számítógépen: LM Studio, Ollama, llama.cpp, vLLM és mások. Add meg a címét (/v1-re végződik), és a kulcsot, ha kér.",
@@ -310,6 +315,8 @@
     },
     "keyHintFor": {
       "openrouter": "Kulcsot az openrouter.ai/keys oldalon hozhatsz létre. Titkosítva tároljuk ezen a számítógépen, és többé nem jelenik meg.",
+      "openai": "Kulcsot a platform.openai.com/api-keys oldalon hozhatsz létre. Titkosítva tároljuk ezen a számítógépen, és többé nem jelenik meg.",
+      "anthropic": "Kulcsot a platform.claude.com/settings/keys oldalon hozhatsz létre. Titkosítva tároljuk ezen a számítógépen, és többé nem jelenik meg.",
       "gemini": "Kulcsot az aistudio.google.com/apikey oldalon hozhatsz létre. Titkosítva tároljuk ezen a számítógépen, és többé nem jelenik meg.",
       "groq": "Kulcsot a console.groq.com/keys oldalon hozhatsz létre. Titkosítva tároljuk ezen a számítógépen, és többé nem jelenik meg."
     }
@@ -402,7 +409,9 @@
       "sceneSetup": "Párbeszéd: a helyzet",
       "scene": "Párbeszéd: egy mondat",
       "examples": "Példák egy pakli szavaihoz",
-      "sceneSummary": "Párbeszéd: az összegzés"
+      "sceneSummary": "Párbeszéd: az összegzés",
+      "understanding": "Szövegértés: a szöveg",
+      "understandingCheck": "Szövegértés: a második olvasás"
     },
     "contextIntro": "A leckéből hozzáadva:",
     "contextIntroCourses": "A kurzusaidból hozzáadva (azokból, amelyek a beszélgetés nyelvét tanítják):",
@@ -439,7 +448,10 @@
       "place": "hol tart a lecke a kurzusban: a száma és a fejezete",
       "topics": "a kurzusban eddig vett nyelvtani témák",
       "dialogueGoals": "a helyzet és az elért célok",
-      "dialogue": "a párbeszéd mondatai a hozzájuk adott javításokkal"
+      "dialogue": "a párbeszéd mondatai a hozzájuk adott javításokkal",
+      "length": "milyen hosszú a szöveg a kurzus szintjén",
+      "readText": "a megírt szöveg",
+      "textQuestions": "a kérdései a válaszlehetőségekkel, megoldások nélkül"
     },
     "upTo": "legfeljebb {chars, plural, one {# karakter} other {# karakter}}",
     "debug": "„Prompt” gombok megjelenítése",
@@ -478,6 +490,10 @@
       "exam": {
         "name": "Vizsgaválaszok",
         "where": "„Értékelés javaslata” egy válasz szempontjai fölött, és a beszélgetésként folytatott szóbeli részek"
+      },
+      "understanding": {
+        "name": "Szövegértés",
+        "where": "a lecke egy lépése: meghallgatandó vagy elolvasandó szöveg kérdésekkel"
       }
     },
     "about": {
@@ -491,7 +507,9 @@
       "sceneSetup": "Elindít egy párbeszédet: a lecke céljaiból és abból, amit tudsz, kitalálja a helyzetet, hogy kivel beszélsz, a célkártyádat és azt, amit csak a partnered tud — ezt neked kell megkérdezned. Párbeszédenként egyszer.",
       "scene": "Eljátssza a partneredet: válaszol minden mondatodra, amit kimondasz (ahogy a felismerő hallotta) vagy beírsz, megmondja, érthető volt-e és illik-e, legfeljebb két hibát javít benne, fordítást ad és kipipálja az elért célokat.",
       "examples": "Három-öt példamondatot ír egy pakli minden olyan szavához, amelynek nincs saját példája, egyszerre öt szóhoz (Ismétlés → Paklik, „Példák készítése”); ahol lehet, ismert szavakkal, az újakat lefordítva.",
-      "sceneSummary": "Összegzi a párbeszédet, amikor véget ért: az egy-két legfontosabb javítás, mindegyik mellett a mondatod helyesen, és egy rövid visszajelzés."
+      "sceneSummary": "Összegzi a párbeszédet, amikor véget ért: az egy-két legfontosabb javítás, mindegyik mellett a mondatod helyesen, és egy rövid visszajelzés.",
+      "understanding": "Rövid szöveget ír a tanult nyelven az általad ismert szavakból — meghallgatandó párbeszédet vagy bemondást, illetve elolvasandó étlapot vagy hirdetményt — vizsgákhoz hasonló kérdésekkel (igaz/hamis, a/b/c, számok). A válaszaidat az app ellenőrzi, nem a modell.",
+      "understandingCheck": "Újra elolvassa a szöveget, és csak a szövegből válaszol a saját kérdéseire: az a kérdés, amelyre másképp válaszol, vagy amelyet nem talál egyértelműnek, kimarad."
     }
   },
   "writing": {
@@ -821,7 +839,8 @@
       "doneTitle": "{when}: {count, plural, one {# lecke kész} other {# lecke kész}}, összesen {total, number}",
       "part": "{label}: {n, number}",
       "words": "Szavak állapot szerint: {parts}"
-    }
+    },
+    "understanding": "{count, plural, one {# szövegértés} other {# szövegértés}}"
   },
   "study": {
     "listen": "Hallgasd meg, és idézd fel a jelentését",
@@ -1291,6 +1310,7 @@
     "llm_no_endpoint": "Add meg a szerver címét.",
     "llm_no_key": "Add meg az API-kulcsot.",
     "llm_not_configured": "Válassz modellt itt: Beállítások → MI-asszisztens.",
+    "llm_overloaded": "A szolgáltató most túlterhelt. Próbáld újra egy kicsit később.",
     "llm_rate_limited": "A szolgáltató korlátját egyelőre elérted (az ingyenes csomagok percenként és naponta korlátozzák a kéréseket). Próbáld később, vagy válassz másik modellt itt: Beállítások → MI-asszisztens.",
     "llm_timeout": "A modell túl sokáig válaszolt.",
     "llm_unauthorized": "Az API-kulcsot nem fogadták el.",
@@ -1327,7 +1347,7 @@
     "run_incomplete": "A lecke még nincs kész.",
     "run_not_active": "A lecke e köre véget ért. Töltsd be újra a leckét.",
     "run_without_edition": "Ennek a körnek nincs nyelvi változata. Kezdd újra a leckét.",
-    "scene_busy": "A párbeszéd még válaszol. Várj rá.",
+    "scene_busy": "A beszélgetőtársad még válaszol, vagy a párbeszéd készül.",
     "server_error": "Hiba történt a szerveren.",
     "speaking_busy": "Ennek a válasznak az ellenőrzése folyamatban van. Várj egy kicsit.",
     "speech_engine_failed": "A beszédfelismerő nem válaszolt. Próbáld újra.",
@@ -1361,7 +1381,8 @@
     "course_bundle_from_newer_app": "Ez a kurzusfájl a SprachAnker egy újabb verziójából származik: előbb frissítsd itt az alkalmazást.",
     "course_bundle_clash": "Ezen a számítógépen a kurzus médiafájljainak nevén más fájlok vannak: töltsd le inkább itt a kurzust.",
     "course_import_busy": "Épp egy másik kurzusfájl importálása folyik. Próbáld újra, ha végzett.",
-    "series_busy": "Ebből a forrásból éppen kurzusok letöltése vagy importálása folyik. Próbáld újra, ha végzett."
+    "series_busy": "Ebből a forrásból éppen kurzusok letöltése vagy importálása folyik. Próbáld újra, ha végzett.",
+    "understanding_busy": "Épp készül egy szöveg ehhez a leckéhez. Várj egy kicsit."
   },
   "exams": {
     "tabs": {
@@ -1554,5 +1575,28 @@
       "verified": "Ellenőrizve: minden fájl megvan.",
       "problems": "Ellenőrizve: {count, plural, one {# probléma található} other {# probléma található}} – a kártyáján az „Ellenőrzés” felsorolja őket."
     }
+  },
+  "understanding": {
+    "intro": "Rövid szöveg az általad ismert szavakból. A párbeszédet vagy bemondást felolvassa az app: hallgasd meg, válaszolj hallás után, aztán olvasd el a szöveget, és válaszolj még egy kérdésre. Az étlap vagy hirdetmény olvasásra való.",
+    "start": "Szöveg írása",
+    "writing": "Készül a szöveg…",
+    "new": "Új szöveg",
+    "kind": {
+      "dialogue": "meghallgatandó párbeszéd",
+      "announcement": "meghallgatandó bemondás",
+      "reading": "elolvasandó szöveg"
+    },
+    "listen": "Meghallgatás",
+    "resume": "Tovább",
+    "replay": "Elölről",
+    "line": "{n, number}. mondat / {total, number}",
+    "heard": "{count, plural, one {Egyszer meghallgatva} other {# alkalommal meghallgatva}}",
+    "noVoice": "Itt semmi nem olvas fel ezen a nyelven: {language}, ezért a szöveg olvasásra jelenik meg. A meghallgatáshoz válassz hangot itt: Beállítások → Beszéd.",
+    "byEar": "Válaszolj hallás után — a szöveg utána nyílik meg.",
+    "text": "A szöveg",
+    "newWords": "Új szavak",
+    "readNow": "Olvasd el a szöveget, és válaszolj",
+    "result": "{right, number}/{total, number} helyes",
+    "past": "A lecke korábbi szövegei"
   }
 }

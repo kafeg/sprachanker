@@ -145,7 +145,8 @@
       "writing": "À toi d’écrire",
       "scene": "Dialogue",
       "mistakes": "Revoir ses erreurs",
-      "summary": "Bilan"
+      "summary": "Bilan",
+      "understanding": "Compréhension"
     },
     "section": {
       "grammar": "Grammaire",
@@ -235,6 +236,8 @@
     "provider": {
       "lmstudio": "LM Studio",
       "openrouter": "OpenRouter",
+      "openai": "OpenAI",
+      "anthropic": "Anthropic",
       "gemini": "Google Gemini",
       "groq": "Groq",
       "custom": "Serveur sur le réseau",
@@ -270,6 +273,8 @@
     "about": {
       "lmstudio": "LM Studio sur cet ordinateur : SprachAnker démarre son serveur, charge le modèle choisi et peut y télécharger les modèles suggérés. Gratuit, et rien ne quitte l’ordinateur. Si LM Studio tourne sur un autre ordinateur, choisis « Serveur sur le réseau ».",
       "openrouter": "OpenRouter dans le cloud : des centaines de modèles de nombreux éditeurs avec une seule clé, certains gratuits (avec des limites quotidiennes). Le contenu des leçons et tes réponses vont à OpenRouter et au fournisseur du modèle.",
+      "openai": "Les modèles d’OpenAI (GPT-5, GPT-4.1, la série o et d’autres) dans le cloud via son API, payés à l’usage — pas un abonnement ChatGPT : pour cela, choisis Codex. Le contenu des leçons et tes réponses vont à OpenAI.",
+      "anthropic": "Les modèles Claude d’Anthropic dans le cloud via son API, payés à l’usage — pas un abonnement Claude : pour cela, choisis Claude Code. Le contenu des leçons et tes réponses vont à Anthropic.",
       "gemini": "Les modèles Gemini de Google dans le cloud, avec une clé de Google AI Studio. L’offre gratuite ne demande pas de carte et a des limites par minute et par jour ; certains modèles exigent la facturation. Avec l’offre gratuite, Google peut utiliser ce qui est envoyé pour améliorer ses produits : le contenu des leçons et tes réponses vont à Google.",
       "groq": "Des modèles ouverts (Llama, Qwen, GPT-OSS et d’autres) sur le matériel rapide de Groq, dans le cloud. L’offre gratuite ne demande pas de carte et a des limites par minute et par jour pour chaque modèle. Le contenu des leçons et tes réponses vont à Groq.",
       "custom": "Tout serveur avec une API compatible OpenAI sur un autre ordinateur : LM Studio, Ollama, llama.cpp, vLLM et d’autres. Indique son adresse (se terminant par /v1) et une clé s’il en demande une.",
@@ -310,6 +315,8 @@
     },
     "keyHintFor": {
       "openrouter": "Crée une clé sur openrouter.ai/keys. Elle est stockée chiffrée sur cet ordinateur et n’est plus jamais affichée.",
+      "openai": "Crée une clé sur platform.openai.com/api-keys. Elle est stockée chiffrée sur cet ordinateur et n’est plus jamais affichée.",
+      "anthropic": "Crée une clé sur platform.claude.com/settings/keys. Elle est stockée chiffrée sur cet ordinateur et n’est plus jamais affichée.",
       "gemini": "Crée une clé sur aistudio.google.com/apikey. Elle est stockée chiffrée sur cet ordinateur et n’est plus jamais affichée.",
       "groq": "Crée une clé sur console.groq.com/keys. Elle est stockée chiffrée sur cet ordinateur et n’est plus jamais affichée."
     }
@@ -402,7 +409,9 @@
       "sceneSetup": "Dialogue : la mise en place",
       "scene": "Dialogue : une réplique",
       "examples": "Exemples pour les mots d’un paquet",
-      "sceneSummary": "Dialogue : le bilan"
+      "sceneSummary": "Dialogue : le bilan",
+      "understanding": "Compréhension : le texte",
+      "understandingCheck": "Compréhension : la seconde lecture"
     },
     "contextIntro": "Ajouté depuis la leçon :",
     "contextIntroCourses": "Ajouté depuis tes cours (ceux de la langue que pratique la discussion) :",
@@ -439,7 +448,10 @@
       "place": "la place de la leçon dans le cours : son numéro et son unité",
       "topics": "les points de grammaire vus jusqu’ici dans le cours",
       "dialogueGoals": "la situation et les objectifs atteints",
-      "dialogue": "les répliques du dialogue avec les corrections données"
+      "dialogue": "les répliques du dialogue avec les corrections données",
+      "length": "la longueur du texte au niveau du cours",
+      "readText": "le texte écrit",
+      "textQuestions": "ses questions avec leurs options, sans les réponses"
     },
     "upTo": "jusqu’à {chars, plural, one {# caractère} many {# de caractères} other {# caractères}}",
     "debug": "Afficher les boutons « Prompt »",
@@ -478,6 +490,10 @@
       "exam": {
         "name": "Réponses d’examen",
         "where": "« Proposer une note » au-dessus des critères d’une réponse, et les épreuves orales menées en conversation"
+      },
+      "understanding": {
+        "name": "Compréhension",
+        "where": "une étape de la leçon : un texte à écouter ou à lire, avec des questions"
       }
     },
     "about": {
@@ -491,7 +507,9 @@
       "sceneSetup": "Lance un dialogue : à partir des objectifs de la leçon et de ce que tu sais, invente la situation, ton interlocuteur, ta carte d’objectifs et ce que seul ton interlocuteur sait — et que tu dois lui demander. Une fois par dialogue.",
       "scene": "Joue ton interlocuteur : répond à chaque réplique que tu dis (telle que la reconnaissance l’a entendue) ou que tu tapes, dit si elle a été comprise et si elle convient, corrige au plus deux erreurs, donne une traduction et coche tes objectifs atteints.",
       "examples": "Écrit trois à cinq phrases d’exemple pour chaque mot d’un paquet qui n’en a pas, cinq mots à la fois (Révision → Paquets, « Créer des exemples »), avec des mots que tu connais si possible et les nouveaux traduits.",
-      "sceneSummary": "Fait le bilan d’un dialogue une fois terminé : la ou les deux corrections qui comptent le plus, chacune avec ta phrase bien dite, et un mot de retour."
+      "sceneSummary": "Fait le bilan d’un dialogue une fois terminé : la ou les deux corrections qui comptent le plus, chacune avec ta phrase bien dite, et un mot de retour.",
+      "understanding": "Écrit un court texte dans la langue que tu apprends avec les mots que tu connais — un dialogue ou une annonce à écouter, ou un menu, un avis à lire — avec des questions comme aux examens (vrai/faux, a/b/c, nombres). Tes réponses sont corrigées par l’app, pas par le modèle.",
+      "understandingCheck": "Relit le texte et répond à ses propres questions à partir du texte seul : une question à laquelle il répond autrement, ou qu’il trouve floue, est retirée."
     }
   },
   "writing": {
@@ -821,7 +839,8 @@
       "doneTitle": "{when} : {count, plural, one {# leçon faite} many {# de leçons faites} other {# leçons faites}}, {total, number} en tout",
       "part": "{label} : {n, number}",
       "words": "Mots par état : {parts}"
-    }
+    },
+    "understanding": "{count, plural, one {# texte de compréhension} many {# de textes de compréhension} other {# textes de compréhension}}"
   },
   "study": {
     "listen": "Écoute et retrouve le sens",
@@ -1291,6 +1310,7 @@
     "llm_no_endpoint": "Saisis l’adresse du serveur.",
     "llm_no_key": "Saisis la clé API.",
     "llm_not_configured": "Choisis un modèle dans Réglages → Assistant IA.",
+    "llm_overloaded": "Le fournisseur est surchargé pour le moment. Réessaie dans un instant.",
     "llm_rate_limited": "La limite du fournisseur est atteinte pour l’instant (les offres gratuites limitent les requêtes par minute et par jour). Réessaie plus tard, ou choisis un autre modèle dans Réglages → Assistant IA.",
     "llm_timeout": "Le modèle a mis trop de temps à répondre.",
     "llm_unauthorized": "La clé API n’a pas été acceptée.",
@@ -1327,7 +1347,7 @@
     "run_incomplete": "La leçon n’est pas encore terminée.",
     "run_not_active": "Ce passage de la leçon est terminé. Recharge la leçon.",
     "run_without_edition": "Ce passage n’a pas de version linguistique. Recommence la leçon.",
-    "scene_busy": "Le dialogue est encore en train de répondre. Patiente.",
+    "scene_busy": "Ton interlocuteur répond encore, ou le dialogue est en préparation.",
     "server_error": "Une erreur s’est produite sur le serveur.",
     "speaking_busy": "Cette réponse est en cours de vérification. Patiente.",
     "speech_engine_failed": "La reconnaissance vocale n’a pas répondu. Réessaie.",
@@ -1361,7 +1381,8 @@
     "course_bundle_from_newer_app": "Ce fichier de cours vient d’une version plus récente de SprachAnker : mets d’abord l’application à jour ici.",
     "course_bundle_clash": "Cet ordinateur a d’autres fichiers sous les noms des médias de ce cours : télécharge plutôt le cours ici.",
     "course_import_busy": "Un autre fichier de cours est en cours d’import. Réessaie quand il sera terminé.",
-    "series_busy": "Des cours de cette source sont en cours de téléchargement ou d'import. Réessaie quand ce sera fini."
+    "series_busy": "Des cours de cette source sont en cours de téléchargement ou d'import. Réessaie quand ce sera fini.",
+    "understanding_busy": "Un texte pour cette leçon est en cours d’écriture. Patiente."
   },
   "exams": {
     "tabs": {
@@ -1554,5 +1575,28 @@
       "verified": "Vérifié : tous les fichiers sont là.",
       "problems": "Vérifié : {count, plural, one {# problème trouvé} many {# de problèmes trouvés} other {# problèmes trouvés}} — « Vérifier » sur sa carte les liste."
     }
+  },
+  "understanding": {
+    "intro": "Un court texte avec les mots que tu connais. Un dialogue ou une annonce est lu à voix haute : écoute et réponds à l’oreille, puis lis le texte et réponds à une question de plus. Un menu ou un avis est à lire.",
+    "start": "Écrire un texte",
+    "writing": "Écriture du texte…",
+    "new": "Nouveau texte",
+    "kind": {
+      "dialogue": "un dialogue à écouter",
+      "announcement": "une annonce à écouter",
+      "reading": "un texte à lire"
+    },
+    "listen": "Écouter",
+    "resume": "Continuer",
+    "replay": "Depuis le début",
+    "line": "Ligne {n, number} sur {total, number}",
+    "heard": "{count, plural, one {Écouté une fois} many {Écouté # de fois} other {Écouté # fois}}",
+    "noVoice": "Rien ici ne lit en {language} à voix haute : le texte est donc affiché à lire. Pour écouter, choisis une voix dans Réglages → Parole.",
+    "byEar": "Réponds à l’oreille : le texte s’ouvre ensuite.",
+    "text": "Le texte",
+    "newWords": "Mots nouveaux",
+    "readNow": "Lis le texte et réponds",
+    "result": "{right, number} sur {total, number} justes",
+    "past": "Textes précédents de cette leçon"
   }
 }

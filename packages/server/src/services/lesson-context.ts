@@ -31,14 +31,15 @@ interface LessonContext {
 /** Earlier words kept in a snapshot: the latest; every task's budget takes fewer. */
 const KNOWN_WORDS = 800;
 
-/** The CEFR level a course's id or a deck's name says ("a1-ru" → A1, "a1-a2-ru" → A1–A2, "Deutsch
- *  A2", "слова_b1"); undefined when it says none. */
+/** The CEFR level a course's id or a deck's name says ("a1-ru" → A1, "a1-a2-ru" and "A1A2" → A1–A2,
+ *  "Deutsch A2", "слова_b1"), a range low to high ("B1 + A2" → A2–B1); undefined when it says none.
+ *  Several names joined say the range of them all. */
 export function levelOf(name: string): string | undefined {
-  const levels = [...name.matchAll(/(?:^|[^a-z0-9])([abc][12])(?![0-9])/gi)].map((m) =>
-    (m[1] as string).toUpperCase(),
-  );
-  const [first, last] = [levels[0], levels.at(-1)];
-  return first && last && last !== first ? `${first}–${last}` : first;
+  const levels = [...name.matchAll(/(?<![a-z])([abc][12])(?![0-9])/gi)]
+    .map((m) => (m[1] as string).toUpperCase())
+    .sort();
+  const [low, high] = [levels[0], levels.at(-1)];
+  return low && high && high !== low ? `${low}–${high}` : low;
 }
 
 /** A word as the tasks see it, in an edition. */
@@ -53,6 +54,9 @@ const once = <T>(list: T[], key: (t: T) => string) => {
   const seen = new Set<string>();
   return list.filter((t) => !seen.has(key(t)) && seen.add(key(t)));
 };
+
+/** Each once, where it came last (a word taught again is as recent as its latest lesson). */
+const latest = <T>(list: T[], key: (t: T) => string) => once([...list].reverse(), key).reverse();
 
 export function createLessonContext(content: Content) {
   return {
@@ -78,7 +82,7 @@ export function createLessonContext(content: Content) {
           return { lesson: l, locale: loc };
         }),
       );
-      const known = once(
+      const known = latest(
         files.flatMap((f) => wordsOf(f.lesson, f.locale)),
         (w) => w.target,
       );

@@ -9,7 +9,9 @@ off, its model, the engine, voice and speed reading aloud) are applied by `servi
 
 - **Capture** in the browser (`apps/web/src/audio/recorder.ts`): MediaRecorder in the browser's own
   format (Safari MP4/AAC, Chrome WebM/Opus), at most 30 s a take, the loudness shown while it records;
-  the microphone chosen per device (Settings → Speech). Only in a secure context (HTTPS or this
+  the microphone chosen per device (Settings → Speech). A take starting stops whatever plays — a line
+  read aloud (a Dialogue's partner, an exam conversation's examiner), a recording, a video —, so the
+  microphone never hears it. Only in a secure context (HTTPS or this
   computer, 06): elsewhere the microphone button is disabled and says why (a tooltip; on a phone a line
   under it); so is a browser without MediaRecorder or a denied permission.
 - **Kept** in `profiles/<id>/recordings/<ulid>.<ext>` (`POST /api/recordings` with the audio as the
@@ -73,7 +75,8 @@ off, its model, the engine, voice and speed reading aloud) are applied by `servi
   free answer, the tutor, "Write it yourself" (owner, 2026-10-11).
 - **A Dialogue held by voice** (04, "AI practice in courses"; 09): the learner's line is a take — the
   microphone tapped, tapped again — kept in `recordings/` and heard in the language learnt; what was
-  heard is shown ("Heard: …") and sent as heard ("Send"), or the line said again ("Say it again"),
+  heard is shown ("Heard: …") and sent as heard ("Send"; kept until it is stored, so a send that
+  failed is sent again), or the line said again ("Say it again"),
   never edited: what the recogniser made of it is what a listener would have understood, so its
   normalisation (punctuation, capitals, numbers as digits) is taken as it is (owner, 2026-10-11).
   Recognition warmed when the step opens. A take nothing was heard in says so and is said again.
@@ -86,10 +89,17 @@ off, its model, the engine, voice and speed reading aloud) are applied by `servi
 Course audio is used whenever there is some; reading aloud is for what has none — mostly what the AI
 writes (owner, 2026-10-08).
 - **Where**: a speaker in the corner of a Dialogue's partner lines, an exam conversation's examiner and
-  beside each of a word's AI examples — texts in one language, by the voice chosen for it; *planned*
-  (next phase): Understanding's text, heard before it is read (04, "AI practice in courses"). Where a
-  line is to be listened to, the engine and voice reading it are named, as the model is ("Read by
-  Piper · thorsten", "Read by this device · Anna"; 09). A card's
+  beside each of a word's AI examples — texts in one language, by the voice chosen for it; and
+  Understanding's text, heard before it is read (04, "AI practice in courses"; owner, 2026-10-11:
+  listening is what reading aloud is mostly for): its lines one after another on request ("Listen"),
+  paused and played on from the line it was at, from the start again, as often as wanted
+  (`audio/listening.ts`); a dialogue's second speaker by another voice of the language where there
+  is one — Piper's next installed voice of it, Qwen3-TTS's next speaker, the device's next best voice
+  —, else by the same one; a line the server reads is kept in its reading cache, so hearing it again
+  makes nothing anew. Nothing here reading the language, the text is shown to read instead and the
+  step says what listening needs. Where a line is to be listened to, the engine and voice reading it are named, as
+  the model is ("Read by Piper · thorsten", "Read by this device · Anna"; a dialogue read by two
+  voices, both: "Read by Piper · thorsten and eva k"; 09). A card's
   word is never read on the fly (owner, 2026-10-11): it plays its recording or the one read for its
   deck (04, "A deck's words read aloud"), else nothing plays (R does nothing) and the card's answer has
   the way to its deck in Decks, where the deck's words are read at once. A second tap stops; one text is read at

@@ -145,7 +145,8 @@
       "writing": "Write it yourself",
       "scene": "Dialogue",
       "mistakes": "Going over mistakes",
-      "summary": "Summary"
+      "summary": "Summary",
+      "understanding": "Understanding"
     },
     "section": {
       "grammar": "Grammar",
@@ -235,6 +236,8 @@
     "provider": {
       "lmstudio": "LM Studio",
       "openrouter": "OpenRouter",
+      "openai": "OpenAI",
+      "anthropic": "Anthropic",
       "gemini": "Google Gemini",
       "groq": "Groq",
       "custom": "Server on the network",
@@ -270,6 +273,8 @@
     "about": {
       "lmstudio": "LM Studio on this computer: SprachAnker starts its server, loads the chosen model and can download suggested models into it. Free, and nothing leaves the computer. If LM Studio runs on another computer, choose “Server on the network”.",
       "openrouter": "OpenRouter in the cloud: hundreds of models from many makers through one key, some of them free (with daily limits). Lesson content and your answers go to OpenRouter and the model's provider.",
+      "openai": "OpenAI's models (GPT-5, GPT-4.1, the o-series and others) in the cloud through its API, paid per use — not a ChatGPT subscription: for that, choose Codex. Lesson content and your answers go to OpenAI.",
+      "anthropic": "Anthropic's Claude models in the cloud through its API, paid per use — not a Claude subscription: for that, choose Claude Code. Lesson content and your answers go to Anthropic.",
       "gemini": "Google's Gemini models in the cloud with a key from Google AI Studio. The free tier needs no card and has limits per minute and per day; some models need billing. On the free tier Google may use what is sent to improve its products: lesson content and your answers go to Google.",
       "groq": "Open models (Llama, Qwen, GPT-OSS and others) on Groq's fast hardware in the cloud. The free tier needs no card and has limits per minute and per day for each model. Lesson content and your answers go to Groq.",
       "custom": "Any server with an OpenAI-compatible API on another computer: LM Studio, Ollama, llama.cpp, vLLM and others. Give its address (ending in /v1) and a key if it asks for one.",
@@ -310,6 +315,8 @@
     },
     "keyHintFor": {
       "openrouter": "Create a key at openrouter.ai/keys. It is stored encrypted on this computer and never shown again.",
+      "openai": "Create a key at platform.openai.com/api-keys. It is stored encrypted on this computer and never shown again.",
+      "anthropic": "Create a key at platform.claude.com/settings/keys. It is stored encrypted on this computer and never shown again.",
       "gemini": "Create a key at aistudio.google.com/apikey. It is stored encrypted on this computer and never shown again.",
       "groq": "Create a key at console.groq.com/keys. It is stored encrypted on this computer and never shown again."
     }
@@ -402,7 +409,9 @@
       "sceneSetup": "Dialogue: the setup",
       "scene": "Dialogue: a line",
       "examples": "Examples for a deck's words",
-      "sceneSummary": "Dialogue: the summary"
+      "sceneSummary": "Dialogue: the summary",
+      "understanding": "Understanding: the text",
+      "understandingCheck": "Understanding: the second reading"
     },
     "contextIntro": "Added from the lesson:",
     "contextIntroCourses": "Added from your courses (those in the language the chat practises):",
@@ -439,7 +448,10 @@
       "place": "where the lesson is in the course: its number and unit",
       "topics": "the grammar topics met so far in the course",
       "dialogueGoals": "the situation and the goals you reached",
-      "dialogue": "the dialogue's lines with the corrections given on them"
+      "dialogue": "the dialogue's lines with the corrections given on them",
+      "length": "how long the text is at the course's level",
+      "readText": "the text it wrote",
+      "textQuestions": "its questions with their options, without the answers"
     },
     "upTo": "up to {chars, plural, one {# character} other {# characters}}",
     "debug": "Show “Prompt” buttons",
@@ -478,6 +490,10 @@
       "exam": {
         "name": "Exam answers",
         "where": "“Propose a rating” above an answer's criteria, and the speaking parts held as a conversation"
+      },
+      "understanding": {
+        "name": "Understanding",
+        "where": "a step of the lesson: a text to listen to or read, with questions"
       }
     },
     "about": {
@@ -491,7 +507,9 @@
       "sceneSetup": "Starts a dialogue: from the lesson's goals and what you know, invents the situation, who you talk to, your goal card and what only your partner knows — which you must ask for. Asked once per dialogue.",
       "scene": "Plays your partner: answers each line you say (as the recogniser heard it) or type, says whether it was understood and fits, corrects at most two mistakes in it, gives a translation and ticks off your goals.",
       "examples": "Writes three to five example sentences for each word of a deck that has none of its own, five words at a time (Review → Decks, “Make examples”), with words you know where it can and the new ones translated.",
-      "sceneSummary": "Sums up a dialogue once it is over: the one or two corrections that matter most, each with your line said well, and a word of feedback."
+      "sceneSummary": "Sums up a dialogue once it is over: the one or two corrections that matter most, each with your line said well, and a word of feedback.",
+      "understanding": "Writes a short text in the language you learn from the words you know — a dialogue or an announcement to listen to, or a menu or a notice to read — with questions as exams ask them (true/false, a/b/c, numbers). Your answers are checked by the app, not by the model.",
+      "understandingCheck": "Reads the text again and answers its own questions from the text alone: a question it answers otherwise, or finds unclear, is left out."
     }
   },
   "writing": {
@@ -821,7 +839,8 @@
       "doneTitle": "{when}: {count, plural, one {# lesson} other {# lessons}} done, {total, number} in all",
       "part": "{label}: {n, number}",
       "words": "Words by state: {parts}"
-    }
+    },
+    "understanding": "{count, plural, one {# text understood} other {# texts understood}}"
   },
   "study": {
     "listen": "Listen and recall the meaning",
@@ -1291,6 +1310,7 @@
     "llm_no_endpoint": "Enter the server address.",
     "llm_no_key": "Enter the API key.",
     "llm_not_configured": "Choose a model in Settings → AI assistant.",
+    "llm_overloaded": "The provider is overloaded right now. Try again in a moment.",
     "llm_rate_limited": "The provider's limit is reached for now (free tiers limit requests per minute and per day). Try again later, or choose another model in Settings → AI assistant.",
     "llm_timeout": "The model took too long to answer.",
     "llm_unauthorized": "The API key was not accepted.",
@@ -1327,7 +1347,7 @@
     "run_incomplete": "The lesson is not finished yet.",
     "run_not_active": "This pass of the lesson has ended. Reload the lesson.",
     "run_without_edition": "This pass has no language version. Start the lesson again.",
-    "scene_busy": "The dialogue is still answering. Wait for it.",
+    "scene_busy": "Your partner is still answering, or the dialogue is being prepared.",
     "server_error": "Something went wrong on the server.",
     "speaking_busy": "This answer is being checked. Wait for it.",
     "speech_engine_failed": "The speech recogniser did not answer. Try again.",
@@ -1361,7 +1381,8 @@
     "course_bundle_from_newer_app": "This course file comes from a newer version of SprachAnker: update the app here first.",
     "course_bundle_clash": "This computer has other files under the names of this course's media: download the course here instead.",
     "course_import_busy": "Another course file is being imported. Try again when it is done.",
-    "series_busy": "Courses from this source are being downloaded or imported right now. Try again when that is done."
+    "series_busy": "Courses from this source are being downloaded or imported right now. Try again when that is done.",
+    "understanding_busy": "A text for this lesson is being written. Wait for it."
   },
   "exams": {
     "tabs": {
@@ -1554,5 +1575,28 @@
       "verified": "Checked: every file is there.",
       "problems": "Checked: {count, plural, one {# problem found} other {# problems found}} — “Check” on its card lists them."
     }
+  },
+  "understanding": {
+    "intro": "A short text from the words you know. A dialogue or an announcement is read aloud: listen and answer by ear, then read it and answer one more question. A menu or a notice is there to read.",
+    "start": "Write a text",
+    "writing": "Writing a text…",
+    "new": "New text",
+    "kind": {
+      "dialogue": "a dialogue to listen to",
+      "announcement": "an announcement to listen to",
+      "reading": "a text to read"
+    },
+    "listen": "Listen",
+    "resume": "Go on",
+    "replay": "From the start",
+    "line": "Line {n, number} of {total, number}",
+    "heard": "{count, plural, one {Heard once} other {Heard # times}}",
+    "noVoice": "Nothing here reads {language} aloud, so the text is shown to read. To listen, choose a voice in Settings → Speech.",
+    "byEar": "Answer by ear — the text opens afterwards.",
+    "text": "The text",
+    "newWords": "New words",
+    "readNow": "Read the text and answer",
+    "result": "{right, number} of {total, number} right",
+    "past": "Earlier texts of this lesson"
   }
 }

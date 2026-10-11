@@ -60,6 +60,9 @@ export interface SceneState {
 
 type Pending = { preparing: true } | { line: string } | { summing: true };
 
+/** What the prompt viewer shows of the partner's facts while the Dialogue runs. */
+const HIDDEN = "(hidden until the end)";
+
 export function createScenes(deps: { store: RunStore; llm: Llm; lessonContext: LessonContexts }) {
   const { store } = deps;
   /** A Dialogue being prepared, the line being answered or the summary being made, per lesson. */
@@ -148,7 +151,14 @@ export function createScenes(deps: { store: RunStore; llm: Llm; lessonContext: L
       store.append(started.id, [
         {
           type: "llm_turn",
-          payload: { role: "assistant", text: setup.opening, model, latencyMs, goalsMet: [] },
+          payload: {
+            role: "assistant",
+            text: setup.opening,
+            ...(setup.openingTranslation && { translation: setup.openingTranslation }),
+            model,
+            latencyMs,
+            goalsMet: [],
+          },
         },
       ]);
       return started;
@@ -179,7 +189,10 @@ export function createScenes(deps: { store: RunStore; llm: Llm; lessonContext: L
       keepVerdict(store, run.id, {
         task: "dialogue",
         input: "",
-        result: cleanSceneSummary(result, learner),
+        result: cleanSceneSummary(result, learner, {
+          language: request.language,
+          target: ctx.target,
+        }),
         model,
         latencyMs,
       });
@@ -189,11 +202,17 @@ export function createScenes(deps: { store: RunStore; llm: Llm; lessonContext: L
   }
 
   /** Answers the learner's line and stores both, while the Dialogue is still the open one; one that
-   *  reaches its goals ends and is summed up. */
+   *  reaches its goals ends (its summary is the next step). */
   async function answerLine(request: SceneLine): Promise<SceneState> {
     const { run, state, input } = await turnInput(request);
     const { result, model, latencyMs } = await deps.llm.structured(sceneTurnTask(input));
-    const turn = cleanSceneTurn(result, request.text, state.setup.goals.length, state.goalsMet);
+    const turn = cleanSceneTurn(
+      result,
+      request.text,
+      state.setup.goals.length,
+      state.goalsMet,
+      input,
+    );
     // Stored only while this Dialogue is still active (not ended or replaced during the call).
     store.atomic(() => {
       store.append(run.id, [
@@ -223,9 +242,15 @@ export function createScenes(deps: { store: RunStore; llm: Llm; lessonContext: L
       ]);
       if (turn.done) store.end(run.id, "finished", "completed");
     });
-    if (turn.done) await summarize(request, run, false);
     return stateOf(store.get(run.id) ?? run) as SceneState;
   }
+
+  /** Sums up a Dialogue that has just ended, as its own step (`pending` says so): the final line is
+   *  answered first. A failed call keeps none (the page asks again). */
+  const sumUp = (request: SceneRequest, run: RunRow) =>
+    pending
+      .run(request.lessonKey, { summing: true }, () => summarize(request, run, false))
+      .catch(() => {});
 
   return {
     /** What the model is doing for the lesson's Dialogues now: preparing one, answering a line or
@@ -248,9 +273,15 @@ export function createScenes(deps: { store: RunStore; llm: Llm; lessonContext: L
       return pending.run(request.lessonKey, { preparing: true }, () => startScene(request));
     },
 
-    /** The learner's line: the partner answers, judges and corrects it, and tracks the goals. */
-    turn(request: SceneLine) {
-      return pending.run(request.lessonKey, { line: request.text }, () => answerLine(request));
+    /** The learner's line: the partner answers, judges and corrects it, and tracks the goals; the
+     *  line that reaches them all comes back at once, its summary made after it (`summing`). */
+    async turn(request: SceneLine) {
+      const state = await pending.run(request.lessonKey, { line: request.text }, () =>
+        answerLine(request),
+      );
+      const run = state.done ? store.get(state.id) : undefined;
+      if (run) void sumUp(request, run);
+      return state;
     },
 
     /** Ends the open Dialogue (the learner's choice) and sums it up. */
@@ -275,9 +306,14 @@ export function createScenes(deps: { store: RunStore; llm: Llm; lessonContext: L
       });
     },
 
+    /** The next line's request as it would be sent; what the partner knows hidden while the Dialogue
+     *  runs (the viewer is the learner's). */
     async prompt(request: SceneLine): Promise<PromptPreview> {
       const { input } = await turnInput(request);
-      return deps.llm.preview(structuredRequest(sceneTurnTask(input)));
+      const { partnerInfo } = input.setup;
+      const setup = partnerInfo?.length ? { ...input.setup, partnerInfo: [HIDDEN] } : input.setup;
+      const shown = { ...input, setup };
+      return deps.llm.preview(structuredRequest(sceneTurnTask(shown)));
     },
   };
 }

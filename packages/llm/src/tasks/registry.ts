@@ -15,6 +15,11 @@ import {
   sceneTurnRules,
 } from "./scene.ts";
 import { SECTION_CHAT_BUDGETS, sectionChatRules } from "./section-chat.ts";
+import {
+  UNDERSTANDING_BUDGETS,
+  understandingCheckRules,
+  understandingTextRules,
+} from "./understanding.ts";
 import { WORD_EXAMPLES_BUDGETS, wordExamplesRules } from "./word-examples.ts";
 
 interface TaskPromptEntry {
@@ -30,12 +35,15 @@ export const TASK_PROMPTS = {
   speaking: { rules: checkSpeakingRules, budgets: CHECK_SPEAKING_BUDGETS },
   exam: { rules: rateExamAnswerRules, budgets: RATE_EXAM_ANSWER_BUDGETS },
   conversation: { rules: examConversationRules, budgets: EXAM_CONVERSATION_BUDGETS },
+  understanding: { rules: understandingTextRules, budgets: UNDERSTANDING_BUDGETS },
+  understandingCheck: { rules: understandingCheckRules, budgets: {} },
   sceneSetup: {
     rules: sceneSetupRules,
     budgets: {
       lessonVocab: SCENE_BUDGETS.lessonVocab,
       knownVocab: SCENE_BUDGETS.knownVocab,
       topics: SCENE_BUDGETS.topics,
+      grammar: SCENE_BUDGETS.grammar,
     },
   },
   scene: { rules: sceneTurnRules, budgets: SCENE_BUDGETS },

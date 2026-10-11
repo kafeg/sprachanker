@@ -1,5 +1,5 @@
 import { expect, test } from "bun:test";
-import { prepend, withAttempt, withScene, withTurns } from "../src/api/cache.ts";
+import { prepend, withAttempt, withScene, withText, withTurns } from "../src/api/cache.ts";
 
 test("a new item goes on top, replacing an older copy of it", () => {
   const same = (a: { id: number }, b: { id: number }) => a.id === b.id;
@@ -30,4 +30,23 @@ test("a chat's stored pair is added at its end, the rest of the chat kept", () =
     turns: ["q1", "a1", "q2", "a2"],
   });
   expect(withTurns(undefined, ["q"])).toEqual({ turns: ["q"] });
+});
+
+test("an Understanding text: one just written on top, one answered in its place; nothing cached, nothing made up", () => {
+  const state = {
+    texts: [
+      { id: "b", n: 1 },
+      { id: "a", n: 1 },
+    ],
+    preparing: false,
+  };
+  expect(withText(state, { id: "c", n: 0 })?.texts.map((t) => t.id)).toEqual(["c", "b", "a"]);
+  expect(withText(state, { id: "a", n: 2 })).toEqual({
+    texts: [
+      { id: "b", n: 1 },
+      { id: "a", n: 2 },
+    ],
+    preparing: false,
+  });
+  expect(withText(undefined, { id: "a", n: 2 })).toBeUndefined();
 });

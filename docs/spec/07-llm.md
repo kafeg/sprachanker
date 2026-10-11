@@ -6,19 +6,49 @@ tasks, never vendor APIs.
 ## Providers
 
 Configured **per profile**: each learner picks their own provider and model (05). HTTP providers speak
-the OpenAI-compatible chat API (`packages/llm/src/client.ts`); command-line providers run an agent
-installed on the machine with the user's own subscription (`packages/llm/src/cli.ts`, started by
-`packages/server/src/runtime/cli.ts`). Presets live in `packages/llm/src/providers.ts`.
+the OpenAI-compatible chat API (`packages/llm/src/client.ts`) or, Anthropic, its Messages API
+(`packages/llm/src/anthropic.ts`) — a preset's `kind`; tasks never know which. Command-line
+providers run an agent installed on the machine with the user's own subscription
+(`packages/llm/src/cli.ts`, started by `packages/server/src/runtime/cli.ts`). Presets live in
+`packages/llm/src/providers.ts`.
 
 | Provider | Endpoint | API key | Notes |
 |---|---|---|---|
 | `lmstudio` | `http://localhost:1234/v1`, editable | optional (only when LM Studio requires a token) | "LM Studio on this computer": integrated through LM Studio's own API (below) |
 | `openrouter` | `https://openrouter.ai/api/v1` | required | cloud models; the key's state from its `/key` (`packages/llm/src/openrouter.ts`) |
+| `openai` | `https://api.openai.com/v1` | required (paid per use, not a ChatGPT subscription: that is `codex`) | OpenAI's own API, below |
+| `anthropic` | `https://api.anthropic.com/v1` | required (paid per use, not a Claude subscription: that is `claude-code`) | Anthropic's Messages API, below |
 | `gemini` | `https://generativelanguage.googleapis.com/v1beta/openai` | required (Google AI Studio) | free tier with limits, no card; on it Google may use what is sent (the card says so); reasoning left on (newer Gemini models refuse to turn it off) |
 | `groq` | `https://api.groq.com/openai/v1` | required | open models, free tier with limits per model, no card |
 | `custom` | any OpenAI-compatible URL (LAN, tailnet, cloud) | optional | "Server on the network": LM Studio, Ollama, llama.cpp, vLLM on another machine |
 | `claude-code` | `claude -p` on the server's machine | none (Claude subscription, signed in once with `claude`) | models by alias (`sonnet`, `opus`, `haiku`) |
 | `codex` | `codex exec` on the server's machine | none (ChatGPT subscription, `codex login`) | read-only sandbox |
+
+**OpenAI** speaks the OpenAI-compatible API with what sets it apart (`ApiQuirks` on its preset, owner
+2026-10-11): the limit is `max_completion_tokens` (newer models refuse `max_tokens`); its reasoning
+models (ids starting `o<digit>` or `gpt-5`) are sent no temperature, get `reasoning_effort: "minimal"`
+for fast replies (one that refuses it keeps its default) and 4096 tokens of room on top of the task's
+limit, since their reasoning counts in it; its model list leaves out what chat completions do not
+serve (Responses-only `-pro`, `codex`, `deep-research`, `computer-use`; realtime, transcription,
+search, moderation, image, video and legacy completion models).
+
+**Anthropic** is reached through its Messages API with fetch alone, no SDK (owner 2026-10-11):
+`POST /messages` with `x-api-key` and `anthropic-version: 2023-06-01`. The chat is put in its shape:
+system messages as the top-level `system`; turns alternating, same-role turns merged, starting and
+ending with the learner's (`(begin)` / `(go on)` said for them where the app has none: no assistant
+prefill); `max_tokens` the task's limit (4096 where it sets none). No temperature and no `thinking`
+are sent; models that take an effort (Opus 4.5 on, the 4.6 and 5 families — newer ones think unless
+told otherwise) get `output_config.effort: "low"` for fast replies (one refusing it is asked again
+without) and the same room as OpenAI's reasoning models. A streamed reply's events (`content_block_*`
+with text, `input_json_delta` and thinking deltas, `message_delta`, `message_stop`, `ping`, `error`)
+become the client's text and tool calls; a tool round sends the reply's blocks back as they came
+(thinking with its signature, text, `tool_use`) and the results as `tool_result` blocks of the
+learner's next turn (the note to answer now in the same turn); the round without tools still names
+them, with `tool_choice: none`. Structured outputs put the JSON Schema in the system prompt (no forced
+tool: newer models refuse it), the reply read whole, then the same zod check and one repair. The
+model list is `GET /models`, read page by page (`after_id`), with `display_name` and
+`max_input_tokens`; every Claude model calls tools. The prompt viewer shows the body with the system
+prompt as its first message.
 
 Command-line providers run each request in a fresh empty folder with our system prompt and without the
 agent's own tools, MCP servers, settings or saved session: only the lesson context goes out. Structured
@@ -57,7 +87,7 @@ sent when LM Studio requires one.
 
 All tasks use the profile's route. Code: `packages/llm/src/tasks/`. Where the assistant works can be
 turned off place by place (owner, 2026-10-09; setting `llm.offIn`, `AI_PLACES` in schema): "Why is
-this wrong?", the tutor (and with it "Going over mistakes" and the Tutor section), "Write it yourself", the Dialogue
+this wrong?", the tutor (and with it "Going over mistakes" and the Tutor section), Understanding, "Write it yourself", the Dialogue
 (its place keeps the key `scene` of the scenes it replaced), spoken
 answers, a word's examples (on its card and made for its deck), an exam's answers — a place off is not shown (its button, its step of the lesson plan, its section); a
 lesson done stays done, and a lesson in progress gains or loses the step, which can be skipped as any.
@@ -68,12 +98,13 @@ server (`lesson-context`, the same pass that reads the lesson for every task) gi
 the course's level and what the learner can be assumed to know at the lesson — so no task assumes
 "A1" or "a beginner" in its rules:
 - **level**: the CEFR level the course's id names (`a1-ru` → A1, `a1-a2-ru` → A1–A2, `b1-de` → B1;
-  a deck's name likewise: `levelOf`); none named (Deutsch im Blick, VOA, Lingust), the prompt says
+  a deck's name likewise: `levelOf`; a range low to high, whatever the order named); none named (Deutsch im Blick, VOA, Lingust), the prompt says
   "beginner (A1–A2)". No field in the course data: the providers' ids say it where it is known.
 - **place**: the lesson's number in course order of how many, and its unit's title;
 - **goals**: this lesson's can-do goals (the course's, in the learner's language);
 - **words**: this lesson's with translations, then those of every earlier lesson with translations in
-  course order (the latest 800 kept; each task's budget takes the most recent);
+  course order, each once where it was met last — a word taught again is as recent as that lesson
+  (the latest 800 kept; each task's budget takes the most recent);
 - **grammar**: the grammar topics met so far — the titles of the grammar pages of the earlier lessons
   and this one, in course order.
 
@@ -89,8 +120,10 @@ rules.
 | `section_chat_turn` | the tutor on its own (the Tutor section): what the learner has met in the courses of the chat's language — the courses (lessons done of all, the lessons worked on), those lessons' words with translations and grammar topics, the latest mistakes in them —, history | message (streamed text) |
 | `check_writing` | the lesson (title, goals, words, grammar), the course's level, the writing task from its goals, the learner's text | JSON: verdict, corrected text, corrections[] (wrong, right, explanation), writing criteria at the course's level as CEFR writing exams rate them — Goethe's Schreiben for German, said with the data — (task, communication, accuracy: 0–2 + comment), feedback |
 | `check_speaking` | the lesson (title, words, grammar), the course's level, a speaking item without a line to say (instruction, prompt, hint, the source's written answer or its frame), the question and the source's answer as the recogniser heard them in the course's recordings, what was heard of the learner's answer | JSON: verdict, corrected answer, corrections[] (wrong, right, explanation), feedback |
-| `scene_setup` | a Dialogue's setup: the lesson (title, goals, its place, words) and the snapshot (level, earlier words, grammar topics met) | JSON: title, situation, partner, goals (1–3: the learner's goal card), partnerInfo (2–4 facts the partner holds and the learner must ask for, in the target language), opening line |
-| `scene_turn` | a Dialogue's line: its setup with the partner's information, the level and the words known, history, the learner's new line (said and recognised, or typed) | JSON: reply (target language), translation, understood, fits, corrections[] (of the new line only; at most two kept), goalsMet[], done |
+| `understanding_text` | Understanding's text (04, "AI practice in courses"): the lesson (title, goals, its place, words) and the snapshot (level, earlier words, grammar topics met); the text's length at the level and how the target language's exams write true and false (German's "Richtig", "Falsch") with the data | JSON: kind (`dialogue` \| `announcement` \| `reading`), title and situation (the learner's language), lines (target language; a dialogue's each with its speaker, two at most), glossary (the few new words, translated), questions (target language; phase `listening` \| `reading`, options with the right one's index, or the accepted answers of one typed) — checked: every question askable, at least three, a text heard with questions by ear |
+| `understanding_check` | the text written and its questions without their keys | JSON: answers[] (n, the option's letter or the answer typed, ambiguous) — the questions answered otherwise than their key (an answer typed checked by the engine, as the learner's), ambiguous or not answered are left out (`settledQuestions`) |
+| `scene_setup` | a Dialogue's setup: the lesson (title, goals, its place, words, its grammar notes) and the snapshot (level, earlier words, grammar topics met), the goal kinds of the level (A1 facts, A2 arranging, B1 an opinion with a reason or a complaint, B2–C2 beyond), the card's language last | JSON: title, situation, partner, goals (1–3: the learner's goal card), partnerInfo (2–4 facts the partner holds and the learner must ask for, in the target language), opening line and its translation |
+| `scene_turn` | a Dialogue's line: its setup with the partner's information, the level, the words known and the lesson's grammar notes, history, the learner's new line (said and recognised, or typed) | JSON: reply (target language), translation, understood, fits, corrections[] (of the new line only; at most two kept), goalsMet[], done (the app ends it only when every goal is met) |
 | `scene_summary` | a Dialogue ended: its setup, the goals met, its lines with the corrections given | JSON: corrections[] (one or two key ones, each with a model line: the learner's line said well), feedback |
 | `rate_exam_answer` | an exam's title, the task as set (the Teil's instructions and text, the question), its criteria (titles, each level's points and meaning, which voids the task), the exam's model answers if any, the learner's answer | JSON: criteria[] (id, points — one of its levels, checked with one repair —, reason), feedback |
 | `exam_conversation` | an exam's title, the speaking part and its task as the learner has it (instructions, cards, texts), what the partner has (their card, calendar, slides), the conversation so far | JSON: lines[] (speaker `examiner` \| `partner`, text) up to the learner's turn, done |
@@ -131,11 +164,12 @@ tutor, never the lesson's score (08);
 tutor's chat, inline on the step, starts a new chat asking to go through the mistakes (a written
 session review was dropped, owner 2026-10-07: the numbers need no model, and talking a mistake over
 teaches more than a report); the Dialogue step → `scene_setup`, then `scene_turn` per line, then
-`scene_summary` once it ends (Conversations, below).
+`scene_summary` once it ends (Conversations, below); the Understanding step → `understanding_text`,
+then `understanding_check` on it (written again once when fewer than three questions are left; none
+left: `invalid_output`, nothing kept): the text an `llm_verdict` (`task: understanding`) in the
+lesson run the lesson shows, its answers `practice_answered` events checked by the engine (04, 05).
 
-Planned tasks of the AI practice in courses (04): `understanding_text` (next phase: a text or
-dialogue from the words known with its questions as closed items — true/false, a/b/c, numbers —
-checked by the engine, read aloud in the target language only), `mistake_items` (third phase: the
+Planned tasks of the AI practice in courses (04): `mistake_items` (third phase: the
 pass's mistakes by type, an explanation per type, two or three new items of each type), and
 `check_writing` on a task of three content points, its length and criteria by the course's level, at
 most three corrections and a model text (third phase).
@@ -143,11 +177,15 @@ most three corrections and a model text (third phase).
 - Fast replies: tasks that answer the learner directly (`explain_mistake`, turns) ask for no reasoning
   phase, in each provider's dialect (LM Studio `reasoning_effort: "none"`, OpenRouter
   `reasoning: { enabled: false }`); a model that always reasons rejects that and is asked again without.
-  Asking again without an option (the reasoning switch, tools, the response schema) happens only when
-  the server refused the request as sent (400, 422) — never when it is busy or failing (429, 5xx).
+  Asking again without an option (the reasoning switch, a temperature, tools, the schema's strict
+  mode, then the schema) happens only when the server refused the request as sent (400, 422) — never
+  when it is busy or failing (429, 5xx); the option the refusal names goes first (a model refusing
+  `temperature` is asked again without it, and the next tool round goes without it too).
   A 429 is `rate_limited` (free tiers limit requests per minute and day: the learner is told to try
-  later or choose another model); a wrong key is `unauthorized` (401, 403, or Gemini's 400 saying so).
-  Inline `<think>…</think>` output is stripped.
+  later or choose another model); Anthropic's 529 (or an `overloaded_error` in its stream) is
+  `overloaded` (try again in a moment); the provider's `retry-after`, when given, goes with either
+  (`retryAfter`, seconds, in the 502 body); a wrong key is `unauthorized` (401, 403, or Gemini's 400
+  saying so). Inline `<think>…</think>` output is stripped.
 - **Time limits**: a request may take 180 s to its first byte (a local server may load the model
   first), then 60 s of silence between chunks of a streamed reply, so a slow model writing a long
   reply is never cut off; a limit run out is `timeout`, a connection dropped mid-reply `unreachable`.
@@ -155,11 +193,12 @@ most three corrections and a model text (third phase).
   text is sent; a reply that breaks off after its first chunk ends with `STREAM_ERROR` (schema) and the
   error, so the client shows the part it got with the error, never as a whole reply. Only a reply that
   finished, or that the learner stopped, is kept.
-- **Calls outlive the page** (Dialogues, writing checks): a structured call runs to its end on the server
-  and is stored even when the learner left the page meanwhile; the step's state says what is running
-  (`pending` for a Dialogue, `checking` for a text), so a page opened again shows it as waiting and polls
-  until it lands. One such call per lesson at a time; a second is refused (`scene_busy`,
-  `writing_busy`, 409). A streamed reply (the tutor, explanations) still ends with its connection.
+- **Calls outlive the page** (Dialogues, writing checks, Understanding's texts): a structured call runs
+  to its end on the server and is stored even when the learner left the page meanwhile; the step's
+  state says what is running (`pending` for a Dialogue, `checking` for a text checked, `preparing` for
+  a text being written), so a page opened again shows it as waiting and polls until it lands. One
+  such call per lesson at a time; a second is refused (`scene_busy`, `writing_busy`,
+  `understanding_busy`, 409). A streamed reply (the tutor, explanations) still ends with its connection.
 - **Structured outputs** (`packages/llm/src/structured.ts`): the JSON Schema of the task's zod schema is
   sent with the request; the reply is validated with zod; an invalid reply gets one repair attempt with
   the problems listed, then the task fails with `invalid_output` and nothing is stored. A stored result
@@ -179,7 +218,8 @@ most three corrections and a model text (third phase).
   left by a tap on it.
 - Settings → AI assistant → Advanced: each task's system prompt and the context parts it adds, with
   their character limits (each task's `*_BUDGETS`): explanations, the tutor, the Tutor section, writing and spoken
-  checks, a Dialogue's setup, its lines and its summary, a deck's words given examples.
+  checks, Understanding's text and its second reading, a Dialogue's setup, its lines and its summary,
+  a deck's words given examples.
 - The learner can replace a task's system prompt with their own (Settings → AI assistant → Advanced,
   "Restore" brings the standing one back). It is a template in the profile setting `llm.prompts`
   (task → text; an earlier version's own prompt for a card's one example, `example`, is no longer
@@ -194,6 +234,8 @@ most three corrections and a model text (third phase).
 - A "{}" button (switched on in Settings → AI assistant → Advanced) shows the exact request of a task —
   endpoint, fields, every message with its size — built by the same function as the real call (`<task>Request`,
   `chatBody`; a command-line provider's prompt, files and arguments by `cliRun`); nothing is sent.
+  What the learner is not to see yet stays hidden there too: a running Dialogue's partner facts read
+  "(hidden until the end)".
 - A task's model call and its timing are one path (`llm.structured` in services/llm.ts); a check's
   corrections are cleaned the same way for writing and speaking (`cleanCheck`).
 - The tutor shows how full the next request is (≈ tokens of the window when known, room for the reply)
@@ -242,7 +284,8 @@ Both tutors (the lesson's and the section's) take real-life language as in scope
   (409 `no_course_studied`) and the section says to begin one. **Context** (`courses-context` on the
   server, the courses of the chat's language, each read in the chat's edition where the course has it
   — translations and titles in the chat's language —, else in the one it is studied in; each part
-  within `SECTION_CHAT_BUDGETS`): the courses, latest first — title, lessons done of all, its latest
+  within `SECTION_CHAT_BUDGETS`): the level the courses' ids name (`levelOf` of them all: their
+  range; none named, a beginner's — the rules assume none); the courses, latest first — title, lessons done of all, its latest
   eight lessons worked on (latest first), each course an equal share of the budget, titles whole; the
   words of the latest twelve lessons worked on across them with translations and their grammar topics
   (the pages' titles), the latest lesson's first; the latest mistakes in those lessons (only their
@@ -257,15 +300,33 @@ Both tutors (the lesson's and the section's) take real-life language as in scope
   Dialogues) is a `scene` run with `llm_turn` events. Its setup is its run's plan, drafted from the
   lesson's goals and the snapshot (no authored ones yet): the learner's goal card and, hidden from
   the learner until it is over, what the partner knows (`partnerInfo`: the information gap — the
-  learner must ask for it). Each learner line is sent as the recogniser heard it (`spoken`, with the
-  take's `recording`), or typed where there is no microphone or recognition; the model plays the
-  partner within the level and the words known, takes the line as a person would understand it (the
+  learner must ask for it). The setup (walkthrough, 2026-10-12): the partner a new person, never a
+  course character, nothing said of the course's characters; 2–3 goals of the kinds the level's data
+  line gives, at least one asking for a partner's fact and one needing the lesson's grammar (its
+  notes are in the data); an opening that asks nothing the learner cannot know; the card in the
+  learner's language whatever language the lesson's texts are in. Each learner line is sent as the
+  recogniser heard it (`spoken`, with the take's `recording`), or typed where there is no microphone
+  or recognition; the model plays the partner within the level and the words known, in role: the
+  goals are the learner's to reach — the partner never asks the goal questions itself nor offers a
+  fact before it is asked, and a learner who drifts gets a short neutral "anything else?" —, and it
+  never corrects inside its line. It takes the line as a person would understand it (the
   recogniser's punctuation, capitals and digits are no errors) and says whether it was understood
-  and fits; the app keeps the model honest: corrections must quote the learner's new line, at most
-  two are kept, met goals only accumulate, all met ends the Dialogue. Ended — its goals met, or
-  "End the dialogue" — it gets its summary (`scene_summary`): the goals met (the app's count), one or
-  two key corrections each with a model line, a line of feedback; an `llm_verdict` (`task:
-  dialogue`) in its run, asked again from the page when the call failed. The step shows the latest
+  and fits; corrections give only the words corrected, in the target language (word order in
+  subordinate and relative clauses, endings, the lesson's grammar checked; never what is correct,
+  never style). The app keeps the model honest: corrections must quote the learner's new line
+  (compared without case and punctuation) and change more than those, and a `right` that is no
+  wording — written in the learner's own script where the target uses another ("правильно"),
+  alternatives ("a / b"), arrows — is dropped; at most two are kept, met goals only accumulate, all
+  met ends the Dialogue — and only that: a model's own `done` before then is ignored. The opening
+  line comes with its translation, as every partner line. No rule assumes the learner's gender (a
+  translation, an explanation, the feedback choose wording that does not mark it). Ended — its goals
+  met, or "End the dialogue" — it gets its summary (`scene_summary`): the goals met (the app's
+  count), one or two key corrections each with a model line — the whole line with every error in it
+  fixed; one that still says its error gets the correction made in it by the app —, a line of
+  feedback; an `llm_verdict`
+  (`task: dialogue`) in its run, asked again from the page when the call failed. The line that meets
+  the last goal comes back at once (read aloud as any); its summary is the next step (`pending`:
+  summing). The step shows the latest
   Dialogue on its page (goal card, the conversation, the microphone); starting a new one ends the
   open one, and the lesson's earlier ones are listed under it (title, goals reached, when), each
   readable again with its summary (owner, 2026-10-07).

@@ -31,6 +31,8 @@ test("each study day by module: lesson work, exam answers, reviews without the o
       e("v", 3, "llm_verdict"),
       // A Dialogue's summary comes with its end, not asked for: not counted.
       e("d", 3, "llm_verdict", { task: "dialogue" }),
+      // An answer to a question the assistant set (an Understanding text's): AI practice.
+      e("p", 3, "practice_answered"),
       // An exam run's answers: exam work, not a lesson's.
       { ...e("x", 3, "answered"), runId: "X" },
       // The model's proposal and a conversation's line in an exam run: AI practice, as anywhere.
@@ -61,7 +63,7 @@ test("each study day by module: lesson work, exam answers, reviews without the o
       newCards: 0,
       recalled: 2,
       remembered: 1,
-      ai: 4,
+      ai: 5,
       time: none,
     },
   ]);
@@ -71,7 +73,7 @@ test("each study day by module: lesson work, exam answers, reviews without the o
     exam: 1,
     review: 3,
     newCards: 1,
-    ai: 4,
+    ai: 5,
     recalled: 2,
     remembered: 0.5,
     time: none,

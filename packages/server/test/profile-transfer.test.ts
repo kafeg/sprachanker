@@ -24,6 +24,7 @@ import { profileTransferFiles } from "../src/runtime/profile-transfer.ts";
 import type { TransferFiles } from "../src/services/profile-transfer.ts";
 import { PREPARED_MS } from "../src/services/transfers.ts";
 import { setup } from "./setup.ts";
+import { until } from "./until.ts";
 
 const LESSON = "sprachanker.fixture/demo/00-01";
 const COURSE = "sprachanker.fixture/demo";
@@ -706,7 +707,9 @@ test("one import at a time; one export a profile, a new one replacing the one no
       },
     }),
   });
-  await Bun.sleep(50);
+  // Under way: its transfer begun (inside the one import let in).
+  const transfers = join(b.root, "profiles", ".transfers");
+  await until(() => existsSync(transfers) && readdirSync(transfers).length > 0);
   const beside = await importInto(b, bytes);
   expect([beside.status, await read(beside)]).toEqual([409, { error: "profile_import_busy" }]);
   release();
