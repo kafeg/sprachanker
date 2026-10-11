@@ -100,17 +100,17 @@ export function CoursePage({ series, course }: { series: string; course: string 
           next={next ? { key: next, title: titles[next] ?? next } : undefined}
           started={!!info?.started}
         />
-        <ol className="relative space-y-8 before:absolute before:top-2 before:bottom-2 before:left-[15px] before:w-0.5 before:bg-border">
+        <ol className="relative space-y-8 before:absolute before:top-2 before:bottom-2 before:start-[15px] before:w-0.5 before:bg-border">
           {index.units.map((unit) => {
             const number = Number(unit.key.slice(-2));
             const finished = unit.lessons.filter((key) => lessons[key]?.done).length;
             const complete = finished === unit.lessons.length;
             const current = unit.lessons.some((key) => key === next);
             return (
-              <li key={unit.key} className="relative pl-12">
+              <li key={unit.key} className="relative ps-12">
                 <span
                   className={cn(
-                    "absolute top-0 left-0 grid size-8 place-items-center rounded-full border-2 bg-background text-xs font-semibold tabular-nums",
+                    "absolute top-0 start-0 grid size-8 place-items-center rounded-full border-2 bg-background text-xs font-semibold tabular-nums",
                     complete && "border-correct bg-correct text-white",
                     current && !complete && "border-primary",
                   )}

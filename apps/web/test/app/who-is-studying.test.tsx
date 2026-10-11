@@ -50,6 +50,6 @@ test("five profiles to a page, New profile after them; ← / → and the arrow k
 test("a single profile: no paging; the interface language stays on this screen", async () => {
   const view = await renderApp(<WhoIsStudying onNew={() => {}} />, { data: [listOf(1)] });
   expect(view.queryByRole("button", { name: "More profiles" })).toBeNull();
-  expect(view.getByRole("group", { name: "Interface language" })).toBeTruthy();
+  expect(view.getByRole("combobox", { name: "Interface language" })).toBeTruthy();
   expect(view.getAllByRole("listitem")).toHaveLength(2);
 });

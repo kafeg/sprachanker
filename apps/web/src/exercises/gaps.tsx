@@ -1,6 +1,7 @@
 import { correctOptions, type ItemOf, type Option } from "@sprachanker/schema";
 import { createContext, useContext, useRef, useState } from "react";
 import { useTranslation } from "react-i18next";
+import { inLang } from "@/ui/direction.tsx";
 import { keptTogether } from "@/ui/line-breaks.ts";
 import { useTargetLang } from "@/ui/target-lang.ts";
 import { cn } from "@/ui/utils.ts";
@@ -78,7 +79,7 @@ function Text({ segments, gap }: { segments: Segments; gap(id: string): ShownGap
   return (
     // Lines keep the text's own spacing; a line with a gap grows around it (a long dialogue with a
     // few gaps is not spread out over the screen).
-    <p lang={lang} className="whitespace-pre-wrap text-xl leading-relaxed">
+    <p {...inLang(lang)} className="whitespace-pre-wrap text-xl leading-relaxed">
       {runs(segments).map((run, i) => {
         // biome-ignore lint/suspicious/noArrayIndexKey: segments are static
         if ("text" in run) return <span key={i}>{keptTogether(run.text)}</span>;
@@ -91,7 +92,7 @@ function Text({ segments, gap }: { segments: Segments; gap(id: string): ShownGap
             key={run.gap}
             className={cn(
               "my-1 inline-flex max-w-full items-baseline align-baseline",
-              run.head ? "mr-1" : "mx-1",
+              run.head ? "me-1" : "mx-1",
             )}
           >
             {run.head && <span>{run.head.trimEnd()}</span>}
@@ -99,11 +100,11 @@ function Text({ segments, gap }: { segments: Segments; gap(id: string): ShownGap
               className={cn(
                 "inline-flex min-w-0 flex-col items-start",
                 // An article's space as a margin (a space at a flex item's end may not show).
-                run.head && (run.head.endsWith(" ") ? "ml-[0.3em]" : "ml-0.5"),
+                run.head && (run.head.endsWith(" ") ? "ms-[0.3em]" : "ms-0.5"),
               )}
             >
               {field}
-              {right !== undefined && <RightAnswer text={right} className="ml-0 text-sm" />}
+              {right !== undefined && <RightAnswer text={right} className="ms-0 text-sm" />}
             </span>
             {tail && <span>{tail}</span>}
           </span>
@@ -198,7 +199,7 @@ function WordBank({
                 className={cn(used.has(o.id) && "opacity-30")}
                 onTap={() => active && place(active, o.id)}
               >
-                <span lang={lang}>{o.text}</span>
+                <span {...inLang(lang)}>{o.text}</span>
               </Chip>
             ))}
           </fieldset>
@@ -223,7 +224,7 @@ function WordBank({
                 style={{ width: `calc(${room}ch + 3.25rem)` }}
                 className="inline-flex max-w-full align-baseline"
               >
-                <span lang={lang}>{textOf(gap, values[gap]) ?? "\u00a0"}</span>
+                <span {...inLang(lang)}>{textOf(gap, values[gap]) ?? "\u00a0"}</span>
               </Slot>
             ),
             shown: textOf(gap, values[gap]),

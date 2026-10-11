@@ -195,7 +195,7 @@ export function RunRow({
       <span className="flex-1">
         {when.format(run.finishedAt ?? run.startedAt)}
         {kind && (
-          <span className="ml-2 text-sm text-muted-foreground">
+          <span className="ms-2 text-sm text-muted-foreground">
             {kind}
             {run.part && ` · ${run.part}`}
           </span>
@@ -206,7 +206,7 @@ export function RunRow({
       </span>
       <span
         className={cn(
-          "w-24 text-right text-sm font-medium",
+          "w-24 text-end text-sm font-medium",
           run.passed ? "text-correct" : "text-wrong",
         )}
       >

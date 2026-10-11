@@ -16,9 +16,9 @@ export function Disclosure({
 }) {
   return (
     <details id={id} className={cn("group", className)}>
-      <summary className="inline-flex min-h-11 cursor-pointer list-none items-center gap-1.5 rounded-lg pr-2 font-semibold text-muted-foreground outline-none hover:text-foreground focus-visible:ring-[3px] focus-visible:ring-ring/50 [&::-webkit-details-marker]:hidden">
+      <summary className="inline-flex min-h-11 cursor-pointer list-none items-center gap-1.5 rounded-lg pe-2 font-semibold text-muted-foreground outline-none hover:text-foreground focus-visible:ring-[3px] focus-visible:ring-ring/50 [&::-webkit-details-marker]:hidden">
         <ChevronRight
-          className="size-4 shrink-0 transition-transform group-open:rotate-90 motion-reduce:transition-none"
+          className="size-4 shrink-0 transition-transform group-open:rotate-90 motion-reduce:transition-none rtl:-scale-x-100 rtl:group-open:-rotate-90"
           aria-hidden
         />
         {title}

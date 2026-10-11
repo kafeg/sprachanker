@@ -133,7 +133,7 @@ export function ExamPage({ params, start }: { params: ExamParams; start?: ExamMo
         >
           {testRunning ? (
             <Button className="w-full" onClick={() => toRun(testRunning.id)}>
-              {t("exams.continueTest")} <ArrowRight className="size-4" />
+              {t("exams.continueTest")} <ArrowRight className="rtl:-scale-x-100 size-4" />
             </Button>
           ) : (
             <Button
@@ -142,7 +142,7 @@ export function ExamPage({ params, start }: { params: ExamParams; start?: ExamMo
               loading={begin.isPending && begin.variables?.mode === "test"}
               onClick={() => go("test")}
             >
-              {t("exams.begin")} <ArrowRight className="size-4" />
+              {t("exams.begin")} <ArrowRight className="rtl:-scale-x-100 size-4" />
             </Button>
           )}
         </ModeTile>

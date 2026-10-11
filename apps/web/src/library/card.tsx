@@ -43,7 +43,7 @@ export function LibraryCard({
     <div className={cn(panelClass, "flex flex-col overflow-hidden shadow-sm")}>
       <div className="flex min-h-14 items-center gap-3 bg-primary/15 px-4">
         <PairFlags edition={edition} size="md" />
-        <span className="ml-auto text-sm tabular-nums text-muted-foreground">{figure}</span>
+        <span className="ms-auto text-sm tabular-nums text-muted-foreground">{figure}</span>
         {remove && (
           <ResetProgress series={series} course={course} exam={remove.exam} title={remove.title}>
             {(open) => (
@@ -53,7 +53,7 @@ export function LibraryCard({
                 onClick={open}
                 aria-label={remove.label}
                 title={remove.label}
-                className="-mr-2 text-muted-foreground"
+                className="-me-2 text-muted-foreground"
               >
                 <X className="size-4" />
               </Button>
@@ -105,7 +105,7 @@ export function OfferCard({ offer }: { offer: CatalogEntry }) {
     <div className="flex flex-col overflow-hidden rounded-2xl border border-dashed bg-card">
       <div className="flex min-h-14 items-center gap-3 bg-muted px-4">
         <PairFlags edition={offer.edition} size="md" />
-        <span className="ml-auto text-sm text-muted-foreground">{t("download.notDownloaded")}</span>
+        <span className="ms-auto text-sm text-muted-foreground">{t("download.notDownloaded")}</span>
       </div>
       <div className="flex flex-1 flex-col p-4">
         <h2 className="line-clamp-2 text-xl font-bold leading-tight" title={offer.title}>

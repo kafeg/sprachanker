@@ -171,7 +171,7 @@ function Suggestions({ context, onAsk }: { context: Context; onAsk(text: string)
           <Button
             key={s}
             variant="outline"
-            className="h-auto min-h-11 whitespace-normal rounded-full text-left"
+            className="h-auto min-h-11 whitespace-normal rounded-full text-start"
             onClick={() => onAsk(t(`tutor.ask.${s}`))}
           >
             {t(`tutor.suggest.${s}`)}

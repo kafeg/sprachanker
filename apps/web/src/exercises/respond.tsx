@@ -10,6 +10,7 @@ import { useSpeechHost } from "@/audio/context.ts";
 import { DictateButton } from "@/audio/dictate.tsx";
 import type { Take } from "@/audio/recorder.ts";
 import { Textarea } from "@/ui/components/textarea.tsx";
+import { inLang } from "@/ui/direction.tsx";
 import { useTargetLang } from "@/ui/target-lang.ts";
 import { ANSWER_BOX, SpecialLetters } from "./shared.tsx";
 import type { RendererProps } from "./types.ts";
@@ -34,7 +35,7 @@ export function Respond({ item, locale, answer, onAnswer, outcome }: RendererPro
       <div className="flex items-start gap-2">
         <Textarea
           rows={2}
-          lang={lang}
+          {...inLang(lang)}
           value={answer?.text ?? ""}
           disabled={!!outcome}
           placeholder={t("ex.respondPlaceholder")}
@@ -51,7 +52,7 @@ export function Respond({ item, locale, answer, onAnswer, outcome }: RendererPro
           </p>
           <ul className="mt-1 space-y-1">
             {reference.map((r) => (
-              <li key={r} lang={lang} className="text-lg">
+              <li key={r} {...inLang(lang)} className="text-lg">
                 {r}
               </li>
             ))}

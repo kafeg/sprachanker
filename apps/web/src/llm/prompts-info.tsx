@@ -66,7 +66,7 @@ function TaskPrompt({ task, prompt }: { task: PromptTaskId; prompt: Prompt }) {
         <p className="text-sm">{t(`prompt.about.${task}`)}</p>
         <div>
           <p className="text-sm">{t("prompt.contextIntro")}</p>
-          <ul className="mt-1 list-disc space-y-0.5 pl-5 text-sm text-muted-foreground">
+          <ul className="mt-1 list-disc space-y-0.5 ps-5 text-sm text-muted-foreground">
             {PARTS[task].map((part: string) => (
               <li key={part}>
                 {t(`prompt.part.${part}`)}

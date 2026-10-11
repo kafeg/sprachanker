@@ -51,7 +51,7 @@ export function ProfileSettings() {
         onClick={() => signOut.mutate()}
         loading={signOut.isPending}
       >
-        <LogOut /> {t("profile.switch")}
+        <LogOut className="rtl:-scale-x-100" /> {t("profile.switch")}
       </Button>
       <DeleteProfile />
     </div>
@@ -101,7 +101,7 @@ function DevicesPanel() {
             <span className="flex-1">
               <span className="font-medium">{deviceName(d.userAgent)}</span>
               {d.current && (
-                <span className="ml-2 text-muted-foreground">{t("profile.thisDevice")}</span>
+                <span className="ms-2 text-muted-foreground">{t("profile.thisDevice")}</span>
               )}
               <span className="block text-xs text-muted-foreground">
                 {t("profile.lastSeen", { date: when.format(d.lastSeenAt) })}

@@ -8,6 +8,7 @@ import { useTranslation } from "react-i18next";
 import { ItemCard } from "@/exercises/item-card.tsx";
 import { SourceOrder } from "@/exercises/shared.tsx";
 import { Button } from "@/ui/components/button.tsx";
+import { inLang } from "@/ui/direction.tsx";
 import { useRequiredTargetLang } from "@/ui/target-lang.ts";
 import { cn } from "@/ui/utils.ts";
 import { type ExamSection, examExercise, exampleAnswer } from "./questions.ts";
@@ -18,7 +19,7 @@ function ExamText({ text, className }: { text: string; className?: string }) {
   const lang = useRequiredTargetLang();
   return (
     <div
-      lang={lang}
+      {...inLang(lang)}
       className={cn("space-y-3 rounded-xl bg-muted/60 p-4 leading-relaxed", className)}
     >
       {text.split(/\n{2,}/).map((p, i) => (
@@ -72,7 +73,7 @@ export function TeilMaterial({
                   />
                 )}
                 {l.text && (
-                  <p lang={lang} className="whitespace-pre-line text-sm leading-relaxed">
+                  <p {...inLang(lang)} className="whitespace-pre-line text-sm leading-relaxed">
                     {l.text}
                   </p>
                 )}

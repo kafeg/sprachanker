@@ -51,11 +51,11 @@ function Turns({ ids, chat }: { ids: Ids; chat: TutorChat }) {
     <div className="space-y-3">
       {turns.data.turns.map((turn) =>
         turn.role === "user" ? (
-          <div key={`${turn.ts}-u`} className="ml-auto max-w-[92%] space-y-0.5 text-right">
+          <div key={`${turn.ts}-u`} className="ms-auto max-w-[92%] space-y-0.5 text-end">
             <p className="text-xs text-muted-foreground">
               {[when.format(turn.ts), label(turn.exerciseKey)].filter(Boolean).join(" · ")}
             </p>
-            <ChatBubble from="learner" className="max-w-none text-left">
+            <ChatBubble from="learner" className="max-w-none text-start">
               <p className="whitespace-pre-wrap">{turn.text}</p>
             </ChatBubble>
           </div>

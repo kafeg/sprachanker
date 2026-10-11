@@ -34,7 +34,7 @@ export function ProposeRating({
       {propose.isError && (
         <ErrorLine error={propose.error} provider={llm.data?.provider ?? undefined} />
       )}
-      <span className="ml-auto">
+      <span className="ms-auto">
         <PromptButton request={{ exam: request }} />
       </span>
     </div>

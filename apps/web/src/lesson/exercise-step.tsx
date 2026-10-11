@@ -12,6 +12,7 @@ import { ItemHistory } from "@/library/item-history.tsx";
 import { Button } from "@/ui/components/button.tsx";
 import { Tooltip, TooltipContent, TooltipTrigger } from "@/ui/components/tooltip.tsx";
 import { CourseHtml } from "@/ui/course-html.tsx";
+import { inLang } from "@/ui/direction.tsx";
 import { MediaBlock } from "@/ui/media.tsx";
 import { useRequiredTargetLang } from "@/ui/target-lang.ts";
 import { cn } from "@/ui/utils.ts";
@@ -134,7 +135,7 @@ export function ExerciseStep({
               onHeard={() => ex.hear("exercise")}
             />
             {exercise.text && (
-              <p lang={lang} className="text-lg">
+              <p {...inLang(lang)} className="text-lg">
                 {exercise.text}
               </p>
             )}

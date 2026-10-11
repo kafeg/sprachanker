@@ -23,6 +23,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/ui/components/select.tsx";
+import { inLang } from "@/ui/direction.tsx";
 import { errorText } from "@/ui/error-text.ts";
 import { SideSheet } from "@/ui/side-sheet.tsx";
 
@@ -210,7 +211,7 @@ export function DeckImportSheet({
               const translation = w.translations[translationLang] ?? w.translations[""];
               return (
                 <li key={w.target} className="flex gap-2 px-3 py-2">
-                  <span lang={lang} className="font-medium">
+                  <span {...inLang(lang)} className="font-medium">
                     {w.target}
                   </span>
                   {translation && <span className="text-muted-foreground">· {translation}</span>}

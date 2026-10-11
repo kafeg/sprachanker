@@ -3,6 +3,7 @@
 // answered — in practice right or wrong — and a tap to go to it. Beside the run on a wide screen, in a
 // sheet on a phone (ui/side-layout).
 import { useTranslation } from "react-i18next";
+import { inLang } from "@/ui/direction.tsx";
 import { PlanHeading, PlanNav, PlanRow } from "@/ui/plan-list.tsx";
 import { StepDot } from "@/ui/step-dot.tsx";
 
@@ -48,7 +49,7 @@ export function QuestionList({
               />
             }
           >
-            <span lang={lang} className="line-clamp-2 min-w-0 leading-snug">
+            <span {...inLang(lang)} className="line-clamp-2 min-w-0 leading-snug">
               {q.line || t("exams.goTo", { n: q.index + 1 })}
             </span>
           </PlanRow>

@@ -46,7 +46,7 @@ export function AppShell() {
   );
   return (
     <div className="min-h-dvh lg:grid lg:grid-cols-[15rem_1fr]">
-      <aside className="sticky top-0 hidden h-dvh flex-col gap-1 border-r bg-sidebar p-4 lg:flex">
+      <aside className="sticky top-0 hidden h-dvh flex-col gap-1 border-e bg-sidebar p-4 lg:flex">
         <Link to="/" className="mb-6 flex items-center gap-2 px-2">
           <img src="/favicon.svg" alt="" className="size-9" />
           <span className="font-heading text-xl font-bold">{t("app.name")}</span>
@@ -106,7 +106,7 @@ function DueBadge({ count, corner = false }: { count: number; corner?: boolean }
       title={t("study.due", { count })}
       className={cn(
         "rounded-full bg-primary px-1.5 text-xs font-semibold tabular-nums text-primary-foreground",
-        corner ? "absolute -top-1.5 -right-3" : "ml-auto",
+        corner ? "absolute -top-1.5 -end-3" : "ms-auto",
       )}
     >
       {count}

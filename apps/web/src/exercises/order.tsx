@@ -4,6 +4,7 @@ import { joinParts, type Option, partsAreSentences } from "@sprachanker/schema";
 import { Check, X } from "lucide-react";
 import { useTranslation } from "react-i18next";
 import { Button } from "@/ui/components/button.tsx";
+import { inLang } from "@/ui/direction.tsx";
 import { useTargetLang } from "@/ui/target-lang.ts";
 import { cn } from "@/ui/utils.ts";
 import { Chip, DragBoard, Zone } from "./dnd.tsx";
@@ -74,7 +75,7 @@ export function Order({ item, answer, onAnswer, outcome, url }: RendererProps<"o
           {/* Checked, a line of words reads as the sentence given: no space before a "." or "?"
               that was a part of its own. */}
           {asList ? (
-            <ol lang={lang} className="w-full space-y-1 px-1 text-lg">
+            <ol {...inLang(lang)} className="w-full space-y-1 px-1 text-lg">
               {sequence.map((id, i) => (
                 <li key={id} className="flex gap-2">
                   <span className="tabular-nums text-muted-foreground">{i + 1}.</span>
@@ -84,7 +85,7 @@ export function Order({ item, answer, onAnswer, outcome, url }: RendererProps<"o
               ))}
             </ol>
           ) : sentence !== undefined ? (
-            <p lang={lang} className="px-1 text-xl leading-relaxed">
+            <p {...inLang(lang)} className="px-1 text-xl leading-relaxed">
               {sentence}
             </p>
           ) : (

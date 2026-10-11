@@ -147,7 +147,7 @@ function RatingPanel({
           return (
             <li key={c.id}>
               <fieldset className="flex flex-wrap items-center justify-between gap-2">
-                <legend className="float-left text-sm font-medium">{texts?.title ?? c.id}</legend>
+                <legend className="float-start text-sm font-medium">{texts?.title ?? c.id}</legend>
                 <span className="flex gap-1">
                   {c.levels.map((level, i) => (
                     <button
@@ -179,7 +179,7 @@ function RatingPanel({
         <span className="text-sm tabular-nums">
           {t("exams.points", { points, max })}
           {(voided || unrated) && (
-            <span className="ml-2 text-muted-foreground">
+            <span className="ms-2 text-muted-foreground">
               {voided
                 ? t("exams.rating.voided")
                 : t("exams.rating.unrated", {

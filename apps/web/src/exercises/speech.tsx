@@ -9,6 +9,7 @@ import { MicButton } from "@/audio/mic-button.tsx";
 import { type Take, useRecorder } from "@/audio/recorder.ts";
 import { TakeButton } from "@/audio/take-button.tsx";
 import { CourseHtml } from "@/ui/course-html.tsx";
+import { inLang } from "@/ui/direction.tsx";
 import { clock } from "@/ui/format.ts";
 import { keptTogether } from "@/ui/line-breaks.ts";
 import { useTargetLang } from "@/ui/target-lang.ts";
@@ -47,12 +48,12 @@ function Heard({
       )}
       <p className="text-sm text-muted-foreground">
         {t("speech.heard")}{" "}
-        <span lang={lang} className="text-foreground">
+        <span {...inLang(lang)} className="text-foreground">
           {transcript || t("speech.heardNothing")}
         </span>
       </p>
       {check && check.verdict !== "correct" && (
-        <p lang={lang} className="flex flex-wrap gap-x-1.5 gap-y-1 text-lg leading-relaxed">
+        <p {...inLang(lang)} className="flex flex-wrap gap-x-1.5 gap-y-1 text-lg leading-relaxed">
           {check.diff
             .filter((d) => d.op !== "extra")
             .map((d, i) => (
@@ -212,7 +213,7 @@ export function SpeechSelfrate({
         // "Show the text" over the blurred phrase itself.
         <div className="relative w-fit min-w-40 max-w-full">
           <p
-            lang={lang}
+            {...inLang(lang)}
             aria-hidden={!textShown}
             className={cn(
               "whitespace-pre-line font-heading text-2xl font-semibold text-balance transition-[filter]",
@@ -244,7 +245,7 @@ export function SpeechSelfrate({
       {item.reference && (
         <div>
           <p className="text-sm text-muted-foreground">{t("speech.answerLine")}</p>
-          <p lang={lang} className="whitespace-pre-line text-lg font-medium text-pretty">
+          <p {...inLang(lang)} className="whitespace-pre-line text-lg font-medium text-pretty">
             {keptTogether(item.reference.join("\n"))}
           </p>
         </div>
@@ -332,7 +333,7 @@ export function SpeechRepeat({
   return (
     <div className="space-y-3">
       <p
-        lang={lang}
+        {...inLang(lang)}
         className="whitespace-pre-line font-heading text-2xl font-semibold text-balance"
       >
         {keptTogether(item.text)}

@@ -25,7 +25,7 @@ export function usePreferences() {
   useEffect(() => {
     if (!data) return;
     if (isUiLanguage(language)) {
-      if (i18n.language !== language) switchLanguage(language);
+      if (i18n.language !== language) void switchLanguage(language);
     } else mutate({ key: "uiLanguage", value: i18n.language });
   }, [data, language, i18n, mutate]);
   useEffect(() => {

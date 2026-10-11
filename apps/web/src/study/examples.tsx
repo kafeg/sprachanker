@@ -2,6 +2,7 @@
 // with its translation and its recording, played on request — on the card's answer and in the word sheet.
 import type { CardDisplay } from "@sprachanker/schema";
 import { cardMediaUrl } from "@/api/client.ts";
+import { inLang } from "@/ui/direction.tsx";
 import { AudioButton } from "@/ui/media.tsx";
 import { cn } from "@/ui/utils.ts";
 
@@ -31,8 +32,8 @@ export function DeckExamples({
               className="size-9 shrink-0 pointer-coarse:size-11"
             />
           )}
-          <span className="grid gap-0.5 text-left">
-            <span lang={lang} className="italic">
+          <span className="grid gap-0.5 text-start">
+            <span {...inLang(lang)} className="italic">
               {e.sentence}
             </span>
             {e.translation && <span className="text-muted-foreground">{e.translation}</span>}

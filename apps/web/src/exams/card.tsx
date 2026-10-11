@@ -84,13 +84,13 @@ export function ExamCard({
               to="/exam/$series/$course/$exam/run/$run"
               params={{ ...params, run: testRunning.id }}
             >
-              {t("exams.continueTest")} <ArrowRight className="size-4" />
+              {t("exams.continueTest")} <ArrowRight className="rtl:-scale-x-100 size-4" />
             </Link>
           </Button>
         ) : (
           <Button asChild size="lg" className="flex-1">
             <Link to="/exam/$series/$course/$exam" params={params} search={{ start: "test" }}>
-              {t("exams.mode.test")} <ArrowRight className="size-4" />
+              {t("exams.mode.test")} <ArrowRight className="rtl:-scale-x-100 size-4" />
             </Link>
           </Button>
         )}

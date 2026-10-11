@@ -111,7 +111,7 @@ export function ModelList({
                     aria-pressed={chosen}
                     onClick={() => onPick(m.id)}
                     className={cn(
-                      "flex w-full items-center gap-3 border-b px-3 py-2 text-left last:border-b-0 hover:bg-accent pointer-coarse:min-h-11",
+                      "flex w-full items-center gap-3 border-b px-3 py-2 text-start last:border-b-0 hover:bg-accent pointer-coarse:min-h-11",
                       chosen && "bg-accent",
                     )}
                   >
@@ -119,7 +119,7 @@ export function ModelList({
                       <span className="block truncate font-medium">
                         {m.name ?? m.id}
                         {m.free && (
-                          <span className="ml-2 rounded bg-correct-soft px-1.5 text-xs text-correct">
+                          <span className="ms-2 rounded bg-correct-soft px-1.5 text-xs text-correct">
                             {t("llm.list.freeTag")}
                           </span>
                         )}
@@ -131,7 +131,7 @@ export function ModelList({
                       </span>
                     </span>
                     {m.price && !m.free && (
-                      <span className="shrink-0 text-right text-xs text-muted-foreground tabular-nums">
+                      <span className="shrink-0 text-end text-xs text-muted-foreground tabular-nums">
                         {t("llm.list.price", {
                           input: dollars(m.price.input),
                           output: dollars(m.price.output),

@@ -8,6 +8,7 @@ import { useTranslation } from "react-i18next";
 import { type MyWord, useCardActions, useWord } from "@/api/cards.ts";
 import { cardAudioUrl } from "@/api/client.ts";
 import { Button } from "@/ui/components/button.tsx";
+import { inLang } from "@/ui/direction.tsx";
 import { useDateFormat } from "@/ui/format.ts";
 import { AudioButton } from "@/ui/media.tsx";
 import { ErrorState, Loading } from "@/ui/page.tsx";
@@ -60,7 +61,7 @@ function WordDetails({ word }: { word: MyWord }) {
           <GenderWord text={d.target} gender={d.gender} className="text-2xl" />
           {audio && <AudioButton src={audio} label={d.target} className="size-11" />}
           {/* What its deck has yet to make for it: the way to Decks (never read on the fly). */}
-          <span className="text-right">
+          <span className="text-end">
             {slots.corner ? (
               slots.corner({ cardId: word.cardId, scope: deckOf(d), audio: !audio })
             ) : (
@@ -70,12 +71,12 @@ function WordDetails({ word }: { word: MyWord }) {
         </div>
         {d.translation && <p className="text-lg">{d.translation}</p>}
         {d.example && (
-          <p lang={word.lang} className="text-muted-foreground">
+          <p {...inLang(word.lang)} className="text-muted-foreground">
             {d.example}
           </p>
         )}
         <DeckExamples display={d} lang={word.lang} className="pt-1" />
-        <div className="-ml-2">{slots.word?.({ cardId: word.cardId })}</div>
+        <div className="-ms-2">{slots.word?.({ cardId: word.cardId })}</div>
         {lesson ? (
           <Link
             to="/lesson/$series/$course/$lesson"
@@ -83,7 +84,7 @@ function WordDetails({ word }: { word: MyWord }) {
             className="inline-flex min-h-11 items-center gap-1 text-sm font-medium underline"
           >
             {t("myWords.toLesson", { unit: lesson.unit, lesson: lesson.lesson })}{" "}
-            <ArrowRight className="size-4" />
+            <ArrowRight className="rtl:-scale-x-100 size-4" />
           </Link>
         ) : (
           <p className="text-sm text-muted-foreground">
@@ -112,7 +113,7 @@ function WordDetails({ word }: { word: MyWord }) {
                   <span className={f.suspended ? "text-muted-foreground" : COUNT_TONE[f.stage]}>
                     {f.suspended ? t("myWords.state.suspended") : t(`myWords.state.${f.stage}`)}
                   </span>
-                  <span className="w-20 text-right text-muted-foreground">
+                  <span className="w-20 text-end text-muted-foreground">
                     {f.suspended || word.suspended ? "—" : due(f.due)}
                   </span>
                 </li>

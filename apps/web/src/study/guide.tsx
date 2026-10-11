@@ -91,7 +91,7 @@ function StudyGuide() {
       {section("counts", text("counts"))}
       {section(
         "schedule",
-        <ul className="list-disc space-y-1 pl-5 text-sm">
+        <ul className="list-disc space-y-1 ps-5 text-sm">
           <li>{t("guide.schedule.steps")}</li>
           <li>
             {t("guide.schedule.day", {

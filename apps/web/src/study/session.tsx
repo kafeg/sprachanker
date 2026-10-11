@@ -268,7 +268,7 @@ export function StudySession({
             disabled={!data.canUndo || actions.undo.isPending}
             onClick={undo}
           >
-            <Undo2 className="size-5" />
+            <Undo2 className="rtl:-scale-x-100 size-5" />
           </Button>
           <Counts study={data} current={current.kind} />
           <MoreMenu current={current} buried={data.buried} act={act} onUnbury={unbury} />

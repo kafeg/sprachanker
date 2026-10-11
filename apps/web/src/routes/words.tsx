@@ -84,7 +84,7 @@ export function MyWords() {
     <button
       type="button"
       onClick={() => sortBy(by)}
-      className={cn("text-left hover:text-foreground pointer-coarse:min-h-11", className)}
+      className={cn("text-start hover:text-foreground pointer-coarse:min-h-11", className)}
     >
       {label}
       {sort?.by === by && (sort.desc ? " ↓" : " ↑")}
@@ -129,7 +129,7 @@ export function MyWords() {
             {heading("word", t("myWords.column.word"))}
             {heading("translation", t("myWords.column.translation"))}
             {heading("state", t("myWords.column.state"))}
-            {heading("due", t("myWords.column.due"), "text-right")}
+            {heading("due", t("myWords.column.due"), "text-end")}
           </div>
           {shown.length ? (
             <ul className="divide-y">
@@ -145,11 +145,11 @@ export function MyWords() {
                       <TargetLang value={w.lang}>
                         <GenderWord text={w.display.target} gender={w.display.gender} />
                       </TargetLang>
-                      {w.marked && <span className="ml-1 text-amber-500">★</span>}
+                      {w.marked && <span className="ms-1 text-amber-500">★</span>}
                     </span>
                     <span
                       className={cn(
-                        "text-right text-sm sm:order-3 sm:text-left",
+                        "text-end text-sm sm:order-3 sm:text-start",
                         !w.suspended && COUNT_TONE[w.state],
                       )}
                     >
@@ -158,7 +158,7 @@ export function MyWords() {
                     <span className="truncate text-sm text-muted-foreground sm:order-2 sm:text-base sm:text-foreground">
                       {w.display.translation}
                     </span>
-                    <span className="text-right text-sm text-muted-foreground sm:order-4">
+                    <span className="text-end text-sm text-muted-foreground sm:order-4">
                       {w.suspended ? "—" : due(w.due, now)}
                     </span>
                   </ListRow>

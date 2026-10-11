@@ -8,7 +8,7 @@ May use `schema`, `engine`, and a type-only import of the server's `AppType` (Ho
 ```
 apps/web/src/
   main.tsx         # the entry: query client, i18n, the router
-  fonts.css        # the faces bundled from @fontsource (woff2: Latin, Cyrillic, Greek subsets; spec 10)
+  fonts.css        # the faces bundled from @fontsource (Fira: Latin, Cyrillic, Greek; Arabic, Devanagari; spec 10)
   routes/          # router.tsx (code-based TanStack Router: the gate, then the pages, each but Courses and
                    # Exams loaded when first opened — page.tsx: lazy pages, a failed page's error): courses (/, /downloaded, /catalog), review (/review,
                    # /review/decks, /review/words — words.tsx), exams (/exams, /exams/downloaded,
@@ -74,7 +74,7 @@ apps/web/src/
                    # bubbles, header, pending exchange, composer, start prompt, the answer box, errors (with
                    # Retry; errors.ts: an LLM error in words, a provider's own where it has them, and what
                    # a provider's setup lacks); api.ts (the tasks), setup-api.ts (route, providers, models)
-  i18n/            # message catalogs en.json, ru.json, de.json (ICU)
+  i18n/            # catalogs <code>.json (ICU; en bundled, the others found by catalogs.ts, loaded when chosen)
   ui/              # presentational only (no API, no features): design tokens in styles.css, line-breaks (where course text may break), shadcn/ui
                    # components (ui/components), rich-text (model Markdown), page (pages, empty states, back
                    # links), media, format (dates, numbers, durations), panel, history
@@ -88,7 +88,7 @@ apps/web/src/
                    # of a few options as a card), disclosure (folded: "Advanced"), confirm (an action that
                    # cannot be undone), flags, error-text (an API error in words), target-lang (`lang` of
                    # the course's language), window-title, pointer (a finger or a mouse: the system's
-                   # picker on touch), job-row (a server's job: progress, Stop, why it failed), utils (cn)
+                   # picker on touch), job-row (a server's job: progress, Stop, why it failed), direction, utils (cn)
   audio/           # recording oneself (08): recorder (MediaRecorder, the microphone of this device, its
                    # loudness), wav (a take as 16 kHz WAV), mic-button (disabled with the reason),
                    # dictate (a microphone beside a text box: what was heard goes into it), take-button,
@@ -111,10 +111,8 @@ to `@/ui`).
 
 ## Rules
 
-- No user-facing string outside i18n catalogs (`src/i18n/*.json`, nested keys, ICU messages);
-  `test/catalogs.test.ts` fails on differing keys, invalid ICU, a key the code asks for that no
-  catalog has, a key no code uses, a ru/de message left as the English text, or one taking other
-  arguments than the English one. Language names come from `Intl.DisplayNames`, not catalogs.
+- No user-facing string outside i18n catalogs (`src/i18n/<code>.json`, ICU; a file is a language, each checked
+  by `test/catalogs.test.ts`, read from the folder in tests); language names from `Intl.DisplayNames`.
 - Catalog style: ru addresses the learner as «вы», de as "du"; counts use ICU `plural` with `#`, other
   numbers `{x, number}` or `Intl.NumberFormat` (never `toFixed` or `${n}%`).
 - The API client imports only `import type { AppType } from "@sprachanker/server/app"`.
@@ -136,6 +134,8 @@ to `@/ui`).
   default is not a setting (say it in a line instead), tabs look as `SectionTabs`; text fields are the ui
   `Input` and `Textarea` (a gap inside a sentence aside);
   cached lists take a new item through the pure updaters in `api/cache.ts` (tested).
+- Right to left (09): logical utilities only (`ms`, `pe`, `start`, `text-end`; `test/ui/logical.test.ts`), icons
+  along the reading direction `rtl:-scale-x-100`, `arrowStep`, a course's language `{...inLang(lang)}`.
 - Respect `prefers-reduced-motion`; touch targets ≥ 44 px on touch screens: the Button component
   does it (`pointer-coarse:min-h-11`), other tappable elements add `pointer-coarse:min-h-11`.
 - Screen key handlers leave Space and Enter to a focused button, link or slider.

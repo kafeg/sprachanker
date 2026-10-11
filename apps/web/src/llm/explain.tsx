@@ -83,7 +83,7 @@ export function ExplainMistake({
   return (
     <div className="mt-2">
       {shown === undefined ? (
-        <div className="-ml-2 flex flex-wrap items-center gap-1">
+        <div className="-ms-2 flex flex-wrap items-center gap-1">
           <Button variant="ghost" className="text-base" onClick={ask} disabled={!loaded}>
             <Sparkles className="size-4" /> {t("lesson.why")}
           </Button>

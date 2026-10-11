@@ -11,6 +11,7 @@ import { CorrectedText, Corrections, VerdictBadge as Verdict } from "@/ui/checke
 import { Badge } from "@/ui/components/badge.tsx";
 import { Button } from "@/ui/components/button.tsx";
 import { Textarea } from "@/ui/components/textarea.tsx";
+import { inLang } from "@/ui/direction.tsx";
 import { useDateFormat } from "@/ui/format.ts";
 import { HistoryList } from "@/ui/history.tsx";
 import { Panel } from "@/ui/panel.tsx";
@@ -31,7 +32,7 @@ function Dots({ score }: { score: number }) {
     <span
       key={i}
       className={cn(
-        "ml-0.5 inline-block size-2.5 rounded-full",
+        "ms-0.5 inline-block size-2.5 rounded-full",
         i < score ? "bg-correct" : "bg-border",
       )}
     />
@@ -48,7 +49,7 @@ function CriteriaDots({ criteria }: { criteria: Check["criteria"] }) {
     <span title={scores} className="shrink-0 whitespace-nowrap">
       <span className="sr-only">{scores}</span>
       {CRITERIA.map((k) => (
-        <span key={k} className="mr-1.5">
+        <span key={k} className="me-1.5">
           <Dots score={criteria[k].score} />
         </span>
       ))}
@@ -74,7 +75,7 @@ function Result({ attempt, onRewrite }: { attempt: WritingAttempt; onRewrite(): 
       {r.corrections.length > 0 ? (
         <CorrectedText text={attempt.input} corrected={r.corrected} />
       ) : (
-        <p lang={lang} className="text-lg leading-relaxed">
+        <p {...inLang(lang)} className="text-lg leading-relaxed">
           {attempt.input}
         </p>
       )}
@@ -125,7 +126,7 @@ function PastAttempts({
             <CriteriaDots criteria={a.result.criteria} />
           </span>
           <span className="flex items-baseline gap-3">
-            <span lang={lang} className="min-w-0 flex-1 truncate">
+            <span {...inLang(lang)} className="min-w-0 flex-1 truncate">
               {a.input}
             </span>
             <span className="shrink-0 whitespace-nowrap text-sm text-muted-foreground">
@@ -183,7 +184,7 @@ export function WritingTask({
         {words.length > 0 && (
           <div className="flex flex-wrap gap-1.5">
             {words.slice(0, 14).map((w) => (
-              <Badge key={w} variant="secondary" lang={lang}>
+              <Badge key={w} variant="secondary" {...inLang(lang)}>
                 {w.split(",")[0]}
               </Badge>
             ))}
@@ -191,7 +192,7 @@ export function WritingTask({
         )}
         <Textarea
           ref={editor}
-          lang={lang}
+          {...inLang(lang)}
           className="min-h-28 text-base"
           placeholder={t("writing.placeholder")}
           maxLength={WRITING_MAX}
@@ -211,7 +212,7 @@ export function WritingTask({
             {checking ? t("writing.checking") : t("writing.check")}
           </Button>
           <PromptButton request={() => ({ writing: { ...request, text: request.text || "…" } })} />
-          <AssistantLabel className="ml-auto" />
+          <AssistantLabel className="ms-auto" />
         </div>
         <ErrorLine error={check.error} />
       </Panel>

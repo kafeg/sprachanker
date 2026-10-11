@@ -18,7 +18,7 @@ export function SideSheet({
 }) {
   return (
     <Sheet open={open} onOpenChange={onOpenChange}>
-      <SheetContent side="right" className={cn("w-full gap-0 sm:max-w-lg", className)}>
+      <SheetContent side="end" className={cn("w-full gap-0 sm:max-w-lg", className)}>
         <SheetHeader className="pb-2">
           <SheetTitle>{title}</SheetTitle>
         </SheetHeader>

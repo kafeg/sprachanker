@@ -56,7 +56,7 @@ export function CheckState({ check }: { check: Check }) {
 export function ProblemList({ problems, max }: { problems: Report["problems"]; max: number }) {
   const { t } = useTranslation();
   return (
-    <ul className="list-disc space-y-0.5 pl-5 text-muted-foreground">
+    <ul className="list-disc space-y-0.5 ps-5 text-muted-foreground">
       {problems.slice(0, max).map((p) => (
         <li key={p.text} title={p.text} className="break-all">
           {t(`course.problem.${p.kind}`, { at: p.at })}

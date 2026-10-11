@@ -10,11 +10,13 @@ test("a new profile: who is studying, then the onboarding step by step to Course
   await page.goto("/");
   await expect(page.getByRole("heading", { name: "Who is studying?" })).toBeVisible();
   // The interface language first: chosen here, kept on this device over a reload.
-  await page.getByRole("button", { name: "Русский" }).click();
+  await page.getByRole("combobox", { name: "Interface language" }).click();
+  await page.getByRole("option", { name: "Русский" }).click();
   await expect(page.getByRole("heading", { name: "Кто занимается?" })).toBeVisible();
   await page.reload();
   await expect(page.getByRole("heading", { name: "Кто занимается?" })).toBeVisible();
-  await page.getByRole("button", { name: "English" }).click();
+  await page.getByRole("combobox").click();
+  await page.getByRole("option", { name: "English" }).click();
   await expect(page.getByRole("button", { name: /E2E/ })).toBeVisible();
   // New profile opens the onboarding; Cancel returns while the profile is not made yet.
   await page.getByRole("button", { name: /New profile/ }).click();
@@ -26,7 +28,7 @@ test("a new profile: who is studying, then the onboarding step by step to Course
   await expect(page.getByRole("heading", { name: "Welcome" })).toBeVisible();
   await expect(page.getByText(/downloaded straight from their publishers/)).toBeVisible();
   await expect(page.getByText(/Settings → General → Experimental/)).toBeVisible();
-  await expect(page.getByRole("group", { name: "Interface language" })).toHaveCount(0);
+  await expect(page.getByRole("combobox", { name: "Interface language" })).toHaveCount(0);
   const name = page.getByRole("textbox", { name: "Name or nickname" });
   await expect(page.getByRole("button", { name: "Next" })).toBeDisabled();
   await name.fill(" ");

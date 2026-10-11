@@ -5,6 +5,7 @@
 import type { Option } from "@sprachanker/schema";
 import { useState } from "react";
 import { useTranslation } from "react-i18next";
+import { inLang } from "@/ui/direction.tsx";
 import { useTargetLang } from "@/ui/target-lang.ts";
 import { cn } from "@/ui/utils.ts";
 import { Chip, DragBoard, Slot } from "./dnd.tsx";
@@ -55,7 +56,7 @@ export function Match({ item, answer, onAnswer, outcome, url }: RendererProps<"m
     o.media?.image ? (
       <img src={url(o.media.image)} alt="" className="h-16 w-auto rounded-lg" />
     ) : (
-      <span lang={lang}>{o.text}</span>
+      <span {...inLang(lang)}>{o.text}</span>
     );
   const slotContent = (slot: string) => {
     const chip = chips.find((c) => c.id === placed.get(slot));
@@ -63,7 +64,7 @@ export function Match({ item, answer, onAnswer, outcome, url }: RendererProps<"m
   };
   const correction = (slot: string) =>
     outcome && !right(slot) ? (
-      <RightAnswer text={textOf(wanted.get(slot)) ?? ""} className="ml-0 text-sm" />
+      <RightAnswer text={textOf(wanted.get(slot)) ?? ""} className="ms-0 text-sm" />
     ) : null;
   const slotProps = (slot: Option, n: number) => ({
     id: slot.id,
@@ -121,7 +122,7 @@ export function Match({ item, answer, onAnswer, outcome, url }: RendererProps<"m
             {slots.map((s, i) => (
               // On a phone the entry above its slot, the slot the row's width; side by side wider.
               <div key={s.id} className="flex flex-wrap items-center gap-x-3 gap-y-1">
-                <span lang={lang} className="text-lg font-semibold max-sm:w-full sm:min-w-32">
+                <span {...inLang(lang)} className="text-lg font-semibold max-sm:w-full sm:min-w-32">
                   {chipView(s)}
                 </span>
                 <span aria-hidden className="max-sm:hidden">

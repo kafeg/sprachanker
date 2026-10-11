@@ -31,7 +31,7 @@ export function OptionCard({
       onClick={onChoose}
       className={cn(
         panelClass,
-        "flex flex-col items-start gap-1 p-3 text-left hover:bg-accent/60 disabled:cursor-not-allowed disabled:opacity-60",
+        "flex flex-col items-start gap-1 p-3 text-start hover:bg-accent/60 disabled:cursor-not-allowed disabled:opacity-60",
         chosen && "border-2 border-primary bg-accent",
         dim && !chosen && "opacity-60",
       )}
