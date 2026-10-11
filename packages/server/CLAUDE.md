@@ -63,7 +63,7 @@ src/
                      #   index.ts from profile-speech, the words from the profile's cards in the deck),
                      #   deck-examples (its words given examples by a model handed in: five a call, a
                      #   sentence without its word dropped, a word left without any asked again)
-                     # - across modules: notebook (study days, the standings gathered), progress (resets;
+                     # - across modules: notebook (study days, each span's bars, the standings gathered), progress (resets;
                      #   recordings in use), content, settings, stored (a JSON value read by its schema)
                      # - AI (07), each task in the module whose run keeps its answers: llm (providers,
                      #   keys, structured calls, previews; llm-lmstudio, llm-prompts), lesson-context,

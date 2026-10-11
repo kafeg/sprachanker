@@ -3,7 +3,15 @@
 // gathered the same way from every module (schema `stats.ts`) — the Notebook knows no module's
 // internals. A lesson's journal is the lessons module's (lesson-journal), an exam's page the exams
 // module's (`journal`). Reads only (the exams' standing hands in a mock exam left past its time).
-import { ACTIVITY_EVENTS, activityByDay, dayStarts, studyDay } from "@sprachanker/engine";
+import {
+  ACTIVITY_EVENTS,
+  activityByDay,
+  dayStarts,
+  SPANS,
+  type Span,
+  spanBars,
+  studyDay,
+} from "@sprachanker/engine";
 import { MODULE_OF_KIND, type ModuleStanding } from "@sprachanker/schema";
 import type { RunStore } from "./run-store.ts";
 
@@ -17,8 +25,9 @@ export function createNotebook(deps: {
 
   return {
     /** Every study day with something done (oldest first, what each held by module), today's
-     *  start, and each module's standing. */
-    async overview() {
+     *  start, each span's bars (engine `spanBars`: the study days' starts, here where the days are
+     *  told apart; a week from `firstDay`, 0 Sunday … 6 Saturday), and each module's standing. */
+    async overview(firstDay = 1) {
       const kinds = store.kinds();
       const days = activityByDay(
         store.eventsWhere({ types: [...ACTIVITY_EVENTS] }),
@@ -30,7 +39,11 @@ export function createNotebook(deps: {
         store.moments(),
       );
       const modules = await Promise.all(deps.modules.map((standing) => standing()));
-      return { days, today: studyDay(deps.now()).start, modules };
+      const today = studyDay(deps.now()).start;
+      const spans = Object.fromEntries(
+        SPANS.map((span) => [span, spanBars(span, today, days[0]?.start, firstDay)]),
+      ) as Record<Span, ReturnType<typeof spanBars>>;
+      return { days, today, spans, modules };
     },
   };
 }

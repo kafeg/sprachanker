@@ -8,9 +8,20 @@ import { zod } from "../validate.ts";
 import type { ProfileEnv } from "./env.ts";
 import { RunParam } from "./params.ts";
 
+/** The day a week of the pictures starts on (0 Sunday … 6 Saturday; Monday unless told). */
+const OverviewQuery = z.object({
+  firstDay: z
+    .string()
+    .regex(/^[0-6]$/)
+    .transform(Number)
+    .optional(),
+});
+
 export function notebookRoutes() {
   return new Hono<ProfileEnv>()
-    .get("/", async (c) => c.json(await c.var.s.notebook.overview()))
+    .get("/", zod("query", OverviewQuery), async (c) =>
+      c.json(await c.var.s.notebook.overview(c.req.valid("query").firstDay)),
+    )
     .get("/lesson", zod("query", z.object({ lessonKey: LessonKey })), async (c) =>
       c.json(await c.var.s.lessonJournal.lesson(c.req.valid("query").lessonKey)),
     )

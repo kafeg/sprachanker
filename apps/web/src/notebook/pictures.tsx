@@ -1,25 +1,25 @@
-// The Notebook's pictures (09): the span chosen (all time, 30 or 7 days) cut into bars by the engine
-// (`spanBars`) — the cards answered (new ones apart) and the share remembered in Review's section, the
-// time spent beside the study days, the lessons done in the Lessons' — and a deck's words by state.
-import { activityBars, type BarSize, countBars, type Span, spanBars } from "@sprachanker/engine";
+// The Notebook's pictures (09): the span chosen (all time, 30 or 7 days) cut into bars by the server
+// (engine `spanBars`, the study days' starts where the days are told apart) — the cards answered (new
+// ones apart) and the share remembered in Review's section, the time spent beside the study days, the
+// lessons done in the Lessons' — and a deck's words by state.
+import { activityBars, type BarSize, countBars, type Span } from "@sprachanker/engine";
 import { type Figure, MODULES } from "@sprachanker/schema";
 import { useTranslation } from "react-i18next";
 import type { NotebookOverview } from "@/api/notebook.ts";
 import { BarChart, ChartLegend, ShareBar } from "@/ui/bar-chart.tsx";
-import { firstDayOfWeek, useDateFormat, useDuration, useNumber, usePercent } from "@/ui/format.ts";
+import { useDateFormat, useDuration, useNumber, usePercent } from "@/ui/format.ts";
 
-/** The span's bars with each one's totals, and how a bar is named. */
+/** The span's bars with each one's totals, and how a bar is named: its Gregorian day, with the year
+ *  when the span crosses one, or its month. */
 export function useSpan(overview: NotebookOverview, span: Span) {
-  const { t, i18n } = useTranslation();
-  const day = useDateFormat("day");
+  const { t } = useTranslation();
+  const day = useDateFormat("barDay");
+  const dayYear = useDateFormat("barDayYear");
   const month = useDateFormat("monthYear");
-  const { size, starts } = spanBars(
-    span,
-    overview.today,
-    overview.days[0]?.start,
-    firstDayOfWeek(i18n.language),
-  );
-  const date = (start: number) => (size === "month" ? month : day).format(start);
+  const { size, starts } = overview.spans[span];
+  const years = new Set(starts.map((s) => new Date(s).getFullYear()));
+  const date = (start: number) =>
+    (size === "month" ? month : years.size > 1 ? dayYear : day).format(start);
   return {
     size,
     starts,

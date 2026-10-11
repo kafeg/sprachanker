@@ -190,6 +190,13 @@ test("a card answer's time kept (at most a minute; an answer from before it was 
   const overview = await getJson("/api/notebook");
   expect(overview.days[0]).toMatchObject({ review: 3, newCards: 3 });
   expect(overview.days[0].time.review).toBe(64_200);
+  // Each span's bars by the server's study days: the last 7 to today; all time within 30 days by day.
+  expect(overview.spans.week).toMatchObject({ size: "day" });
+  expect(overview.spans.week.starts).toHaveLength(7);
+  expect(overview.spans.week.starts.at(-1)).toBe(overview.today);
+  expect(overview.spans.all).toEqual(overview.spans.month);
+  expect((await api.get("/api/notebook?firstDay=0")).status).toBe(200);
+  expect((await api.get("/api/notebook?firstDay=7")).status).toBe(400);
   // The deck's review days: today's, with its three answers, opening in full.
   const deck = moduleOf(overview, "review").entries[0] as Standing["entries"][number] & {
     runs: Array<{ id: string; count: number }>;

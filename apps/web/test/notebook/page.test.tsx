@@ -1,7 +1,9 @@
 import { expect, test } from "bun:test";
+import { SPANS, spanBars } from "@sprachanker/engine";
 import { fireEvent, waitFor } from "@testing-library/react";
 import { NotebookPage } from "../../src/notebook/page.tsx";
 import { calendarWeeks, shadeOf } from "../../src/ui/activity-calendar.tsx";
+import { firstDayOfWeek } from "../../src/ui/format.ts";
 import { renderApp } from "../render.tsx";
 
 /** A day's start `n` days before today (4:00, as the study day starts). */
@@ -68,15 +70,20 @@ const DECK = {
     count("dueWeek", 12),
   ],
 };
-/** Every module's standing as the server gives it. */
+/** The Notebook as the server gives it: the days, each span's bars (a week from English's first
+ *  day), every module's standing. */
+const FIRST_DAY = firstDayOfWeek("en");
 const overview = (
-  days: unknown[],
+  days: Array<{ start: number }>,
   lessons: unknown[] = [],
   exams: unknown[] = [],
   decks = [DECK],
 ) => ({
   days,
   today: TODAY,
+  spans: Object.fromEntries(
+    SPANS.map((span) => [span, spanBars(span, TODAY, days[0]?.start, FIRST_DAY)]),
+  ),
   modules: [
     { module: "review", figures: [count("wordsKnown", 42)], entries: decks },
     {
@@ -107,7 +114,7 @@ test("the Notebook: progress, the study days with totals by span, then the lesso
     path: "/notebook",
     data: [
       [
-        ["notebook"],
+        ["notebook", FIRST_DAY],
         overview(
           [
             day(40, { lesson: 10, review: 20, newCards: 5, recalled: 4, remembered: 4 }),
@@ -217,7 +224,7 @@ test("the Notebook: progress, the study days with totals by span, then the lesso
 test("an empty Notebook says under each section what will appear; nothing remembered yet is a dash", async () => {
   const view = await renderApp(<NotebookPage />, {
     path: "/notebook",
-    data: [[["notebook"], overview([], [], [], [])]],
+    data: [[["notebook", FIRST_DAY], overview([], [], [], [])]],
   });
   for (const heading of ["Review", "Lessons", "Exams"])
     expect(await view.findByRole("heading", { name: heading })).toBeTruthy();
@@ -244,7 +251,7 @@ test("the mock exams handed in, by exam: each its date, points and whether it pa
     path: "/notebook",
     data: [
       [
-        ["notebook"],
+        ["notebook", FIRST_DAY],
         overview(
           [],
           [],

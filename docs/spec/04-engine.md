@@ -109,9 +109,11 @@ Pure functions over events and cards (05), read by the server per request:
   payloads.
 - **Over time** (`learner/series.ts`, the Notebook's pictures): a span — the last 7 or 30 days by day;
   all time from the first study day by week (by day while that is within 30 days, by month past 26
-  weeks; a week from the language's first day, 09) — cut into bars, each with its days' totals
-  (cards, new cards, the share remembered, time), and how many lessons and courses had been done by
-  each bar's end (a lesson's first completion; a course's when its last lesson is first done).
+  weeks; a week from the language's first day, 09) — cut into bars by the server, whose study days
+  they are (the pictures sum each bar's days, never reckon a bar's start themselves), each with its
+  days' totals (cards, new cards, the share remembered, time), and how many lessons had been done by
+  each bar's end (`countBars`: a lesson's first completion). Courses done keep when each was done (a
+  course's when its last lesson is first done) but are a figure only, not pictured (09).
 
 Every module reports what the Notebook shows of it the same way (schema `stats.ts`: its headline
 figures, its entries with their figures and latest runs; the server's modules each give their

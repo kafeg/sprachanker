@@ -1,7 +1,8 @@
 // The Notebook's pictures over time (09): a span of study days cut into bars — days, weeks or months —
 // and what each bar holds: the study days' totals (cards, the share remembered, time spent) and how
-// many things had come to count by then (lessons and courses done). Pure: the caller passes today's
-// start, the first study day and the day a week starts on where the learner's language is spoken.
+// many things had come to count by then (lessons done). The server cuts the bars (its study days),
+// the web sums them. Pure: the caller passes today's start, the first study day and the day a week
+// starts on where the learner's language is spoken.
 import type { DayActivity } from "@sprachanker/schema";
 import { studyDay } from "../srs/index.ts";
 import { activityTotals } from "./activity.ts";

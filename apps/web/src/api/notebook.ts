@@ -4,9 +4,13 @@ import type { ExamKey, ItemKey, Lang, LessonKey } from "@sprachanker/schema";
 import { useQuery } from "@tanstack/react-query";
 import { api, json } from "./client.ts";
 
-/** The Notebook (09): the study days and every module's standing. */
-export const useNotebook = () =>
-  useQuery({ queryKey: ["notebook"], queryFn: () => json(api.notebook.$get()) });
+/** The Notebook (09): the study days, each span's bars (a week from `firstDay`, 0 Sunday … 6
+ *  Saturday) and every module's standing. */
+export const useNotebook = (firstDay: number) =>
+  useQuery({
+    queryKey: ["notebook", firstDay],
+    queryFn: () => json(api.notebook.$get({ query: { firstDay: String(firstDay) } })),
+  });
 export type NotebookOverview = NonNullable<ReturnType<typeof useNotebook>["data"]>;
 
 /** An exam in the Notebook: every run handed in, its questions as they stand. */
