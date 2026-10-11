@@ -227,7 +227,13 @@ export function createQwenTts(deps: {
     /** A WAV of a text in its one language (given, never detected), said with the profile's model by
      *  its speaker (else the default one). Kept in the readings' cache unless `keep` is false (a
      *  deck's words: kept in the deck's folder instead). */
-    async say(text: string, lang: string, choice: unknown, modelChoice?: unknown, { keep = true } = {}) {
+    async say(
+      text: string,
+      lang: string,
+      choice: unknown,
+      modelChoice?: unknown,
+      { keep = true } = {},
+    ) {
       const model = inUse(modelChoice);
       if (!binary() || !model || !QWEN_LANGUAGES[lang])
         throw new ServiceError("speech_unavailable", 409);
