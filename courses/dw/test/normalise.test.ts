@@ -560,9 +560,23 @@ test.each([
   ],
   [`<p>Schon ${titled("wieder", "wiede")}r da.</p>`, "<p>Schon wieder da.</p>"],
   [`<p>Wann${titled("beginnen", "beginnt")} er?</p>`, "<p>Wann beginnt er?</p>"],
-  // A noun chip on a compound's head: the tail stays on it; a short word or a verb after a noun
-  // chip is a word of its own.
-  [`<p>Ich esse ${wrapped(chip("Kalb"))}braten.</p>`, "<p>Ich esse Kalbbraten.</p>"],
+  // A hyphen it touches keeps a chip in its word.
+  [`<p>Ein ${chip("Massage")}-${chip("Gutschein")}.</p>`, "<p>Ein Massage-Gutschein.</p>"],
+  [`<p>Ein ${wrapped(chip("Wellness"))}-Hotel.</p>`, "<p>Ein Wellness-Hotel.</p>"],
+  [`<p>${chip("Hin")}- und Rückfahrt</p>`, "<p>Hin- und Rückfahrt</p>"],
+  // A lowercase word right after a noun chip is a word of its own: an infinitive, a participle, a
+  // possessive, a verb after a sentence's first word. A chip on a compound's head looks the same
+  // in the markup, so it gets the space too (DW shows it apart).
+  [`<p>Ich will ${chip("Kaffee")}trinken.</p>`, "<p>Ich will Kaffee trinken.</p>"],
+  [`<p>Ich habe ${chip("Pizza")}gegessen.</p>`, "<p>Ich habe Pizza gegessen.</p>"],
+  [`<p>Die ${chip("Birnen")}meiner Schwester.</p>`, "<p>Die Birnen meiner Schwester.</p>"],
+  [`<p>${chip("Damals")}waren wir jung.</p>`, "<p>Damals waren wir jung.</p>"],
+  [`<p>Eine ${wrapped(chip("Garage"))}haben wir nicht.</p>`, "<p>Eine Garage haben wir nicht.</p>"],
+  [
+    `<p>Die ${wrapped(`${chip("Schüler")}\u200b\u200b`)}schreiben.</p>`,
+    "<p>Die Schüler schreiben.</p>",
+  ],
+  [`<p>Ich esse ${chip("Lamm")}fleisch.</p>`, "<p>Ich esse Lamm fleisch.</p>"],
   [
     `<p>Das ${chip("Brot")}isst er, das ${chip("Dorf")}kommt.</p>`,
     "<p>Das Brot isst er, das Dorf kommt.</p>",

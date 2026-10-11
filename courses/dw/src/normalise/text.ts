@@ -37,14 +37,18 @@ const SPAN = /<(\/?)span\b[^>]*>/g;
 /** Marks a chip's edges until the spaces are decided (a character of private use: never content). */
 const EDGE = "\ue000";
 /** A chip's edge with a letter, digit or dash on both sides (after `, ; : ! ?` too: "Mann:<chip>"),
- *  tags and other edges between (two chips side by side give two spaces: `tidySpacing` makes them
- *  one). */
+ *  tags, characters of no width and other edges between (two chips side by side give two spaces:
+ *  `tidySpacing` makes them one). */
 const WORD_EDGE =
-  /(?<=(?:[\p{L}\p{N}\u2013\u2014,:!?]|(?<!&#?\w+);|&[nm]dash;)(?:<[^>]*>|\ue000)*)\ue000(?=(?:<[^>]*>|\ue000)*(?:[\p{L}\p{N}\u2013\u2014]|&[nm]dash;))/gu;
-/** Marks a chip's edge inside a word; its span tags there go, so that no reading of the text (plain
- *  text makes tags spaces) splits the word. */
+  /(?<=(?:[\p{L}\p{N}\u2013\u2014,:!?]|(?<!&#?\w+);|&[nm]dash;)(?:<[^>]*>|[\ue000\u200b\ufeff])*)\ue000(?=(?:<[^>]*>|[\ue000\u200b\ufeff])*(?:[\p{L}\p{N}\u2013\u2014]|&[nm]dash;))/gu;
+/** Marks a chip's edge inside a word (a hyphenated one too: "<chip>Wellness</chip>-Hotel"); its span
+ *  tags there go, so that no reading of the text (plain text makes tags spaces) splits the word. */
 const INSIDE = "\ue001";
-const IN_WORD = /(?<=\p{L})(?:<\/?span\b[^>]*>)*\ue001(?:<\/?span\b[^>]*>)*(?=\p{L})/gu;
+const IN_WORD =
+  /(?<=[\p{L}\u2010\u2011-])(?:<\/?span\b[^>]*>)*\ue001(?:<\/?span\b[^>]*>)*(?=[\p{L}\u2010\u2011-])/gu;
+/** A hyphen right at a chip's edge, only tags between. */
+const HYPHEN_BEFORE = /[\u2010\u2011-](?:<[^>]*>)*$/u;
+const HYPHEN_AFTER = /^[\u2010\u2011-]/u;
 
 const textOf = (html: string) => plainText(html).toLocaleLowerCase();
 /** The headword a chip links to, without its article or a leading note: "der Brauch, die Bräuche" →
@@ -54,23 +58,16 @@ const headOf = (title: string) =>
     .replace(/^\s*(?:\([^)]*\)\s*)?(?:(?:der|die|das)\s+)?/, "")
     .trim();
 
-/** A noun chip on a compound's head ("<chip>Lamm</chip>fleisch"): the chip one word, a noun, closed
- *  right before a lowercase run of five letters or more that is no verb form ("…t": "<chip>Region
- *  </chip>kommt" lacks its space) — a short run is a word of its own ("und", "isst"). */
-const compoundHead = (chip: string, rest: string, next: string | undefined) =>
-  /^(?:<[^>]*>)*\p{Lu}\p{Ll}+(?:<[^>]*>)*$/u.test(chip) &&
-  /^(?:<\/span>)*\p{Ll}/u.test(rest) &&
-  !!next &&
-  /^\p{Ll}{5,}$/u.test(next) &&
-  !next.endsWith("t");
-
 /**
  * DW's vocabulary chips (`<span class="editable placeholder">`, often in an `invalid_placeholder`
  * span) are shown with room around them, so the source leaves out the spaces next to them ("Wir
  * <chip>lernen</chip>Deutsch.", "eine<chip>Pause</chip> ."): where a chip's word meets a letter or
  * digit, a space goes back. Not inside a word: a chip on a compound's tail ("Weihnachts<chip>bräuche
- * </chip>", its headword a noun: "der Brauch") or on a word's beginning ("<chip>wiede</chip>r", its
- * headword "wieder"). Other spacing is `tidySpacing`'s.
+ * </chip>", its headword a noun: "der Brauch"), on a word's beginning ("<chip>wiede</chip>r", its
+ * headword "wieder"), or at a hyphen it touches ("<chip>Massage</chip>-<chip>Gutschein</chip>",
+ * "<chip>Hin</chip>- und"). A chip on a compound's head ("<chip>Lamm</chip>fleisch") is not told from
+ * one whose space was left out ("<chip>Garage</chip>haben wir nicht"): the markup is the same, and DW
+ * shows both apart, so both get the space. Other spacing is `tidySpacing`'s.
  */
 export function spaceChips(html: string): string {
   const edges: Array<{ at: number; mark: string }> = [];
@@ -89,16 +86,16 @@ export function spaceChips(html: string): string {
     const head = headOf(/\bdata-title="([^"]*)"/.exec(open[0])?.[1] ?? "");
     const word = plainText(html.slice(start, end ?? start));
     const tail = /^\p{Ll}/u.test(word) && /^\p{Lu}/u.test(head);
-    edges.push({ at: start, mark: tail ? INSIDE : EDGE });
+    const hyphened = HYPHEN_BEFORE.test(
+      html.slice(Math.max(0, (open.index ?? 0) - 200), open.index),
+    );
+    edges.push({ at: start, mark: tail || hyphened ? INSIDE : EDGE });
     if (end === undefined) continue;
     const after = html.slice(end, end + 200).replace(/^(?:<[^>]*>)+/, "");
     const next = /^\p{L}+/u.exec(after)?.[0];
     const words = new Set(textOf(head).split(/[^\p{L}]+/u));
     const begun = next && words.has(`${textOf(word).split(" ").pop()}${next.toLocaleLowerCase()}`);
-    edges.push({
-      at: end,
-      mark: begun || compoundHead(html.slice(start, end), html.slice(end), next) ? INSIDE : EDGE,
-    });
+    edges.push({ at: end, mark: begun || HYPHEN_AFTER.test(after) ? INSIDE : EDGE });
   }
   if (!edges.length) return html;
   let marked = "";

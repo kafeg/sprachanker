@@ -133,7 +133,11 @@ All A1 exercises fall into these mechanics (count of exercises; one exercise mix
   (`<span class="editable placeholder" data-id=…>`, often inside `<span class="invalid_placeholder">`)
   are shown as spaced chips, so editors left out the spaces next to them ("Wir <chip>lernen</chip>Deutsch.",
   "eine<chip>Pause</chip> .", "Mann:<chip>Guten Tag</chip>"); other fields carry double spaces and
-  spaces before punctuation as typed.
+  spaces before punctuation as typed. A chip on a compound's head ("<chip>Lamm</chip>fleisch",
+  "<chip>Frosch</chip>beinen": 3 compounds, one A2 text) reads in the markup exactly as a chip before a
+  word of its own whose space was left out ("<chip>Garage</chip>haben", "<chip>Birnen</chip>meiner",
+  "Am <chip>Montag</chip>spiele": some 80 texts); a hyphen next to a chip has no space
+  ("<chip>Massage</chip>-<chip>Gutschein</chip>", "<chip>Wellness</chip>-Hotel").
 - Cloze texts mark gaps with `#p#`, `#ps#`, `#pm#`, `#pl#` (width hints); layout `CONTINUOUS_TEXT`
   (gaps in the inquiry `text`) or `SINGLE_SENTENCE` (one gap per sub-inquiry `inquiryText`).
 - Options with identical content occur (repeated letters in `MERGE`, "isst" twice in a conjugation

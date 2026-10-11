@@ -127,7 +127,10 @@ exercise's `media.video` when all items link the same one, else each item's `med
 task of only an ellipsis ("…": the line is in its audio) gives no prompt. DW's vocabulary chips in text
 (`<span class="editable placeholder">`) are shown spaced, so the source leaves out the spaces next to
 them: a chip meeting a word gets its space back, except inside a word (a compound's tail, its headword a
-noun: "Weihnachts<chip>bräuche</chip>"; a noun chip on a compound's head, a lowercase run of five letters or more after it that is no verb form in "-t": "<chip>Lamm</chip>fleisch"; a word's beginning: "<chip>wiede</chip>r"). Course HTML is
+noun: "Weihnachts<chip>bräuche</chip>"; a word's beginning: "<chip>wiede</chip>r"; a hyphen it touches:
+"<chip>Wellness</chip>-Hotel", "<chip>Hin</chip>- und"). A chip on a compound's head
+("<chip>Lamm</chip>fleisch") has the markup of one whose space was left out ("<chip>Garage</chip>haben
+wir nicht", ten times as common): it gets the space, as DW shows it. Course HTML is
 spaced as written (`tidySpacing`: one space; none before a `. , ! ? ; : ) ]` that closes the word before
 it — not before a smiley, an ellipsis or a right-to-left text kept as seen —, French keeping its own
 before `! ? ; :`; none inside „ “ where they open and close as in German). The
