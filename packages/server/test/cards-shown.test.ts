@@ -105,18 +105,17 @@ test("My words over many cards: the courses listed once, each read once, until c
   await cards.takeDeck({ deck: deck.id });
   for (const lessonKey of [FIRST, other.lesson.replace("00-01", "00-02") as LessonKey])
     await cards.fromLesson({ series: FIXTURE_SERIES, lessonKey, edition: "ru-de" });
-  counted.courses = 0;
-  counted.lessons = 0;
   const listed = await words.list();
   expect(listed).toHaveLength(301 + 3 + 2);
-  // One listing for every card asking at once; each course's two lessons read once.
-  expect(counted).toEqual({ courses: 1, lessons: 4 });
+  // One listing for every card asking at once; each course's two lessons read once for its words
+  // (the two lessons' cards made read theirs too).
+  expect(counted).toEqual({ courses: 1, lessons: 2 + 4 });
   await words.list();
-  expect(counted).toEqual({ courses: 1, lessons: 4 });
+  expect(counted).toEqual({ courses: 1, lessons: 2 + 4 });
   // Relinked (a course installed or normalised again): listed and read anew, once.
-  await cards.relink();
   counted.courses = 0;
   counted.lessons = 0;
+  await cards.relink();
   await words.list();
   expect(counted).toEqual({ courses: 1, lessons: 4 });
 });

@@ -15,8 +15,10 @@
 │                                # (the audio the .apkg brought, `<slug>-<hash of its name>.<ext>`; an update
 │                                # keeps the earlier files and extras.json); a folder written whole (beside,
 │                                # then renamed into place). Beside deck.json: extras.json (schema `deck.ts`
-│                                # `DeckExtras`, by lexeme key — a deck's cards are one per lexeme —: the
-│                                # audio read aloud for a word without its own, its engine, voice and text)
+│                                # `DeckExtras`, format 2, by lexeme key — a deck's cards are one per lexeme —:
+│                                # the audio read aloud for a word without its own, its engine, voice and
+│                                # text, one per headword the deck gives it as — a course's lessons may give
+│                                # it as several: the first in `audio`, the others in `variants`)
 │                                # with that audio in media/ (`read-<hash of engine, voice, text>.wav`; an
 │                                # entry an earlier version keyed by the note's guid is left out when read);
 │                                # the AI's examples for a word by the language they are translated into

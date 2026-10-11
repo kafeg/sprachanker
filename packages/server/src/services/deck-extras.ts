@@ -21,7 +21,8 @@ import { parseJson } from "./stored.ts";
 
 export type DeckJobKind = "audio" | "examples";
 
-/** A card of a deck as the deck's jobs take it (cards.ts gives them, in the order they were made). */
+/** A word of a deck as the deck's jobs take it, in the deck's order (cards.ts gives them): one per
+ *  lexeme — a course's, one per headword its lessons give it as, the word's first one first. */
 export interface DeckNote {
   lexeme: string;
   /** The words' language. */
@@ -296,9 +297,10 @@ export function createDeckExtras(deps: {
       const read: string[] = [];
       let cleared = 0;
       for (const [key, word] of Object.entries(words)) {
-        if (kind === "audio" && word.audio) {
-          read.push(word.audio.path);
+        if (kind === "audio" && (word.audio || word.variants)) {
+          for (const r of [word.audio, ...(word.variants ?? [])]) if (r) read.push(r.path);
           delete word.audio;
+          delete word.variants;
           cleared++;
         }
         if (kind === "examples" && lang && word.examples?.[lang]) {

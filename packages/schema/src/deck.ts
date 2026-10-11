@@ -8,7 +8,7 @@ import { type CourseKey, Gender, LexemeKey, Slug } from "./keys.ts";
 import { Lang } from "./lang.ts";
 
 export const DECK_FORMAT = 1;
-export const DECK_EXTRAS_FORMAT = 1;
+export const DECK_EXTRAS_FORMAT = 2;
 
 /** An imported deck's id: its title's slug and a short hash (`deutsch-a1-3f9c2a`); its folder's name. */
 export const DeckId = Slug.max(80).brand<"DeckId">();
@@ -109,11 +109,14 @@ export const DeckMadeExamples = z.strictObject({
 });
 export type DeckMadeExamples = z.infer<typeof DeckMadeExamples>;
 
-/** What the server made for one word of a deck: the audio read aloud, the examples by the language
- *  they are translated into (a course's cards are in its editions' languages). Read entry by entry: one
- *  that does not read (a newer version's) is kept as it is. */
+/** What the server made for one word of a deck: the audio read aloud — a reading per headword the
+ *  deck gives the word as (a course's lessons: "die Bank, die Banken", later "die Bänke"), the first in
+ *  `audio`, the others in `variants` —, the examples by the language they are translated into (a
+ *  course's cards are in its editions' languages). Read entry by entry: one that does not read (a
+ *  newer version's) is kept as it is. */
 export const DeckExtrasWord = z.strictObject({
   audio: DeckReadAudio.optional(),
+  variants: z.array(DeckReadAudio).optional(),
   examples: z.record(Lang, DeckMadeExamples).optional(),
 });
 export type DeckExtrasWord = z.infer<typeof DeckExtrasWord>;
