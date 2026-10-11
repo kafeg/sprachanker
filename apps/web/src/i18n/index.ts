@@ -92,9 +92,18 @@ export async function switchLanguage(language: string) {
   if (wanted === language) await i18n.changeLanguage(language);
 }
 
+/** Faces too large for every page's stylesheet, loaded with the interface language that needs them
+ *  (spec 10, fonts): Noto Sans SC's ~100 parts. Text in that script elsewhere takes the system's font. */
+const LANGUAGE_FONTS: Record<string, () => Promise<unknown>> = {
+  zh: () => import("@fontsource-variable/noto-sans-sc/wght.css"),
+};
+
 const showLanguage = (language: string) => {
   document.documentElement.lang = language;
   document.documentElement.dir = languageDir(language);
+  void LANGUAGE_FONTS[language]?.().catch(() => {
+    // Offline before it was cached: the system's font.
+  });
 };
 i18n.on("languageChanged", showLanguage);
 
