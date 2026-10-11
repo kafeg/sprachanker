@@ -199,7 +199,9 @@ most three corrections and a model text (third phase).
 - **Streamed replies** (explanations, the tutor): a model that answers nothing is an error before any
   text is sent; a reply that breaks off after its first chunk ends with `STREAM_ERROR` (schema) and the
   error, so the client shows the part it got with the error, never as a whole reply. Only a reply that
-  finished, or that the learner stopped, is kept.
+  finished, or that the learner stopped, is kept. Until a reply's text begins the client shows
+  "Thinking…" (or what is being done: preparing a Dialogue, summing it up) with the seconds it takes,
+  from the second on: a command-line agent gives its reply in one piece after ten seconds or more.
 - **Calls outlive the page** (Dialogues, writing checks): a structured call runs to its end on the server
   and is stored even when the learner left the page meanwhile; the step's state says what is running
   (`pending` for a Dialogue, `checking` for a text), so a page opened again shows it as waiting and polls

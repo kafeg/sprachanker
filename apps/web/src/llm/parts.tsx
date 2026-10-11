@@ -3,7 +3,7 @@
 // and requests that can be stopped.
 import { MESSAGE_MAX } from "@sprachanker/schema";
 import { LoaderCircle, type LucideIcon, Send, Sparkles, Square } from "lucide-react";
-import { useEffect, useMemo, useRef } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { DictateButton } from "@/audio/dictate.tsx";
 import type { SpokenPart } from "@/audio/speak.ts";
@@ -11,6 +11,7 @@ import { SpeakButton } from "@/audio/speak-button.tsx";
 import { Button } from "@/ui/components/button.tsx";
 import { Textarea } from "@/ui/components/textarea.tsx";
 import { inLang } from "@/ui/direction.tsx";
+import { useSeconds } from "@/ui/format.ts";
 import { RichText } from "@/ui/rich-text.tsx";
 import { cn } from "@/ui/utils.ts";
 import { AssistantLabel } from "./assistant-label.tsx";
@@ -138,20 +139,41 @@ export function PendingExchange({
   /** The learner's bubble (a scene's lines are larger). */
   className?: string;
 }) {
-  const { t } = useTranslation();
   return (
     <>
       <ChatBubble from="learner" pending lang={lang} className={className}>
         <p className="whitespace-pre-wrap">{question}</p>
       </ChatBubble>
-      <ChatBubble from="other">
-        {reply ? (
-          <RichText text={reply} />
-        ) : (
-          <p className="text-muted-foreground">{t("llm.thinking")}</p>
-        )}
-      </ChatBubble>
+      <ChatBubble from="other">{reply ? <RichText text={reply} /> : <Thinking />}</ChatBubble>
     </>
+  );
+}
+
+/** The seconds since it was first shown, from the second on: a command-line agent's reply comes in
+ *  one piece after ten seconds or more. Not read aloud (it changes every second). */
+export function Elapsed({ className }: { className?: string }) {
+  const seconds = useSeconds();
+  const [start] = useState(Date.now);
+  const [now, setNow] = useState(start);
+  useEffect(() => {
+    const tick = setInterval(() => setNow(Date.now()), 1000);
+    return () => clearInterval(tick);
+  }, []);
+  if (now - start < 2000) return null;
+  return (
+    <span aria-hidden className={cn("tabular-nums", className)}>
+      {seconds(now - start)}
+    </span>
+  );
+}
+
+/** "Thinking…" (or what the model is doing) until its reply begins, with the time it takes. */
+export function Thinking({ label, className }: { label?: string; className?: string }) {
+  const { t } = useTranslation();
+  return (
+    <p className={cn("text-muted-foreground", className)}>
+      {label ?? t("llm.thinking")} <Elapsed />
+    </p>
   );
 }
 
@@ -175,6 +197,7 @@ export function StartPrompt({
       <Button size="lg" loading={loading} onClick={onStart}>
         {Icon && !loading && <Icon />}
         {label}
+        {loading && <Elapsed />}
       </Button>
     </div>
   );
