@@ -1519,7 +1519,6 @@
       "proposed": "Imependekezwa na msaidizi wa AI ({model}): ikubali kama ilivyo au uibadilishe."
     },
     "conversation": {
-      "you": "Mimi",
       "partner": "Mwenzako",
       "examiner": "Mtahini",
       "intro": "Msaidizi anaigiza mtahini na mwenzako. Jibu kwa sauti kwa maikrofoni (au andika); mazungumzo ndiyo jibu lako.",

@@ -1519,7 +1519,6 @@
       "proposed": "Diusulkan oleh asisten AI ({model}): terima apa adanya atau ubah."
     },
     "conversation": {
-      "you": "Aku",
       "partner": "Pasangan",
       "examiner": "Penguji",
       "intro": "Asisten memerankan penguji dan pasangan bicara kamu. Jawab secara lisan dengan mikrofon (atau ketik); percakapan ini adalah jawaban kamu.",

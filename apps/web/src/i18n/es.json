@@ -1519,7 +1519,6 @@
       "proposed": "Propuesta del asistente de IA ({model}): acéptala tal cual o cámbiala."
     },
     "conversation": {
-      "you": "Yo",
       "partner": "Compañero",
       "examiner": "Examinador",
       "intro": "El asistente hace de examinador y de tu compañero. Responde en voz alta con el micrófono (o escribe); la conversación es tu respuesta.",

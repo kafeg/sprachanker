@@ -1519,7 +1519,6 @@
       "proposed": "Proposé par l’assistant IA ({model}) : accepte-le tel quel ou modifie-le."
     },
     "conversation": {
-      "you": "Moi",
       "partner": "Partenaire",
       "examiner": "Examinateur",
       "intro": "L’assistant joue l’examinateur et ton partenaire. Réponds à voix haute avec le micro (ou écris) ; la conversation est ta réponse.",

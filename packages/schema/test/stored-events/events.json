@@ -488,6 +488,14 @@
       }
     },
     {
+      "since": "2026-10-12",
+      "payload": {
+        "role": "user",
+        "text": "",
+        "done": true
+      }
+    },
+    {
       "since": "2026-10-11",
       "payload": {
         "role": "user",

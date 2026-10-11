@@ -1519,7 +1519,6 @@
       "proposed": "Zaproponowane przez asystenta AI ({model}): przyjmij bez zmian albo zmień."
     },
     "conversation": {
-      "you": "Ja",
       "partner": "Partner",
       "examiner": "Egzaminator",
       "intro": "Asystent odgrywa egzaminatora i twojego partnera. Odpowiadaj na głos przez mikrofon (albo pisz); rozmowa jest twoją odpowiedzią.",

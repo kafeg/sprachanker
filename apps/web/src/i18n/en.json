@@ -1519,7 +1519,6 @@
       "proposed": "Proposed by the AI assistant ({model}): take it as it is or change it."
     },
     "conversation": {
-      "you": "Me",
       "partner": "Partner",
       "examiner": "Examiner",
       "intro": "The assistant plays the examiner and your partner. Answer aloud with the microphone (or type); the conversation is your answer.",

@@ -1519,7 +1519,6 @@
       "proposed": "由AI助手（{model}）建议：可直接采纳或修改。"
     },
     "conversation": {
-      "you": "我",
       "partner": "搭档",
       "examiner": "考官",
       "intro": "助手扮演考官和你的搭档。用麦克风口头回答（或打字）；整段对话就是你的答案。",

@@ -1519,7 +1519,6 @@
       "proposed": "Az MI-asszisztens javaslata ({model}): fogadd el, vagy módosítsd."
     },
     "conversation": {
-      "you": "Én",
       "partner": "Partner",
       "examiner": "Vizsgáztató",
       "intro": "Az asszisztens játssza a vizsgáztatót és a partneredet. Válaszolj hangosan a mikrofonnal (vagy gépelj); a beszélgetés a válaszod.",

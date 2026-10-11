@@ -1519,7 +1519,6 @@
       "proposed": "Propusă de asistentul AI ({model}): accept-o așa cum e sau schimb-o."
     },
     "conversation": {
-      "you": "Eu",
       "partner": "Partener",
       "examiner": "Examinator",
       "intro": "Asistentul joacă examinatorul și partenerul tău. Răspunde cu voce tare la microfon (sau scrie); conversația este răspunsul tău.",

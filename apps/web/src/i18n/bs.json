@@ -1519,7 +1519,6 @@
       "proposed": "Predložio AI asistent ({model}): prihvati kako jeste ili promijeni."
     },
     "conversation": {
-      "you": "Ja",
       "partner": "Partner",
       "examiner": "Ispitivač",
       "intro": "Asistent igra ispitivača i tvog partnera. Odgovaraj naglas mikrofonom (ili kucaj); razgovor je tvoj odgovor.",

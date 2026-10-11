@@ -5,6 +5,7 @@ import { ExamRatingProposal, type Lang } from "@sprachanker/schema";
 import type { TaskRequest } from "../client.ts";
 import type { StructuredTask } from "../structured.ts";
 import { clip, languageName, languageNames } from "../text.ts";
+import { type ConversationLine, conversationText } from "./exam-conversation.ts";
 import { type RulesInput, systemPrompt } from "./rules.ts";
 
 interface ExamCriterionInput {
@@ -29,6 +30,9 @@ export interface ExamAnswerInput extends RulesInput {
   /** Model answers the exam gives, if any: good answers, not the only ones. */
   samples: string[];
   answer: string;
+  /** A speaking part held as a conversation: its lines, the learner's (the answer) among the
+   *  examiner's and the partner's. */
+  conversation?: ConversationLine[];
 }
 
 export const RATE_EXAM_ANSWER_BUDGETS = { exam: 4000, writtenAnswer: 4000 } as const;
@@ -45,7 +49,8 @@ export function rateExamAnswerRules(
 ): string {
   const { language: l, target: t } = names;
   return [
-    `You are a rater of a ${t} language exam. A learner who speaks ${l} answered a writing task of a mock exam; rate the answer as the exam's raters do.`,
+    `You are a rater of a ${t} language exam. A learner who speaks ${l} answered a task of a mock exam — a text written, or a speaking part held with the examiner and a partner; rate the answer as the exam's raters do.`,
+    "A speaking part comes as its conversation: rate only the learner's (A) lines; the examiner's and the partner's are what the learner answered.",
     `For each criterion in <criteria> choose exactly one of its levels: "points" is one of the numbers listed for it. Rate every criterion once, by its id.`,
     "Rate only what the answer says, against the task and the exam's level: a point of the task that is missing or not understandable gets the lowest level; partly done, a middle one.",
     "A criterion marked as voiding: its lowest level means the answer does not fulfil the task at all (off the task, not in the language, or empty).",
@@ -72,7 +77,12 @@ function rateExamAnswerRequest(input: ExamAnswerInput): TaskRequest {
     "</criteria>",
     ...(input.samples.length ? ["<samples>", ...input.samples, "</samples>"] : []),
     "<answer>",
-    clip(input.answer.trim(), B.writtenAnswer),
+    clip(
+      input.conversation?.length
+        ? conversationText(input.conversation).join("\n")
+        : input.answer.trim(),
+      B.writtenAnswer,
+    ),
     "</answer>",
     // Small models follow the last lines best: what they most often get wrong.
     `Remember: points only from each criterion's levels; reasons and feedback in ${languageName(input.language)}.`,

@@ -1519,7 +1519,6 @@
       "proposed": "Vorgeschlagen vom KI-Assistenten ({model}): übernimm sie oder ändere sie."
     },
     "conversation": {
-      "you": "Ich",
       "partner": "Gesprächspartner",
       "examiner": "Prüfer",
       "intro": "Der Assistent spielt die Prüfenden und deinen Partner. Antworte laut mit dem Mikrofon (oder tippe); das Gespräch ist deine Antwort.",

@@ -1519,7 +1519,6 @@
       "proposed": "Yapay zekâ asistanının önerisi ({model}): olduğu gibi kabul et ya da değiştir."
     },
     "conversation": {
-      "you": "Ben",
       "partner": "Partner",
       "examiner": "Sınav görevlisi",
       "intro": "Asistan, sınav görevlisini ve partnerini oynar. Mikrofonla sesli cevap ver (ya da yaz); konuşma senin cevabındır.",
