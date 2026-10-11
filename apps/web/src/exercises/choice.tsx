@@ -38,7 +38,7 @@ function Options({
     if (option) choose(option.id);
   });
   return (
-    <div className={grid ? TILES : "flex flex-wrap gap-2"}>
+    <div className={grid ? TILES : "grid gap-2"}>
       {options.map((o) => (
         <OptionButton
           key={o.id}

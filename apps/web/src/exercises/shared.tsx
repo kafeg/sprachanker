@@ -157,10 +157,12 @@ export const allPictures = (options: Option[]) => options.every((o) => o.media?.
  *  is centred (no tile alone at half width on the left). `TILES` on the row, `TILE` on each. */
 export const TILES = "flex flex-wrap justify-center gap-3";
 export const TILE =
-  "shrink-0 grow-0 basis-[calc((100%_-_0.75rem)/2)] sm:basis-[calc((100%_-_1.5rem)/3)]";
+  "min-w-0 shrink-0 grow-0 basis-[calc((100%_-_0.75rem)/2)] sm:basis-[calc((100%_-_1.5rem)/3)]";
 
 /** A tile's mark in its corner: no row of its own under the picture. */
 const MARK_CORNER = "absolute top-2 right-2 box-content rounded-full bg-card p-0.5";
+/** A text option's mark at its right edge, in the room it keeps for it. */
+const MARK_END = "absolute top-1/2 right-4 -translate-y-1/2";
 
 export function OptionButton({
   option,
@@ -189,10 +191,10 @@ export function OptionButton({
       disabled={disabled}
       onClick={onClick}
       className={cn(
-        // On a phone options that wrap share their row, so a list of long ones is not ragged; a
-        // word longer than the screen breaks ("Oberbürgermeisterin/Oberbürgermeister").
+        // A word longer than the screen breaks ("Oberbürgermeisterin/Oberbürgermeister").
         "relative flex min-h-12 max-w-full items-center gap-2 rounded-xl border-2 bg-card px-4 py-2 text-left text-lg transition [overflow-wrap:anywhere]",
-        fill ? cn(TILE, "flex-col items-stretch justify-center px-2") : "max-sm:flex-auto",
+        // A text option has its row and keeps room for its mark: checking moves nothing.
+        fill ? cn(TILE, "flex-col items-stretch justify-center px-2") : "w-full pr-11",
         !disabled && "hover:border-primary/60",
         selected && "border-primary bg-accent",
         mark === "correct" && "border-correct bg-correct-soft",
@@ -218,13 +220,13 @@ export function OptionButton({
       <OptionContent option={option} url={url} fill={fill} />
       {(mark === "correct" || mark === "missed") && (
         <Check
-          className={cn("size-5 shrink-0 text-correct", fill ? MARK_CORNER : "ml-auto")}
+          className={cn("size-5 shrink-0 text-correct", fill ? MARK_CORNER : MARK_END)}
           aria-hidden
         />
       )}
       {mark === "wrong" && (
         <X
-          className={cn("size-5 shrink-0 text-wrong", fill ? MARK_CORNER : "ml-auto")}
+          className={cn("size-5 shrink-0 text-wrong", fill ? MARK_CORNER : MARK_END)}
           aria-hidden
         />
       )}
