@@ -59,5 +59,9 @@ test("a sentence's words in a wrong order stay chips, each marked; right, they r
   expect(wrong.getByRole("button", { name: "müde" }).className).toContain("border-correct");
   wrong.unmount();
   const right = await checked(ex, ["a", "b", "c", "d"], true);
-  expect(right.getByText("Ich bin müde.")).toBeTruthy();
+  // The answer given, right: a solid right edge, not the dashed one of a right answer missed.
+  const line = right.getByText("Ich bin müde.").parentElement?.className ?? "";
+  expect(line).toContain("border-correct");
+  expect(line).toContain("border-solid");
+  expect(line).not.toContain("border-dashed");
 });
