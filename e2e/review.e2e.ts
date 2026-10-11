@@ -145,7 +145,7 @@ test("review: the guide explains the method beside; the decks to take are offere
   await expect(guide.getByRole("img", { name: /forgetting curves/ })).toBeVisible();
 });
 
-test("Settings → Review: Anki's deck options, the rarer ones under Advanced, kept; back to Anki's defaults", async ({
+test("Settings → Review: daily limits kept, retention and card types, the rest said in a few lines", async ({
   page,
 }) => {
   await page.goto("/settings#review");
@@ -161,13 +161,11 @@ test("Settings → Review: Anki's deck options, the rarer ones under Advanced, k
   await perDay.press("Enter");
   await page.reload();
   await expect(page.getByRole("textbox", { name: "New cards per day" })).toHaveValue("15");
-  // The steps, retention and the day's start are under Advanced.
-  await page.getByText("Advanced").click();
-  await expect(page.getByRole("textbox", { name: "Learning steps", exact: true })).toHaveValue(
-    "1m 10m",
-  );
-  await page.getByRole("button", { name: "Back to Anki's defaults" }).click();
-  await expect(page.getByRole("textbox", { name: "New cards per day" })).toHaveValue("20");
+  await expect(page.getByRole("slider", { name: "Desired retention" })).toBeVisible();
+  await expect(page.getByText(/after 1 and 10 minutes/)).toBeVisible();
+  await expect(page.getByText("Advanced")).toHaveCount(0);
+  await perDay.fill("20");
+  await perDay.press("Enter");
 });
 
 test("Settings' five tabs fit a phone in every interface language, nothing scrolled sideways", async ({

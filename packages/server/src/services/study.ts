@@ -49,13 +49,9 @@ export function createStudy(deps: {
 }) {
   const { cards, store, content, settings, now } = deps;
   /** The profile's scheduling options (its Review settings). */
-  const params = (): SrsParams => ({
-    retention: settings.value("srs.retention"),
-    learningSteps: settings.value("srs.learningSteps"),
-    relearningSteps: settings.value("srs.relearningSteps"),
-  });
-  /** The learner's day (Anki: next day starts at the profile's hour). */
-  const dayOf = (t: number) => studyDay(t, settings.value("srs.dayStartHour"));
+  const params = (): SrsParams => ({ retention: settings.value("srs.retention") });
+  /** The learner's day (engine `studyDay`). */
+  const dayOf = (t: number) => studyDay(t);
 
   /** The notes of a scope, in the order they were made (their position in the deck). */
   async function notesIn(scope: DeckScope, all = cards.all()) {
@@ -124,9 +120,6 @@ export function createStudy(deps: {
     const result = studyQueue(faces, {
       now: data.t,
       nextDay: dayOf(data.t).next,
-      newIgnoresReviewLimit: settings.value("srs.newIgnoresReviewLimit"),
-      learningSteps: params().learningSteps,
-      relearningSteps: params().relearningSteps,
       newPerDay: settings.value("srs.newPerDay") + extra,
       reviewsPerDay: settings.value("srs.reviewsPerDay") + extra,
       newToday: done.fresh,

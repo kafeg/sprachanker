@@ -1,8 +1,7 @@
-// Settings (09): five tabs in one row, as a section's — General (language, theme, storage, about,
-// experimental), Profile (name, sign-in, devices, switching, deleting), Review (Anki's deck options),
-// Speech (microphone, recognition, reading aloud, recordings), AI assistant (providers, models, LM
-// Studio, where it works; its prompts under Advanced). What is rarely changed is under one "Advanced"
-// per tab. The open tab is kept in the URL hash; a section's own (#prompts, #about, #experimental) opens
+// Settings (09): five tabs in one row, as a section's — General (language, theme, storage with the
+// recordings kept, about, experimental), Profile (name, sign-in, devices, switching, deleting), Review
+// (daily limits, retention, card types), Speech (microphone, recognition, reading aloud), AI assistant
+// (providers, models, LM Studio, where it works; its prompts under Advanced). The open tab is kept in the URL hash; a section's own (#prompts, #about, #experimental) opens
 // its tab there, a folded one opened.
 import { useIsFetching } from "@tanstack/react-query";
 import { useLocation, useNavigate } from "@tanstack/react-router";
@@ -13,7 +12,7 @@ import { AboutSection } from "@/app/about.tsx";
 import { ExperimentalSettings } from "@/app/experimental-settings.tsx";
 import { LanguageSwitch } from "@/app/language-switch.tsx";
 import { ProfileSettings } from "@/app/profile-settings.tsx";
-import { SpeechSettings } from "@/audio/speech-settings.tsx";
+import { SpeechSetup } from "@/audio/speech-settings.tsx";
 import { AiPlaces, PromptsSettings } from "@/llm/prompts-info.tsx";
 import { LlmSettings } from "@/llm/settings-section.tsx";
 import { ReviewSettings } from "@/study/review-settings.tsx";
@@ -105,7 +104,7 @@ export function SettingsPage() {
           <ReviewSettings />
         </TabsContent>
         <TabsContent value="speech">
-          <SpeechSettings />
+          <SpeechSetup />
         </TabsContent>
         <TabsContent value="ai" className="space-y-6">
           <LlmSettings />

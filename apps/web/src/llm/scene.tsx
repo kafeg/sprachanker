@@ -5,7 +5,6 @@ import { Circle, CircleCheck, Languages } from "lucide-react";
 import { useState } from "react";
 import { useTranslation } from "react-i18next";
 import { said } from "@/audio/speak.ts";
-import { useReadAtOnce } from "@/audio/speaker.ts";
 import type { LessonSlotContext } from "@/lesson/slots.ts";
 import { Corrections } from "@/ui/checked-text.tsx";
 import { Button } from "@/ui/components/button.tsx";
@@ -218,16 +217,6 @@ export function SceneStep({ onDone, ...ids }: LessonSlotContext & { onDone?(): v
   const llm = useLlm();
   const scenes = useScenes(ids.lessonKey);
   const action = useSceneAction(ids.lessonKey, onDone);
-  const lang = useTargetLang();
-  // The partner's newest line, read at once when the profile asks (a scene started here too).
-  const latest = scenes.data?.scenes[0];
-  const partnerLine = latest?.turns.at(-1)?.role === "assistant" ? latest.turns.at(-1) : undefined;
-  useReadAtOnce(
-    "scene",
-    !!scenes.data,
-    partnerLine && latest && `${latest.id}:${latest.turns.length}`,
-    said(partnerLine?.text ?? "", lang),
-  );
   if (!llm.data?.model || !scenes.data) return null;
   const [current, ...past] = scenes.data.scenes;
   // Asked from here, or still running on the server since before this page was opened.

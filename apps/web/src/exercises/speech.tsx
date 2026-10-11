@@ -115,7 +115,7 @@ function useTakes(
     setUnheard(false);
     setSaving(true);
     const save = () =>
-      host?.keepRecordings
+      host
         ? host.save(recorded).catch(() => {
             if (current()) setUnsaved(true);
             return undefined;
@@ -195,7 +195,7 @@ export function SpeechSelfrate({
   const [reveal, setReveal] = useState(false);
 
   const attempted = answer !== undefined || !!take;
-  const textShown = readOnly || !listen || host?.showText === "always" || attempted || reveal;
+  const textShown = readOnly || !listen || attempted || reveal;
   const own = take?.url ?? (answer?.recording && host ? host.src(answer.recording) : undefined);
   // The source's own answer, once the learner has tried (their answer first, then the model one).
   const sample =

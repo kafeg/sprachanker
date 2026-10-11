@@ -569,7 +569,12 @@
     "total": "Gesamt",
     "used": "Kurse belegen {size}",
     "usedFree": "Kurse belegen {size} · {free} frei auf dem Datenträger",
-    "seriesSize": "{name}: {size}"
+    "seriesSize": "{name}: {size}",
+    "recordings": "Deine Aufnahmen",
+    "recordingsKept": "{count, plural, =0 {keine} one {{n} Aufnahme · {size}} other {{n} Aufnahmen · {size}}}",
+    "deleteRecordings": "Alle löschen",
+    "deleteRecordingsTitle": "Alle Aufnahmen löschen?",
+    "deleteRecordingsBody": "Deine Aufnahmen werden von diesem Computer gelöscht. Antworten und Fortschritt bleiben. Das lässt sich nicht rückgängig machen."
   },
   "windowTitle": {
     "course": "Kurs",
@@ -586,7 +591,7 @@
     "mistakes": "Fehler"
   },
   "words": {
-    "intro": "Die Wörter der Lektion als Karten wie in Anki: erinnern, Antwort zeigen, bewerten. Wenn gerade nichts mehr übrig ist, geht es in der Wiederholung weiter.",
+    "intro": "Die Wörter der Lektion als Karten: erinnern, Antwort zeigen, bewerten. Wenn gerade nichts mehr übrig ist, geht es in der Wiederholung weiter.",
     "learnt": "Die Wörter der Lektion sind für jetzt gelernt.",
     "goOn": "{count, plural, =0 {Sie kommen in der Wiederholung zurück, wenn sie fällig sind.} one {# Lernkarte kommt bald in der Wiederholung zurück.} other {# Lernkarten kommen bald in der Wiederholung zurück.}}"
   },
@@ -828,7 +833,7 @@
   },
   "tour": {
     "courses": "Deine Kurse (dort, wo du aufgehört hast), die heruntergeladenen und alle Kurse zum Herunterladen; jede Liste lässt sich auf ein Sprachpaar eingrenzen.",
-    "review": "Deine Wörter in verteilter Wiederholung, wie in Anki: ein paar Minuten am Tag.",
+    "review": "Deine Wörter in verteilter Wiederholung: ein paar Minuten am Tag.",
     "notebook": "Jeder Durchgang jeder Lektion, deine Antworten und Fehler.",
     "settings": "Dein Profil, Wiederholung, Sprechen, der KI-Assistent und die App.",
     "exams": "Prüfungen zur Vorbereitung, etwa Leben in Deutschland: Probeprüfungen wie die echten, Training und der ganze Katalog mit den Antworten."
@@ -883,7 +888,7 @@
     "curveCaption": "Gedächtnis verblasst, wenn es nicht genutzt wird: jede Wiederholung kurz vor dem Vergessen macht die Kurve flacher, die nächste kann länger warten.",
     "method": {
       "title": "Verteilte Wiederholung",
-      "text": "Jede Karte kommt zurück, kurz bevor du sie vergessen würdest. Mit jeder guten Antwort wächst der Abstand: Minuten, dann Tage, Wochen, Monate. Die Idee geht auf Ebbinghaus' Vergessenskurve (1885) zurück; Anki hat sie für Millionen zur Gewohnheit gemacht."
+      "text": "Jede Karte kommt zurück, kurz bevor du sie vergessen würdest. Mit jeder guten Antwort wächst der Abstand: Minuten, dann Tage, Wochen, Monate. Die Idee geht auf Ebbinghaus' Vergessenskurve (1885) zurück."
     },
     "recall": {
       "title": "Erst erinnern, dann schauen",
@@ -920,7 +925,7 @@
       },
       "production": {
         "name": "Karte 2",
-        "text": "die Bedeutung → das Wort (sprechen); kommt nach Karte 1, wie Ankis „Basic (and reversed card)“"
+        "text": "die Bedeutung → das Wort (sprechen); kommt nach Karte 1"
       }
     },
     "more": {
@@ -952,30 +957,23 @@
     },
     "fsrs": {
       "title": "FSRS",
-      "text": "Den Plan rechnet FSRS, das Modell, das Anki heute nutzt: es schätzt, wie fest jede Erinnerung ist und wann du sie vergessen würdest, und zielt auf 90 % Wahrscheinlichkeit, dass du dich noch erinnerst. Die Tageslimits änderst du in den Einstellungen."
+      "text": "Den Plan rechnet FSRS, ein offenes Modell für verteilte Wiederholung: es schätzt, wie fest jede Erinnerung ist und wann du sie vergessen würdest, und zielt auf 90 % Wahrscheinlichkeit, dass du dich noch erinnerst. Die Tageslimits änderst du in den Einstellungen."
     }
   },
   "reviewSettings": {
-    "intro": "Ankis Stapeloptionen für deine Karten. Voreingestellt sind Ankis Werte; ändere sie nur, wenn sie dir nicht passen.",
+    "intro": "Verteilte Wiederholung deiner Karten: Ein Wort kommt wieder, wenn du es gleich vergessen würdest. Die Standardwerte passen für die meisten.",
     "limits": "Tageslimits",
     "newPerDay": "Neue Karten pro Tag",
     "reviewsPerDay": "Höchstens Wiederholungen pro Tag",
     "limitsHint": "Ein Wort mit zwei Kartentypen sind zwei neue Karten. Jede neue Karte bringt im ersten Monat etwa 5–10 Wiederholungen.",
-    "newIgnoresReviewLimit": "Neue Karten zählen nicht zum Wiederholungslimit",
-    "newIgnoresReviewLimitHint": "In Anki zählen neue Karten auch zum Wiederholungslimit: Ist es erreicht, kommen an dem Tag keine neuen mehr. „Ja“ zeigt neue Karten bis zu ihrem eigenen Limit, auch wenn die Wiederholungen für heute aufgebraucht sind.",
     "retention": "Gewünschte Behaltensquote",
-    "retentionHint": "Wie wahrscheinlich du eine Karte noch weißt, wenn sie wiederkommt. Höher heißt mehr Wiederholungen; 90 % ist Ankis Wert.",
-    "steps": "Schritte",
-    "learningSteps": "Lernschritte",
-    "learningStepsHint": "Die Abstände einer neuen Karte, bevor sie aufsteigt: Minuten (m), Stunden (h) oder Tage (d), z. B. 1m 10m.",
-    "relearningSteps": "Neulernschritte",
-    "relearningStepsHint": "Die Abstände einer vergessenen Karte, bevor sie wieder wiederholt wird (leer: keine).",
-    "badSteps": "Schreib Schritte als 1m 10m 1h 1d.",
-    "day": "Der nächste Tag beginnt um",
-    "dayHint": "Wiederholungen nach Mitternacht zählen bis zu dieser Stunde noch zum Vorabend.",
+    "retentionHint": "Wie wahrscheinlich du eine Karte noch weißt, wenn sie wiederkommt. Höher heißt mehr Wiederholungen; standardmäßig 90 %.",
     "faces": "Kartentypen eines neuen Worts",
     "facesHint": "Welche Karten ein neues Wort bekommt. Wörter mit Karten behalten ihre.",
-    "defaults": "Ankis Standardwerte"
+    "how": "So funktioniert es",
+    "howSteps": "Eine neue Karte kommt nach 1 und 10 Minuten wieder, dann nach Tagen; eine vergessene nach 10 Minuten, dann wächst ihr Abstand wieder.",
+    "howDay": "Ein neuer Tag beginnt um {time}: Wiederholungen nach Mitternacht davor zählen zum Vorabend.",
+    "howLimit": "Neue Karten zählen zum Wiederholungslimit: Ist es erreicht, kommen an dem Tag keine neuen mehr."
   },
   "example": {
     "show": "Beispiel",
@@ -1015,18 +1013,6 @@
       "listen": "Anhören",
       "sampleFor": "Text zum Anhören: {language}",
       "otherSample": "Anderer Satz",
-      "recordings": "Aufnahmen",
-      "keep": "Meine Aufnahmen behalten",
-      "keepHint": "Um sie später und im Heft wieder anzuhören. Aus: eine Aufnahme gibt es nur, bis du die Übung verlässt.",
-      "showText": "Der Satz zum Nachsprechen",
-      "show": {
-        "after": "Bis zum ersten Versuch verdeckt",
-        "always": "Sofort sichtbar"
-      },
-      "kept": "{count, plural, =0 {Keine Aufnahmen} one {{n} Aufnahme · {size}} other {{n} Aufnahmen · {size}}}",
-      "deleteAll": "Alle löschen",
-      "deleteTitle": "Alle Aufnahmen löschen?",
-      "deleteBody": "Deine Aufnahmen werden von diesem Computer gelöscht. Antworten und Fortschritt bleiben. Das lässt sich nicht rückgängig machen.",
       "recognition": "Erkennung",
       "recognitionHint": "Deine Sprache wird auf diesem Computer erkannt (Whisper): das Gesagte wird mit dem Satz verglichen. Sie hört Wörter, keine Laute, und ist nachsichtig. Nichts verlässt den Computer.",
       "noEngine": "Die Erkennung ist auf diesem Computer nicht installiert.",
@@ -1036,11 +1022,6 @@
       "use": "Verwenden",
       "removeModel": "Modell entfernen",
       "download": "Herunterladen",
-      "pushToTalk": "Das Mikrofon neben einem Textfeld",
-      "talk": {
-        "tap": "Tippen zum Starten und Beenden",
-        "hold": "Gedrückt halten beim Sprechen"
-      },
       "read": "Vorlesen",
       "readHint": "Was die KI schreibt — Sätze der Szene, Antworten des Tutors, ein Beispiel zum Wort — und Wörter ohne Aufnahme liest eine Stimme vor.",
       "engine": {
@@ -1061,12 +1042,6 @@
       "betterVoices": "Auf dem Mac lädst du bessere Stimmen (Premium, Erweitert) in den Systemeinstellungen → Bedienungshilfen → Gesprochene Inhalte → Systemstimme → Stimmen verwalten.",
       "readRate": "Tempo: {rate}×",
       "readRateLabel": "Vorlesetempo",
-      "atOnce": "Sofort vorlesen",
-      "atOnceOption": {
-        "none": "Nichts",
-        "scenes": "Sätze der Szene",
-        "all": "Szenen und Tutor"
-      },
       "piperNone": "Noch keine Stimme für {language}: unten eine laden.",
       "piperNoLanguage": "Piper hat keine Stimme für {language}: die Stimmen des Geräts lesen es.",
       "piperHint": "Piper-Stimmen sind je etwa 60–120 MB groß und bleiben auf diesem Computer; eine Sprache ohne Stimme lesen die Stimmen des Geräts.",
@@ -1085,7 +1060,10 @@
       "qwenHint": "Eine neuronale Stimme für 10 Sprachen (Deutsch, Englisch, Russisch, Französisch, Spanisch, Italienisch, Portugiesisch, Chinesisch, Japanisch, Koreanisch) mit neun Sprechern. Solange sie läuft, belegt sie etwa 3 GB Speicher (das große Modell mehr) und stoppt nach 10 Minuten ohne Vorlesen; das erste Vorlesen danach wartet etwa 20 s, bis sie geladen ist. Sprachen, die sie nicht spricht, lesen die Stimmen des Geräts.",
       "qwenNoLanguage": "Qwen3-TTS spricht kein {language}: die Stimmen des Geräts lesen es.",
       "qwenVoice": "Stimme",
-      "qwenVoiceHint": "Eine Stimme liest jede Sprache; ein Text aus mehreren Sprachen wird am Stück gelesen, ohne Stimmwechsel mitten im Satz."
+      "qwenVoiceHint": "Eine Stimme liest jede Sprache; ein Text aus mehreren Sprachen wird am Stück gelesen, ohne Stimmwechsel mitten im Satz.",
+      "howMic": "Das Mikrofon neben einem Textfeld: tippen, um die Aufnahme zu starten, nochmal tippen, um sie zu beenden.",
+      "howPhrase": "Der Satz zum Nachsprechen bleibt bis zum ersten Versuch verborgen; du kannst ihn auch vorher zeigen.",
+      "howRecordings": "Deine Aufnahmen bleiben auf diesem Computer, zum Nachhören im Notizbuch; löschen kannst du sie unter Allgemein → Speicher."
     },
     "listening": "Wird erkannt …",
     "notHeard": "Das ließ sich nicht erkennen; die Aufnahme zählt trotzdem.",
@@ -1317,14 +1295,14 @@
   },
   "experimental": {
     "disclaimerTitle": "Ein Experiment, keine Vorbereitung",
-    "disclaimer": "Was du hier einschaltest, wird erst erprobt: Inhalte können unvollständig oder falsch gelesen sein, die Bewertung kann von der echten abweichen. Verlass dich bei der Vorbereitung auf einen Kurs oder eine Prüfung nicht darauf. DW Nicos Weg und Leben in Deutschland sind immer an.",
+    "disclaimer": "Was du hier einschaltest, wird erst erprobt: Inhalte können unvollständig oder falsch gelesen sein, die Bewertung kann von der echten abweichen. Verlass dich bei der Vorbereitung auf einen Kurs oder eine Prüfung nicht darauf.",
     "section": {
       "courses": "Kurse",
       "exams": "Prüfungen"
     },
     "sectionHint": {
-      "courses": "Kurse außer DW Nicos Weg, unter „Kurse“",
-      "exams": "Prüfungen außer Leben in Deutschland, unter „Prüfungen“"
+      "courses": "Weitere Kurse, unter Kurse",
+      "exams": "Weitere Prüfungen, unter Prüfungen"
     },
     "none": "Hier ist nichts experimentell.",
     "more": "{count, plural, one {# weiterer} other {# weitere}}"

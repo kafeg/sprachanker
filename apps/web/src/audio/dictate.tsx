@@ -45,7 +45,6 @@ export function DictateButton({
   });
   if (!host?.recognition || micState() !== "ready") return null;
   const recording = recorder.state === "recording";
-  const hold = host.pushToTalk === "hold";
   const name = languageName(lang, i18n.language);
   const label = recording ? t("speech.stop") : t("speech.sayIn", { language: name });
   return (
@@ -56,10 +55,7 @@ export function DictateButton({
           aria-label={label}
           aria-pressed={recording}
           disabled={busy}
-          onClick={hold ? undefined : () => (recording ? recorder.stop() : void recorder.start())}
-          onPointerDown={hold ? () => void recorder.start() : undefined}
-          onPointerUp={hold ? recorder.stop : undefined}
-          onPointerLeave={hold && recording ? recorder.stop : undefined}
+          onClick={() => (recording ? recorder.stop() : void recorder.start())}
           className={cn(
             "relative grid size-11 shrink-0 place-items-center rounded-full border bg-card text-xs font-semibold hover:bg-accent disabled:opacity-60",
             recording && "border-wrong bg-wrong text-white hover:bg-wrong",

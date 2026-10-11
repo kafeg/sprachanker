@@ -92,12 +92,12 @@ apps/web/src/
   audio/           # recording oneself (08): recorder (MediaRecorder, the microphone of this device, its
                    # loudness), wav (a take as 16 kHz WAV), mic-button (disabled with the reason),
                    # dictate (a microphone beside a text box: what was heard goes into it), take-button,
-                   # context (the speech host the router provides: keep recordings, show the phrase,
-                   # save, src, recognition — renderers call no API; use-speech-host makes it),
+                   # context (the speech host the router provides: save, src, recognition —
+                   # renderers call no API; use-speech-host makes it),
                    # speech-settings (Settings → Speech; SpeechSetup is also the onboarding's step),
                    # reading aloud: speak.ts (what is said, by which voice; pure), speaker.ts (each part by
-                   # the server's engine — Piper or Qwen3-TTS — or the device's voices, one text at a time,
-                   # read at once), speak-button, read-aloud-settings (engine cards, speed) with each
+                   # the server's engine — Piper or Qwen3-TTS — or the device's voices, one text at a
+                   # time), speak-button, read-aloud-settings (engine cards, speed) with each
                    # engine's voices: device-, piper-, qwen-voices (voice-pick: a language's voice and
                    # "Listen"); download-row (a model or voice the server downloads), read-languages (the
                    # languages read aloud), samples ("Listen"'s sentences; pure), in-use (the in-use mark)
@@ -132,8 +132,8 @@ to `@/ui`).
   `ListRow`, a list of earlier items `HistoryList` (newest first, one open at a time); panels are
   `Panel` (its look alone, for lists and folded sections: `panelClass`), side panels `SideSheet`, empty pages `EmptyState`; a waiting button is `<Button loading>`, a link that looks as a button `<Button asChild>`;
   a setting on or off is `CheckRow` (a lone checkbox `Checkbox`, ui/components), one of a few
-  options shown as cards `OptionCard`, a model or voice the server downloads `DownloadRow` (audio/), what is rarely changed
-  is under one `Disclosure` ("Advanced") per tab, tabs look as `SectionTabs`; text fields are the ui
+  options shown as cards `OptionCard`, a model or voice the server downloads `DownloadRow` (audio/); a behaviour with a good
+  default is not a setting (say it in a line instead), tabs look as `SectionTabs`; text fields are the ui
   `Input` and `Textarea` (a gap inside a sentence aside);
   cached lists take a new item through the pure updaters in `api/cache.ts` (tested).
 - Respect `prefers-reduced-motion`; touch targets ≥ 44 px on touch screens: the Button component

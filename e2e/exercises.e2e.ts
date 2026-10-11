@@ -169,7 +169,7 @@ test("speaking: listen first, then record oneself and play it back; the phrase s
   await stop.click();
   await expect(withAudio.getByRole("button", { name: /^Mine · 0:0\d/ })).toBeVisible();
   await expect(withAudio.getByText("Guten Tag!")).toBeVisible();
-  // Kept in the profile: Settings → Speech counts it.
-  await page.goto("/settings#speech");
+  // Kept in the profile: Settings → General → Storage counts it.
+  await page.goto("/settings#general");
   await expect(page.getByText(/^\d+ recordings? · /)).toBeVisible();
 });

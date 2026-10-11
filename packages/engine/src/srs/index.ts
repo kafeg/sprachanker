@@ -14,17 +14,17 @@ import {
 } from "ts-fsrs";
 import { inReview, isFirstLearning, isLearning, isNew } from "./state.ts";
 
-/** Anki's defaults: its deck options as a profile reads them unset (schema `SETTING_DEFAULTS`), and
+/** The defaults: the Review settings as a profile reads them unset (schema `SETTING_DEFAULTS`), and
  *  the scheduler's own. */
 export const SRS_DEFAULTS = {
   newPerDay: SETTING_DEFAULTS["srs.newPerDay"],
   reviewsPerDay: SETTING_DEFAULTS["srs.reviewsPerDay"],
   retention: SETTING_DEFAULTS["srs.retention"],
-  /** Learning steps of a new face and relearning steps of a forgotten one ("1m", "10m", "1h", "1d"). */
-  learningSteps: SETTING_DEFAULTS["srs.learningSteps"] as readonly string[],
-  relearningSteps: SETTING_DEFAULTS["srs.relearningSteps"] as readonly string[],
-  /** The hour the learner's day starts (Anki's "next day starts at"). */
-  dayStartHour: SETTING_DEFAULTS["srs.dayStartHour"],
+  /** Learning steps of a new face and relearning steps of a forgotten one (not set by the learner). */
+  learningSteps: ["1m", "10m"] as readonly StepUnit[],
+  relearningSteps: ["10m"] as readonly StepUnit[],
+  /** The hour the learner's day starts. */
+  dayStartHour: 4,
   /** Learning cards are shown this early when nothing else is due. */
   learnAheadMs: 20 * 60_000,
   /** A card forgotten this many times is a leech. */
@@ -38,15 +38,10 @@ const faceOrder = (face: CardFace) => CardFace.options.indexOf(face);
 export const lessonFace = (faces: CardFace[]): CardFace | undefined =>
   [...faces].sort((a, b) => faceOrder(a) - faceOrder(b))[0];
 
-/** The profile's scheduling options (its Review settings), Anki's defaults where unset. */
+/** The profile's scheduling options (its Review settings), the defaults where unset. */
 export interface SrsParams {
   retention?: number;
-  learningSteps?: readonly string[];
-  relearningSteps?: readonly string[];
 }
-
-/** A step as Anki writes it: minutes, hours or days ("1m", "10m", "1h", "1d"). */
-export const STEP = /^[1-9]\d{0,3}[mhd]$/;
 
 /**
  * The scheduler for one face. Its fuzz is seeded by the face (`seed`, e.g. "<card id>:<face>") and
@@ -57,8 +52,8 @@ const scheduler = (params: SrsParams, seed: string) =>
   fsrs({
     request_retention: params.retention ?? SRS_DEFAULTS.retention,
     enable_fuzz: true,
-    learning_steps: [...(params.learningSteps ?? SRS_DEFAULTS.learningSteps)] as StepUnit[],
-    relearning_steps: [...(params.relearningSteps ?? SRS_DEFAULTS.relearningSteps)] as StepUnit[],
+    learning_steps: [...SRS_DEFAULTS.learningSteps],
+    relearning_steps: [...SRS_DEFAULTS.relearningSteps],
   }).useStrategy(StrategyMode.SEED, function (this: AbstractScheduler) {
     // ts-fsrs keeps the card being scheduled in a protected field (as its own id strategy reads it).
     return `${seed}_${(Reflect.get(this, "current") as Card).reps}`;
@@ -181,22 +176,15 @@ interface QueueLimits {
   reviewsToday?: number;
   /** No daily limit on new faces (a lesson's own words, as Anki's custom study adds new cards). */
   allNew?: boolean;
-  /** New faces do not count against the review limit (Anki's option, off by default). */
-  newIgnoresReviewLimit?: boolean;
-  /** The profile's steps, for the answers left (Anki's defaults where unset). */
-  learningSteps?: readonly string[];
-  relearningSteps?: readonly string[];
 }
 
 /** Answers a face still needs today if each is Good: a new face goes through every learning step, a
  *  (re)learning face through the steps it has left, a review is one answer. */
-function answersToGo(state: FaceState | null | undefined, limits: QueueLimits): number {
-  const learning = limits.learningSteps ?? SRS_DEFAULTS.learningSteps;
+function answersToGo(state: FaceState | null | undefined): number {
+  const learning = SRS_DEFAULTS.learningSteps;
   if (isNew(state)) return Math.max(1, learning.length);
   if (!state || inReview(state)) return 1;
-  const steps = isFirstLearning(state)
-    ? learning
-    : (limits.relearningSteps ?? SRS_DEFAULTS.relearningSteps);
+  const steps = isFirstLearning(state) ? learning : SRS_DEFAULTS.relearningSteps;
   return Math.max(1, steps.length - state.learningSteps);
 }
 
@@ -233,13 +221,12 @@ export function studyQueue(faces: QueueFace[], limits: QueueLimits) {
     (e) => e.due > now && e.due <= now + SRS_DEFAULTS.learnAheadMs,
   );
 
-  // New faces introduced today used the review limit too (unless they ignore it, Anki's option).
-  const ignore = !!limits.newIgnoresReviewLimit;
+  // New faces introduced today used the review limit too.
   const reviewsLeft = Math.max(
     0,
     (limits.reviewsPerDay ?? SRS_DEFAULTS.reviewsPerDay) -
       (limits.reviewsToday ?? 0) -
-      (ignore ? 0 : (limits.newToday ?? 0)),
+      (limits.newToday ?? 0),
   );
   const reviews = active
     .filter((f) => inReview(f.state) && f.state.due < nextDay)
@@ -260,7 +247,7 @@ export function studyQueue(faces: QueueFace[], limits: QueueLimits) {
         0,
         Math.min(
           (limits.newPerDay ?? SRS_DEFAULTS.newPerDay) - (limits.newToday ?? 0),
-          ignore ? Number.POSITIVE_INFINITY : reviewsLeft - reviews.length,
+          reviewsLeft - reviews.length,
         ),
       );
   const fresh = active
@@ -299,11 +286,11 @@ export function studyQueue(faces: QueueFace[], limits: QueueLimits) {
     /** About how many answers finish the day's study, if each is Good: changes as the learner answers
      *  (Again adds steps back). Learning faces due later today count too. */
     answersLeft: [
-      ...fresh.map(() => answersToGo(undefined, limits)),
+      ...fresh.map(() => answersToGo(undefined)),
       ...reviews.map(() => 1),
       ...active
         .filter((f) => f.state && isLearning(f.state) && f.state.due < nextDay)
-        .map((f) => answersToGo(f.state, limits)),
+        .map((f) => answersToGo(f.state)),
     ].reduce((sum, n) => sum + n, 0),
   };
 }

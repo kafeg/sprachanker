@@ -15,15 +15,10 @@ let warmed = { model: "", at: 0 };
 
 export function useSpeechHostValue(): SpeechHost {
   const client = useQueryClient();
-  const keep = useSetting("speech.keepRecordings");
-  const show = useSetting("speech.showText");
-  const pushToTalk = useSetting("speech.pushToTalk");
   const recognition = !!useSpeechState().data?.recognition;
   const model = useSetting("speech.model") ?? "";
   return useMemo(
     () => ({
-      keepRecordings: keep,
-      showText: show,
       async save(take) {
         const id = await uploadRecording(take);
         void client.invalidateQueries({ queryKey: ["recordings"] });
@@ -31,7 +26,6 @@ export function useSpeechHostValue(): SpeechHost {
       },
       src: recordingUrl,
       recognition,
-      pushToTalk,
       transcribe: async (take, lang) => transcribe(await toWav16k(take.blob), lang),
       warm() {
         if (!recognition) return;
@@ -40,6 +34,6 @@ export function useSpeechHostValue(): SpeechHost {
         void warmSpeech();
       },
     }),
-    [keep, show, client, recognition, pushToTalk, model],
+    [client, recognition, model],
   );
 }

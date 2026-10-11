@@ -605,23 +605,14 @@ test("more new cards today in a deck (custom study): the limit grows for it and 
   expect((await getJson(study("lang:de"))).counts.new).toBe(3);
 });
 
-test("the Review settings reach the reviewer: learning steps, and a bad value refused", async () => {
-  const { send, getJson } = await withCards();
-  expect(
-    (await send("PUT", "/api/settings", { key: "srs.learningSteps", value: ["5m", "1h"] })).status,
-  ).toBe(200);
-  const { current } = await getJson(study(`course:${COURSE}`));
-  const now = current.due[1] - 5 * 60_000;
-  expect([current.due[1] - now, current.due[3] - now]).toEqual([5 * 60_000, 60 * 60_000]);
-  expect(
-    (await send("PUT", "/api/settings", { key: "srs.learningSteps", value: ["soon"] })).status,
-  ).toBe(400);
-  expect((await send("PUT", "/api/settings", { key: "srs.dayStartHour", value: 25 })).status).toBe(
+test("the Review settings: a value out of range is refused, a removed option is unknown", async () => {
+  const { send } = await withCards();
+  expect((await send("PUT", "/api/settings", { key: "srs.retention", value: 0.5 })).status).toBe(
     400,
   );
-  expect(
-    (await send("PUT", "/api/settings", { key: "srs.newIgnoresReviewLimit", value: true })).status,
-  ).toBe(200);
+  expect((await send("PUT", "/api/settings", { key: "srs.dayStartHour", value: 4 })).status).toBe(
+    400,
+  );
 });
 
 test("Undo takes back the deck's own latest answer: one in another deck is not this one's", async () => {

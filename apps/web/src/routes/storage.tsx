@@ -1,10 +1,55 @@
 // Settings → Storage (05, 09): where the data lives — chosen when the server starts (`--data`,
-// SPRACHANKER_DATA, else the app-data folder) — and the space each source takes. Courses of one source
-// share their media, so space is shown per source.
+// SPRACHANKER_DATA, else the app-data folder) — the space each source takes (courses of one source
+// share their media, so space is shown per source) and the profile's recordings, all deleted after
+// asking.
+import { Trash2 } from "lucide-react";
+import { useState } from "react";
 import { useTranslation } from "react-i18next";
 import { useCatalog, useStorage } from "@/api/courses.ts";
-import { useBytes } from "@/ui/format.ts";
+import { useDeleteRecordings, useRecordingStats } from "@/api/recordings.ts";
+import { Button } from "@/ui/components/button.tsx";
+import { ConfirmDialog } from "@/ui/confirm.tsx";
+import { useBytes, useNumber } from "@/ui/format.ts";
 import { Panel } from "@/ui/panel.tsx";
+
+/** The profile's recordings: how many, their size, all deleted after asking. */
+function Recordings() {
+  const { t } = useTranslation();
+  const stats = useRecordingStats();
+  const remove = useDeleteRecordings();
+  const bytes = useBytes();
+  const count = useNumber();
+  const [asking, setAsking] = useState(false);
+  return (
+    <div className="flex flex-wrap items-center gap-3 rounded-xl border px-3 py-2 text-sm">
+      <span className="font-medium">{t("storage.recordings")}</span>
+      <span className="text-muted-foreground">
+        {stats.data
+          ? t("storage.recordingsKept", {
+              count: stats.data.count,
+              n: count(stats.data.count),
+              size: bytes(stats.data.bytes),
+            })
+          : "…"}
+      </span>
+      {!!stats.data?.count && (
+        <Button variant="outline" size="sm" className="ml-auto" onClick={() => setAsking(true)}>
+          <Trash2 className="size-4" /> {t("storage.deleteRecordings")}
+        </Button>
+      )}
+      <ConfirmDialog
+        open={asking}
+        onOpenChange={setAsking}
+        title={t("storage.deleteRecordingsTitle")}
+        description={t("storage.deleteRecordingsBody")}
+        confirm={t("storage.deleteRecordings")}
+        cancel={t("common.cancel")}
+        busy={remove.isPending}
+        onConfirm={() => remove.mutate(undefined, { onSuccess: () => setAsking(false) })}
+      />
+    </div>
+  );
+}
 
 export function StorageSection() {
   const { t } = useTranslation();
@@ -69,6 +114,7 @@ export function StorageSection() {
           </li>
         </ul>
       )}
+      <Recordings />
     </Panel>
   );
 }

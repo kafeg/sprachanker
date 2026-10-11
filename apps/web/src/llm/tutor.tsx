@@ -7,7 +7,6 @@ import { useEffect, useRef, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { useLesson } from "@/api/courses.ts";
 import type { SpokenPart } from "@/audio/speak.ts";
-import { useReadAtOnce } from "@/audio/speaker.ts";
 import { Button } from "@/ui/components/button.tsx";
 import { Tabs, TabsContent } from "@/ui/components/tabs.tsx";
 import { panelClass } from "@/ui/panel.tsx";
@@ -238,13 +237,6 @@ function Chat({
   /** A reply read aloud in the learner's language, what it quotes in the language learnt. */
   const sayReply = (text: string) =>
     replyParts(text, i18n.language, parseEditionId(context.edition).target);
-  const last = turns.at(-1);
-  useReadAtOnce(
-    "tutor",
-    chat.loaded,
-    last?.role === "assistant" ? `${context.lessonKey}:${turns.length}` : undefined,
-    last?.role === "assistant" ? sayReply(last.text) : [],
-  );
   const end = useScrollToEnd(`${turns.length}:${shown?.reply}`);
 
   // An ask from outside is sent once, as soon as the chat is ready.

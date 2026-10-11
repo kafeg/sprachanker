@@ -136,7 +136,7 @@ gets the types through Hono RPC (`AppType`), no codegen.
   through the run's outbox; the server re-checks every answer and stores its own outcome.
 - **Cards and review**: a card is a lexeme in a translation language (04); its faces carry FSRS state
   written together with each `card_review` event. The engine builds Anki's queue (limits, a day that
-  starts at the hour set in Review settings — `srs.dayStartHour`, default 4 —, learning steps,
+  starts at 4 AM, learning steps,
   learn-ahead) and `answersLeft`; the same reviewer (`study/`) serves Review and the lesson's "Words"
   step.
 - **Model calls**: every answer records `model` and `latencyMs`; JSON outputs are validated with one

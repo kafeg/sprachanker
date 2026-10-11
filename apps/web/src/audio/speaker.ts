@@ -3,7 +3,7 @@
 // chosen for each language in the profile, else the best one there, at the profile's reading speed.
 // What starts playing (a recording, a video) stops it, and it stops what plays; which text is being
 // read is shared by every speaker button, so one shows "stop" while the others show "listen".
-import { useEffect, useRef, useState, useSyncExternalStore } from "react";
+import { useEffect, useState, useSyncExternalStore } from "react";
 import { useSetting } from "@/api/settings.ts";
 import { sayOnServer, usePiperVoices, useQwenTts, warmQwen } from "@/api/speech.ts";
 import { claimPlayback } from "@/ui/playback.tsx";
@@ -231,31 +231,3 @@ export function useSpeaker() {
 
 /** What a text read aloud is known by: the same parts are the same reading, wherever they are. */
 export const readingId = (parts: SpokenPart[]) => parts.map((p) => `${p.lang}:${p.text}`).join("|");
-
-/**
- * Reads an AI line aloud as it arrives, when the profile asks for it ("read aloud at once": scene
- * lines, or scene lines and the tutor's replies). `loaded`: what was there when the page opened is
- * known — that is never read; `key` names the latest line.
- */
-export function useReadAtOnce(
-  kind: "scene" | "tutor",
-  loaded: boolean,
-  key: string | undefined,
-  parts: SpokenPart[],
-) {
-  const mode = useSetting("speech.readAtOnce");
-  const { say } = useSpeaker();
-  /** The latest line seen; null until the page's lines are known. */
-  const seen = useRef<string | undefined | null>(null);
-  // biome-ignore lint/correctness/useExhaustiveDependencies: a new line is what reads, not new parts
-  useEffect(() => {
-    if (!loaded) return;
-    if (seen.current === null || key === undefined || key === seen.current) {
-      seen.current = key;
-      return;
-    }
-    seen.current = key;
-    if (mode === "all" || (mode === "scenes" && kind === "scene"))
-      void say(readingId(parts), parts);
-  }, [loaded, key]);
-}

@@ -5,7 +5,6 @@ import { ReadAloud } from "../../src/audio/read-aloud-settings.tsx";
 import { useReadLanguages } from "../../src/audio/read-languages.ts";
 import { samplesOf } from "../../src/audio/samples.ts";
 import { SpeakButton } from "../../src/audio/speak-button.tsx";
-import { useReadAtOnce } from "../../src/audio/speaker.ts";
 import { ChatBubble, replyParts } from "../../src/llm/parts.tsx";
 import { queryClient, renderApp } from "../render.tsx";
 
@@ -106,30 +105,6 @@ test("the voice the profile chose is used while the device has it; reading ends 
 test("no button where the device has no voice for the language", async () => {
   const view = await renderApp(<SpeakButton parts={[{ text: "Bonjour", lang: "fr" }]} />);
   expect(view.queryByRole("button")).toBeNull();
-});
-
-test("read at once: only a line that comes while the page is open, and only what the profile asks for", () => {
-  const run = (mode: string, kind: "scene" | "tutor") => {
-    const client = queryClient([[["settings"], { "speech.readAtOnce": mode }]]);
-    const hook = renderHook(
-      ({ loaded, key }: { loaded: boolean; key?: string }) =>
-        useReadAtOnce(kind, loaded, key, key ? [{ text: `Zeile ${key}`, lang: "de" }] : []),
-      {
-        initialProps: { loaded: false } as { loaded: boolean; key?: string },
-        wrapper: ({ children }) => (
-          <QueryClientProvider client={client}>{children}</QueryClientProvider>
-        ),
-      },
-    );
-    hook.rerender({ loaded: true, key: "1" });
-    hook.rerender({ loaded: true, key: "2" });
-    hook.unmount();
-    return said.splice(0).map((s) => s.text);
-  };
-  expect(run("scenes", "scene")).toEqual(["Zeile 2"]);
-  expect(run("scenes", "tutor")).toEqual([]);
-  expect(run("all", "tutor")).toEqual(["Zeile 2"]);
-  expect(run("none", "scene")).toEqual([]);
 });
 
 /** Courses and exams installed here, by their editions (the catalogue's rows). */

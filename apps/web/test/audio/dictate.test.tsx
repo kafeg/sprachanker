@@ -21,14 +21,11 @@ function microphoneHere() {
   });
 }
 const host = (recognition: boolean): SpeechHost => ({
-  keepRecordings: true,
-  showText: "after",
   save: async () => "01K00000000000000000000000",
   src: (id) => id,
   recognition,
   transcribe: async () => "Hallo",
   warm() {},
-  pushToTalk: "tap",
 });
 const composer = (recognition: boolean) => (
   <SpeechProvider value={host(recognition)}>

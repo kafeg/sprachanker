@@ -569,7 +569,12 @@
     "total": "Total",
     "used": "Courses take {size}",
     "usedFree": "Courses take {size} · {free} free on the disk",
-    "seriesSize": "{name}: {size}"
+    "seriesSize": "{name}: {size}",
+    "recordings": "Your recordings",
+    "recordingsKept": "{count, plural, =0 {none} one {{n} recording · {size}} other {{n} recordings · {size}}}",
+    "deleteRecordings": "Delete all",
+    "deleteRecordingsTitle": "Delete all recordings?",
+    "deleteRecordingsBody": "Your recordings will be deleted from this computer. Your answers and progress stay. This cannot be undone."
   },
   "windowTitle": {
     "course": "Course",
@@ -586,7 +591,7 @@
     "mistakes": "Mistakes"
   },
   "words": {
-    "intro": "The lesson's words as cards, as in Anki: recall, show the answer, rate. When nothing is left for now, they go on in Review.",
+    "intro": "The lesson's words as cards: recall, show the answer, rate. When nothing is left for now, they go on in Review.",
     "learnt": "The lesson's words are studied for now.",
     "goOn": "{count, plural, =0 {They come back in Review when they are due.} one {# card in learning comes back in Review soon.} other {# cards in learning come back in Review soon.}}"
   },
@@ -828,7 +833,7 @@
   },
   "tour": {
     "courses": "Your courses (where you left off), the ones downloaded, and every course you can download; any list can be narrowed to a language pair.",
-    "review": "Your words in spaced repetition, as in Anki: a few minutes a day.",
+    "review": "Your words in spaced repetition: a few minutes a day.",
     "notebook": "Every pass of every lesson, your answers and mistakes.",
     "settings": "Your profile, review, speech, the AI assistant and the app.",
     "exams": "Exams to prepare for, such as Leben in Deutschland: mock exams as the real ones run, practice, and the whole catalogue with its answers."
@@ -883,7 +888,7 @@
     "curveCaption": "Memory fades unless it is used: each review at the edge of forgetting makes the curve flatter, so the next one can wait longer.",
     "method": {
       "title": "Spaced repetition",
-      "text": "Each card comes back just before you would forget it. The intervals grow with every good answer: minutes, then days, weeks, months. The idea goes back to Ebbinghaus's forgetting curve (1885); Anki made it a habit for millions."
+      "text": "Each card comes back just before you would forget it. The intervals grow with every good answer: minutes, then days, weeks, months. The idea goes back to Ebbinghaus's forgetting curve (1885)."
     },
     "recall": {
       "title": "Remember first, then look",
@@ -920,7 +925,7 @@
       },
       "production": {
         "name": "Card 2",
-        "text": "the meaning → the word (speaking); it comes after card 1, as Anki's \"Basic and reversed card\""
+        "text": "the meaning → the word (speaking); it comes after card 1"
       }
     },
     "more": {
@@ -952,30 +957,23 @@
     },
     "fsrs": {
       "title": "FSRS",
-      "text": "The schedule is FSRS, the model Anki uses today: it estimates how stable each memory is and when you would forget it, aiming at a 90% chance you still remember. Your settings can change the daily limits."
+      "text": "The schedule is FSRS, an open spaced-repetition model: it estimates how stable each memory is and when you would forget it, aiming at a 90% chance you still remember. Your settings can change the daily limits."
     }
   },
   "reviewSettings": {
-    "intro": "Anki's deck options for your cards. The defaults are Anki's; change them only if they do not suit you.",
+    "intro": "Spaced repetition of your cards: a word comes back when you are about to forget it. The defaults suit most learners.",
     "limits": "Daily limits",
     "newPerDay": "New cards per day",
     "reviewsPerDay": "Maximum reviews per day",
     "limitsHint": "A word with two card types is two new cards. Each new card brings about 5–10 reviews in its first month.",
-    "newIgnoresReviewLimit": "New cards ignore the review limit",
-    "newIgnoresReviewLimitHint": "In Anki, new cards a day also count against the reviews a day: once the review limit is reached, no new cards are shown either. “Yes” shows new cards up to their own limit even then.",
     "retention": "Desired retention",
-    "retentionHint": "How likely you still remember a card when it comes back. Higher means more reviews; 90% is Anki's default.",
-    "steps": "Steps",
-    "learningSteps": "Learning steps",
-    "learningStepsHint": "A new card's intervals before it graduates: minutes (m), hours (h) or days (d), e.g. 1m 10m.",
-    "relearningSteps": "Relearning steps",
-    "relearningStepsHint": "A forgotten card's intervals before it is back in review (empty: none).",
-    "badSteps": "Write steps as 1m 10m 1h 1d.",
-    "day": "Next day starts at",
-    "dayHint": "Reviews done after midnight still count for the evening before until this hour.",
+    "retentionHint": "How likely you still remember a card when it comes back. Higher means more reviews; 90% by default.",
     "faces": "Card types of a new word",
     "facesHint": "Which cards a new word gets. Words that have cards keep theirs.",
-    "defaults": "Back to Anki's defaults"
+    "how": "How it works",
+    "howSteps": "A new card comes back after 1 and 10 minutes, then after days; a forgotten one after 10 minutes, and its interval grows again.",
+    "howDay": "A new day starts at {time}: reviews after midnight before then count for the evening before.",
+    "howLimit": "New cards count against the maximum reviews: once it is reached, no new cards are shown that day."
   },
   "example": {
     "show": "Example",
@@ -1015,18 +1013,6 @@
       "listen": "Listen",
       "sampleFor": "Text to listen to in {language}",
       "otherSample": "Another phrase",
-      "recordings": "Recordings",
-      "keep": "Keep my recordings",
-      "keepHint": "To listen to them again later and in the Notebook. Off: a recording plays only until you leave the exercise.",
-      "showText": "The phrase to repeat",
-      "show": {
-        "after": "Hidden until the first try",
-        "always": "Shown at once"
-      },
-      "kept": "{count, plural, =0 {No recordings kept} one {{n} recording · {size}} other {{n} recordings · {size}}}",
-      "deleteAll": "Delete all",
-      "deleteTitle": "Delete all recordings?",
-      "deleteBody": "Your recordings are deleted from this computer. Your answers and progress stay. This can't be undone.",
       "recognition": "Recognition",
       "recognitionHint": "Your speech is recognised on this computer (Whisper): what you said is compared with the phrase. It hears words, not sounds, and is lenient. Nothing leaves the computer.",
       "noEngine": "The recognition engine isn't installed on this computer.",
@@ -1036,11 +1022,6 @@
       "use": "Use",
       "removeModel": "Remove the model",
       "download": "Download",
-      "pushToTalk": "The microphone beside a text box",
-      "talk": {
-        "tap": "Tap to start, tap to stop",
-        "hold": "Hold while speaking"
-      },
       "read": "Read aloud",
       "readHint": "What the AI writes — scene lines, the tutor's replies, a word's example — and words without a recording, read by a voice.",
       "engine": {
@@ -1061,12 +1042,6 @@
       "betterVoices": "On a Mac, better voices (Premium, Enhanced) are downloaded in System Settings → Accessibility → Spoken Content → System voice → Manage voices.",
       "readRate": "Speed: {rate}×",
       "readRateLabel": "Reading speed",
-      "atOnce": "Read aloud at once",
-      "atOnceOption": {
-        "none": "Nothing",
-        "scenes": "Scene lines",
-        "all": "Scenes and the tutor"
-      },
       "piperNone": "No voice for {language} yet: download one below.",
       "piperNoLanguage": "Piper has no voice for {language}: the device's voices read it.",
       "piperHint": "Piper's voices are about 60–120 MB each and stay on this computer; a language without one is read by the device's voices.",
@@ -1085,7 +1060,10 @@
       "qwenHint": "A neural voice that reads 10 languages (German, English, Russian, French, Spanish, Italian, Portuguese, Chinese, Japanese, Korean) with nine speakers. While it runs it holds about 3 GB of memory (more for the large model) and stops after 10 minutes without reading; the first reading after that waits about 20 s while it loads. Languages it does not speak are read by the device's voices.",
       "qwenNoLanguage": "Qwen3-TTS does not speak {language}: the device's voices read it.",
       "qwenVoice": "Voice",
-      "qwenVoiceHint": "One voice reads every language; a text mixing languages is read whole, without switching voice mid-sentence."
+      "qwenVoiceHint": "One voice reads every language; a text mixing languages is read whole, without switching voice mid-sentence.",
+      "howMic": "The microphone beside a text box: tap to start recording, tap again to stop.",
+      "howPhrase": "The phrase to repeat is hidden until your first try; you can show it sooner.",
+      "howRecordings": "Your recordings are kept on this computer to listen to again in the Notebook; delete them in General → Storage."
     },
     "listening": "Listening to it…",
     "notHeard": "It couldn't be recognised; the recording counts anyway.",
@@ -1317,14 +1295,14 @@
   },
   "experimental": {
     "disclaimerTitle": "An experiment, not a way to prepare",
-    "disclaimer": "What you turn on here is being tried out: its content may be incomplete or read wrongly, its scoring may differ from the real thing. Don't rely on it to prepare for a course or an exam. DW Nicos Weg and Leben in Deutschland are always on.",
+    "disclaimer": "What you turn on here is being tried out: its content may be incomplete or read wrongly, its scoring may differ from the real thing. Don't rely on it to prepare for a course or an exam.",
     "section": {
       "courses": "Courses",
       "exams": "Exams"
     },
     "sectionHint": {
-      "courses": "Courses besides DW Nicos Weg, shown in Courses",
-      "exams": "Exams besides Leben in Deutschland, shown in Exams"
+      "courses": "More courses, in Courses",
+      "exams": "More exams, in Exams"
     },
     "none": "Nothing experimental here.",
     "more": "{count, plural, one {# more} other {# more}}"

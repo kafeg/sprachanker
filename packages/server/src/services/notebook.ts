@@ -11,12 +11,10 @@ export function createNotebook(deps: {
   store: RunStore;
   /** Every module's standing, in the order the Notebook shows them. */
   modules: Array<() => ModuleStanding | Promise<ModuleStanding>>;
-  /** The hour the learner's day starts (the Review settings). */
-  dayStartHour: () => number;
   now: () => number;
 }) {
   const { store } = deps;
-  const dayOf = (t: number) => studyDay(t, deps.dayStartHour()).start;
+  const dayOf = (t: number) => studyDay(t).start;
 
   return {
     /** Every study day with something done (oldest first, what each held by module), today's

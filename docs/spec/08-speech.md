@@ -14,11 +14,11 @@ off, its model, the engine, voice and speed reading aloud) are applied by `servi
   under it); so is a browser without MediaRecorder or a denied permission.
 - **Kept** in `profiles/<id>/recordings/<ulid>.<ext>` (`POST /api/recordings` with the audio as the
   body, ≤ 5 MB; served with ranges to its own profile only), referenced from the answer that holds it;
-  counted and deleted all at once in Settings → Speech; a progress reset deletes those of its runs. With
-  "Keep my recordings" off nothing is uploaded: a take plays only until the exercise is left.
+  counted and deleted all at once in Settings → General → Storage; a progress reset deletes those of
+  its runs. Always kept (owner, 2026-10-11).
 - **Saying it oneself** (`speech_selfrate`, the courses' speaking exercises; 09): the original first,
   then a take, played beside it; the item counts once recorded, without a score (owner, 2026-10-08);
-  the phrase to repeat hidden until the first try unless shown (a setting) or there is nothing to hear
+  the phrase to repeat hidden until the first try unless shown ("Show the text") or there is nothing to hear
   first (no recording of the item or its exercise); the source's own answer,
   spoken (`answerAudio`, DW's "Lösungsaudio"), playable after it.
 
@@ -60,10 +60,9 @@ off, its model, the engine, voice and speed reading aloud) are applied by `servi
 - ASR "autocorrects" learner errors: show "heard: …" literally; speech results are practice feedback,
   not pronunciation grading (sounds: a phoneme recogniser, set aside — plan, "Later").
 - **Saying instead of typing** (`audio/dictate.tsx`): a microphone beside the box of a free answer
-  (`respond`, in the answer's language; the take kept as the spoken answer's recording when recordings
-  are) and of the tutor and scenes (one per language — the learnt one and the learner's, "DE" / "RU"):
+  (`respond`, in the answer's language; the take kept as the spoken answer's recording) and of the tutor and scenes (one per language — the learnt one and the learner's, "DE" / "RU"):
   what was heard goes into the box, joined to what is typed, read over and changed before it is sent.
-  Tap to start and stop, or hold while speaking (Settings → Speech → Advanced). Shown only while recognition is
+  Tap to start and stop. Shown only while recognition is
   on and ready.
 - Target: median server-side transcription ≤ 1.5 s for 3–5 s utterances on the owner's Mac.
 
@@ -102,9 +101,8 @@ writes (owner, 2026-10-08).
 - **Voices**: per language the one the profile picked while it is there, else the best one: on the
   device "Premium", then "Enhanced", of the language's main region (de-DE for German), never a macOS
   novelty voice; with Piper the main region first, then the highest quality. Settings `speech.voices`
-  (engine → language → voice), `speech.readRate` (0.5–1.5; Piper's length scale is its inverse),
-  `speech.readAtOnce` (none / scenes / all: a line that arrives while the page is open is read at
-  once, never what was there on opening).
+  (engine → language → voice), `speech.readRate` (0.5–1.5; Piper's length scale is its inverse). A
+  line is read on request (its button), never at once (owner, 2026-10-11).
 - **Qwen3-TTS** (owner, 2026-10-09: run by us like whisper): qwentts.cpp's `tts-server` (MIT; pinned by
   commit in `native/qwen/VERSION`, built static with Metal by `bun run build:speech`, beside the
   binary), an OpenAI-compatible server run by the sidecar supervisor (06) with a model — a CustomVoice

@@ -1,16 +1,11 @@
 // Settings → Speech (08; 09): the microphone of this device (which one, a test with its level and the
-// take played back; why it cannot be used, if so), recognition (on or off, its models), reading aloud
-// (read-aloud-settings.tsx), whether recordings are kept and the recordings kept — how many, their
-// size, all deleted after asking; under Advanced: tap or hold to talk, how the phrase to repeat is
-// shown, what is read aloud at once.
-import { Trash2 } from "lucide-react";
+// take played back; why it cannot be used, if so), recognition (on or off, its models, how speaking
+// works) and reading aloud (read-aloud-settings.tsx). The recordings kept are in General → Storage.
 import { useEffect, useState } from "react";
 import { useTranslation } from "react-i18next";
-import { useDeleteRecordings, useRecordingStats } from "@/api/recordings.ts";
 import { useSetSetting, useSetting } from "@/api/settings.ts";
 import { useSpeechModels, useSpeechState } from "@/api/speech.ts";
 import { CheckRow } from "@/ui/check-row.tsx";
-import { Choice } from "@/ui/choice.tsx";
 import { Button } from "@/ui/components/button.tsx";
 import {
   Select,
@@ -19,9 +14,6 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/ui/components/select.tsx";
-import { ConfirmDialog } from "@/ui/confirm.tsx";
-import { Disclosure } from "@/ui/disclosure.tsx";
-import { useBytes, useNumber } from "@/ui/format.ts";
 import { Panel } from "@/ui/panel.tsx";
 import { DownloadRow } from "./download-row.tsx";
 import { InUse } from "./in-use.tsx";
@@ -132,6 +124,11 @@ function Recognition() {
     <Panel title={t("speech.settings.recognition")}>
       <div className="mt-2 space-y-4">
         <p className="text-sm text-muted-foreground">{t("speech.settings.recognitionHint")}</p>
+        <ul className="list-disc space-y-1 pl-5 text-sm text-muted-foreground">
+          {(["howMic", "howPhrase", "howRecordings"] as const).map((k) => (
+            <li key={k}>{t(`speech.settings.${k}`)}</li>
+          ))}
+        </ul>
         {data && !data.engine ? (
           <p className="text-sm">{t("speech.settings.noEngine")}</p>
         ) : (
@@ -176,128 +173,14 @@ function Recognition() {
   );
 }
 
-function Recordings() {
-  const { t } = useTranslation();
-  const set = useSetSetting();
-  const stats = useRecordingStats();
-  const remove = useDeleteRecordings();
-  const bytes = useBytes();
-  const count = useNumber();
-  const [asking, setAsking] = useState(false);
-  const keep = useSetting("speech.keepRecordings");
-  return (
-    <Panel title={t("speech.settings.recordings")}>
-      <div className="mt-2 space-y-4">
-        <CheckRow
-          checked={keep}
-          onChange={(value) => set.mutate({ key: "speech.keepRecordings", value })}
-          title={t("speech.settings.keep")}
-          hint={t("speech.settings.keepHint")}
-        />
-        <div className="flex flex-wrap items-center gap-3 text-sm text-muted-foreground">
-          <span>
-            {stats.data
-              ? t("speech.settings.kept", {
-                  count: stats.data.count,
-                  n: count(stats.data.count),
-                  size: bytes(stats.data.bytes),
-                })
-              : "…"}
-          </span>
-          {!!stats.data?.count && (
-            <Button variant="outline" size="sm" className="ml-auto" onClick={() => setAsking(true)}>
-              <Trash2 className="size-4" /> {t("speech.settings.deleteAll")}
-            </Button>
-          )}
-        </div>
-      </div>
-      <ConfirmDialog
-        open={asking}
-        onOpenChange={setAsking}
-        title={t("speech.settings.deleteTitle")}
-        description={t("speech.settings.deleteBody")}
-        confirm={t("speech.settings.deleteAll")}
-        cancel={t("common.cancel")}
-        busy={remove.isPending}
-        onConfirm={() => remove.mutate(undefined, { onSuccess: () => setAsking(false) })}
-      />
-    </Panel>
-  );
-}
-
 /** Hearing and speaking: the microphone, recognition and reading aloud — the onboarding's speech step
- *  and the head of Settings → Speech. */
+ *  and Settings → Speech. */
 export function SpeechSetup() {
   return (
     <div className="space-y-6">
       <Microphone />
       <Recognition />
       <ReadAloud />
-    </div>
-  );
-}
-
-/** What is rarely changed: how the microphone beside a text box listens, when the phrase to repeat is
- *  shown, and what is read aloud at once. */
-function Advanced() {
-  const { t } = useTranslation();
-  const set = useSetSetting();
-  const pushToTalk = useSetting("speech.pushToTalk");
-  const show = useSetting("speech.showText");
-  const atOnce = useSetting("speech.readAtOnce");
-  const option = (label: string, choice: React.ReactNode) => (
-    <div className="space-y-1.5">
-      <p className="text-sm font-medium">{label}</p>
-      {choice}
-    </div>
-  );
-  return (
-    <Disclosure title={t("settings.advanced")}>
-      <Panel>
-        <div className="space-y-4">
-          {option(
-            t("speech.settings.pushToTalk"),
-            <Choice
-              value={pushToTalk}
-              options={(["tap", "hold"] as const).map((v) => [v, t(`speech.settings.talk.${v}`)])}
-              onChange={(value) => set.mutate({ key: "speech.pushToTalk", value })}
-            />,
-          )}
-          {option(
-            t("speech.settings.showText"),
-            <Choice
-              value={show}
-              options={(["after", "always"] as const).map((v) => [
-                v,
-                t(`speech.settings.show.${v}`),
-              ])}
-              onChange={(value) => set.mutate({ key: "speech.showText", value })}
-            />,
-          )}
-          {option(
-            t("speech.settings.atOnce"),
-            <Choice
-              value={atOnce}
-              options={(["none", "scenes", "all"] as const).map((v) => [
-                v,
-                t(`speech.settings.atOnceOption.${v}`),
-              ])}
-              onChange={(value) => set.mutate({ key: "speech.readAtOnce", value })}
-            />,
-          )}
-        </div>
-      </Panel>
-    </Disclosure>
-  );
-}
-
-/** Settings → Speech: the setup, the recordings kept, then what is rarely changed. */
-export function SpeechSettings() {
-  return (
-    <div className="space-y-6">
-      <SpeechSetup />
-      <Recordings />
-      <Advanced />
     </div>
   );
 }

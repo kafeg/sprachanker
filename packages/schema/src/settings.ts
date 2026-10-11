@@ -37,8 +37,6 @@ export const AI_PLACES = [
 export type AiPlace = (typeof AI_PLACES)[number];
 
 const filter = z.string().min(1).max(200);
-/** A learning step as Anki writes it: minutes, hours or days. */
-const step = z.string().regex(/^[1-9]\d{0,3}[mhd]$/);
 
 /** In `speech.voices`, the voice an engine reads every language with (Qwen3-TTS: each of its speakers
  *  speaks them all, so one is chosen for all). */
@@ -70,36 +68,21 @@ export const LEARNER_SETTINGS = {
   /** What is experimental and turned on (Settings → General → Experimental; owner, 2026-10-10): a section
    *  (`courses`, `exams`) and within it each source by its series (`courses:coerll.dib`). */
   "experimental.on": z.array(z.string().min(1).max(120)).max(200),
-  /** Anki's deck options (04). */
+  /** The Review settings (04). */
   "srs.newPerDay": z.number().int().min(0).max(9999),
   "srs.reviewsPerDay": z.number().int().min(0).max(9999),
   "srs.retention": z.number().min(0.7).max(0.99),
   "srs.faces": z.array(CardFace).min(1),
-  /** Learning steps of a new card and relearning steps of a forgotten one ("1m", "10m", "1h", "1d"). */
-  "srs.learningSteps": z.array(step).min(1).max(10),
-  "srs.relearningSteps": z.array(step).max(10),
-  /** The hour the learner's day starts (Anki: "next day starts at"). */
-  "srs.dayStartHour": z.number().int().min(0).max(23),
-  /** New cards do not count against the review limit (Anki's option, off by default). */
-  "srs.newIgnoresReviewLimit": z.boolean(),
-  /** Recordings of oneself are kept (on by default): replayed later, in the Notebook (08). */
-  "speech.keepRecordings": z.boolean(),
-  /** The phrase to repeat: hidden until the first attempt (by default), or shown at once. */
-  "speech.showText": z.enum(["after", "always"]),
   /** Speech recognition used when the engine and a model are there (on by default), and the model. */
   "speech.recognition": z.boolean(),
   "speech.model": z.string().min(1).max(100),
-  /** The microphone beside a text box: tap to start and stop (default), or hold to talk. */
-  "speech.pushToTalk": z.enum(["tap", "hold"]),
   /** Reading aloud (08): the engine (the device's voices, Piper or Qwen3-TTS on the server), Qwen3-TTS's
    *  model (none: the large one when it is there), the voice chosen per engine and language (none: the
-   *  best one there), the speed, and what is read at once — nothing, scene lines, or scene lines and
-   *  the tutor's replies. */
+   *  best one there), the speed. */
   "speech.readEngine": z.enum(["device", "piper", "qwen"]),
   "speech.qwenModel": z.string().min(1).max(100),
   "speech.voices": z.record(z.string().max(40), z.record(z.string().max(40), z.string().max(400))),
   "speech.readRate": z.number().min(0.5).max(1.5),
-  "speech.readAtOnce": z.enum(["none", "scenes", "all"]),
 } as const;
 
 /** Settings written only by the service that owns them. */
@@ -143,21 +126,13 @@ export const SETTING_DEFAULTS = {
   "llm.debugPrompts": false,
   "llm.offIn": [],
   "experimental.on": [],
-  "speech.keepRecordings": true,
-  "speech.showText": "after",
   "speech.recognition": true,
-  "speech.pushToTalk": "tap",
   "speech.readEngine": "device",
   "speech.readRate": 1,
-  "speech.readAtOnce": "none",
   "srs.faces": ["recognition", "production"],
   "srs.newPerDay": 20,
   "srs.reviewsPerDay": 200,
   "srs.retention": 0.9,
-  "srs.learningSteps": ["1m", "10m"],
-  "srs.relearningSteps": ["10m"],
-  "srs.dayStartHour": 4,
-  "srs.newIgnoresReviewLimit": false,
 } as const satisfies { [K in keyof Learner]?: SettingValue<K> };
 export type LearnerSettingKey = keyof Learner;
 /** A preference as read: its value, or its default where it has one. */

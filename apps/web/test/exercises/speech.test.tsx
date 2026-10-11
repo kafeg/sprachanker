@@ -12,15 +12,12 @@ afterEach(() => {
 const setSecure = (value: boolean) =>
   Object.defineProperty(window, "isSecureContext", { value, configurable: true });
 
-const host = (showText: "after" | "always") => ({
-  keepRecordings: true,
-  showText,
+const host = () => ({
   save: async () => "01K00000000000000000000000",
   src: (id: string) => `/api/recordings/${id}`,
   recognition: true,
   transcribe: async () => "",
   warm() {},
-  pushToTalk: "tap" as const,
 });
 const item = {
   key: "s/c/00-01/ex-01#1" as ItemKey,
@@ -31,7 +28,7 @@ const item = {
 test("on plain HTTP the microphone is disabled and says why", async () => {
   setSecure(false);
   const view = await renderApp(
-    <SpeechProvider value={host("always")}>
+    <SpeechProvider value={host()}>
       <SpeechSelfrate item={item} answer={undefined} onAnswer={() => {}} url={(p) => p} />
     </SpeechProvider>,
   );
@@ -39,14 +36,12 @@ test("on plain HTTP the microphone is disabled and says why", async () => {
     "true",
   );
   expect(view.getByText(/only at a secure address/)).toBeTruthy();
-  // Shown at once by the setting.
-  expect(view.getByText("Guten Tag!").getAttribute("aria-hidden")).toBe("false");
 });
 
 test("the phrase hidden until the first try, shown on request; a kept take plays in the Notebook", async () => {
   setSecure(true);
   const view = await renderApp(
-    <SpeechProvider value={host("after")}>
+    <SpeechProvider value={host()}>
       <SpeechSelfrate
         item={item}
         answer={undefined}
@@ -64,7 +59,7 @@ test("the phrase hidden until the first try, shown on request; a kept take plays
 
   // Nothing to hear first (a recording the source keeps locked): the phrase is shown at once.
   const silent = await renderApp(
-    <SpeechProvider value={host("after")}>
+    <SpeechProvider value={host()}>
       <SpeechSelfrate
         item={{ key: item.key, text: "Guten Tag!" }}
         answer={undefined}
@@ -78,7 +73,7 @@ test("the phrase hidden until the first try, shown on request; a kept take plays
   silent.unmount();
 
   const notebook = await renderApp(
-    <SpeechProvider value={host("after")}>
+    <SpeechProvider value={host()}>
       <SpeechSelfrate
         item={item}
         answer={{ recording: "01K00000000000000000000000" }}
@@ -95,7 +90,7 @@ test("the phrase hidden until the first try, shown on request; a kept take plays
 test("what was heard: the verdict and the words missed against the phrase; a free answer just heard", async () => {
   setSecure(true);
   const view = await renderApp(
-    <SpeechProvider value={host("after")}>
+    <SpeechProvider value={host()}>
       <SpeechSelfrate
         item={{ ...item, text: "Ich heiße Nico und komme aus Spanien." }}
         answer={{ transcript: "Ich heiße Nico und komme aus" }}
@@ -111,7 +106,7 @@ test("what was heard: the verdict and the words missed against the phrase; a fre
   view.unmount();
 
   const free = await renderApp(
-    <SpeechProvider value={host("after")}>
+    <SpeechProvider value={host()}>
       <SpeechSelfrate
         item={{ key: item.key, answerAudio: "answer.mp3" }}
         answer={{ transcript: "Tschüss, gute Reise!" }}
@@ -130,7 +125,7 @@ test("what was heard: the verdict and the words missed against the phrase; a fre
 test("the source's answer is not offered before the first try", async () => {
   setSecure(true);
   const view = await renderApp(
-    <SpeechProvider value={host("after")}>
+    <SpeechProvider value={host()}>
       <SpeechSelfrate
         item={{ key: item.key, answerAudio: "answer.mp3" }}
         answer={undefined}
@@ -146,7 +141,7 @@ test("saying a phrase: shown at once; without recognition the microphone says wh
   setSecure(true);
   const phrase = { key: item.key, text: "Wie geht es Ihnen?" };
   const off = await renderApp(
-    <SpeechProvider value={{ ...host("after"), recognition: false }}>
+    <SpeechProvider value={{ ...host(), recognition: false }}>
       <SpeechRepeat item={phrase} answer={undefined} onAnswer={() => {}} url={(p) => p} />
     </SpeechProvider>,
   );
@@ -158,7 +153,7 @@ test("saying a phrase: shown at once; without recognition the microphone says wh
   off.unmount();
 
   const said = await renderApp(
-    <SpeechProvider value={host("after")}>
+    <SpeechProvider value={host()}>
       <SpeechRepeat
         item={phrase}
         answer={{ speech: { transcript: "Wie geht es" } }}

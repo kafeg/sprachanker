@@ -19,12 +19,10 @@ export function Respond({ item, locale, answer, onAnswer, outcome }: RendererPro
   const reference = [...item.reference, ...(locale?.reference ?? [])];
   const scope = useRef<HTMLDivElement>(null);
   const host = useSpeechHost();
-  // Said: the words heard join what is typed; the take is kept as the spoken answer when recordings are.
+  // Said: the words heard join what is typed; the take is kept as the spoken answer.
   const said = async (heard: string, take: Parameters<NonNullable<typeof host>["save"]>[0]) => {
     const text = answer?.text.trim() ? `${answer.text.trimEnd()} ${heard}` : heard;
-    const recording = host?.keepRecordings
-      ? await host.save(take).catch(() => undefined)
-      : undefined;
+    const recording = host ? await host.save(take).catch(() => undefined) : undefined;
     onAnswer({ text, ...(recording && { speech: { recording, transcript: heard } }) });
   };
   return (

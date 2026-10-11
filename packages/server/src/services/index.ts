@@ -150,7 +150,6 @@ function profileServices(
   const notebook = createNotebook({
     store,
     modules: [study.standing, lessons.standing, exams.standing],
-    dayStartHour: () => settings.value("srs.dayStartHour"),
     now,
   });
   const lessonJournal = createLessonJournal({

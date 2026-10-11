@@ -81,19 +81,11 @@ test("the interface language: one control; in Settings the profile keeps it, on 
   await i18n.changeLanguage("en");
 });
 
-test("Settings → Review: the daily limits and card types in sight, the rest under Advanced", async () => {
+test("Settings → Review: limits, retention and card types, no Advanced; the rest said in lines", async () => {
   const view = await renderApp(<ReviewSettings />);
-  const advanced = view.getByText("Advanced").closest("details");
-  expect(advanced?.open).toBe(false);
-  const inAdvanced = (text: string) => !!view.getByText(text).closest("details");
-  expect(inAdvanced("New cards per day")).toBe(false);
-  expect(inAdvanced("Card types of a new word")).toBe(false);
-  for (const text of [
-    "Desired retention",
-    "Learning steps",
-    "New cards ignore the review limit",
-    "Next day starts at",
-  ])
-    expect(inAdvanced(text)).toBe(true);
-  expect(inAdvanced("Back to Anki's defaults")).toBe(false);
+  for (const text of ["New cards per day", "Desired retention", "Card types of a new word"])
+    expect(view.getByText(text)).toBeTruthy();
+  expect(view.queryByText("Advanced")).toBeNull();
+  expect(view.queryByText(/Anki/)).toBeNull();
+  expect(view.getByText(/A new day starts at 4/)).toBeTruthy();
 });

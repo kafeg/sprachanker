@@ -97,7 +97,7 @@ Pure functions over events and cards (05), read by the server per request:
   steps), exam answers, card answers (one taken back by undo does not count), new cards learnt, answers
   to cards in review and those not "Again" (the share remembered), AI practice (the learner's messages,
   checks asked for, in whichever run: a lesson's, an exam's, a chat or a scene) — and the totals of a
-  span of days. The day starts at the profile's hour (Spaced repetition, below).
+  span of days. The day starts at 4 AM (Spaced repetition, below).
 
 Every module reports what the Notebook shows of it the same way (schema `stats.ts`: its headline
 figures, its entries with their figures and latest runs; the server's modules each give their
@@ -118,13 +118,12 @@ actions behave as in Anki (v3 scheduler, FSRS), so the learner's habits and deck
   by the face and its review count (as Anki seeds it by card), so the interval a button shows is the
   one the answer gets. A face lapsed 8 times is a leech (marked on the card); a face in FSRS's own
   "new" state (an imported deck) is new.
-- **The day** starts at the hour set in Settings → Review (`srs.dayStartHour`, default 4 AM local
-  time; Anki's "next day starts at"); limits and burying count from it.
+- **The day** starts at 4 AM local time (Anki's "next day starts at"; not a setting); limits and
+  burying count from it.
 - **The queue** (`studyQueue`): learning faces due now first; then reviews and new faces mixed evenly;
   new faces gathered by the order the cards were made, card 1 (recognition) of every note before card 2
   (production) before card 3 (listening). Limits per day: 20 new (`srs.newPerDay`), 200 reviews
-  (`srs.reviewsPerDay`), new faces counting against the review limit too unless the profile sets
-  `srs.newIgnoresReviewLimit` (Anki's "new cards ignore review limit", off). When nothing else is left,
+  (`srs.reviewsPerDay`), new faces counting against the review limit too (as Anki by default). When nothing else is left,
   learning faces due within 20 minutes are shown ahead (learn ahead). Siblings are not buried.
 - **Counts** as in Anki: new · learning · to review, the current card's queue underlined.
 - **The reviewer**: the question; Show answer (Space, Enter, a tap) shows the question and the answer
@@ -147,9 +146,9 @@ actions behave as in Anki (v3 scheduler, FSRS), so the learner's habits and deck
 - **Faces**: recognition (target → native), production (native → target), listening (audio → meaning).
   Enabled per card; the profile sets the default (recognition + production).
 - **Deck options** are the profile's (Settings → Review, owner 2026-10-08), Anki's defaults where unset:
-  new cards and reviews per day (20, 200), new cards ignoring the review limit (off), desired retention
-  (0.9), learning and relearning steps (1m 10m; 10m — passed to the FSRS scheduler), the hour the day
-  starts (4; also the Notebook's study days), the card types of a new word (recognition, production).
+  new cards and reviews per day (20, 200), desired retention (0.9), the card types of a new word
+  (recognition, production). The steps, the day's start and new cards within the review limit are
+  Anki's defaults and not settings (owner, 2026-10-11).
 - **AI examples** (owner, 2026-10-07): on request only — "Example" under a card's answer and in the
   word sheet — the model writes a sentence with the word (07, `word_example`). Each is kept with the
   card and never shown by itself: asking again shows the newest kept, "Another example" asks anew.
