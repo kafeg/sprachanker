@@ -70,6 +70,17 @@ const SectionBody = z.object({
   chatId: Ulid.optional(),
   message: z.string().trim().min(1).max(MESSAGE_MAX),
   language: Lang,
+  /** Sent for the learner: one of the ways into a new chat. */
+  start: z.boolean().optional(),
+});
+
+/** A page of the Tutor section's chats: how many come before it. */
+const SectionPage = z.object({
+  offset: z
+    .string()
+    .regex(/^\d{1,6}$/)
+    .transform(Number)
+    .optional(),
 });
 
 const ChatParam = z.object({ id: Ulid });
@@ -119,7 +130,8 @@ async function streamReply(c: Context, start: () => Promise<AsyncIterable<string
         await stream.write(next.value);
     } catch (error) {
       const response = failure(error);
-      if (!response) console.error(error);
+      // The learner stopping the reply is no failure to log.
+      if (!response && !c.req.raw.signal.aborted) console.error(error);
       const body = response?.body ?? { error: "server_error" };
       if (!stream.aborted) await stream.write(STREAM_ERROR + JSON.stringify(body));
     } finally {
@@ -284,9 +296,10 @@ export function llmRoutes() {
         c.var.s.tutor.reset(c.req.valid("json").lessonKey);
         return c.json({ ok: true as const });
       })
-      // Chats with the tutor: a lesson's (`lessonKey`), or the Tutor section's (none).
-      .get("/tutor/chats", zod("query", ChatsOf), (c) =>
-        c.json({ chats: c.var.s.tutor.chats(c.req.valid("query").lessonKey ?? null) }),
+      // Chats with the tutor about a lesson; one of them (`lessonKey`: a lesson's, none: the Tutor
+      // section's) read or deleted.
+      .get("/tutor/chats", zod("query", z.object({ lessonKey: LessonKey })), (c) =>
+        c.json({ chats: c.var.s.tutor.chats(c.req.valid("query").lessonKey) }),
       )
       .get("/tutor/chats/:id", zod("param", ChatParam), zod("query", ChatsOf), (c) => {
         const about = c.req.valid("query").lessonKey ?? null;
@@ -300,8 +313,12 @@ export function llmRoutes() {
           throw new ServiceError("no_such_chat", 404);
         return c.json({ ok: true as const });
       })
-      // The Tutor section: a message (a new chat named in the reply's header), how full the next
+      // The Tutor section: its chats a page at a time (and whether a new one can begin), a message (a
+      // new chat named in the reply's header), how full the next
       // request is, the request it would send.
+      .get("/tutor/section/chats", zod("query", SectionPage), async (c) =>
+        c.json(await c.var.s.tutor.sectionChats(c.req.valid("query").offset)),
+      )
       .post("/tutor/section", zod("json", SectionBody), (c) =>
         streamReply(c, async () => {
           const { id, reply } = await c.var.s.tutor.sendSection(

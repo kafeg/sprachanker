@@ -22,7 +22,7 @@ import {
   recordingOf,
   type TypedEvent,
 } from "@sprachanker/schema";
-import { and, asc, desc, eq, gte, inArray, isNull, max, or, type SQL } from "drizzle-orm";
+import { and, asc, desc, eq, gte, inArray, isNull, max, or, type SQL, sql } from "drizzle-orm";
 import { monotonicFactory } from "ulid";
 import type { z } from "zod";
 import type { ProfileDb } from "../db/profile/db.ts";
@@ -42,7 +42,7 @@ export const headerOf = (r: RunRow): RunHeader => ({
   finishedAt: r.finishedAt,
 });
 /** What a run is about: a lesson (lesson, chat and scene runs), an exam (exam runs) or nothing (the
- *  day's review). */
+ *  day's review; a chat of the Tutor section). */
 export type Context = LessonKey | ExamKey | null;
 
 /** An event to store: its own id when the client named it (idempotency key), else one is made. */
@@ -256,7 +256,8 @@ export function createRunStore(deps: { db: ProfileDb; now: () => number; appVers
       return self.list(kind, about)[0];
     },
 
-    /** The active run of this kind about a context (a context has at most one). */
+    /** The active run of this kind about a context, the latest — a context has at most one, but the
+     *  Tutor section's chats (`chat` about nothing) are all active, so there it is the newest. */
     active(kind: RunKind, about: Context) {
       return db
         .select()
@@ -413,6 +414,39 @@ export function createRunStore(deps: { db: ProfileDb; now: () => number; appVers
         .all();
       for (const e of read(rows)) out.get(e.runId)?.push(e);
       return out;
+    },
+
+    /**
+     * A page of the conversations about a context — runs of a kind with `llm_turn` events —, the one
+     * written in last first: each with how many turns it has, when the last was, and the learner's
+     * first turn (a typed one before one sent for them, `start`), for its title. One query, however
+     * many runs and turns; `more` when a later page has any.
+     */
+    conversations(kind: RunKind, about: Context, page: { limit: number; offset: number }) {
+      const turn = and(eq(events.runId, runs.id), eq(events.type, "llm_turn"));
+      const lastAt = sql<number | null>`(select max(${events.ts}) from ${events} where ${turn})`;
+      const turns = sql<number>`(select count(*) from ${events} where ${turn})`;
+      const first = sql<string | null>`(select ${events.payloadJson} from ${events}
+        where ${turn} and json_extract(${events.payloadJson}, '$.role') = 'user'
+        order by json_extract(${events.payloadJson}, '$.start') is not null, ${events.ts}, ${events.id}
+        limit 1)`;
+      const rows = db
+        .select({ run: runs, lastAt, turns, first })
+        .from(runs)
+        .where(and(eq(runs.kind, kind), context(about), sql`${lastAt} is not null`))
+        .orderBy(desc(lastAt), desc(runs.id))
+        .limit(page.limit + 1)
+        .offset(page.offset)
+        .all();
+      return {
+        list: rows.slice(0, page.limit).map((r) => ({
+          run: r.run,
+          lastAt: r.lastAt as number,
+          turns: r.turns,
+          first: r.first === null ? undefined : readPayload("llm_turn", parseJson(r.first)),
+        })),
+        more: rows.length > page.limit,
+      };
     },
 
     /** The learner's recordings the answers hold: of these runs, or of every run of every kind. Read

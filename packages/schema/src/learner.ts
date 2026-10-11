@@ -146,6 +146,9 @@ export const LlmTurnPayload = z.object({
   latencyMs: z.number().int().nonnegative().optional(),
   /** The exercise on screen when the learner wrote. */
   exerciseKey: ExerciseKey.optional(),
+  /** The Tutor section: a learner's turn sent for them — a way into a new chat they chose —, so the
+   *  chat is titled by the first turn they typed. */
+  start: z.literal(true).optional(),
   /** Scenes: the partner's line in the learner's language. */
   translation: z.string().optional(),
   /** Scenes: errors in the learner's line. */

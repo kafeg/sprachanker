@@ -140,7 +140,10 @@ const chatsQuery = (about: ChatsOf) => (about === SECTION ? {} : { lessonKey: ab
 export const useTutorChats = (about: ChatsOf) =>
   useQuery({
     queryKey: ["tutor-chats", about],
-    queryFn: () => json(api.llm.tutor.chats.$get({ query: chatsQuery(about) })),
+    queryFn: () =>
+      about === SECTION
+        ? json(api.llm.tutor.section.chats.$get({ query: {} }))
+        : json(api.llm.tutor.chats.$get({ query: { lessonKey: about as LessonKey } })),
   });
 export type TutorChat = NonNullable<ReturnType<typeof useTutorChats>["data"]>["chats"][number];
 

@@ -190,7 +190,13 @@ teaches more than a report); the scene step → `scene_setup`, then `scene_turn`
   `chat` run whose context is a lesson or none (05), so they are kept, listed, read and deleted by the
   same code, and a question and its reply are stored together once the reply has text. The section
   has no current chat: nothing on its screen picks one (a lesson's tutor opens on the lesson's), so
-  every chat stays open and any of them is continued; "New chat" starts one. **Language**: a new chat
+  every chat stays open and any of them is continued; "New chat" starts one. The section lists its
+  chats a page of twenty at a time by their last message, each titled by the first message the
+  learner typed (a way in sent for them — its turn marked `start` — titles it only until then),
+  counted and ordered in one query. A reply the learner stops is kept as far as it came (the lesson
+  tutor's too); a new chat is named to the client as soon as its reply begins, so one stopped is
+  still continued. One chat continued from two places at once keeps both pairs in the order they
+  end — each a question with its own reply —, as the lesson tutor's current chat. **Language**: a new chat
   practises the language the course studied most recently teaches (the course with the latest
   lesson work), and keeps it — its run's edition is that course's edition then —, so a chat continued
   later stays in its language; explanations are in the interface language of each message, as the
