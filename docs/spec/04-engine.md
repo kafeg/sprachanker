@@ -98,11 +98,15 @@ Pure functions over events and cards (05), read by the server per request:
   to cards in review and those not "Again" (the share remembered), AI practice (the learner's messages,
   checks asked for, in whichever run: a lesson's, an exam's, a chat or a scene) —, the time each
   module took, and the totals of a span of days. The day starts at 4 AM (Spaced repetition, below).
-  Time spent (owner, 2026-10-07): a card answer's own, measured from the card shown to its rating and
-  kept at most a minute (Anki's maximum answer time: a card left open in an idle tab is a minute,
-  not hours; answers from before it was measured count none); in every other run, from each event to
-  the run's next, at most five minutes (`IDLE_MS`: the learner away longer counts that much),
-  on the later event's day.
+  Time spent (owner, 2026-10-07): read from one timeline of every event of every run, so runs open
+  together (a lesson and its tutor chat or scene, its Words step's cards, two tabs) count each pause
+  once, on the later event's day and in its module. Up to a card answer: its own time, measured from
+  the card shown to its rating and kept at most a minute (Anki's maximum answer time: a card left
+  open in an idle tab is a minute, not hours; answers from before it was measured count none), never
+  more than the pause since the event before it. Up to any other event: the pause in full up to five
+  minutes (`IDLE_MS`), five minutes up to thirty (away a while: a long page, a long answer), none
+  past thirty (`BREAK_MS`: a new session). The store gives each event's pause (SQL `lag`), no
+  payloads.
 - **Over time** (`learner/series.ts`, the Notebook's pictures): a span — the last 7 or 30 days by day;
   all time from the first study day by week (by day while that is within 30 days, by month past 26
   weeks; a week from the language's first day, 09) — cut into bars, each with its days' totals

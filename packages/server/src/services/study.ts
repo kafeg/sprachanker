@@ -220,10 +220,12 @@ export function createStudy(deps: {
     const studied = store.lastActivity(["card_review"]);
     const days = store.all("review").filter((r) => studied.has(r.id));
     const at = days.findIndex((r) => r.id === runId);
+    const { start, next } = dayOf(row.startedAt);
     const day = activityByDay(
       events,
-      () => row.startedAt,
+      () => start,
       () => "review",
+      store.moments({ from: start, to: next }),
     )[0];
     return {
       run: headerOf(row),

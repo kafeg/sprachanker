@@ -40,8 +40,8 @@ export const DayActivity = z.object({
   /** Answers to faces already in review, and of them those not "Again". */
   recalled: Count,
   remembered: Count,
-  /** Time spent (ms) by module where it is known: the cards' measured answers, the gaps between a
-   *  run's events elsewhere (engine `timeSpent`). */
+  /** Time spent (ms) by module where it is known: the cards' measured answers, elsewhere the pauses
+   *  between events, every run's on one timeline (engine `activityByDay`). */
   time: z.object({ lesson: Count, exam: Count, review: Count, ai: Count } satisfies Record<
     ModuleId,
     typeof Count

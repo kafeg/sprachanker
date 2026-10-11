@@ -1,6 +1,7 @@
 import { expect, test } from "bun:test";
 import type { FaceState } from "@sprachanker/schema";
 import {
+  dayStarts,
   faceStage,
   intervals,
   intervalText,
@@ -72,6 +73,10 @@ test("the study day starts at 4 AM", () => {
   const night = new Date(2026, 9, 7, 2).getTime();
   expect(studyDay(night).start).toBe(new Date(2026, 9, 6, 4).getTime());
   expect(studyDay(NOW).next).toBe(NEXT);
+  // Remembered from one moment to the next, as studyDay finds it, back and forth.
+  const dayOf = dayStarts();
+  for (const t of [night, NOW, NEXT - 1, NEXT, night, NEXT + 3 * DAY])
+    expect(dayOf(t)).toBe(studyDay(t).start);
 });
 
 const state = (due: number, phase: number, stability = 3): FaceState => ({

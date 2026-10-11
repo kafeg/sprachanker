@@ -173,6 +173,8 @@ test("a card answer's time kept (at most a minute; an answer from before it was 
     return current.cardId as string;
   };
   await rate(3, 4_200);
+  // Two minutes on: the card was shown longer than the minute kept.
+  api.advance(120_000);
   await rate(1, 3_600_000);
   const untimed = await rate(4);
 
