@@ -436,7 +436,8 @@ export function createCards(deps: {
     /**
      * What a card shows where it is studied (04, "Decks"): in a deck — an imported deck's, a course's,
      * a lesson's Words step — that deck's own entry of its word (its recording, else the audio read
-     * aloud for that deck), else what the card was made with; in a language's queue, every deck's,
+     * aloud for that deck; an imported deck's with neither, the card's own recording), else what the
+     * card was made with; in a language's queue, every deck's,
      * My words and the word sheet, a course's entry over an imported deck's — the card's own course,
      * else the first of the learner's courses (by deck, in its language pair) that has the word —,
      * else the card's own. `notes`: the learner's cards, when they are read already — a list's context:
@@ -452,7 +453,13 @@ export function createCards(deps: {
           deck?.translationLang === note.translationLang
             ? deck.words.find((w) => w.lexeme === lexeme)
             : undefined;
-        return deck && word ? deckDisplay(deck, word) : note.display;
+        if (!deck || !word) return note.display;
+        const shown = deckDisplay(deck, word);
+        // Neither the deck's recording nor its reading: the card's own recording (owner, 2026-10-12).
+        const own = note.display;
+        if (shown.audio || shown.readAudio || !own.audio) return shown;
+        const home = "deck" in own ? `decks/${own.deck}` : `library/${own.series}`;
+        return { ...shown, recordingPath: `${home}/${own.audio}` };
       }
       if (scope.startsWith("lesson:")) {
         const [, lessonEdition = "", key = ""] = scope.split(":");

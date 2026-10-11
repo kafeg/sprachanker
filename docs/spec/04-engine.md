@@ -171,7 +171,9 @@ imported `.apkg` decks fit in. Scheduling and the queue are pure functions in
   the audio read for it, the card having been made by that deck first): studied in a deck — an
   imported deck, a course's, a lesson's "Words" step — the word as that deck gives it (its headword,
   forms, translation, its own recording, else the audio read aloud for that deck), when it has the
-  word; else as the card was made. A course's lessons may give one word as several headwords ("die
+  word; else as the card was made. An imported deck with neither a recording of the word nor its
+  reading plays the card's own recording (a course's, another deck's: owner, 2026-10-12, the real
+  recording over none). A course's lessons may give one word as several headwords ("die
   Bank, die Banken", later "die Bänke"; DW's "weg" recorded in its first lesson only): a lesson's
   word without a recording there takes the course's first recording of the same headword, else the
   reading of that headword (owner, 2026-10-12) — so every headword a card or a "Words" step shows

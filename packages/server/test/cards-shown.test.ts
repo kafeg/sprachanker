@@ -64,8 +64,8 @@ const bigDeck = (size: number): Deck =>
   });
 
 /** The cards service over the test's profile, its content counted: how often the courses are listed
- *  and a lesson read. */
-async function withService(size = 0) {
+ *  and a lesson read; `read`: the audio read aloud for a deck, by `<folder> <lexeme>`. */
+async function withService(size = 0, read: Record<string, string> = {}) {
   const api = await setup();
   const other = copyCourse(api.root);
   const content = createContent(openLibrary(join(api.root, "library")));
@@ -91,7 +91,7 @@ async function withService(size = 0) {
     settings: createSettings(api.profile),
     session: async () => undefined,
     myCourses: async () => new Set(),
-    readAudio: () => undefined,
+    readAudio: (folder, lexeme) => read[`${folder} ${lexeme}`],
     studiedBy: () => [],
     now: Date.now,
   });
@@ -158,4 +158,25 @@ test("a language's queue: the card's own course, else the first of the learner's
   expect(await cards.shown(gern as NonNullable<typeof gern>, "lang:de")).toMatchObject({
     lessonKey: other.lesson,
   });
+});
+
+test("an imported deck with neither a recording of the word nor its reading plays the card's own recording", async () => {
+  const read: Record<string, string> = {};
+  const { cards, cardStore, deck } = await withService(0, read);
+  // Kaffee's card made by the course, with its recording; the deck has the word without one.
+  await cards.fromLesson({ series: FIXTURE_SERIES, lessonKey: FIRST, edition: "ru-de" });
+  const kaffee = cardStore.all().find((n) => n.lexemeKey === "lex:de:kaffee:noun:m");
+  const scope = `deck:${deck.id}`;
+  const inDeck = () => cards.shown(kaffee as NonNullable<typeof kaffee>, scope);
+  expect(await inDeck()).toMatchObject({
+    target: "der Kaffee",
+    translation: "кофе (напиток)",
+    deck: deck.id,
+    recordingPath: `library/${FIXTURE_SERIES}/media/audio/kaffee.mp3`,
+  });
+  // Read aloud for the deck: its reading.
+  read[`${deck.id} lex:de:kaffee:noun:m`] = `${deck.id}/media/read-kaffee.wav`;
+  const shown = await inDeck();
+  expect(shown.readAudio).toBe(`${deck.id}/media/read-kaffee.wav`);
+  expect(shown.recordingPath).toBeUndefined();
 });

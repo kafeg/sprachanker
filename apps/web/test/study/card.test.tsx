@@ -86,6 +86,10 @@ test("a word without its own recording plays the one read aloud for its deck, fr
     "/library/x/media/audio/auch.mp3",
   );
   expect(cardAudioUrl(display)).toBeUndefined();
+  // Neither in a deck: the card's own recording where it was made.
+  const own = "library/x/media/audio/auch.mp3";
+  expect(cardAudioUrl({ ...display, recordingPath: own })).toBe(`/${own}`);
+  expect(cardAudioUrl({ ...display, readAudio: read, recordingPath: own })).toBe(`/decks/${read}`);
 });
 
 test("a word without a recording is never read on the fly: no play button; with the answer, the way to its deck", async () => {
