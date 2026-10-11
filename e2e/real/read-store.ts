@@ -19,7 +19,7 @@ export function readStore(path: string): Stored {
         "select id, ts, run_id, type, item_key, card_id, payload_json from events order by ts, id",
       ),
       cards: all<CardRow>("select id, lexeme_key, faces from cards"),
-      cardState: all<CardStateRow>("select card_id, face, fsrs_json, due_at from card_state"),
+      cardState: all<CardStateRow>("select card_id, face, fsrs_json from card_state"),
       recordings: existsSync(recordings) ? readdirSync(recordings) : [],
     };
   } finally {

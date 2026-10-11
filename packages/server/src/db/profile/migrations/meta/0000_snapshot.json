@@ -1,7 +1,7 @@
 {
   "version": "6",
   "dialect": "sqlite",
-  "id": "64961f12-2d6a-4205-8014-2749a4299a11",
+  "id": "95c68c7b-3615-4814-87d6-27360a636a2a",
   "prevId": "00000000-0000-0000-0000-000000000000",
   "tables": {
     "card_state": {
@@ -24,13 +24,6 @@
         "fsrs_json": {
           "name": "fsrs_json",
           "type": "text",
-          "primaryKey": false,
-          "notNull": false,
-          "autoincrement": false
-        },
-        "due_at": {
-          "name": "due_at",
-          "type": "integer",
           "primaryKey": false,
           "notNull": false,
           "autoincrement": false
@@ -132,20 +125,6 @@
           "notNull": false,
           "autoincrement": false
         },
-        "origin_event_id": {
-          "name": "origin_event_id",
-          "type": "text",
-          "primaryKey": false,
-          "notNull": false,
-          "autoincrement": false
-        },
-        "fields_json": {
-          "name": "fields_json",
-          "type": "text",
-          "primaryKey": false,
-          "notNull": false,
-          "autoincrement": false
-        },
         "faces": {
           "name": "faces",
           "type": "text",
@@ -201,19 +180,6 @@
           "tableTo": "runs",
           "columnsFrom": [
             "origin_run_id"
-          ],
-          "columnsTo": [
-            "id"
-          ],
-          "onDelete": "set null",
-          "onUpdate": "no action"
-        },
-        "cards_origin_event_id_events_id_fk": {
-          "name": "cards_origin_event_id_events_id_fk",
-          "tableFrom": "cards",
-          "tableTo": "events",
-          "columnsFrom": [
-            "origin_event_id"
           ],
           "columnsTo": [
             "id"
@@ -346,13 +312,6 @@
           "primaryKey": false,
           "notNull": false,
           "autoincrement": false
-        },
-        "params_json": {
-          "name": "params_json",
-          "type": "text",
-          "primaryKey": false,
-          "notNull": true,
-          "autoincrement": false
         }
       },
       "indexes": {},
@@ -394,13 +353,6 @@
         },
         "edition": {
           "name": "edition",
-          "type": "text",
-          "primaryKey": false,
-          "notNull": false,
-          "autoincrement": false
-        },
-        "content_version": {
-          "name": "content_version",
           "type": "text",
           "primaryKey": false,
           "notNull": false,

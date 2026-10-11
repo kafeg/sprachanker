@@ -49,7 +49,7 @@ settings(key TEXT PRIMARY KEY, value_json TEXT)          -- every key with its s
                                                          -- no longer fits reads as unset); an unset
                                                          -- preference reads as its SETTING_DEFAULTS value
 secrets(provider_id TEXT PRIMARY KEY, value_encrypted)   -- the profile's API keys; never returned by the API
-llm_routes(task TEXT PRIMARY KEY, provider_id, model, params_json)   -- the profile's model (07); only
+llm_routes(task TEXT PRIMARY KEY, provider_id, model)   -- the profile's model (07); only
                                                          -- task 'default' is used (per-task routes: plan, "Later")
 
 runs(
@@ -57,7 +57,6 @@ runs(
   kind TEXT NOT NULL,             -- lesson | exam | review | scene | chat
   context_key TEXT,               -- lesson key for lesson, chat and scene runs; exam key; null for review
   course_key TEXT, edition TEXT, -- null when not tied to one course
-  content_version TEXT,           -- null: contentVersion is not computed yet (02)
   app_version TEXT NOT NULL,      -- the app's version when the run started
   plan_json TEXT,                 -- a scene's setup; an exam run's ExamPlan (mode, questions with their
                                   -- sections, deadline, a mock exam's questions as shown, the module
@@ -82,9 +81,8 @@ cards(
   lexeme_key TEXT,                -- unique with translation_lang (04, "Spaced repetition")
   translation_lang TEXT NOT NULL, -- the edition's source language its translation is in
   source_key TEXT,                -- vocab occurrence or item key where it was met
-  origin_run_id TEXT, origin_event_id TEXT,   -- run (and event, e.g. a mistake) it was created in, if any:
-                                              -- the lesson run of its "Words" step; set null when deleted
-  fields_json TEXT,               -- not written (no kind has fields)
+  origin_run_id TEXT,             -- the run it was created in, if any: the lesson run of its "Words"
+                                  -- step; set null when deleted
   faces TEXT NOT NULL,            -- enabled faces
   display_cache_json TEXT,        -- last rendered content, so cards survive course removal
   suspended INTEGER NOT NULL DEFAULT 0,   -- the note suspended
@@ -92,7 +90,7 @@ cards(
   created_at INTEGER NOT NULL
 );
 card_state(card_id, face,
-  fsrs_json, due_at,              -- null while the face is new
+  fsrs_json,                      -- null while the face is new (its due date inside)
   suspended, buried_until, flag,  -- Anki's card: suspended, buried until the next day, flag 0–7
   PRIMARY KEY(card_id, face))
 ```

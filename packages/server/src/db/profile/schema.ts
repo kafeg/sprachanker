@@ -23,7 +23,6 @@ export const runs = sqliteTable(
     contextKey: text("context_key"),
     courseKey: text("course_key"),
     edition: text("edition"),
-    contentVersion: text("content_version"),
     appVersion: text("app_version").notNull(),
     planJson: text("plan_json"),
     status: text("status").$type<RunStatus>().notNull(),
@@ -64,7 +63,6 @@ export const llmRoutes = sqliteTable("llm_routes", {
   task: text("task").primaryKey(),
   providerId: text("provider_id").notNull(),
   model: text("model"),
-  paramsJson: text("params_json").notNull(),
 });
 
 /** Cards for spaced repetition (04, 05): one per lexeme, with the faces enabled for it. */
@@ -78,11 +76,9 @@ export const cards = sqliteTable(
      *  and in English is two notes. */
     translationLang: text("translation_lang").notNull(),
     sourceKey: text("source_key"),
-    /** The run (and event) the card was made in — a lesson run's "Words" step; emptied when that run
-     *  is deleted (resetting progress). */
+    /** The run the card was made in — a lesson run's "Words" step; emptied when that run is deleted
+     *  (resetting progress). */
     originRunId: text("origin_run_id").references(() => runs.id, { onDelete: "set null" }),
-    originEventId: text("origin_event_id").references(() => events.id, { onDelete: "set null" }),
-    fieldsJson: text("fields_json"),
     /** Enabled faces, comma-separated. */
     faces: text("faces").notNull(),
     displayCacheJson: text("display_cache_json"),
@@ -108,7 +104,6 @@ export const cardState = sqliteTable(
       .references(() => cards.id),
     face: text("face").notNull(),
     fsrsJson: text("fsrs_json"),
-    dueAt: integer("due_at"),
     suspended: integer("suspended").notNull().default(0),
     buriedUntil: integer("buried_until"),
     flag: integer("flag").notNull().default(0),

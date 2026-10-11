@@ -167,7 +167,7 @@ export function createLlm(deps: {
         db.delete(llmRoutes).where(eq(llmRoutes.task, DEFAULT_ROUTE)).run();
         return;
       }
-      const values = { providerId: provider, model, paramsJson: "{}" };
+      const values = { providerId: provider, model };
       db.insert(llmRoutes)
         .values({ task: DEFAULT_ROUTE, ...values })
         .onConflictDoUpdate({ target: llmRoutes.task, set: values })

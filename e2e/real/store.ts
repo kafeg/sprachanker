@@ -49,7 +49,6 @@ export interface CardStateRow {
   card_id: string;
   face: string;
   fsrs_json: string | null;
-  due_at: number | null;
 }
 export interface Stored {
   runs: RunRow[];
@@ -130,8 +129,11 @@ export function storeProblems(stored: Stored): string[] {
     for (const [k, after] of latest) {
       const now = state.get(k);
       if (!now) problems.push(`card ${k}: reviewed, with no state`);
-      else if (now.due_at !== after.due)
-        problems.push(`card ${k}: due ${now.due_at}, its latest review says ${after.due}`);
+      else {
+        const due = now.fsrs_json ? (JSON.parse(now.fsrs_json) as { due?: number }).due : undefined;
+        if (due !== after.due)
+          problems.push(`card ${k}: due ${due}, its latest review says ${after.due}`);
+      }
     }
   }
 

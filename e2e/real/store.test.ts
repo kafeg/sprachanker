@@ -148,8 +148,8 @@ test("the store as a whole: an event its schema refuses, answers numbered twice,
   );
   bad.cards = [{ id: "C1", lexeme_key: "lex:de:hallo:word", faces: "recognition,production" }];
   bad.cardState = [
-    { card_id: "C1", face: "recognition", fsrs_json: "{}", due_at: 5 },
-    { card_id: "C1", face: "listening", fsrs_json: "{}", due_at: 5 },
+    { card_id: "C1", face: "recognition", fsrs_json: '{"due":5}' },
+    { card_id: "C1", face: "listening", fsrs_json: '{"due":5}' },
   ];
   bad.events.push(
     event(

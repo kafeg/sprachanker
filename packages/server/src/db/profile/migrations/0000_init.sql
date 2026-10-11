@@ -2,7 +2,6 @@ CREATE TABLE `card_state` (
 	`card_id` text NOT NULL,
 	`face` text NOT NULL,
 	`fsrs_json` text,
-	`due_at` integer,
 	`suspended` integer DEFAULT 0 NOT NULL,
 	`buried_until` integer,
 	`flag` integer DEFAULT 0 NOT NULL,
@@ -17,15 +16,12 @@ CREATE TABLE `cards` (
 	`translation_lang` text NOT NULL,
 	`source_key` text,
 	`origin_run_id` text,
-	`origin_event_id` text,
-	`fields_json` text,
 	`faces` text NOT NULL,
 	`display_cache_json` text,
 	`suspended` integer DEFAULT 0 NOT NULL,
 	`marked` integer DEFAULT 0 NOT NULL,
 	`created_at` integer NOT NULL,
-	FOREIGN KEY (`origin_run_id`) REFERENCES `runs`(`id`) ON UPDATE no action ON DELETE set null,
-	FOREIGN KEY (`origin_event_id`) REFERENCES `events`(`id`) ON UPDATE no action ON DELETE set null
+	FOREIGN KEY (`origin_run_id`) REFERENCES `runs`(`id`) ON UPDATE no action ON DELETE set null
 );
 --> statement-breakpoint
 CREATE UNIQUE INDEX `cards_lexeme` ON `cards` (`lexeme_key`,`translation_lang`);--> statement-breakpoint
@@ -46,8 +42,7 @@ CREATE INDEX `events_type_ts` ON `events` (`type`,`ts`);--> statement-breakpoint
 CREATE TABLE `llm_routes` (
 	`task` text PRIMARY KEY NOT NULL,
 	`provider_id` text NOT NULL,
-	`model` text,
-	`params_json` text NOT NULL
+	`model` text
 );
 --> statement-breakpoint
 CREATE TABLE `runs` (
@@ -56,7 +51,6 @@ CREATE TABLE `runs` (
 	`context_key` text,
 	`course_key` text,
 	`edition` text,
-	`content_version` text,
 	`app_version` text NOT NULL,
 	`plan_json` text,
 	`status` text NOT NULL,

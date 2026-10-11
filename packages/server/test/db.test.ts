@@ -6,7 +6,6 @@ import { join } from "node:path";
 import { sql } from "drizzle-orm";
 import { type Migration, MigrationError, migrate } from "../src/db/migrate.ts";
 import { migrations } from "../src/db/profile/migrations/index.ts";
-import { migrations as serverMigrations } from "../src/db/server/migrations/index.ts";
 import { BUSY_MS, openProfileDb } from "../src/runtime/bun.ts";
 
 const fresh = () => join(mkdtempSync(join(tmpdir(), "sprachanker-db-")), "profile.sqlite");
@@ -153,58 +152,6 @@ test("cards: a card's run, once deleted, leaves it without one; a lexeme has one
   expect(sqlite.query("SELECT origin_run_id FROM cards WHERE id = 'c1'").get()).toEqual({
     origin_run_id: null,
   });
-});
-
-test("server.sqlite without passkeys: a database with one upgrades, its profiles and devices kept", () => {
-  const file = join(mkdtempSync(join(tmpdir(), "sprachanker-db-")), "server.sqlite");
-  const { db, sqlite, options } = runner(file);
-  migrate(db, serverMigrations.slice(0, 1), options(1));
-  sqlite.exec(
-    "INSERT INTO profiles (id, name, colour, created_at) VALUES ('local', 'Anna', 'amber', 1)",
-  );
-  sqlite.exec(
-    "INSERT INTO passkeys (id, profile_id, public_key, counter, transports, rp_id, created_at) VALUES ('k', 'local', 'pk', 0, '', 'localhost', 1)",
-  );
-  expect(migrate(db, serverMigrations.slice(0, 2), options(2))).toEqual(["0001_drop_passkeys"]);
-  expect(tables(file)).not.toContain("passkeys");
-  expect(sqlite.query("SELECT name FROM profiles").all()).toEqual([{ name: "Anna" }]);
-});
-
-test("server.sqlite without PINs: a profile with one and its device are kept, the PIN is gone", () => {
-  const file = join(mkdtempSync(join(tmpdir(), "sprachanker-db-")), "server.sqlite");
-  const { db, sqlite, options } = runner(file);
-  migrate(db, serverMigrations.slice(0, 2), options(1));
-  sqlite.exec(
-    "INSERT INTO profiles (id, name, colour, pin_hash, pin_salt, failed_pins, created_at) VALUES ('local', 'Anna', 'amber', 'h', 's', 3, 1)",
-  );
-  sqlite.exec(
-    "INSERT INTO devices (id, profile_id, token_hash, user_agent, created_at, last_seen_at) VALUES ('d', 'local', 't', 'Mac', 1, 1)",
-  );
-  expect(migrate(db, serverMigrations, options(2))).toEqual(["0002_drop_pins"]);
-  expect(sqlite.query("SELECT * FROM profiles").all()).toEqual([
-    { id: "local", name: "Anna", colour: "amber", onboarded: 0, created_at: 1 },
-  ]);
-  expect(sqlite.query("SELECT id FROM devices").all()).toEqual([{ id: "d" }]);
-});
-
-test("profile.sqlite without the learner's languages: they and the pair filters go, other settings stay", () => {
-  const file = fresh();
-  const { db, sqlite, options } = runner(file);
-  migrate(db, migrations.slice(0, 1), options(1));
-  for (const [key, value] of [
-    ["learner.native", "ru"],
-    ["learner.target", "de"],
-    ["catalog.pair", "ru-de"],
-    ["mine.pair", "ru-de"],
-    ["catalog.course", "all"],
-    ["theme", "dark"],
-  ])
-    sqlite.exec(`INSERT INTO settings (key, value_json) VALUES ('${key}', '"${value}"')`);
-  expect(migrate(db, migrations.slice(0, 2), options(2))).toEqual(["0001_drop_learner_languages"]);
-  expect(sqlite.query("SELECT key, value_json FROM settings ORDER BY key").all()).toEqual([
-    { key: "catalog.course", value_json: '"all"' },
-    { key: "theme", value_json: '"dark"' },
-  ]);
 });
 
 test("a database waits for another connection's write instead of failing at once", () => {

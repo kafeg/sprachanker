@@ -313,7 +313,7 @@ export function createStudy(deps: {
           ],
           { deviceId },
         );
-        cards.setFace(cardId, face, { fsrsJson: JSON.stringify(after), dueAt: after.due });
+        cards.setFace(cardId, face, { fsrsJson: JSON.stringify(after) });
         return after;
       });
     },
@@ -332,7 +332,6 @@ export function createStudy(deps: {
         ]);
         cards.setFace(last.cardId, last.face, {
           fsrsJson: before ? JSON.stringify(before) : null,
-          dueAt: before?.due ?? null,
         });
       });
       return { cardId: last.cardId, face: last.face };
