@@ -208,11 +208,16 @@ function mapItem(ctx: Context, state: ApolloState, q: Entity): Mapped {
       // line or its frame) — when the edition's languages are told apart: else it may be either, and
       // is shown as the item's text, no line to say.
       const task = words && ctx.learnerText(words) ? words : undefined;
-      const answer = words && !task && ctx.toldApart ? words : undefined;
+      // Only words in brackets ("(nett)", "(Zimmer von Nawin)") are words to use, not an answer.
+      const toUse = words && !task && /^\([^()]*\)$/.test(words.trim()) ? words : undefined;
+      const answer = words && !task && !toUse && ctx.toldApart ? words : undefined;
       const unsure = words && !task && !answer ? words : undefined;
-      // A line heard with nothing to do with it is the phrase to repeat; else what is answered.
-      const phrase = !said ? heard : undefined;
-      const prompt = [base.prompt, phrase ? undefined : heard, unsure].filter(Boolean).join("\n");
+      // A line heard with nothing to do with it is the phrase to repeat — or, with an ellipsis, the
+      // frame of one's answer ("Entschuldigung, wie viel …?"); else what is answered.
+      const frame = !said && heard && /…|\.\.\./.test(heard) ? heard : undefined;
+      const phrase = !said && !frame ? heard : undefined;
+      const prompt = [base.prompt, said ? heard : undefined, unsure].filter(Boolean).join("\n");
+      const reference = answer ?? frame;
       const { prompt: _, ...rest } = base;
       return {
         type: "speech_selfrate",
@@ -220,7 +225,7 @@ function mapItem(ctx: Context, state: ApolloState, q: Entity): Mapped {
           ...rest,
           ...(prompt ? { prompt } : {}),
           ...(phrase ? { text: phrase } : {}),
-          ...(answer ? { reference: [answer] } : {}),
+          ...(reference ? { reference: [reference] } : {}),
         },
         locale: { ...locale, ...(task ? { prompt: task } : {}) },
       };

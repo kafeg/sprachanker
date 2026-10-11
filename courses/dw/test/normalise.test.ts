@@ -242,6 +242,15 @@ test("a speaking item keeps its own text and the line heard beside the source's 
     prompt: "Kurzes und langes E",
     text: "lecker – Lehrer",
   });
+  // A line heard alone with an ellipsis: the frame of one's answer, not a phrase to repeat.
+  const frame = item(speaking("", "Entschuldigung, wie viel …?", null));
+  expect([frame.text, frame.reference]).toEqual([undefined, ["Entschuldigung, wie viel …?"]]);
+  // Only words in brackets: words to use, not the source's answer.
+  const toUse = item(speaking("Wie ist das Kleid?", "Play audio", "(nett)"));
+  expect([toUse.prompt, toUse.reference]).toEqual(["Wie ist das Kleid?\n(nett)", undefined]);
+  expect(item(speaking("", "Play audio", "(seit – zwei Monate)")).prompt).toBe(
+    "(seit – zwei Monate)",
+  );
   // An edition whose languages share a script: a description may be a task as well as an answer —
   // shown with the item's text, no line to say.
   const english = item(
