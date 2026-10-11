@@ -228,7 +228,7 @@ test("a profile exported and imported into another data root: its data as it was
   const a = await studied();
   const { ready, res, bytes } = await exported(a);
   expect(ready.fileName).toBe("Test-1970-01-01.sprachanker-profile");
-  expect(ready.leftOut).toEqual({ apiKeys: ["openrouter"] });
+  expect(ready.leftOut).toEqual({ apiKeys: ["openrouter"], endpointLogins: [] });
   // Streamed with its length known, as a download; once only.
   expect(Number(res.headers.get("content-length"))).toBe(bytes.length);
   expect(ready.bytes).toBe(bytes.length);
@@ -248,7 +248,7 @@ test("a profile exported and imported into another data root: its data as it was
     profile: { name: "Test", colour: "amber" },
     migrations: ["0000_init", "0001_deck_source_keys"],
     content: { courses: [{ key: COURSE, editions: ["ru-de"] }], exams: [], decks: [] },
-    leftOut: { apiKeys: ["openrouter"] },
+    leftOut: { apiKeys: ["openrouter"], endpointLogins: [] },
   });
   expect(manifest.content.courses[0].title).toBeString();
   expect(Object.keys(files).sort()).toEqual(
@@ -272,7 +272,7 @@ test("a profile exported and imported into another data root: its data as it was
   expect(imported.status).toBe(200);
   const result = await read(imported);
   expect(result.profile).toMatchObject({ name: "Test (2)", colour: "amber", onboarded: true });
-  expect(result.leftOut).toEqual({ apiKeys: ["openrouter"] });
+  expect(result.leftOut).toEqual({ apiKeys: ["openrouter"], endpointLogins: [] });
   expect(result.missing).toEqual({ courses: [], exams: [], decks: [] });
   const id = result.profile.id;
   const mine = join(a.root, "profiles/local");
@@ -304,6 +304,42 @@ test("a profile exported and imported into another data root: its data as it was
   ]).toEqual(["openrouter", false]);
   const again = await read(importInto(b, bytes));
   expect(again.profile.name).toBe("Test (3)");
+});
+
+test("endpoints: a user name and password left out of the file; one a provider may not have dropped on import", async () => {
+  const a = await studied();
+  const endpoints = (root: string, id: string) => {
+    const db = new Database(join(root, "profiles", id, "profile.sqlite"), { readonly: true });
+    try {
+      const row = db
+        .query<{ value_json: string }, []>(
+          "SELECT value_json FROM settings WHERE key = 'llm.endpoints'",
+        )
+        .get();
+      return row ? JSON.parse(row.value_json) : undefined;
+    } finally {
+      db.close();
+    }
+  };
+  await a.sendJson("PUT", "/api/llm/providers/custom", { baseUrl: "http://192.168.1.5:8080/v1" });
+  // As an older app stored them: a login in the address, an address for a fixed provider.
+  const db = new Database(join(a.root, "profiles/local/profile.sqlite"));
+  db.run("UPDATE settings SET value_json = ? WHERE key = 'llm.endpoints'", [
+    JSON.stringify({
+      custom: "http://me:hunter2@192.168.1.5:8080/v1",
+      openrouter: "https://elsewhere.example/v1",
+    }),
+  ]);
+  db.close();
+  const { ready, bytes } = await exported(a);
+  expect(ready.leftOut).toEqual({ apiKeys: ["openrouter"], endpointLogins: ["custom"] });
+  expect(Buffer.from(bytes).includes("hunter2")).toBe(false);
+  const b = await setup();
+  const result = await read(importInto(b, bytes));
+  expect(result.leftOut).toEqual({ apiKeys: ["openrouter"], endpointLogins: ["custom"] });
+  expect(endpoints(b.root, result.profile.id)).toEqual({ custom: "http://192.168.1.5:8080/v1" });
+  // The profile exported still has its own as they were.
+  expect(endpoints(a.root, "local").custom).toBe("http://me:hunter2@192.168.1.5:8080/v1");
 });
 
 test("content not installed here is named; the profile is imported all the same", async () => {
@@ -450,8 +486,8 @@ test("a database with SQL of its own is refused before any of it runs: a view, t
       const real = profileTransferFiles(root);
       return {
         ...real,
-        async settle(id) {
-          const settled = await real.settle(id);
+        async settle(id, endpoints) {
+          const settled = await real.settle(id, endpoints);
           const folder = join(root, "profiles", ".transfers", id, "profile");
           const db = new Database(join(folder, "profile.sqlite"), { readonly: true });
           try {

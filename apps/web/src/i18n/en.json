@@ -891,7 +891,8 @@
       "done": "“{name}” is here.",
       "noKeys": "API keys are not in the file: enter them again in Settings → AI assistant.",
       "missing": "Not on this computer yet — their lessons show once downloaded; the words are in Review already:",
-      "open": "Open “{name}”"
+      "open": "Open “{name}”",
+      "noEndpointLogins": "User names and passwords in AI server addresses are not in the file: enter the keys again in Settings → AI assistant."
     }
   },
   "onboarding": {
@@ -1305,7 +1306,8 @@
     "deck_same_languages": "The words and their translations need two different languages.",
     "examples_without_word": "The model's sentences did not use the word.",
     "length_required": "The file was sent without its size. Try again, or in another browser.",
-    "profile_import_busy": "Another profile file is being imported. Try again when it is done."
+    "profile_import_busy": "Another profile file is being imported. Try again when it is done.",
+    "llm_url_with_login": "Leave the user name and password out of the address: enter the key in the API key field."
   },
   "exams": {
     "tabs": {

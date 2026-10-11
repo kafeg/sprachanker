@@ -4,10 +4,41 @@
 // `sqlite_master`, its schema must be exactly what this app's migrations make — after some of them —:
 // then no SQL of the file's own is left to run. Only then is it checked, read and migrated.
 import { Database } from "bun:sqlite";
+import type { SettingKey } from "@sprachanker/schema";
 import { migrations } from "../db/profile/migrations/index.ts";
 import { openProfileSqlite } from "./bun.ts";
 
 export type Settled = "ok" | "newer" | "damaged";
+
+/** The setting with the LLM providers' endpoints set by the learner, by provider id. */
+const ENDPOINTS: SettingKey = "llm.endpoints";
+
+/** A profile database's LLM endpoints changed in place (a profile file's copy: exported, imported); a
+ *  value that does not read is dropped (it would read as unset). */
+export function editEndpoints(
+  sqlite: Database,
+  edit: (endpoints: Record<string, string>) => Record<string, string>,
+) {
+  const row = sqlite
+    .query<{ value_json: string }, [string]>("SELECT value_json FROM settings WHERE key = ?")
+    .get(ENDPOINTS);
+  if (!row) return;
+  let endpoints: unknown;
+  try {
+    endpoints = JSON.parse(row.value_json);
+  } catch {}
+  const valid =
+    !!endpoints &&
+    typeof endpoints === "object" &&
+    !Array.isArray(endpoints) &&
+    Object.values(endpoints).every((url) => typeof url === "string");
+  if (!valid) sqlite.run("DELETE FROM settings WHERE key = ?", [ENDPOINTS]);
+  else
+    sqlite.run("UPDATE settings SET value_json = ? WHERE key = ?", [
+      JSON.stringify(edit(endpoints as Record<string, string>)),
+      ENDPOINTS,
+    ]);
+}
 
 /** A database's schema as `sqlite_master` lists it (SQLite's own entries too: an autoindex, or a
  *  `sqlite_stat1` left by ANALYZE), whitespace aside: one text to compare. */
@@ -63,9 +94,10 @@ function check(file: string): string[] | "newer" | undefined {
   }
 }
 
-/** The database checked, then migrated forward (the usual copy beside it first, 05 "Migrations") and
- *  its secrets emptied. */
-export function settleProfileDb(file: string): Settled {
+/** The database checked, then migrated forward (the usual copy beside it first, 05 "Migrations"), its
+ *  secrets emptied and only the endpoints of the providers in `endpoints` kept (the others' would
+ *  not count, 07). */
+export function settleProfileDb(file: string, endpoints: readonly string[]): Settled {
   let checked: ReturnType<typeof check>;
   try {
     checked = check(file);
@@ -79,6 +111,9 @@ export function settleProfileDb(file: string): Settled {
   try {
     sqlite = openProfileSqlite(file);
     sqlite.exec("DELETE FROM secrets");
+    editEndpoints(sqlite, (set) =>
+      Object.fromEntries(Object.entries(set).filter(([id]) => endpoints.includes(id))),
+    );
     return schemaOf(sqlite) === schemas().at(-1)?.schema ? "ok" : "damaged";
   } catch {
     return "damaged";

@@ -891,7 +891,8 @@
       "done": "“{name}” iko hapa.",
       "noKeys": "Funguo za API hazimo kwenye faili: ziweke tena katika Mipangilio → Msaidizi wa AI.",
       "missing": "Bado havipo kwenye kompyuta hii — masomo yake yataonekana yakishapakuliwa; maneno tayari yako kwenye Marudio:",
-      "open": "Fungua “{name}”"
+      "open": "Fungua “{name}”",
+      "noEndpointLogins": "Majina ya watumiaji na manenosiri kwenye anwani za seva za AI hayamo kwenye faili: weka funguo tena katika Mipangilio → Msaidizi wa AI."
     }
   },
   "onboarding": {
@@ -1305,7 +1306,8 @@
     "deck_same_languages": "Maneno na tafsiri zake yanahitaji lugha mbili tofauti.",
     "examples_without_word": "Sentensi za modeli hazikutumia neno hilo.",
     "length_required": "Faili ilitumwa bila ukubwa wake. Jaribu tena, au kwenye kivinjari kingine.",
-    "profile_import_busy": "Faili nyingine ya wasifu inaingizwa sasa. Jaribu tena itakapokamilika."
+    "profile_import_busy": "Faili nyingine ya wasifu inaingizwa sasa. Jaribu tena itakapokamilika.",
+    "llm_url_with_login": "Usiweke jina la mtumiaji na nenosiri kwenye anwani: weka ufunguo kwenye sehemu ya ufunguo wa API."
   },
   "exams": {
     "tabs": {

@@ -891,7 +891,8 @@
       "done": "„{name}“ ist da.",
       "noKeys": "API-Schlüssel sind nicht in der Datei: gib sie unter Einstellungen → KI-Assistent noch einmal ein.",
       "missing": "Noch nicht auf diesem Computer — ihre Lektionen erscheinen nach dem Herunterladen; die Wörter sind schon in Wiederholen:",
-      "open": "„{name}“ öffnen"
+      "open": "„{name}“ öffnen",
+      "noEndpointLogins": "Benutzernamen und Passwörter aus den Adressen der KI-Server sind nicht in der Datei: gib die Schlüssel unter Einstellungen → KI-Assistent noch einmal ein."
     }
   },
   "onboarding": {
@@ -1305,7 +1306,8 @@
     "deck_same_languages": "Wörter und Übersetzungen brauchen zwei verschiedene Sprachen.",
     "examples_without_word": "Die Sätze des Modells enthielten das Wort nicht.",
     "length_required": "Die Datei wurde ohne ihre Größe gesendet. Versuch es noch einmal oder in einem anderen Browser.",
-    "profile_import_busy": "Gerade wird eine andere Profildatei importiert. Versuch es noch einmal, wenn sie fertig ist."
+    "profile_import_busy": "Gerade wird eine andere Profildatei importiert. Versuch es noch einmal, wenn sie fertig ist.",
+    "llm_url_with_login": "Lass Benutzername und Passwort aus der Adresse weg: gib den Schlüssel im Feld für den API-Schlüssel ein."
   },
   "exams": {
     "tabs": {

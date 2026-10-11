@@ -16,6 +16,7 @@ import { ServiceError } from "../errors.ts";
 import { createOnce } from "../once.ts";
 import type { CardStore } from "./card-store.ts";
 import { type Content, courseTitle } from "./content.ts";
+import { EDITABLE_ENDPOINTS } from "./llm.ts";
 import type { Profiles } from "./profiles.ts";
 import type { RunStore } from "./run-store.ts";
 
@@ -37,13 +38,15 @@ export interface TransferFiles {
   /** Transfers an hour old go: an export never downloaded, an import cut short. */
   sweep(): void;
   /** A consistent copy of a profile in a new transfer: its database (`VACUUM INTO`, the secrets
-   *  emptied) and its recordings, each file with its size and hash; the migrations the copy has and
-   *  the providers whose API keys were emptied. */
+   *  emptied, a user name or password taken out of an endpoint's address) and its recordings, each
+   *  file with its size and hash; the migrations the copy has, the providers whose API keys were
+   *  emptied and those whose endpoint lost its login. */
   snapshot(profileId: string): Promise<{
     id: string;
     files: ProfileFileEntry[];
     migrations: string[];
     apiKeys: string[];
+    endpointLogins: string[];
   }>;
   /** A snapshot as a profile file: `manifest.json` first, then its files in the order given (stored
    *  entries); the transfer goes when the stream ends or is cancelled. */
@@ -72,8 +75,9 @@ export interface TransferFiles {
   /** The unpacked database made ready, apart from the server's work: its schema exactly what this
    *  app's migrations make (before anything of it is read), sound (integrity, references), its
    *  migrations those, migrated forward (the usual copy before), its secrets emptied. "newer" when it
-   *  has a migration this app does not know; "damaged" also when it takes too long. */
-  settle(id: string): Promise<"ok" | "newer" | "damaged">;
+   *  has a migration this app does not know; "damaged" also when it takes too long. Only the
+   *  endpoints of the providers in `endpoints` are kept (the others' would not count). */
+  settle(id: string, endpoints: readonly string[]): Promise<"ok" | "newer" | "damaged">;
   /** The unpacked profile moved into place as `profiles/<profileId>` and `register`ed; moved back
    *  into the transfer when that fails. */
   adopt<T>(id: string, profileId: string, register: () => T): T;
@@ -221,7 +225,7 @@ export function createProfileTransfer(deps: {
       read.entries.every((e) => listed.get(e.path)?.size === e.size);
     if (!sameFiles || !(await files.unpack(id, listed, file)))
       throw new ServiceError("profile_file_damaged", 422);
-    const settled = await files.settle(id);
+    const settled = await files.settle(id, EDITABLE_ENDPOINTS);
     if (settled === "newer") throw new ServiceError("profile_from_newer_app", 422);
     if (settled === "damaged") throw new ServiceError("profile_file_damaged", 422);
     const profileId = ulid(now()).toLowerCase();
@@ -275,7 +279,7 @@ export function createProfileTransfer(deps: {
         profile: { name: profile.name, colour: profile.colour },
         migrations: snap.migrations,
         content: await titled(deps.used(profileId)),
-        leftOut: { apiKeys: snap.apiKeys },
+        leftOut: { apiKeys: snap.apiKeys, endpointLogins: snap.endpointLogins },
         files: snap.files,
       } satisfies ProfileManifest);
       const bytes = zipBytes(
@@ -288,7 +292,12 @@ export function createProfileTransfer(deps: {
       const base = profile.name.replace(/[\\/:*?"<>|\p{Cc}]+/gu, "-").replace(/^[.\s]+/, "");
       const fileName = `${base || "profile"}-${day}${PROFILE_FILE_EXTENSION}`;
       prepared.set(snap.id, { profileId, manifest, paths, fileName, bytes, at: now() });
-      return { id: snap.id, fileName, bytes, leftOut: { apiKeys: snap.apiKeys } };
+      return {
+        id: snap.id,
+        fileName,
+        bytes,
+        leftOut: { apiKeys: snap.apiKeys, endpointLogins: snap.endpointLogins },
+      };
     } catch (error) {
       files.discard(snap.id);
       throw error;

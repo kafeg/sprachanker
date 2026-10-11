@@ -891,7 +891,8 @@
       "done": "« {name} » est là.",
       "noKeys": "Les clés d’API ne sont pas dans le fichier : saisis-les à nouveau dans Réglages → Assistant IA.",
       "missing": "Pas encore sur cet ordinateur — leurs leçons apparaissent une fois téléchargées ; les mots sont déjà dans Révision :",
-      "open": "Ouvrir « {name} »"
+      "open": "Ouvrir « {name} »",
+      "noEndpointLogins": "Les noms d’utilisateur et mots de passe des adresses des serveurs d’IA ne sont pas dans le fichier : saisis de nouveau les clés dans Réglages → Assistant IA."
     }
   },
   "onboarding": {
@@ -1305,7 +1306,8 @@
     "deck_same_languages": "Les mots et leurs traductions doivent être dans deux langues différentes.",
     "examples_without_word": "Les phrases du modèle n’utilisaient pas le mot.",
     "length_required": "Le fichier a été envoyé sans sa taille. Réessaie, ou dans un autre navigateur.",
-    "profile_import_busy": "Un autre fichier de profil est en cours d’import. Réessaie quand il sera terminé."
+    "profile_import_busy": "Un autre fichier de profil est en cours d’import. Réessaie quand il sera terminé.",
+    "llm_url_with_login": "Retire le nom d’utilisateur et le mot de passe de l’adresse : saisis la clé dans le champ de la clé API."
   },
   "exams": {
     "tabs": {

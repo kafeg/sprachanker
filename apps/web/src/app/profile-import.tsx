@@ -105,6 +105,9 @@ function Imported({ result }: { result: ImportedProfile }) {
       {leftOut.apiKeys.length > 0 && (
         <p className="text-sm text-muted-foreground">{t("profiles.import.noKeys")}</p>
       )}
+      {leftOut.endpointLogins.length > 0 && (
+        <p className="text-sm text-muted-foreground">{t("profiles.import.noEndpointLogins")}</p>
+      )}
       {absent.length > 0 && (
         <div className="text-sm">
           <p className="text-muted-foreground">{t("profiles.import.missing")}</p>

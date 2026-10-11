@@ -891,7 +891,8 @@
       "done": "„{name}“ je ovdje.",
       "noKeys": "API ključevi nisu u datoteci: unesi ih ponovo u Postavkama → AI asistent.",
       "missing": "Još nije na ovom računaru — njihove lekcije se pojave nakon preuzimanja; riječi su već u Ponavljanju:",
-      "open": "Otvori „{name}“"
+      "open": "Otvori „{name}“",
+      "noEndpointLogins": "Korisnička imena i lozinke iz adresa AI servera nisu u datoteci: unesi ključeve ponovo u Postavkama → AI asistent."
     }
   },
   "onboarding": {
@@ -1305,7 +1306,8 @@
     "deck_same_languages": "Za riječi i njihove prijevode trebaju dva različita jezika.",
     "examples_without_word": "Rečenice modela nisu koristile tu riječ.",
     "length_required": "Datoteka je poslana bez svoje veličine. Pokušaj ponovo ili u drugom pregledniku.",
-    "profile_import_busy": "Upravo se uvozi druga datoteka profila. Pokušaj ponovo kad se završi."
+    "profile_import_busy": "Upravo se uvozi druga datoteka profila. Pokušaj ponovo kad se završi.",
+    "llm_url_with_login": "Izostavi korisničko ime i lozinku iz adrese: unesi ključ u polje za API ključ."
   },
   "exams": {
     "tabs": {

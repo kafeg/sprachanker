@@ -252,14 +252,17 @@ manifest.json         # first: format `sprachanker-profile` and its version, the
                       # the profile's name and colour; the migrations its database has; the content it
                       # used — courses (its lessons', chats', scenes' runs, its cards' words) and exams by
                       # key with their editions and titles, imported decks by id with their titles;
-                      # what it leaves out (the providers whose API keys were stored); each other file
-                      # with its size and sha256
+                      # what it leaves out (the providers whose API keys were stored, those whose
+                      # endpoint's address held a user name or password); each other file with its
+                      # size and sha256
 profile.sqlite        # the profile's database, `VACUUM INTO` (consistent while the server writes), its
-                      # `secrets` emptied and vacuumed away: the sealed API keys are not in the file
+                      # `secrets` emptied and vacuumed away: the sealed API keys are not in the file;
+                      # a user name or password taken out of each `llm.endpoints` address
 recordings/<ulid>.<ext>
 ```
 
-- Not in it: API keys (they are entered again on the new machine; the result says whose), the
+- Not in it: API keys and logins in endpoints' addresses (entered again on the new machine; the
+  result says whose), the
   devices signed in (`server.sqlite`'s), the daily and pre-migration copies, the library and imported
   decks (they are named, not carried; a content version per course comes with the series manifest,
   02).
@@ -295,7 +298,8 @@ recordings/<ulid>.<ext>
      (`integrity_check`, its references); its `_migrations` exactly those that make that schema —
      a migration this app does not know is `profile_from_newer_app` (also when the manifest does not
      say so) —; migrated forward by the usual migrations (with the usual copy before, Migrations); its
-     `secrets` emptied. Anything else: `profile_file_damaged`.
+     `secrets` emptied, and of `llm.endpoints` only those of providers whose address is editable kept
+     (07). Anything else: `profile_file_damaged`.
   The result: the new profile, what the file left out, and the content it used that is not here
   (courses or editions not installed, exams, imported decks): imported all the same — its runs read
   by their snapshots and its cards by their display, as after a course is removed (Lifecycle); the

@@ -139,6 +139,29 @@ describe("llm setup", () => {
     expect(byId(reset, "lmstudio").baseUrl).toBe("http://localhost:1234/v1");
   });
 
+  test("an endpoint counts only where it may be set, and holds no user name or password", async () => {
+    const { root, send, sendJson, getJson } = await setup();
+    const login = await send("PUT", "/api/llm/providers/custom", {
+      baseUrl: "http://me:secret@192.168.1.5:8080/v1",
+    });
+    expect([login.status, await login.json()]).toEqual([400, { error: "llm_url_with_login" }]);
+    await sendJson("PUT", "/api/llm/providers/custom", { baseUrl: "http://192.168.1.5:8080/v1" });
+    // One stored for a provider whose address is fixed (an imported profile's, say): not used.
+    const db = new Database(join(root, "profiles/local/profile.sqlite"));
+    db.run("UPDATE settings SET value_json = ? WHERE key = 'llm.endpoints'", [
+      JSON.stringify({
+        custom: "http://192.168.1.5:8080/v1",
+        openrouter: "https://elsewhere.example/v1",
+      }),
+    ]);
+    db.close();
+    const state = await getJson("/api/llm");
+    expect([byId(state, "custom").baseUrl, byId(state, "openrouter").baseUrl]).toEqual([
+      "http://192.168.1.5:8080/v1",
+      "https://openrouter.ai/api/v1",
+    ]);
+  });
+
   test("a key is never sent to a host it was not given for: moving the endpoint drops it", async () => {
     const { sendJson } = await setup();
     await sendJson("PUT", "/api/llm/providers/custom", {

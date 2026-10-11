@@ -5,6 +5,6 @@ import { settleProfileDb } from "./profile-db.ts";
 
 declare const self: Worker;
 
-self.onmessage = (event: MessageEvent<{ file: string }>) => {
-  self.postMessage(settleProfileDb(event.data.file));
+self.onmessage = (event: MessageEvent<{ file: string; endpoints: string[] }>) => {
+  self.postMessage(settleProfileDb(event.data.file, event.data.endpoints));
 };

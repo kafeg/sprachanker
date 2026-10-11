@@ -230,6 +230,10 @@ async function profilesCommand(args: string[], embedded?: Embedded): Promise<voi
       console.log(`${profile.name}: exported to ${done.file} (${megabytes(done.bytes)})`);
       if (done.leftOut.apiKeys.length)
         console.log(`  not included: the API keys of ${done.leftOut.apiKeys.join(", ")}`);
+      if (done.leftOut.endpointLogins.length)
+        console.log(
+          `  not included: the user name and password in the address of ${done.leftOut.endpointLogins.join(", ")}`,
+        );
       return;
     }
     case "import": {
@@ -244,6 +248,10 @@ async function profilesCommand(args: string[], embedded?: Embedded): Promise<voi
       if (leftOut.apiKeys.length)
         console.log(
           `  not included: the API keys of ${leftOut.apiKeys.join(", ")} (enter them again in Settings → AI assistant)`,
+        );
+      if (leftOut.endpointLogins.length)
+        console.log(
+          `  not included: the user name and password in the address of ${leftOut.endpointLogins.join(", ")} (enter the key again in Settings → AI assistant)`,
         );
       const named = (c: { key: string; title: string | null; editions: string[] }) =>
         `${c.title ?? c.key}${c.editions.length ? ` (${c.editions.join(", ")})` : ""}`;

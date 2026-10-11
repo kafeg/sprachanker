@@ -25,7 +25,7 @@ import { ProfileFilePath } from "@sprachanker/schema";
 import { Zip, ZipPassThrough } from "fflate";
 import type { ProfileFileEntry, TransferFiles } from "../services/profile-transfer.ts";
 import { BUSY_MS, profileDbFile, profileMigrationTags, vacuumInto } from "./bun.ts";
-import type { Settled } from "./profile-db.ts";
+import { editEndpoints, type Settled } from "./profile-db.ts";
 
 const MANIFEST = "manifest.json";
 /** A manifest is small: a line per file. */
@@ -254,10 +254,12 @@ export function profileTransferFiles(
         } finally {
           live.close();
         }
-        // The copy without the sealed API keys: emptied, then vacuumed so their pages go too.
+        // The copy without the sealed API keys — emptied, then vacuumed so their pages go too — nor a
+        // user name or password in an endpoint's address.
         const db = new Database(copy);
         let migrations: string[];
         let apiKeys: string[];
+        const endpointLogins: string[] = [];
         try {
           migrations = db
             .query<{ tag: string }, []>("SELECT tag FROM _migrations ORDER BY rowid")
@@ -268,6 +270,17 @@ export function profileTransferFiles(
             .all()
             .map((r) => r.provider_id);
           db.exec("DELETE FROM secrets");
+          editEndpoints(db, (endpoints) => {
+            for (const [provider, address] of Object.entries(endpoints)) {
+              const url = URL.parse(address);
+              if (!url || (!url.username && !url.password)) continue;
+              url.username = "";
+              url.password = "";
+              endpoints[provider] = url.href;
+              endpointLogins.push(provider);
+            }
+            return endpoints;
+          });
           db.exec("VACUUM");
           db.exec("PRAGMA journal_mode = DELETE");
         } finally {
@@ -292,7 +305,7 @@ export function profileTransferFiles(
         const files: ProfileFileEntry[] = [];
         for (const path of ["profile.sqlite", ...names.map((n) => `recordings/${n}`)])
           files.push({ path, ...(await hashOf(join(unpacked(id), path))) });
-        return { id, files, migrations, apiKeys };
+        return { id, files, migrations, apiKeys, endpointLogins: endpointLogins.sort() };
       } catch (error) {
         discard(id);
         throw error;
@@ -400,7 +413,7 @@ export function profileTransferFiles(
       }
       return true;
     },
-    settle(id) {
+    settle(id, endpoints) {
       const file = join(unpacked(id), "profile.sqlite");
       const worker = new Worker(options.worker ?? PROFILE_DB_WORKER);
       return new Promise<Settled>((resolve) => {
@@ -414,7 +427,7 @@ export function profileTransferFiles(
         const timer = setTimeout(() => done("damaged"), options.settleMs ?? SETTLE_MS);
         worker.onmessage = (event: MessageEvent<Settled>) => done(event.data);
         worker.onerror = () => done("damaged");
-        worker.postMessage({ file });
+        worker.postMessage({ file, endpoints });
       });
     },
     adopt(id, profileId, register) {

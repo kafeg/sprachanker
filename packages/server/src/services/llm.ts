@@ -36,6 +36,17 @@ export type { LmStudioHost } from "./llm-lmstudio.ts";
 
 /** Settings key with custom endpoints by provider id. */
 const ENDPOINTS = "llm.endpoints" as const;
+
+/** Whether a URL carries a user name or password (`https://user:secret@host/`). */
+const hasLogin = (url: string) => {
+  const parsed = URL.parse(url);
+  return !!(parsed?.username || parsed?.password);
+};
+
+/** The providers whose endpoint the learner may set: the only ones a stored endpoint counts for. */
+export const EDITABLE_ENDPOINTS: readonly ProviderId[] = Object.values(PROVIDERS)
+  .filter((p) => p.editableUrl)
+  .map((p) => p.id);
 const DEFAULT_ROUTE = "default";
 
 /** The assistant cannot run as set up (no provider, key, model…): 409. */
@@ -100,7 +111,9 @@ export function createLlm(deps: {
   const route = () => db.select().from(llmRoutes).where(eq(llmRoutes.task, DEFAULT_ROUTE)).get();
   const hasKey = (id: ProviderId) =>
     !!db.select().from(secrets).where(eq(secrets.providerId, id)).get();
-  const baseUrl = (id: ProviderId) => endpoints()[id] ?? PROVIDERS[id].baseUrl;
+  // A stored endpoint counts only where the learner may set one (an imported profile may hold others).
+  const baseUrl = (id: ProviderId) =>
+    (PROVIDERS[id].editableUrl ? endpoints()[id] : undefined) ?? PROVIDERS[id].baseUrl;
   const origin = (url: string) => URL.parse(url)?.origin ?? url;
   const apiKey = async (id: ProviderId) => {
     const row = db.select().from(secrets).where(eq(secrets.providerId, id)).get();
@@ -175,6 +188,9 @@ export function createLlm(deps: {
     },
     /** Endpoint (null → preset) and API key (null → remove; undefined → keep). */
     async setProvider(id: ProviderId, change: { baseUrl?: string | null; apiKey?: string | null }) {
+      // A key or password goes in the key field, sealed — never in the address, kept as it is.
+      if (change.baseUrl && hasLogin(change.baseUrl))
+        throw new ServiceError("llm_url_with_login", 400);
       let keyLeft = change.apiKey;
       if (change.baseUrl !== undefined && PROVIDERS[id].editableUrl) {
         const before = baseUrl(id);

@@ -84,6 +84,7 @@ export const ERROR_CODES = [
   "llm_not_configured",
   "llm_no_endpoint",
   "llm_no_key",
+  "llm_url_with_login",
   "llm_cli_missing",
   "llm_lmstudio_missing",
   "llm_lmstudio_remote",
