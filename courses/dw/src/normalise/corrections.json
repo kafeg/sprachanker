@@ -79,5 +79,175 @@
     "from": "Мужчина из видео",
     "to": "Мужчина из видео урока",
     "why": "The page has no clip: the man is in the lesson's episode (its first exercise)."
+  },
+  {
+    "exercise": "dw.nicos-weg/a2-ru/01-02/ex-03",
+    "item": "#4",
+    "field": "hintHtml",
+    "from": "в офисе банке",
+    "to": "в офисе банка",
+    "why": "Genitive: the bank's office."
+  },
+  {
+    "exercise": "dw.nicos-weg/a2-ru/02-03/ex-10",
+    "field": "instructionHtml",
+    "from": "впиши в пропуски",
+    "to": "вставь в пропуски",
+    "why": "The gaps are filled from given words, nothing is typed."
+  },
+  {
+    "exercise": "dw.nicos-weg/a2-ru/02-04/ex-06",
+    "field": "instructionHtml",
+    "from": "Расположи предложения в правильной последовательности",
+    "to": "Расположи части предложений в правильной последовательности",
+    "why": "Each item orders the parts of one sentence, not sentences."
+  },
+  {
+    "exercise": "dw.nicos-weg/a2-ru/03-03/ex-09",
+    "field": "instructionHtml",
+    "from": "Выбери правильный ответ.",
+    "to": "Выбери три правильных ответа.",
+    "why": "Three of the six sentences are right (\"Drei Sätze sind richtig\"), not one."
+  },
+  {
+    "exercise": "dw.nicos-weg/a2-ru/04-01/ex-01",
+    "item": "#1",
+    "field": "hintHtml",
+    "from": "коллективном испитии",
+    "to": "коллективном распитии",
+    "why": "Typo: \"распитии\" (drinking together)."
+  },
+  {
+    "exercise": "dw.nicos-weg/a2-ru/04-03/ex-08",
+    "field": "instructionHtml",
+    "from": "при покупке билет на поезд",
+    "to": "при покупке билета на поезд",
+    "why": "Genitive after \"покупке\"."
+  },
+  {
+    "exercise": "dw.nicos-weg/a2-ru/04-04/ex-03",
+    "item": "#1",
+    "field": "hintHtml",
+    "from": "с одного поезд на другой",
+    "to": "с одного поезда на другой",
+    "why": "Genitive after \"с одного\"."
+  },
+  {
+    "exercise": "dw.nicos-weg/a2-ru/05-01/ex-12",
+    "field": "instructionHtml",
+    "from": "Впиши в пропуски",
+    "to": "Вставь в пропуски",
+    "why": "The gaps are filled from given words, nothing is typed."
+  },
+  {
+    "exercise": "dw.nicos-weg/a2-ru/06-03/ex-04",
+    "field": "instructionHtml",
+    "from": "Каких глаголов не хватает?",
+    "to": "Каких слов не хватает?",
+    "why": "One of the missing words is an adjective (\"sicher\"), not a verb."
+  },
+  {
+    "exercise": "dw.nicos-weg/a2-ru/08-04/ex-08",
+    "item": "#2",
+    "field": "hintHtml",
+    "from": "Шлемммер",
+    "to": "Шлеммер",
+    "why": "Typo: triple \"м\"; the same hint writes \"Шлеммера\"."
+  },
+  {
+    "exercise": "dw.nicos-weg/a2-ru/10-03/ex-07",
+    "field": "title",
+    "from": "винительный падеж",
+    "to": "дательный и винительный падеж",
+    "why": "The gaps answer both \"Wo?\" (dative) and \"Wohin?\" (accusative), as DW's German says."
+  },
+  {
+    "exercise": "dw.nicos-weg/a2-ru/10-03/ex-07",
+    "field": "instructionHtml",
+    "from": "Здесь они управляют винительным падежом.",
+    "to": "Здесь они управляют дательным или винительным падежом.",
+    "why": "The gaps answer both \"Wo?\" (dative) and \"Wohin?\" (accusative), as DW's German says."
+  },
+  {
+    "exercise": "dw.nicos-weg/a2-ru/11-01/ex-11",
+    "field": "instructionHtml",
+    "from": "расположи слова в предложении в правильной последовательности",
+    "to": "подбери к началу каждого предложения его окончание",
+    "why": "The items pair sentence starts with \"sondern\" endings; no words to order."
+  },
+  {
+    "exercise": "dw.nicos-weg/a2-ru/14-04/ex-10",
+    "item": "#2",
+    "field": "prompt",
+    "from": "ты пришел домой",
+    "to": "ты пришла домой",
+    "why": "The learner plays Yara, a woman."
+  },
+  {
+    "exercise": "dw.nicos-weg/a2-ru/15-01/ex-10",
+    "item": "#4",
+    "field": "hintHtml",
+    "from": "(пожелание счастья) ты можешь сказать \"Viel Erfolg\" (пожелание удачи)",
+    "to": "(пожелание удачи) ты можешь сказать \"Viel Erfolg\" (пожелание успеха)",
+    "why": "\"Viel Glück\" wishes luck, \"Viel Erfolg\" success."
+  },
+  {
+    "exercise": "dw.nicos-weg/a2-ru/15-04/ex-01",
+    "item": "#3",
+    "field": "hintHtml",
+    "from": "Эпитет \"Lieblings-\"",
+    "to": "Часть слова \"Lieblings-\"",
+    "why": "\"Lieblings-\" is the first part of a compound, not an epithet."
+  },
+  {
+    "exercise": "dw.nicos-weg/a2-ru/16-02/ex-02",
+    "item": "#4",
+    "field": "hintHtml",
+    "from": "означает \"режиссура\"",
+    "to": "означает \"режиссерская ремарка\"",
+    "why": "A \"Regieanweisung\" is a stage direction, not directing as an art."
+  },
+  {
+    "exercise": "dw.nicos-weg/a2-ru/18-01/ex-07",
+    "field": "instructionHtml",
+    "from": "На занятиях немецким",
+    "to": "На занятиях немецким языком",
+    "why": "The noun is missing (\"немецким языком\")."
+  },
+  {
+    "exercise": "dw.nicos-weg/a2-ru/18-01/ex-08",
+    "item": "#1",
+    "field": "hintHtml",
+    "from": "\"19 Jahrhundert\"",
+    "to": "\"19. Jahrhundert\"",
+    "why": "A German ordinal takes a dot, as the text writes it."
+  },
+  {
+    "exercise": "dw.nicos-weg/a2-ru/18-03/ex-05",
+    "field": "instructionHtml",
+    "from": "по два правильных их окончания",
+    "to": "по два правильных окончания",
+    "why": "A stray \"их\"."
+  },
+  {
+    "exercise": "dw.nicos-weg/a2-ru/18-04/ex-04",
+    "field": "instructionHtml",
+    "from": "Ответь на вопросы.",
+    "to": "Ответь на вопрос.",
+    "why": "The page has one question."
+  },
+  {
+    "exercise": "dw.nicos-weg/a2-ru/18-04/ex-08",
+    "field": "instructionHtml",
+    "from": "но и в страдательном залоге",
+    "to": "но и для образования страдательного залога",
+    "why": "The second half must match \"не только для образования …\"."
+  },
+  {
+    "exercise": "dw.nicos-weg/a2-ru/19-01/ex-20",
+    "field": "instructionHtml",
+    "from": "реши, правильно ли использованы слова",
+    "to": "реши, где нужны слова",
+    "why": "The learner fills gaps with these words; there is no use of them to judge."
   }
 ]
