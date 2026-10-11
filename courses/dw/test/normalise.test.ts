@@ -176,12 +176,12 @@ test("a speaking item keeps its spoken answer (the link besides the question) fo
     key,
     "raw/en-de/a1/e-9.json",
   );
-  // A German line is what to say: the item's own prompt (not a task in the learner's language).
+  // A German line is what to say: the source's answer (not a task in the learner's language).
   expect(Exercise.parse(exercise).items[0]).toEqual({
     key: `${key}#1`,
     media: { audio: "media/audio/q.mp3" },
     answerAudio: "media/audio/a.mp3",
-    prompt: "Ja, ich ... / Nein, ich ...",
+    reference: ["Ja, ich ... / Nein, ich ..."],
   } as never);
   expect(locale.items["#1"]?.prompt).toBeUndefined();
   // One in the learner's language is the task: the locale file's.
@@ -192,6 +192,52 @@ test("a speaking item keeps its spoken answer (the link besides the question) fo
   const asked = normaliseExercise(withAnswer, task as never, 9, key, "raw/ru-de/a1/e-9.json");
   expect((asked.exercise.items[0] as { prompt?: string }).prompt).toBeUndefined();
   expect(asked.locale.items["#1"]?.prompt).toBe("Скажи, что ты устал.");
+});
+
+test("a speaking item keeps its own text and the line heard beside the source's answer; a line heard alone is repeated", () => {
+  const speaking = (inquiryText: string, heard: string, said: string | null) => ({
+    "Exercise:9": { id: 9, name: "Sprich", inputType: "NONE", inquiries: [{ __ref: "Inquiry:1" }] },
+    "Inquiry:1": { inquiryType: "REPEAT", inquiryText, subInquiries: [{ __ref: "Inquiry:11" }] },
+    "Inquiry:11": { inquiryText: heard, inquiryDescription: said },
+  });
+  const item = (state: object, context = ctx) =>
+    normaliseExercise(context, state as never, 9, key, "raw/ru-de/a2/e-9.json").exercise
+      .items[0] as Record<string, unknown>;
+  // Words to use and the answer's beginning: both.
+  expect(
+    item(
+      speaking("Zum Frühstück / essen / ich / Brötchen", "Play audio", "Zum Frühstück esse ich …"),
+    ),
+  ).toMatchObject({
+    prompt: "Zum Frühstück / essen / ich / Brötchen",
+    reference: ["Zum Frühstück esse ich …"],
+  });
+  // A task, the question heard and the answer's frame: the question is asked, not said.
+  const three = item(
+    speaking("Was machst du gern im Haushalt?", "Siehst du lieber fern?", "Ich ... lieber ..."),
+  );
+  expect(three).toMatchObject({
+    prompt: "Was machst du gern im Haushalt?\nSiehst du lieber fern?",
+    reference: ["Ich ... lieber ..."],
+  });
+  expect(three.text).toBeUndefined();
+  // A sentence to change, the answer one's own ("…"): asked, no line to say.
+  const open = item(speaking("Sprich den Satz im Perfekt.", "Yara suchte Jobs.", "…"));
+  expect(open).toMatchObject({ prompt: "Sprich den Satz im Perfekt.\nYara suchte Jobs." });
+  expect([open.text, open.reference]).toEqual([undefined, undefined]);
+  // A line heard with nothing to do with it: the phrase to repeat.
+  expect(item(speaking("Kurzes und langes E", "lecker – Lehrer", null))).toMatchObject({
+    prompt: "Kurzes und langes E",
+    text: "lecker – Lehrer",
+  });
+  // An edition whose languages share a script: a description may be a task as well as an answer —
+  // shown with the item's text, no line to say.
+  const english = item(
+    speaking("", "Hi, wie geht's?", "Say that you are fine."),
+    createContext({}, "en-de"),
+  );
+  expect(english).toMatchObject({ prompt: "Hi, wie geht's?\nSay that you are fine." });
+  expect(english.reference).toBeUndefined();
 });
 
 test("an item whose only recording is not main content (DW's Lösungsaudio) keeps it as its spoken answer, not its question", () => {

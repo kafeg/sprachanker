@@ -22,11 +22,15 @@ const SCRIPTS: Record<string, RegExp> = {
 const LATIN = /\p{Script=Latin}/gu;
 const scriptOf = (lang: string) => SCRIPTS[lang] ?? LATIN;
 
+/** Whether texts of the two languages are told apart (`inLearnerLanguage`): their scripts differ. */
+export const languagesToldApart = (target: string, learner: string) =>
+  scriptOf(target).source !== scriptOf(learner).source;
+
 /** Whether `text` is in the learner's language rather than the target's (both ISO 639-1): more of its
  *  letters in the learner's script than in the target's. */
 export function inLearnerLanguage(text: string, target: string, learner: string): boolean {
+  if (!languagesToldApart(target, learner)) return false;
   const learnerScript = scriptOf(learner);
   const targetScript = scriptOf(target);
-  if (learnerScript === targetScript) return false;
   return (text.match(learnerScript)?.length ?? 0) > (text.match(targetScript)?.length ?? 0);
 }

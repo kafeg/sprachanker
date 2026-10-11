@@ -124,7 +124,11 @@ heard before answering; one that is not ("…_Loesungsaudio.mp3": most items' on
 read out) → `answerAudio`, offered once checked (a dictation's only recording is what it dictates). A
 clip DW puts on the items of an exercise without a video stimulus ("watch the clip again") → the
 exercise's `media.video` when all items link the same one, else each item's `media.video`. A speaking
-task of only an ellipsis ("…": the line is in its audio) gives no prompt. DW's vocabulary chips in text
+item (`REPEAT`) keeps every text it has (research): its own text and the line heard when it is
+answered → `prompt`, one per line; the line heard with nothing to do with it → `text` (the phrase to
+repeat); the description in German → `reference` (the source's answer or its frame), in the learner's
+language → the locale `prompt` (the task), only "…" → none (an answer of one's own); where the
+edition's languages share a script, a description is not told from a task and joins the `prompt`. DW's vocabulary chips in text
 (`<span class="editable placeholder">`) are shown spaced, so the source leaves out the spaces next to
 them: a chip meeting a word gets its space back, except inside a word (a compound's tail, its headword a
 noun: "Weihnachts<chip>bräuche</chip>"; a word's beginning: "<chip>wiede</chip>r"; a hyphen it touches:

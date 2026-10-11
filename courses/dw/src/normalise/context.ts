@@ -2,6 +2,7 @@
 
 import {
   inLearnerLanguage,
+  languagesToldApart,
   mediaPath,
   sanitizeCourseHtml,
   tidySpacing,
@@ -24,6 +25,9 @@ export interface Context {
   media(url: string | undefined): MediaPath | undefined;
   /** Whether a text of the page is in the edition's learner language (its locale file's), not German. */
   learnerText(text: string): boolean;
+  /** Whether `learnerText` tells the two apart (scripts that differ): else a text it calls German may
+   *  be the learner's ("Say that you are tired." in the English edition). */
+  toldApart: boolean;
   /** A text (a title, a note, a prompt, an option) as written: right-to-left editions keep some in
    *  the order they are seen (`writtenOrder`). */
   written(text: string): string;
@@ -41,6 +45,7 @@ export function createContext(index: MediaIndex, edition: EditionId): Context {
   return {
     media: (url) => mediaPath(index, url),
     learnerText: (text) => inLearnerLanguage(text, target, source),
+    toldApart: languagesToldApart(target, source),
     written: (text) => (RIGHT_TO_LEFT.has(source) ? writtenOrder(text) : text),
     spaced: (html) => tidySpacing(html, { french: source === "fr" }),
   };
