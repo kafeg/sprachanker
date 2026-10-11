@@ -300,7 +300,11 @@ it, so headless `serve` has every feature.
 
 Built (`apps/cli/src/main.ts`): `serve [--data] [--host] [--port] [--allow-host]...` ·
 `import <provider> [--data] [--courses] [--editions] [--refresh]` · `verify [--data] [--notes]` (02).
-`profiles` (above) · `backup [--data] --to <folder>` (05, "Backups": `server.sqlite` and each
+`profiles` (above) · `courses [--data]` (the installed courses and exams with their editions),
+`courses export <series/course> [--editions] --to <file|folder>` and `courses import <file>` (02,
+"Course bundle"; also while a server runs on the data root: the series' import lock keeps them apart,
+and the server reads the files anew; an import whose verify finds problems exits 1) ·
+`backup [--data] --to <folder>` (05, "Backups": `server.sqlite` and each
 `profile.sqlite` copied with `VACUUM INTO`, consistent while a server runs; the recordings, the
 imported decks and `<app-data>/secret.key`; into a new `sprachanker-backup-<date>-<time>` folder,
 its owner's only (0700: it holds the key, the command says to keep it private), never inside the

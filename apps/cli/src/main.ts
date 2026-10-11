@@ -5,6 +5,7 @@ import { join, resolve } from "node:path";
 import { parseArgs } from "node:util";
 import {
   backupData,
+  courseAdmin,
   directoryAssets,
   fileAssets,
   importCourse,
@@ -37,6 +38,13 @@ Commands:
                                    the profile as a file (.sprachanker-profile) to import on another
                                    machine: its progress, words, settings and recordings, no API keys
   profiles import <file>           a profile file imported as a new profile
+  courses [--data <dir>]
+         list the installed courses and exams with their editions
+  courses export <series/course> [--editions ru-de,en-de] --to <file|folder>
+                                   a course or exam as a file (.sprachanker-course) to import on another
+                                   machine: its files, the media they use (every edition, or those given)
+  courses import <file>            a course file installed here (the course replaced when it differs;
+                                   progress kept), then verified
   backup [--data <dir>] --to <folder>
          copy what cannot be downloaded again into a new folder there: the databases, recordings,
          imported decks and the key the API keys are sealed with
@@ -180,10 +188,20 @@ const PROFILE_FILE_ERRORS: Record<string, string> = {
   profile_import_busy: "another profile file is being imported: try again when it is done",
   name_required: "the profile has no name yet: finish its onboarding in the app first",
 };
-const inWords = (error: unknown) =>
-  error instanceof Error && PROFILE_FILE_ERRORS[error.message]
-    ? new Error(PROFILE_FILE_ERRORS[error.message])
-    : error;
+/** What the server refuses a course bundle for, in words. */
+const COURSE_BUNDLE_ERRORS: Record<string, string> = {
+  not_a_course_bundle: "this is not a SprachAnker course file (.sprachanker-course)",
+  course_bundle_damaged: "this course file is damaged or was changed after it was exported",
+  course_bundle_too_large: "the course file would be over 16 GB",
+  course_bundle_from_newer_app:
+    "this course file comes from a newer version of SprachAnker: update it here first",
+  course_bundle_clash:
+    "this library has other files under the names of the course's media: download the course here instead",
+  course_import_busy: "another course file is being imported: try again when it is done",
+  not_enough_space: "there is not enough free space on the disk",
+};
+const inWords = (error: unknown, words = PROFILE_FILE_ERRORS) =>
+  error instanceof Error && words[error.message] ? new Error(words[error.message]) : error;
 
 const megabytes = (bytes: number) => `${(bytes / 1e6).toFixed(1)} MB`;
 
@@ -265,6 +283,73 @@ async function profilesCommand(args: string[], embedded?: Embedded): Promise<voi
   }
 }
 
+async function coursesCommand(args: string[]): Promise<void> {
+  const { values, positionals } = parseArgs({
+    args,
+    allowPositionals: true,
+    options: { data: { type: "string" }, to: { type: "string" }, editions: { type: "string" } },
+  });
+  const dataRoot = resolveDataRoot(values.data);
+  const courses = courseAdmin(dataRoot, pkg.version);
+  const [action, arg] = positionals;
+  const refused = (error: unknown) => {
+    throw inWords(error, COURSE_BUNDLE_ERRORS);
+  };
+  switch (action) {
+    case undefined: {
+      const all = courses.list();
+      if (!all.length) console.log(`no courses installed in ${dataRoot}`);
+      for (const c of all) console.log(`${c.series}/${c.course}  [${c.editions.join(", ")}]`);
+      return;
+    }
+    case "export": {
+      const listed = "(sprachanker courses lists them)";
+      if (!arg) throw new Error(`which course? ${listed}`);
+      const to = values.to;
+      if (!to) throw new Error("where to? --to <file or folder>");
+      const course = courses.list().find((c) => `${c.series}/${c.course}` === arg);
+      if (!course) throw new Error(`no course ${arg} here ${listed}`);
+      const editions = list(values.editions);
+      const absent = editions?.filter((e) => !course.editions.includes(e)) ?? [];
+      if (absent.length)
+        throw new Error(`${arg} has no edition ${absent.join(", ")} here ${listed}`);
+      const into = statSync(to, { throwIfNoEntry: false })?.isDirectory();
+      const done = await courses
+        .exportTo(course.series, course.course, editions, (fileName) => {
+          const file = into ? join(to, fileName) : to;
+          if (existsSync(file)) throw new Error(`${file} exists: give another --to`);
+          return file;
+        })
+        .catch(refused);
+      console.log(
+        `${arg} [${done.editions.join(", ")}]: exported to ${done.file} (${megabytes(done.bytes)})`,
+      );
+      return;
+    }
+    case "import": {
+      if (!arg) throw new Error("which file? sprachanker courses import <file>");
+      if (!statSync(arg, { throwIfNoEntry: false })?.isFile()) throw new Error(`no file ${arg}`);
+      const done = await courses.importFile(arg).catch(refused);
+      const what = `${done.course.key} [${done.course.editions.join(", ")}]`;
+      const status = {
+        added: "installed",
+        same: "already here, the same: nothing changed",
+        replaced: "replaced by the file's version (progress kept)",
+      }[done.status];
+      console.log(`${what}: ${status}`);
+      console.log(
+        done.check.problems
+          ? `  verify: ${done.check.problems} problems (sprachanker verify lists them)`
+          : "  verify: ✓",
+      );
+      if (done.check.problems) process.exitCode = 1;
+      return;
+    }
+    default:
+      throw new Error(`unknown: courses ${action}`);
+  }
+}
+
 function backupCommand(args: string[]): void {
   const { values } = parseArgs({
     args,
@@ -313,6 +398,9 @@ async function run(argv: string[], embedded?: Embedded): Promise<void> {
       break;
     case "profiles":
       await profilesCommand(rest, embedded);
+      break;
+    case "courses":
+      await coursesCommand(rest);
       break;
     case "backup":
       backupCommand(rest);
