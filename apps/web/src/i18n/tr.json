@@ -143,7 +143,7 @@
       "grammar": "Dil bilgisi",
       "culture": "Kültür",
       "writing": "Kendin yaz",
-      "scene": "Sahne",
+      "scene": "Diyalog",
       "mistakes": "Hataların üzerinden geç",
       "summary": "Özet"
     },
@@ -230,7 +230,7 @@
   },
   "llm": {
     "title": "Yapay zekâ asistanı",
-    "intro": "Hataları açıklar, derslerde öğretmenlik yapar, metinleri kontrol eder ve sahneleri canlandırır. Bu bilgisayarda, ağındaki bir sunucuda ya da bulutta (OpenRouter) çalışan bir model veya aboneliğinle kullandığın bir komut satırı ajanı seç. Ders içeriği ve cevapların yalnızca seçtiğin sağlayıcıya gider.",
+    "intro": "Hataları açıklar, derslerde öğretmenlik yapar, metinleri kontrol eder ve diyaloglar yürütür. Bu bilgisayarda, ağındaki bir sunucuda ya da bulutta (OpenRouter) çalışan bir model veya aboneliğinle kullandığın bir komut satırı ajanı seç. Ders içeriği ve cevapların yalnızca seçtiğin sağlayıcıya gider.",
     "off": "Kapalı",
     "provider": {
       "lmstudio": "LM Studio",
@@ -293,7 +293,7 @@
       "context": "Bağlam ≥ {size}",
       "more": "Daha fazla…",
       "fewer": "Daha az",
-      "jsonHint": "“JSON ile cevaplar”: yazı kontrollerini ve sahneleri uygulamanın okuyabildiği biçimde döndürebilen modeller.",
+      "jsonHint": "“JSON ile cevaplar”: yazı kontrollerini ve diyalogları uygulamanın okuyabildiği biçimde döndürebilen modeller.",
       "none": "Aramaya ve filtrelere uyan model yok.",
       "freeTag": "ücretsiz",
       "price": "1M token başına {input} / {output}",
@@ -399,8 +399,8 @@
       "speaking": "Sözlü cevaplar",
       "exam": "Sınav: bir cevabı puanlama",
       "conversation": "Sınav: konuşma bölümü",
-      "sceneSetup": "Sahne: durum",
-      "scene": "Sahne",
+      "sceneSetup": "Diyalog: kurgu",
+      "scene": "Diyalog: bir cümle",
       "examples": "Bir destenin kelimeleri için örnekler",
       "sceneSummary": "Diyalog: özet"
     },
@@ -464,7 +464,7 @@
         "where": "dersin bir adımı"
       },
       "scene": {
-        "name": "Sahneler",
+        "name": "Diyalog",
         "where": "dersin bir adımı"
       },
       "speaking": {
@@ -488,8 +488,8 @@
       "speaking": "“Yapay zekâ ile kontrol et”e bastığında sesli söylediğin bir cevabı (konuşma tanımanın duyduğunu) soruya ve kursun cevabına göre kontrol eder.",
       "exam": "Bir sınavın yazılı cevabını sınavın kendi ölçütlerine göre puanlar: her biri için gerekçesiyle bir seviye ve daha yüksek puan için ne gerektiği. Sen kabul edene ya da değiştirene kadar hiçbir şey sayılmaz.",
       "conversation": "Sınavın bir konuşma bölümünü yürütür: bölümün öngördüğü şekilde sınav görevlisini ve diğer adayı oynar, seninle replik replik ilerler; asla yardım etmez ya da düzeltmez. Sonrasında bölümün ölçütlerine göre puanlanır.",
-      "sceneSetup": "Bir sahne başlatır: dersin konusundan durumu kurgular — kim olduğun, kiminle konuştuğun, nerede olduğun ve ulaşılacak hedefler. Her sahne için bir kez istenir.",
-      "scene": "Sahneyi oynar: her replikine partnerin olarak cevap verir, hatalarını düzeltir, çeviri verir ve ulaştığın hedefleri işaretler.",
+      "sceneSetup": "Bir diyalog başlatır: dersin hedeflerinden ve bildiklerinden durumu, kiminle konuştuğunu, hedef kartını ve yalnızca karşındakinin bildiklerini — senin sorman gerekenleri — kurgular. Her diyalogda bir kez.",
+      "scene": "Karşındaki kişiyi oynar: söylediğin (tanıma nasıl duyduysa) ya da yazdığın her cümleye cevap verir, anlaşılıp anlaşılmadığını ve uyup uymadığını söyler, içindeki en fazla iki hatayı düzeltir, çeviri verir ve ulaştığın hedefleri işaretler.",
       "examples": "Kendi örnekleri olmayan bir destenin her kelimesi için, her seferinde beş kelime olmak üzere üç ila beş örnek cümle yazar (Tekrar → Desteler, “Örnek oluştur”); mümkün olduğunca bildiğin kelimeleri kullanır, yenilerini çevirir.",
       "sceneSummary": "Diyalog bitince özetler: en önemli bir ya da iki düzeltme, her biri cümlenin doğru söylenişiyle, ve kısa bir değerlendirme."
     }
@@ -529,17 +529,33 @@
     "message": "Lütfen bu dersteki hatalarımın üzerinden geç."
   },
   "scene": {
-    "intro": "Dersi kısa bir canlandırmayla çalış: partner kursun dilini konuşur, seni düzeltir ve hedeflerini işaretler.",
-    "start": "Sahne başlat",
+    "intro": "Dersin hedefleri üzerine sesli, kısa bir diyalog: karşındakinin cümleleri sesli okunur, sen mikrofonla cevap verirsin. Karşındaki, senin sorman gereken şeyleri bilir.",
+    "start": "Diyalog başlat",
     "preparing": "Hazırlanıyor…",
     "partner": "Partnerin: {partner}",
     "translate": "Çeviri",
     "placeholder": "Repliğin…",
     "done": "Tüm hedeflere ulaştın — aferin!",
-    "new": "Yeni sahne",
-    "past": "Bu dersin önceki sahneleri",
+    "new": "Yeni diyalog",
+    "past": "Bu dersin önceki diyalogları",
     "goals": "Hedefler: {met, number} / {total, number}",
-    "ended": "Sahne bitti."
+    "ended": "Diyalog bitti.",
+    "said": "Sesli söylendi",
+    "understood": "Anlaşıldı",
+    "notUnderstood": "Anlaşılmadı",
+    "fits": "Uygun",
+    "offTrack": "Uygun değil",
+    "goalCard": "Hedeflerin",
+    "partnerKnew": "Karşındakinin bildikleri",
+    "model": "Şöyle söyle:",
+    "summing": "Özetleniyor…",
+    "noSummary": "Özet çıkarılamadı.",
+    "sumUp": "Özetle",
+    "end": "Diyaloğu bitir",
+    "noRecognition": "Konuşma tanıma kapalı ya da yüklü değil (Ayarlar → Konuşma).",
+    "typeInstead": "Bunun yerine cümleni yaz.",
+    "again": "Tekrar söyle",
+    "waitPartner": "Karşındakinin cevabını bekle."
   },
   "player": {
     "play": "Oynat: {what}",
@@ -581,9 +597,9 @@
     "removeCourse": "Kurslarımdan kaldır",
     "resetLesson": "Ders ilerlemesini sıfırla",
     "courseTitle": "“{title}” içindeki ilerlemen sıfırlansın mı?",
-    "courseBody": "Bu kursun tüm cevapları ve ders turları; öğretmen sohbetleri, yazı kontrolleri ve sahneleriyle, derslerinin oluşturduğu kelime kartları da tekrarlarıyla birlikte silinir. Kurs “Kurslarım”dan çıkar ama yüklü kalır. Bu işlem geri alınamaz.",
+    "courseBody": "Bu kursun tüm cevapları ve ders turları; öğretmen sohbetleri, yazı kontrolleri ve diyaloglarıyla, derslerinin oluşturduğu kelime kartları da tekrarlarıyla birlikte silinir. Kurs “Kurslarım”dan çıkar ama yüklü kalır. Bu işlem geri alınamaz.",
     "lessonTitle": "“{title}” içindeki ilerlemen sıfırlansın mı?",
-    "lessonBody": "Bu dersin tüm cevapları ve turları; öğretmen sohbeti, yazı kontrolleri ve sahneleriyle, oluşturduğu kelime kartları da tekrarlarıyla birlikte silinir (diğer derslerin kelimeleri kalır). Bu işlem geri alınamaz.",
+    "lessonBody": "Bu dersin tüm cevapları ve turları; öğretmen sohbeti, yazı kontrolleri ve diyaloglarıyla, oluşturduğu kelime kartları da tekrarlarıyla birlikte silinir (diğer derslerin kelimeleri kalır). Bu işlem geri alınamaz.",
     "confirm": "Sıfırla",
     "removeExam": "Sınavlarımdan kaldır",
     "examTitle": "“{title}”, sınavlarından kaldırılsın mı?",
@@ -630,7 +646,7 @@
     "grammar": "Dil bilgisi",
     "culture": "Kültür",
     "writing": "Yazma",
-    "scene": "Sahne",
+    "scene": "Diyalog",
     "mistakes": "Hatalar"
   },
   "words": {
@@ -689,7 +705,7 @@
     "workedSome": "{count, plural, one {# alıştırma} other {# alıştırma}}",
     "explanations": "{count, plural, one {# açıklama} other {# açıklama}}",
     "writing": "{count, plural, one {# metin} other {# metin}}",
-    "scenes": "{count, plural, one {# sahne} other {# sahne}}",
+    "scenes": "{count, plural, one {# diyalog} other {# diyalog}}",
     "chats": "{count, plural, one {# sohbet} other {# sohbet}}",
     "words": "{count, plural, one {# kelime} other {# kelime}}",
     "exercises": "Alıştırmalar",
@@ -915,7 +931,7 @@
     },
     "assistant": {
       "title": "Yapay zekâ asistanı",
-      "text": "Bir asistan hataları açıklar, derslerde öğretmenlik yapar, metinlerini kontrol eder ve sahneleri canlandırır. Şimdi ya da daha sonra Ayarlar’dan birini seç — uygulama asistan olmadan da çalışır."
+      "text": "Bir asistan hataları açıklar, derslerde öğretmenlik yapar, metinlerini kontrol eder ve diyaloglar yürütür. Şimdi ya da daha sonra Ayarlar’dan birini seç — uygulama asistan olmadan da çalışır."
     },
     "tour": {
       "title": "Neler nerede"
@@ -1163,7 +1179,7 @@
       "removeModel": "Modeli kaldır",
       "download": "İndir",
       "read": "Sesli okuma",
-      "readHint": "Bir ses, tek bir dildeki metinleri okur: sahne replikleri, bir kelimenin örneği ve kaydı olmayan kelimeler. Her dilin kendi sesi vardır.",
+      "readHint": "Bir ses, tek bir dildeki metinleri okur: diyalog replikleri, bir kelimenin örneği ve kaydı olmayan kelimeler. Her dilin kendi sesi vardır.",
       "engine": {
         "device": "Bu cihazın sesleri",
         "deviceLine": "{count, plural, one {# ses} other {# ses}}, yükleme gerekmez",
@@ -1227,7 +1243,11 @@
       "listen": "Sesli oku: {what}",
       "stop": "Okumayı durdur"
     },
-    "aiCheck": "Yapay zekâ ile kontrol et"
+    "aiCheck": "Yapay zekâ ile kontrol et",
+    "readBy": "Seslendiren: {engine, select, piper {Piper} qwen {Qwen3-TTS} other {bu cihaz}} · {voice}",
+    "readByEngine": "Seslendiren: {engine, select, piper {Piper} qwen {Qwen3-TTS} other {bu cihazın sesi}}",
+    "readByNone": "Burada {language} için sesli okuyan bir şey yok: Ayarlar → Konuşma’dan bir ses seç.",
+    "readByHint": "Motor ve ses Ayarlar → Konuşma’dan seçilir."
   },
   "error": {
     "answer_does_not_fit": "Cevap bu alıştırmaya uymuyor. Dersi yeniden yükle.",
@@ -1260,7 +1280,7 @@
     "llm_unreachable": "Sunucu cevap vermiyor. Adresi kontrol et.",
     "missing_client_header": "İstek uygulamadan gelmedi. Sayfayı yeniden yükle.",
     "name_required": "Bir ad gir.",
-    "no_active_scene": "Bu sahne bitti. Yeni bir sahne başlat.",
+    "no_active_scene": "Bu diyalog bitti. Yenisini başlat.",
     "no_device": "Bu cihazda artık oturum açık değil.",
     "profile_export_gone": "Bu dışa aktarım artık burada değil: profili yeniden dışa aktar.",
     "not_a_profile_file": "Bu dosya bir SprachAnker profil dosyası (.sprachanker-profile) değil.",
@@ -1290,7 +1310,7 @@
     "run_incomplete": "Ders henüz bitmedi.",
     "run_not_active": "Dersin bu turu bitti. Dersi yeniden yükle.",
     "run_without_edition": "Bu turun dil sürümü yok. Derse yeniden başla.",
-    "scene_busy": "Sahne hâlâ cevap veriyor. Biraz bekle.",
+    "scene_busy": "Diyalog hâlâ cevap veriyor. Bekle.",
     "server_error": "Sunucuda bir şeyler ters gitti.",
     "speaking_busy": "Bu cevap kontrol ediliyor. Biraz bekle.",
     "speech_engine_failed": "Konuşma tanıma cevap vermedi. Tekrar dene.",

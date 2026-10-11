@@ -143,7 +143,7 @@
       "grammar": "Gramática",
       "culture": "Cultura",
       "writing": "Escribe tú",
-      "scene": "Escena",
+      "scene": "Diálogo",
       "mistakes": "Repaso de errores",
       "summary": "Resumen"
     },
@@ -230,7 +230,7 @@
   },
   "llm": {
     "title": "Asistente de IA",
-    "intro": "Explica errores, hace de tutor en las lecciones, corrige textos y representa escenas. Elige un modelo en esta computadora, en un servidor de tu red, en la nube (OpenRouter) o un agente de línea de comandos con tu suscripción. El contenido de las lecciones y tus respuestas solo van al proveedor que elijas.",
+    "intro": "Explica errores, hace de tutor en las lecciones, corrige textos y mantiene diálogos. Elige un modelo en esta computadora, en un servidor de tu red, en la nube (OpenRouter) o un agente de línea de comandos con tu suscripción. El contenido de las lecciones y tus respuestas solo van al proveedor que elijas.",
     "off": "Desactivado",
     "provider": {
       "lmstudio": "LM Studio",
@@ -293,7 +293,7 @@
       "context": "Contexto ≥ {size}",
       "more": "Más…",
       "fewer": "Menos",
-      "jsonHint": "«Responde en JSON»: modelos que pueden devolver correcciones de textos y escenas en el formato que lee la aplicación.",
+      "jsonHint": "«Responde en JSON»: modelos que pueden devolver correcciones de textos y diálogos en el formato que lee la aplicación.",
       "none": "Ningún modelo coincide con la búsqueda y los filtros.",
       "freeTag": "gratis",
       "price": "{input} / {output} por 1M de tokens",
@@ -399,8 +399,8 @@
       "speaking": "Respuestas habladas",
       "exam": "Examen: valorar una respuesta",
       "conversation": "Examen: una parte oral",
-      "sceneSetup": "Escena: la situación",
-      "scene": "Escena",
+      "sceneSetup": "Diálogo: el planteamiento",
+      "scene": "Diálogo: una frase",
       "examples": "Ejemplos para las palabras de un mazo",
       "sceneSummary": "Diálogo: el resumen"
     },
@@ -464,7 +464,7 @@
         "where": "un paso de la lección"
       },
       "scene": {
-        "name": "Escenas",
+        "name": "Diálogo",
         "where": "un paso de la lección"
       },
       "speaking": {
@@ -488,8 +488,8 @@
       "speaking": "Comprueba una respuesta que dijiste en voz alta (lo que oyó el reconocedor) frente a la pregunta y la respuesta del curso, cuando pulsas «Comprobar con IA».",
       "exam": "Valora una respuesta escrita de un examen según los criterios del propio examen: un nivel para cada uno con su motivo, y qué daría más puntos. Nada cuenta hasta que lo aceptes o lo cambies.",
       "conversation": "Lleva una parte oral de un examen: hace de examinador y del otro candidato, como indica la parte, frase a frase contigo; nunca ayuda ni corrige. Se valora después según los criterios de la parte.",
-      "sceneSetup": "Inicia una escena: inventa la situación a partir del tema de la lección: quién eres, con quién hablas, dónde y qué objetivos debes cumplir. Se pide una vez por escena.",
-      "scene": "Representa la escena: responde a cada una de tus frases como tu interlocutor, corrige tus errores, da una traducción y marca los objetivos que cumpliste.",
+      "sceneSetup": "Empieza un diálogo: a partir de los objetivos de la lección y de lo que sabes, inventa la situación, con quién hablas, tu tarjeta de objetivos y lo que solo sabe tu interlocutor, que tendrás que preguntar. Una vez por diálogo.",
+      "scene": "Hace de tu interlocutor: responde a cada frase que dices (tal como la oyó el reconocimiento) o escribes, dice si se entendió y si encaja, corrige como mucho dos errores, da una traducción y marca tus objetivos cumplidos.",
       "examples": "Escribe de tres a cinco frases de ejemplo para cada palabra de un mazo que no tenga ejemplos propios, de cinco en cinco palabras (Repaso → Mazos, «Crear ejemplos»), con palabras que ya conoces siempre que puede y las nuevas traducidas.",
       "sceneSummary": "Resume un diálogo cuando termina: las una o dos correcciones más importantes, cada una con tu frase bien dicha, y un comentario breve."
     }
@@ -529,17 +529,33 @@
     "message": "Por favor, repasa mis errores de esta lección."
   },
   "scene": {
-    "intro": "Practica la lección en un juego de rol corto: tu interlocutor habla el idioma del curso, te corrige y marca tus objetivos.",
-    "start": "Empezar una escena",
+    "intro": "Un diálogo breve y hablado sobre los objetivos de la lección: las frases de tu interlocutor se leen en voz alta y respondes con el micrófono. Tu interlocutor sabe cosas que tendrás que preguntar.",
+    "start": "Empezar un diálogo",
     "preparing": "Preparando…",
     "partner": "Tu interlocutor: {partner}",
     "translate": "Traducción",
     "placeholder": "Tu frase…",
     "done": "¡Todos los objetivos cumplidos, muy bien!",
-    "new": "Nueva escena",
-    "past": "Escenas anteriores de esta lección",
+    "new": "Nuevo diálogo",
+    "past": "Diálogos anteriores de esta lección",
     "goals": "Objetivos: {met, number} de {total, number}",
-    "ended": "Escena terminada."
+    "ended": "Diálogo terminado.",
+    "said": "Dicho en voz alta",
+    "understood": "Se entiende",
+    "notUnderstood": "No se entiende",
+    "fits": "Encaja",
+    "offTrack": "No encaja",
+    "goalCard": "Tus objetivos",
+    "partnerKnew": "Lo que sabía tu interlocutor",
+    "model": "Dilo así:",
+    "summing": "Resumiendo…",
+    "noSummary": "No se pudo hacer el resumen.",
+    "sumUp": "Resumir",
+    "end": "Terminar el diálogo",
+    "noRecognition": "El reconocimiento de voz está desactivado o no está instalado (Ajustes → Voz).",
+    "typeInstead": "Escribe tu frase en su lugar.",
+    "again": "Decirlo otra vez",
+    "waitPartner": "Espera la respuesta de tu interlocutor."
   },
   "player": {
     "play": "Reproducir: {what}",
@@ -581,9 +597,9 @@
     "removeCourse": "Quitar de mis cursos",
     "resetLesson": "Restablecer el progreso de la lección",
     "courseTitle": "¿Restablecer tu progreso en «{title}»?",
-    "courseBody": "Se eliminan todas las respuestas y vueltas de las lecciones de este curso, con las conversaciones del tutor, las correcciones de textos y las escenas sobre él, y las tarjetas de palabras creadas por sus lecciones con sus repasos. El curso sale de «Mis cursos», pero sigue instalado. No se puede deshacer.",
+    "courseBody": "Se eliminan todas las respuestas y vueltas de las lecciones de este curso, con las conversaciones del tutor, las correcciones de textos y los diálogos sobre él, y las tarjetas de palabras creadas por sus lecciones con sus repasos. El curso sale de «Mis cursos», pero sigue instalado. No se puede deshacer.",
     "lessonTitle": "¿Restablecer tu progreso en «{title}»?",
-    "lessonBody": "Se eliminan todas las respuestas y vueltas de esta lección, con su conversación del tutor, sus correcciones de textos y sus escenas, y las tarjetas de palabras que creó con sus repasos (las palabras de otras lecciones se quedan). No se puede deshacer.",
+    "lessonBody": "Se eliminan todas las respuestas y vueltas de esta lección, con su conversación del tutor, sus correcciones de textos y sus diálogos, y las tarjetas de palabras que creó con sus repasos (las palabras de otras lecciones se quedan). No se puede deshacer.",
     "confirm": "Restablecer",
     "removeExam": "Quitar de mis exámenes",
     "examTitle": "¿Quitar «{title}» de tus exámenes?",
@@ -630,7 +646,7 @@
     "grammar": "Gramática",
     "culture": "Cultura",
     "writing": "Escritura",
-    "scene": "Escena",
+    "scene": "Diálogo",
     "mistakes": "Errores"
   },
   "words": {
@@ -689,7 +705,7 @@
     "workedSome": "{count, plural, one {# ejercicio} other {# ejercicios}}",
     "explanations": "{count, plural, one {# explicación} other {# explicaciones}}",
     "writing": "{count, plural, one {# texto} other {# textos}}",
-    "scenes": "{count, plural, one {# escena} other {# escenas}}",
+    "scenes": "{count, plural, one {# diálogo} other {# diálogos}}",
     "chats": "{count, plural, one {# conversación} other {# conversaciones}}",
     "words": "{count, plural, one {# palabra} other {# palabras}}",
     "exercises": "Ejercicios",
@@ -915,7 +931,7 @@
     },
     "assistant": {
       "title": "Asistente de IA",
-      "text": "Un asistente explica errores, hace de tutor en las lecciones, corrige tus textos y representa escenas. Elige uno ahora o más tarde en Ajustes: la aplicación funciona sin él."
+      "text": "Un asistente explica errores, hace de tutor en las lecciones, corrige tus textos y mantiene diálogos. Elige uno ahora o más tarde en Ajustes: la aplicación funciona sin él."
     },
     "tour": {
       "title": "Dónde está cada cosa"
@@ -1163,7 +1179,7 @@
       "removeModel": "Quitar el modelo",
       "download": "Descargar",
       "read": "Lectura en voz alta",
-      "readHint": "Una voz lee textos en un idioma: frases de escenas, el ejemplo de una palabra y palabras sin grabación. Cada idioma tiene su propia voz.",
+      "readHint": "Una voz lee textos en un idioma: frases de diálogos, el ejemplo de una palabra y palabras sin grabación. Cada idioma tiene su propia voz.",
       "engine": {
         "device": "Voces de este dispositivo",
         "deviceLine": "{count, plural, one {# voz} other {# voces}}, nada que instalar",
@@ -1227,7 +1243,11 @@
       "listen": "Leer en voz alta: {what}",
       "stop": "Dejar de leer"
     },
-    "aiCheck": "Comprobar con IA"
+    "aiCheck": "Comprobar con IA",
+    "readBy": "Leído por {engine, select, piper {Piper} qwen {Qwen3-TTS} other {este dispositivo}} · {voice}",
+    "readByEngine": "Leído por {engine, select, piper {Piper} qwen {Qwen3-TTS} other {la voz de este dispositivo}}",
+    "readByNone": "Aquí nada lee en {language} en voz alta: elige una voz en Ajustes → Voz.",
+    "readByHint": "El motor y la voz se eligen en Ajustes → Voz."
   },
   "error": {
     "answer_does_not_fit": "La respuesta no corresponde a este ejercicio. Vuelve a cargar la lección.",
@@ -1260,7 +1280,7 @@
     "llm_unreachable": "El servidor no responde. Comprueba la dirección.",
     "missing_client_header": "La solicitud no vino de la aplicación. Vuelve a cargar la página.",
     "name_required": "Escribe un nombre.",
-    "no_active_scene": "Esta escena ha terminado. Empieza una nueva.",
+    "no_active_scene": "Este diálogo ha terminado. Empieza uno nuevo.",
     "no_device": "Este dispositivo ya no tiene la sesión iniciada.",
     "profile_export_gone": "Esta exportación ya no está aquí: vuelve a exportar el perfil.",
     "not_a_profile_file": "Este archivo no es un archivo de perfil de SprachAnker (.sprachanker-profile).",
@@ -1290,7 +1310,7 @@
     "run_incomplete": "La lección aún no está terminada.",
     "run_not_active": "Esta vuelta de la lección ha terminado. Vuelve a cargar la lección.",
     "run_without_edition": "Esta vuelta no tiene versión de idioma. Empieza la lección de nuevo.",
-    "scene_busy": "La escena aún está respondiendo. Espera un momento.",
+    "scene_busy": "El diálogo todavía está respondiendo. Espera.",
     "server_error": "Algo salió mal en el servidor.",
     "speaking_busy": "Esta respuesta se está comprobando. Espera un momento.",
     "speech_engine_failed": "El reconocedor de voz no respondió. Inténtalo otra vez.",

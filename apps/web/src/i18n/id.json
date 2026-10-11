@@ -143,7 +143,7 @@
       "grammar": "Tata bahasa",
       "culture": "Budaya",
       "writing": "Tulis sendiri",
-      "scene": "Adegan",
+      "scene": "Dialog",
       "mistakes": "Membahas kesalahan",
       "summary": "Ringkasan"
     },
@@ -230,7 +230,7 @@
   },
   "llm": {
     "title": "Asisten AI",
-    "intro": "Menjelaskan kesalahan, menjadi tutor dalam pelajaran, memeriksa teks, dan memainkan adegan. Pilih model di komputer ini, di server dalam jaringan kamu, di cloud (OpenRouter), atau agen baris perintah dengan langganan kamu. Isi pelajaran dan jawaban kamu hanya dikirim ke penyedia yang kamu pilih.",
+    "intro": "Menjelaskan kesalahan, menjadi tutor dalam pelajaran, memeriksa teks, dan mengajak berdialog. Pilih model di komputer ini, di server dalam jaringan kamu, di cloud (OpenRouter), atau agen baris perintah dengan langganan kamu. Isi pelajaran dan jawaban kamu hanya dikirim ke penyedia yang kamu pilih.",
     "off": "Mati",
     "provider": {
       "lmstudio": "LM Studio",
@@ -293,7 +293,7 @@
       "context": "Konteks ≥ {size}",
       "more": "Lainnya…",
       "fewer": "Lebih sedikit",
-      "jsonHint": "“Menjawab JSON”: model yang bisa mengembalikan pemeriksaan tulisan dan adegan dalam bentuk yang dibaca aplikasi.",
+      "jsonHint": "“Menjawab JSON”: model yang bisa mengembalikan pemeriksaan tulisan dan dialog dalam bentuk yang dibaca aplikasi.",
       "none": "Tidak ada model yang cocok dengan pencarian dan filter.",
       "freeTag": "gratis",
       "price": "{input} / {output} per 1 jt token",
@@ -399,8 +399,8 @@
       "speaking": "Jawaban lisan",
       "exam": "Ujian: menilai jawaban",
       "conversation": "Ujian: bagian berbicara",
-      "sceneSetup": "Adegan: situasinya",
-      "scene": "Adegan",
+      "sceneSetup": "Dialog: persiapan",
+      "scene": "Dialog: satu kalimat",
       "examples": "Contoh untuk kata-kata dek",
       "sceneSummary": "Dialog: ringkasan"
     },
@@ -464,7 +464,7 @@
         "where": "salah satu langkah pelajaran"
       },
       "scene": {
-        "name": "Adegan",
+        "name": "Dialog",
         "where": "salah satu langkah pelajaran"
       },
       "speaking": {
@@ -488,8 +488,8 @@
       "speaking": "Memeriksa jawaban yang kamu ucapkan (apa yang didengar pengenal ucapan) terhadap pertanyaan dan jawaban kursus, saat kamu menekan “Periksa dengan AI”.",
       "exam": "Menilai jawaban tertulis dalam ujian menurut kriteria ujian itu sendiri: tingkat untuk setiap kriteria beserta alasannya, dan apa yang akan mendapat nilai lebih. Belum ada yang dihitung sampai kamu menerima atau mengubahnya.",
       "conversation": "Menjalankan bagian berbicara dalam ujian: memerankan penguji dan peserta lain sesuai ketentuan bagian itu, baris demi baris bersama kamu; tidak pernah membantu atau mengoreksi. Dinilai setelahnya menurut kriteria bagian itu.",
-      "sceneSetup": "Memulai adegan: mengarang situasi dari topik pelajaran — siapa kamu, dengan siapa kamu berbicara, di mana, dan tujuan yang harus dicapai. Diminta sekali per adegan.",
-      "scene": "Memainkan adegan: menjawab setiap kalimat kamu sebagai pasangan bicara, mengoreksi kesalahan kamu, memberi terjemahan, dan mencentang tujuan yang sudah kamu capai.",
+      "sceneSetup": "Memulai dialog: dari tujuan pelajaran dan apa yang sudah Anda ketahui, mengarang situasi, lawan bicara, kartu tujuan Anda, dan hal yang hanya diketahui lawan bicara — yang harus Anda tanyakan. Sekali per dialog.",
+      "scene": "Memerankan lawan bicara Anda: menjawab setiap kalimat yang Anda ucapkan (seperti didengar pengenal ucapan) atau ketik, mengatakan apakah kalimat itu dipahami dan sesuai, membetulkan paling banyak dua kesalahan, memberi terjemahan, dan mencentang tujuan yang tercapai.",
       "examples": "Menulis tiga sampai lima contoh kalimat untuk setiap kata dari dek yang tidak punya contoh sendiri, lima kata sekaligus (Pengulangan → Dek, “Buat contoh”), sebisa mungkin dengan kata-kata yang kamu kenal, dan kata baru diterjemahkan.",
       "sceneSummary": "Merangkum dialog setelah selesai: satu atau dua koreksi yang paling penting, masing-masing dengan kalimat Anda yang diucapkan dengan benar, dan sedikit umpan balik."
     }
@@ -529,17 +529,33 @@
     "message": "Tolong bahas kesalahanku di pelajaran ini."
   },
   "scene": {
-    "intro": "Latih pelajaran ini dalam permainan peran singkat: pasangan bicara memakai bahasa kursus, mengoreksi kamu, dan mencentang tujuan kamu.",
-    "start": "Mulai adegan",
+    "intro": "Dialog singkat secara lisan tentang tujuan pelajaran: kalimat lawan bicara dibacakan dan Anda menjawab dengan mikrofon. Lawan bicara mengetahui hal-hal yang harus Anda tanyakan.",
+    "start": "Mulai dialog",
     "preparing": "Menyiapkan…",
     "partner": "Pasangan bicara kamu: {partner}",
     "translate": "Terjemahan",
     "placeholder": "Kalimat kamu…",
     "done": "Semua tujuan tercapai — hebat!",
-    "new": "Adegan baru",
-    "past": "Adegan sebelumnya di pelajaran ini",
+    "new": "Dialog baru",
+    "past": "Dialog sebelumnya di pelajaran ini",
     "goals": "Tujuan: {met, number} dari {total, number}",
-    "ended": "Adegan selesai."
+    "ended": "Dialog selesai.",
+    "said": "Diucapkan",
+    "understood": "Dipahami",
+    "notUnderstood": "Tidak dipahami",
+    "fits": "Sesuai",
+    "offTrack": "Tidak sesuai",
+    "goalCard": "Tujuan Anda",
+    "partnerKnew": "Yang diketahui lawan bicara",
+    "model": "Ucapkan begini:",
+    "summing": "Merangkum…",
+    "noSummary": "Ringkasan tidak dapat dibuat.",
+    "sumUp": "Rangkum",
+    "end": "Akhiri dialog",
+    "noRecognition": "Pengenalan ucapan mati atau belum terpasang (Pengaturan → Ucapan).",
+    "typeInstead": "Ketik kalimat Anda sebagai gantinya.",
+    "again": "Ucapkan lagi",
+    "waitPartner": "Tunggu jawaban lawan bicara Anda."
   },
   "player": {
     "play": "Putar: {what}",
@@ -581,9 +597,9 @@
     "removeCourse": "Hapus dari kursusku",
     "resetLesson": "Atur ulang progres pelajaran",
     "courseTitle": "Atur ulang progres kamu di “{title}”?",
-    "courseBody": "Semua jawaban dan putaran pelajaran di kursus ini akan dihapus, beserta obrolan tutor, pemeriksaan tulisan, dan adegan terkait, serta kartu kata yang dibuat dari pelajarannya beserta pengulangannya. Kursus keluar dari “Kursusku”, tetapi tetap terpasang. Tindakan ini tidak bisa dibatalkan.",
+    "courseBody": "Semua jawaban dan putaran pelajaran di kursus ini akan dihapus, beserta obrolan tutor, pemeriksaan tulisan, dan dialog terkait, serta kartu kata yang dibuat dari pelajarannya beserta pengulangannya. Kursus keluar dari “Kursusku”, tetapi tetap terpasang. Tindakan ini tidak bisa dibatalkan.",
     "lessonTitle": "Atur ulang progres kamu di “{title}”?",
-    "lessonBody": "Semua jawaban dan putaran pelajaran ini akan dihapus, beserta obrolan tutor, pemeriksaan tulisan, dan adegannya, serta kartu kata yang dibuatnya beserta pengulangannya (kata dari pelajaran lain tetap ada). Tindakan ini tidak bisa dibatalkan.",
+    "lessonBody": "Semua jawaban dan putaran pelajaran ini akan dihapus, beserta obrolan tutor, pemeriksaan tulisan, dan dialognya, serta kartu kata yang dibuatnya beserta pengulangannya (kata dari pelajaran lain tetap ada). Tindakan ini tidak bisa dibatalkan.",
     "confirm": "Atur ulang",
     "removeExam": "Hapus dari ujianku",
     "examTitle": "Hapus “{title}” dari ujian kamu?",
@@ -630,7 +646,7 @@
     "grammar": "Tata bahasa",
     "culture": "Budaya",
     "writing": "Menulis",
-    "scene": "Adegan",
+    "scene": "Dialog",
     "mistakes": "Kesalahan"
   },
   "words": {
@@ -689,7 +705,7 @@
     "workedSome": "{count, plural, other {# latihan}}",
     "explanations": "{count, plural, other {# penjelasan}}",
     "writing": "{count, plural, other {# teks}}",
-    "scenes": "{count, plural, other {# adegan}}",
+    "scenes": "{count, plural, other {# dialog}}",
     "chats": "{count, plural, other {# obrolan}}",
     "words": "{count, plural, other {# kata}}",
     "exercises": "Latihan",
@@ -915,7 +931,7 @@
     },
     "assistant": {
       "title": "Asisten AI",
-      "text": "Asisten menjelaskan kesalahan, menjadi tutor dalam pelajaran, memeriksa teks kamu, dan memainkan adegan. Pilih sekarang atau nanti di Pengaturan — aplikasi tetap berfungsi tanpa asisten."
+      "text": "Asisten menjelaskan kesalahan, menjadi tutor dalam pelajaran, memeriksa teks kamu, dan mengajak berdialog. Pilih sekarang atau nanti di Pengaturan — aplikasi tetap berfungsi tanpa asisten."
     },
     "tour": {
       "title": "Letak semuanya"
@@ -1163,7 +1179,7 @@
       "removeModel": "Hapus model",
       "download": "Unduh",
       "read": "Membacakan teks",
-      "readHint": "Satu suara membacakan teks dalam satu bahasa: kalimat adegan, contoh kalimat sebuah kata, dan kata tanpa rekaman. Setiap bahasa punya suaranya sendiri.",
+      "readHint": "Satu suara membacakan teks dalam satu bahasa: kalimat dialog, contoh kalimat sebuah kata, dan kata tanpa rekaman. Setiap bahasa punya suaranya sendiri.",
       "engine": {
         "device": "Suara perangkat ini",
         "deviceLine": "{count, plural, other {# suara}}, tidak perlu memasang apa pun",
@@ -1227,7 +1243,11 @@
       "listen": "Bacakan: {what}",
       "stop": "Berhenti membacakan"
     },
-    "aiCheck": "Periksa dengan AI"
+    "aiCheck": "Periksa dengan AI",
+    "readBy": "Dibacakan oleh {engine, select, piper {Piper} qwen {Qwen3-TTS} other {perangkat ini}} · {voice}",
+    "readByEngine": "Dibacakan oleh {engine, select, piper {Piper} qwen {Qwen3-TTS} other {suara perangkat ini}}",
+    "readByNone": "Tidak ada yang membacakan bahasa {language} di sini: pilih suara di Pengaturan → Ucapan.",
+    "readByHint": "Mesin dan suara dipilih di Pengaturan → Ucapan."
   },
   "error": {
     "answer_does_not_fit": "Jawaban ini tidak cocok dengan latihan ini. Muat ulang pelajaran.",
@@ -1260,7 +1280,7 @@
     "llm_unreachable": "Server tidak merespons. Periksa alamatnya.",
     "missing_client_header": "Permintaan ini tidak berasal dari aplikasi. Muat ulang halaman.",
     "name_required": "Masukkan nama.",
-    "no_active_scene": "Adegan ini sudah berakhir. Mulai adegan baru.",
+    "no_active_scene": "Dialog ini sudah selesai. Mulai yang baru.",
     "no_device": "Perangkat ini tidak lagi masuk.",
     "profile_export_gone": "Ekspor ini sudah tidak ada: ekspor profil lagi.",
     "not_a_profile_file": "Berkas ini bukan berkas profil SprachAnker (.sprachanker-profile).",
@@ -1290,7 +1310,7 @@
     "run_incomplete": "Pelajaran belum selesai.",
     "run_not_active": "Putaran pelajaran ini sudah berakhir. Muat ulang pelajaran.",
     "run_without_edition": "Putaran ini tidak punya versi bahasa. Mulai pelajaran lagi.",
-    "scene_busy": "Adegan masih menjawab. Tunggu sebentar.",
+    "scene_busy": "Dialog masih menjawab. Tunggu sebentar.",
     "server_error": "Terjadi kesalahan di server.",
     "speaking_busy": "Jawaban ini sedang diperiksa. Tunggu sebentar.",
     "speech_engine_failed": "Pengenal ucapan tidak merespons. Coba lagi.",

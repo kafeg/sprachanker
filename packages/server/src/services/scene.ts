@@ -269,7 +269,7 @@ export function createScenes(deps: { store: RunStore; llm: Llm; lessonContext: L
       return pending.run(request.lessonKey, { summing: true }, async () => {
         const run = latestRun(request.lessonKey);
         const state = run && stateOf(run);
-        if (!run || !state || !state.done) throw new ServiceError("no_active_scene", 409);
+        if (!run || !state?.done) throw new ServiceError("no_active_scene", 409);
         if (!state.summary) await summarize(request, run, true);
         return stateOf(store.get(run.id) ?? run) as SceneState;
       });

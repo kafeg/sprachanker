@@ -213,6 +213,9 @@ const SAME_AS_ENGLISH: Record<string, string[]> = {
   fr: [
     "lesson.correct",
     "lesson.step.culture",
+    "lesson.step.scene",
+    "windowTitle.scene",
+    "prompt.places.scene.name",
     "lesson.section.culture",
     "ref.culture",
     "settings.prompts",

@@ -143,7 +143,7 @@
       "grammar": "语法",
       "culture": "文化",
       "writing": "动笔写一写",
-      "scene": "情景对话",
+      "scene": "对话",
       "mistakes": "回顾错误",
       "summary": "总结"
     },
@@ -230,7 +230,7 @@
   },
   "llm": {
     "title": "AI助手",
-    "intro": "讲解错误、在课上辅导、批改文本、演绎情景对话。可选择本机上的模型、局域网服务器上的模型、云端模型（OpenRouter），或使用你订阅的命令行智能体。各课内容和你的答案只会发送给你选择的服务商。",
+    "intro": "讲解错误、在课上辅导、批改文本、进行对话练习。可选择本机上的模型、局域网服务器上的模型、云端模型（OpenRouter），或使用你订阅的命令行智能体。各课内容和你的答案只会发送给你选择的服务商。",
     "off": "关闭",
     "provider": {
       "lmstudio": "LM Studio",
@@ -293,7 +293,7 @@
       "context": "上下文≥{size}",
       "more": "更多…",
       "fewer": "收起",
-      "jsonHint": "“支持JSON”：能按本应用可读取的格式返回写作批改和情景对话的模型。",
+      "jsonHint": "“支持JSON”：能按本应用可读取的格式返回写作批改和对话练习的模型。",
       "none": "没有符合搜索和筛选条件的模型。",
       "freeTag": "免费",
       "price": "每百万token：{input} / {output}",
@@ -399,8 +399,8 @@
       "speaking": "口头回答",
       "exam": "考试：答案评分",
       "conversation": "考试：口语部分",
-      "sceneSetup": "情景对话：设定情境",
-      "scene": "情景对话",
+      "sceneSetup": "对话：设定",
+      "scene": "对话：一句话",
       "examples": "卡组单词的例句",
       "sceneSummary": "对话：总结"
     },
@@ -464,7 +464,7 @@
         "where": "课中的一个步骤"
       },
       "scene": {
-        "name": "情景对话",
+        "name": "对话",
         "where": "课中的一个步骤"
       },
       "speaking": {
@@ -488,8 +488,8 @@
       "speaking": "当你点按“用AI检查”时，对照问题和课程答案检查你的口头回答（以语音识别器听到的内容为准）。",
       "exam": "按考试自身的评分标准为考试的书面答案评分：每项标准的等级及理由，以及怎样能得更高分。在你采纳或修改之前，评分不会生效。",
       "conversation": "主持考试的口语部分：按该部分的要求扮演考官和另一位考生，与你逐句对话；从不提示也不纠错。结束后按该部分的评分标准评分。",
-      "sceneSetup": "开始情景对话：根据本课主题设定情境——你是谁、和谁说话、在哪里，以及要达成的目标。每个情景只生成一次。",
-      "scene": "演绎情景对话：作为你的搭档回应你的每一句话，纠正你的错误，给出翻译，并勾选你已达成的目标。",
+      "sceneSetup": "开始一段对话：根据本课目标和你已学的内容，设定情境、对话对象、你的目标卡，以及只有对方知道、需要你去询问的信息。每段对话一次。",
+      "scene": "扮演你的对话对象：回应你说出（按语音识别听到的）或输入的每句话，指出是否听懂、是否切题，最多更正其中两处错误，给出翻译并勾选你达成的目标。",
       "examples": "为卡组中没有自带例句的每个单词写三到五个例句，每次五个单词（“复习 → 卡组”，“生成例句”），尽量使用你认识的单词，并翻译新单词。",
       "sceneSummary": "对话结束后进行总结：最重要的一两处更正，每处附上你那句话的正确说法，以及一句反馈。"
     }
@@ -529,17 +529,33 @@
     "message": "请帮我逐一回顾本课中的错误。"
   },
   "scene": {
-    "intro": "在简短的角色扮演中练习本课内容：搭档用课程语言和你对话，纠正你的错误，并勾选你达成的目标。",
-    "start": "开始情景对话",
+    "intro": "围绕本课目标的简短口语对话：对方的话会被朗读出来，你用麦克风回答。对方知道一些信息，需要你去询问。",
+    "start": "开始对话",
     "preparing": "准备中…",
     "partner": "你的搭档：{partner}",
     "translate": "翻译",
     "placeholder": "你的台词…",
     "done": "所有目标均已达成——太棒了！",
-    "new": "新情景",
-    "past": "本课以前的情景对话",
+    "new": "新对话",
+    "past": "本课以前的对话",
     "goals": "目标：{met, number}/{total, number}",
-    "ended": "情景对话已结束。"
+    "ended": "对话已结束。",
+    "said": "口头说出",
+    "understood": "听得懂",
+    "notUnderstood": "听不懂",
+    "fits": "切题",
+    "offTrack": "不切题",
+    "goalCard": "你的目标",
+    "partnerKnew": "对方知道的信息",
+    "model": "这样说：",
+    "summing": "正在总结…",
+    "noSummary": "无法生成总结。",
+    "sumUp": "生成总结",
+    "end": "结束对话",
+    "noRecognition": "语音识别已关闭或未安装（“设置 → 语音”）。",
+    "typeInstead": "请改为输入你的话。",
+    "again": "再说一遍",
+    "waitPartner": "请等待对方的回答。"
   },
   "player": {
     "play": "播放：{what}",
@@ -581,9 +597,9 @@
     "removeCourse": "从我的课程中移除",
     "resetLesson": "重置本课进度",
     "courseTitle": "重置你在“{title}”中的进度？",
-    "courseBody": "此课程的所有答案和学习轮次都会被删除，与之相关的辅导对话、写作批改和情景对话，以及由其各课生成的单词卡片和复习记录也会一并删除。该课程会从“我的课程”中移除，但仍保持安装。此操作无法撤销。",
+    "courseBody": "此课程的所有答案和学习轮次都会被删除，与之相关的辅导对话、写作批改和对话练习，以及由其各课生成的单词卡片和复习记录也会一并删除。该课程会从“我的课程”中移除，但仍保持安装。此操作无法撤销。",
     "lessonTitle": "重置你在“{title}”中的进度？",
-    "lessonBody": "本课的所有答案和学习轮次都会被删除，连同其辅导对话、写作批改和情景对话，以及由本课生成的单词卡片和复习记录（其他课的单词保留）。此操作无法撤销。",
+    "lessonBody": "本课的所有答案和学习轮次都会被删除，连同其辅导对话、写作批改和对话练习，以及由本课生成的单词卡片和复习记录（其他课的单词保留）。此操作无法撤销。",
     "confirm": "重置",
     "removeExam": "从我的考试中移除",
     "examTitle": "将“{title}”从你的考试中移除？",
@@ -630,7 +646,7 @@
     "grammar": "语法",
     "culture": "文化",
     "writing": "写作",
-    "scene": "情景",
+    "scene": "对话",
     "mistakes": "错误"
   },
   "words": {
@@ -689,7 +705,7 @@
     "workedSome": "{count, plural, other {#个练习}}",
     "explanations": "{count, plural, other {#次讲解}}",
     "writing": "{count, plural, other {#篇文本}}",
-    "scenes": "{count, plural, other {#个情景对话}}",
+    "scenes": "{count, plural, other {#个对话}}",
     "chats": "{count, plural, other {#次对话}}",
     "words": "{count, plural, other {#个单词}}",
     "exercises": "练习",
@@ -915,7 +931,7 @@
     },
     "assistant": {
       "title": "AI助手",
-      "text": "助手可以讲解错误、在课上辅导、批改你的文本、演绎情景对话。现在选择或稍后在“设置”中选择都可以——没有助手，应用也能正常使用。"
+      "text": "助手可以讲解错误、在课上辅导、批改你的文本、进行对话练习。现在选择或稍后在“设置”中选择都可以——没有助手，应用也能正常使用。"
     },
     "tour": {
       "title": "功能在哪里"
@@ -1163,7 +1179,7 @@
       "removeModel": "移除模型",
       "download": "下载",
       "read": "朗读",
-      "readHint": "一个声音朗读一种语言的文本：情景对话的台词、单词的例句以及没有录音的单词。每种语言都有自己的声音。",
+      "readHint": "一个声音朗读一种语言的文本：对话的台词、单词的例句以及没有录音的单词。每种语言都有自己的声音。",
       "engine": {
         "device": "本设备的声音",
         "deviceLine": "{count, plural, other {#个声音}}，无需安装",
@@ -1227,7 +1243,11 @@
       "listen": "朗读：{what}",
       "stop": "停止朗读"
     },
-    "aiCheck": "用AI检查"
+    "aiCheck": "用AI检查",
+    "readBy": "朗读：{engine, select, piper {Piper} qwen {Qwen3-TTS} other {本设备}} · {voice}",
+    "readByEngine": "朗读：{engine, select, piper {Piper} qwen {Qwen3-TTS} other {本设备的声音}}",
+    "readByNone": "这里没有可朗读{language}的声音：请在“设置 → 语音”中选择一个声音。",
+    "readByHint": "朗读引擎和声音在“设置 → 语音”中选择。"
   },
   "error": {
     "answer_does_not_fit": "答案与此练习不符。请重新加载本课。",
@@ -1260,7 +1280,7 @@
     "llm_unreachable": "服务器没有响应。请检查地址。",
     "missing_client_header": "请求并非来自本应用。请重新加载页面。",
     "name_required": "请输入名字。",
-    "no_active_scene": "此情景对话已结束。请开始新的情景对话。",
+    "no_active_scene": "这段对话已结束。请开始新的对话。",
     "no_device": "此设备已不再处于登录状态。",
     "profile_export_gone": "此导出已不在：请重新导出个人资料。",
     "not_a_profile_file": "此文件不是 SprachAnker 个人资料文件（.sprachanker-profile）。",
@@ -1290,7 +1310,7 @@
     "run_incomplete": "本课尚未完成。",
     "run_not_active": "本课的这一轮学习已结束。请重新加载本课。",
     "run_without_edition": "这一轮学习没有语言版本。请重新开始本课。",
-    "scene_busy": "情景对话仍在回复中。请稍候。",
+    "scene_busy": "对话仍在回复中，请稍候。",
     "server_error": "服务器出错了。",
     "speaking_busy": "正在检查此答案。请稍候。",
     "speech_engine_failed": "语音识别器没有响应。请重试。",

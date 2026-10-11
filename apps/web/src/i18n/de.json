@@ -143,7 +143,7 @@
       "grammar": "Grammatik",
       "culture": "Landeskunde",
       "writing": "Schreib selbst",
-      "scene": "Szene",
+      "scene": "Dialog",
       "mistakes": "Fehler durchgehen",
       "summary": "Fazit"
     },
@@ -230,7 +230,7 @@
   },
   "llm": {
     "title": "KI-Assistent",
-    "intro": "Erklärt Fehler, hilft in den Lektionen, prüft Texte und spielt Szenen. Wähle ein Modell auf diesem Computer, auf einem Server in deinem Netzwerk, in der Cloud (OpenRouter) oder einen Kommandozeilen-Agenten mit deinem Abo. Lektionsinhalte und deine Antworten gehen nur an den gewählten Anbieter.",
+    "intro": "Erklärt Fehler, hilft in den Lektionen, prüft Texte und führt Dialoge. Wähle ein Modell auf diesem Computer, auf einem Server in deinem Netzwerk, in der Cloud (OpenRouter) oder einen Kommandozeilen-Agenten mit deinem Abo. Lektionsinhalte und deine Antworten gehen nur an den gewählten Anbieter.",
     "off": "Aus",
     "provider": {
       "lmstudio": "LM Studio",
@@ -293,7 +293,7 @@
       "context": "Kontext ≥ {size}",
       "more": "Mehr…",
       "fewer": "Weniger",
-      "jsonHint": "„Kann JSON“: Modelle, die Textprüfungen und Szenen in der Form liefern, die die App liest.",
+      "jsonHint": "„Kann JSON“: Modelle, die Textprüfungen und Dialoge in der Form liefern, die die App liest.",
       "none": "Kein Modell passt zur Suche und den Filtern.",
       "freeTag": "kostenlos",
       "price": "{input} / {output} pro 1 Mio. Tokens",
@@ -399,8 +399,8 @@
       "speaking": "Mündliche Antworten",
       "exam": "Prüfung: eine Antwort bewerten",
       "conversation": "Prüfung: ein Sprechteil",
-      "sceneSetup": "Szene: die Situation",
-      "scene": "Szene",
+      "sceneSetup": "Dialog: die Ausgangslage",
+      "scene": "Dialog: ein Satz",
       "examples": "Beispiele für die Wörter eines Stapels",
       "sceneSummary": "Dialog: die Zusammenfassung"
     },
@@ -464,7 +464,7 @@
         "where": "ein Schritt der Lektion"
       },
       "scene": {
-        "name": "Szenen",
+        "name": "Dialog",
         "where": "ein Schritt der Lektion"
       },
       "speaking": {
@@ -488,8 +488,8 @@
       "speaking": "Prüft eine gesprochene Antwort (was die Erkennung gehört hat) an der Frage und der Antwort des Kurses, wenn du „Mit KI prüfen“ drückst.",
       "exam": "Bewertet eine schriftliche Antwort einer Prüfung nach deren eigenen Kriterien: eine Stufe je Kriterium mit Begründung und was mehr Punkte bringen würde. Nichts zählt, bis du sie übernimmst oder änderst.",
       "conversation": "Führt einen Sprechteil einer Prüfung: spielt die Prüfenden und die andere Person, wie der Teil es vorgibt, Zeile für Zeile mit dir; hilft und korrigiert nie. Danach wird nach den Kriterien des Teils bewertet.",
-      "sceneSetup": "Beginnt eine Szene: erfindet die Situation zum Thema der Lektion — wer du bist, mit wem du sprichst, wo und welche Ziele du erreichen sollst. Einmal pro Szene.",
-      "scene": "Spielt die Szene: antwortet auf jeden deiner Sätze als dein Gegenüber, korrigiert Fehler, gibt eine Übersetzung und hakt erreichte Ziele ab.",
+      "sceneSetup": "Startet einen Dialog: erfindet aus den Zielen der Lektion und dem, was du kannst, die Situation, mit wem du sprichst, deine Zielkarte und was nur dein Gegenüber weiß — danach musst du fragen. Einmal pro Dialog.",
+      "scene": "Spielt dein Gegenüber: antwortet auf jeden Satz, den du sagst (so, wie die Erkennung ihn gehört hat) oder tippst, sagt, ob er verstanden wurde und passt, korrigiert höchstens zwei Fehler darin, gibt eine Übersetzung und hakt deine Ziele ab.",
       "examples": "Schreibt drei bis fünf Beispielsätze zu jedem Wort eines Stapels, das keine eigenen hat, fünf Wörter auf einmal (Wiederholen → Stapel, „Beispiele erstellen“), möglichst mit Wörtern, die du kennst, neue übersetzt.",
       "sceneSummary": "Fasst einen Dialog zusammen, wenn er vorbei ist: die ein oder zwei wichtigsten Korrekturen, jede mit deinem Satz, wie man ihn gut sagt, und eine kurze Rückmeldung."
     }
@@ -529,17 +529,33 @@
     "message": "Geh bitte meine Fehler in dieser Lektion mit mir durch."
   },
   "scene": {
-    "intro": "Übe die Lektion in einer kurzen Szene: Dein Gegenüber spricht die Kurssprache, korrigiert dich und hakt deine Ziele ab.",
-    "start": "Szene starten",
+    "intro": "Ein kurzer Dialog zu den Zielen der Lektion, gesprochen: Die Sätze deines Gegenübers werden vorgelesen, du antwortest mit dem Mikrofon. Dein Gegenüber weiß Dinge, nach denen du fragen musst.",
+    "start": "Dialog beginnen",
     "preparing": "Wird vorbereitet…",
     "partner": "Dein Gegenüber: {partner}",
     "translate": "Übersetzung",
     "placeholder": "Was sagst du?…",
     "done": "Alle Ziele erreicht – super!",
-    "new": "Neue Szene",
-    "past": "Frühere Szenen dieser Lektion",
+    "new": "Neuer Dialog",
+    "past": "Frühere Dialoge dieser Lektion",
     "goals": "Ziele: {met, number} von {total, number}",
-    "ended": "Szene beendet."
+    "ended": "Dialog beendet.",
+    "said": "Gesprochen",
+    "understood": "Verstanden",
+    "notUnderstood": "Nicht verstanden",
+    "fits": "Passt",
+    "offTrack": "Passt nicht",
+    "goalCard": "Deine Ziele",
+    "partnerKnew": "Was dein Gegenüber wusste",
+    "model": "Sag es so:",
+    "summing": "Wird zusammengefasst…",
+    "noSummary": "Die Zusammenfassung konnte nicht erstellt werden.",
+    "sumUp": "Zusammenfassen",
+    "end": "Dialog beenden",
+    "noRecognition": "Die Spracherkennung ist aus oder nicht installiert (Einstellungen → Sprechen).",
+    "typeInstead": "Tippe deinen Satz stattdessen.",
+    "again": "Noch einmal sagen",
+    "waitPartner": "Warte auf die Antwort deines Gegenübers."
   },
   "player": {
     "play": "Abspielen: {what}",
@@ -581,9 +597,9 @@
     "removeCourse": "Aus meinen Kursen entfernen",
     "resetLesson": "Lektionsfortschritt zurücksetzen",
     "courseTitle": "Deinen Fortschritt in „{title}“ zurücksetzen?",
-    "courseBody": "Alle Antworten und Lektionsdurchgänge dieses Kurses werden gelöscht, dazu die Gespräche mit dem Tutor, Schreibprüfungen und Szenen dazu sowie die Wortkarten seiner Lektionen mit ihren Wiederholungen. Der Kurs verschwindet aus „Meine Kurse“, bleibt aber installiert. Das lässt sich nicht rückgängig machen.",
+    "courseBody": "Alle Antworten und Lektionsdurchgänge dieses Kurses werden gelöscht, dazu die Gespräche mit dem Tutor, Schreibprüfungen und Dialoge dazu sowie die Wortkarten seiner Lektionen mit ihren Wiederholungen. Der Kurs verschwindet aus „Meine Kurse“, bleibt aber installiert. Das lässt sich nicht rückgängig machen.",
     "lessonTitle": "Deinen Fortschritt in „{title}“ zurücksetzen?",
-    "lessonBody": "Alle Antworten und Durchgänge dieser Lektion werden gelöscht, dazu ihr Tutor-Gespräch, Schreibprüfungen und Szenen sowie die Wortkarten, die sie angelegt hat, mit ihren Wiederholungen (Wörter aus anderen Lektionen bleiben). Das lässt sich nicht rückgängig machen.",
+    "lessonBody": "Alle Antworten und Durchgänge dieser Lektion werden gelöscht, dazu ihr Tutor-Gespräch, Schreibprüfungen und Dialoge sowie die Wortkarten, die sie angelegt hat, mit ihren Wiederholungen (Wörter aus anderen Lektionen bleiben). Das lässt sich nicht rückgängig machen.",
     "confirm": "Zurücksetzen",
     "removeExam": "Aus meinen Prüfungen entfernen",
     "examTitle": "„{title}“ aus deinen Prüfungen entfernen?",
@@ -630,7 +646,7 @@
     "grammar": "Grammatik",
     "culture": "Kultur",
     "writing": "Schreiben",
-    "scene": "Szene",
+    "scene": "Dialog",
     "mistakes": "Fehler"
   },
   "words": {
@@ -689,7 +705,7 @@
     "workedSome": "{count, plural, one {# Übung} other {# Übungen}}",
     "explanations": "{count, plural, one {# Erklärung} other {# Erklärungen}}",
     "writing": "{count, plural, one {# Text} other {# Texte}}",
-    "scenes": "{count, plural, one {# Szene} other {# Szenen}}",
+    "scenes": "{count, plural, one {# Dialog} other {# Dialoge}}",
     "chats": "{count, plural, one {# Chat} other {# Chats}}",
     "words": "{count, plural, one {# Wort} other {# Wörter}}",
     "exercises": "Übungen",
@@ -915,7 +931,7 @@
     },
     "assistant": {
       "title": "KI-Assistent",
-      "text": "Ein Assistent erklärt Fehler, hilft in den Lektionen, prüft deine Texte und spielt Szenen. Wähle ihn jetzt oder später in den Einstellungen — die App funktioniert auch ohne."
+      "text": "Ein Assistent erklärt Fehler, hilft in den Lektionen, prüft deine Texte und führt Dialoge. Wähle ihn jetzt oder später in den Einstellungen — die App funktioniert auch ohne."
     },
     "tour": {
       "title": "Was wo ist"
@@ -1163,7 +1179,7 @@
       "removeModel": "Modell entfernen",
       "download": "Herunterladen",
       "read": "Vorlesen",
-      "readHint": "Eine Stimme liest Texte in einer Sprache: Szenenzeilen, das Beispiel zu einem Wort und Wörter ohne Aufnahme. Jede Sprache hat ihre eigene Stimme.",
+      "readHint": "Eine Stimme liest Texte in einer Sprache: Dialogzeilen, das Beispiel zu einem Wort und Wörter ohne Aufnahme. Jede Sprache hat ihre eigene Stimme.",
       "engine": {
         "device": "Stimmen dieses Geräts",
         "deviceLine": "{count, plural, one {# Stimme} other {# Stimmen}}, nichts zu installieren",
@@ -1227,7 +1243,11 @@
       "listen": "Vorlesen: {what}",
       "stop": "Vorlesen beenden"
     },
-    "aiCheck": "Mit KI prüfen"
+    "aiCheck": "Mit KI prüfen",
+    "readBy": "Gelesen von {engine, select, piper {Piper} qwen {Qwen3-TTS} other {diesem Gerät}} · {voice}",
+    "readByEngine": "Gelesen von {engine, select, piper {Piper} qwen {Qwen3-TTS} other {der Stimme dieses Geräts}}",
+    "readByNone": "Für {language} gibt es hier keine Vorlesestimme: Wähle eine unter Einstellungen → Sprechen.",
+    "readByHint": "Engine und Stimme wählst du unter Einstellungen → Sprechen."
   },
   "error": {
     "answer_does_not_fit": "Die Antwort passt nicht zur Übung. Lade die Lektion neu.",
@@ -1260,7 +1280,7 @@
     "llm_unreachable": "Der Server antwortet nicht. Prüfe die Adresse.",
     "missing_client_header": "Die Anfrage kam nicht aus der App. Lade die Seite neu.",
     "name_required": "Gib einen Namen ein.",
-    "no_active_scene": "Diese Szene ist schon zu Ende. Starte eine neue.",
+    "no_active_scene": "Dieser Dialog ist beendet. Beginne einen neuen.",
     "no_device": "Dieses Gerät ist nicht mehr angemeldet.",
     "profile_export_gone": "Dieser Export ist nicht mehr da: exportiere das Profil noch einmal.",
     "not_a_profile_file": "Diese Datei ist keine SprachAnker-Profildatei (.sprachanker-profile).",
@@ -1290,7 +1310,7 @@
     "run_incomplete": "Die Lektion ist noch nicht fertig.",
     "run_not_active": "Dieser Durchgang der Lektion ist beendet. Lade die Lektion neu.",
     "run_without_edition": "Diesem Durchgang fehlt die Sprachversion. Starte die Lektion neu.",
-    "scene_busy": "Die Szene antwortet noch. Warte darauf.",
+    "scene_busy": "Der Dialog antwortet noch. Warte darauf.",
     "server_error": "Auf dem Server ist etwas schiefgelaufen.",
     "speaking_busy": "Diese Antwort wird gerade geprüft. Warte darauf.",
     "speech_engine_failed": "Die Spracherkennung hat nicht geantwortet. Versuch es noch einmal.",

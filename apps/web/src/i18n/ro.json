@@ -143,7 +143,7 @@
       "grammar": "Gramatică",
       "culture": "Cultură",
       "writing": "Scrie tu",
-      "scene": "Scenă",
+      "scene": "Dialog",
       "mistakes": "Analiza greșelilor",
       "summary": "Rezumat"
     },
@@ -230,7 +230,7 @@
   },
   "llm": {
     "title": "Asistent AI",
-    "intro": "Explică greșelile, te ajută ca tutore în lecții, verifică texte și joacă scene. Alege un model pe acest computer, pe un server din rețeaua ta, în cloud (OpenRouter) sau un agent în linia de comandă cu abonamentul tău. Conținutul lecțiilor și răspunsurile tale ajung doar la furnizorul pe care îl alegi.",
+    "intro": "Explică greșelile, te ajută ca tutore în lecții, verifică texte și poartă dialoguri. Alege un model pe acest computer, pe un server din rețeaua ta, în cloud (OpenRouter) sau un agent în linia de comandă cu abonamentul tău. Conținutul lecțiilor și răspunsurile tale ajung doar la furnizorul pe care îl alegi.",
     "off": "Dezactivat",
     "provider": {
       "lmstudio": "LM Studio",
@@ -293,7 +293,7 @@
       "context": "Context ≥ {size}",
       "more": "Mai multe…",
       "fewer": "Mai puține",
-      "jsonHint": "„Răspund în JSON”: modele care pot returna verificări de texte și scene în forma pe care o citește aplicația.",
+      "jsonHint": "„Răspund în JSON”: modele care pot returna verificări de texte și dialoguri în forma pe care o citește aplicația.",
       "none": "Niciun model nu se potrivește căutării și filtrelor.",
       "freeTag": "gratuit",
       "price": "{input} / {output} per 1M tokeni",
@@ -399,8 +399,8 @@
       "speaking": "Răspunsuri orale",
       "exam": "Examen: evaluarea unui răspuns",
       "conversation": "Examen: o probă orală",
-      "sceneSetup": "Scenă: situația",
-      "scene": "Scenă",
+      "sceneSetup": "Dialog: situația",
+      "scene": "Dialog: o replică",
       "examples": "Exemple pentru cuvintele unui pachet",
       "sceneSummary": "Dialog: rezumatul"
     },
@@ -464,7 +464,7 @@
         "where": "un pas al lecției"
       },
       "scene": {
-        "name": "Scene",
+        "name": "Dialog",
         "where": "un pas al lecției"
       },
       "speaking": {
@@ -488,8 +488,8 @@
       "speaking": "Verifică un răspuns spus cu voce tare (ce a auzit recunoașterea vorbirii) față de întrebare și răspunsul cursului, când apeși „Verifică cu AI”.",
       "exam": "Notează un răspuns scris la examen după criteriile examenului: un nivel pentru fiecare, cu motivul, și ce ar aduce mai multe puncte. Nimic nu contează până nu îl accepți sau îl modifici.",
       "conversation": "Poartă o probă orală de examen: joacă examinatorul și celălalt candidat, așa cum cere proba, replică cu replică împreună cu tine; nu ajută și nu corectează niciodată. Evaluată apoi după criteriile probei.",
-      "sceneSetup": "Pornește o scenă: inventează situația pornind de la tema lecției — cine ești, cu cine vorbești, unde și obiectivele de atins. Cerut o dată pe scenă.",
-      "scene": "Joacă scena: răspunde la fiecare replică a ta ca partener, îți corectează greșelile, dă o traducere și bifează obiectivele atinse.",
+      "sceneSetup": "Începe un dialog: din obiectivele lecției și din ce știi, inventează situația, cu cine vorbești, cartea ta de obiective și ce știe doar partenerul tău — trebuie să întrebi. O dată pe dialog.",
+      "scene": "Joacă rolul partenerului tău: răspunde la fiecare replică pe care o spui (cum a auzit-o recunoașterea) sau o scrii, spune dacă a fost înțeleasă și dacă se potrivește, corectează cel mult două greșeli, dă o traducere și bifează obiectivele atinse.",
       "examples": "Scrie trei-cinci propoziții exemplu pentru fiecare cuvânt al unui pachet care nu are exemple proprii, câte cinci cuvinte odată (Recapitulare → Pachete, „Creează exemple”), cu cuvinte pe care le știi unde se poate și cu cele noi traduse.",
       "sceneSummary": "Rezumă un dialog după ce s-a încheiat: una sau două corecturi care contează cel mai mult, fiecare cu replica ta spusă bine, și un scurt comentariu."
     }
@@ -529,17 +529,33 @@
     "message": "Te rog, analizează cu mine greșelile din această lecție."
   },
   "scene": {
-    "intro": "Exersează lecția într-un scurt joc de rol: partenerul vorbește limba cursului, te corectează și îți bifează obiectivele.",
-    "start": "Începe o scenă",
+    "intro": "Un dialog scurt, vorbit, despre obiectivele lecției: replicile partenerului sunt citite cu voce tare, iar tu răspunzi la microfon. Partenerul știe lucruri pe care trebuie să le întrebi.",
+    "start": "Începe un dialog",
     "preparing": "Se pregătește…",
     "partner": "Partenerul tău: {partner}",
     "translate": "Traducere",
     "placeholder": "Replica ta…",
     "done": "Toate obiectivele atinse — bravo!",
-    "new": "Scenă nouă",
-    "past": "Scene anterioare din această lecție",
+    "new": "Dialog nou",
+    "past": "Dialoguri anterioare din această lecție",
     "goals": "Obiective: {met, number} din {total, number}",
-    "ended": "Scena s-a încheiat."
+    "ended": "Dialog încheiat.",
+    "said": "Spus cu voce tare",
+    "understood": "Înțeles",
+    "notUnderstood": "Neînțeles",
+    "fits": "Se potrivește",
+    "offTrack": "Nu se potrivește",
+    "goalCard": "Obiectivele tale",
+    "partnerKnew": "Ce știa partenerul tău",
+    "model": "Spune așa:",
+    "summing": "Se face rezumatul…",
+    "noSummary": "Rezumatul nu a putut fi făcut.",
+    "sumUp": "Rezumă",
+    "end": "Încheie dialogul",
+    "noRecognition": "Recunoașterea vorbirii este oprită sau neinstalată (Setări → Vorbire).",
+    "typeInstead": "Scrie-ți replica în schimb.",
+    "again": "Spune din nou",
+    "waitPartner": "Așteaptă răspunsul partenerului."
   },
   "player": {
     "play": "Redă: {what}",
@@ -581,9 +597,9 @@
     "removeCourse": "Scoate din cursurile mele",
     "resetLesson": "Resetează progresul lecției",
     "courseTitle": "Resetezi progresul din „{title}”?",
-    "courseBody": "Toate răspunsurile și parcurgerile lecțiilor acestui curs se șterg, împreună cu conversațiile cu tutorele, verificările de texte și scenele legate de el, precum și cardurile de cuvinte create de lecțiile lui, cu recapitulările lor. Cursul iese din „Cursurile mele”, dar rămâne instalat. Acțiunea nu poate fi anulată.",
+    "courseBody": "Toate răspunsurile și parcurgerile lecțiilor acestui curs se șterg, împreună cu conversațiile cu tutorele, verificările de texte și dialogurile legate de el, precum și cardurile de cuvinte create de lecțiile lui, cu recapitulările lor. Cursul iese din „Cursurile mele”, dar rămâne instalat. Acțiunea nu poate fi anulată.",
     "lessonTitle": "Resetezi progresul din „{title}”?",
-    "lessonBody": "Toate răspunsurile și parcurgerile acestei lecții se șterg, împreună cu conversația cu tutorele, verificările de texte și scenele ei, precum și cardurile de cuvinte create de ea, cu recapitulările lor (cuvintele din alte lecții rămân). Acțiunea nu poate fi anulată.",
+    "lessonBody": "Toate răspunsurile și parcurgerile acestei lecții se șterg, împreună cu conversația cu tutorele, verificările de texte și dialogurile ei, precum și cardurile de cuvinte create de ea, cu recapitulările lor (cuvintele din alte lecții rămân). Acțiunea nu poate fi anulată.",
     "confirm": "Resetează",
     "removeExam": "Scoate din examenele mele",
     "examTitle": "Scoți „{title}” din examenele tale?",
@@ -630,7 +646,7 @@
     "grammar": "Gramatică",
     "culture": "Cultură",
     "writing": "Scriere",
-    "scene": "Scenă",
+    "scene": "Dialog",
     "mistakes": "Greșeli"
   },
   "words": {
@@ -689,7 +705,7 @@
     "workedSome": "{count, plural, one {# exercițiu} few {# exerciții} other {# de exerciții}}",
     "explanations": "{count, plural, one {# explicație} few {# explicații} other {# de explicații}}",
     "writing": "{count, plural, one {# text} few {# texte} other {# de texte}}",
-    "scenes": "{count, plural, one {# scenă} few {# scene} other {# de scene}}",
+    "scenes": "{count, plural, one {# dialog} few {# dialoguri} other {# de dialoguri}}",
     "chats": "{count, plural, one {# conversație} few {# conversații} other {# de conversații}}",
     "words": "{count, plural, one {# cuvânt} few {# cuvinte} other {# de cuvinte}}",
     "exercises": "Exerciții",
@@ -915,7 +931,7 @@
     },
     "assistant": {
       "title": "Asistent AI",
-      "text": "Un asistent explică greșelile, te ajută ca tutore în lecții, îți verifică textele și joacă scene. Alege unul acum sau mai târziu în Setări — aplicația funcționează și fără."
+      "text": "Un asistent explică greșelile, te ajută ca tutore în lecții, îți verifică textele și poartă dialoguri. Alege unul acum sau mai târziu în Setări — aplicația funcționează și fără."
     },
     "tour": {
       "title": "Unde găsești ce"
@@ -1163,7 +1179,7 @@
       "removeModel": "Elimină modelul",
       "download": "Descarcă",
       "read": "Citire cu voce tare",
-      "readHint": "O voce citește textele într-o limbă: replicile scenelor, exemplul unui cuvânt și cuvintele fără înregistrare. Fiecare limbă are vocea ei.",
+      "readHint": "O voce citește textele într-o limbă: replicile dialogurilor, exemplul unui cuvânt și cuvintele fără înregistrare. Fiecare limbă are vocea ei.",
       "engine": {
         "device": "Vocile acestui dispozitiv",
         "deviceLine": "{count, plural, one {# voce} few {# voci} other {# de voci}}, nimic de instalat",
@@ -1227,7 +1243,11 @@
       "listen": "Citește cu voce tare: {what}",
       "stop": "Oprește citirea"
     },
-    "aiCheck": "Verifică cu AI"
+    "aiCheck": "Verifică cu AI",
+    "readBy": "Citit de {engine, select, piper {Piper} qwen {Qwen3-TTS} other {acest dispozitiv}} · {voice}",
+    "readByEngine": "Citit de {engine, select, piper {Piper} qwen {Qwen3-TTS} other {vocea acestui dispozitiv}}",
+    "readByNone": "Nimic de aici nu citește cu voce tare în {language}: alege o voce în Setări → Vorbire.",
+    "readByHint": "Motorul și vocea se aleg în Setări → Vorbire."
   },
   "error": {
     "answer_does_not_fit": "Răspunsul nu se potrivește cu acest exercițiu. Reîncarcă lecția.",
@@ -1260,7 +1280,7 @@
     "llm_unreachable": "Serverul nu răspunde. Verifică adresa.",
     "missing_client_header": "Cererea nu a venit din aplicație. Reîncarcă pagina.",
     "name_required": "Introdu un nume.",
-    "no_active_scene": "Această scenă s-a încheiat. Începe una nouă.",
+    "no_active_scene": "Acest dialog s-a încheiat. Începe unul nou.",
     "no_device": "Acest dispozitiv nu mai este conectat.",
     "profile_export_gone": "Acest export nu mai este aici: exportă din nou profilul.",
     "not_a_profile_file": "Acest fișier nu este un fișier de profil SprachAnker (.sprachanker-profile).",
@@ -1290,7 +1310,7 @@
     "run_incomplete": "Lecția nu este încă terminată.",
     "run_not_active": "Această parcurgere a lecției s-a încheiat. Reîncarcă lecția.",
     "run_without_edition": "Această parcurgere nu are versiune lingvistică. Începe lecția din nou.",
-    "scene_busy": "Scena încă răspunde. Așteaptă.",
+    "scene_busy": "Dialogul încă răspunde. Așteaptă.",
     "server_error": "Ceva n-a mers bine pe server.",
     "speaking_busy": "Acest răspuns este în curs de verificare. Așteaptă.",
     "speech_engine_failed": "Recunoașterea vorbirii nu a răspuns. Încearcă din nou.",

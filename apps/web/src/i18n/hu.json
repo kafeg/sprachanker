@@ -143,7 +143,7 @@
       "grammar": "Nyelvtan",
       "culture": "Kultúra",
       "writing": "Írj saját szöveget",
-      "scene": "Jelenet",
+      "scene": "Párbeszéd",
       "mistakes": "Hibák átnézése",
       "summary": "Összegzés"
     },
@@ -230,7 +230,7 @@
   },
   "llm": {
     "title": "MI-asszisztens",
-    "intro": "Elmagyarázza a hibákat, tutorként segít a leckékben, ellenőrzi a szövegeket és jeleneteket játszik. Válassz modellt ezen a számítógépen, egy szerveren a hálózatodban, a felhőben (OpenRouter), vagy egy parancssori ügynököt az előfizetéseddel. A lecke tartalma és a válaszaid csak a választott szolgáltatóhoz kerülnek.",
+    "intro": "Elmagyarázza a hibákat, tutorként segít a leckékben, ellenőrzi a szövegeket és párbeszédeket folytat. Válassz modellt ezen a számítógépen, egy szerveren a hálózatodban, a felhőben (OpenRouter), vagy egy parancssori ügynököt az előfizetéseddel. A lecke tartalma és a válaszaid csak a választott szolgáltatóhoz kerülnek.",
     "off": "Kikapcsolva",
     "provider": {
       "lmstudio": "LM Studio",
@@ -293,7 +293,7 @@
       "context": "Kontextus ≥ {size}",
       "more": "Több…",
       "fewer": "Kevesebb",
-      "jsonHint": "„JSON-t ad”: olyan modellek, amelyek a szövegellenőrzést és a jeleneteket az alkalmazás által olvasható formában tudják visszaadni.",
+      "jsonHint": "„JSON-t ad”: olyan modellek, amelyek a szövegellenőrzést és a párbeszédeket az alkalmazás által olvasható formában tudják visszaadni.",
       "none": "Egy modell sem felel meg a keresésnek és a szűrőknek.",
       "freeTag": "ingyenes",
       "price": "{input} / {output} 1M tokenenként",
@@ -399,8 +399,8 @@
       "speaking": "Szóbeli válaszok",
       "exam": "Vizsga: egy válasz értékelése",
       "conversation": "Vizsga: szóbeli rész",
-      "sceneSetup": "Jelenet: a helyzet",
-      "scene": "Jelenet",
+      "sceneSetup": "Párbeszéd: a helyzet",
+      "scene": "Párbeszéd: egy mondat",
       "examples": "Példák egy pakli szavaihoz",
       "sceneSummary": "Párbeszéd: az összegzés"
     },
@@ -464,7 +464,7 @@
         "where": "a lecke egy lépése"
       },
       "scene": {
-        "name": "Jelenetek",
+        "name": "Párbeszéd",
         "where": "a lecke egy lépése"
       },
       "speaking": {
@@ -488,8 +488,8 @@
       "speaking": "Ellenőrzi a hangosan mondott válaszodat (amit a beszédfelismerő hallott) a kérdés és a kurzus válasza alapján, ha megnyomod az „Ellenőrzés MI-vel” gombot.",
       "exam": "Értékeli egy vizsga írásbeli válaszát a vizsga saját szempontjai szerint: mindegyikhez egy szintet indoklással, és azt, mi érne több pontot. Semmi sem számít, amíg el nem fogadod vagy meg nem változtatod.",
       "conversation": "Levezeti a vizsga egy szóbeli részét: a vizsgáztatót és a másik vizsgázót játssza, ahogy a rész előírja, soronként veled; soha nem segít és nem javít. Utána a rész szempontjai szerint kerül értékelésre.",
-      "sceneSetup": "Elindít egy jelenetet: kitalálja a helyzetet a lecke témájából — ki vagy, kivel beszélsz, hol, és milyen célokat kell elérni. Jelenetenként egyszer fut.",
-      "scene": "Játssza a jelenetet: partnerként válaszol minden mondatodra, javítja a hibáidat, fordítást ad, és kipipálja az elért célokat.",
+      "sceneSetup": "Elindít egy párbeszédet: a lecke céljaiból és abból, amit tudsz, kitalálja a helyzetet, hogy kivel beszélsz, a célkártyádat és azt, amit csak a partnered tud — ezt neked kell megkérdezned. Párbeszédenként egyszer.",
+      "scene": "Eljátssza a partneredet: válaszol minden mondatodra, amit kimondasz (ahogy a felismerő hallotta) vagy beírsz, megmondja, érthető volt-e és illik-e, legfeljebb két hibát javít benne, fordítást ad és kipipálja az elért célokat.",
       "examples": "Három-öt példamondatot ír egy pakli minden olyan szavához, amelynek nincs saját példája, egyszerre öt szóhoz (Ismétlés → Paklik, „Példák készítése”); ahol lehet, ismert szavakkal, az újakat lefordítva.",
       "sceneSummary": "Összegzi a párbeszédet, amikor véget ért: az egy-két legfontosabb javítás, mindegyik mellett a mondatod helyesen, és egy rövid visszajelzés."
     }
@@ -529,17 +529,33 @@
     "message": "Kérlek, nézzük át a hibáimat ebben a leckében."
   },
   "scene": {
-    "intro": "Gyakorold a leckét egy rövid szerepjátékban: a partner a kurzus nyelvén beszél, javít, és kipipálja a céljaidat.",
-    "start": "Jelenet indítása",
+    "intro": "Rövid, szóbeli párbeszéd a lecke céljairól: a partnered mondatait felolvassa az app, te mikrofonnal válaszolsz. A partnered tud dolgokat, amelyeket meg kell kérdezned.",
+    "start": "Párbeszéd indítása",
     "preparing": "Előkészítés…",
     "partner": "A partnered: {partner}",
     "translate": "Fordítás",
     "placeholder": "A mondatod…",
     "done": "Minden cél teljesítve — szép munka!",
-    "new": "Új jelenet",
-    "past": "A lecke korábbi jelenetei",
+    "new": "Új párbeszéd",
+    "past": "A lecke korábbi párbeszédei",
     "goals": "Célok: {met, number}/{total, number}",
-    "ended": "A jelenet véget ért."
+    "ended": "A párbeszéd véget ért.",
+    "said": "Hangosan mondva",
+    "understood": "Érthető",
+    "notUnderstood": "Nem érthető",
+    "fits": "Illik",
+    "offTrack": "Nem illik",
+    "goalCard": "A céljaid",
+    "partnerKnew": "Amit a partnered tudott",
+    "model": "Mondd így:",
+    "summing": "Összegzés…",
+    "noSummary": "Az összegzés nem készült el.",
+    "sumUp": "Összegzés",
+    "end": "Párbeszéd befejezése",
+    "noRecognition": "A beszédfelismerés ki van kapcsolva vagy nincs telepítve (Beállítások → Beszéd).",
+    "typeInstead": "Írd be inkább a mondatodat.",
+    "again": "Mondd újra",
+    "waitPartner": "Várd meg a partnered válaszát."
   },
   "player": {
     "play": "Lejátszás: {what}",
@@ -581,9 +597,9 @@
     "removeCourse": "Eltávolítás a kurzusaim közül",
     "resetLesson": "A lecke haladásának törlése",
     "courseTitle": "Törlöd a haladásodat itt: „{title}”?",
-    "courseBody": "A kurzus összes válasza és leckeköre törlődik, a hozzá tartozó tutorbeszélgetésekkel, szövegellenőrzésekkel és jelenetekkel együtt, valamint a leckéi által létrehozott szókártyák az ismétléseikkel. A kurzus kikerül a „Kurzusaim” közül, de telepítve marad. Ez nem vonható vissza.",
+    "courseBody": "A kurzus összes válasza és leckeköre törlődik, a hozzá tartozó tutorbeszélgetésekkel, szövegellenőrzésekkel és párbeszédekkel együtt, valamint a leckéi által létrehozott szókártyák az ismétléseikkel. A kurzus kikerül a „Kurzusaim” közül, de telepítve marad. Ez nem vonható vissza.",
     "lessonTitle": "Törlöd a haladásodat itt: „{title}”?",
-    "lessonBody": "A lecke összes válasza és köre törlődik, a tutorbeszélgetésével, szövegellenőrzéseivel és jeleneteivel együtt, valamint az általa létrehozott szókártyák az ismétléseikkel (más leckék szavai megmaradnak). Ez nem vonható vissza.",
+    "lessonBody": "A lecke összes válasza és köre törlődik, a tutorbeszélgetésével, szövegellenőrzéseivel és párbeszédeivel együtt, valamint az általa létrehozott szókártyák az ismétléseikkel (más leckék szavai megmaradnak). Ez nem vonható vissza.",
     "confirm": "Törlés",
     "removeExam": "Eltávolítás a vizsgáim közül",
     "examTitle": "Eltávolítod a vizsgáid közül: „{title}”?",
@@ -630,7 +646,7 @@
     "grammar": "Nyelvtan",
     "culture": "Kultúra",
     "writing": "Írás",
-    "scene": "Jelenet",
+    "scene": "Párbeszéd",
     "mistakes": "Hibák"
   },
   "words": {
@@ -689,7 +705,7 @@
     "workedSome": "{count, plural, one {# feladat} other {# feladat}}",
     "explanations": "{count, plural, one {# magyarázat} other {# magyarázat}}",
     "writing": "{count, plural, one {# szöveg} other {# szöveg}}",
-    "scenes": "{count, plural, one {# jelenet} other {# jelenet}}",
+    "scenes": "{count, plural, one {# párbeszéd} other {# párbeszéd}}",
     "chats": "{count, plural, one {# beszélgetés} other {# beszélgetés}}",
     "words": "{count, plural, one {# szó} other {# szó}}",
     "exercises": "Feladatok",
@@ -915,7 +931,7 @@
     },
     "assistant": {
       "title": "MI-asszisztens",
-      "text": "Az asszisztens elmagyarázza a hibákat, tutorként segít a leckékben, ellenőrzi a szövegeidet és jeleneteket játszik. Válassz most, vagy később a Beállításokban — az alkalmazás nélküle is működik."
+      "text": "Az asszisztens elmagyarázza a hibákat, tutorként segít a leckékben, ellenőrzi a szövegeidet és párbeszédeket folytat. Válassz most, vagy később a Beállításokban — az alkalmazás nélküle is működik."
     },
     "tour": {
       "title": "Mi hol található"
@@ -1163,7 +1179,7 @@
       "removeModel": "Modell eltávolítása",
       "download": "Letöltés",
       "read": "Felolvasás",
-      "readHint": "Egy hang egy nyelven olvas fel szövegeket: a jelenetek mondatait, egy szó példáját és a felvétel nélküli szavakat. Minden nyelvnek saját hangja van.",
+      "readHint": "Egy hang egy nyelven olvas fel szövegeket: a párbeszédek mondatait, egy szó példáját és a felvétel nélküli szavakat. Minden nyelvnek saját hangja van.",
       "engine": {
         "device": "Az eszköz hangjai",
         "deviceLine": "{count, plural, one {# hang} other {# hang}}, nem kell telepíteni semmit",
@@ -1227,7 +1243,11 @@
       "listen": "Felolvasás: {what}",
       "stop": "Felolvasás leállítása"
     },
-    "aiCheck": "Ellenőrzés MI-vel"
+    "aiCheck": "Ellenőrzés MI-vel",
+    "readBy": "Felolvassa: {engine, select, piper {Piper} qwen {Qwen3-TTS} other {ez az eszköz}} · {voice}",
+    "readByEngine": "Felolvassa: {engine, select, piper {Piper} qwen {Qwen3-TTS} other {az eszköz hangja}}",
+    "readByNone": "Itt semmi nem olvas fel ezen a nyelven: {language}. Válassz hangot itt: Beállítások → Beszéd.",
+    "readByHint": "A motort és a hangot itt választod: Beállítások → Beszéd."
   },
   "error": {
     "answer_does_not_fit": "A válasz nem illik ehhez a feladathoz. Töltsd be újra a leckét.",
@@ -1260,7 +1280,7 @@
     "llm_unreachable": "A szerver nem válaszol. Ellenőrizd a címet.",
     "missing_client_header": "A kérés nem az alkalmazásból jött. Töltsd be újra az oldalt.",
     "name_required": "Adj meg egy nevet.",
-    "no_active_scene": "Ez a jelenet véget ért. Kezdj újat.",
+    "no_active_scene": "Ez a párbeszéd véget ért. Indíts újat.",
     "no_device": "Ez az eszköz már nincs bejelentkezve.",
     "profile_export_gone": "Ez az exportálás már nincs itt: exportáld újra a profilt.",
     "not_a_profile_file": "Ez a fájl nem SprachAnker-profilfájl (.sprachanker-profile).",
@@ -1290,7 +1310,7 @@
     "run_incomplete": "A lecke még nincs kész.",
     "run_not_active": "A lecke e köre véget ért. Töltsd be újra a leckét.",
     "run_without_edition": "Ennek a körnek nincs nyelvi változata. Kezdd újra a leckét.",
-    "scene_busy": "A jelenet még válaszol. Várj egy kicsit.",
+    "scene_busy": "A párbeszéd még válaszol. Várj rá.",
     "server_error": "Hiba történt a szerveren.",
     "speaking_busy": "Ennek a válasznak az ellenőrzése folyamatban van. Várj egy kicsit.",
     "speech_engine_failed": "A beszédfelismerő nem válaszolt. Próbáld újra.",

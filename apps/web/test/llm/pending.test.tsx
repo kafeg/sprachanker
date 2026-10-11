@@ -1,5 +1,5 @@
 import { expect, test } from "bun:test";
-import { SceneStep } from "../../src/llm/scene.tsx";
+import { DialogueStep } from "../../src/llm/dialogue.tsx";
 import { WritingTask } from "../../src/llm/writing.tsx";
 import { TargetLang } from "../../src/ui/target-lang.ts";
 import { lesson } from "../lesson/lesson.ts";
@@ -8,10 +8,10 @@ import { renderApp } from "../render.tsx";
 const ids = { series: "sprachanker.test", lessonKey: lesson.key, edition: "en-de" };
 const llm: [unknown[], unknown] = [["llm"], { model: "test-model" }];
 
-test("a scene still being prepared on the server shows as preparing on a page opened again", async () => {
+test("a Dialogue still being prepared on the server shows as preparing on a page opened again", async () => {
   const view = await renderApp(
     <TargetLang value="de">
-      <SceneStep {...ids} />
+      <DialogueStep {...ids} />
     </TargetLang>,
     { data: [llm, [["scenes", ids.lessonKey], { scenes: [], pending: { preparing: true } }]] },
   );

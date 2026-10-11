@@ -143,7 +143,7 @@
       "grammar": "Sarufi",
       "culture": "Utamaduni",
       "writing": "Andika mwenyewe",
-      "scene": "Igizo",
+      "scene": "Mazungumzo",
       "mistakes": "Kupitia makosa",
       "summary": "Muhtasari"
     },
@@ -230,7 +230,7 @@
   },
   "llm": {
     "title": "Msaidizi wa AI",
-    "intro": "Hueleza makosa, hufundisha katika masomo, hukagua maandishi na huigiza mazungumzo. Chagua modeli kwenye kompyuta hii, kwenye seva katika mtandao wako, mtandaoni (OpenRouter) au wakala wa mstari wa amri kwa usajili wako. Maudhui ya somo na majibu yako huenda kwa mtoa huduma unayemchagua pekee.",
+    "intro": "Hueleza makosa, hufundisha katika masomo, hukagua maandishi na hufanya mazungumzo. Chagua modeli kwenye kompyuta hii, kwenye seva katika mtandao wako, mtandaoni (OpenRouter) au wakala wa mstari wa amri kwa usajili wako. Maudhui ya somo na majibu yako huenda kwa mtoa huduma unayemchagua pekee.",
     "off": "Imezimwa",
     "provider": {
       "lmstudio": "LM Studio",
@@ -293,7 +293,7 @@
       "context": "Muktadha ≥ {size}",
       "more": "Zaidi…",
       "fewer": "Chache",
-      "jsonHint": "“Hujibu kwa JSON”: modeli zinazoweza kurudisha ukaguzi wa uandishi na maigizo katika muundo ambao programu inausoma.",
+      "jsonHint": "“Hujibu kwa JSON”: modeli zinazoweza kurudisha ukaguzi wa uandishi na mazungumzo katika muundo ambao programu inausoma.",
       "none": "Hakuna modeli inayolingana na utafutaji na vichujio.",
       "freeTag": "bure",
       "price": "{input} / {output} kwa tokeni milioni 1",
@@ -399,8 +399,8 @@
       "speaking": "Majibu ya kutamka",
       "exam": "Mtihani: kutathmini jibu",
       "conversation": "Mtihani: sehemu ya kuzungumza",
-      "sceneSetup": "Igizo: hali yenyewe",
-      "scene": "Igizo",
+      "sceneSetup": "Mazungumzo: maandalizi",
+      "scene": "Mazungumzo: sentensi",
       "examples": "Mifano ya maneno ya seti",
       "sceneSummary": "Mazungumzo: muhtasari"
     },
@@ -464,7 +464,7 @@
         "where": "hatua ya somo"
       },
       "scene": {
-        "name": "Maigizo",
+        "name": "Mazungumzo",
         "where": "hatua ya somo"
       },
       "speaking": {
@@ -488,8 +488,8 @@
       "speaking": "Hukagua jibu ulilotamka (kile kitambuzi kilichosikia) dhidi ya swali na jibu la kozi, unapobonyeza “Kagua kwa AI”.",
       "exam": "Hutathmini jibu la maandishi la mtihani kwa vigezo vya mtihani wenyewe: kiwango cha kila kigezo pamoja na sababu yake, na kipi kingeleta alama zaidi. Hakuna kinachohesabiwa hadi ukikubali au ukibadilishe.",
       "conversation": "Huendesha sehemu ya kuzungumza ya mtihani: huigiza mtahini na mtahiniwa mwingine, kama sehemu inavyoelekeza, mstari kwa mstari pamoja nawe; kamwe hasaidii wala hasahihishi. Hutathminiwa baadaye kwa vigezo vya sehemu hiyo.",
-      "sceneSetup": "Huanzisha igizo: hubuni hali kutokana na mada ya somo — wewe ni nani, unazungumza na nani, wapi, na malengo ya kufikia. Huombwa mara moja kwa kila igizo.",
-      "scene": "Huendesha igizo: hujibu kila mstari wako kama mwenzako, husahihisha makosa yako, hutoa tafsiri na huweka alama kwenye malengo uliyoyafikia.",
+      "sceneSetup": "Huanzisha mazungumzo: kutokana na malengo ya somo na unachokijua, hubuni hali, unazungumza na nani, kadi yako ya malengo na kile anachojua mwenzako pekee — ambacho lazima ukiulize. Mara moja kwa kila mazungumzo.",
+      "scene": "Huigiza mwenzako: hujibu kila sentensi unayoitamka (kama kitambuzi kilivyoisikia) au kuiandika, husema kama ilieleweka na kama inafaa, hurekebisha makosa mawili zaidi, hutoa tafsiri na huweka alama kwenye malengo uliyoyafikia.",
       "examples": "Huandika sentensi tatu hadi tano za mfano kwa kila neno la seti isiyo na mifano yake yenyewe, maneno matano kwa wakati (Marudio → Seti, “Tengeneza mifano”), kwa maneno unayoyajua inapowezekana na yale mapya yakiwa yametafsiriwa.",
       "sceneSummary": "Hufupisha mazungumzo yakiisha: marekebisho moja au mawili muhimu zaidi, kila moja na sentensi yako ikisemwa vizuri, na maoni mafupi."
     }
@@ -529,17 +529,33 @@
     "message": "Tafadhali pitia makosa yangu katika somo hili."
   },
   "scene": {
-    "intro": "Jizoeze somo katika igizo fupi: mwenzako anazungumza lugha ya kozi, anakusahihisha na anaweka alama kwenye malengo yako.",
-    "start": "Anza igizo",
+    "intro": "Mazungumzo mafupi kwa sauti kuhusu malengo ya somo: sentensi za mwenzako husomwa kwa sauti na unajibu kwa maikrofoni. Mwenzako anajua mambo ambayo lazima uyaulize.",
+    "start": "Anza mazungumzo",
     "preparing": "Inaandaa…",
     "partner": "Mwenzako: {partner}",
     "translate": "Tafsiri",
     "placeholder": "Mstari wako…",
     "done": "Malengo yote yamefikiwa — hongera!",
-    "new": "Igizo jipya",
-    "past": "Maigizo ya awali ya somo hili",
+    "new": "Mazungumzo mapya",
+    "past": "Mazungumzo ya awali ya somo hili",
     "goals": "Malengo: {met, number} kati ya {total, number}",
-    "ended": "Igizo limekwisha."
+    "ended": "Mazungumzo yamekwisha.",
+    "said": "Imetamkwa kwa sauti",
+    "understood": "Imeeleweka",
+    "notUnderstood": "Haikueleweka",
+    "fits": "Inafaa",
+    "offTrack": "Haifai",
+    "goalCard": "Malengo yako",
+    "partnerKnew": "Alichojua mwenzako",
+    "model": "Sema hivi:",
+    "summing": "Inafupisha…",
+    "noSummary": "Muhtasari haukuweza kutengenezwa.",
+    "sumUp": "Fupisha",
+    "end": "Maliza mazungumzo",
+    "noRecognition": "Utambuzi wa sauti umezimwa au haujasakinishwa (Mipangilio → Sauti).",
+    "typeInstead": "Andika sentensi yako badala yake.",
+    "again": "Sema tena",
+    "waitPartner": "Subiri jibu la mwenzako."
   },
   "player": {
     "play": "Cheza: {what}",
@@ -581,9 +597,9 @@
     "removeCourse": "Ondoa kwenye kozi zangu",
     "resetLesson": "Futa maendeleo ya somo",
     "courseTitle": "Ufute maendeleo yako katika “{title}”?",
-    "courseBody": "Majibu yote na mizunguko yote ya masomo ya kozi hii yatafutwa, pamoja na mazungumzo na mkufunzi, ukaguzi wa uandishi na maigizo yanayoihusu, na kadi za maneno zilizotengenezwa na masomo yake pamoja na marudio yake. Kozi itaondoka kwenye “Kozi zangu” lakini itabaki imesakinishwa. Hatua hii haiwezi kutenduliwa.",
+    "courseBody": "Majibu yote na mizunguko yote ya masomo ya kozi hii yatafutwa, pamoja na mazungumzo na mkufunzi, ukaguzi wa uandishi na mazungumzo yanayoihusu, na kadi za maneno zilizotengenezwa na masomo yake pamoja na marudio yake. Kozi itaondoka kwenye “Kozi zangu” lakini itabaki imesakinishwa. Hatua hii haiwezi kutenduliwa.",
     "lessonTitle": "Ufute maendeleo yako katika “{title}”?",
-    "lessonBody": "Majibu yote na mizunguko yote ya somo hili yatafutwa, pamoja na mazungumzo yake na mkufunzi, ukaguzi wa uandishi na maigizo, na kadi za maneno lililotengeneza pamoja na marudio yake (maneno ya masomo mengine yanabaki). Hatua hii haiwezi kutenduliwa.",
+    "lessonBody": "Majibu yote na mizunguko yote ya somo hili yatafutwa, pamoja na mazungumzo yake na mkufunzi, ukaguzi wa uandishi na mazungumzo, na kadi za maneno lililotengeneza pamoja na marudio yake (maneno ya masomo mengine yanabaki). Hatua hii haiwezi kutenduliwa.",
     "confirm": "Futa",
     "removeExam": "Ondoa kwenye mitihani yangu",
     "examTitle": "Uondoe “{title}” kwenye mitihani yako?",
@@ -630,7 +646,7 @@
     "grammar": "Sarufi",
     "culture": "Utamaduni",
     "writing": "Uandishi",
-    "scene": "Igizo",
+    "scene": "Mazungumzo",
     "mistakes": "Makosa"
   },
   "words": {
@@ -689,7 +705,7 @@
     "workedSome": "{count, plural, one {zoezi #} other {mazoezi #}}",
     "explanations": "{count, plural, one {maelezo #} other {maelezo #}}",
     "writing": "{count, plural, one {maandishi #} other {maandishi #}}",
-    "scenes": "{count, plural, one {igizo #} other {maigizo #}}",
+    "scenes": "{count, plural, one {mazungumzo #} other {mazungumzo #}}",
     "chats": "{count, plural, one {mazungumzo #} other {mazungumzo #}}",
     "words": "{count, plural, one {neno #} other {maneno #}}",
     "exercises": "Mazoezi",
@@ -915,7 +931,7 @@
     },
     "assistant": {
       "title": "Msaidizi wa AI",
-      "text": "Msaidizi hueleza makosa, hufundisha katika masomo, hukagua maandishi yako na huigiza mazungumzo. Chagua mmoja sasa au baadaye katika Mipangilio — programu inafanya kazi hata bila msaidizi."
+      "text": "Msaidizi hueleza makosa, hufundisha katika masomo, hukagua maandishi yako na hufanya mazungumzo. Chagua mmoja sasa au baadaye katika Mipangilio — programu inafanya kazi hata bila msaidizi."
     },
     "tour": {
       "title": "Vitu viko wapi"
@@ -1163,7 +1179,7 @@
       "removeModel": "Ondoa modeli",
       "download": "Pakua",
       "read": "Kusoma kwa sauti",
-      "readHint": "Sauti husoma maandishi katika lugha moja: mistari ya igizo, mfano wa neno na maneno yasiyo na rekodi. Kila lugha ina sauti yake.",
+      "readHint": "Sauti husoma maandishi katika lugha moja: mistari ya mazungumzo, mfano wa neno na maneno yasiyo na rekodi. Kila lugha ina sauti yake.",
       "engine": {
         "device": "Sauti za kifaa hiki",
         "deviceLine": "{count, plural, one {sauti #} other {sauti #}}, hakuna cha kusakinisha",
@@ -1227,7 +1243,11 @@
       "listen": "Soma kwa sauti: {what}",
       "stop": "Acha kusoma"
     },
-    "aiCheck": "Kagua kwa AI"
+    "aiCheck": "Kagua kwa AI",
+    "readBy": "Imesomwa na {engine, select, piper {Piper} qwen {Qwen3-TTS} other {kifaa hiki}} · {voice}",
+    "readByEngine": "Imesomwa na {engine, select, piper {Piper} qwen {Qwen3-TTS} other {sauti ya kifaa hiki}}",
+    "readByNone": "Hakuna kinachosoma {language} kwa sauti hapa: chagua sauti katika Mipangilio → Sauti.",
+    "readByHint": "Injini na sauti huchaguliwa katika Mipangilio → Sauti."
   },
   "error": {
     "answer_does_not_fit": "Jibu halilingani na zoezi hili. Pakia somo upya.",
@@ -1260,7 +1280,7 @@
     "llm_unreachable": "Seva haijibu. Kagua anwani.",
     "missing_client_header": "Ombi halikutoka kwenye programu. Pakia ukurasa upya.",
     "name_required": "Weka jina.",
-    "no_active_scene": "Igizo hili limekwisha. Anza jipya.",
+    "no_active_scene": "Mazungumzo haya yamekwisha. Anza mapya.",
     "no_device": "Kifaa hiki hakijaingia tena.",
     "profile_export_gone": "Uhamishaji huu haupo tena hapa: hamisha wasifu tena.",
     "not_a_profile_file": "Faili hili si faili la wasifu la SprachAnker (.sprachanker-profile).",
@@ -1290,7 +1310,7 @@
     "run_incomplete": "Somo bado halijakamilika.",
     "run_not_active": "Mzunguko huu wa somo umekwisha. Pakia somo upya.",
     "run_without_edition": "Mzunguko huu hauna toleo la lugha. Anza somo tena.",
-    "scene_busy": "Igizo bado linajibu. Subiri.",
+    "scene_busy": "Mazungumzo bado yanajibu. Subiri.",
     "server_error": "Hitilafu imetokea kwenye seva.",
     "speaking_busy": "Jibu hili linakaguliwa. Subiri.",
     "speech_engine_failed": "Kitambuzi cha sauti hakikujibu. Jaribu tena.",
