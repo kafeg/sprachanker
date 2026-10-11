@@ -1268,6 +1268,7 @@
     "no_such_card": "Cette carte n’existe plus.",
     "no_such_chat": "Cette discussion n’existe plus.",
     "no_course_studied": "Commence d’abord un cours : le tuteur parle de ce que tu as vu dans tes cours.",
+    "language_not_studied": "Aucun des cours que tu as commencés n’enseigne cette langue : choisis-en une autre.",
     "ai_place_off": "L’assistant est désactivé ici : active-le dans Réglages → Assistant IA.",
     "no_such_item": "Cet exercice a changé. Recharge la leçon.",
     "no_such_model": "Ce modèle n’est pas proposé.",

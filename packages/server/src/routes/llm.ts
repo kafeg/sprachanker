@@ -70,6 +70,8 @@ const SectionBody = z.object({
   chatId: Ulid.optional(),
   message: z.string().trim().min(1).max(MESSAGE_MAX),
   language: Lang,
+  /** The language a new chat practises (one the courses begun teach); a continued chat keeps its own. */
+  target: Lang.optional(),
   /** Sent for the learner: one of the ways into a new chat. */
   start: z.boolean().optional(),
 });
@@ -303,9 +305,9 @@ export function llmRoutes() {
       )
       .get("/tutor/chats/:id", zod("param", ChatParam), zod("query", ChatsOf), (c) => {
         const about = c.req.valid("query").lessonKey ?? null;
-        const turns = c.var.s.tutor.chat(about, c.req.valid("param").id);
-        if (!turns) throw new ServiceError("no_such_chat", 404);
-        return c.json({ turns });
+        const chat = c.var.s.tutor.chat(about, c.req.valid("param").id);
+        if (!chat) throw new ServiceError("no_such_chat", 404);
+        return c.json(chat);
       })
       .delete("/tutor/chats/:id", zod("param", ChatParam), zod("query", ChatsOf), (c) => {
         const about = c.req.valid("query").lessonKey ?? null;

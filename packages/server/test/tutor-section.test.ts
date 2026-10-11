@@ -60,9 +60,9 @@ async function app(options: { studied?: boolean; down?: boolean } = {}) {
     });
   }
   /** A message in the section: the reply's text and the chat it names (`start`: sent for the
-   *  learner, a way into a new chat). */
-  const say = async (message: string, chatId?: string, start?: boolean) => {
-    const body = { message, language: "ru", chatId, start };
+   *  learner, a way into a new chat; `target`: the language a new chat practises). */
+  const say = async (message: string, chatId?: string, start?: boolean, target?: string) => {
+    const body = { message, language: "ru", chatId, start, target };
     const res = await t.send("POST", "/api/llm/tutor/section", body);
     return { status: res.status, id: res.headers.get(CHAT_ID_HEADER), text: await res.text() };
   };
@@ -176,6 +176,36 @@ describe("the Tutor section", () => {
     expect(fresh).toContain("der Kaffee, die Kaffees (coffee)");
   });
 
+  test("a new chat practises the language chosen, one the courses begun teach; another refused", async () => {
+    const { say, send, getJson, fake } = await app();
+    expect((await getJson("/api/llm/tutor/section/chats")).targets).toEqual(["de"]);
+    const { status, id } = await say("Hallo", undefined, false, "de");
+    expect(status).toBe(200);
+    expect(await getJson(`/api/llm/tutor/chats/${id}`)).toMatchObject({ edition: "ru-de" });
+
+    // A language no course begun teaches: refused before the model is asked, nothing kept — the
+    // gauge and the {} preview alike.
+    const refused = await say("Bonjour", undefined, false, "fr");
+    expect([refused.status, JSON.parse(refused.text).error]).toEqual([400, "language_not_studied"]);
+    for (const path of ["context", "prompt"]) {
+      const res = await send("POST", `/api/llm/tutor/section/${path}`, {
+        message: "",
+        language: "en",
+        target: "fr",
+      });
+      expect(res.status).toBe(400);
+    }
+    expect(fake.calls).toHaveLength(1);
+    expect((await getJson("/api/llm/tutor/section/chats")).chats).toHaveLength(1);
+
+    // A continued chat keeps its language: a language sent with it is not read.
+    expect((await say("Noch was", id as string, false, "fr")).status).toBe(200);
+    expect(await getJson(`/api/llm/tutor/chats/${id}`)).toMatchObject({
+      edition: "ru-de",
+      turns: [{}, {}, {}, {}],
+    });
+  });
+
   test("the courses of a chat's language gone: the chat goes on, its prompt saying nothing is known", async () => {
     const { say, sendJson } = await app();
     const { id } = await say("Привет");
@@ -248,8 +278,12 @@ describe("the Tutor section", () => {
     expect(await getJson("/api/llm/tutor/section/chats")).toEqual({
       chats: [],
       more: false,
+      targets: [],
       cannotStart: "no_course_studied",
     });
+    // Nothing begun: no language to choose either.
+    const chosen = await say("Hallo", undefined, false, "de");
+    expect([chosen.status, JSON.parse(chosen.text).error]).toEqual([409, "no_course_studied"]);
     expect((await (await app()).getJson("/api/llm/tutor/section/chats")).cannotStart).toBeNull();
   });
 

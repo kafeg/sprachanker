@@ -1268,6 +1268,7 @@
     "no_such_card": "Kartu ini sudah tidak ada.",
     "no_such_chat": "Percakapan ini sudah tidak ada.",
     "no_course_studied": "Mulai kursus dulu: tutor membahas materi kursus-kursusmu.",
+    "language_not_studied": "Tidak ada kursus yang sudah kamu mulai yang mengajarkan bahasa ini: pilih bahasa lain.",
     "ai_place_off": "Asisten dimatikan di sini: nyalakan di Pengaturan → Asisten AI.",
     "no_such_item": "Latihan ini sudah berubah. Muat ulang pelajaran.",
     "no_such_model": "Model ini tidak tersedia.",

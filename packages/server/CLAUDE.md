@@ -78,7 +78,8 @@ src/
                      # - AI (07), each task in the module whose run keeps its answers: llm (providers,
                      #   keys, structured calls, previews; llm-lmstudio, llm-prompts), lesson-context,
                      #   in-flight (calls outliving the page) shared; explain, writing, speaking, tutor
-                     #   (+ tutor-tools; courses-context: what the Tutor section's chats know), scene;
+                     #   (+ tutor-tools; courses-context: what the Tutor section's chats know, the
+                     #   languages a new one can practise), scene;
                      #   exam-rating, exam-conversation; examples (a deck's job with the profile's model
                      #   and context, a card's examples marked)
                      # - speech (08): speech (whisper-server), read-aloud (Piper; piper-voices.json from

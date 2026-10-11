@@ -45,6 +45,9 @@ export interface SectionRequest {
   chatId?: string;
   message: string;
   language: string;
+  /** The language a new chat practises: one the courses begun teach (unset: the latest course's).
+   *  A continued chat keeps its own. */
+  target?: string;
   /** Sent for the learner: one of the ways into a new chat (its title is then the first turn typed). */
   start?: boolean;
 }
@@ -212,12 +215,14 @@ export function createTutor(deps: {
   };
 
   /** The Tutor section's chat a message continues (none: a new one) and what it knows — the pair it
-   *  is held in (a new chat's: the one the course studied last is in; none begun: refused) and the
-   *  learner's courses of its language —, read once for the request. */
+   *  is held in (a new chat's: the one the latest course of the chosen language is in; none begun:
+   *  refused) and the learner's courses of its language —, read once for the request. */
   async function sectionChatOf(request: SectionRequest) {
     const chat = request.chatId ? store.get(request.chatId, "chat", null) : undefined;
     if (request.chatId && !chat?.edition) throw new ServiceError("no_such_chat", 404);
-    const known = await deps.courses.get(chat?.edition ?? undefined);
+    const known = await deps.courses.get(
+      chat?.edition ? { edition: chat.edition } : { target: request.target },
+    );
     if (!known) throw new ServiceError("no_course_studied", 409);
     return { chat, ...known };
   }
@@ -273,7 +278,8 @@ export function createTutor(deps: {
     },
 
     /** A page of the Tutor section's chats, the one written in last first (`more`: a later page has
-     *  any), and why a new one cannot begin (`no_course_studied`), if it cannot. */
+     *  any), the languages a new one can practise (`targets`: the latest course's first), and why a
+     *  new one cannot begin (`no_course_studied`), if it cannot. */
     async sectionChats(offset = 0) {
       const page = store.conversations("chat", null, { limit: SECTION_PAGE, offset });
       const chats = page.list.map(
@@ -288,14 +294,16 @@ export function createTutor(deps: {
           exerciseKeys: [],
         }),
       );
-      const cannotStart = (await deps.courses.begun()) ? null : ("no_course_studied" as const);
-      return { chats, more: page.more, cannotStart };
+      const targets = await deps.courses.targets();
+      const cannotStart = targets.length ? null : ("no_course_studied" as const);
+      return { chats, more: page.more, targets, cannotStart };
     },
 
-    /** The turns of one of the chats about a lesson (the section's: `null`); undefined when there is
-     *  no such chat. */
+    /** One of the chats about a lesson (the section's: `null`): its turns and the pair it is held in;
+     *  undefined when there is no such chat. */
     chat(about: LessonKey | null, id: string) {
-      return store.get(id, "chat", about) ? turns(id) : undefined;
+      const run = store.get(id, "chat", about);
+      return run ? { edition: run.edition, turns: turns(id) } : undefined;
     },
 
     /** Deletes one of the chats about a lesson (the section's: `null`) with its turns (05); false

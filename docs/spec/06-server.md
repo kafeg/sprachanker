@@ -173,14 +173,17 @@ JSON under `/api`, validated with zod and typed for the web client through Hono 
   sending it (07); what is kept — `GET explanations?lessonKey=&runId=`, `GET speaking?lessonKey=&runId=`,
   `GET writing`, `GET scene`, `GET tutor`; `POST tutor/context` (how full the
   next request is), `POST tutor/reset`, `GET tutor/chats?lessonKey=`, `GET` / `DELETE tutor/chats/:id`
-  (with `lessonKey` a lesson's, without the Tutor section's); a tutor
+  (with `lessonKey` a lesson's, without the Tutor section's; `GET` gives its turns and its `edition`); a tutor
   message with `newChat` opens a new chat (the current one ends once the reply has come; a failed call
   changes nothing); the Tutor section's chats are `GET tutor/section/chats?offset=` (twenty a page by
-  their last message, `more` when a later page has any, `cannotStart: "no_course_studied" | null`:
-  whether a new chat can begin), its messages go to `POST tutor/section` (`{chatId?, message,
-  language, start?}`, streamed; without `chatId` a new chat, which the response's `X-Chat-Id` header
-  names as soon as the reply begins — stored once the reply has text; `start`: sent for the learner, a
-  way into the chat), with `tutor/section/context` and `tutor/section/prompt`; `GET prompts` lists the system prompts and `PUT prompts/:task` sets or clears the
+  their last message, `more` when a later page has any, `targets`: the languages a new chat can
+  practise — those the courses begun teach, the latest course's first —, `cannotStart:
+  "no_course_studied" | null`: whether a new chat can begin), its messages go to `POST tutor/section`
+  (`{chatId?, message, language, target?, start?}`, streamed; without `chatId` a new chat, which the
+  response's `X-Chat-Id` header names as soon as the reply begins — stored once the reply has text;
+  `target`: the language a new chat practises, one of `targets` — else 400 `language_not_studied` —,
+  unset the latest course's, not read for a chat continued; `start`: sent for the learner, a way into
+  the chat), with `tutor/section/context` and `tutor/section/prompt` (the same body); `GET prompts` lists the system prompts and `PUT prompts/:task` sets or clears the
   learner's own one.
 - `GET /library/:series/*` (outside `/api`): library media with Range support; `GET /decks/:folder/media/*`:
   a deck folder's audio — an imported deck's own and what was read aloud for it, a course deck's read

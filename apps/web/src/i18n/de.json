@@ -1268,6 +1268,7 @@
     "no_such_card": "Diese Karte gibt es nicht mehr.",
     "no_such_chat": "Dieses Gespräch gibt es nicht mehr.",
     "no_course_studied": "Beginne zuerst einen Kurs: Der Tutor spricht über den Stoff deiner Kurse.",
+    "language_not_studied": "Keiner deiner begonnenen Kurse lehrt diese Sprache: Wähle eine andere.",
     "ai_place_off": "Der Assistent ist hier ausgeschaltet: Schalte ihn unter Einstellungen → KI-Assistent ein.",
     "no_such_item": "Die Übung hat sich geändert. Lade die Lektion neu.",
     "no_such_model": "Dieses Modell wird nicht angeboten.",

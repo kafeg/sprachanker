@@ -1268,6 +1268,7 @@
     "no_such_card": "Ez a kártya már nem létezik.",
     "no_such_chat": "Ez a beszélgetés már nincs meg.",
     "no_course_studied": "Előbb kezdj el egy kurzust: a tutor a kurzusaid anyagáról beszél.",
+    "language_not_studied": "Egyik elkezdett kurzusod sem ezt a nyelvet tanítja: válassz másikat.",
     "ai_place_off": "Az asszisztens itt ki van kapcsolva: kapcsold be itt: Beállítások → MI-asszisztens.",
     "no_such_item": "Ez a feladat megváltozott. Töltsd be újra a leckét.",
     "no_such_model": "Ez a modell nem érhető el.",

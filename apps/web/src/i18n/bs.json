@@ -1268,6 +1268,7 @@
     "no_such_card": "Ova kartica više ne postoji.",
     "no_such_chat": "Ovog razgovora više nema.",
     "no_course_studied": "Prvo započni kurs: tutor govori o gradivu tvojih kurseva.",
+    "language_not_studied": "Nijedan od započetih kurseva ne uči ovaj jezik: izaberi drugi.",
     "ai_place_off": "Asistent je ovdje isključen: uključi ga u Postavkama → AI asistent.",
     "no_such_item": "Ova vježba se promijenila. Ponovo učitaj lekciju.",
     "no_such_model": "Ovaj model nije ponuđen.",

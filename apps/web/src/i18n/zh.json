@@ -1268,6 +1268,7 @@
     "no_such_card": "此卡片已不存在。",
     "no_such_chat": "此对话已不存在。",
     "no_course_studied": "请先开始一门课程：辅导老师会围绕你在课程中学过的内容交流。",
+    "language_not_studied": "你已开始的课程中没有一门教这种语言：请选择其他语言。",
     "ai_place_off": "此处的助手已关闭：请在“设置 → AI助手”中开启。",
     "no_such_item": "此练习已更改。请重新加载本课。",
     "no_such_model": "不提供此模型。",

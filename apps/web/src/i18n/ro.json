@@ -1268,6 +1268,7 @@
     "no_such_card": "Acest card nu mai există.",
     "no_such_chat": "Această conversație nu mai există.",
     "no_course_studied": "Începe mai întâi un curs: tutorele vorbește despre materia cursurilor tale.",
+    "language_not_studied": "Niciunul dintre cursurile pe care le-ai început nu predă această limbă: alege alta.",
     "ai_place_off": "Asistentul este oprit aici: pornește-l din Setări → Asistent AI.",
     "no_such_item": "Acest exercițiu s-a schimbat. Reîncarcă lecția.",
     "no_such_model": "Acest model nu este oferit.",
