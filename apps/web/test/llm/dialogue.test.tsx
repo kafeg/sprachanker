@@ -1,0 +1,219 @@
+// The Dialogue step (09): the goal card, who reads the partner's lines, a line said and heard (sent as
+// heard, or said again), the learner's lines judged, the summary once it is over; typed only where
+// nothing hears the line, saying why.
+import { afterEach, expect, test } from "bun:test";
+import { act, fireEvent, waitFor } from "@testing-library/react";
+import { type SpeechHost, SpeechProvider } from "../../src/audio/context.ts";
+import type { SceneState } from "../../src/llm/api.ts";
+import { DialogueStep } from "../../src/llm/dialogue.tsx";
+import { DialogueLine, type DialogueLineInput } from "../../src/llm/dialogue-line.tsx";
+import { TargetLang } from "../../src/ui/target-lang.ts";
+import { lesson } from "../lesson/lesson.ts";
+import { renderApp } from "../render.tsx";
+
+const ids = { series: "sprachanker.test", lessonKey: lesson.key, edition: "en-de" };
+const llm: [unknown[], unknown] = [["llm"], { provider: "custom", model: "test-model" }];
+const TAKE = "01K7A0Z8ZQ4J1V2W3X4Y5Z6A7B";
+
+const g = globalThis as Record<string, unknown>;
+const saved = {
+  secure: Object.getOwnPropertyDescriptor(window, "isSecureContext"),
+  recorder: g.MediaRecorder,
+  context: g.AudioContext,
+};
+afterEach(() => {
+  if (saved.secure) Object.defineProperty(window, "isSecureContext", saved.secure);
+  g.MediaRecorder = saved.recorder;
+  g.AudioContext = saved.context;
+});
+
+/** A page where the microphone records: each take is a little audio, stopped when asked. */
+function microphoneHere() {
+  Object.defineProperty(window, "isSecureContext", { value: true, configurable: true });
+  g.MediaRecorder = class {
+    static isTypeSupported = () => true;
+    mimeType = "audio/webm";
+    state = "inactive";
+    ondataavailable?: (e: { data: Blob }) => void;
+    onstop?: () => void;
+    start() {
+      this.state = "recording";
+    }
+    stop() {
+      this.state = "inactive";
+      this.ondataavailable?.({ data: new Blob(["take"]) });
+      this.onstop?.();
+    }
+  };
+  g.AudioContext = class {
+    createAnalyser = () => ({ fftSize: 0, getByteTimeDomainData() {} });
+    createMediaStreamSource = () => ({ connect() {} });
+    close = async () => {};
+  };
+  Object.defineProperty(navigator, "mediaDevices", {
+    value: { getUserMedia: async () => ({ getTracks: () => [] }) },
+    configurable: true,
+  });
+}
+
+const host = (recognition: boolean, heard = "wann fährt der zug"): SpeechHost => ({
+  save: async () => TAKE,
+  src: (id) => `/api/recordings/${id}`,
+  recognition,
+  transcribe: async () => heard,
+  warm() {},
+});
+
+const SETUP = {
+  title: "Am Bahnhof",
+  situation: "You are at the ticket office.",
+  partner: "The clerk",
+  goals: ["Ask when the train leaves", "Ask the price"],
+  opening: "Guten Tag! Wohin möchten Sie?",
+};
+const dialogue = (extra: Partial<SceneState> = {}): SceneState => ({
+  id: "01K7A0Z8ZQ4J1V2W3X4Y5Z6A70",
+  startedAt: 1_790_000_000_000,
+  setup: SETUP,
+  turns: [
+    { role: "assistant", text: SETUP.opening, goalsMet: [], ts: 1 },
+    {
+      role: "user",
+      text: "wann fahrt der zug",
+      spoken: true,
+      recording: TAKE,
+      understood: true,
+      fits: false,
+      corrections: [{ wrong: "fahrt", right: "fährt", explanation: "An umlaut." }],
+      ts: 2,
+    },
+    { role: "assistant", text: "Um 14:30.", translation: "At 2:30 pm.", goalsMet: [0], ts: 3 },
+  ],
+  goalsMet: [0],
+  done: false,
+  summary: null,
+  ...extra,
+});
+
+const PIPER = {
+  engine: true,
+  auto: { de: "de_DE-thorsten-medium" },
+  voices: [{ id: "de_DE-thorsten-medium", lang: "de", installed: true }],
+};
+
+const step = (scene: SceneState, recognition = true) =>
+  renderApp(
+    <SpeechProvider value={host(recognition)}>
+      <TargetLang value="de">
+        <DialogueStep {...ids} />
+      </TargetLang>
+    </SpeechProvider>,
+    {
+      data: [
+        llm,
+        [["settings"], { "speech.readEngine": "piper" }],
+        [["piper-voices"], PIPER],
+        [["scenes", ids.lessonKey], { scenes: [scene], pending: null }],
+      ],
+    },
+  );
+
+test("an open Dialogue: its goal card, who reads the lines, the learner's line said with its take, judged and corrected", async () => {
+  microphoneHere();
+  const view = await step(dialogue());
+  expect(view.getByText("Your goals")).toBeTruthy();
+  expect(view.getByText("Ask when the train leaves").closest("li")?.className).toContain(
+    "text-correct",
+  );
+  // Who reads the partner's lines, as the model is named.
+  expect(view.getByText("Read by Piper · thorsten")).toBeTruthy();
+  expect(view.getByText(/· test-model$/)).toBeTruthy();
+  // The learner's line: said, its take to play, understood but not fitting, its correction.
+  expect(view.getByLabelText("Said aloud")).toBeTruthy();
+  expect(view.getByRole("button", { name: "Mine" })).toBeTruthy();
+  expect(view.getByText("Understood")).toBeTruthy();
+  expect(view.getByText("Doesn't fit")).toBeTruthy();
+  expect(view.getByText("fährt")).toBeTruthy();
+  // What the partner knows stays hidden; the line goes by voice.
+  expect(view.queryByText("What your partner knew")).toBeNull();
+  expect(view.getByRole("button", { name: "Record yourself" })).toBeTruthy();
+  expect(view.getByRole("button", { name: "End the dialogue" })).toBeTruthy();
+  view.unmount();
+});
+
+test("a line said: what was heard is shown and sent as heard, with its take — or said again", async () => {
+  microphoneHere();
+  const sent: DialogueLineInput[] = [];
+  const view = await renderApp(
+    <SpeechProvider value={host(true)}>
+      <DialogueLine lang="de" busy={false} onSend={(line) => sent.push(line)} />
+    </SpeechProvider>,
+  );
+  fireEvent.click(view.getByRole("button", { name: "Record yourself" }));
+  await waitFor(() => view.getByRole("button", { name: "Stop recording" }));
+  await act(async () => {
+    fireEvent.click(view.getByRole("button", { name: "Stop recording" }));
+  });
+  await waitFor(() => view.getByText("wann fährt der zug"));
+  expect(view.getByText("Heard:")).toBeTruthy();
+  // Not editable: no text box, only send it or say it again.
+  expect(view.queryByRole("textbox")).toBeNull();
+  fireEvent.click(view.getByRole("button", { name: "Send" }));
+  expect(sent).toEqual([{ text: "wann fährt der zug", spoken: true, recording: TAKE }]);
+  expect(view.getByRole("button", { name: "Record yourself" })).toBeTruthy();
+});
+
+test("without recognition the line is typed, saying why", async () => {
+  microphoneHere();
+  const view = await step(dialogue(), false);
+  expect(view.getByText(/Speech recognition is off or not installed/)).toBeTruthy();
+  expect(view.getByPlaceholderText("Your line…")).toBeTruthy();
+  expect(view.queryByRole("button", { name: "Record yourself" })).toBeNull();
+  view.unmount();
+});
+
+test("without a microphone (plain HTTP) the line is typed, saying why", async () => {
+  Object.defineProperty(window, "isSecureContext", { value: false, configurable: true });
+  const view = await step(dialogue());
+  expect(view.getByText(/works only at a secure address/)).toBeTruthy();
+  expect(view.getByPlaceholderText("Your line…")).toBeTruthy();
+  view.unmount();
+});
+
+test("a Dialogue over: the goals met, what the partner knew, the key corrections with a model line, the feedback", async () => {
+  microphoneHere();
+  const view = await step(
+    dialogue({
+      done: true,
+      setup: { ...SETUP, partnerInfo: ["Der Zug fährt um 14:30."] },
+      summary: {
+        corrections: [
+          {
+            wrong: "fahrt",
+            right: "fährt",
+            explanation: "An umlaut.",
+            model: "Wann fährt der Zug?",
+          },
+        ],
+        feedback: "Well asked.",
+        model: "test-model",
+      },
+    }),
+  );
+  expect(view.getByText("Dialogue ended.")).toBeTruthy();
+  expect(view.getAllByText("Goals: 1 of 2").length).toBeGreaterThan(0);
+  expect(view.getByText("What your partner knew")).toBeTruthy();
+  expect(view.getByText("Der Zug fährt um 14:30.")).toBeTruthy();
+  expect(view.getByText("Wann fährt der Zug?")).toBeTruthy();
+  expect(view.getByText("Well asked.")).toBeTruthy();
+  expect(view.queryByRole("button", { name: "Record yourself" })).toBeNull();
+  view.unmount();
+});
+
+test("a Dialogue over without its summary offers to sum it up again", async () => {
+  microphoneHere();
+  const view = await step(dialogue({ done: true }));
+  expect(view.getByText("The summary could not be made.")).toBeTruthy();
+  expect(view.getByRole("button", { name: "Sum it up" })).toBeTruthy();
+  view.unmount();
+});

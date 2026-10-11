@@ -18,12 +18,15 @@ import { DEBUG_PROMPTS, type PromptTaskId, useSetPrompt, useTaskPrompts } from "
 
 /** What each task adds from the lesson, in prompt order; a part with a budget shows its limit. */
 const PARTS = {
-  explain: ["item", "script", "notes"],
+  explain: ["level", "item", "script", "notes"],
   tutor: [
     "lesson",
+    "level",
+    "place",
     "earlierLessons",
     "lessonVocab",
     "knownVocab",
+    "topics",
     "grammar",
     "exercise",
     "mistakes",
@@ -31,12 +34,13 @@ const PARTS = {
     "tools",
   ],
   tutorSection: ["courses", "metWords", "metGrammar", "courseMistakes", "chatHistory"],
-  writing: ["lesson", "lessonVocab", "grammar", "text"],
-  speaking: ["lesson", "lessonVocab", "grammar", "item", "heard", "answer"],
+  writing: ["lesson", "level", "lessonVocab", "grammar", "text"],
+  speaking: ["lesson", "level", "lessonVocab", "grammar", "item", "heard", "answer"],
   exam: ["exam", "criteria", "samples", "writtenAnswer"],
   conversation: ["exam", "partner", "conversation"],
-  sceneSetup: ["lesson", "lessonVocab", "knownVocab"],
-  scene: ["lesson", "lessonVocab", "knownVocab", "history"],
+  sceneSetup: ["lesson", "place", "level", "lessonVocab", "knownVocab", "topics"],
+  scene: ["lesson", "level", "lessonVocab", "knownVocab", "topics", "history"],
+  sceneSummary: ["level", "dialogueGoals", "dialogue"],
   examples: ["level", "knownVocab", "words"],
 } as const;
 

@@ -29,6 +29,8 @@ test("each study day by module: lesson work, exam answers, reviews without the o
       e("t", 3, "llm_turn", { role: "user" }),
       e("m", 3, "llm_turn", { role: "assistant" }),
       e("v", 3, "llm_verdict"),
+      // A Dialogue's summary comes with its end, not asked for: not counted.
+      e("d", 3, "llm_verdict", { task: "dialogue" }),
       // An exam run's answers: exam work, not a lesson's.
       { ...e("x", 3, "answered"), runId: "X" },
       // The model's proposal and a conversation's line in an exam run: AI practice, as anywhere.

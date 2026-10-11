@@ -7,7 +7,13 @@ import { EXAM_CONVERSATION_BUDGETS, examConversationRules } from "./exam-convers
 import { EXPLAIN_MISTAKE_BUDGETS, explainMistakeRules } from "./explain-mistake.ts";
 import { RATE_EXAM_ANSWER_BUDGETS, rateExamAnswerRules } from "./rate-exam-answer.ts";
 import type { TaskRules } from "./rules.ts";
-import { SCENE_BUDGETS, sceneSetupRules, sceneTurnRules } from "./scene.ts";
+import {
+  SCENE_BUDGETS,
+  SCENE_SUMMARY_BUDGETS,
+  sceneSetupRules,
+  sceneSummaryRules,
+  sceneTurnRules,
+} from "./scene.ts";
 import { SECTION_CHAT_BUDGETS, sectionChatRules } from "./section-chat.ts";
 import { WORD_EXAMPLES_BUDGETS, wordExamplesRules } from "./word-examples.ts";
 
@@ -26,9 +32,14 @@ export const TASK_PROMPTS = {
   conversation: { rules: examConversationRules, budgets: EXAM_CONVERSATION_BUDGETS },
   sceneSetup: {
     rules: sceneSetupRules,
-    budgets: { lessonVocab: SCENE_BUDGETS.lessonVocab, knownVocab: SCENE_BUDGETS.knownVocab },
+    budgets: {
+      lessonVocab: SCENE_BUDGETS.lessonVocab,
+      knownVocab: SCENE_BUDGETS.knownVocab,
+      topics: SCENE_BUDGETS.topics,
+    },
   },
   scene: { rules: sceneTurnRules, budgets: SCENE_BUDGETS },
+  sceneSummary: { rules: sceneSummaryRules, budgets: SCENE_SUMMARY_BUDGETS },
   examples: { rules: wordExamplesRules, budgets: WORD_EXAMPLES_BUDGETS },
 } as const satisfies Record<string, TaskPromptEntry>;
 

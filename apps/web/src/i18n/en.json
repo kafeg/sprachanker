@@ -143,7 +143,7 @@
       "grammar": "Grammar",
       "culture": "Culture",
       "writing": "Write it yourself",
-      "scene": "Scene",
+      "scene": "Dialogue",
       "mistakes": "Going over mistakes",
       "summary": "Summary"
     },
@@ -230,7 +230,7 @@
   },
   "llm": {
     "title": "AI assistant",
-    "intro": "Explains mistakes, tutors in lessons, checks texts and plays scenes. Choose a model on this computer, on a server on your network, in the cloud (OpenRouter) or a command-line agent with your subscription. Lesson content and your answers go only to the provider you choose.",
+    "intro": "Explains mistakes, tutors in lessons, checks texts and holds dialogues. Choose a model on this computer, on a server on your network, in the cloud (OpenRouter) or a command-line agent with your subscription. Lesson content and your answers go only to the provider you choose.",
     "off": "Off",
     "provider": {
       "lmstudio": "LM Studio",
@@ -293,7 +293,7 @@
       "context": "Context ≥ {size}",
       "more": "More…",
       "fewer": "Fewer",
-      "jsonHint": "“Answers JSON”: models that can return writing checks and scenes in the shape the app reads.",
+      "jsonHint": "“Answers JSON”: models that can return writing checks and dialogues in the shape the app reads.",
       "none": "No model fits the search and filters.",
       "freeTag": "free",
       "price": "{input} / {output} per 1M tokens",
@@ -399,9 +399,10 @@
       "speaking": "Spoken answers",
       "exam": "Exam: rating an answer",
       "conversation": "Exam: a speaking part",
-      "sceneSetup": "Scene: the situation",
-      "scene": "Scene",
-      "examples": "Examples for a deck's words"
+      "sceneSetup": "Dialogue: the setup",
+      "scene": "Dialogue: a line",
+      "examples": "Examples for a deck's words",
+      "sceneSummary": "Dialogue: the summary"
     },
     "contextIntro": "Added from the lesson:",
     "contextIntroCourses": "Added from your courses (those in the language the chat practises):",
@@ -434,7 +435,11 @@
       "metWords": "the words of those lessons with translations (the latest lessons first)",
       "metGrammar": "their grammar topics (the latest lessons first)",
       "courseMistakes": "your latest mistakes in those courses (fixed ones marked)",
-      "chatHistory": "the latest messages of the conversation"
+      "chatHistory": "the latest messages of the conversation",
+      "place": "where the lesson is in the course: its number and unit",
+      "topics": "the grammar topics met so far in the course",
+      "dialogueGoals": "the situation and the goals you reached",
+      "dialogue": "the dialogue's lines with the corrections given on them"
     },
     "upTo": "up to {chars, plural, one {# character} other {# characters}}",
     "debug": "Show “Prompt” buttons",
@@ -459,7 +464,7 @@
         "where": "a step of the lesson"
       },
       "scene": {
-        "name": "Scenes",
+        "name": "Dialogue",
         "where": "a step of the lesson"
       },
       "speaking": {
@@ -483,9 +488,10 @@
       "speaking": "Checks an answer you said aloud (what the recogniser heard) against the question and the course's answer, when you press “Check with AI”.",
       "exam": "Rates a written answer of an exam by the exam's own criteria: a level of each with its reason, and what would score more. Nothing counts until you take or change it.",
       "conversation": "Holds a speaking part of an exam: plays the examiner and the other candidate, as the part prescribes, line by line with you; it never helps or corrects. Rated afterwards by the part's criteria.",
-      "sceneSetup": "Starts a scene: invents the situation from the lesson's topic — who you are, who you talk to, where, and the goals to reach. Asked once per scene.",
-      "scene": "Plays the scene: answers each of your lines as your partner, corrects your mistakes, gives a translation and ticks off the goals you reached.",
-      "examples": "Writes three to five example sentences for each word of a deck that has none of its own, five words at a time (Review → Decks, “Make examples”), with words you know where it can and the new ones translated."
+      "sceneSetup": "Starts a dialogue: from the lesson's goals and what you know, invents the situation, who you talk to, your goal card and what only your partner knows — which you must ask for. Asked once per dialogue.",
+      "scene": "Plays your partner: answers each line you say (as the recogniser heard it) or type, says whether it was understood and fits, corrects at most two mistakes in it, gives a translation and ticks off your goals.",
+      "examples": "Writes three to five example sentences for each word of a deck that has none of its own, five words at a time (Review → Decks, “Make examples”), with words you know where it can and the new ones translated.",
+      "sceneSummary": "Sums up a dialogue once it is over: the one or two corrections that matter most, each with your line said well, and a word of feedback."
     }
   },
   "writing": {
@@ -523,17 +529,33 @@
     "message": "Please go through my mistakes in this lesson."
   },
   "scene": {
-    "intro": "Practise the lesson in a short role-play: the partner speaks the course language, corrects you and ticks off your goals.",
-    "start": "Start a scene",
+    "intro": "A short dialogue on the lesson's goals, by voice: your partner's lines are read aloud and you answer with the microphone. Your partner knows things you have to ask for.",
+    "start": "Start a dialogue",
     "preparing": "Preparing…",
     "partner": "Your partner: {partner}",
     "translate": "Translation",
     "placeholder": "Your line…",
     "done": "All goals reached — well done!",
-    "new": "New scene",
-    "past": "Earlier scenes of this lesson",
+    "new": "New dialogue",
+    "past": "Earlier dialogues of this lesson",
     "goals": "Goals: {met, number} of {total, number}",
-    "ended": "Scene ended."
+    "ended": "Dialogue ended.",
+    "said": "Said aloud",
+    "understood": "Understood",
+    "notUnderstood": "Not understood",
+    "fits": "Fits",
+    "offTrack": "Doesn't fit",
+    "goalCard": "Your goals",
+    "partnerKnew": "What your partner knew",
+    "model": "Say it like this:",
+    "summing": "Summing up…",
+    "noSummary": "The summary could not be made.",
+    "sumUp": "Sum it up",
+    "end": "End the dialogue",
+    "noRecognition": "Speech recognition is off or not installed (Settings → Speech).",
+    "typeInstead": "Type your line instead.",
+    "again": "Say it again",
+    "waitPartner": "Wait for your partner's answer."
   },
   "player": {
     "play": "Play: {what}",
@@ -575,9 +597,9 @@
     "removeCourse": "Remove from my courses",
     "resetLesson": "Reset lesson progress",
     "courseTitle": "Reset your progress in “{title}”?",
-    "courseBody": "All answers and lesson runs of this course are deleted, with the tutor chats, writing checks and scenes about it, and the word cards its lessons made with their reviews. The course leaves “My courses” but stays installed. This cannot be undone.",
+    "courseBody": "All answers and lesson runs of this course are deleted, with the tutor chats, writing checks and dialogues about it, and the word cards its lessons made with their reviews. The course leaves “My courses” but stays installed. This cannot be undone.",
     "lessonTitle": "Reset your progress in “{title}”?",
-    "lessonBody": "All answers and runs of this lesson are deleted, with its tutor chat, writing checks and scenes, and the word cards it made with their reviews (words from other lessons stay). This cannot be undone.",
+    "lessonBody": "All answers and runs of this lesson are deleted, with its tutor chat, writing checks and dialogues, and the word cards it made with their reviews (words from other lessons stay). This cannot be undone.",
     "confirm": "Reset",
     "removeExam": "Remove from my exams",
     "examTitle": "Remove “{title}” from your exams?",
@@ -624,7 +646,7 @@
     "grammar": "Grammar",
     "culture": "Culture",
     "writing": "Writing",
-    "scene": "Scene",
+    "scene": "Dialogue",
     "mistakes": "Mistakes"
   },
   "words": {
@@ -683,7 +705,7 @@
     "workedSome": "{count, plural, one {# exercise} other {# exercises}}",
     "explanations": "{count, plural, one {# explanation} other {# explanations}}",
     "writing": "{count, plural, one {# text} other {# texts}}",
-    "scenes": "{count, plural, one {# scene} other {# scenes}}",
+    "scenes": "{count, plural, one {# dialogue} other {# dialogues}}",
     "chats": "{count, plural, one {# chat} other {# chats}}",
     "words": "{count, plural, one {# word} other {# words}}",
     "exercises": "Exercises",
@@ -909,7 +931,7 @@
     },
     "assistant": {
       "title": "AI assistant",
-      "text": "An assistant explains mistakes, tutors in lessons, checks your texts and plays scenes. Choose one now or later in Settings — the app works without one."
+      "text": "An assistant explains mistakes, tutors in lessons, checks your texts and holds dialogues. Choose one now or later in Settings — the app works without one."
     },
     "tour": {
       "title": "Where things are"
@@ -1157,7 +1179,7 @@
       "removeModel": "Remove the model",
       "download": "Download",
       "read": "Read aloud",
-      "readHint": "A voice reads texts in one language: scene lines, a word's example and words without a recording. Each language has its own voice.",
+      "readHint": "A voice reads texts in one language: dialogue lines, a word's example and words without a recording. Each language has its own voice.",
       "engine": {
         "device": "This device's voices",
         "deviceLine": "{count, plural, one {# voice} other {# voices}}, nothing to install",
@@ -1221,7 +1243,11 @@
       "listen": "Read aloud: {what}",
       "stop": "Stop reading"
     },
-    "aiCheck": "Check with AI"
+    "aiCheck": "Check with AI",
+    "readBy": "Read by {engine, select, piper {Piper} qwen {Qwen3-TTS} other {this device}} · {voice}",
+    "readByEngine": "Read by {engine, select, piper {Piper} qwen {Qwen3-TTS} other {this device's voice}}",
+    "readByNone": "Nothing here reads {language} aloud: choose a voice in Settings → Speech.",
+    "readByHint": "The engine and voice are chosen in Settings → Speech."
   },
   "error": {
     "answer_does_not_fit": "The answer does not fit this exercise. Reload the lesson.",
@@ -1254,7 +1280,7 @@
     "llm_unreachable": "The server does not answer. Check the address.",
     "missing_client_header": "The request did not come from the app. Reload the page.",
     "name_required": "Enter a name.",
-    "no_active_scene": "This scene has ended. Start a new one.",
+    "no_active_scene": "This dialogue has ended. Start a new one.",
     "no_device": "This device is no longer signed in.",
     "profile_export_gone": "This export is no longer here: export the profile again.",
     "not_a_profile_file": "This file is not a SprachAnker profile file (.sprachanker-profile).",
@@ -1284,7 +1310,7 @@
     "run_incomplete": "The lesson is not finished yet.",
     "run_not_active": "This pass of the lesson has ended. Reload the lesson.",
     "run_without_edition": "This pass has no language version. Start the lesson again.",
-    "scene_busy": "The scene is still answering. Wait for it.",
+    "scene_busy": "The dialogue is still answering. Wait for it.",
     "server_error": "Something went wrong on the server.",
     "speaking_busy": "This answer is being checked. Wait for it.",
     "speech_engine_failed": "The speech recogniser did not answer. Try again.",

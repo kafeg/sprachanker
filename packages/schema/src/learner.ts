@@ -2,6 +2,7 @@
 import { z } from "zod";
 import {
   Correction,
+  DialogueSummary,
   ExamRatingProposal,
   SpokenCheck,
   WordExample,
@@ -155,6 +156,13 @@ export const LlmTurnPayload = z.object({
   corrections: z.array(Correction).optional(),
   /** Scenes: indices of the scene's goals reached so far. */
   goalsMet: z.array(z.number().int().nonnegative()).optional(),
+  /** A Dialogue's learner line: the model's judgement of it — understood as said, fitting the
+   *  conversation —, whether it was said aloud (as the recogniser heard it) rather than typed, and
+   *  its take (a profile recording, 08). */
+  understood: z.boolean().optional(),
+  fits: z.boolean().optional(),
+  spoken: z.literal(true).optional(),
+  recording: Ulid.optional(),
   /** Tutor: the tools the model called for this reply. */
   tools: z.array(z.object({ name: z.string(), args: z.unknown() })).optional(),
   /** An exam's speaking part: who says an assistant turn — the examiner or the partner; `done` on
@@ -191,6 +199,7 @@ const LlmVerdictPayload = z.discriminatedUnion("task", [
   verdict("example", WordExample),
   verdict("speaking", SpokenCheck),
   verdict("exam", ExamRatingProposal),
+  verdict("dialogue", DialogueSummary),
 ]);
 type LlmVerdictPayload = z.infer<typeof LlmVerdictPayload>;
 export type VerdictTask = LlmVerdictPayload["task"];

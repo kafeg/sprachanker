@@ -17,12 +17,8 @@ import type { CardStore } from "./card-store.ts";
 import type { DeckExamples, ExampleWriter } from "./deck-examples.ts";
 import type { DeckExtrasStore, DeckNote } from "./deck-extras.ts";
 import type { Decks } from "./decks.ts";
-import type { LessonContexts } from "./lesson-context.ts";
+import { type LessonContexts, levelOf } from "./lesson-context.ts";
 import type { Llm, PromptPreview } from "./llm.ts";
-
-/** A CEFR level a course's or deck's name says ("a1-ru", "Deutsch A2", "слова_b1"). */
-export const levelIn = (name: string) =>
-  /(?:^|[^a-z0-9])([abc][12])(?![0-9])/i.exec(name)?.[1]?.toUpperCase();
 
 /** A headword of one word, with its article or "sich" ("der Abend, die Abende", "sich freuen"), not a
  *  phrase ("Ich muss nach Berlin"). */
@@ -84,7 +80,7 @@ export function createExamples(deps: {
       "lessonKey" in display
         ? parseLessonKey(display.lessonKey).courseId
         : (deps.decks.deck(display.deck)?.title ?? "");
-    const level = levelIn(name);
+    const level = levelOf(name);
     return {
       language: first.translationLang,
       target: first.lang,

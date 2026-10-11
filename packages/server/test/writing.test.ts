@@ -85,7 +85,9 @@ test("writing: the task, a check kept in the lesson's run and listed across its 
 
   const prompt = await sendJson("POST", "/api/llm/writing/prompt", { ...REQUEST, text: "" });
   expect(prompt.body.response_format.json_schema.name).toBe("writing_check");
-  expect(prompt.body.messages[0].content).toContain("Goethe A1");
+  // The fixture course's id names no level: a beginner's, said with the data, as Goethe's criteria.
+  expect(prompt.body.messages[1].content).toContain("Learner's level: beginner (A1–A2)");
+  expect(prompt.body.messages[1].content).toContain("Goethe-Zertifikat's Schreiben");
 });
 
 test("writing: a model that never returns valid JSON is reported, nothing stored", async () => {

@@ -44,24 +44,36 @@ Specs: 06, 09.
 - The owner and his wife study with it for at least a week — on the Mac, and on phones once item
   "Phones" is done; their findings decide the order of "After the week of use".
 
-### 8. Speaking practice with the AI (owner, 2026-10-11)
-Specs: 04, 07, 08, 09.
-- A section of AI practice for speaking, as scenes are held: the AI's lines read aloud (in the
-  language learnt only, its voice), the learner answers by voice; the answer heard by the recogniser
-  and judged by the model — was the line understood, does the answer fit it, is it said right (words,
-  grammar), with what to say better; kept as runs, read back in the Notebook. Later the base of exams'
-  speaking parts (Goethe Sprechen) held the same way.
-- Texts read aloud only in one language, given explicitly: no reading of texts mixing languages (the
-  tutor's replies are not read); no dictation where the task is writing (owner, 2026-10-11).
-- **Accept**: a speaking practice held by voice end to end in a lesson, its verdicts shown and kept.
+### 8. Speaking practice with the AI: the Dialogue (owner, 2026-10-11)
+Specs: 04 ("AI practice in courses"), 07 (Conversations), 08, 09.
+- Built with item 9's first phase: the Dialogue replaces the typed scene — a goal card with an
+  information gap, the partner's lines read aloud in the language learnt, the learner answering by
+  voice (what was heard shown, sent as heard or said again; typed only without a microphone or
+  recognition), each line judged (understood, fits, at most two corrections), a summary at the end
+  (goals met, key corrections with a model line); kept as runs, read back in the Notebook.
+- Remaining: tried on the owner's Mac and iPhone with Whisper and a real model (the e2e run uses the
+  fake model and a fake microphone); later the base of exams' speaking parts (Goethe Sprechen) held
+  the same way.
+- **Accept**: a Dialogue held by voice end to end in a lesson, its verdicts and summary shown and kept.
 
-### 9. AI practice by the four skills (owner, 2026-10-11)
-Specs: 04, 07, 08, 09.
-- Every AI practice step reviewed together with the owner and brought to one standard by the skill it
-  trains — reading, listening, writing, speaking — what each is today (explanations, the tutor,
-  "Write it yourself", scenes, going over mistakes, word examples, exam conversations) and what it
-  should become; voice only where the skill is listening or speaking, typing only where it is writing.
-- **Accept**: the agreed list of practices per skill written into spec 04/07, then built step by step.
+### 9. AI practice in courses: seven exercises (owner, 2026-10-11)
+Specs: 04 ("AI practice in courses"), 07, 08, 09.
+- The agreed list (04): inside a lesson "Why is this wrong?", "Check with AI" for spoken answers and
+  the lesson tutor (questions and explanations only); at the lesson's end the AI practice step —
+  Understanding, Writing, Dialogue, Going over mistakes —, each skippable. Owner's rules: a text read
+  aloud only in one language given explicitly; no dictation where the task is writing; tutor replies
+  not read aloud; recognised speech taken as a person would understand it.
+- Phase 1 (done): the knowledge snapshot ("what the learner knows by now", 07) under every lesson
+  task — no task assumes A1 or a beginner — and the Dialogue (item 8).
+- Phase 2 (next): **Understanding** — `understanding_text`, a text or dialogue from the words known,
+  heard by reading aloud (the engine and voice named), questions answered by ear, then read with a
+  second question; reading-type texts shown to read; closed items checked by the engine.
+- Phase 3: **Writing** on a task of three content points (length and criteria by level, at most three
+  corrections and a model text); **Going over mistakes** by type with new items checked by the engine
+  (`mistake_items`); "Why is this wrong?" saying where the topic was met; the tutor's practice
+  presets taken out.
+- **Accept**: each phase's exercises held end to end in a lesson on the fixture course (e2e) and on a
+  real course with a real model.
 
 ## Open items in built areas
 Taken along when an item above touches the area, or on request.

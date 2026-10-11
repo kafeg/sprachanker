@@ -6,7 +6,7 @@ import type { TaskRequest } from "../client.ts";
 import type { StructuredTask } from "../structured.ts";
 import { clip, languageName, languageNames } from "../text.ts";
 import { describeItem } from "./describe.ts";
-import { grammarNotes, type LessonInfo, lessonWordsLine } from "./lesson.ts";
+import { grammarNotes, type LessonInfo, lessonWordsLine, levelLine } from "./lesson.ts";
 import { type RulesInput, systemPrompt } from "./rules.ts";
 
 export interface SpeakingInput extends RulesInput {
@@ -38,7 +38,7 @@ export function checkSpeakingRules(
 ): string {
   const { language: l, target: t } = names;
   return [
-    `You are a ${t} teacher. A beginner (level A1) who speaks ${l} answered a speaking exercise aloud; a speech recogniser wrote down what they said.`,
+    `You are a ${t} teacher. A learner of ${t} who speaks ${l}, at the level given with the lesson, answered a speaking exercise aloud; a speech recogniser wrote down what they said.`,
     "Judge the answer against the item: does it answer the question or do what the task asks, in fitting words and correct grammar for the level?",
     "Any sensible answer counts: the source's answer is one good answer, not the only one; the learner may say what is true for them. Words the lesson has not taught are fine if correct.",
     "It was spoken: ignore punctuation, capitalisation and spelling the recogniser chose. A word that is clearly the recogniser mishearing a right word is not an error.",
@@ -56,6 +56,7 @@ function checkSpeakingRequest(input: SpeakingInput): TaskRequest {
   const content = [
     "<lesson>",
     `Lesson: ${lesson.title}`,
+    levelLine(lesson),
     lessonWordsLine(lesson, B.lessonVocab),
     lesson.grammarHtml.length ? `Grammar notes:\n${grammarNotes(lesson, B.grammar)}` : undefined,
     "</lesson>",

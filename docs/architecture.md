@@ -99,11 +99,11 @@ gets the types through Hono RPC (`AppType`), no codegen.
   every module's runs, recordings in use), `settings`.
 - **AI** (a feature across the learning modules, below): `llm` (providers, LM Studio, prompt
   previews, `structured`: one path for a task's call and its timing), `lesson-context` (what tasks
-  know of a lesson) and `in-flight` (what a model is doing, by lesson, card or answer, so structured
+  know of a lesson: the knowledge snapshot — level, place, words and topics met) and `in-flight` (what a model is doing, by lesson, card or answer, so structured
   calls run to their end and a page opened meanwhile shows them as waiting) are shared; each task's
   service belongs to the module whose runs it works in — lessons: `explain`, `writing`, `speaking`
   (an answer said aloud), `tutor` (+ `tutor-tools`; `courses-context`: what the Tutor section's
-  chats know of the learner's courses), `scene`; exams: `exam-rating`,
+  chats know of the learner's courses), `scene` (the Dialogue); exams: `exam-rating`,
   `exam-conversation`; review: `examples` (a card's word).
 - **Speech**: `speech` (whisper-server and its models) and `qwen-tts` (Qwen3-TTS's tts-server, its
   models) on `sidecar`, the supervisor of local engines (06, "Sidecars"); `read-aloud` (Piper's voices,
@@ -126,7 +126,7 @@ gets the types through Hono RPC (`AppType`), no codegen.
   against the contract together.
 - **One history rule**: everything the learner does is an event in a run (05). Lesson passes, review
   days, exam runs (a mock exam or practice: its plan, each answer an event, its result), tutor chats
-  and scenes are runs; one-off model verdicts (explain, writing, speaking, word
+  and Dialogues (scene runs) are runs; one-off model verdicts (explain, writing, speaking, word
   examples) are `llm_verdict` events, typed by task. Events are append-only and only grow; statistics
   are pure functions over `TypedEvent`s (engine). How histories are read: `packages/server/CLAUDE.md`.
 - **Learning modules and their connectors**: lessons, exams and review are modules that share
@@ -149,7 +149,7 @@ gets the types through Hono RPC (`AppType`), no codegen.
 - **AI practice**: no module of its own — a feature plugged into the three: on the server each task's
   service sits in the module whose runs it keeps its answers in (its group in dependency-cruiser), in
   the web the optional `llm/` folder fills the modules' slots (below). Its own runs (tutor chats,
-  scenes) are about a lesson, but the Tutor section's chats, about none; its work — the learner's messages and the model's checks, in whichever
+  Dialogues) are about a lesson, but the Tutor section's chats, about none; its work — the learner's messages and the model's checks, in whichever
   run — counts in the study days as `ai` (schema `stats.ts`), and it gives no standing.
 - **Lesson flow**: the engine turns a lesson into steps (overview, words, grammar, exercises, culture, AI
   practice, summary; `compose/steps.ts`); the web's `use-flow` moves through them and records

@@ -13,7 +13,8 @@ off, its model, the engine, voice and speed reading aloud) are applied by `servi
   computer, 06): elsewhere the microphone button is disabled and says why (a tooltip; on a phone a line
   under it); so is a browser without MediaRecorder or a denied permission.
 - **Kept** in `profiles/<id>/recordings/<ulid>.<ext>` (`POST /api/recordings` with the audio as the
-  body, ≤ 5 MB; served with ranges to its own profile only), referenced from the answer that holds it;
+  body, ≤ 5 MB; served with ranges to its own profile only), referenced from the answer or the
+  Dialogue line that holds it;
   counted and deleted all at once in Settings → General → Storage; a progress reset deletes those of
   its runs. Always kept (owner, 2026-10-11).
 - **Saying it oneself** (`speech_selfrate`, the courses' speaking exercises; 09): the original first,
@@ -69,15 +70,26 @@ off, its model, the engine, voice and speed reading aloud) are applied by `servi
   "speech"`) — in the language learnt only: what was heard goes into the box, joined to what is typed,
   read over and changed before it is sent; a `respond` item keeps the take as its spoken answer. Tap
   to start and stop. Shown only while recognition is on and ready. Never where the task is writing — a
-  free answer, the tutor, "Write it yourself", a scene's line (owner, 2026-10-11).
+  free answer, the tutor, "Write it yourself" (owner, 2026-10-11).
+- **A Dialogue held by voice** (04, "AI practice in courses"; 09): the learner's line is a take — the
+  microphone tapped, tapped again — kept in `recordings/` and heard in the language learnt; what was
+  heard is shown ("Heard: …") and sent as heard ("Send"), or the line said again ("Say it again"),
+  never edited: what the recogniser made of it is what a listener would have understood, so its
+  normalisation (punctuation, capitals, numbers as digits) is taken as it is (owner, 2026-10-11).
+  Recognition warmed when the step opens. A take nothing was heard in says so and is said again.
+  Without a microphone (plain HTTP, no MediaRecorder, access denied) or recognition (off, no model,
+  the engine missing), the line is typed instead, the step saying why in a line.
 - Target: median server-side transcription ≤ 1.5 s for 3–5 s utterances on the owner's Mac.
 
 ## Reading aloud (TTS)
 
 Course audio is used whenever there is some; reading aloud is for what has none — mostly what the AI
 writes (owner, 2026-10-08).
-- **Where**: a speaker in the corner of a scene's partner lines, an exam conversation's examiner and
-  beside each of a word's AI examples — texts in one language, by the voice chosen for it. A card's
+- **Where**: a speaker in the corner of a Dialogue's partner lines, an exam conversation's examiner and
+  beside each of a word's AI examples — texts in one language, by the voice chosen for it; *planned*
+  (next phase): Understanding's text, heard before it is read (04, "AI practice in courses"). Where a
+  line is to be listened to, the engine and voice reading it are named, as the model is ("Read by
+  Piper · thorsten", "Read by this device · Anna"; 09). A card's
   word is never read on the fly (owner, 2026-10-11): it plays its recording or the one read for its
   deck (04, "A deck's words read aloud"), else nothing plays (R does nothing) and the card's answer has
   the way to its deck in Decks, where the deck's words are read at once. A second tap stops; one text is read at
@@ -112,7 +124,9 @@ writes (owner, 2026-10-08).
   device "Premium", then "Enhanced", of the language's main region (de-DE for German), never a macOS
   novelty voice; with Piper the main region first, then the highest quality. Settings `speech.voices`
   (engine → language → voice), `speech.readRate` (0.5–1.5; Piper's length scale is its inverse). A
-  line is read on request (its button), never at once (owner, 2026-10-11).
+  line is read on request (its button), never at once (owner, 2026-10-11) — but where the exercise is
+  held by voice: a Dialogue's new partner line is read as it comes (and again on request), as an
+  exam conversation's are; never what was there on opening.
 - **Qwen3-TTS** (owner, 2026-10-09: run by us like whisper): qwentts.cpp's `tts-server` (MIT; pinned by
   commit in `native/qwen/VERSION`, built static with Metal by `bun run build:speech`, beside the
   binary), an OpenAI-compatible server run by the sidecar supervisor (06) with a model — a CustomVoice

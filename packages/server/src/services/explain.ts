@@ -71,6 +71,7 @@ export function createExplain(deps: {
         index: request.index,
         answer,
         grammarHtml: info.grammarHtml,
+        level: info.level,
         scriptHtml: recording ? locale?.tabs.script?.bodyHtml : undefined,
         language: request.language,
         target,

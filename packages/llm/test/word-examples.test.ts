@@ -43,7 +43,13 @@ test("the request: the level, the words known, the words numbered with what the 
   expect(request.maxTokens).toBe(1100);
   // Without a level: beginners'.
   expect(wordExamplesTask({ ...input, level: undefined }).request.messages[1]?.content).toContain(
-    "<level>A1–A2</level>",
+    "<level>beginner (A1–A2)</level>",
+  );
+  // German's commonest words and forms go with the data, never in the standing rules.
+  expect(user?.content).toContain("Basic German words always allowed");
+  expect(wordExamplesRules("ru", "de")).not.toMatch(/sein|haben|kann|Äpfel/);
+  expect(wordExamplesTask({ ...input, target: "en" }).request.messages[1]?.content).not.toContain(
+    "German",
   );
   // The learner's own rules replace the standing ones; the fixed part stays.
   const own = wordExamplesTask({ ...input, rules: "Be brief." }).request.messages[0]?.content;

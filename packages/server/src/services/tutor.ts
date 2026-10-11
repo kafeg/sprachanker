@@ -129,7 +129,6 @@ export function createTutor(deps: {
       input: {
         target: ctx.target,
         lesson: ctx.info,
-        knownVocab: ctx.knownVocab,
         earlierLessons: ctx.earlierLessons,
         mistakes: {
           lesson: await deps.lessonContext.mistakes(series, edition, here.slice(0, 15)),

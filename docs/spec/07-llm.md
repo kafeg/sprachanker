@@ -57,23 +57,44 @@ sent when LM Studio requires one.
 
 All tasks use the profile's route. Code: `packages/llm/src/tasks/`. Where the assistant works can be
 turned off place by place (owner, 2026-10-09; setting `llm.offIn`, `AI_PLACES` in schema): "Why is
-this wrong?", the tutor (and with it "Going over mistakes" and the Tutor section), "Write it yourself", scenes, spoken
+this wrong?", the tutor (and with it "Going over mistakes" and the Tutor section), "Write it yourself", the Dialogue
+(its place keeps the key `scene` of the scenes it replaced), spoken
 answers, a word's examples (on its card and made for its deck), an exam's answers — a place off is not shown (its button, its step of the lesson plan, its section); a
 lesson done stays done, and a lesson in progress gains or loses the step, which can be skipped as any.
 The tutor's messages, the lesson's and the section's, are refused while its place is off (409 `ai_place_off`).
 
+**What the learner knows by now** (the knowledge snapshot; owner, 2026-10-11): one builder on the
+server (`lesson-context`, the same pass that reads the lesson for every task) gives each lesson task
+the course's level and what the learner can be assumed to know at the lesson — so no task assumes
+"A1" or "a beginner" in its rules:
+- **level**: the CEFR level the course's id names (`a1-ru` → A1, `a1-a2-ru` → A1–A2, `b1-de` → B1;
+  a deck's name likewise: `levelOf`); none named (Deutsch im Blick, VOA, Lingust), the prompt says
+  "beginner (A1–A2)". No field in the course data: the providers' ids say it where it is known.
+- **place**: the lesson's number in course order of how many, and its unit's title;
+- **goals**: this lesson's can-do goals (the course's, in the learner's language);
+- **words**: this lesson's with translations, then those of every earlier lesson with translations in
+  course order (the latest 800 kept; each task's budget takes the most recent);
+- **grammar**: the grammar topics met so far — the titles of the grammar pages of the earlier lessons
+  and this one, in course order.
+
+Each task takes the parts it needs within its budgets (`*_BUDGETS`, shown in Settings → AI assistant
+→ Advanced). What one target language needs (German's ß, the Goethe exam's name for its writing
+criteria, the commonest German words a sentence may use) goes with the data, never in the standing
+rules.
+
 | Task | Input | Output |
 |---|---|---|
-| `explain_mistake` | exercise item, reference answer, learner answer, lesson grammar pages; the lesson's transcript when the item is about its audio or video | short explanation in the interface language (streamed text) |
-| `chat_turn` | the lesson tutor: lesson context, known words, the exercise on screen, mistakes, history (the learner's turns marked with the exercise on screen); tools (below) | message (streamed text) |
+| `explain_mistake` | exercise item, reference answer, learner answer, lesson grammar pages, the course's level; the lesson's transcript when the item is about its audio or video | short explanation in the interface language (streamed text) |
+| `chat_turn` | the lesson tutor: lesson context, the course's level and the lesson's place, known words, grammar topics met, the exercise on screen, mistakes, history (the learner's turns marked with the exercise on screen); tools (below) | message (streamed text) |
 | `section_chat_turn` | the tutor on its own (the Tutor section): what the learner has met in the courses of the chat's language — the courses (lessons done of all, the lessons worked on), those lessons' words with translations and grammar topics, the latest mistakes in them —, history | message (streamed text) |
-| `check_writing` | the lesson (title, goals, words, grammar), the writing task from its goals, the learner's text | JSON: verdict, corrected text, corrections[] (wrong, right, explanation), Goethe A1 writing criteria (task, communication, accuracy: 0–2 + comment), feedback |
-| `check_speaking` | the lesson (title, words, grammar), a speaking item without a line to say (instruction, prompt, hint, the source's written answer or its frame), the question and the source's answer as the recogniser heard them in the course's recordings, what was heard of the learner's answer | JSON: verdict, corrected answer, corrections[] (wrong, right, explanation), feedback |
-| `scene_setup` | the lesson (title, goals, words) | JSON: title, situation, partner, goals (1–3), opening line |
-| `scene_turn` | scene setup, allowed words, history, the learner's new line | JSON: reply (target language), translation, corrections[] (of the new line only), goalsMet[], done |
+| `check_writing` | the lesson (title, goals, words, grammar), the course's level, the writing task from its goals, the learner's text | JSON: verdict, corrected text, corrections[] (wrong, right, explanation), writing criteria at the course's level as CEFR writing exams rate them — Goethe's Schreiben for German, said with the data — (task, communication, accuracy: 0–2 + comment), feedback |
+| `check_speaking` | the lesson (title, words, grammar), the course's level, a speaking item without a line to say (instruction, prompt, hint, the source's written answer or its frame), the question and the source's answer as the recogniser heard them in the course's recordings, what was heard of the learner's answer | JSON: verdict, corrected answer, corrections[] (wrong, right, explanation), feedback |
+| `scene_setup` | a Dialogue's setup: the lesson (title, goals, its place, words) and the snapshot (level, earlier words, grammar topics met) | JSON: title, situation, partner, goals (1–3: the learner's goal card), partnerInfo (2–4 facts the partner holds and the learner must ask for, in the target language), opening line |
+| `scene_turn` | a Dialogue's line: its setup with the partner's information, the level and the words known, history, the learner's new line (said and recognised, or typed) | JSON: reply (target language), translation, understood, fits, corrections[] (of the new line only; at most two kept), goalsMet[], done |
+| `scene_summary` | a Dialogue ended: its setup, the goals met, its lines with the corrections given | JSON: corrections[] (one or two key ones, each with a model line: the learner's line said well), feedback |
 | `rate_exam_answer` | an exam's title, the task as set (the Teil's instructions and text, the question), its criteria (titles, each level's points and meaning, which voids the task), the exam's model answers if any, the learner's answer | JSON: criteria[] (id, points — one of its levels, checked with one repair —, reason), feedback |
 | `exam_conversation` | an exam's title, the speaking part and its task as the learner has it (instructions, cards, texts), what the partner has (their card, calendar, slides), the conversation so far | JSON: lines[] (speaker `examiner` \| `partner`, text) up to the learner's turn, done |
-| `word_examples` | a few words of a deck (five), each as learnt with its translation, part of speech and gender; the words the learner can be assumed to know (a course's up to the words' lesson, an imported deck's up to them); the level when known (the course's or deck's name says it: "A1"), else A1–A2 | JSON: words[] (n — the word's number —, examples[]: sentence, translation, glossary[], form — the word as the sentence uses it) — three to five a word |
+| `word_examples` | a few words of a deck (five), each as learnt with its translation, part of speech and gender; the words the learner can be assumed to know (a course's up to the words' lesson, an imported deck's up to them); the level when known (the course's or deck's name says it: "A1", `levelOf`), else A1–A2; what the target language's sentences may use beyond them (its commonest words, a form's examples — German's) with the data | JSON: words[] (n — the word's number —, examples[]: sentence, translation, glossary[], form — the word as the sentence uses it) — three to five a word |
 
 "Propose a rating" above an exam's open answer (09, Exams; owner's choice K, 2026-10-10) →
 `rate_exam_answer`, asked on request — in practice once answered, in a mock exam only once handed in:
@@ -109,7 +130,15 @@ tutor, never the lesson's score (08);
 "Going over mistakes" → `chat_turn`: the run's status is counted by the app (no model), and the
 tutor's chat, inline on the step, starts a new chat asking to go through the mistakes (a written
 session review was dropped, owner 2026-10-07: the numbers need no model, and talking a mistake over
-teaches more than a report); the scene step → `scene_setup`, then `scene_turn` per line.
+teaches more than a report); the Dialogue step → `scene_setup`, then `scene_turn` per line, then
+`scene_summary` once it ends (Conversations, below).
+
+Planned tasks of the AI practice in courses (04): `understanding_text` (next phase: a text or
+dialogue from the words known with its questions as closed items — true/false, a/b/c, numbers —
+checked by the engine, read aloud in the target language only), `mistake_items` (third phase: the
+pass's mistakes by type, an explanation per type, two or three new items of each type), and
+`check_writing` on a task of three content points, its length and criteria by the course's level, at
+most three corrections and a model text (third phase).
 
 - Fast replies: tasks that answer the learner directly (`explain_mistake`, turns) ask for no reasoning
   phase, in each provider's dialect (LM Studio `reasoning_effort: "none"`, OpenRouter
@@ -126,9 +155,9 @@ teaches more than a report); the scene step → `scene_setup`, then `scene_turn`
   text is sent; a reply that breaks off after its first chunk ends with `STREAM_ERROR` (schema) and the
   error, so the client shows the part it got with the error, never as a whole reply. Only a reply that
   finished, or that the learner stopped, is kept.
-- **Calls outlive the page** (scenes, writing checks): a structured call runs to its end on the server
+- **Calls outlive the page** (Dialogues, writing checks): a structured call runs to its end on the server
   and is stored even when the learner left the page meanwhile; the step's state says what is running
-  (`pending` for a scene, `checking` for a text), so a page opened again shows it as waiting and polls
+  (`pending` for a Dialogue, `checking` for a text), so a page opened again shows it as waiting and polls
   until it lands. One such call per lesson at a time; a second is refused (`scene_busy`,
   `writing_busy`, 409). A streamed reply (the tutor, explanations) still ends with its connection.
 - **Structured outputs** (`packages/llm/src/structured.ts`): the JSON Schema of the task's zod schema is
@@ -139,18 +168,18 @@ teaches more than a report); the scene step → `scene_setup`, then `scene_turn`
   ids come with the rules registry and enrichment: plan, "Enrichment and rules").
 - Model output is Markdown without raw HTML, images or links: nothing in it makes the browser load or
   open another site.
-- Prompts: the learner's level and known vocabulary are context; target-language replies stay within
-  known material; explanations are in the interface language. Course text and learner input are
+- Prompts: the learner's level and known vocabulary are context (the knowledge snapshot, above);
+  target-language replies stay within known material; explanations are in the interface language. Course text and learner input are
   delimited data, never instructions.
 
 ## Transparency and debugging
 
-- The UI names the assistant wherever it answers (explanations, writing checks, the tutor, scenes):
+- The UI names the assistant wherever it answers (explanations, writing checks, the tutor, Dialogues):
   provider · model, with a hint that it is chosen in the settings — not a link, so a lesson is not
   left by a tap on it.
 - Settings → AI assistant → Advanced: each task's system prompt and the context parts it adds, with
   their character limits (each task's `*_BUDGETS`): explanations, the tutor, the Tutor section, writing and spoken
-  checks, a scene's situation and its lines, a deck's words given examples.
+  checks, a Dialogue's setup, its lines and its summary, a deck's words given examples.
 - The learner can replace a task's system prompt with their own (Settings → AI assistant → Advanced,
   "Restore" brings the standing one back). It is a template in the profile setting `llm.prompts`
   (task → text; an earlier version's own prompt for a card's one example, `example`, is no longer
@@ -224,12 +253,22 @@ Both tutors (the lesson's and the section's) take real-life language as in scope
   request (a message, the context gauge, the {} preview). No exercise on screen and no tools: the
   summary is what it knows. Its system prompt is its own (Settings → AI assistant → Advanced, "Tutor
   section"), so the lesson tutor's rules stay about the lesson.
-- **Scenes** are `scene` runs with `llm_turn` events. A scene's setup is its run's plan; it is drafted
-  from the lesson's goals and words (no authored scenes yet). The app keeps the model honest:
-  corrections must quote the learner's new line, met goals only accumulate, all met ends the scene.
-  The scene step shows the latest scene on its page (setup and goals, the conversation, the line to
-  send); starting a new one ends the open one, and the lesson's earlier scenes are listed under it
-  (title, goals reached, when), each readable again (owner, 2026-10-07).
+- **Dialogue** (04, "AI practice in courses"; replaces the typed scene, whose runs read on as
+  Dialogues) is a `scene` run with `llm_turn` events. Its setup is its run's plan, drafted from the
+  lesson's goals and the snapshot (no authored ones yet): the learner's goal card and, hidden from
+  the learner until it is over, what the partner knows (`partnerInfo`: the information gap — the
+  learner must ask for it). Each learner line is sent as the recogniser heard it (`spoken`, with the
+  take's `recording`), or typed where there is no microphone or recognition; the model plays the
+  partner within the level and the words known, takes the line as a person would understand it (the
+  recogniser's punctuation, capitals and digits are no errors) and says whether it was understood
+  and fits; the app keeps the model honest: corrections must quote the learner's new line, at most
+  two are kept, met goals only accumulate, all met ends the Dialogue. Ended — its goals met, or
+  "End the dialogue" — it gets its summary (`scene_summary`): the goals met (the app's count), one or
+  two key corrections each with a model line, a line of feedback; an `llm_verdict` (`task:
+  dialogue`) in its run, asked again from the page when the call failed. The step shows the latest
+  Dialogue on its page (goal card, the conversation, the microphone); starting a new one ends the
+  open one, and the lesson's earlier ones are listed under it (title, goals reached, when), each
+  readable again with its summary (owner, 2026-10-07).
 
 ## Tools
 

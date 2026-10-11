@@ -235,4 +235,13 @@ test("the recordings answers hold are found in runs of every kind, exams too", (
     [ulid(), exam.id, 5000, JSON.stringify({ answer: { recording: "rec-old" }, attempt: "?" })],
   );
   expect(store.recordingIds([exam.id]).sort()).toEqual(["rec-exam", "rec-old"]);
+  // A Dialogue's line said aloud holds its take too.
+  const take = ulid();
+  const dialogue = store.start("scene", LESSON, { edition: "ru-de" });
+  store.append(dialogue.id, [
+    { type: "llm_turn", payload: { role: "user", text: "hallo", spoken: true, recording: take } },
+    { type: "llm_turn", payload: { role: "assistant", text: "Hallo!" } },
+  ]);
+  expect(store.recordingIds([dialogue.id])).toEqual([take]);
+  expect(store.recordingIds()).toContain(take);
 });

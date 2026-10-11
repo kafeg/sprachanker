@@ -335,11 +335,13 @@ export function useCheckWriting(onChecked?: () => void) {
 }
 
 type SceneStartRequest = Parameters<typeof api.llm.scene.start.$post>[0]["json"];
+/** A line of the open Dialogue: as heard (`spoken`, with its take) or typed. */
 type SceneLineRequest = Parameters<typeof api.llm.scene.turn.$post>[0]["json"];
 export type SceneState = Awaited<ReturnType<typeof fetchScenes>>["scenes"][number];
 const fetchScenes = (lessonKey: LessonKey) => json(api.llm.scene.$get({ query: { lessonKey } }));
 
-/** The lesson's scenes, newest first: the latest (active or finished), then earlier ones. */
+/** The lesson's Dialogues (scene runs), newest first: the latest (active or finished), then earlier
+ *  ones. */
 export const useScenes = (lessonKey: LessonKey) =>
   useQuery({
     queryKey: ["scenes", lessonKey],
@@ -347,15 +349,27 @@ export const useScenes = (lessonKey: LessonKey) =>
     refetchInterval: (query) => (query.state.data?.pending ? WHILE_BUSY : false),
   });
 
-/** Starts a new scene (the open one ends) or sends a line of the open one; `onStarted` runs once a
- *  scene is stored, also when the page that asked is gone meanwhile. */
+/** What the learner does with the lesson's Dialogue. */
+export type SceneAction =
+  | { start: SceneStartRequest }
+  | { turn: SceneLineRequest }
+  | { end: SceneStartRequest }
+  | { summary: SceneStartRequest };
+
+/** Starts a new Dialogue (the open one ends), sends a line of the open one, ends it, or asks for its
+ *  summary again; `onStarted` runs once one is stored, also when the page that asked is gone
+ *  meanwhile. */
 export function useSceneAction(lessonKey: LessonKey, onStarted?: () => void) {
   const client = useQueryClient();
   return useMutation({
-    mutationFn: (action: { start: SceneStartRequest } | { turn: SceneLineRequest }) =>
+    mutationFn: (action: SceneAction) =>
       "start" in action
         ? json(api.llm.scene.start.$post({ json: action.start }))
-        : json(api.llm.scene.turn.$post({ json: action.turn })),
+        : "turn" in action
+          ? json(api.llm.scene.turn.$post({ json: action.turn }))
+          : "end" in action
+            ? json(api.llm.scene.end.$post({ json: action.end }))
+            : json(api.llm.scene.summary.$post({ json: action.summary })),
     // Shown at once: the scene first; a start ends the one that was open.
     onSuccess: (scene, action) => {
       client.setQueryData(

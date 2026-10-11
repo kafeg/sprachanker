@@ -3,7 +3,16 @@
 // on wide screens and in a sheet on phones; the reference opens from the lesson's header.
 import { type ExerciseResult, type LessonStep, stepId, stepState } from "@sprachanker/engine";
 import type { Lesson, LocaleLesson, StepId } from "@sprachanker/schema";
-import { BookOpen, Drama, Globe, Layers, PenLine, Play, SearchCheck, Star } from "lucide-react";
+import {
+  BookOpen,
+  Globe,
+  Layers,
+  MessagesSquare,
+  PenLine,
+  Play,
+  SearchCheck,
+  Star,
+} from "lucide-react";
 import { useTranslation } from "react-i18next";
 import { PlanHeading, PlanNav, PlanRow } from "@/ui/plan-list.tsx";
 import { StepDot } from "@/ui/step-dot.tsx";
@@ -46,7 +55,7 @@ const ICON: Partial<Record<LessonStep["kind"], React.ComponentType<{ className?:
   grammar: BookOpen,
   culture: Globe,
   writing: PenLine,
-  scene: Drama,
+  scene: MessagesSquare,
   mistakes: SearchCheck,
   summary: Star,
 };

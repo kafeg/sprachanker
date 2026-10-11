@@ -739,7 +739,7 @@ describe("prompt viewer", () => {
     expect(prompts.explain.template).toContain("Explain in {language}");
     expect(prompts.explain.custom).toBe(false);
     expect(prompts.writing.template).toContain("{target} teacher");
-    expect(prompts.speaking.template).toContain("A beginner (level A1) who speaks {language}");
+    expect(prompts.speaking.template).toContain("A learner of {target} who speaks {language}");
   });
 
   test("own system prompts: saved per task, languages filled in, used, reset", async () => {

@@ -26,7 +26,8 @@ src/
     rules.ts           # systemPrompt: the learner's rules or the standing ones, then the fixed suffix
     registry.ts        # TASK_PROMPTS: the tasks whose prompt the learner sees and rewrites, in order —
                        # their rules and budgets (the server's prompt settings read it)
-    lesson.ts          # LessonInfo (what tasks know of a lesson) and its prompt lines: goals, words, grammar
+    lesson.ts          # LessonInfo (what tasks know of a lesson, with the knowledge snapshot: level,
+                       # place, earlier words with translations, topics met) and its prompt lines
     describe.ts        # an exercise as text: its header (instruction, texts) and items (task, correct,
                        # learner answer); a mistake as two lines naming lesson, exercise and item
     exam-conversation.ts # exam_conversation: a speaking part — the examiner's and the partner's lines
@@ -39,7 +40,8 @@ src/
     corrections.ts     # cleanCheck: a check's corrections cleaned (writing, speaking)
     rate-exam-answer.ts # rate_exam_answer: an exam's open answer → a level of each of its criteria with
                        # the reason (checked against the levels), feedback
-    scene.ts           # scene_setup + scene_turn: role-play on the lesson's goals; cleanSceneTurn
+    scene.ts           # the Dialogue: scene_setup (goal card, the partner's hidden facts), scene_turn (a
+                       # line judged; cleanSceneTurn), scene_summary (key corrections, model lines)
     tutor-tools.ts     # the tutor's tool definitions (progress, mistakes, word, lesson) and prompt lines
     word-examples.ts   # word_examples: three to five sentences for each of a few words of a deck, in the
                        # words known up to them, at the level when known
@@ -58,4 +60,7 @@ test/              # fake endpoints (no network); fixture course from @sprachank
   through `systemPrompt`) and its context budgets, and is listed in `TASK_PROMPTS` when the learner
   may rewrite its prompt; the real call and the prompt viewer use the same functions.
 - Explanations in the interface language (the request's `language`); target-language text stays in the target language.
+- Standing rules assume no level and no language: the level comes with the data (`levelLine`, the
+  knowledge snapshot in `LessonInfo`), and what one target language needs (German's ß, Goethe's
+  criteria, its commonest words) is a per-language line with the data, never in the rules.
 - No vendor SDK leaks outside the provider code.

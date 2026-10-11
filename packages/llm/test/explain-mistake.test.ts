@@ -62,11 +62,13 @@ describe("explainMistakeMessages", () => {
       index: 0,
       answer: { g1: "a" },
       grammarHtml: ["<p>Frau = <b>Mrs</b></p><ul><li>Herr</li></ul>"],
+      level: "A2",
       language: "ru",
       target: "de",
     });
     expect(system?.content).toContain("Explain in Russian");
-    expect(system?.content).toContain("beginner German course");
+    expect(system?.content).toContain("German course at the level given");
+    expect(user?.content).toContain("<exercise>\nLearner's level: A2\n");
     expect(user?.content).toContain("Correct answer: Guten Tag, [Frau] Weber.");
     expect(user?.content).toContain("Learner's answer: Guten Tag, [Herr] Weber.");
     expect(user?.content).toContain("<lesson_notes>\nFrau = Mrs\n\n- Herr\n</lesson_notes>");

@@ -143,7 +143,7 @@
       "grammar": "Gramatika",
       "culture": "Kultura",
       "writing": "Napiši svoj tekst",
-      "scene": "Scena",
+      "scene": "Dijalog",
       "mistakes": "Pregled grešaka",
       "summary": "Sažetak"
     },
@@ -230,7 +230,7 @@
   },
   "llm": {
     "title": "AI asistent",
-    "intro": "Objašnjava greške, pomaže kao tutor u lekcijama, provjerava tekstove i igra scene. Izaberi model na ovom računaru, na serveru u tvojoj mreži, u oblaku (OpenRouter) ili agenta u komandnoj liniji s tvojom pretplatom. Sadržaj lekcija i tvoji odgovori idu samo dobavljaču kojeg izabereš.",
+    "intro": "Objašnjava greške, pomaže kao tutor u lekcijama, provjerava tekstove i vodi dijaloge. Izaberi model na ovom računaru, na serveru u tvojoj mreži, u oblaku (OpenRouter) ili agenta u komandnoj liniji s tvojom pretplatom. Sadržaj lekcija i tvoji odgovori idu samo dobavljaču kojeg izabereš.",
     "off": "Isključeno",
     "provider": {
       "lmstudio": "LM Studio",
@@ -293,7 +293,7 @@
       "context": "Kontekst ≥ {size}",
       "more": "Više…",
       "fewer": "Manje",
-      "jsonHint": "„Vraća JSON“: modeli koji provjere teksta i scene mogu vratiti u obliku koji aplikacija čita.",
+      "jsonHint": "„Vraća JSON“: modeli koji provjere teksta i dijaloge mogu vratiti u obliku koji aplikacija čita.",
       "none": "Nijedan model ne odgovara pretrazi i filterima.",
       "freeTag": "besplatno",
       "price": "{input} / {output} za 1M tokena",
@@ -399,9 +399,10 @@
       "speaking": "Izgovoreni odgovori",
       "exam": "Ispit: ocjena odgovora",
       "conversation": "Ispit: usmeni dio",
-      "sceneSetup": "Scena: situacija",
-      "scene": "Scena",
-      "examples": "Primjeri za riječi špila"
+      "sceneSetup": "Dijalog: postavka",
+      "scene": "Dijalog: replika",
+      "examples": "Primjeri za riječi špila",
+      "sceneSummary": "Dijalog: sažetak"
     },
     "contextIntro": "Dodano iz lekcije:",
     "contextIntroCourses": "Dodano iz tvojih kurseva (onih za jezik koji razgovor vježba):",
@@ -434,7 +435,11 @@
       "metWords": "riječi tih lekcija s prevodima (najnovije lekcije prvo)",
       "metGrammar": "njihove gramatičke teme (najnovije lekcije prvo)",
       "courseMistakes": "tvoje najnovije greške u tim kursevima (ispravljene označene)",
-      "chatHistory": "posljednje poruke razgovora"
+      "chatHistory": "posljednje poruke razgovora",
+      "place": "gdje je lekcija u kursu: njen broj i cjelina",
+      "topics": "gramatičke teme do sada pređene u kursu",
+      "dialogueGoals": "situacija i ciljevi koje si postigao",
+      "dialogue": "rečenice dijaloga s ispravkama koje su dobile"
     },
     "upTo": "do {chars, plural, one {# znaka} few {# znaka} other {# znakova}}",
     "debug": "Prikaži dugmad „Prompt“",
@@ -459,7 +464,7 @@
         "where": "korak lekcije"
       },
       "scene": {
-        "name": "Scene",
+        "name": "Dijalog",
         "where": "korak lekcije"
       },
       "speaking": {
@@ -483,9 +488,10 @@
       "speaking": "Provjerava tvoj izgovoreni odgovor (ono što je prepoznavač čuo) u odnosu na pitanje i odgovor kursa, kad pritisneš „Provjeri s AI“.",
       "exam": "Ocjenjuje pisani odgovor na ispitu po kriterijima samog ispita: nivo za svaki kriterij s obrazloženjem i šta bi donijelo više bodova. Ništa se ne računa dok to ne prihvatiš ili izmijeniš.",
       "conversation": "Vodi usmeni dio ispita: igra ispitivača i drugog kandidata, kako dio propisuje, repliku po repliku s tobom; nikad ne pomaže i ne ispravlja. Nakon toga se ocjenjuje po kriterijima dijela.",
-      "sceneSetup": "Pokreće scenu: osmišljava situaciju iz teme lekcije — ko si, s kim razgovaraš, gdje i koje ciljeve treba postići. Poziva se jednom po sceni.",
-      "scene": "Igra scenu: odgovara na svaku tvoju repliku kao tvoj partner, ispravlja greške, daje prijevod i označava postignute ciljeve.",
-      "examples": "Piše tri do pet rečenica-primjera za svaku riječ špila koji nema svoje, po pet riječi odjednom (Ponavljanje → Špilovi, „Napravi primjere“), gdje može s riječima koje znaš, a nove prevodi."
+      "sceneSetup": "Započinje dijalog: iz ciljeva lekcije i onoga što znaš smišlja situaciju, s kim razgovaraš, tvoju karticu ciljeva i ono što zna samo tvoj sagovornik — a ti to moraš pitati. Traži se jednom po dijalogu.",
+      "scene": "Igra tvog sagovornika: odgovara na svaku tvoju izgovorenu (kako ju je prepoznavač čuo) ili napisanu repliku, kaže je li razumljiva i odgovara li, ispravlja najviše dvije greške u njoj, daje prijevod i označava postignute ciljeve.",
+      "examples": "Piše tri do pet rečenica-primjera za svaku riječ špila koji nema svoje, po pet riječi odjednom (Ponavljanje → Špilovi, „Napravi primjere“), gdje može s riječima koje znaš, a nove prevodi.",
+      "sceneSummary": "Sažima dijalog kad se završi: jedna ili dvije najvažnije ispravke, uz svaku tvoja rečenica rečena kako treba, i kratak komentar."
     }
   },
   "writing": {
@@ -523,17 +529,33 @@
     "message": "Molim te, prođi sa mnom kroz moje greške u ovoj lekciji."
   },
   "scene": {
-    "intro": "Vježbaj lekciju u kratkoj igri uloga: partner govori jezik kursa, ispravlja te i označava tvoje ciljeve.",
-    "start": "Počni scenu",
+    "intro": "Kratak dijalog glasom o ciljevima lekcije: replike tvog sagovornika se čitaju naglas, a ti odgovaraš mikrofonom. Sagovornik zna stvari koje moraš pitati.",
+    "start": "Započni dijalog",
     "preparing": "Pripremam…",
     "partner": "Tvoj partner: {partner}",
     "translate": "Prijevod",
     "placeholder": "Tvoja replika…",
     "done": "Svi ciljevi postignuti — bravo!",
-    "new": "Nova scena",
-    "past": "Ranije scene ove lekcije",
+    "new": "Novi dijalog",
+    "past": "Raniji dijalozi ove lekcije",
     "goals": "Ciljevi: {met, number} od {total, number}",
-    "ended": "Scena je završena."
+    "ended": "Dijalog je završen.",
+    "said": "Izgovoreno naglas",
+    "understood": "Razumljivo",
+    "notUnderstood": "Nerazumljivo",
+    "fits": "Odgovara",
+    "offTrack": "Ne odgovara",
+    "goalCard": "Tvoji ciljevi",
+    "partnerKnew": "Šta je sagovornik znao",
+    "model": "Reci ovako:",
+    "summing": "Sažimanje…",
+    "noSummary": "Sažetak nije bilo moguće napraviti.",
+    "sumUp": "Sažmi",
+    "end": "Završi dijalog",
+    "noRecognition": "Prepoznavanje govora je isključeno ili nije instalirano (Postavke → Govor).",
+    "typeInstead": "Umjesto toga napiši svoju repliku.",
+    "again": "Reci ponovo",
+    "waitPartner": "Sačekaj odgovor sagovornika."
   },
   "player": {
     "play": "Pusti: {what}",
@@ -575,9 +597,9 @@
     "removeCourse": "Ukloni iz mojih kurseva",
     "resetLesson": "Poništi napredak lekcije",
     "courseTitle": "Poništiti tvoj napredak u „{title}“?",
-    "courseBody": "Brišu se svi odgovori i prolazi lekcija ovog kursa, s razgovorima s tutorom, provjerama tekstova i scenama o njemu, te kartice riječi koje su napravile njegove lekcije, s njihovim ponavljanjima. Kurs izlazi iz „Moji kursevi“, ali ostaje instaliran. Ovo se ne može poništiti.",
+    "courseBody": "Brišu se svi odgovori i prolazi lekcija ovog kursa, s razgovorima s tutorom, provjerama tekstova i dijalozima o njemu, te kartice riječi koje su napravile njegove lekcije, s njihovim ponavljanjima. Kurs izlazi iz „Moji kursevi“, ali ostaje instaliran. Ovo se ne može poništiti.",
     "lessonTitle": "Poništiti tvoj napredak u „{title}“?",
-    "lessonBody": "Brišu se svi odgovori i prolazi ove lekcije, s njenim razgovorom s tutorom, provjerama tekstova i scenama, te kartice riječi koje je napravila, s njihovim ponavljanjima (riječi iz drugih lekcija ostaju). Ovo se ne može poništiti.",
+    "lessonBody": "Brišu se svi odgovori i prolazi ove lekcije, s njenim razgovorom s tutorom, provjerama tekstova i dijalozima, te kartice riječi koje je napravila, s njihovim ponavljanjima (riječi iz drugih lekcija ostaju). Ovo se ne može poništiti.",
     "confirm": "Poništi",
     "removeExam": "Ukloni iz mojih ispita",
     "examTitle": "Ukloniti „{title}“ iz tvojih ispita?",
@@ -624,7 +646,7 @@
     "grammar": "Gramatika",
     "culture": "Kultura",
     "writing": "Pisanje",
-    "scene": "Scena",
+    "scene": "Dijalog",
     "mistakes": "Greške"
   },
   "words": {
@@ -683,7 +705,7 @@
     "workedSome": "{count, plural, one {# vježba} few {# vježbe} other {# vježbi}}",
     "explanations": "{count, plural, one {# objašnjenje} few {# objašnjenja} other {# objašnjenja}}",
     "writing": "{count, plural, one {# tekst} few {# teksta} other {# tekstova}}",
-    "scenes": "{count, plural, one {# scena} few {# scene} other {# scena}}",
+    "scenes": "{count, plural, one {# dijalog} few {# dijaloga} other {# dijaloga}}",
     "chats": "{count, plural, one {# razgovor} few {# razgovora} other {# razgovora}}",
     "words": "{count, plural, one {# riječ} few {# riječi} other {# riječi}}",
     "exercises": "Vježbe",
@@ -909,7 +931,7 @@
     },
     "assistant": {
       "title": "AI asistent",
-      "text": "Asistent objašnjava greške, pomaže kao tutor u lekcijama, provjerava tvoje tekstove i igra scene. Izaberi ga sada ili kasnije u Postavkama — aplikacija radi i bez njega."
+      "text": "Asistent objašnjava greške, pomaže kao tutor u lekcijama, provjerava tvoje tekstove i vodi dijaloge. Izaberi ga sada ili kasnije u Postavkama — aplikacija radi i bez njega."
     },
     "tour": {
       "title": "Gdje je šta"
@@ -1157,7 +1179,7 @@
       "removeModel": "Ukloni model",
       "download": "Preuzmi",
       "read": "Čitanje naglas",
-      "readHint": "Glas čita tekstove na jednom jeziku: replike iz scena, primjer za riječ i riječi bez snimka. Svaki jezik ima svoj glas.",
+      "readHint": "Glas čita tekstove na jednom jeziku: replike iz dijaloga, primjer za riječ i riječi bez snimka. Svaki jezik ima svoj glas.",
       "engine": {
         "device": "Glasovi ovog uređaja",
         "deviceLine": "{count, plural, one {# glas} few {# glasa} other {# glasova}}, ništa za instaliranje",
@@ -1221,7 +1243,11 @@
       "listen": "Čitaj naglas: {what}",
       "stop": "Zaustavi čitanje"
     },
-    "aiCheck": "Provjeri s AI"
+    "aiCheck": "Provjeri s AI",
+    "readBy": "Čita {engine, select, piper {Piper} qwen {Qwen3-TTS} other {ovaj uređaj}} · {voice}",
+    "readByEngine": "Čita {engine, select, piper {Piper} qwen {Qwen3-TTS} other {glas ovog uređaja}}",
+    "readByNone": "Ovdje ništa ne čita naglas jezik: {language}. Izaberi glas u Postavkama → Govor.",
+    "readByHint": "Pogon i glas biraju se u Postavkama → Govor."
   },
   "error": {
     "answer_does_not_fit": "Odgovor ne odgovara ovoj vježbi. Ponovo učitaj lekciju.",
@@ -1254,7 +1280,7 @@
     "llm_unreachable": "Server ne odgovara. Provjeri adresu.",
     "missing_client_header": "Zahtjev nije došao iz aplikacije. Ponovo učitaj stranicu.",
     "name_required": "Unesi ime.",
-    "no_active_scene": "Ova scena je završena. Počni novu.",
+    "no_active_scene": "Ovaj dijalog je završen. Započni novi.",
     "no_device": "Ovaj uređaj više nije prijavljen.",
     "profile_export_gone": "Ovaj izvoz više nije ovdje: izvezi profil ponovo.",
     "not_a_profile_file": "Ova datoteka nije SprachAnker datoteka profila (.sprachanker-profile).",
@@ -1284,7 +1310,7 @@
     "run_incomplete": "Lekcija još nije završena.",
     "run_not_active": "Ovaj prolaz lekcije je završen. Ponovo učitaj lekciju.",
     "run_without_edition": "Ovaj prolaz nema jezičku verziju. Ponovo počni lekciju.",
-    "scene_busy": "Scena još odgovara. Sačekaj.",
+    "scene_busy": "Dijalog još odgovara. Sačekaj.",
     "server_error": "Nešto nije u redu na serveru.",
     "speaking_busy": "Ovaj odgovor se upravo provjerava. Sačekaj.",
     "speech_engine_failed": "Prepoznavač govora nije odgovorio. Pokušaj ponovo.",

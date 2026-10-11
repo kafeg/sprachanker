@@ -451,18 +451,26 @@ export function createRunStore(deps: { db: ProfileDb; now: () => number; appVers
       };
     },
 
-    /** The learner's recordings the answers hold: of these runs, or of every run of every kind. Read
-     *  from the stored JSON as it is: a take whose answer no longer reads is still held, never swept. */
+    /** The learner's recordings the answers and a Dialogue's lines hold: of these runs, or of every
+     *  run of every kind. Read from the stored JSON as it is: a take whose answer no longer reads is
+     *  still held, never swept. */
     recordingIds(runIds?: string[]): string[] {
       if (runIds && !runIds.length) return [];
       const rows = db
         .select({ payload: events.payloadJson })
         .from(events)
-        .where(and(eq(events.type, "answered"), runIds ? inArray(events.runId, runIds) : undefined))
+        .where(
+          and(
+            inArray(events.type, ["answered", "llm_turn"]),
+            runIds ? inArray(events.runId, runIds) : undefined,
+          ),
+        )
         .all();
       return rows.flatMap(({ payload }) => {
         try {
-          return recordingOf((JSON.parse(payload) as { answer?: unknown }).answer) ?? [];
+          const read = JSON.parse(payload) as { answer?: unknown; recording?: unknown };
+          const held = recordingOf(read.answer) ?? read.recording;
+          return typeof held === "string" ? [held] : [];
         } catch {
           return [];
         }

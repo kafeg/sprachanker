@@ -87,7 +87,11 @@ export function activityByDay(
   /** Card answers' own time, by event. */
   const answered = new Map<string, number>();
   for (const e of events) {
-    if (e.type === "llm_verdict" || (e.type === "llm_turn" && e.payload.role === "user"))
+    // A Dialogue's summary comes with its end, not asked for: its lines count.
+    if (
+      (e.type === "llm_verdict" && e.payload.task !== "dialogue") ||
+      (e.type === "llm_turn" && e.payload.role === "user")
+    )
       at(e.ts).ai++;
     else if (e.type === "card_review" && !undone.has(e.id)) {
       const p = e.payload;

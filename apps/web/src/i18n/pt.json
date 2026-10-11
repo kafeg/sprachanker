@@ -143,7 +143,7 @@
       "grammar": "Gramática",
       "culture": "Cultura",
       "writing": "Escreva você",
-      "scene": "Cena",
+      "scene": "Diálogo",
       "mistakes": "Revisando os erros",
       "summary": "Resumo"
     },
@@ -230,7 +230,7 @@
   },
   "llm": {
     "title": "Assistente de IA",
-    "intro": "Explica erros, dá tutoria nas lições, corrige textos e encena situações. Escolha um modelo neste computador, num servidor da sua rede, na nuvem (OpenRouter) ou um agente de linha de comando com a sua assinatura. O conteúdo das lições e as suas respostas vão só para o provedor que você escolher.",
+    "intro": "Explica erros, dá tutoria nas lições, corrige textos e conduz diálogos. Escolha um modelo neste computador, num servidor da sua rede, na nuvem (OpenRouter) ou um agente de linha de comando com a sua assinatura. O conteúdo das lições e as suas respostas vão só para o provedor que você escolher.",
     "off": "Desligado",
     "provider": {
       "lmstudio": "LM Studio",
@@ -293,7 +293,7 @@
       "context": "Contexto ≥ {size}",
       "more": "Mais…",
       "fewer": "Menos",
-      "jsonHint": "“Responde em JSON”: modelos que conseguem devolver correções de textos e cenas no formato que o app lê.",
+      "jsonHint": "“Responde em JSON”: modelos que conseguem devolver correções de textos e diálogos no formato que o app lê.",
       "none": "Nenhum modelo corresponde à busca e aos filtros.",
       "freeTag": "grátis",
       "price": "{input} / {output} por 1M de tokens",
@@ -399,9 +399,10 @@
       "speaking": "Respostas faladas",
       "exam": "Exame: avaliar uma resposta",
       "conversation": "Exame: uma parte oral",
-      "sceneSetup": "Cena: a situação",
-      "scene": "Cena",
-      "examples": "Exemplos para as palavras de um baralho"
+      "sceneSetup": "Diálogo: a situação",
+      "scene": "Diálogo: uma fala",
+      "examples": "Exemplos para as palavras de um baralho",
+      "sceneSummary": "Diálogo: o resumo"
     },
     "contextIntro": "Adicionado da lição:",
     "contextIntroCourses": "Adicionado dos seus cursos (os do idioma que a conversa pratica):",
@@ -434,7 +435,11 @@
       "metWords": "as palavras dessas lições com traduções (as lições mais recentes primeiro)",
       "metGrammar": "seus tópicos de gramática (as lições mais recentes primeiro)",
       "courseMistakes": "seus erros mais recentes nesses cursos (os corrigidos marcados)",
-      "chatHistory": "as mensagens mais recentes da conversa"
+      "chatHistory": "as mensagens mais recentes da conversa",
+      "place": "onde a lição está no curso: o número e a unidade",
+      "topics": "os temas de gramática vistos até agora no curso",
+      "dialogueGoals": "a situação e os objetivos que atingiu",
+      "dialogue": "as falas do diálogo com as correções dadas"
     },
     "upTo": "até {chars, plural, =0 {# caracteres} one {# caractere} other {# caracteres}}",
     "debug": "Mostrar os botões “Prompt”",
@@ -459,7 +464,7 @@
         "where": "uma etapa da lição"
       },
       "scene": {
-        "name": "Cenas",
+        "name": "Diálogo",
         "where": "uma etapa da lição"
       },
       "speaking": {
@@ -483,9 +488,10 @@
       "speaking": "Verifica uma resposta que você disse em voz alta (o que o reconhecedor ouviu) em relação à pergunta e à resposta do curso, quando você toca em “Verificar com IA”.",
       "exam": "Avalia uma resposta escrita de um exame pelos critérios do próprio exame: um nível para cada um com o motivo, e o que valeria mais pontos. Nada conta até você aceitar ou alterar.",
       "conversation": "Conduz uma parte oral de um exame: faz o papel do examinador e do outro candidato, como a parte prevê, fala por fala com você; nunca ajuda nem corrige. Avaliada depois pelos critérios da parte.",
-      "sceneSetup": "Inicia uma cena: inventa a situação a partir do tema da lição: quem você é, com quem fala, onde e os objetivos a alcançar. Pedido uma vez por cena.",
-      "scene": "Encena a situação: responde a cada fala sua como o seu interlocutor, corrige os seus erros, dá uma tradução e marca os objetivos que você alcançou.",
-      "examples": "Escreve de três a cinco frases de exemplo para cada palavra de um baralho que não tenha exemplos próprios, cinco palavras por vez (Revisão → Baralhos, “Criar exemplos”), com palavras que você já conhece sempre que possível e as novas traduzidas."
+      "sceneSetup": "Começa um diálogo: a partir dos objetivos da lição e do que você sabe, inventa a situação, com quem você fala, o seu cartão de objetivos e o que só o seu interlocutor sabe — que você precisa perguntar. Uma vez por diálogo.",
+      "scene": "Faz o papel do seu interlocutor: responde a cada fala que você diz (como o reconhecimento a ouviu) ou digita, diz se foi entendida e se combina, corrige no máximo dois erros, dá uma tradução e marca os objetivos atingidos.",
+      "examples": "Escreve de três a cinco frases de exemplo para cada palavra de um baralho que não tenha exemplos próprios, cinco palavras por vez (Revisão → Baralhos, “Criar exemplos”), com palavras que você já conhece sempre que possível e as novas traduzidas.",
+      "sceneSummary": "Resume um diálogo quando termina: as uma ou duas correções mais importantes, cada uma com a sua frase bem dita, e um comentário breve."
     }
   },
   "writing": {
@@ -523,17 +529,33 @@
     "message": "Por favor, revise os meus erros desta lição."
   },
   "scene": {
-    "intro": "Pratique a lição num role-play curto: o seu interlocutor fala o idioma do curso, corrige você e marca os seus objetivos.",
-    "start": "Começar uma cena",
+    "intro": "Um diálogo curto, falado, sobre os objetivos da lição: as falas do seu interlocutor são lidas em voz alta e você responde com o microfone. O seu interlocutor sabe coisas que você precisa perguntar.",
+    "start": "Começar um diálogo",
     "preparing": "Preparando…",
     "partner": "Seu interlocutor: {partner}",
     "translate": "Tradução",
     "placeholder": "Sua fala…",
     "done": "Todos os objetivos alcançados. Muito bem!",
-    "new": "Nova cena",
-    "past": "Cenas anteriores desta lição",
+    "new": "Novo diálogo",
+    "past": "Diálogos anteriores desta lição",
     "goals": "Objetivos: {met, number} de {total, number}",
-    "ended": "Cena encerrada."
+    "ended": "Diálogo encerrado.",
+    "said": "Dito em voz alta",
+    "understood": "Entendido",
+    "notUnderstood": "Não entendido",
+    "fits": "Combina",
+    "offTrack": "Não combina",
+    "goalCard": "Os seus objetivos",
+    "partnerKnew": "O que o seu interlocutor sabia",
+    "model": "Diga assim:",
+    "summing": "Resumindo…",
+    "noSummary": "Não foi possível fazer o resumo.",
+    "sumUp": "Resumir",
+    "end": "Encerrar o diálogo",
+    "noRecognition": "O reconhecimento de fala está desligado ou não instalado (Configurações → Fala).",
+    "typeInstead": "Digite a sua fala em vez disso.",
+    "again": "Dizer de novo",
+    "waitPartner": "Espere a resposta do seu interlocutor."
   },
   "player": {
     "play": "Tocar: {what}",
@@ -575,9 +597,9 @@
     "removeCourse": "Remover dos meus cursos",
     "resetLesson": "Redefinir o progresso da lição",
     "courseTitle": "Redefinir o seu progresso em “{title}”?",
-    "courseBody": "Todas as respostas e rodadas das lições deste curso serão excluídas, com as conversas do tutor, as correções de textos e as cenas sobre ele, e os cartões de palavras criados pelas lições com as revisões deles. O curso sai de “Meus cursos”, mas continua instalado. Isso não pode ser desfeito.",
+    "courseBody": "Todas as respostas e rodadas das lições deste curso serão excluídas, com as conversas do tutor, as correções de textos e os diálogos sobre ele, e os cartões de palavras criados pelas lições com as revisões deles. O curso sai de “Meus cursos”, mas continua instalado. Isso não pode ser desfeito.",
     "lessonTitle": "Redefinir o seu progresso em “{title}”?",
-    "lessonBody": "Todas as respostas e rodadas desta lição serão excluídas, com a conversa do tutor, as correções de textos e as cenas dela, e os cartões de palavras que ela criou com as revisões deles (as palavras de outras lições ficam). Isso não pode ser desfeito.",
+    "lessonBody": "Todas as respostas e rodadas desta lição serão excluídas, com a conversa do tutor, as correções de textos e os diálogos dela, e os cartões de palavras que ela criou com as revisões deles (as palavras de outras lições ficam). Isso não pode ser desfeito.",
     "confirm": "Redefinir",
     "removeExam": "Remover dos meus exames",
     "examTitle": "Remover “{title}” dos seus exames?",
@@ -624,7 +646,7 @@
     "grammar": "Gramática",
     "culture": "Cultura",
     "writing": "Escrita",
-    "scene": "Cena",
+    "scene": "Diálogo",
     "mistakes": "Erros"
   },
   "words": {
@@ -683,7 +705,7 @@
     "workedSome": "{count, plural, =0 {# exercícios} one {# exercício} other {# exercícios}}",
     "explanations": "{count, plural, =0 {# explicações} one {# explicação} other {# explicações}}",
     "writing": "{count, plural, =0 {# textos} one {# texto} other {# textos}}",
-    "scenes": "{count, plural, =0 {# cenas} one {# cena} other {# cenas}}",
+    "scenes": "{count, plural, =0 {# diálogos} one {# diálogo} other {# diálogos}}",
     "chats": "{count, plural, =0 {# conversas} one {# conversa} other {# conversas}}",
     "words": "{count, plural, =0 {# palavras} one {# palavra} other {# palavras}}",
     "exercises": "Exercícios",
@@ -909,7 +931,7 @@
     },
     "assistant": {
       "title": "Assistente de IA",
-      "text": "Um assistente explica erros, dá tutoria nas lições, corrige os seus textos e encena situações. Escolha um agora ou depois em Configurações: o app funciona sem ele."
+      "text": "Um assistente explica erros, dá tutoria nas lições, corrige os seus textos e conduz diálogos. Escolha um agora ou depois em Configurações: o app funciona sem ele."
     },
     "tour": {
       "title": "Onde fica cada coisa"
@@ -1157,7 +1179,7 @@
       "removeModel": "Remover o modelo",
       "download": "Baixar",
       "read": "Leitura em voz alta",
-      "readHint": "Uma voz lê textos num idioma: falas de cenas, o exemplo de uma palavra e palavras sem gravação. Cada idioma tem a sua própria voz.",
+      "readHint": "Uma voz lê textos num idioma: falas de diálogos, o exemplo de uma palavra e palavras sem gravação. Cada idioma tem a sua própria voz.",
       "engine": {
         "device": "Vozes deste dispositivo",
         "deviceLine": "{count, plural, =0 {# vozes} one {# voz} other {# vozes}}, nada a instalar",
@@ -1221,7 +1243,11 @@
       "listen": "Ler em voz alta: {what}",
       "stop": "Parar a leitura"
     },
-    "aiCheck": "Verificar com IA"
+    "aiCheck": "Verificar com IA",
+    "readBy": "Lido por {engine, select, piper {Piper} qwen {Qwen3-TTS} other {este dispositivo}} · {voice}",
+    "readByEngine": "Lido por {engine, select, piper {Piper} qwen {Qwen3-TTS} other {a voz deste dispositivo}}",
+    "readByNone": "Nada aqui lê em {language} em voz alta: escolha uma voz em Configurações → Fala.",
+    "readByHint": "O motor e a voz são escolhidos em Configurações → Fala."
   },
   "error": {
     "answer_does_not_fit": "A resposta não corresponde a este exercício. Recarregue a lição.",
@@ -1254,7 +1280,7 @@
     "llm_unreachable": "O servidor não responde. Verifique o endereço.",
     "missing_client_header": "A solicitação não veio do app. Recarregue a página.",
     "name_required": "Digite um nome.",
-    "no_active_scene": "Esta cena terminou. Comece uma nova.",
+    "no_active_scene": "Este diálogo terminou. Comece um novo.",
     "no_device": "Este dispositivo não está mais conectado.",
     "profile_export_gone": "Esta exportação não está mais aqui: exporte o perfil de novo.",
     "not_a_profile_file": "Este arquivo não é um arquivo de perfil do SprachAnker (.sprachanker-profile).",
@@ -1284,7 +1310,7 @@
     "run_incomplete": "A lição ainda não foi concluída.",
     "run_not_active": "Esta rodada da lição terminou. Recarregue a lição.",
     "run_without_edition": "Esta rodada não tem versão de idioma. Comece a lição de novo.",
-    "scene_busy": "A cena ainda está respondendo. Aguarde.",
+    "scene_busy": "O diálogo ainda está respondendo. Aguarde.",
     "server_error": "Algo deu errado no servidor.",
     "speaking_busy": "Esta resposta está sendo verificada. Aguarde.",
     "speech_engine_failed": "O reconhecedor de fala não respondeu. Tente de novo.",

@@ -8,6 +8,7 @@ import { useSetting } from "@/api/settings.ts";
 import { sayOnServer, usePiperVoices, useQwenTts, warmQwen } from "@/api/speech.ts";
 import { claimPlayback } from "@/ui/playback.tsx";
 import { bestVoice, type SpokenPart, speaks, type VoiceInfo } from "./speak.ts";
+import { voiceName } from "./voice-names.ts";
 
 const synth = () => (typeof speechSynthesis === "undefined" ? undefined : speechSynthesis);
 
@@ -162,6 +163,13 @@ export const voiceInfo = (
   voice: v,
 });
 
+/** Who reads a language aloud (09: named where a line is listened to, as the model is). */
+export interface ReadBy {
+  engine: "device" | "piper" | "qwen";
+  /** The voice's name; empty when the browser picks the device's voice itself. */
+  voice: string;
+}
+
 /** The voice that reads `lang`: the profile's choice while this device has it, else the best one. */
 export function deviceVoice(
   voices: SpeechSynthesisVoice[],
@@ -212,11 +220,31 @@ export function useSpeaker() {
     return serverLangs.has(lang) ? { server: {}, fallback: device } : device;
   };
   const say = (id: string, parts: SpokenPart[]) => read(id, parts, { wayFor });
+  /** Who reads a language: the engine and its voice as Settings → Speech names it (the device's
+   *  voice unnamed when the browser picks it); undefined when nothing here reads it. */
+  const readBy = (lang: string): ReadBy | undefined => {
+    const way = wayFor(lang);
+    if (!way) return undefined;
+    if ("server" in way && engine === "piper" && piper) {
+      const own = chosen?.piper?.[lang];
+      const id = piper.voices.some((v) => v.id === own && v.installed) ? own : piper.auto[lang];
+      return { engine: "piper", voice: id ? voiceName("piper", id) : "" };
+    }
+    if ("server" in way && engine === "qwen" && qwen) {
+      const own = chosen?.qwen?.[lang];
+      const speakers: readonly string[] = qwen.speakers;
+      const speaker = own && speakers.includes(own) ? own : qwen.defaultSpeaker;
+      return { engine: "qwen", voice: voiceName("qwen", speaker) };
+    }
+    const device = "server" in way ? way.fallback : way;
+    return { engine: "device", voice: device?.device?.name ?? "" };
+  };
   return {
     /** Something here reads aloud at all. */
     available: (!!synth() && voices.length > 0) || serverLangs.size > 0,
     /** Whether a language can be read (by Piper or a device voice). */
     canRead: (lang: string) => !!wayFor(lang),
+    readBy,
     reading: current,
     say,
     stop,

@@ -231,6 +231,26 @@
         "model": "m",
         "latencyMs": 10
       }
+    },
+    {
+      "since": "2026-10-11",
+      "payload": {
+        "task": "dialogue",
+        "input": "",
+        "result": {
+          "corrections": [
+            {
+              "wrong": "Wie viel kostet die Ticket?",
+              "right": "das Ticket",
+              "explanation": "Ticket is neuter.",
+              "model": "Wie viel kostet das Ticket?"
+            }
+          ],
+          "feedback": "Good questions."
+        },
+        "model": "m",
+        "latencyMs": 10
+      }
     }
   ],
   "llm_turn": [
@@ -276,6 +296,18 @@
         "role": "user",
         "text": "Let's practise a conversation.",
         "start": true
+      }
+    },
+    {
+      "since": "2026-10-11",
+      "payload": {
+        "role": "user",
+        "text": "wann fährt der zug nach berlin",
+        "corrections": [],
+        "understood": true,
+        "fits": true,
+        "spoken": true,
+        "recording": "01K7A0Z8ZQ4J1V2W3X4Y5Z6A7B"
       }
     }
   ],
