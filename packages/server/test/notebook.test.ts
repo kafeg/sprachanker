@@ -1,5 +1,6 @@
 import { Database } from "bun:sqlite";
 import { expect, test } from "bun:test";
+import { rmSync } from "node:fs";
 import { join } from "node:path";
 import { FIXTURE_SERIES } from "@sprachanker/course-fixture";
 import { studyDay } from "@sprachanker/engine";
@@ -294,6 +295,13 @@ test("a card answer's time kept (at most a minute; an answer from before it was 
     at: [finished.finishedAt],
   });
   expect(lessons.find((f) => f.id === "coursesDone")).toMatchObject({ value: 0, at: [] });
+  // The course removed: its lessons count no more, as it can count no course done (one rule for
+  // both: what the installed courses hold); the journal keeps the lesson.
+  rmSync(join(root, "library", FIXTURE_SERIES, "canonical", "demo", "course.json"));
+  const removed = moduleOf(await getJson("/api/notebook"), "lesson");
+  expect(figure(removed.figures, "lessonsDone")?.value).toBe(0);
+  expect(figure(removed.figures, "coursesDone")?.value).toBe(0);
+  expect(removed.entries.map((e) => e.key)).toEqual([CAFE]);
 });
 
 test("a deck's review day: only its language's answers, what they held and the days its cards were answered on", async () => {

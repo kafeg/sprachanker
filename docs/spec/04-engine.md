@@ -119,8 +119,9 @@ Every module reports what the Notebook shows of it the same way (schema `stats.t
 figures, its entries with their figures and latest runs; the server's modules each give their
 `standing`): the words known (every face of the note in review) and each deck (`srs/deck.ts`) with
 the review days it was studied on are review's, the lessons and courses done (each with when it was
-first done: a figure over time) and the lessons worked on the lessons', the mock exams handed in the
-exams'. Planned:
+first done: a figure over time; both of the courses installed — a course removed counts none of its
+lessons, as it can count no course done, its lessons staying in the journal) and the lessons worked
+on the lessons', the mock exams handed in the exams'. Planned:
 mistakes by rule and lexeme, rule mastery, weak spots,
 "Practise this", the can-do list (plan, "Enrichment and rules").
 
