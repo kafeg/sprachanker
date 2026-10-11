@@ -25,8 +25,9 @@ import {
   writeChunks,
   zipEntries,
   zipLength,
+  zipLimits,
 } from "@sprachanker/course-kit";
-import { CourseBundlePath, courseIdOf } from "@sprachanker/schema";
+import { COURSE_BUNDLE_MAX_FILES, CourseBundlePath, courseIdOf } from "@sprachanker/schema";
 import { downloadMarker, providerOf, withSeriesLock } from "../providers.ts";
 import type { BundleFileEntry, CourseTransferFiles } from "../services/course-transfer.ts";
 import { type TransferOptions, transferFolders } from "./transfers.ts";
@@ -36,8 +37,9 @@ const MANIFEST = "manifest.json";
 const MANIFEST_MAX = 64 * 1024 * 1024;
 /** A library file is read whole to be checked: none is near this. */
 const JSON_MAX = 64 * 1024 * 1024;
-/** A bundle's zip: names as long as a media file's path may be, a directory of many files. */
-const ZIP_LIMITS = { fieldMax: 1024, directoryMax: 256 * 1024 * 1024 };
+/** A bundle's zip: its files and manifest, names as long as a path may be (512 characters of UTF-8),
+ *  some 250 bytes on average at most (a library path is under 100). */
+const ZIP_LIMITS = zipLimits(COURSE_BUNDLE_MAX_FILES + 1, 1536, 256);
 
 export function courseTransferFiles(
   dataRoot: string,
@@ -63,7 +65,8 @@ export function courseTransferFiles(
   };
   /** The entries of a bundle, its manifest apart; each name a path a bundle may hold, and once —
    *  also to a disk that does not tell case or Unicode forms apart. */
-  const entriesOf = (file: string) => {
+  const entriesOf = (id: string, file: string) => t.once(id, file, () => parseEntries(file));
+  const parseEntries = (file: string) => {
     const entries = zipEntries(file, ZIP_LIMITS);
     if (!entries) return undefined;
     const manifest = entries.find((e) => e.name === MANIFEST);
@@ -151,7 +154,7 @@ export function courseTransferFiles(
     // The file; the room for what of it is unpacked is checked then (media here already are not).
     receive: (id, body, length) => t.receive(id, "received", body, length, length),
     read(id, file = received(id)) {
-      const entries = entriesOf(file);
+      const entries = entriesOf(id, file);
       if (!entries) return undefined;
       return {
         manifest: entryBytes(file, entries.manifest).toString("utf8"),
@@ -159,7 +162,7 @@ export function courseTransferFiles(
       };
     },
     async unpack(id, manifest, file = received(id)) {
-      const entries = entriesOf(file);
+      const entries = entriesOf(id, file);
       if (!entries) return "damaged";
       const listed = new Map(manifest.files.map((f) => [f.path, f]));
       // A library file is read whole when it is checked.

@@ -60,6 +60,8 @@ export function transferFolders(
   /** A transfer's folder marked as in use for another process's sweep (its time), at most a minute
    *  apart. */
   const touched = new Map<string, number>();
+  /** What was worked out of a transfer's file (its zip directory: read, then unpacked), by file. */
+  const known = new Map<string, { file: string; value: unknown }>();
   const folder = (id: string) => {
     if (!ID.test(id)) throw new Error(`bad transfer id ${id}`);
     return join(root, id);
@@ -98,6 +100,15 @@ export function transferFolders(
       rmSync(folder(id), { recursive: true, force: true });
       active.delete(id);
       touched.delete(id);
+      known.delete(id);
+    },
+    /** `make` of a transfer's `file`, worked out once until the transfer goes. */
+    once<T>(id: string, file: string, make: () => T): T {
+      const had = known.get(id);
+      if (had?.file === file) return had.value as T;
+      const value = make();
+      known.set(id, { file, value });
+      return value;
     },
     /** Marks a transfer in use now (a download that has begun), whatever its age. */
     inUse(id: string) {

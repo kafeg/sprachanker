@@ -16,6 +16,8 @@ export const COURSE_BUNDLE_VERSION = 1;
 export const COURSE_BUNDLE_EXTENSION = ".sprachanker-course";
 /** A bundle is at most this large (a DW course is under 5 GB, videos and all). */
 export const COURSE_BUNDLE_MAX_BYTES = 16 * 1024 ** 3;
+/** The most files a bundle lists, its manifest apart. */
+export const COURSE_BUNDLE_MAX_FILES = 500_000;
 
 const SLUG = "[a-z0-9]+(?:-[a-z0-9]+)*";
 const EDITION = "[a-z]{2,3}-[a-z]{2,3}";
@@ -82,6 +84,6 @@ export const CourseBundleManifest = z.strictObject({
         sha256: Sha256,
       }),
     )
-    .max(500_000),
+    .max(COURSE_BUNDLE_MAX_FILES),
 });
 export type CourseBundleManifest = z.infer<typeof CourseBundleManifest>;

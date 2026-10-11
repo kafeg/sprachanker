@@ -11,6 +11,8 @@ export const PROFILE_FILE_VERSION = 1;
 export const PROFILE_FILE_EXTENSION = ".sprachanker-profile";
 /** A profile file is at most this large (a profile is its database and recordings: far less). */
 export const PROFILE_FILE_MAX_BYTES = 4_000_000_000;
+/** The most files a profile file lists (its database and recordings), its manifest apart. */
+export const PROFILE_FILE_MAX_FILES = 1_000_000;
 
 /** A file in a profile file besides its manifest: the database, or a recording (`<ulid>.<ext>`). */
 export const ProfileFilePath = z
@@ -59,6 +61,6 @@ export const ProfileManifest = z.object({
     .array(
       z.object({ path: ProfileFilePath, size: z.number().int().nonnegative(), sha256: Sha256 }),
     )
-    .max(1_000_000),
+    .max(PROFILE_FILE_MAX_FILES),
 });
 export type ProfileManifest = z.infer<typeof ProfileManifest>;

@@ -16,8 +16,9 @@ import {
   writeChunks,
   zipEntries,
   zipLength,
+  zipLimits,
 } from "@sprachanker/course-kit";
-import { ProfileFilePath } from "@sprachanker/schema";
+import { PROFILE_FILE_MAX_FILES, ProfileFilePath } from "@sprachanker/schema";
 import type { ProfileFileEntry, TransferFiles } from "../services/profile-transfer.ts";
 import { BUSY_MS, profileDbFile, profileMigrationTags, vacuumInto } from "./bun.ts";
 import { editEndpoints, type Settled } from "./profile-db.ts";
@@ -31,8 +32,8 @@ const ADOPTING = ".importing";
 const RECORDING = /^[0-9A-HJKMNP-TV-Z]{26}\.[a-z0-9]{1,8}$/;
 /** A database made ready for longer than this is refused (a 4 GB one takes minutes). */
 const SETTLE_MS = 30 * 60_000;
-/** A profile file's zip: each field short, its directory small (a line a file). */
-const ZIP_LIMITS = { fieldMax: 256, directoryMax: 16 * 1024 * 1024 };
+/** A profile file's zip: its files and manifest, names short (`recordings/<ulid>.<ext>`). */
+const ZIP_LIMITS = zipLimits(PROFILE_FILE_MAX_FILES + 1, 256, 64);
 /** The Worker that makes an imported profile's database ready, from sources; the compiled binary names its own
  *  (apps/cli/scripts/build.ts adds it as an entry). */
 export const PROFILE_DB_WORKER = join(import.meta.dir, "profile-db-worker.ts");
@@ -56,7 +57,8 @@ export function profileTransferFiles(
     t.discard(id);
   };
   /** The entries of a profile file, its manifest apart; each name allowed and once. */
-  const entriesOf = (file: string) => {
+  const entriesOf = (id: string, file: string) => t.once(id, file, () => parseEntries(file));
+  const parseEntries = (file: string) => {
     const entries = zipEntries(file, ZIP_LIMITS);
     if (!entries) return undefined;
     const names = new Set(entries.map((e) => e.name));
@@ -171,7 +173,7 @@ export function profileTransferFiles(
     // The file and what it unpacks to.
     receive: (id, body, length) => t.receive(id, "received", body, length, 2 * length),
     read(id, file = received(id)) {
-      const entries = entriesOf(file);
+      const entries = entriesOf(id, file);
       if (!entries) return undefined;
       return {
         manifest: entryBytes(file, entries.manifest).toString("utf8"),
@@ -179,7 +181,7 @@ export function profileTransferFiles(
       };
     },
     async unpack(id, listed, file = received(id)) {
-      const entries = entriesOf(file);
+      const entries = entriesOf(id, file);
       if (!entries) return false;
       // Its files, and the copy of its database made before it is migrated.
       const database = entries.others.find((e) => e.name === "profile.sqlite")?.size ?? 0;
