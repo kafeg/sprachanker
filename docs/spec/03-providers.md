@@ -93,8 +93,9 @@ and `a1-en` are normalised separately from their own pages (`raw/<edition>/<DW c
 
 ### Nicos Weg (`dw-nicos-weg` → `dw.nicos-weg`)
 
-Source facts: `docs/research/dw-nicos-weg.md`; DW's own content errors in A1:
-`docs/research/dw-nicos-weg-a1-source-errors.md`. Closed licence: personal use.
+Source facts: `docs/research/dw-nicos-weg.md`; DW's own content errors in A1 and A2:
+`docs/research/dw-nicos-weg-a1-source-errors.md`, `docs/research/dw-nicos-weg-a2-source-errors.md`.
+Closed licence: personal use.
 
 - Courses and source ids: `courses/dw/src/catalog.ts` — A1 and A2 in every language DW publishes them
   (19: ar, bs, de, el, en, es, fa, fr, hi, hu, id, pl, pt, ro, ru, sw — A1 only —, tr, uk, zh; owner,
