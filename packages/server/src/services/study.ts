@@ -1,7 +1,7 @@
-// Study as in Anki (04, "Spaced repetition"): decks are the courses the words were met in, under the
-// language they teach; the queue is the engine's `studyQueue` with Anki's limits and day; each rating is
-// a `card_review` event in the day's `review` run, written together with the face's state; undo, bury,
-// suspend, flag and mark as in Anki's reviewer.
+// Study as in Anki (04, "Spaced repetition"): decks are the courses the words were met in and the decks
+// imported, under the language they teach; the queue is the engine's `studyQueue` with Anki's limits
+// and day; each rating is a `card_review` event in the day's `review` run, written together with the
+// face's state; undo, bury, suspend, flag and mark as in Anki's reviewer.
 import {
   type CardEvent,
   cardDay,
@@ -30,13 +30,15 @@ import {
 import { ServiceError } from "../errors.ts";
 import type { CardStore, Note } from "./card-store.ts";
 import { type Content, courseTitle } from "./content.ts";
+import type { Decks } from "./decks.ts";
 import type { RunStore } from "./run-store.ts";
 import type { Settings } from "./settings.ts";
 
 /**
- * What to study: every deck, a language (`lang:de`), a course (`course:<course key>`), or a lesson's own
- * words in an edition (`lesson:<edition>:<lesson key>`: their cards in its translation language, the
- * first card type only, without the day's new limit).
+ * What to study: every deck, a language (`lang:de`), a course (`course:<course key>`), an imported deck
+ * (`deck:<id>`: the cards of its words in its translation language), or a lesson's own words in an
+ * edition (`lesson:<edition>:<lesson key>`: their cards in its translation language, the first card
+ * type only, without the day's new limit).
  */
 export type DeckScope = string;
 
@@ -44,10 +46,11 @@ export function createStudy(deps: {
   cards: CardStore;
   store: RunStore;
   content: Content;
+  decks: Pick<Decks, "deck">;
   settings: Settings;
   now: () => number;
 }) {
-  const { cards, store, content, settings, now } = deps;
+  const { cards, store, content, decks, settings, now } = deps;
   /** The profile's scheduling options (its Review settings). */
   const params = (): SrsParams => ({ retention: settings.value("srs.retention") });
   /** The learner's day (engine `studyDay`). */
@@ -56,7 +59,16 @@ export function createStudy(deps: {
   /** The notes of a scope, in the order they were made (their position in the deck). */
   async function notesIn(scope: DeckScope, all = cards.all()) {
     if (scope.startsWith("lang:")) return all.filter((n) => n.lang === scope.slice(5));
-    if (scope.startsWith("course:")) return all.filter((n) => n.course === scope.slice(7));
+    if (scope.startsWith("course:")) return all.filter((n) => n.deck === scope);
+    if (scope.startsWith("deck:")) {
+      const deck = decks.deck(scope.slice(5));
+      if (!deck) return all.filter((n) => n.deck === scope);
+      const lexemes = new Set<string>(deck.words.map((w) => w.lexeme));
+      return all.filter(
+        (n) =>
+          n.lexemeKey && lexemes.has(n.lexemeKey) && n.translationLang === deck.translationLang,
+      );
+    }
     if (scope.startsWith("lesson:")) {
       const [, edition = "", lessonKey = ""] = scope.split(":") as [string, EditionId, LessonKey];
       const lesson = await content.lesson(seriesOf(lessonKey as LessonKey), lessonKey as LessonKey);
@@ -82,16 +94,14 @@ export function createStudy(deps: {
   const studyData = () => ({ t: now(), notes: cards.all(), states: cards.states(), today: day() });
 
   /** New cards added to today's limit of a scope (Anki's custom study): its own, and for a language
-   *  those of its courses. */
+   *  those of its decks. */
   function extraNew(scope: DeckScope, notes: Note[]) {
     const extra = settings.get("srs.extraNew");
     if (!extra || extra.day !== dayOf(now()).start) return 0;
     const own = extra.scopes[scope] ?? 0;
     if (!scope.startsWith("lang:")) return own;
-    const courses = new Set(
-      notes.filter((n) => n.lang === scope.slice(5)).map((n) => `course:${n.course}`),
-    );
-    return own + [...courses].reduce((sum, c) => sum + (extra.scopes[c] ?? 0), 0);
+    const inLang = new Set(notes.filter((n) => n.lang === scope.slice(5)).map((n) => n.deck));
+    return own + [...inLang].reduce((sum, c) => sum + (extra.scopes[c] ?? 0), 0);
   }
 
   /** The study queue of a scope, with Anki's counts and what the "finished" screen says. */
@@ -197,37 +207,40 @@ export function createStudy(deps: {
       settings.set("srs.extraNew", { day: today, scopes });
     },
 
-    /** Decks: each language the cards teach, and under it each course with its language pairs (the
-     *  editions its cards translate into: `ru-de`) and its title in the first of them, with Anki's
-     *  three counts. */
+    /** Decks: each language the cards teach, and under it each course — then each imported deck — the
+     *  cards were made in, with its language pairs (the editions its cards translate into: `ru-de`) and
+     *  its title (a course's in the first of them), with Anki's three counts. */
     async decks() {
       const data = studyData();
       const installed = await content.courses();
       const out = [];
       for (const lang of [...new Set(data.notes.map((n) => n.lang))].sort()) {
         const own: Note[] = data.notes.filter((n) => n.lang === lang);
-        const courses = [];
-        for (const course of [...new Set(own.map((n) => n.course))].sort()) {
+        const decksIn = [];
+        for (const scope of [...new Set(own.map((n) => n.deck))].sort()) {
           const editions = [
-            ...new Set(own.filter((n) => n.course === course).map((n) => n.translationLang)),
+            ...new Set(own.filter((n) => n.deck === scope).map((n) => n.translationLang)),
           ]
             .sort()
             .map((from) => `${from}-${lang}`);
-          const summary = installed.find((c) => c.key === course);
-          courses.push({
-            scope: `course:${course}`,
-            course,
-            /** Null when the course is no longer installed. */
-            title: summary ? courseTitle(summary, editions) : null,
+          const summary = installed.find((c) => `course:${c.key}` === scope);
+          decksIn.push({
+            scope,
+            /** Null when the course or deck is no longer here. */
+            title: scope.startsWith("deck:")
+              ? (decks.deck(scope.slice(5))?.title ?? null)
+              : summary
+                ? courseTitle(summary, editions)
+                : null,
             editions,
-            counts: (await queueOf(`course:${course}`, data)).counts,
+            counts: (await queueOf(scope, data)).counts,
           });
         }
         out.push({
           scope: `lang:${lang}`,
           language: lang,
           counts: (await queueOf(`lang:${lang}`, data)).counts,
-          courses,
+          decks: decksIn,
         });
       }
       return out;

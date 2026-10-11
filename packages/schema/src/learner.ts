@@ -218,18 +218,23 @@ export const FaceState = z.object({
 });
 export type FaceState = z.infer<typeof FaceState>;
 
-/** What a card shows, kept with it so it survives course removal (`cards.display_cache_json`, 05). */
-export const CardDisplay = z.object({
+/** What a card shows, kept with it so it survives the removal of its course or deck
+ *  (`cards.display_cache_json`, 05). */
+const DisplayFields = {
   target: z.string().min(1),
   gender: Gender.optional(),
   plural: z.string().optional(),
   translation: z.string().optional(),
   example: z.string().optional(),
+  /** In the library of `series`, or in the folder of `deck`. */
   audio: z.string().optional(),
-  /** Where the word was met. */
-  series: z.string(),
-  lessonKey: z.string(),
-});
+};
+export const CardDisplay = z.union([
+  /** Where the word was met: a course's lesson. */
+  z.object({ ...DisplayFields, series: z.string(), lessonKey: z.string() }),
+  /** The imported deck it was taken from. */
+  z.object({ ...DisplayFields, deck: z.string() }),
+]);
 export type CardDisplay = z.infer<typeof CardDisplay>;
 
 /** One review of one face, in a `review` run (05, "Events"). */

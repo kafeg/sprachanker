@@ -1,4 +1,5 @@
 import { expect, test } from "bun:test";
+import { cardAudioUrl } from "../../src/api/client.ts";
 import { StudyCard } from "../../src/study/card.tsx";
 import { TargetLang } from "../../src/ui/target-lang.ts";
 import { renderApp } from "../render.tsx";
@@ -31,4 +32,25 @@ test("a listening card: the question is heard, not read; the answer shows the wo
   const answer = await card("answer");
   expect(answer.getAllByText("auch")).toHaveLength(1);
   expect(answer.getByText("also")).toBeTruthy();
+});
+
+test("an imported deck's word: no lesson to go to; its recording in the deck's folder, a course's in the library", async () => {
+  const deckWord = {
+    target: "der Abend",
+    translation: "evening",
+    audio: "media/abend.mp3",
+    deck: "a1-abc123",
+  };
+  const view = await renderApp(
+    <TargetLang value="de">
+      <StudyCard display={deckWord} face="recognition" side="answer" />
+    </TargetLang>,
+    { path: "/review" },
+  );
+  expect(view.getByText("evening")).toBeTruthy();
+  expect(view.queryByRole("link")).toBeNull();
+  expect(cardAudioUrl(deckWord)).toBe("/decks/a1-abc123/media/abend.mp3");
+  expect(cardAudioUrl({ ...display, audio: "media/audio/auch.mp3" })).toBe(
+    "/library/x/media/audio/auch.mp3",
+  );
 });

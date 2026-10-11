@@ -1,7 +1,9 @@
-// Review: tabs — Study straight on the cards, Decks (per language and course, as in Anki, and the decks
-// to take), My words — and the guide beside.
+// Review: tabs — Study straight on the cards, Decks (per language and course, as in Anki, the decks
+// to take, a deck file imported), My words — and the guide beside.
 import { expect, test } from "@playwright/test";
+import { CLIENT_HEADERS } from "@sprachanker/schema";
 import { beginCourse, post, put } from "./api.ts";
+import { E2E_DECK } from "./paths.ts";
 
 test("review: the cards straight away, Decks to choose another, tap and keys, undo", async ({
   page,
@@ -143,6 +145,48 @@ test("review: the guide explains the method beside; the decks to take are offere
   await expect(guide.getByRole("heading", { name: "How review works" })).toBeVisible();
   await expect(guide.getByRole("heading", { name: "Spaced repetition" })).toBeVisible();
   await expect(guide.getByRole("img", { name: /forgetting curves/ })).toBeVisible();
+});
+
+test("a deck file imported in Decks, taken, studied as a course's deck; left and deleted after", async ({
+  page,
+  request,
+}) => {
+  // The projects share one profile: a deck an earlier run left is left and deleted first.
+  const clear = async () => {
+    const { decks } = await (await request.get("/api/decks")).json();
+    for (const d of decks as Array<{ id: string }>) {
+      await post(request, "/api/cards/decks/leave", { scope: `deck:${d.id}`, lang: "de" });
+      const gone = await request.delete(`/api/decks/${d.id}`, { headers: { ...CLIENT_HEADERS } });
+      expect(gone.ok()).toBe(true);
+    }
+  };
+  await clear();
+  await page.goto("/review/decks");
+  await page.locator("input[type=file]").setInputFiles(E2E_DECK);
+  const sheet = page.getByRole("dialog");
+  await expect(sheet.getByRole("heading", { name: "Import a deck" })).toBeVisible();
+  await expect(sheet.getByLabel("Name")).toHaveValue("E2E Wörter");
+  await expect(sheet.getByText("3 words · no audio")).toBeVisible();
+  await expect(sheet.getByText("der Apfel")).toBeVisible();
+  await sheet.getByRole("combobox", { name: "Words in" }).click();
+  await page.getByRole("option", { name: "German" }).click();
+  await sheet.getByRole("button", { name: "Import" }).click();
+  await expect(sheet).toHaveCount(0);
+
+  // Offered beside the courses; taken, it is under German in the decks.
+  const offer = page.getByRole("listitem").filter({ hasText: "E2E Wörter" });
+  await offer.getByRole("button", { name: /^(Take the deck|Add the other \d+)$/ }).click();
+  await expect(offer).toHaveCount(0);
+  await page.getByRole("button", { name: "E2E Wörter", exact: true }).click();
+  await expect(page).toHaveURL(/\/review$/);
+  await expect(page.getByText("Studying: E2E Wörter")).toBeVisible();
+  const show = page.getByRole("button", { name: "Show answer" });
+  await expect(show).toBeVisible();
+  await show.click();
+  await expect(page.locator("[data-study-card]").first()).toContainText(/apple|pear|coffee/);
+  await page.getByRole("button", { name: "Good", exact: true }).click();
+  await expect(show).toBeVisible();
+  await clear();
 });
 
 test("Settings → Review: daily limits kept, retention and card types, the rest said in a few lines", async ({

@@ -62,15 +62,23 @@ JSON under `/api`, validated with zod and typed for the web client through Hono 
   `/api/notebook/exam` (`settleOverdue` in `services/exam-runs.ts`); a run opened
   (`/api/exams/runs/:id`) settles itself — so every view reads it handed in; no timer runs for it.
 - Cards (04): `POST /api/cards/lesson` (cards of a lesson's words), `GET /api/cards/decks` (each
-  language with its courses and their counts), `GET /api/cards/decks/offers` (each installed course's
-  words as a deck to take), `POST /api/cards/decks/take|leave` (a course's deck taken whole, or left),
+  language with its courses and imported decks and their counts), `GET /api/cards/decks/offers` (each
+  of My courses' words and each imported deck as a deck to take), `POST /api/cards/decks/take`
+  (`{series, course, edition}` or `{deck}`: taken whole), `POST /api/cards/decks/leave` (`{scope:
+  course:<key> | deck:<id>, lang}`: left),|leave` (a course's deck taken whole, or left),
   `POST /api/cards/decks/more` (more new cards today in a deck), `GET /api/cards/study?scope=` (the
   counts, the current face with its due time per rating, why a finished deck is finished, whether there is an answer to
   take back), `POST /api/cards/:id/review` (a rating), `POST /api/cards/undo`, `POST /api/cards/:id/bury`,
   `POST /api/cards/unbury`, `PUT /api/cards/:id/suspend|flag|mark`, `GET /api/cards` (My words: the
-  learner's words with their language, course, state and next due), `GET /api/cards/:id` (the word sheet:
+  learner's words with their language, deck, state and next due), `GET /api/cards/:id` (the word sheet:
   each face's state and the answers given, newest first, those taken back left out). A rating carries its event id (sent again, it is not applied twice) and the
   face's review count as shown (a face rated meanwhile on another device is refused: 409 `card_changed`).
+- Imported decks (04, "Decks"; server-wide, as the library): `GET /api/decks` (each with its languages,
+  words and how many have audio), `POST /api/decks/preview` (a deck file `.apkg` as the body, at most
+  100 MB: its deck's name, words, the first of them), `POST
+  /api/decks/import?title=&lang=&translationLang=&file=` (the file as the body: a new deck, or the deck
+  that has any of its notes, updated; 422 `not_a_deck`, `deck_without_words`; 413 `deck_too_large`),
+  `DELETE /api/decks/:id` (409 `deck_in_use` while any profile has cards made from it).
 - Settings: `GET` / `PUT /api/settings` (one key at a time): only the learner's preferences, each
   checked against its schema (`packages/schema/src/settings.ts`); the assistant's endpoints and prompts
   are changed only through `/api/llm`.
@@ -97,7 +105,8 @@ JSON under `/api`, validated with zod and typed for the web client through Hono 
   for each, tested), with 400 (input; a request that does not validate is `invalid_request` with a
   `detail`, the AI's routes included), 403 (`missing_client_header`, `registration_closed`), 404
   (`not_installed` for a course, lesson or file that is not in the library; unknown ids), 409 (state:
-  a run not active, an assistant not set up, a model already busy with the same thing), 413, 415, 421
+  a run not active, an assistant not set up, a model already busy with the same thing), 413, 415, 422
+  (a deck file that does not read, or has no words), 421
   (a host name this machine is not reached by), 502 (the LLM provider, the speech engine); services raise `ServiceError(code, status)` (`src/errors.ts`). Anything else, a
   stored row that no longer parses included, is a 500 (`server_error`).
 - `/api/llm` (`routes/llm.ts`): `GET /` (state), `PUT route`, `PUT providers/:id`, `GET models`,
@@ -115,7 +124,8 @@ JSON under `/api`, validated with zod and typed for the web client through Hono 
   message with `newChat` opens a new chat (the current one ends once the reply has come; a failed call
   changes nothing); `GET prompts` lists the system prompts and `PUT prompts/:task` sets or clears the
   learner's own one.
-- `GET /library/:series/*` (outside `/api`): library media with Range support.
+- `GET /library/:series/*` (outside `/api`): library media with Range support; `GET /decks/:id/media/*`:
+  an imported deck's own audio, likewise.
 - Every other path serves the web build: existing files as they are (`/assets/*` hashed and
   `immutable`, the rest `no-cache`), extension-less paths fall back to `index.html` (client routes).
 

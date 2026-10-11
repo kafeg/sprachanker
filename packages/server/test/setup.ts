@@ -8,6 +8,7 @@ import { openLibrary } from "@sprachanker/course-kit";
 import { CLIENT_HEADERS } from "@sprachanker/schema";
 import { createApp } from "../src/app.ts";
 import { mediaBlob, openServerDb, profileFiles } from "../src/runtime/bun.ts";
+import { apkgRuntime, deckFiles } from "../src/runtime/decks.ts";
 import type { CourseInstaller } from "../src/services/downloads.ts";
 import type { CliHost, LmStudioHost } from "../src/services/llm.ts";
 import type { ReadingCache, SpeechHost } from "../src/services/local-engines.ts";
@@ -39,6 +40,8 @@ export async function setup(
     server: openServerDb(join(root, "server.sqlite")),
     profiles,
     mediaBlob,
+    decks: deckFiles(root),
+    apkg: apkgRuntime,
     appVersion: "test",
     secretKey: new Uint8Array(32).fill(7),
     fetch: options.fetch,

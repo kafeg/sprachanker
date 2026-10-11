@@ -139,7 +139,7 @@ module.exports = {
         "lessons|lesson-journal|mistakes|explain|writing|speaking|tutor|tutor-tools|scene",
       ],
       ["exams", "exams|exam-runs|exam-rating|exam-conversation"],
-      ["review", "study|words|cards|examples"],
+      ["review", "study|words|cards|examples|decks"],
     ].map(([module, files], _, all) => ({
       name: `server-${module}-apart`,
       comment:

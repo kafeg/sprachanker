@@ -117,6 +117,7 @@ const SAME_IN_GERMAN = new Set([
   "player.position",
   "about.version",
   "myWords.dueIn",
+  "decks.import.name",
   "study.flag.orange",
   // Federal states whose German names English keeps.
   ...["bw", "be", "bb", "hb", "hh", "sl", "sh"].map((s) => `exams.states.${s}`),

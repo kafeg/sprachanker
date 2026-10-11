@@ -110,7 +110,7 @@ mistakes by rule and lexeme, rule mastery, weak spots,
 
 Anki one-to-one (owner, 2026-10-07): the study queue, its limits, the reviewer's ratings, keys and
 actions behave as in Anki (v3 scheduler, FSRS), so the learner's habits and decks carry over and
-`.apkg` decks imported later fit in. Scheduling and the queue are pure functions in
+imported `.apkg` decks fit in. Scheduling and the queue are pure functions in
 `packages/engine/src/srs/`; the server keeps the cards and answers (`services/cards.ts`).
 
 - FSRS via `ts-fsrs`, default parameters, desired retention 0.9 (`srs.retention`), Anki's default
@@ -134,15 +134,17 @@ actions behave as in Anki (v3 scheduler, FSRS), so the learner's habits and deck
   seven flags (Ctrl+1–7). The word's recording plays by itself on the side that holds it. A deck's
   overview has the counts, Study now and Unbury; a finished deck says when the next learning card is
   due and whether new cards or reviews wait behind a limit.
-- **Cards** come from the lesson's "Words" step and from taking a course's deck (below)
+- **Cards** come from the lesson's "Words" step and from taking a course's or an imported deck (below)
   (`services/cards.ts`): one card per lexeme and translation language — the edition's source language:
   a word learned through Russian and through English is two notes, since each shows its own
   translation; meeting it again in the same language reuses it (owner, 2026-10-07). A word added from
   its sheet: plan, "Open items in built areas", Review.
 - **Decks** are virtual, as in Anki's deck list (`services/study.ts`): a language (`lang:<code>`) with
   its courses under it (`course:<key>`, by the lesson a word was first met in) — German and English
-  never share a deck; a lesson's own words in an edition (`lesson:<edition>:<key>`) in its "Words"
-  step.
+  never share a deck; an imported deck (`deck:<id>`: the cards of its words' lexemes in its translation
+  language, so a word a course gave a card is studied in both); a lesson's own words in an edition
+  (`lesson:<edition>:<key>`) in its "Words" step. A card belongs to the deck it was made in (a course's,
+  by its display, or an imported deck's) for the deck list, My words and leaving.
 - **Faces**: recognition (target → native), production (native → target), listening (audio → meaning).
   Enabled per card; the profile sets the default (recognition + production).
 - **Deck options** are the profile's (Settings → Review, owner 2026-10-08), Anki's defaults where unset:
@@ -155,12 +157,26 @@ actions behave as in Anki (v3 scheduler, FSRS), so the learner's habits and deck
   The sentence's words are matched against the course's words up to the card's lesson (their forms,
   and a form differing only by an ending: `text/words.ts`); the others are marked new, translated by
   the course's later lessons, else by the model's glossary.
+- **Imported decks** (plan, "Anki decks and word images"): an `.apkg` file (`packages/anki-export`:
+  the collection in any of Anki's formats, its notes and media) becomes a deck of words in a language
+  with translations in another, both chosen when importing. Each note is a word, its fields by name —
+  word (Wort, Word, Front…), translation (Übersetzung, Translation, Back…), plural, part of speech
+  (Wortart…) — else the first field the word and the second its translation; HTML as text, the first
+  `[sound:…]` its audio, kept with the deck. Its lexeme is made by the courses' rules (schema
+  `shapeHeadword`, `germanGender`: "der Abend" a masculine noun, a phrase a phrase whatever the deck
+  calls it, the deck's Verb or Adjektiv taken), so a word a course has links to its card. Decks are
+  the server's, every profile's to take (05, `decks/`); a file imported again — any of its notes here
+  already, by guid — updates that deck, and cards follow their words (relinking); a deck is deleted
+  only while no profile has cards made from it (they leave it first: nobody's progress goes
+  unasked). Planned (phases after the import): audio read aloud by the server's engine for a deck's
+  words without it, and examples by the AI for a whole deck (plan, item 1), kept beside the deck
+  (`extras.json`, 05).
 - **Decks to take** (owner, 2026-10-08/09): each course of My courses (begun) and language pair offers
-  its words as one deck. Taking it makes every lesson's words cards at once, new and in course order
+  its words as one deck; so does each imported deck. Taking it makes every lesson's words cards at once, new and in course order
   (Anki: a deck imported); words with a card already keep it. **Leaving** a course's deck (after asking)
   removes its cards with their progress (faces and every answer to them, as a reset does); a card of a word another of the learner's decks has (a course
-  with cards, in the same translation language) moves there with its progress instead (its word and
-  display become that course's). **More new cards today** adds to a deck's daily limit for the
+  or an imported deck with cards, in the same translation language) moves there with its progress
+  instead (its word and display become that deck's). An imported deck is taken and left alike. **More new cards today** adds to a deck's daily limit for the
   study day (Anki's custom study "increase today's new card limit"; a course's extra counts in its
   language deck too, and the review limit grows as much so it does not hold them back).
 - **"Words of the lesson"** is the same reviewer over the lesson's words in the edition's translation
@@ -169,7 +185,7 @@ none (engine `lessonFace`) — and without the day's new limit (the learner chos
   otherwise exactly Anki's reviewer: a new word goes through the learning steps (1m, 10m), shown again
   within the 20-minute learn-ahead (owner, 2026-10-07: identical to Anki everywhere). The step is done
   once nothing is left to study now; the learning faces go on in Review.
-- Planned: `.apkg` export and import, stored decks, word images (plan, "Anki decks and word images").
+- Planned: `.apkg` export, word images (plan, "Anki decks and word images").
 
 ## Exams
 

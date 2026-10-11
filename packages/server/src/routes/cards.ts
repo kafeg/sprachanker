@@ -1,9 +1,10 @@
-// /api/cards: cards and review as in Anki (04) — cards from a lesson's words, decks, what to study, the
-// reviewer's actions — and My words with the word sheet.
+// /api/cards: cards and review as in Anki (04) — cards from a lesson's words, decks (taken and left: a
+// course's or an imported one), what to study, the reviewer's actions — and My words with the word sheet.
 import {
   CardFace,
   CardRating,
   CourseKey,
+  DeckId,
   EditionId,
   Lang,
   LessonKey,
@@ -17,11 +18,16 @@ import { zod } from "../validate.ts";
 import type { ProfileEnv } from "./env.ts";
 
 const CardParam = z.object({ id: Ulid });
-/** Every deck, a language, a course, or a lesson's own words (services/study.ts). */
+/** A deck as Review lists it: a course's or an imported one. */
+const TakenDeck = z.union([
+  z.templateLiteral(["course:", CourseKey]),
+  z.templateLiteral(["deck:", DeckId]),
+]);
+/** Every deck, a language, a course, an imported deck, or a lesson's own words (services/study.ts). */
 const DeckScope = z.union([
   z.literal("all"),
   z.string().regex(/^lang:[a-z]{2,3}$/),
-  z.templateLiteral(["course:", CourseKey]),
+  TakenDeck,
   z.templateLiteral(["lesson:", EditionId, ":", LessonKey]),
 ]);
 const ok = { ok: true as const };
@@ -35,15 +41,24 @@ export function cardRoutes() {
         async (c) => c.json(await c.var.s.cards.fromLesson(c.req.valid("json"))),
       )
       .get("/decks", async (c) => c.json({ decks: await c.var.s.study.decks() }))
-      // Decks to take: each installed course's words (Anki: a deck), taken or left whole.
-      .get("/decks/offers", async (c) => c.json({ offers: await c.var.s.cards.deckOffers() }))
+      // Decks to take: each of My courses' words and each imported deck (Anki: a deck), taken or left
+      // whole.
+      .get("/decks/offers", async (c) => c.json(await c.var.s.cards.deckOffers()))
       .post(
         "/decks/take",
-        zod("json", z.object({ series: SeriesKey, course: Slug, edition: EditionId })),
+        zod(
+          "json",
+          z.union([
+            z.object({ series: SeriesKey, course: Slug, edition: EditionId }),
+            z.object({ deck: DeckId }),
+          ]),
+        ),
         async (c) => c.json(await c.var.s.cards.takeDeck(c.req.valid("json"))),
       )
-      .post("/decks/leave", zod("json", z.object({ course: CourseKey, lang: Lang })), async (c) =>
-        c.json(await c.var.s.cards.leaveDeck(c.req.valid("json"))),
+      .post(
+        "/decks/leave",
+        zod("json", z.object({ scope: z.string().pipe(TakenDeck), lang: Lang })),
+        async (c) => c.json(await c.var.s.cards.leaveDeck(c.req.valid("json"))),
       )
       // More new cards today in a deck (Anki's custom study).
       .post(

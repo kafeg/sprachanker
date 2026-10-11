@@ -15,6 +15,7 @@ import {
 } from "./runtime/bun.ts";
 import { cliHost } from "./runtime/cli.ts";
 import { holdDataRoot, serverOn } from "./runtime/data-root.ts";
+import { apkgRuntime, deckFiles } from "./runtime/decks.ts";
 import { lmStudioHost } from "./runtime/lmstudio.ts";
 import { piperHost } from "./runtime/piper.ts";
 import { readingCache } from "./runtime/readings.ts";
@@ -28,12 +29,12 @@ export interface ServerConfig {
   hostname: string;
   port: number;
   webAssets: WebAssets;
-  /** Data root (05): library/ and profiles/. */
+  /** Data root (05): library/, decks/ and profiles/. */
   dataRoot: string;
   appVersion: string;
 }
 
-/** Starts the HTTP server: JSON API under /api, library media and the built web app. */
+/** Starts the HTTP server: JSON API under /api, library and deck media and the built web app. */
 export function startServer(config: ServerConfig): Listening {
   holdDataRoot(config.dataRoot);
   const app = createApp({
@@ -42,6 +43,8 @@ export function startServer(config: ServerConfig): Listening {
     server: openServerDb(join(config.dataRoot, "server.sqlite")),
     profiles: profileFiles(config.dataRoot),
     mediaBlob,
+    decks: deckFiles(config.dataRoot),
+    apkg: apkgRuntime,
     appVersion: config.appVersion,
     // Outside the data root, so a copied data folder does not carry usable API keys.
     secretKey: secretKey(join(appDataDir(), "secret.key")),

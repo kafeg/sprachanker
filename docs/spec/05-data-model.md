@@ -8,6 +8,11 @@
 
 <data-root>/                     # --data, else $SPRACHANKER_DATA, else <app-data>/data
 ├── library/                     # installed courses (02)
+├── decks/<deck-id>/             # imported decks (04, "Decks"): deck.json (schema `deck.ts`: the words, their
+│                                # languages, the file it came from) and media/ (the audio the .apkg brought);
+│                                # a folder written whole (beside, then renamed into place). Planned beside
+│                                # deck.json: extras.json (by word key: audio read aloud, AI examples), and
+│                                # folders for course decks too (`course~<series>~<course>~<edition>`)
 ├── models/                      # downloaded speech models; voices/ Piper's voices; engines.pid (06) (08)
 ├── cache/tts/                   # texts read aloud by Piper (by voice, speed, text) and Qwen3-TTS (08)
 ├── server.sqlite                # profiles, devices, server settings
@@ -19,7 +24,8 @@
 ```
 
 - One profile = one folder: backup, move, export and deletion of a person's data are folder operations.
-- The library never contains learner data; profiles never contain course content.
+- The library never contains learner data; profiles never contain course content. Imported decks are
+  the server's, as the library is: every profile takes them; their cards are each profile's.
 - Large downloads (courses, speech models) live in the data root, on the disk the user chose; keys
   stay in app-data. LLM models are LM Studio's business (07).
 - The server creates the data root when it starts on it and holds it with `server.pid`
@@ -40,7 +46,7 @@
 All ids are ULIDs; all content references use keys from 02. Built: `settings`, `secrets`, `llm_routes`,
 `runs`, `events`, `cards`, `card_state` (`packages/server/src/db/profile/schema.ts`). A card's
 `display_cache_json` holds what it shows (headword, gender, plural, translation, an example, audio, the
-lesson it was met in); `faces` is a comma-separated list.
+lesson it was met in — or the imported deck it was taken from); `faces` is a comma-separated list.
 
 ```sql
 settings(key TEXT PRIMARY KEY, value_json TEXT)          -- every key with its schema and owner
@@ -80,7 +86,8 @@ cards(
   kind TEXT NOT NULL,             -- lexeme (the only kind made)
   lexeme_key TEXT,                -- unique with translation_lang (04, "Spaced repetition")
   translation_lang TEXT NOT NULL, -- the edition's source language its translation is in
-  source_key TEXT,                -- vocab occurrence or item key where it was met
+  source_key TEXT,                -- vocab occurrence or item key where it was met; an imported deck's
+                                  -- word: its note's guid
   origin_run_id TEXT,             -- the run it was created in, if any: the lesson run of its "Words"
                                   -- step; set null when deleted
   faces TEXT NOT NULL,            -- enabled faces
@@ -230,6 +237,6 @@ by its snapshot, found by exercise key.
 - Content updated while a run is active ends the run `abandoned/content_updated`: planned (plan, "Open
   items in built areas", Library).
 - **Course removed**: runs stay readable via snapshots; lexeme cards keep working from
-  `display_cache_json`.
+  `display_cache_json`. An imported deck is deleted only while no profile has cards made from it.
 - **Study days** are read from the event log, never stored (04, "Learner model"), in the time zone of
   the machine the server runs on (the learner's own computer).

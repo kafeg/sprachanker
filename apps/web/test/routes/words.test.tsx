@@ -9,7 +9,7 @@ const word = (id: string, target: string, translation: string, extra: Record<str
   lexemeKey: `lex:de:${id}:word`,
   display: { target, translation, series: "sprachanker.test", lessonKey: `${COURSE}/00-01` },
   lang: "de",
-  course: COURSE,
+  deck: `course:${COURSE}`,
   suspended: false,
   marked: false,
   state: "new",
@@ -33,10 +33,9 @@ const DECKS = {
       scope: "lang:de",
       language: "de",
       counts,
-      courses: [
+      decks: [
         {
           scope: `course:${COURSE}`,
-          course: COURSE,
           title: "Demo course",
           editions: ["en-de"],
           counts,

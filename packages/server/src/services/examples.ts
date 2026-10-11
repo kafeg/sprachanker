@@ -1,8 +1,9 @@
 // AI examples for a word (04, "Spaced repetition"; 07): on request, the model writes an example
-// sentence for a card's word with the words of the course up to the word's lesson. Each is an
-// `llm_verdict` (`task: example`) on the card in the day's review run (05), never shown by itself: the
-// card's examples come back only when asked for again. Which words of a sentence are new is worked
-// out when read, against the course as installed now (the engine's `markWords`).
+// sentence for a card's word with the words of the course up to the word's lesson (an imported deck's
+// word: none). Each is an `llm_verdict` (`task: example`) on the card in the day's review run (05),
+// never shown by itself: the card's examples come back only when asked for again. Which words of a
+// sentence are new is worked out when read, against the course as installed now (the engine's
+// `markWords`).
 import { markWords, usesWord, type VocabWord } from "@sprachanker/engine";
 import { structuredRequest, type WordExampleInput, wordExampleTask } from "@sprachanker/llm";
 import type { LessonKey, WordExample } from "@sprachanker/schema";
@@ -38,9 +39,14 @@ export function createExamples(deps: {
     const note = deps.cards.note(cardId);
     const { display } = note;
     const edition = `${note.translationLang}-${note.lang}`;
-    const vocabulary = await deps.lessonContext
-      .vocabulary(display.series, display.lessonKey as LessonKey, edition)
-      .catch(() => ({ upTo: [], later: [] }));
+    // An imported deck's word has no course around it.
+    const none: { upTo: VocabWord[]; later: VocabWord[] } = { upTo: [], later: [] };
+    const vocabulary =
+      "lessonKey" in display
+        ? await deps.lessonContext
+            .vocabulary(display.series, display.lessonKey as LessonKey, edition)
+            .catch(() => none)
+        : none;
     const word: VocabWord = {
       target: display.target,
       plural: display.plural,

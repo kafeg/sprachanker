@@ -1,6 +1,7 @@
 // Runtime-agnostic Hono app. apps/web imports `AppType` from here (type-only), so this module graph
 // must stay free of Bun/Node APIs; those live in src/runtime/.
 
+import type { ApkgRuntime } from "@sprachanker/anki-export";
 import { type LibraryView, NotInstalledError } from "@sprachanker/course-kit/view";
 import { CLIENT_HEADERS } from "@sprachanker/schema";
 import { Hono } from "hono";
@@ -9,6 +10,7 @@ import { errorResponse } from "./errors.ts";
 import { blobResponse, type MediaBlob } from "./media.ts";
 import { cardRoutes } from "./routes/cards.ts";
 import { courseRoutes } from "./routes/courses.ts";
+import { deckRoutes } from "./routes/decks.ts";
 import type { ProfileEnv } from "./routes/env.ts";
 import { examRoutes } from "./routes/exams.ts";
 import { lessonRoutes } from "./routes/lessons.ts";
@@ -20,6 +22,7 @@ import { recordingsRoutes } from "./routes/recordings.ts";
 import { settingsRoutes } from "./routes/settings.ts";
 import { speechRoutes } from "./routes/speech.ts";
 import { hostGuard } from "./security/host.ts";
+import type { DeckFiles } from "./services/decks.ts";
 import type { CourseInstaller } from "./services/downloads.ts";
 import { createServices } from "./services/index.ts";
 import type { CliHost, LmStudioHost } from "./services/llm.ts";
@@ -38,6 +41,10 @@ export interface AppConfig {
   profiles: ProfileFiles;
   /** Reads a library media file (runtime adapter). */
   mediaBlob(file: string): MediaBlob;
+  /** The imported decks' folders (runtime adapter), and what reading a package needs of the
+   *  runtime: SQLite from bytes, zstd. */
+  decks: DeckFiles;
+  apkg: ApkgRuntime;
   appVersion: string;
   /** 32-byte key that seals the profiles' API keys (06, "Secrets"). */
   secretKey: Uint8Array;
@@ -91,6 +98,7 @@ export function createApp(config: AppConfig) {
     .route("/exams", examRoutes())
     .route("/settings", settingsRoutes())
     .route("/cards", cardRoutes())
+    .route("/decks", deckRoutes())
     .route("/notebook", notebookRoutes())
     .route("/recordings", recordingsRoutes())
     .route("/speech", speechRoutes())
@@ -104,17 +112,26 @@ export function createApp(config: AppConfig) {
       throw error;
     });
 
-  return new Hono()
-    .use("*", hostGuard(config.hosts))
-    .route("/api", api)
-    .all("/api/*", (c) => c.json({ error: "not_found" }, 404))
-    .get("/library/:series/*", (c) => {
-      const series = c.req.param("series");
-      const path = safeDecode(c.req.path.slice(`/library/${series}/`.length));
-      const file = path && config.library.mediaFile(series, path);
-      return file ? blobResponse(config.mediaBlob(file), c.req.header("range")) : c.notFound();
-    })
-    .get("*", serveWeb(config.webAssets));
+  return (
+    new Hono()
+      .use("*", hostGuard(config.hosts))
+      .route("/api", api)
+      .all("/api/*", (c) => c.json({ error: "not_found" }, 404))
+      .get("/library/:series/*", (c) => {
+        const series = c.req.param("series");
+        const path = safeDecode(c.req.path.slice(`/library/${series}/`.length));
+        const file = path && config.library.mediaFile(series, path);
+        return file ? blobResponse(config.mediaBlob(file), c.req.header("range")) : c.notFound();
+      })
+      // An imported deck's own media.
+      .get("/decks/:id/*", (c) => {
+        const id = c.req.param("id");
+        const path = safeDecode(c.req.path.slice(`/decks/${id}/`.length));
+        const file = path && svc.decks.media(id, path);
+        return file ? blobResponse(file, c.req.header("range")) : c.notFound();
+      })
+      .get("*", serveWeb(config.webAssets))
+  );
 }
 
 export type AppType = ReturnType<typeof createApp>;

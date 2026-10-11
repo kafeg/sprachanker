@@ -44,10 +44,9 @@ test("a lesson's words become cards, one per word, kept when met again; decks by
       scope: "lang:de",
       language: "de",
       counts: { new: 8, learning: 0, review: 0 },
-      courses: [
+      decks: [
         {
           scope: `course:${COURSE}`,
-          course: COURSE,
           // The course's title in the deck's edition, not its first.
           title: "Демо-курс",
           editions: ["ru-de"],
@@ -306,6 +305,7 @@ test("a card follows its word's lexeme when a course is normalised again; no sec
     cards: createCardStore(profile),
     store: createRunStore({ db: profile, now: Date.now, appVersion: "test" }),
     content: createContent(openLibrary(join(root, "library"))),
+    decks: { deck: () => undefined, list: () => [] },
     settings: createSettings(profile),
     session: async () => undefined,
     myCourses: async () => new Set(),
@@ -352,7 +352,12 @@ test("My words: a word's sheet has each face's state and its answers; an undone 
   const word = (await getJson("/api/cards")).words.find(
     (w: { lexemeKey: string }) => w.lexemeKey === "lex:de:kaffee:noun:m",
   );
-  expect([word.lang, word.course, word.state, word.due]).toEqual(["de", COURSE, "new", null]);
+  expect([word.lang, word.deck, word.state, word.due]).toEqual([
+    "de",
+    `course:${COURSE}`,
+    "new",
+    null,
+  ]);
   const rate = (face: string, rating: number, reps: number) =>
     sendJson("POST", `/api/cards/${word.cardId}/review`, { id: ulid(), face, rating, reps });
   await rate("recognition", 1, 0);
@@ -514,14 +519,14 @@ test("decks to take: the courses of My courses; a course's words taken at once i
   const api = await setup();
   const { sendJson, getJson } = api;
   const offer = async () =>
-    (await getJson("/api/cards/decks/offers")).offers.find(
+    (await getJson("/api/cards/decks/offers")).courses.find(
       (o: { edition: string }) => o.edition === "ru-de",
     );
   // Not begun: not offered.
   expect(await offer()).toBeUndefined();
   await begin(api);
   const before = await offer();
-  expect(before).toMatchObject({ key: COURSE, lang: "ru", mine: 0 });
+  expect(before).toMatchObject({ scope: `course:${COURSE}`, mine: 0 });
   expect(before.words).toBeGreaterThan(4);
   const taken = await sendJson("POST", "/api/cards/decks/take", {
     series: FIXTURE_SERIES,
@@ -544,8 +549,8 @@ test("decks to take: the courses of My courses; a course's words taken at once i
   const first = (await getJson(study(`course:${COURSE}`))).current;
   expect(first.display.lessonKey).toBe(LESSONS[0]);
   // The deck as Review lists it: the course, its language pair.
-  const deck = (await getJson("/api/cards/decks")).decks[0].courses[0];
-  expect(deck).toMatchObject({ course: COURSE, editions: ["ru-de"] });
+  const deck = (await getJson("/api/cards/decks")).decks[0].decks[0];
+  expect(deck).toMatchObject({ scope: `course:${COURSE}`, editions: ["ru-de"] });
 });
 
 test("leaving a deck: its cards go, studied too; a word another deck has moves there with its progress", async () => {
@@ -574,7 +579,10 @@ test("leaving a deck: its cards go, studied too; a word another deck has moves t
   // The copy's words are all in the fixture course's deck: they move there, the studied one with its
   // progress; nothing goes.
   expect(
-    await sendJson("POST", "/api/cards/decks/leave", { course: other.course, lang: "de" }),
+    await sendJson("POST", "/api/cards/decks/leave", {
+      scope: `course:${other.course}`,
+      lang: "de",
+    }),
   ).toEqual({
     removed: 0,
     moved: 4,
@@ -584,7 +592,9 @@ test("leaving a deck: its cards go, studied too; a word another deck has moves t
   expect(sheet.answers).toHaveLength(1);
   // No other deck has them: leaving the fixture course's deck removes every card, studied or not,
   // with its answers: today's answer to a card gone is nothing to undo.
-  expect(await sendJson("POST", "/api/cards/decks/leave", { course: COURSE, lang: "de" })).toEqual({
+  expect(
+    await sendJson("POST", "/api/cards/decks/leave", { scope: `course:${COURSE}`, lang: "de" }),
+  ).toEqual({
     removed: taken.created + 4,
     moved: 0,
   });

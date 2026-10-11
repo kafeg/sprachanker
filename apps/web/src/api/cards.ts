@@ -19,24 +19,25 @@ export function useMakeCards() {
 const CARD_QUERIES = ["study", "decks", "deck-offers", "words", "word"];
 
 /** The card lists read again after cards change; resolves once they are. */
-const readCardsAgain = (client: QueryClient) =>
+export const readCardsAgain = (client: QueryClient) =>
   client.invalidateQueries({ predicate: (q) => CARD_QUERIES.includes(String(q.queryKey[0])) });
 
-/** Decks: each language, and under it each course, with Anki's three counts. */
+/** Decks: each language, and under it each course and imported deck, with Anki's three counts. */
 export const useDecks = () =>
   useQuery({ queryKey: ["decks"], queryFn: () => json(api.cards.decks.$get()) });
 
-/** Decks to take: each installed course's words with how many are cards already. */
+/** Decks to take: each of My courses' words and each imported deck, with how many are cards already. */
 export const useDeckOffers = () =>
   useQuery({ queryKey: ["deck-offers"], queryFn: () => json(api.cards.decks.offers.$get()) });
 
-/** Taking or leaving a course's deck, and more new cards today: every card list is read anew. */
+/** Taking or leaving a deck (a course's or an imported one), and more new cards today: every card list
+ *  is read anew. */
 export function useDeckActions() {
   const client = useQueryClient();
   const fresh = () => void readCardsAgain(client);
   return {
     take: useMutation({
-      mutationFn: (input: { series: string; course: string; edition: string }) =>
+      mutationFn: (input: Parameters<typeof api.cards.decks.take.$post>[0]["json"]) =>
         json(api.cards.decks.take.$post({ json: input })),
       onSuccess: fresh,
     }),

@@ -2,7 +2,7 @@
 
 HTTP API, storage, course downloads, sidecars, speech. Spec: `docs/spec/05-data-model.md`,
 `docs/spec/06-server.md`, `docs/spec/08-speech.md`. May depend on: schema, engine, course-kit,
-courses/*, llm (and anki-export, planned: plan, "Anki decks and word images").
+courses/*, llm, anki-export.
 
 ## Layout
 
@@ -22,7 +22,9 @@ src/
                      # (whisper-server and Qwen3-TTS's tts-server), piper.ts (Piper's voices and
                      # runs), readings.ts (what was read aloud, kept in cache/tts);
                      # backup.ts (a copy of each database a day);
-                     # cli.ts (runs `claude` / `codex` for the command-line LLM providers)
+                     # cli.ts (runs `claude` / `codex` for the command-line LLM providers);
+                     # decks.ts (imported decks' folders, written whole; SQLite from bytes and zstd for
+                     # reading an .apkg)
   db/
     server/          # Drizzle schema + migrations for server.sqlite
     profile/         # Drizzle schema + migrations for profile.sqlite
@@ -35,11 +37,12 @@ src/
   routes/            # one file per API area, mounted by app.ts: profiles (who is studying, signing in and
                      # out — before the session check; the profile itself — after it), courses
                      # (courses, catalog, downloads, lesson content), lessons (lesson runs: /api/runs),
-                     # progress (reset), exams, cards, settings, notebook, recordings, speech, llm
+                     # progress (reset), exams, cards, decks (imported: list, preview, import, delete),
+                     # settings, notebook, recordings, speech, llm
                      # (removable as a whole); env.ts: what a profile's routes read (`c.var.s`, its
                      # services; `c.var.profileId`); params.ts: what several take alike (a run's id in
                      # the path, a batch of events)
-  services/          # index.ts wires them: shared (content, downloads, profiles, devices) and each
+  services/          # index.ts wires them: shared (content, decks, downloads, profiles, devices) and each
                      # profile's own (`of(id)`, made on first use; what one module needs of another is
                      # a function handed in here). By area:
                      # - stores: run-store (the only code on runs and events), card-store (on cards and
@@ -48,8 +51,10 @@ src/
                      #   pass in full, an item across passes), mistakes
                      # - exams: exams (the standing in each, the exams', an exam's Notebook page) over
                      #   exam-runs (mock exams and practice taken; overdue ones handed in on reading)
-                     # - review: cards (from lesson words; decks taken, left; relinking), study (Anki's
-                     #   decks, queue, ratings, undo, bury, suspend, flags, marks; standing), words
+                     # - review: cards (from lesson words or an imported deck; decks taken, left;
+                     #   relinking), study (Anki's decks, queue, ratings, undo, bury, suspend, flags,
+                     #   marks; standing), words, decks (imported .apkg decks, server-wide: preview,
+                     #   import — the same deck again updated —, list, delete while no profile uses it)
                      # - across modules: notebook (study days, the standings gathered), progress (resets;
                      #   recordings in use), content, settings, stored (a JSON value read by its schema)
                      # - AI (07), each task in the module whose run keeps its answers: llm (providers,
@@ -63,7 +68,8 @@ src/
                      # - downloads: course installs (queue, progress, resume; the installer injected)
   security/          # secrets.ts (AES-GCM sealing of API keys), host.ts (Host check, CSP and security
                      # headers), encoding.ts (base64url, SHA-256)
-  media.ts           # Range responses for library media and profile recordings; audio body limits
+  media.ts           # Range responses for library and deck media and profile recordings; body limits
+                     # (audio, deck files)
 test/                # bun test; integration tests call createApp().request() — setup.ts signs a profile in
                      # and sends its cookie (`anonymous` sends none)
 ```

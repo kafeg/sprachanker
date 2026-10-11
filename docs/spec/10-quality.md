@@ -39,7 +39,8 @@ table in the same commit with the reason.
 | HTML sanitising (importers) | `sanitize-html` with the allow-list from 02 |
 | PDF reading (importers) | `pdfjs-dist` (pdf.js, legacy build, its parser in the importer's thread): text with its place, pictures decoded; PNG written with `node:zlib` |
 | Markdown rendering | `markdown-it` with `html: false` |
-| Zip | `fflate` (when first needed: profile export, `.apkg`) |
+| Zip | `fflate` (`.apkg` packages: `packages/anki-export`; profile export when built) |
+| zstd, SQLite from bytes (`.apkg`) | the runtime's: `Bun.zstdDecompressSync`, `Database.deserialize` (`packages/server/src/runtime/decks.ts`) |
 | Logging | `pino` (when first needed: structured logs; today `console.error` for what is left out or fails) |
 | Crypto | WebCrypto: AES-256-GCM (API keys), SHA-256 (device tokens) — runtime-agnostic, no adapter |
 | Web UI | React, Vite, Tailwind, shadcn/ui (Radix), Lucide; fonts bundled from `@fontsource` (no CDN): Fira Sans and Fira Sans Condensed, woff2 of the Latin, Latin Extended, Cyrillic and Greek subsets (`apps/web/src/fonts.css`; Greek for an el-de edition such as Nicos Weg's, monotonic only — no Greek Extended; 2026-10-11: Barlow has no Cyrillic — Russian text mixed two fonts —; Sofia Sans set smaller, IBM Plex Sans Condensed has no Cyrillic on @fontsource); Motion when an animation needs more than CSS |
@@ -64,7 +65,7 @@ table in the same commit with the reason.
 | Contract / snapshot | providers on **synthetic** fixtures |
 | Integration | server API against a temp data root (`createApp().request()`); media Range |
 | Migration | migrations with backup, downgrade refusal and rollback; each schema change upgrades a database built by the earlier migrations, with rows in it |
-| E2E (Playwright) | the fixture course: open the course, do exercises, resume, finish with a summary; AI screens against a fake OpenAI-compatible server (`e2e/fake-llm.ts`), never a real model; desktop and phone viewport |
+| E2E (Playwright) | the fixture course: open the course, do exercises, resume, finish with a summary; a synthetic deck file (`.apkg`, built by `e2e/fixture-data.ts`) imported, taken and studied; AI screens against a fake OpenAI-compatible server (`e2e/fake-llm.ts`), never a real model; desktop and phone viewport |
 | Run-throughs (Playwright, the Mac only) | real courses: lessons walked through by their screens at phone width (`e2e/real`) — the words rated, the reading pages read, every exercise answered and checked, speaking items recorded with the browser's fake microphone, the summary reached; after each step, and after each exercise's check, nothing wider than the screen and no error page (labels cut short listed at the end, to look at; an exercise the walk could not answer completely fails its lesson, all of them listed at the end, while a speaking item held back by design — a phrase to say without speech recognition — is only listed; `REAL_SHOTS=<dir>` keeps every checked exercise, reading page and the words step as a full-page screenshot, the phone's touch emulation kept through them; `REAL_DESKTOP=1` adds a desktop run); then the profile's database read: one run finished and completed, each exercise page shown, every item answered or skipped with the engine's own outcome stored, the reading steps recorded, the words' cards made (by all three faces) and their ratings stored. Each installed exam too
 (`exam.real.ts`): the federal state chosen on its page, a mock exam drawn and every question answered
 by its card (two of three right), handed in, its result; practice of the mistakes checked at once, the

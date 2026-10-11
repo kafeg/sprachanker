@@ -628,7 +628,8 @@
     },
     "lapses": "{count, plural, one {forgotten # time} other {forgotten # times}}",
     "suspend": "Suspend",
-    "unsuspend": "Unsuspend"
+    "unsuspend": "Unsuspend",
+    "fromDeck": "From the deck {deck}"
   },
   "notebook": {
     "title": "Notebook",
@@ -873,14 +874,27 @@
     "more": "{count, plural, one {# more new card today} other {# more new cards today}}",
     "leave": "Leave deck…",
     "offers": "Decks to take",
-    "offersHint": "The words of each of your courses are a deck: taken whole, it adds them as new cards in course order — within the daily limit, or more with “more new today”.",
+    "offersHint": "The words of each of your courses, and of each deck imported here, are a deck: taken whole, it adds them as new cards in its order — within the daily limit, or more with “more new today”. A word you have a card of already keeps it.",
     "words": "{words, plural, one {# word} other {# words}} · {mine, number} yours already",
     "take": "Take the deck",
     "takeRest": "Add the other {count, number}",
     "study": "Study",
     "leaveTitle": "Leave the deck {deck}?",
     "leaveBody": "Its cards go, with their progress. Words that another of your decks has move there, progress and all.",
-    "moreShort": "{count, plural, one {+# new} other {+# new}}"
+    "moreShort": "{count, plural, one {+# new} other {+# new}}",
+    "import": {
+      "button": "Import a deck file (.apkg)",
+      "title": "Import a deck",
+      "hint": "Its words become a deck every profile on this computer can take, as a course's; its audio comes with them.",
+      "name": "Name",
+      "lang": "Words in",
+      "translationLang": "Translations in",
+      "words": "{words, plural, one {# word} other {# words}} · {audio, plural, =0 {no audio} one {# with audio} other {# with audio}}",
+      "submit": "Import"
+    },
+    "remove": "Delete deck",
+    "removeTitle": "Delete the deck {deck}?",
+    "removeBody": "Its words and audio are removed from this computer, for every profile. A deck someone studies stays until they leave it."
   },
   "guide": {
     "open": "How it works",
@@ -1163,7 +1177,12 @@
     "other": "Something went wrong: {message}",
     "exam_needs_setting": "Choose your federal state first: the exam asks questions about it.",
     "exam_time_over": "The time of this mock exam is up: it was handed in as it was.",
-    "exam_test_running": "A mock exam is running: hand it in first."
+    "exam_test_running": "A mock exam is running: hand it in first.",
+    "no_such_deck": "This deck is not here (any more).",
+    "not_a_deck": "This file is not a deck file (.apkg) that can be read.",
+    "deck_without_words": "This deck has no words to learn.",
+    "deck_too_large": "This deck file is too large (100 MB at most).",
+    "deck_in_use": "A profile studies this deck: it can be deleted once nobody does."
   },
   "exams": {
     "tabs": {

@@ -1,4 +1,4 @@
-import { CLIENT_HEADERS } from "@sprachanker/schema";
+import { type CardDisplay, CLIENT_HEADERS } from "@sprachanker/schema";
 import type { AppType } from "@sprachanker/server/app";
 import { hc } from "hono/client";
 
@@ -11,6 +11,13 @@ export const STATIC = { static: true } as const;
 
 /** URL of a library media file. */
 export const mediaUrl = (series: string, path: string) => `/library/${series}/${path}`;
+
+/** URL of a card's recording: in its course's library, or in its imported deck's folder. */
+export const cardAudioUrl = (display: CardDisplay) =>
+  display.audio &&
+  ("deck" in display
+    ? `/decks/${display.deck}/${display.audio}`
+    : mediaUrl(display.series, display.audio));
 
 export class ApiError extends Error {
   /** HTTP status of the response, when the error came from one. */

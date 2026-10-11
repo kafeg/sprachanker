@@ -7,7 +7,7 @@ import { parseLessonKey } from "@sprachanker/schema";
 import { Link } from "@tanstack/react-router";
 import { useEffect, useRef } from "react";
 import { useTranslation } from "react-i18next";
-import { mediaUrl } from "@/api/client.ts";
+import { cardAudioUrl } from "@/api/client.ts";
 import { said } from "@/audio/speak.ts";
 import { SpeakButton } from "@/audio/speak-button.tsx";
 import { languageName } from "@/i18n/index.ts";
@@ -68,8 +68,12 @@ export function StudyCard({
   const own = useRef<AudioControls>(null);
   const sound = audio ?? own;
   const wordShown = side === "answer" || WORD_SIDE[face] === "question";
-  const src = display.audio && mediaUrl(display.series, display.audio);
-  const lesson = parseLessonKey(display.lessonKey);
+  const src = cardAudioUrl(display);
+  // An imported deck's word was met in no lesson.
+  const lesson =
+    "lessonKey" in display
+      ? { series: display.series, ...parseLessonKey(display.lessonKey) }
+      : undefined;
   const slots = useStudySlots();
 
   // Autoplay as in Anki: the side's own recording, once, when the side opens.
@@ -129,13 +133,15 @@ export function StudyCard({
             <hr id="answer" className="w-3/4 border-border" />
             {answer}
             {cardId && slots.word?.({ cardId })}
-            <Link
-              to="/lesson/$series/$course/$lesson"
-              params={{ series: display.series, course: lesson.courseId, lesson: lesson.name }}
-              className="inline-flex items-center text-xs text-muted-foreground underline pointer-coarse:min-h-11"
-            >
-              {t("study.fromLesson", { unit: lesson.unit, lesson: lesson.lesson })}
-            </Link>
+            {lesson && (
+              <Link
+                to="/lesson/$series/$course/$lesson"
+                params={{ series: lesson.series, course: lesson.courseId, lesson: lesson.name }}
+                className="inline-flex items-center text-xs text-muted-foreground underline pointer-coarse:min-h-11"
+              >
+                {t("study.fromLesson", { unit: lesson.unit, lesson: lesson.lesson })}
+              </Link>
+            )}
           </div>
         </div>
       )}

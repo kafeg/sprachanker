@@ -1,19 +1,23 @@
 // Review (09): tabs — Study (the cards of the deck chosen last, study/session.tsx), Decks (the
-// profile's decks as Anki lists them, each language and its courses with New, Learning and To review;
-// more new cards today or leaving a course's deck; the decks to take — each installed course's words)
-// and My words (words.tsx). "How it works" opens the guide beside.
+// profile's decks as Anki lists them, each language and its courses and imported decks with New,
+// Learning and To review; more new cards today or leaving a deck; the decks to take — each of My
+// courses' words and each imported deck —, a deck file imported, an imported deck deleted) and My words
+// (words.tsx). "How it works" opens the guide beside.
 import { settingOf } from "@sprachanker/schema";
 import { Play, Trash2 } from "lucide-react";
 import { useState } from "react";
 import { useTranslation } from "react-i18next";
 import { useDeckActions, useDeckOffers, useDecks } from "@/api/cards.ts";
+import { useDeleteDeck } from "@/api/decks.ts";
 import { useSetSetting, useSettings } from "@/api/settings.ts";
+import { DeckImport } from "@/study/deck-import.tsx";
 import { useDeckName } from "@/study/decks.ts";
 import { GuideButton } from "@/study/guide.tsx";
 import { StudySession } from "@/study/session.tsx";
 import { COUNT_TONE } from "@/study/tones.ts";
 import { Button } from "@/ui/components/button.tsx";
 import { ConfirmDialog } from "@/ui/confirm.tsx";
+import { errorText } from "@/ui/error-text.ts";
 import { PairFlags, usePairName } from "@/ui/flags.tsx";
 import { EmptyState, ErrorState, Loading, Page } from "@/ui/page.tsx";
 import { Panel, panelClass } from "@/ui/panel.tsx";
@@ -45,15 +49,16 @@ function CountCells({ counts }: { counts: Counts }) {
   );
 }
 
-/** The profile's decks as Anki lists them, a course's with its language pair; under each deck what it
- *  does, at hand: study it, more new cards today, and for a course's, leave it (after asking). */
+/** The profile's decks as Anki lists them, a course's or an imported one's with its language pair;
+ *  under each deck what it does, at hand: study it, more new cards today, and for a course's or an
+ *  imported one, leave it (after asking). */
 function MyDecks({ open }: { open(scope: string): void }) {
   const { t } = useTranslation();
   const decks = useDecks();
   const name = useDeckName();
   const pairName = usePairName();
   const actions = useDeckActions();
-  const [leaving, setLeaving] = useState<{ course: string; lang: string; title: string }>();
+  const [leaving, setLeaving] = useState<{ scope: string; lang: string; title: string }>();
   if (decks.isPending) return <Loading />;
   if (decks.isError) return <ErrorState error={decks.error} onRetry={() => decks.refetch()} />;
   if (!decks.data.decks.length) return <EmptyState>{t("study.noCards")}</EmptyState>;
@@ -71,13 +76,8 @@ function MyDecks({ open }: { open(scope: string): void }) {
       {decks.data.decks.map((lang) => (
         <div key={lang.scope} className="border-b last:border-b-0">
           {[
-            {
-              ...lang,
-              child: false,
-              course: undefined as string | undefined,
-              editions: [] as string[],
-            },
-            ...lang.courses.map((c) => ({ ...c, child: true })),
+            { ...lang, child: false, editions: [] as string[] },
+            ...lang.decks.map((d) => ({ ...d, child: true })),
           ].map((deck) => (
             <div key={deck.scope} className={cn("py-2", deck.child && "border-t border-dashed")}>
               <div className={row}>
@@ -115,13 +115,13 @@ function MyDecks({ open }: { open(scope: string): void }) {
                   <span className="sm:hidden">{t("decks.moreShort", { count: MORE })}</span>
                   <span className="max-sm:hidden">{t("decks.more", { count: MORE })}</span>
                 </Button>
-                {deck.course && (
+                {deck.child && (
                   <Button
                     variant="outline"
                     size="sm"
                     onClick={() =>
                       setLeaving({
-                        course: deck.course as string,
+                        scope: deck.scope,
                         lang: lang.language,
                         title: `${name(deck.scope)}${deck.editions.length ? ` (${deck.editions.map(pairName).join(", ")})` : ""}`,
                       })
@@ -147,7 +147,7 @@ function MyDecks({ open }: { open(scope: string): void }) {
         onConfirm={() =>
           leaving &&
           actions.leave.mutate(
-            { course: leaving.course, lang: leaving.lang },
+            { scope: leaving.scope, lang: leaving.lang },
             { onSuccess: () => setLeaving(undefined) },
           )
         }
@@ -156,21 +156,36 @@ function MyDecks({ open }: { open(scope: string): void }) {
   );
 }
 
-/** The decks to take: each installed course's words, with how many are cards already. */
+/** The decks to take: each of My courses' words and each imported deck, with how many are cards
+ *  already; an imported deck deleted (after asking); a deck file imported. */
 function DeckOffers() {
   const { t } = useTranslation();
   const offers = useDeckOffers();
   const actions = useDeckActions();
+  const remove = useDeleteDeck();
   const pairName = usePairName();
-  const open = (offers.data?.offers ?? []).filter((o) => o.mine < o.words);
-  if (!open.length) return null;
+  const [removing, setRemoving] = useState<{ id: string; title: string }>();
+  const open = [
+    ...(offers.data?.courses ?? []).map((o) => ({
+      ...o,
+      take: { series: o.series, course: o.course, edition: o.edition },
+      deck: undefined,
+    })),
+    ...(offers.data?.imported ?? []).map((o) => ({ ...o, take: { deck: o.deck } })),
+  ].filter((o) => o.mine < o.words);
+  const taking = actions.take.isPending ? actions.take.variables : undefined;
+  const takingThis = (o: (typeof open)[number]) =>
+    !!taking &&
+    ("deck" in taking
+      ? taking.deck === o.deck
+      : "course" in o.take && taking.course === o.take.course);
   return (
     <Panel title={t("decks.offers")}>
       <p className="mb-3 text-sm text-muted-foreground">{t("decks.offersHint")}</p>
-      <ul className="space-y-2">
+      <ul className="mb-3 space-y-2 empty:hidden">
         {open.map((o) => (
           <li
-            key={`${o.key}:${o.edition}`}
+            key={`${o.scope}:${o.edition}`}
             className="flex flex-wrap items-center gap-3 rounded-xl border p-3"
           >
             <span className="min-w-0 flex-1">
@@ -181,16 +196,44 @@ function DeckOffers() {
             </span>
             <Button
               variant="outline"
-              loading={actions.take.isPending && actions.take.variables?.course === o.course}
-              onClick={() =>
-                actions.take.mutate({ series: o.series, course: o.course, edition: o.edition })
-              }
+              loading={takingThis(o)}
+              onClick={() => actions.take.mutate(o.take)}
             >
               {o.mine ? t("decks.takeRest", { count: o.words - o.mine }) : t("decks.take")}
             </Button>
+            {o.deck && (
+              <Button
+                variant="outline"
+                aria-label={t("decks.remove")}
+                onClick={() => setRemoving({ id: o.deck, title: o.title })}
+              >
+                <Trash2 />
+              </Button>
+            )}
           </li>
         ))}
       </ul>
+      {actions.take.isError && (
+        <p className="mb-3 text-sm text-wrong">{errorText(t, actions.take.error)}</p>
+      )}
+      <DeckImport />
+      <ConfirmDialog
+        open={!!removing}
+        onOpenChange={(o) => {
+          if (!o) {
+            setRemoving(undefined);
+            remove.reset();
+          }
+        }}
+        title={t("decks.removeTitle", { deck: removing?.title ?? "" })}
+        description={remove.isError ? errorText(t, remove.error) : t("decks.removeBody")}
+        confirm={t("decks.remove")}
+        cancel={t("common.cancel")}
+        busy={remove.isPending}
+        onConfirm={() =>
+          removing && remove.mutate(removing.id, { onSuccess: () => setRemoving(undefined) })
+        }
+      />
     </Panel>
   );
 }
@@ -202,7 +245,7 @@ function useOpenDeck() {
   const set = useSetSetting();
   const scopes = (decks.data?.decks ?? []).flatMap((d) => [
     d.scope,
-    ...d.courses.map((c) => c.scope),
+    ...d.decks.map((c) => c.scope),
   ]);
   const stored = settingOf(settings.data, "review.deck");
   const deck = stored && scopes.includes(stored) ? stored : decks.data?.decks[0]?.scope;

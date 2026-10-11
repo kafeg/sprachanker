@@ -1,6 +1,6 @@
 // My words (09), under Decks: every word with cards as a table, like Anki's browser — search by word or
-// translation, filters by deck (a language, a course) and by state with their counts, columns sortable;
-// a row opens the word sheet. On a phone a row takes two lines.
+// translation, filters by deck (a language, a course, an imported deck) and by state with their counts,
+// columns sortable; a row opens the word sheet. On a phone a row takes two lines.
 import { headword } from "@sprachanker/engine";
 import { useState } from "react";
 import { useTranslation } from "react-i18next";
@@ -52,17 +52,14 @@ export function MyWords() {
   const all = words.data.words;
   if (!all.length) return <EmptyState>{t("study.noCards")}</EmptyState>;
 
-  // Decks as in Decks: each language, then the courses in it.
+  // Decks as in Decks: each language, then the courses and imported decks in it.
   const langs = [...new Set(all.map((w) => w.lang))];
   const decks = langs.flatMap((lang) => [
     `lang:${lang}`,
-    ...[...new Set(all.filter((w) => w.lang === lang).map((w) => w.course))].map(
-      (c) => `course:${c}`,
-    ),
+    ...new Set(all.filter((w) => w.lang === lang).map((w) => w.deck)),
   ]);
   const inDeck = (w: MyWord) =>
-    deck === "all" ||
-    (deck.startsWith("lang:") ? w.lang === deck.slice(5) : w.course === deck.slice(7));
+    deck === "all" || (deck.startsWith("lang:") ? w.lang === deck.slice(5) : w.deck === deck);
   const q = query.trim().toLocaleLowerCase(i18n.language);
   const found = all.filter(
     (w) =>
@@ -109,7 +106,7 @@ export function MyWords() {
           <Chip on={deck === "all"} onClick={() => setDeck("all")}>
             {t("myWords.allDecks")}
           </Chip>
-          {(langs.length > 1 ? decks : decks.filter((d) => d.startsWith("course:"))).map((d) => (
+          {(langs.length > 1 ? decks : decks.filter((d) => !d.startsWith("lang:"))).map((d) => (
             <Chip key={d} on={deck === d} onClick={() => setDeck(d)}>
               {deckName(d)}
             </Chip>

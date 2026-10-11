@@ -1,11 +1,14 @@
 // Cards from a lesson's words (04, "Spaced repetition"): one note per lexeme and translation language,
 // reused when the word is met again in that language, made in the run the lesson shows (its origin);
-// a course of the learner's own as a deck to take (every lesson's words at once, in course order) or
-// leave (its cards removed, those of words another of the learner's decks has moving there); and notes
-// that follow their words when a course is normalised again. Studying them is study.ts; listing them,
-// words.ts.
+// a course of the learner's own or an imported deck as a deck to take (all its words at once, in its
+// order) or leave (its cards removed, those of words another of the learner's decks has moving there);
+// and notes that follow their words when a course is normalised or a deck imported again. Studying them
+// is study.ts; listing them, words.ts.
 import {
   CardDisplay,
+  type Deck,
+  type DeckId,
+  type DeckWord,
   type EditionId,
   type Lesson,
   type LessonKey,
@@ -14,16 +17,22 @@ import {
   parseEditionId,
 } from "@sprachanker/schema";
 import { monotonicFactory } from "ulid";
+import { ServiceError } from "../errors.ts";
 import type { CardStore } from "./card-store.ts";
 import type { Content } from "./content.ts";
+import type { Decks } from "./decks.ts";
 import { type RunStore, readStored } from "./run-store.ts";
 import type { Settings } from "./settings.ts";
+
+/** A word as a card shows it, and the word it is of (its source key). */
+type Home = { sourceKey: string; display: CardDisplay };
 
 export function createCards(deps: {
   cards: CardStore;
   /** The run store: a card that goes takes its answers with it (05, "Events"). */
   store: Pick<RunStore, "remove">;
   content: Content;
+  decks: Pick<Decks, "deck" | "list">;
   settings: Settings;
   /** The run the lesson shows (the lessons service): the run a lesson's cards are made in. */
   session: (lessonKey: LessonKey) => Promise<{ run: { id: string } } | undefined>;
@@ -31,7 +40,7 @@ export function createCards(deps: {
   myCourses: () => Promise<Set<string>>;
   now: () => number;
 }) {
-  const { cards, content, settings, now } = deps;
+  const { cards, content, decks, settings, now } = deps;
   // Monotonic: cards made in one call keep the order of the words.
   const id = monotonicFactory();
 
@@ -54,63 +63,89 @@ export function createCards(deps: {
     };
   }
 
+  /** What a card of an imported deck's word shows. */
+  const deckDisplay = (deck: Deck, w: DeckWord): CardDisplay => ({
+    target: w.target,
+    ...(w.gender && { gender: w.gender }),
+    ...(w.plural && { plural: w.plural }),
+    ...(w.translation && { translation: w.translation }),
+    ...(w.audio && { audio: w.audio }),
+    deck: deck.id,
+  });
+
   /** Each word of a course in an edition, by lexeme: where it is first met, in course order. */
   async function wordsOf(course: { series: string; lessons: LessonKey[] }, edition: string) {
-    const out = new Map<
-      string,
-      {
-        series: string;
-        lesson: Lesson;
-        locale: LocaleLesson | null | undefined;
-        word: Lesson["vocab"][number];
-      }
-    >();
+    const out = new Map<string, Home>();
     for (const key of course.lessons) {
       const { lesson, locale } = await content.lessonWithLocale(course.series, key, edition);
       for (const word of lesson.vocab)
         if (!out.has(word.lexeme))
-          out.set(word.lexeme, { series: course.series, lesson, locale, word });
+          out.set(word.lexeme, {
+            sourceKey: word.key,
+            display: displayOf(course.series, lesson, locale?.vocab[word.key]?.translation, word),
+          });
     }
     return out;
   }
 
+  /** An imported deck's words by lexeme (the first of a lexeme). */
+  function wordsOfDeck(deck: Deck) {
+    const out = new Map<string, Home>();
+    for (const w of deck.words)
+      if (!out.has(w.lexeme))
+        out.set(w.lexeme, { sourceKey: w.key, display: deckDisplay(deck, w) });
+    return out;
+  }
+
   /**
-   * Cards of the given lessons' words in the edition's translation language, in their order; a word met
-   * before in that language keeps its card (one whose lexeme changed — a normaliser rule — takes the new
+   * Cards of some words in a translation language, in their order; a word met before in that language
+   * keeps its card (one whose lexeme changed — a normaliser rule, a deck imported again — takes the new
    * one). Returns how many were made. Runs inside `cards.atomic`.
    */
-  function make(
-    request: { series: string; edition: string },
-    lessons: Array<{ lesson: Lesson; locale?: LocaleLesson | null }>,
-    origin: string | null,
-  ) {
-    const lang = parseEditionId(request.edition as EditionId).source;
+  function make(lang: string, words: Array<{ lexeme: string } & Home>, origin: string | null) {
     const faces = settings.value("srs.faces").join(",");
     let created = 0;
-    for (const { lesson, locale } of lessons)
-      for (const v of lesson.vocab) {
-        if (cards.byLexeme(v.lexeme, lang)) continue;
-        const earlier = cards.bySource(v.key, lang);
-        if (earlier) {
-          cards.setNote(earlier.id, { lexemeKey: v.lexeme });
-          continue;
-        }
-        const display = displayOf(request.series, lesson, locale?.vocab[v.key]?.translation, v);
-        cards.insert({
-          id: id(now()),
-          kind: "lexeme",
-          lexemeKey: v.lexeme,
-          translationLang: lang,
-          sourceKey: v.key,
-          originRunId: origin,
-          faces,
-          displayCacheJson: JSON.stringify(display),
-          createdAt: now(),
-        });
-        created++;
+    for (const w of words) {
+      if (cards.byLexeme(w.lexeme, lang)) continue;
+      const earlier = cards.bySource(w.sourceKey, lang);
+      if (earlier) {
+        cards.setNote(earlier.id, { lexemeKey: w.lexeme });
+        continue;
       }
+      cards.insert({
+        id: id(now()),
+        kind: "lexeme",
+        lexemeKey: w.lexeme,
+        translationLang: lang,
+        sourceKey: w.sourceKey,
+        originRunId: origin,
+        faces,
+        displayCacheJson: JSON.stringify(w.display),
+        createdAt: now(),
+      });
+      created++;
+    }
     return created;
   }
+
+  /** The words of lessons in an edition, as `make` takes them. */
+  const lessonWords = (
+    series: string,
+    lessons: Array<{ lesson: Lesson; locale?: LocaleLesson | null }>,
+  ) =>
+    lessons.flatMap(({ lesson, locale }) =>
+      lesson.vocab.map((v) => ({
+        lexeme: v.lexeme,
+        sourceKey: v.key,
+        display: displayOf(series, lesson, locale?.vocab[v.key]?.translation, v),
+      })),
+    );
+
+  const deckOrFail = (deckId: string) => {
+    const deck = decks.deck(deckId);
+    if (!deck) throw new ServiceError("no_such_deck", 404);
+    return deck;
+  };
 
   return {
     /** Makes cards of a lesson's words, in the run the lesson shows (their origin). */
@@ -121,37 +156,56 @@ export function createCards(deps: {
         request.lessonKey,
         request.edition,
       );
-      return { created: cards.atomic(() => make(request, [words], origin)) };
+      const lang = parseEditionId(request.edition as EditionId).source;
+      return {
+        created: cards.atomic(() => make(lang, lessonWords(request.series, [words]), origin)),
+      };
     },
 
-    /** A course's words as a deck (04): every lesson's words made into cards at once, in course order,
-     *  as new cards (Anki: a deck taken); words with a card already keep it. */
-    async takeDeck(request: { series: string; course: string; edition: string }) {
+    /** A course's words — or an imported deck's — as a deck (04): all made into cards at once, in
+     *  their order, as new cards (Anki: a deck taken); words with a card already keep it. */
+    async takeDeck(
+      request: { series: string; course: string; edition: string } | { deck: DeckId },
+    ) {
+      if ("deck" in request) {
+        const deck = deckOrFail(request.deck);
+        const words = deck.words.map((w) => ({
+          lexeme: w.lexeme,
+          sourceKey: w.key,
+          display: deckDisplay(deck, w),
+        }));
+        return { created: cards.atomic(() => make(deck.translationLang, words, null)) };
+      }
       const map = await content.courseMap(request.series, request.course, request.edition);
-      const lessons = lessonOrder(map.index);
       const words = await Promise.all(
-        lessons.map((key) => content.lessonWithLocale(request.series, key, request.edition)),
+        lessonOrder(map.index).map((key) =>
+          content.lessonWithLocale(request.series, key, request.edition),
+        ),
       );
-      return { created: cards.atomic(() => make(request, words, null)) };
+      const lang = parseEditionId(request.edition as EditionId).source;
+      return {
+        created: cards.atomic(() => make(lang, lessonWords(request.series, words), null)),
+      };
     },
 
     /**
-     * Leaves a course's deck (as Review lists it: the course under its words' language): its cards go,
-     * with their progress (their faces and every answer to them, as a reset takes them) — but a card of a word another of the learner's decks has (a course with
-     * cards, in the same translation language) moves to that deck with its progress (owner,
-     * 2026-10-09). Returns how many went and how many moved.
+     * Leaves a deck as Review lists it — a course under its words' language (`course:<key>`), or an
+     * imported deck (`deck:<id>`): the cards made in it go, with their progress (their faces and every
+     * answer to them, as a reset takes them) — but a card of a word another of the learner's decks has
+     * (a course or an imported deck with cards, in the same translation language) moves to that deck
+     * with its progress (owner, 2026-10-09). Returns how many went and how many moved.
      */
-    async leaveDeck(request: { course: string; lang: string }) {
+    async leaveDeck(request: { scope: string; lang: string }) {
       const notes = cards.all();
-      const leaving = notes.filter((n) => n.course === request.course && n.lang === request.lang);
-      const others = new Set(
-        notes
-          .filter((n) => n.course !== request.course && n.lang === request.lang)
-          .map((n) => n.course),
+      const inLang = notes.filter((n) => n.lang === request.lang);
+      const leaving = inLang.filter((n) => n.deck === request.scope);
+      const others = new Set(inLang.map((n) => n.deck).filter((d) => d !== request.scope));
+      const installed = (await content.courses()).filter((c) => others.has(`course:${c.key}`));
+      const imported = [...others].flatMap((d) =>
+        d.startsWith("deck:") ? (decks.deck(d.slice(5)) ?? []) : [],
       );
-      const installed = (await content.courses()).filter((c) => others.has(c.key));
       /** Where a word lives in the other decks, per translation language (read once each). */
-      const homes = new Map<string, Array<Awaited<ReturnType<typeof wordsOf>>>>();
+      const homes = new Map<string, Array<Map<string, Home>>>();
       const homesIn = async (lang: string) => {
         let found = homes.get(lang);
         if (!found) {
@@ -160,11 +214,12 @@ export function createCards(deps: {
             for (const edition of c.editions)
               if (parseEditionId(edition as EditionId).source === lang)
                 found.push(await wordsOf(c, edition));
+          for (const d of imported) if (d.translationLang === lang) found.push(wordsOfDeck(d));
           homes.set(lang, found);
         }
         return found;
       };
-      const moves: Array<{ id: string; sourceKey: string; display: CardDisplay }> = [];
+      const moves: Array<{ id: string } & Home> = [];
       const gone: string[] = [];
       for (const n of leaving) {
         const home = n.lexemeKey
@@ -172,17 +227,7 @@ export function createCards(deps: {
               .map((w) => w.get(n.lexemeKey as string))
               .find(Boolean)
           : undefined;
-        if (home)
-          moves.push({
-            id: n.id,
-            sourceKey: home.word.key,
-            display: displayOf(
-              home.series,
-              home.lesson,
-              home.locale?.vocab[home.word.key]?.translation,
-              home.word,
-            ),
-          });
+        if (home) moves.push({ id: n.id, ...home });
         else gone.push(n.id);
       }
       cards.atomic(() => {
@@ -197,12 +242,15 @@ export function createCards(deps: {
       return { removed: gone.length, moved: moves.length };
     },
 
-    /** The learner's courses (My courses) as decks to take: each course and language pair with its
-     *  words and how many of them are cards already. */
+    /** Decks to take: the learner's courses (My courses), each course and language pair, and the
+     *  imported decks — each with its words and how many of them are cards already. */
     async deckOffers() {
       const notes = cards.all();
+      const mineOf = (lang: string, lexemes: Set<string>) =>
+        notes.filter((n) => n.translationLang === lang && n.lexemeKey && lexemes.has(n.lexemeKey))
+          .length;
       const started = await deps.myCourses();
-      const offers = [];
+      const courses = [];
       for (const c of (await content.courses()).filter((c) => started.has(c.key)))
         for (const edition of c.editions) {
           const lang = parseEditionId(edition as EditionId).source;
@@ -216,29 +264,38 @@ export function createCards(deps: {
             continue;
           }
           if (!lexemes.size) continue;
-          const mine = notes.filter(
-            (n) => n.translationLang === lang && n.lexemeKey && lexemes.has(n.lexemeKey),
-          ).length;
-          offers.push({
+          courses.push({
+            scope: `course:${c.key}`,
             series: c.series,
             course: c.course,
-            key: c.key,
             edition,
-            lang,
             title: c.titles[edition] ?? c.key,
             words: lexemes.size,
-            mine,
+            mine: mineOf(lang, lexemes),
           });
         }
-      return offers;
+      const imported = decks.list().map((d) => {
+        const deck = decks.deck(d.id) as Deck;
+        return {
+          scope: `deck:${d.id}`,
+          deck: d.id,
+          edition: `${d.translationLang}-${d.lang}`,
+          title: d.title,
+          words: new Set(deck.words.map((w) => w.lexeme)).size,
+          withAudio: d.withAudio,
+          mine: mineOf(d.translationLang, new Set(deck.words.map((w) => w.lexeme))),
+        };
+      });
+      return { courses, imported };
     },
 
     /**
-     * Each card follows the word it was made from (its source key, stable across normalisations):
-     * when the course's files give that word another lexeme now (a normaliser rule changed), the card
-     * takes it — unless a card of that lexeme exists already; and what it shows of the word (the word,
-     * gender, plural, example, recording) is the word's now — a recording renamed when the series was
-     * fetched again is not another word's. Returns how many changed.
+     * Each card follows the word it was made from (its source key, stable across normalisations and
+     * imports): when the course's files or the deck give that word another lexeme now (a normaliser
+     * rule changed, a deck imported again), the card takes it — unless a card of that lexeme exists
+     * already; and what it shows of the word (the word, gender, plural, example, recording) is the
+     * word's now — a recording renamed when the series was fetched again is not another word's.
+     * Returns how many changed.
      */
     async relink(): Promise<number> {
       let changed = 0;
@@ -246,15 +303,32 @@ export function createCards(deps: {
         if (!row.sourceKey) continue;
         const display = readStored(row.displayCacheJson, CardDisplay, `card ${row.id}`);
         if (!display) continue;
-        const lesson = await content
-          .lesson(display.series, display.lessonKey as LessonKey)
-          .catch(() => undefined);
-        const word = lesson?.vocab.find((v) => v.key === row.sourceKey);
-        if (!lesson || !word) continue;
+        const current = await (async () => {
+          if ("deck" in display) {
+            const deck = decks.deck(display.deck);
+            const word = deck?.words.find((w) => w.key === row.sourceKey);
+            return deck && word && { lexeme: word.lexeme, display: deckDisplay(deck, word) };
+          }
+          const lesson = await content
+            .lesson(display.series, display.lessonKey as LessonKey)
+            .catch(() => undefined);
+          const word = lesson?.vocab.find((v) => v.key === row.sourceKey);
+          return (
+            lesson &&
+            word && {
+              lexeme: word.lexeme,
+              display: displayOf(display.series, lesson, display.translation, word),
+            }
+          );
+        })();
+        if (!current) continue;
         const note: Parameters<typeof cards.setNote>[1] = {};
-        if (word.lexeme !== row.lexemeKey && !cards.byLexeme(word.lexeme, row.translationLang))
-          note.lexemeKey = word.lexeme;
-        const shown = JSON.stringify(displayOf(display.series, lesson, display.translation, word));
+        if (
+          current.lexeme !== row.lexemeKey &&
+          !cards.byLexeme(current.lexeme, row.translationLang)
+        )
+          note.lexemeKey = current.lexeme;
+        const shown = JSON.stringify(current.display);
         if (shown !== row.displayCacheJson) note.displayCacheJson = shown;
         if (!Object.keys(note).length) continue;
         cards.setNote(row.id, note);

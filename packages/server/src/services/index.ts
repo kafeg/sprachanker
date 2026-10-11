@@ -1,6 +1,8 @@
 // The services, wired once per server and once per profile (app.ts mounts their routes): the library's
-// content and course downloads are shared; each profile has its own runs and histories, cards and study,
-// Notebook, settings and AI assistant, over its own database, made when it is first used.
+// content, course downloads and imported decks are shared; each profile has its own runs and
+// histories, cards and study, Notebook, settings and AI assistant, over its own database, made when it
+// is first used.
+import type { ApkgRuntime } from "@sprachanker/anki-export";
 import type { LibraryView } from "@sprachanker/course-kit/view";
 import type { ProfileDb } from "../db/profile/db.ts";
 import type { ServerDb } from "../db/server/db.ts";
@@ -8,6 +10,7 @@ import { secretBox } from "../security/secrets.ts";
 import { createCardStore } from "./card-store.ts";
 import { createCards } from "./cards.ts";
 import { type Content, createContent } from "./content.ts";
+import { createDecks, type DeckFiles, type Decks } from "./decks.ts";
 import { createDevices } from "./devices.ts";
 import { type CourseInstaller, createDownloads, type Downloads } from "./downloads.ts";
 import { createExamConversation } from "./exam-conversation.ts";
@@ -54,6 +57,9 @@ export interface ServicesConfig {
   piper?: PiperHost;
   /** Readings kept (Piper's and Qwen3-TTS's); without it each is made again. */
   readings?: ReadingCache;
+  /** The imported decks' folders, and what reading a package needs of the runtime. */
+  decks: DeckFiles;
+  apkg: ApkgRuntime;
   /** Reads a library media file (runtime adapter): course recordings the recogniser hears. */
   mediaBlob(file: string): Blob;
   now: () => number;
@@ -67,6 +73,7 @@ function profileServices(
   config: ServicesConfig,
   shared: {
     content: Content;
+    decks: Decks;
     downloads: Downloads;
     speech: Speech;
     readAloud: ReadAloud;
@@ -76,7 +83,7 @@ function profileServices(
   recordingFiles: RecordingFiles,
 ) {
   const { now } = config;
-  const { content, downloads, speech, readAloud, qwenTts } = shared;
+  const { content, decks, downloads, speech, readAloud, qwenTts } = shared;
   const settings = createSettings(db);
   const speechOfProfile = createProfileSpeech({ speech, readAloud, qwenTts, settings });
   const llm = createLlm({
@@ -105,13 +112,14 @@ function profileServices(
     cards: cardStore,
     store,
     content,
+    decks,
     settings,
     session: lessons.shown,
     myCourses: async () =>
       new Set((await lessons.courses()).filter((c) => c.started).map((c) => c.key)),
     now,
   });
-  const study = createStudy({ cards: cardStore, store, content, settings, now });
+  const study = createStudy({ cards: cardStore, store, content, decks, settings, now });
   const words = createWords({ cards: cardStore, store });
   const mistakes = createMistakes(store);
   const lessonContext = createLessonContext(content);
@@ -162,6 +170,7 @@ function profileServices(
   return {
     library: config.library,
     content,
+    decks,
     downloads,
     settings,
     speech: speechOfProfile,
@@ -211,6 +220,22 @@ export function createServices(config: ServicesConfig) {
       for (const s of open.values()) void relink(s);
     },
   });
+  const decks = createDecks({
+    files: config.decks,
+    apkg: config.apkg,
+    // Any profile's cards made from the deck keep it (a profile not opened yet too).
+    inUse: (id) =>
+      profiles.list().some((p) =>
+        createCardStore(config.profiles.open(p.id))
+          .all()
+          .some((n) => n.deck === `deck:${id}`),
+      ),
+    // Cards follow their words in a deck imported again.
+    onImport: () => {
+      for (const s of open.values()) void relink(s);
+    },
+    now,
+  });
   // Downloads a restart interrupted go on.
   downloads.resume().catch((error: unknown) => console.error("resuming downloads:", error));
   const speech = createSpeech({ host: config.speech, fetch: config.fetch });
@@ -223,6 +248,7 @@ export function createServices(config: ServicesConfig) {
 
   return {
     content,
+    decks,
     downloads,
     speech,
     profiles,
@@ -239,7 +265,7 @@ export function createServices(config: ServicesConfig) {
       if (!s) {
         s = profileServices(
           config,
-          { content, downloads, speech, readAloud, qwenTts },
+          { content, decks, downloads, speech, readAloud, qwenTts },
           config.profiles.open(profileId),
           config.profiles.recordings(profileId),
         );

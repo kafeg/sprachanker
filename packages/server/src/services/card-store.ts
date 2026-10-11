@@ -18,8 +18,9 @@ import { readStored } from "./run-store.ts";
 
 export type CardRow = typeof cards.$inferSelect;
 export type StateRow = typeof cardState.$inferSelect;
-/** A note with what is read from it once: its display, course and language. */
-export type Note = CardRow & { display: CardDisplay; course: string; lang: string };
+/** A note with what is read from it once: its display, the deck it was made in (`course:<key>`, by the
+ *  lesson its word was first met in, or an imported `deck:<id>`) and its language. */
+export type Note = CardRow & { display: CardDisplay; deck: string; lang: string };
 
 export function createCardStore(db: ProfileDb) {
   /** A row with its display read; undefined when the display no longer reads. */
@@ -29,7 +30,10 @@ export function createCardStore(db: ProfileDb) {
     return {
       ...row,
       display,
-      course: parseLessonKey(display.lessonKey).course,
+      deck:
+        "deck" in display
+          ? `deck:${display.deck}`
+          : `course:${parseLessonKey(display.lessonKey).course}`,
       lang: row.lexemeKey ? parseLexemeKey(row.lexemeKey as LexemeKey).lang : "",
     };
   };
@@ -101,7 +105,7 @@ export function createCardStore(db: ProfileDb) {
     insert: (values: typeof cards.$inferInsert) => db.insert(cards).values(values).run(),
 
     /** Sets fields of a note: its lexeme, translation language, suspension (Anki: suspend note) or
-     *  mark, or the word it is of (its source key and display: the note moved to another course). */
+     *  mark, or the word it is of (its source key and display: the note moved to another deck). */
     setNote: (
       cardId: string,
       values: Partial<
@@ -141,7 +145,9 @@ export function createCardStore(db: ProfileDb) {
     idsMetIn: (scope: { lesson: string } | { course: string }) =>
       notes(db.select().from(cards).all())
         .filter((n) =>
-          "lesson" in scope ? n.display.lessonKey === scope.lesson : n.course === scope.course,
+          "lesson" in scope
+            ? "lessonKey" in n.display && n.display.lessonKey === scope.lesson
+            : n.deck === `course:${scope.course}`,
         )
         .map((n) => n.id),
 

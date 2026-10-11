@@ -628,7 +628,8 @@
     },
     "lapses": "{count, plural, one {# Mal vergessen} other {# Mal vergessen}}",
     "suspend": "Aussetzen",
-    "unsuspend": "Wieder lernen"
+    "unsuspend": "Wieder lernen",
+    "fromDeck": "Aus dem Stapel {deck}"
   },
   "notebook": {
     "title": "Notizbuch",
@@ -873,14 +874,27 @@
     "more": "{count, plural, one {# neue Karte mehr heute} other {# neue Karten mehr heute}}",
     "leave": "Stapel entfernen…",
     "offers": "Stapel zum Übernehmen",
-    "offersHint": "Die Wörter jedes deiner Kurse sind ein Stapel: als Ganzes übernommen, fügt er sie als neue Karten in Kursreihenfolge hinzu — im Tageslimit oder mehr mit „heute mehr neue“.",
+    "offersHint": "Die Wörter jedes deiner Kurse und jedes hier importierten Stapels sind ein Stapel: als Ganzes übernommen, fügt er sie als neue Karten in seiner Reihenfolge hinzu — im Tageslimit oder mehr mit „heute mehr neue“. Ein Wort, von dem du schon eine Karte hast, behält sie.",
     "words": "{words, plural, one {# Wort} other {# Wörter}} · schon deine: {mine, number}",
     "take": "Stapel übernehmen",
     "takeRest": "Die übrigen {count, number} hinzufügen",
     "study": "Lernen",
     "leaveTitle": "Stapel {deck} entfernen?",
     "leaveBody": "Seine Karten gehen mit ihrem Fortschritt. Wörter, die ein anderer deiner Stapel hat, wandern mit allem Fortschritt dorthin.",
-    "moreShort": "{count, plural, one {+# neue} other {+# neue}}"
+    "moreShort": "{count, plural, one {+# neue} other {+# neue}}",
+    "import": {
+      "button": "Stapeldatei importieren (.apkg)",
+      "title": "Stapel importieren",
+      "hint": "Seine Wörter werden ein Stapel, den jedes Profil auf diesem Computer übernehmen kann wie den eines Kurses; das Audio kommt mit.",
+      "name": "Name",
+      "lang": "Sprache der Wörter",
+      "translationLang": "Sprache der Übersetzungen",
+      "words": "{words, plural, one {# Wort} other {# Wörter}} · {audio, plural, =0 {ohne Audio} one {# mit Audio} other {# mit Audio}}",
+      "submit": "Importieren"
+    },
+    "remove": "Stapel löschen",
+    "removeTitle": "Stapel {deck} löschen?",
+    "removeBody": "Seine Wörter und sein Audio werden von diesem Computer gelöscht, für alle Profile. Ein Stapel, den jemand lernt, bleibt, bis er entfernt wird."
   },
   "guide": {
     "open": "So funktioniert's",
@@ -1163,7 +1177,12 @@
     "other": "Etwas ist schiefgelaufen: {message}",
     "exam_needs_setting": "Wähle zuerst dein Bundesland: die Prüfung stellt Fragen dazu.",
     "exam_time_over": "Die Zeit dieser Probeprüfung ist um: sie wurde abgegeben, wie sie war.",
-    "exam_test_running": "Eine Probeprüfung läuft noch: gib sie zuerst ab."
+    "exam_test_running": "Eine Probeprüfung läuft noch: gib sie zuerst ab.",
+    "no_such_deck": "Diesen Stapel gibt es hier (nicht mehr).",
+    "not_a_deck": "Diese Datei lässt sich nicht als Stapeldatei (.apkg) lesen.",
+    "deck_without_words": "Dieser Stapel hat keine Wörter zum Lernen.",
+    "deck_too_large": "Diese Stapeldatei ist zu groß (höchstens 100 MB).",
+    "deck_in_use": "Ein Profil lernt diesen Stapel: Löschen geht, wenn ihn niemand mehr lernt."
   },
   "exams": {
     "tabs": {

@@ -12,12 +12,13 @@ browser ──localhost or a LAN name (phones over Tailscale: planned)──┐
               sprachanker serve  (apps/cli, one compiled Bun binary with the web build inside)
                  ├─ Hono app: /api/* routes → services   (packages/server)
                  ├─ web build: the React app (apps/web), SPA fallback
-                 ├─ /library/<series>/media/* with Range
+                 ├─ /library/<series>/media/* and /decks/<id>/media/* with Range
                  ├─ whisper-server and Qwen3-TTS's tts-server on 127.0.0.1 (native/, beside the
                  │  binary), started on demand by the supervisor, stopped when idle
                  └─ Piper (sherpa-onnx-offline-tts), run once per text read aloud
                         │
 <data root> (~/SprachAnker) ── library/<series>/…         courses (02), written only by the importers
+                            ├─ decks/<id>/                imported .apkg decks: deck.json, media/ (05)
                             ├─ models/                    speech models, voices/ Piper's voices, engines.pid (08)
                             ├─ cache/tts/                 texts read aloud by Piper and Qwen3-TTS
                             ├─ server.sqlite, server.pid  profiles, devices signed in; one server per root
@@ -36,6 +37,7 @@ OpenAI-compatible server, or a command-line agent); nothing else leaves the mach
 ```
 apps/cli ──► packages/server ──► packages/engine ───────► packages/schema
                 │                 packages/llm ─────────► packages/schema
+                │                 packages/anki-export ─► packages/schema
                 │                 packages/course-kit ──► packages/schema
                 └───────────────► courses/<provider> ───► course-kit, schema
 apps/web ──► packages/engine, packages/schema, and a type-only import of the server's AppType
@@ -54,17 +56,18 @@ only the router and the settings page import the optional `llm/` folder.
 | `courses/<provider>` | fetch a source politely into `raw/`, normalise deterministically into canonical + locale |
 | `packages/engine` | checking answers, text normalisation and diff, the lesson's steps and progress, mistakes, FSRS and Anki's study queue |
 | `packages/llm` | providers, streamed and structured calls, time limits, prompts and tasks, tutor tools |
+| `packages/anki-export` | `.apkg` packages read (SQLite and zstd from the runtime), notes as a deck's words with lexemes by the courses' rules |
 | `packages/server` | HTTP API, SQLite with migrations and backups, services, downloads, the speech engines and their supervisor, security |
 | `apps/web` | screens for desktop and phone; checks answers locally with the engine for instant feedback |
 | `apps/cli` | `serve`, `import`, `verify`, `profiles` |
 
 ## Server inside
 
-`createServices()` (`services/index.ts`) wires the shared services once (content, downloads, profiles,
-devices) and each profile's own services on first use (`of(id)`). `app.ts` mounts the route
-files: the profile list and signing in first, then the session check — the device's cookie names the
+`createServices()` (`services/index.ts`) wires the shared services once (content, imported decks,
+downloads, profiles, devices) and each profile's own services on first use (`of(id)`). `app.ts`
+mounts the route files: the profile list and signing in first, then the session check — the device's cookie names the
 profile and puts its services in the request's context (`c.var.s`) — then every profile route
-(`routes/{profiles,courses,lessons,progress,exams,cards,settings,notebook,recordings,speech,llm}.ts`), each thin:
+(`routes/{profiles,courses,lessons,progress,exams,cards,decks,settings,notebook,recordings,speech,llm}.ts`), each thin:
 validate, call a service, return its typed result or one of schema's `ERROR_CODES`. The web client
 gets the types through Hono RPC (`AppType`), no codegen.
 
@@ -76,7 +79,8 @@ gets the types through Hono RPC (`AppType`), no codegen.
   `lessons` (lesson runs, progress, standing), `lesson-journal` (a lesson's passes, a pass in full, an
   item across passes), `mistakes`; exams: `exams` (the standings) over `exam-runs` (mock exams and
   practice taken); review: `cards` (cards from a lesson's words, decks taken and left, relinking),
-  `study` (Anki's decks, queue, ratings, undo, bury, suspend, flags, marks), `words` (My words); and
+  `decks` (imported `.apkg` decks, the server's: preview, import, list, delete; their folders through
+  `runtime/decks.ts`), `study` (Anki's decks, queue, ratings, undo, bury, suspend, flags, marks), `words` (My words); and
   across them `notebook` (the study days and the modules' standings, gathered), `progress` (reset over
   every module's runs, recordings in use), `settings`.
 - **AI** (a feature across the learning modules, below): `llm` (providers, LM Studio, prompt
@@ -134,7 +138,8 @@ gets the types through Hono RPC (`AppType`), no codegen.
   practice, summary; `compose/steps.ts`); the web's `use-flow` moves through them and records
   `page_shown` (with the exercise's key: resume and snapshots follow the exercise) / `step_done`
   through the run's outbox; the server re-checks every answer and stores its own outcome.
-- **Cards and review**: a card is a lexeme in a translation language (04); its faces carry FSRS state
+- **Cards and review**: a card is a lexeme in a translation language (04), made from a course's word
+  or an imported deck's — one card for both when they are the same lexeme; its faces carry FSRS state
   written together with each `card_review` event. The engine builds Anki's queue (limits, a day that
   starts at 4 AM, learning steps,
   learn-ahead) and `answersLeft`; the same reviewer (`study/`) serves Review and the lesson's "Words"

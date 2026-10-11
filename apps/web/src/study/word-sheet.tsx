@@ -6,7 +6,7 @@ import { Link } from "@tanstack/react-router";
 import { ArrowRight, Pause, Play, Star } from "lucide-react";
 import { useTranslation } from "react-i18next";
 import { type MyWord, useCardActions, useWord } from "@/api/cards.ts";
-import { mediaUrl } from "@/api/client.ts";
+import { cardAudioUrl } from "@/api/client.ts";
 import { Button } from "@/ui/components/button.tsx";
 import { useDateFormat } from "@/ui/format.ts";
 import { AudioButton } from "@/ui/media.tsx";
@@ -15,6 +15,7 @@ import { SideSheet } from "@/ui/side-sheet.tsx";
 import { TargetLang } from "@/ui/target-lang.ts";
 import { cn } from "@/ui/utils.ts";
 import { GenderWord } from "@/word/word.tsx";
+import { useDeckName } from "./decks.ts";
 import { useStudySlots } from "./slots.ts";
 import { useDueText } from "./time.ts";
 import { COUNT_TONE, ratingOf } from "./tones.ts";
@@ -45,16 +46,17 @@ function WordDetails({ word }: { word: MyWord }) {
   const slots = useStudySlots();
   const due = useDueText();
   const when = useDateFormat("day");
+  const deckName = useDeckName();
   const d = word.display;
-  const lesson = parseLessonKey(d.lessonKey);
+  const audio = cardAudioUrl(d);
+  const lesson =
+    "lessonKey" in d ? { series: d.series, ...parseLessonKey(d.lessonKey) } : undefined;
   return (
     <div className="space-y-5 px-4 pb-6">
       <div className="space-y-1">
         <div className="flex items-start justify-between gap-3">
           <GenderWord text={d.target} gender={d.gender} className="text-2xl" />
-          {d.audio && (
-            <AudioButton src={mediaUrl(d.series, d.audio)} label={d.target} className="size-11" />
-          )}
+          {audio && <AudioButton src={audio} label={d.target} className="size-11" />}
         </div>
         {d.translation && <p className="text-lg">{d.translation}</p>}
         {d.example && (
@@ -63,14 +65,20 @@ function WordDetails({ word }: { word: MyWord }) {
           </p>
         )}
         <div className="-ml-2">{slots.word?.({ cardId: word.cardId })}</div>
-        <Link
-          to="/lesson/$series/$course/$lesson"
-          params={{ series: d.series, course: lesson.courseId, lesson: lesson.name }}
-          className="inline-flex min-h-11 items-center gap-1 text-sm font-medium underline"
-        >
-          {t("myWords.toLesson", { unit: lesson.unit, lesson: lesson.lesson })}{" "}
-          <ArrowRight className="size-4" />
-        </Link>
+        {lesson ? (
+          <Link
+            to="/lesson/$series/$course/$lesson"
+            params={{ series: lesson.series, course: lesson.courseId, lesson: lesson.name }}
+            className="inline-flex min-h-11 items-center gap-1 text-sm font-medium underline"
+          >
+            {t("myWords.toLesson", { unit: lesson.unit, lesson: lesson.lesson })}{" "}
+            <ArrowRight className="size-4" />
+          </Link>
+        ) : (
+          <p className="text-sm text-muted-foreground">
+            {t("myWords.fromDeck", { deck: deckName(word.deck) })}
+          </p>
+        )}
       </div>
 
       {sheet.isPending ? (

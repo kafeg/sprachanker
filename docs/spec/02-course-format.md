@@ -22,7 +22,8 @@ locale files, rules registry, enrichment, and the normalisation contract every p
 
 The library is a folder in the data root (05). It contains **only** downloaded content and data derived
 from it — no learner data, no enrichment. Each series folder is self-contained and can be archived,
-moved, or restored by copying.
+moved, or restored by copying. Decks imported from `.apkg` files live beside it, in
+`<data-root>/decks/` (05): words of the learner's choosing, not a source's course.
 
 ```
 <data-root>/library/

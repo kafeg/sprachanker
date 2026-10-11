@@ -38,6 +38,12 @@ export const ERROR_CODES = [
   "no_such_card",
   "card_changed",
   "nothing_to_undo",
+  // Imported decks.
+  "no_such_deck",
+  "not_a_deck",
+  "deck_without_words",
+  "deck_too_large",
+  "deck_in_use",
   // Settings.
   "unknown_setting",
   "invalid_setting",

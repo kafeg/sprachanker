@@ -1,5 +1,5 @@
 // My words (09): the learner's words with cards, newest first — what each card shows, its language,
-// course and state, when it is next due — and one word for its sheet with each face and its answers.
+// deck and state, when it is next due — and one word for its sheet with each face and its answers.
 import { type CardEvent, cardDay, faceStage, wordState } from "@sprachanker/engine";
 import type { CardFace, FaceState } from "@sprachanker/schema";
 import type { CardStore, Note, StateRow } from "./card-store.ts";
@@ -22,7 +22,7 @@ export function createWords(deps: { cards: CardStore; store: RunStore }) {
       lexemeKey: note.lexemeKey,
       display: note.display,
       lang: note.lang,
-      course: note.course,
+      deck: note.deck,
       suspended: !!note.suspended,
       marked: !!note.marked,
       state: wordState(byFace),

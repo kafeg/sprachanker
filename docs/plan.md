@@ -16,11 +16,14 @@ fits together, by `docs/architecture.md`.
 ### 1. Word examples by deck (owner, 2026-10-09)
 Specs: 04, 07, 09.
 - Examples of use made for a whole deck at once, on the learner's request from Review → Decks: the
-  model goes through every word of a course's deck and writes 3–5 examples per word (with the course's
-  words where it can), kept with the words; a card shows them. The example on a card made one at a
-  time goes; a card whose deck has none yet (examples on in Settings) offers to go to Decks and make
-  them.
-- **Accept**: a deck's examples made in one run with its progress shown, resumable; cards show them.
+  model goes through every word of a course's deck or an imported one and writes 3–5 examples per
+  word (with the course's words where it can), kept with the words; a card shows them. The example
+  on a card made one at a time goes; a card whose deck has none yet (examples on in Settings) offers
+  to go to Decks and make them.
+- An imported deck's words without audio read aloud by the server's engine (Piper or Qwen3-TTS) for
+  the whole deck at once, kept with it; both kept beside the deck (`extras.json`, 05).
+- **Accept**: a deck's examples made in one run with its progress shown, resumable; cards show them;
+  an imported deck without audio has it for every word.
 
 ### 2. Interface in every language a course explains in (owner, 2026-10-09)
 Specs: 09, 10.
@@ -111,11 +114,10 @@ Order decided by the week of use.
   by chapter (rule tags, contrastive notes, speaking, scenes), mistakes by rule, rule mastery, weak spots,
   "Practise this", can-do list. Accept: A1 units 0–2 enriched and reviewed; a practice set from du/Sie
   mistakes runs end to end.
-- **Anki decks and word images** (04): `packages/anki-export` (`.apkg` export and import, stored decks),
-  word images. Decks are got like courses (owner, 2026-10-08): Review → Decks lists decks to download
-  (a catalogue of shared decks; AnkiWeb asks for an account after a few searches, so its decks come
-  by link or as an `.apkg` file) and the profile's own; a downloaded deck is taken and left like a
-  course's. Accept: an exported A1 deck opens in Anki with audio; an imported deck links matching words.
+- **Anki decks and word images** (04): `.apkg` export (`packages/anki-export`), word images. Decks are
+  got like courses (owner, 2026-10-08): Review → Decks also lists decks to download (a catalogue of
+  shared decks; AnkiWeb asks for an account after a few searches, so its decks come by link). Accept:
+  an exported A1 deck opens in Anki with audio.
 - **Books** (owner, 2026-10-08): free books downloaded and read like courses — a library of books to
   download (public-domain sources such as Project Gutenberg; the sources and their terms decided
   when it is built), "My books" with the place read; a reader with the translation beside (by sentence or

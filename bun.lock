@@ -136,6 +136,7 @@
       "version": "0.0.0",
       "devDependencies": {
         "@playwright/test": "1.63.0",
+        "@sprachanker/anki-export": "workspace:*",
         "@sprachanker/course-fixture": "workspace:*",
         "@sprachanker/engine": "workspace:*",
         "@sprachanker/schema": "workspace:*",
