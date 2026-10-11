@@ -44,7 +44,9 @@ test("export a profile, import it as a new one, study on", async ({ page, reques
   await expect(there.getByRole("heading", { name: "Demo course" })).toBeVisible();
   await there.goto(`/lesson/${DEMO_LESSON}`);
   await expect(there.getByRole("heading", { level: 1 })).toHaveText("Im Café");
-  await there.getByRole("button", { name: "Start lesson" }).click();
+  // The run goes on where it was (an item skipped): the overview only if it had not begun.
+  const start = there.getByRole("button", { name: "Start lesson" });
+  if (await start.isVisible()) await start.click();
   await goToStep(there, "Lena at the café");
   await there.getByRole("button", { name: "Im Café.", exact: true }).click();
   await answerPicture(there);
