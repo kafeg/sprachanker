@@ -91,6 +91,8 @@ export function endpointCaller(
       res = await fetchFn(`${base}${path}`, {
         ...init,
         headers,
+        // A redirect would carry the key to another origin: none is followed.
+        redirect: "error",
         signal: signal ? AbortSignal.any([signal, time.signal]) : time.signal,
       });
     } catch (error) {

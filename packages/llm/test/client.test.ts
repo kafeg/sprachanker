@@ -26,6 +26,8 @@ describe("openAiCompatible", () => {
     expect(calls[0]?.url).toBe("http://h/v1/models");
     const headers = calls[0]?.init.headers as Record<string, string> | undefined;
     expect(headers?.authorization).toBe("Bearer k");
+    // The key never follows a redirect to another origin.
+    expect(calls[0]?.init.redirect).toBe("error");
   });
 
   test("streams deltas split across network chunks and stops at [DONE]", async () => {

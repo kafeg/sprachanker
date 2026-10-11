@@ -67,7 +67,8 @@ live in the setting `llm.endpoints`, keys in `secrets` (05, 06). The settings pa
 "test" lists the provider's models and measures the round trip. A stored endpoint counts only for a
 provider whose address is editable (above; an imported profile's others are dropped, 05 "Profile
 file"); an address with a user name or password is refused (400 `llm_url_with_login`: a key goes in
-the key field, sealed).
+the key field, sealed). Requests to a provider follow no redirect (`redirect: "error"`, an
+`unreachable` error), so a key never goes to another origin.
 
 **Models listed** (`modelInfo`, client.ts): chat models only — embedding models, models whose output
 is not text alone (image or audio generators), and, by their ids where a list does not say (Groq,
