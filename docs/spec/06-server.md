@@ -302,8 +302,9 @@ profiles with device tokens (above).
   `tailscale status --json --peers=false` (else `Self.HostName` with `MagicDNSSuffix`), read at the
   start and, on a refused `*.ts.net` name, again at most once a minute (Tailscale may come up after
   the server); the macOS app's binary, else `tailscale` looked up on the PATH; a command not done in
-  five seconds is killed (SIGKILL) and taken as no answer; none while Tailscale is absent, stopped or
-  logged out. Never any
+  five seconds is killed (SIGKILL) and taken as no answer. A read without an answer changes nothing
+  (the name known stays known; tried again after five seconds); none while Tailscale, answering, says
+  it is stopped or logged out. Never any
   `*.ts.net`: another tailnet's name could be rebound to this server. No CORS (same-origin only).
 - **Cookies**: `HttpOnly`, `SameSite=Strict`, `Secure` on HTTPS addresses. Mutating requests require the
   header `X-SprachAnker: 1`.

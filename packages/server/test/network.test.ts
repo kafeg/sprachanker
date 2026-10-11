@@ -5,6 +5,7 @@ import {
   type ListensOn,
   type NetworkHost,
   TAILNET_REREAD_MS,
+  TAILNET_RETRY_MS,
 } from "../src/services/network.ts";
 import { setup } from "./setup.ts";
 
@@ -107,7 +108,7 @@ describe("the Host check and the tailnet", () => {
   });
 
   test("a tailnet that comes up later: asked again on a refused ts.net name, once a minute", async () => {
-    const state: { status?: unknown } = {};
+    const state: { status?: unknown } = { status: { ...running(), BackendState: "NeedsLogin" } };
     const { host, asked } = fakeHost(state);
     const { net, advance } = network(host);
     expect(await net.knows(NAME)).toBe(false);
@@ -126,6 +127,39 @@ describe("the Host check and the tailnet", () => {
     expect(await net.knows(NAME)).toBe(true);
     expect(await net.knows("other-mac.tail9999.ts.net")).toBe(false);
     expect(asked.status).toBe(3);
+  });
+});
+
+describe("a read that fails", () => {
+  test("keeps the name known: in the Host check and in the addresses", async () => {
+    const state: { status?: unknown } = { status: running() };
+    const { host, asked } = fakeHost(state);
+    const { net, advance } = network(host);
+    expect(await net.knows(NAME)).toBe(true);
+    for (const failure of [undefined, "fails", "hangs"]) {
+      state.status = failure;
+      advance(TAILNET_REREAD_MS);
+      expect((await net.addresses()).tailnet?.name).toBe(NAME);
+      expect(await net.knows(NAME)).toBe(true);
+    }
+    // A logged-out Tailscale is an answer: the name goes.
+    state.status = { ...running(), BackendState: "NeedsLogin" };
+    expect((await net.addresses()).tailnet).toBeUndefined();
+    expect(await net.knows(NAME)).toBe(false);
+    expect(asked.status).toBe(5);
+  });
+
+  test("is tried again after seconds, not a minute", async () => {
+    const state: { status?: unknown } = { status: "fails" };
+    const { host, asked } = fakeHost(state);
+    const { net, advance } = network(host);
+    expect(await net.knows(NAME)).toBe(false);
+    state.status = running();
+    expect(await net.knows(NAME)).toBe(false);
+    expect(asked.status).toBe(1);
+    advance(TAILNET_RETRY_MS);
+    expect(await net.knows(NAME)).toBe(true);
+    expect(asked.status).toBe(2);
   });
 });
 

@@ -24,6 +24,8 @@ export interface ListensOn {
 /** A refused name that looks like a tailnet's has Tailscale asked again at most this often: the
  *  tailnet may come up after the server. */
 export const TAILNET_REREAD_MS = 60_000;
+/** After a read that failed (no answer from Tailscale), the soonest it is tried again. */
+export const TAILNET_RETRY_MS = 5000;
 /** A question to the machine left unanswered this long is taken as unanswered. */
 const ASK_MS = 6000;
 const TAILNET_NAME = /\.ts\.net$/;
@@ -130,30 +132,39 @@ export function createNetwork(config: {
   const { host, listensOn, now, askMs = ASK_MS } = config;
   const tailscale = (command: "status" | "serve") => within(host?.tailscale(command), askMs);
   const once = createOnce<Tailnet | undefined>();
+  // What the last read Tailscale answered says; a read without an answer changes nothing — the name
+  // known stays known, and Tailscale is tried again soon, not a minute later.
+  let tailnet: Tailnet | undefined;
   let readAt = Number.NEGATIVE_INFINITY;
+  let failedAt = Number.NEGATIVE_INFINITY;
   const read = () =>
     once("status", async () => {
-      readAt = now();
-      return tailnetOf(await tailscale("status"));
+      const status = await tailscale("status");
+      if (status === undefined) failedAt = now();
+      else {
+        readAt = now();
+        tailnet = tailnetOf(status);
+      }
+      return tailnet;
     });
+  const due = () => now() - readAt >= TAILNET_REREAD_MS && now() - failedAt >= TAILNET_RETRY_MS;
   // Read at the start: the first request through the tailnet finds its name known.
-  let tailnet = read();
+  const started = read();
 
   return {
     /** Whether a name the fixed rules refuse is this machine's on its tailnet — never another
      *  tailnet's (a page there could rebind its name to this server). */
     async knows(name: string): Promise<boolean> {
-      if ((await tailnet)?.name === name) return true;
-      if (!TAILNET_NAME.test(name) || now() - readAt < TAILNET_REREAD_MS) return false;
-      tailnet = read();
-      return (await tailnet)?.name === name;
+      await started;
+      if (tailnet?.name === name) return true;
+      if (!TAILNET_NAME.test(name) || !due()) return false;
+      return (await read())?.name === name;
     },
 
     /** The addresses the app is reached at, Tailscale asked afresh. */
     async addresses(): Promise<ServerAddresses> {
       const { hostname, port } = listensOn;
-      tailnet = read();
-      const [t, localName] = await Promise.all([tailnet, within(host?.localName(), askMs)]);
+      const [t, localName] = await Promise.all([read(), within(host?.localName(), askMs)]);
       const local = LOOPBACK.test(hostname);
       const everywhere = ANY.has(hostname);
       const network = local
