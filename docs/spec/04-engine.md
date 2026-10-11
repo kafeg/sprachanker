@@ -224,17 +224,19 @@ imported `.apkg` decks fit in. Scheduling and the queue are pure functions in
   is one of its own), and cards follow their words (relinking); a card of a word the update drops
   keeps what it showed, its audio too (the deck's earlier audio stays); a deck is deleted only while no
   profile has cards made from it (they leave it first: nobody's progress goes unasked).
-- **A deck's words read aloud** (owner, 2026-10-11; `services/deck-audio.ts`): any deck the learner
-  has — a course's or an imported one — on request reads the words of the learner's cards in it (a
-  card belongs to the deck it was made in, so a word two decks share is read for the deck its card is
-  in) without audio of their own with the server's engine (08): the profile's when it is Piper or
+- **A deck's words read aloud** (owner, 2026-10-11; `services/deck-audio.ts`): any deck to take — a
+  course's or an imported one, taken or not — on request reads all its words (owner, 2026-10-12: a
+  course's deck gains its words lesson by lesson, so what is made is the whole deck's — the course's
+  words across its lessons, an imported deck's notes; each deck reads its own, so a word two decks
+  share is read for each that has no recording of it) without audio of their own with the server's
+  engine (08): the profile's when it is Piper or
   Qwen3-TTS and reads the words' language, else Piper with a voice for it, else Qwen3-TTS; neither
   here, the request is refused and Decks says what to install. The text read is the word as the card
   shows it ("der Abend"; variants as a list: "der Großvater / der Opa" read "der Großvater, der
   Opa"), with the language's voice the profile picked (else the best one; Qwen3-TTS: its speaker, its
   model) at the speed recorded — the audio is every profile's, kept in the deck's folder alone (never
   in the readings' cache). Kept beside the deck (`decks/<folder>/extras.json`, 05) by lexeme — a deck's
-  cards are one per lexeme, so two notes of one word are read once — with the engine, voice and text:
+  words count once per lexeme, as its cards do, so two notes of one word are read once — with the engine, voice and text:
   a word whose text changed since (an import, a normalisation) is read again and its earlier file goes;
   a reading whose file is gone counts as not read; a file read before with the same engine, voice and
   text is taken as it is. The words are counted by lexeme (as the decks to take count them). A job per
@@ -250,11 +252,11 @@ imported `.apkg` decks fit in. Scheduling and the queue are pure functions in
   (`readAudio`, served from the folder), else nothing: a card's word is never read on the fly (08). A course's folder goes when
   the course is no longer installed (at the server's start, by the library's folders: a course whose
   files do not read keeps it).
-- **A deck's words given examples** (owner, 2026-10-09; `services/deck-examples.ts`): any deck the
-  learner has, on request from Review → Decks: the words of the learner's cards in it that bring no
-  example of their own (an imported deck's sentences, a course's) get three to five sentences each
-  from the profile's model (07, `word_examples`), five words a call, each call of one translation
-  language (a course's cards may be in two editions: each gets its own), with what the learner can be
+- **A deck's words given examples** (owner, 2026-10-09/12; `services/deck-examples.ts`): any deck to
+  take, in a language pair, on request from Review → Decks: all its words in that pair's translation
+  language (a course's edition: each gets its own; taken or not) that bring no example of their own
+  (an imported deck's sentences, a course's) get three to five sentences each from the profile's
+  model (07, `word_examples`), five words a call, with what the learner can be
   assumed to know (a course's words up to the words' lesson, an imported deck's up to them) and the
   level the course's or deck's name says ("a1-ru", "Wörter A2"), else beginners'. A sentence that
   does not use its word — found by its forms (engine `usesWord`), or by the form the model says it
@@ -273,6 +275,11 @@ imported `.apkg` decks fit in. Scheduling and the queue are pure functions in
   answering out of shape) end it. The model is that of the profile that starts it (refused while it
   has none). An entry of extras.json whose word is no longer in the deck (an update dropped it) stays
   until the deck's folder goes: nothing shows it, and the word coming back finds it.
+- **What was made, removed** (owner, 2026-10-12): a deck's audio read aloud — its entries in
+  extras.json and their files, never a recording the deck brought or a course's — or its examples in
+  a language pair's translation language, on request (asked first), refused while that job works
+  (`deck_job_running`); the cards follow (relinking). Made again ("Regenerate") is the same removal,
+  then the job over every word.
 - **Decks to take** (owner, 2026-10-08/09): each course of My courses (begun) and language pair offers
   its words as one deck; so does each imported deck. Taking it makes every lesson's words cards at once, new and in course order
   (Anki: a deck imported); words with a card already keep it. **Leaving** a course's deck (after asking)

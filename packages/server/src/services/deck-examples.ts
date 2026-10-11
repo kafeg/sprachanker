@@ -1,6 +1,6 @@
 // Examples for a deck's words (04, "A deck's words given examples"; 07, `word_examples`): the words of
-// the learner's cards in a deck — an imported deck's or a course's — that bring no example of their
-// own get three to five sentences from a model, five words a call, kept in the deck's folder by
+// a deck in a language pair, taken or not — an imported deck's notes, a course's words in an edition —
+// that bring no example of their own get three to five sentences from a model, five words a call, kept in the deck's folder by
 // lexeme and the language they are translated into (deck-extras.ts), so every profile's cards show
 // them. A sentence that does not use its word is dropped; the words left without any are asked for
 // once more, together in one call. Server-wide, one job per deck; the model is the profile's that
@@ -33,6 +33,9 @@ function wordsOf(notes: DeckNote[]) {
     return true;
   });
 }
+
+/** The translation languages of a deck's words (an edition's one). */
+const languagesOf = (notes: DeckNote[]) => new Set(notes.map((n) => n.translationLang));
 
 export function createDeckExamples(deps: { extras: DeckExtrasStore; now(): number }) {
   const { extras } = deps;
@@ -121,7 +124,7 @@ export function createDeckExamples(deps: { extras: DeckExtrasStore; now(): numbe
   return {
     examplesOf,
 
-    /** A deck's words (of the learner's cards in it) — with examples of their own, given examples,
+    /** A deck's words (taken or not) — with examples of their own, given examples,
      *  without — and the deck's job, running or the latest. */
     async state(scope: string, notes: DeckNote[]) {
       const folder = await extras.folderOf(scope);
@@ -146,10 +149,12 @@ export function createDeckExamples(deps: { extras: DeckExtrasStore; now(): numbe
       return batches(folder, notes)[0] ?? wordsOf(notes).slice(0, EXAMPLES_BATCH);
     },
 
-    /** Starts giving a deck's words without examples theirs (once: a job running goes on). */
-    async start(scope: string, notes: DeckNote[], write: ExampleWriter) {
+    /** Starts giving a deck's words without examples theirs (once: a job running goes on); `again`:
+     *  the examples made for them in their translation language go first, every word asked anew. */
+    async start(scope: string, notes: DeckNote[], write: ExampleWriter, again = false) {
       const folder = await extras.folderOf(scope);
       if (extras.going("examples", folder)) return;
+      if (again) for (const lang of languagesOf(notes)) extras.clear("examples", folder, lang);
       extras.start("examples", folder, {
         steps: batches(folder, notes),
         atOnce: 1,
@@ -163,6 +168,13 @@ export function createDeckExamples(deps: { extras: DeckExtrasStore; now(): numbe
     /** Stops a deck's job: the examples written so far are kept. */
     async stop(scope: string) {
       extras.stop("examples", await extras.folderOf(scope));
+    },
+
+    /** Removes the examples made for a deck's words in their translation language (never the deck's
+     *  own sentences). Refused while its job writes. */
+    async remove(scope: string, notes: DeckNote[]) {
+      const folder = await extras.folderOf(scope);
+      for (const lang of languagesOf(notes)) extras.clear("examples", folder, lang);
     },
   };
 }

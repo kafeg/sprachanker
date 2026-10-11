@@ -1,6 +1,6 @@
-// AI examples of a profile's words (04, "A deck's words given examples"; 07, `word_examples`): a
-// deck's job (deck-examples.ts, the server's) started with this profile's model — the words of its
-// cards in the deck, what they can be assumed to know (a course's words up to their lesson, an imported
+// AI examples of a deck's words (04, "A deck's words given examples"; 07, `word_examples`): a
+// deck's job (deck-examples.ts, the server's) started with this profile's model — the deck's words in
+// an edition, taken or not, what they can be assumed to know (a course's words up to their lesson, an imported
 // deck's up to them), the level when the course or deck names one, the learner's own prompt —; the
 // request it would send; and a card's examples as shown, the words not met yet marked and translated
 // (the engine's `markWords`, against the course as installed now, or the deck).
@@ -37,8 +37,8 @@ export function createExamples(deps: {
   cards: Pick<CardStore, "note">;
   /** What a card shows in a deck (cards.ts: the deck's own entry of its word). */
   shown(note: Note, scope: string): Promise<CardDisplay>;
-  /** The learner's cards made in a deck (cards.ts). */
-  deckNotes(scope: string): DeckNote[];
+  /** A deck's words in an edition, taken or not (cards.ts). */
+  sourceNotes(scope: string, edition?: string): Promise<DeckNote[]>;
   decks: Pick<Decks, "deck">;
   extras: Pick<DeckExtrasStore, "folderOf">;
   deckExamples: DeckExamples;
@@ -106,24 +106,36 @@ export function createExamples(deps: {
   };
 
   return {
-    /** A deck's words given examples: their counts and the deck's job. */
-    state: (scope: string) => deps.deckExamples.state(scope, deps.deckNotes(scope)),
+    /** A deck's words in an edition (an imported deck's own; a course's first when none is named)
+     *  given examples: their counts and the deck's job. */
+    state: async (scope: string, edition?: string) =>
+      deps.deckExamples.state(scope, await deps.sourceNotes(scope, edition)),
 
-    /** Starts the deck's job with this profile's model; refused while it has none. */
-    async start(scope: string) {
+    /** Starts the deck's job with this profile's model; refused while it has none. `again`: the
+     *  examples made before go first. */
+    async start(scope: string, edition?: string, again = false) {
       if (!llm.state().model) throw new ServiceError("llm_not_configured", 409);
-      await deps.deckExamples.start(scope, deps.deckNotes(scope), write);
-      return deps.deckExamples.state(scope, deps.deckNotes(scope));
+      const notes = await deps.sourceNotes(scope, edition);
+      await deps.deckExamples.start(scope, notes, write, again);
+      return deps.deckExamples.state(scope, notes);
     },
 
-    async stop(scope: string) {
+    async stop(scope: string, edition?: string) {
       await deps.deckExamples.stop(scope);
-      return deps.deckExamples.state(scope, deps.deckNotes(scope));
+      return deps.deckExamples.state(scope, await deps.sourceNotes(scope, edition));
+    },
+
+    /** Removes the examples made for a deck's words in an edition's language; refused while its job
+     *  writes. */
+    async remove(scope: string, edition?: string) {
+      const notes = await deps.sourceNotes(scope, edition);
+      await deps.deckExamples.remove(scope, notes);
+      return deps.deckExamples.state(scope, notes);
     },
 
     /** The request the job's next call would send. */
-    async prompt(scope: string): Promise<PromptPreview> {
-      const next = await deps.deckExamples.next(scope, deps.deckNotes(scope));
+    async prompt(scope: string, edition?: string): Promise<PromptPreview> {
+      const next = await deps.deckExamples.next(scope, await deps.sourceNotes(scope, edition));
       if (!next.length) throw new ServiceError("no_such_deck", 404);
       return llm.preview(structuredRequest(wordExamplesTask(await inputOf(next))));
     },

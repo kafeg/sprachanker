@@ -1331,6 +1331,7 @@
     "deck_upload_gone": "Faili la seti lililopakiwa halipo tena hapa: lichague tena.",
     "deck_unpacked_too_large": "Faili hili la seti likifunguliwa ni kubwa kuliko kinachoweza kusomwa kwa mara moja.",
     "deck_same_languages": "Maneno na tafsiri zake yanahitaji lugha mbili tofauti.",
+    "deck_job_running": "Maneno ya seti yanashughulikiwa sasa: simamisha kwanza, au subiri hadi imalizike.",
     "examples_without_word": "Sentensi za modeli hazikutumia neno hilo.",
     "length_required": "Faili ilitumwa bila ukubwa wake. Jaribu tena, au kwenye kivinjari kingine.",
     "upload_stalled": "Faili limeacha kufika. Angalia muunganisho kisha ujaribu tena.",

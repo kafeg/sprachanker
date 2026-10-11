@@ -1331,6 +1331,7 @@
     "deck_upload_gone": "Le fichier de paquet envoyé n’est plus là : choisis-le à nouveau.",
     "deck_unpacked_too_large": "Une fois décompressé, ce fichier de paquet est trop gros pour être lu d’un coup.",
     "deck_same_languages": "Les mots et leurs traductions doivent être dans deux langues différentes.",
+    "deck_job_running": "Les mots du paquet sont en cours de traitement : arrêtez d’abord, ou attendez la fin.",
     "examples_without_word": "Les phrases du modèle n’utilisaient pas le mot.",
     "length_required": "Le fichier a été envoyé sans sa taille. Réessaie, ou dans un autre navigateur.",
     "upload_stalled": "Le fichier a cessé d'arriver. Vérifie la connexion et réessaie.",

@@ -185,7 +185,7 @@ function profileServices(
   const examples = createExamples({
     cards: cardStore,
     shown: cards.shown,
-    deckNotes: cards.deckNotes,
+    sourceNotes: cards.sourceNotes,
     decks,
     extras: deckExtras,
     deckExamples,
@@ -209,13 +209,14 @@ function profileServices(
     library: config.library,
     content,
     decks,
-    // A deck's words read aloud with the engine and voice this profile reads them with.
+    // A deck's words, taken or not, read aloud with the engine and voice this profile reads them with.
     deckAudio: {
-      state: (scope: string) =>
-        deckAudio.state(scope, cards.deckNotes(scope), speechOfProfile.deckReader),
-      start: (scope: string) =>
-        deckAudio.start(scope, cards.deckNotes(scope), speechOfProfile.deckReader),
+      state: async (scope: string) =>
+        deckAudio.state(scope, await cards.sourceNotes(scope), speechOfProfile.deckReader),
+      start: async (scope: string, again?: boolean) =>
+        deckAudio.start(scope, await cards.sourceNotes(scope), speechOfProfile.deckReader, again),
       stop: deckAudio.stop,
+      remove: deckAudio.remove,
     },
     downloads,
     courseTransfer,

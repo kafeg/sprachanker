@@ -1331,6 +1331,7 @@
     "deck_upload_gone": "Fișierul de pachet încărcat nu mai este aici: alege-l din nou.",
     "deck_unpacked_too_large": "Dezarhivat, acest fișier de pachet e prea mare ca să fie citit dintr-odată.",
     "deck_same_languages": "Cuvintele și traducerile lor trebuie să fie în două limbi diferite.",
+    "deck_job_running": "Cuvintele pachetului sunt prelucrate acum: oprește mai întâi sau așteaptă să se termine.",
     "examples_without_word": "Propozițiile modelului nu au folosit cuvântul.",
     "length_required": "Fișierul a fost trimis fără dimensiunea lui. Încearcă din nou sau în alt browser.",
     "upload_stalled": "Fișierul a încetat să mai sosească. Verifică conexiunea și încearcă din nou.",

@@ -3,7 +3,7 @@
 // a deck's cards are one per lexeme. Read once and shared by the jobs that write it: one job per deck
 // and kind (audio read aloud, examples) at a time, the server's — one profile starts it, any sees
 // it —, its progress in memory; stopped, the work under way is finished and kept, and started again
-// it does only the rest.
+// it does only the rest; what a kind made is removed on request (never the deck's own files).
 
 import type { LibraryView } from "@sprachanker/course-kit/view";
 import { LlmError } from "@sprachanker/llm";
@@ -84,7 +84,7 @@ export function failureOf(error: unknown): string {
 }
 
 export function createDeckExtras(deps: {
-  files: Pick<DeckFiles, "extras" | "writeExtras" | "media" | "folders" | "remove">;
+  files: Pick<DeckFiles, "extras" | "writeExtras" | "media" | "removeMedia" | "folders" | "remove">;
   decks: Pick<Decks, "deck">;
   /** The installed courses as the library lists them (a course whose files do not read is here too). */
   library: Pick<LibraryView, "courses">;
@@ -135,6 +135,14 @@ export function createDeckExtras(deps: {
   };
   /** A folder's extras as kept. */
   const book = (folder: string) => stored(folder).book;
+  /** Writes a folder's extras.json: its entries, those that did not read as they were. */
+  const write = (folder: string) => {
+    const { book: words, unread } = stored(folder);
+    files.writeExtras(
+      folder,
+      `${JSON.stringify({ ...words, words: { ...unread, ...words.words } }, null, 2)}\n`,
+    );
+  };
 
   /** A deck's folder replaced (imported again) or removed: its jobs stop, saving nothing more there,
    *  and its extras are read anew. */
@@ -152,7 +160,7 @@ export function createDeckExtras(deps: {
 
   async function run<T>(folder: string, job: Job, spec: DeckJobSpec<T>) {
     const { signal } = job.controller;
-    const { book: words, unread } = stored(folder);
+    const { book: words } = stored(folder);
     const dropped = () => !!job.dropped;
     let next = 0;
     let inARow = 0;
@@ -161,8 +169,7 @@ export function createDeckExtras(deps: {
     const save = () => {
       if (!unsaved || job.dropped) return true;
       try {
-        const all = { ...words, words: { ...unread, ...words.words } };
-        files.writeExtras(folder, `${JSON.stringify(all, null, 2)}\n`);
+        write(folder);
         unsaved = 0;
         return true;
       } catch (error) {
@@ -277,6 +284,41 @@ export function createDeckExtras(deps: {
     },
 
     forget,
+
+    /**
+     * Drops what a deck's jobs of a kind made (04): the audio read aloud, with its files — never a
+     * file of the deck's own —, or the examples translated into `lang`; the job's latest run goes with
+     * it. Refused while that job works. Returns how many words lost theirs.
+     */
+    clear(kind: DeckJobKind, folder: string, lang?: string) {
+      if (going(jobs.get(jobKey(kind, folder)))) throw new ServiceError("deck_job_running", 409);
+      const words = book(folder).words;
+      const read: string[] = [];
+      let cleared = 0;
+      for (const [key, word] of Object.entries(words)) {
+        if (kind === "audio" && word.audio) {
+          read.push(word.audio.path);
+          delete word.audio;
+          cleared++;
+        }
+        if (kind === "examples" && lang && word.examples?.[lang]) {
+          delete word.examples[lang];
+          if (!Object.keys(word.examples).length) delete word.examples;
+          cleared++;
+        }
+        if (!word.audio && !word.examples) delete words[key];
+      }
+      jobs.delete(jobKey(kind, folder));
+      if (!cleared) return 0;
+      write(folder);
+      // What the deck brought is its own: an imported deck's word's and examples' audio stay.
+      const deck = folder.startsWith("course~") ? undefined : deps.decks.deck(folder);
+      const own = new Set(
+        deck?.words.flatMap((w) => [w.audio, ...(w.examples ?? []).map((e) => e.audio)]),
+      );
+      for (const path of new Set(read)) if (!own.has(path)) files.removeMedia(folder, path);
+      return cleared;
+    },
 
     /** Course folders whose course is no longer installed go (at the start); a course whose files
      *  do not read keeps its folder. */
