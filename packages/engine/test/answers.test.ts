@@ -55,6 +55,12 @@ test("a speaking item's line to say: the source's answer, else its phrase; a fra
   for (const reference of ["Ja, ich … / Nein, ich …", "Ich trinke ...", "(seit – zwei Monate)"])
     expect(linesToSay({ reference: [reference] })).toBeUndefined();
   expect(linesToSay({})).toBeUndefined();
+  // A spelled answer is no words to diff.
+  expect(linesToSay({ reference: ["E-M-M-A"] })).toBeUndefined();
+  expect(linesToSay({ reference: ["Mein Name: G-O-N-Z-A-L-E-Z"] })).toBeUndefined();
+  expect(linesToSay({ reference: ["Ich schreibe eine E-Mail im U-Bahn-Zug."] })).toEqual([
+    "Ich schreibe eine E-Mail im U-Bahn-Zug.",
+  ]);
   const speaking = ex("speech_selfrate", [
     { reference: ["Ja, ich habe ..."] },
     { reference: ["Ich habe zwei Brüder."] },
@@ -63,4 +69,25 @@ test("a speaking item's line to say: the source's answer, else its phrase; a fra
     "Ja, ich habe eine Schwester",
   );
   expect(spokenFreely(speaking, 1, { transcript: "Ich habe zwei Brüder" })).toBeUndefined();
+});
+
+test("a phrase to repeat is said as written: brackets are its words, alternatives only on one line", () => {
+  // Words in brackets are read (optional words, a stage direction): no frame.
+  for (const text of [
+    "I’m pretty busy these days.\nI’m pretty sure (that) you weren’t there.",
+    "D: — (laughs) Going somewhere?\nN: — Hey, Eddy!",
+    "The movie (had) started before we arrived.",
+    "I wish I were lying on the beach...\nSo, let me get this straight...",
+  ])
+    expect(linesToSay({ text })).toEqual([text]);
+  // One line's " / " are its alternatives; several lines are read whole, their " / " inside them.
+  expect(linesToSay({ text: "Muss sie das sein? / Muss er das sein?" })).toEqual([
+    "Muss sie das sein?",
+    "Muss er das sein?",
+  ]);
+  const lines = "Is there anybody in the room?\nYes, there is. / No, there is not.";
+  expect(linesToSay({ text: lines })).toEqual([lines]);
+  expect(linesToSay({ text: "Every day / week / month\nNever" })).toEqual([
+    "Every day / week / month\nNever",
+  ]);
 });

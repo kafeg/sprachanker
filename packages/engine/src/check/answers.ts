@@ -55,20 +55,28 @@ export function answerComplete(exercise: Exercise, index: number, answer: unknow
   }
 }
 
-/** A frame to complete, not a line to say word for word: an ellipsis, a gap or words in brackets
- *  ("Ich trinke …", "Nein, das ist ... (die Brille)", "(seit – zwei Monate)"). */
+/** A source's answer that is a frame to complete, not a line to say word for word: an ellipsis, a
+ *  gap or words in brackets ("Ich trinke …", "Nein, das ist ... (die Brille)", "(seit – zwei Monate)"). */
 const FRAME = /…|\.\.\.|_{2,}|[([]/;
+/** A word spelled letter by letter ("E-M-M-A"): no word diff hears it so. */
+const SPELLED = /(?<![\p{L}-])\p{L}(?:-\p{L}){2,}(?![\p{L}-])/u;
+const ALTERNATIVES = /\s+\/\s+/;
 
 /**
- * The lines a speaking item is said as (08): the source's answer (`reference`) when it has one, else
- * its phrase to repeat (`text`), each split into its alternatives (" / "); none when that is a frame
- * or the item has neither — the answer is then the learner's own.
+ * The lines a speaking item is said as (08): the source's answer (`reference`) when it has one, each
+ * split into its alternatives (" / "), none when it is a frame; else its phrase to repeat (`text`),
+ * said as written — words in brackets too —, split into alternatives only when it is one line (a
+ * text of several lines is read whole: its " / " may part words or speakers). None when the item has
+ * neither or a line is spelled — the answer is then the learner's own, for the AI to check.
  */
 export function linesToSay(item: { text?: string; reference?: string[] }): string[] | undefined {
-  const said = item.reference ?? (item.text ? [item.text] : []);
-  if (!said.length || said.some((s) => FRAME.test(s))) return undefined;
-  const lines = said.flatMap((s) => s.split(/\s+\/\s+/)).map((s) => s.trim());
-  return lines.every(Boolean) ? lines : undefined;
+  const { text, reference } = item;
+  if (reference?.some((s) => FRAME.test(s))) return undefined;
+  const said = reference ?? (text ? [text] : []);
+  const lines = said
+    .flatMap((s) => (reference || !s.includes("\n") ? s.split(ALTERNATIVES) : [s]))
+    .map((s) => s.trim());
+  return lines.length && lines.every((s) => s && !SPELLED.test(s)) ? lines : undefined;
 }
 
 /** What was heard of an answer said aloud to a speaking item with no line to say (`linesToSay`: the

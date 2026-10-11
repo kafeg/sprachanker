@@ -349,6 +349,8 @@ test("a recorded phrase, heard: the words compared and a verdict, still in no sc
         reference: ["Ich heiße Emma. / Mein Name ist Emma."],
       },
       { key: "s/c/00-01/ex-01#4", prompt: "Wie heißt du?", reference: ["Ich heiße …"] },
+      // A phrase to repeat with a word in brackets: read as written, the word diffed.
+      { key: "s/c/00-01/ex-01#5", text: "I’m pretty sure (that) you weren’t there." },
     ],
   } as unknown as Exercise;
   const heard = checkItem(exercise, 0, { recording: "r", transcript: "Ich heiße Nico" }, "de");
@@ -360,6 +362,10 @@ test("a recorded phrase, heard: the words compared and a verdict, still in no sc
   const answered = checkItem(exercise, 2, { transcript: "Mein Name ist Emma" }, "de");
   expect(answered.diff?.every((d) => d.op === "equal")).toBe(true);
   expect(checkItem(exercise, 3, { transcript: "Ich heiße Emma" }, "de").diff).toBeUndefined();
+  const read = (transcript: string) =>
+    checkItem(exercise, 4, { transcript }, "en").diff?.map((d) => d.op);
+  expect(read("I'm pretty sure that you weren't there")?.every((op) => op === "equal")).toBe(true);
+  expect(read("I'm pretty sure you weren't there")).toContain("missing");
   expect(checkItem(exercise, 0, { recording: "r" }, "de").diff).toBeUndefined();
   expect(checkItem(exercise, 1, { transcript: "Hallo" }, "de").diff).toBeUndefined();
   expect(

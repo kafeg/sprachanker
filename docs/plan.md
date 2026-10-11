@@ -104,6 +104,9 @@ Taken along when an item above touches the area, or on request.
   rule ids; content updated while a run is active ends the run (05). A word the source leaves without
   a translation in one lesson takes the translation its lexeme has elsewhere in the same edition (DW:
   Persian A1 "alt", German A2 "der Spinat"; seen in the 2026-10-08 audit of all Nicos Weg editions).
+  A course normalised by an older normaliser flagged for re-import: the provider's normaliser
+  revision in the course data, read by `verify` and the course page (a library normalised before
+  speaking items had `reference` still diffs a spoken answer against the question it answers).
 - Server (05, 06): structured logs.
 - Lesson (09): the lesson's review back, together with going over mistakes — one analysis across the
   exercises (answers, speech verdicts, writing, scenes, mistakes) (owner, 2026-10-08). The microphone

@@ -37,7 +37,7 @@ Checkers (`packages/engine/src/check/index.ts`) exist for every scored type, ren
 but `unknown`. What the player asks before checking
 is the engine's too (`check/answers.ts`): whether an exercise is checked at all, whether an answer is
 complete enough to check, the words of an answer said aloud, a spoken answer the AI is to check
-(`spokenFreely`: a `speech_selfrate` item without a line to say — `linesToSay`: the source's answer, else the phrase to repeat, never a frame —, 08).
+(`spokenFreely`: a `speech_selfrate` item without a line to say — `linesToSay`: the source's answer unless a frame, else the phrase to repeat as written, never a spelling —, 08).
 
 ```ts
 type Outcome = {
