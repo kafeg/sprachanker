@@ -90,6 +90,7 @@ function checkSpeakingRequest(input: SpeakingInput): TaskRequest {
     temperature: 0.2,
     maxTokens: 1000,
     reasoning: false,
+    effort: "low",
   };
 }
 

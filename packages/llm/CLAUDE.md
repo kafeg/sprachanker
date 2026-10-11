@@ -8,7 +8,8 @@ is the server's job. Web-standard APIs only (fetch, streams), no runtime-specifi
 
 ```
 src/
-  cli.ts           # command-line providers (claude -p, codex exec): command lines, prompt, output parsing;
+  cli.ts           # command-line providers (claude -p, codex exec): command lines (effort per task),
+                   # environment, prompt, output parsing, time limits, one more run of a failed one;
                    # the process itself is started by a CliRunner the server passes in
   client.ts        # OpenAI-compatible endpoint: models(), streamed chat() with tool rounds, complete();
                    # ApiQuirks (what sets a provider apart: reasoning switch, reasoners, token field)

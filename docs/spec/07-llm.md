@@ -53,7 +53,17 @@ prompt as its first message.
 Command-line providers run each request in a fresh empty folder with our system prompt and without the
 agent's own tools, MCP servers, settings or saved session: only the lesson context goes out. Structured
 outputs use `--json-schema` / `--output-schema`; the tutor answers there without its tools. Each request
-starts the command (a few seconds). Codex's read-only sandbox still lets it run commands that read
+starts the command (a few seconds). Effort is per task (`effort` of the request): a short check (a
+spoken answer, a deck's examples) asks for `low` (`--effort low`, Codex `model_reasoning_effort`);
+everything else — explanations, the tutor, writing checks, a Dialogue — keeps the CLI's default
+(Claude Code: `medium` on the 5.5 models), since low effort let replies drift (owner 2026-10-12, a
+walkthrough with Sonnet). The user's `CLAUDE_CODE_EFFORT_LEVEL`, which would win over `--effort`, is
+removed from the command's environment, and Claude Code's own API retries are cut to three
+(`CLAUDE_CODE_MAX_RETRIES`; ten by default, backing off up to 32 s each: a Dialogue's setup once took
+224 s). Time limits: a streamed reply 240 s; a JSON reply 90 s per attempt. A run that fails — the
+process exits non-zero, the API fails, a JSON reply runs out of time — is run once more, unless its
+text has begun to show, the login was refused, the model is unknown, the command cannot start or the
+learner stopped it. Codex's read-only sandbox still lets it run commands that read
 files on this machine; only its instructions ("do not run commands or read files") keep it to the
 prompt — choose Claude Code (no tools at all) where that matters.
 
