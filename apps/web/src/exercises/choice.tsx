@@ -1,13 +1,13 @@
 // single_choice and multi_choice: options as buttons (pictures as a grid of tiles), chosen by tap or,
 // in the active item, by the number keys; several choices show square boxes and how many are chosen.
 import { useTranslation } from "react-i18next";
-import { cn } from "@/ui/utils.ts";
 import {
   allPictures,
   type Mark,
   OptionButton,
   type ShownOption,
   shownOptions,
+  TILES,
   useNumberKeys,
   useShuffled,
 } from "./shared.tsx";
@@ -38,7 +38,7 @@ function Options({
     if (option) choose(option.id);
   });
   return (
-    <div className={cn(grid ? "grid grid-cols-2 gap-2 sm:grid-cols-3" : "flex flex-wrap gap-2")}>
+    <div className={grid ? TILES : "flex flex-wrap gap-2"}>
       {options.map((o) => (
         <OptionButton
           key={o.id}

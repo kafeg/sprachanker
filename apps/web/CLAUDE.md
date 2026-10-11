@@ -88,7 +88,7 @@ apps/web/src/
                    # check-row (a setting on or off), option-card (one of a few options as a card),
                    # disclosure (folded: "Advanced"), confirm (an action that cannot be undone), flags,
                    # error-text (an API error in words), target-lang (`lang` of the course's language),
-                   # window-title, utils (cn)
+                   # window-title, pointer (a finger or a mouse: the system's picker on touch), utils (cn)
   audio/           # recording oneself (08): recorder (MediaRecorder, the microphone of this device, its
                    # loudness), wav (a take as 16 kHz WAV), mic-button (disabled with the reason),
                    # dictate (a microphone beside a text box: what was heard goes into it), take-button,

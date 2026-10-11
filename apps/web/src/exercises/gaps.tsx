@@ -1,10 +1,11 @@
-import { correctOptions, type ItemOf, type Option, type Outcome } from "@sprachanker/schema";
+import { correctOptions, type ItemOf, type Option } from "@sprachanker/schema";
 import { useContext, useRef, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { useTargetLang } from "@/ui/target-lang.ts";
 import { cn } from "@/ui/utils.ts";
 import { Chip, DragBoard, Slot } from "./dnd.tsx";
 import {
+  CheckedField,
   PickSelect,
   partRight,
   RightAnswer,
@@ -21,28 +22,58 @@ type Segments = ItemOf<"gap_text">["segments"];
 const gapNumber = (segments: Segments, gap: string) =>
   segments.filter((s) => typeof s !== "string").findIndex((s) => s.gap === gap) + 1;
 
-function Text({ segments, gap }: { segments: Segments; gap(id: string): React.ReactNode }) {
+/** Closing punctuation right after a gap: it stays on the gap's line. */
+const TAIL = /^[.,!?;:…)\]»“”"'’]+/u;
+
+/** A gap as shown: its field and, once checked and wrong, the right answer beside it. */
+type ShownGap = { field: React.ReactNode; right?: string };
+
+function Text({ segments, gap }: { segments: Segments; gap(id: string): ShownGap }) {
   const lang = useTargetLang();
   return (
     // Lines keep the text's own spacing; a line with a gap grows around it (a long dialogue with a
     // few gaps is not spread out over the screen).
     <p lang={lang} className="whitespace-pre-wrap text-xl leading-relaxed">
-      {segments.map((s, i) =>
-        typeof s === "string" ? (
+      {segments.map((s, i) => {
+        if (typeof s === "string") {
+          const text = typeof segments[i - 1] === "object" ? s.replace(TAIL, "") : s;
           // biome-ignore lint/suspicious/noArrayIndexKey: segments are static
-          <span key={i}>{s}</span>
-        ) : (
-          <span key={s.gap} className="mx-1 my-1 inline-block align-baseline">
-            {gap(s.gap)}
+          return text && <span key={i}>{text}</span>;
+        }
+        const next = segments[i + 1];
+        const tail = typeof next === "string" ? (next.match(TAIL)?.[0] ?? "") : "";
+        const { field, right } = gap(s.gap);
+        return (
+          // The gap, its right answer and the punctuation after it move to the next line together;
+          // only an answer longer than the line wraps, under the gap.
+          <span
+            key={s.gap}
+            className="mx-1 my-1 inline-flex max-w-full flex-wrap items-baseline align-baseline"
+          >
+            {field}
+            {right !== undefined ? (
+              <span>
+                <RightAnswer text={right} />
+                {tail}
+              </span>
+            ) : (
+              tail && <span>{tail}</span>
+            )}
           </span>
-        ),
-      )}
+        );
+      })}
     </p>
   );
 }
 
-const fieldMark = (outcome: Outcome | undefined, ok: boolean) =>
-  outcome ? (ok ? "border-correct bg-correct-soft" : "border-wrong bg-wrong-soft") : "border-input";
+/** A typed gap's width in `ch`: room for the longest accepted answer, rounded up to a step of four
+ *  (it tells only roughly how long the answer is), and for what is typed. Pure. */
+export const gapWidth = (accepted: string[], typed = "") =>
+  Math.max(
+    6,
+    Math.ceil((Math.max(0, ...accepted.map((a) => a.length)) + 2) / 4) * 4,
+    typed.length + 2,
+  );
 
 const WORD = "bank:word:";
 const GAP = "bank:gap:";
@@ -107,8 +138,8 @@ function WordBank({
         )}
         <Text
           segments={item.segments}
-          gap={(gap) => (
-            <>
+          gap={(gap) => ({
+            field: (
               <Slot
                 id={`${GAP}${gap}`}
                 label={t("ex.gap", { n: gapNumber(item.segments, gap) })}
@@ -125,9 +156,9 @@ function WordBank({
               >
                 <span lang={lang}>{textOf(gap, values[gap]) ?? "\u00a0"}</span>
               </Slot>
-              {outcome && !ok(gap) && <RightAnswer text={rightText(gap)} />}
-            </>
-          )}
+            ),
+            right: outcome && !ok(gap) ? rightText(gap) : undefined,
+          })}
         />
       </div>
     </DragBoard>
@@ -166,8 +197,10 @@ export function GapChoice({ item, answer, onAnswer, outcome }: RendererProps<"ga
   return (
     <Text
       segments={item.segments}
-      gap={(gap) => (
-        <>
+      gap={(gap) => ({
+        field: outcome ? (
+          <CheckedField text={textOf(gap, values[gap])} ok={ok(gap)} />
+        ) : (
           <PickSelect
             value={values[gap]}
             options={shuffled(item.gaps[gap]?.options ?? [], `${pass}:${item.key}:${gap}`).map(
@@ -175,13 +208,12 @@ export function GapChoice({ item, answer, onAnswer, outcome }: RendererProps<"ga
             )}
             placeholder="…"
             label={t("ex.gap", { n: gapNumber(item.segments, gap) })}
-            disabled={!!outcome}
             onChange={(id) => set(gap, id)}
-            className={cn("inline-flex min-w-20 align-middle", fieldMark(outcome, ok(gap)))}
+            className="min-w-20"
           />
-          {outcome && !ok(gap) && <RightAnswer text={rightText(gap)} />}
-        </>
-      )}
+        ),
+        right: outcome && !ok(gap) ? rightText(gap) : undefined,
+      })}
     />
   );
 }
@@ -197,26 +229,23 @@ export function GapText({ item, answer, onAnswer, outcome }: RendererProps<"gap_
         gap={(gap) => {
           const accepted = item.answer[gap]?.accepted ?? [];
           const ok = partRight(outcome, gap);
-          return (
-            <>
+          return {
+            field: outcome ? (
+              <CheckedField text={values[gap]} ok={ok} />
+            ) : (
               <input
                 value={values[gap] ?? ""}
-                disabled={!!outcome}
                 aria-label={t("ex.gap", { n: gapNumber(item.segments, gap) })}
                 autoCapitalize="off"
                 autoComplete="off"
                 spellCheck={false}
                 onChange={(e) => onAnswer({ ...values, [gap]: e.target.value })}
-                // Grows with what is typed: its width gives nothing of the answer away.
-                style={{ width: `${Math.max(6, (values[gap]?.length ?? 0) + 2)}ch` }}
-                className={cn(
-                  "h-11 rounded-lg border-2 bg-card px-2 text-lg",
-                  fieldMark(outcome, ok),
-                )}
+                style={{ width: `calc(${gapWidth(accepted, values[gap])}ch + 1.25rem)` }}
+                className="h-11 max-w-full rounded-lg border-2 border-input bg-card px-2 text-lg"
               />
-              {outcome && !ok && <RightAnswer text={accepted.map((a) => a || "—").join(" / ")} />}
-            </>
-          );
+            ),
+            right: outcome && !ok ? accepted.map((a) => a || "—").join(" / ") : undefined,
+          };
         }}
       />
       {!outcome && <SpecialLetters scope={scope} />}

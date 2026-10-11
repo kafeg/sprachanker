@@ -1,8 +1,9 @@
 // order: put the parts in order. A tap adds a part to the line, a tap in the line takes it back; or drag
 // a part into the line, onto a part in it (it goes there) or back to the pool (dnd.tsx).
-import type { Option } from "@sprachanker/schema";
+import { joinParts, type Option } from "@sprachanker/schema";
 import { useTranslation } from "react-i18next";
 import { Button } from "@/ui/components/button.tsx";
+import { useTargetLang } from "@/ui/target-lang.ts";
 import { cn } from "@/ui/utils.ts";
 import { Chip, DragBoard, Zone } from "./dnd.tsx";
 import { OptionContent, useShuffled } from "./shared.tsx";
@@ -21,6 +22,14 @@ export function Order({ item, answer, onAnswer, outcome, url }: RendererProps<"o
   const sequence: string[] = answer?.sequence ?? [];
   const byId = (id: string) => item.parts.find((p) => p.id === id) as Option;
   const set = (next: string[]) => onAnswer({ sequence: next });
+  const lang = useTargetLang();
+  const sentence =
+    outcome && sequence.length && !item.parts.some((p) => p.media)
+      ? joinParts(
+          sequence.map((id) => byId(id).text),
+          item.join,
+        )
+      : undefined;
 
   const drop = (dragged: string, target: string) => {
     const chip = dragged.slice((dragged.startsWith(IN) ? IN : OUT).length);
@@ -48,19 +57,27 @@ export function Order({ item, answer, onAnswer, outcome, url }: RendererProps<"o
             outcome && outcome.result !== "correct" && "border-wrong bg-wrong-soft",
           )}
         >
-          {sequence.map((id, i) => (
-            <Chip
-              key={id}
-              id={`${IN}${id}`}
-              label={byId(id).text}
-              dropId={`${AT}${id}`}
-              disabled={!!outcome}
-              className="border-primary"
-              onTap={() => set(sequence.filter((_, j) => j !== i))}
-            >
-              <OptionContent option={byId(id)} url={url} />
-            </Chip>
-          ))}
+          {/* Checked, a line of words reads as the sentence given: no space before a "." or "?"
+              that was a part of its own. */}
+          {sentence !== undefined ? (
+            <p lang={lang} className="px-1 text-xl leading-relaxed">
+              {sentence}
+            </p>
+          ) : (
+            sequence.map((id, i) => (
+              <Chip
+                key={id}
+                id={`${IN}${id}`}
+                label={byId(id).text}
+                dropId={`${AT}${id}`}
+                disabled={!!outcome}
+                className="border-primary"
+                onTap={() => set(sequence.filter((_, j) => j !== i))}
+              >
+                <OptionContent option={byId(id)} url={url} />
+              </Chip>
+            ))
+          )}
         </Zone>
         {/* Once checked, the line and the right answer are what is left to read: no pool (as in
             match and the word bank). */}

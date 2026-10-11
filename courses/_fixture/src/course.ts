@@ -238,6 +238,20 @@ export const cafeLesson: Lesson = {
           display: "dropdown",
           answer: { g1: "b" },
         },
+        {
+          prompt: "Herr oder Frau?",
+          segments: ["Guten Abend, ", { gap: "g1" }, " Schmidt."],
+          gaps: {
+            g1: {
+              options: [
+                { id: "a", text: "Herr" },
+                { id: "b", text: "Frau" },
+              ],
+            },
+          },
+          display: "dropdown",
+          answer: { g1: "a" },
+        },
       ],
     }),
     exercise(CAFE, 7, {

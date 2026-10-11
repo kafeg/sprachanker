@@ -1,5 +1,5 @@
 import type { LocaleItem, Option, Outcome } from "@sprachanker/schema";
-import { Check, X } from "lucide-react";
+import { Check, ChevronDown, X } from "lucide-react";
 import { createContext, useContext, useEffect, useMemo } from "react";
 import { useTranslation } from "react-i18next";
 import {
@@ -9,6 +9,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/ui/components/select.tsx";
+import { useCoarsePointer } from "@/ui/pointer.ts";
 import { useTargetLang } from "@/ui/target-lang.ts";
 import { cn } from "@/ui/utils.ts";
 
@@ -85,7 +86,8 @@ export function OptionContent({
         alt={option.alt ?? ""}
         className={cn(
           "rounded-lg",
-          fill ? "aspect-[4/3] w-full object-contain" : "h-28 w-auto sm:h-32",
+          // A tile's picture keeps its own shape: no empty band above or under it.
+          fill ? "h-auto max-h-64 w-full object-contain" : "h-28 w-auto sm:h-32",
         )}
       />
     );
@@ -111,18 +113,49 @@ export function OptionContent({
 export const ANSWER_BOX =
   "min-h-20 rounded-xl border-2 bg-card p-3 text-xl shadow-none md:text-xl dark:bg-card disabled:cursor-default disabled:resize-none disabled:border-transparent disabled:bg-muted/60 disabled:opacity-100 dark:disabled:bg-muted/60";
 
-/** The right answer beside a wrong part (a gap, a slot), once checked: "→ kurz". */
+/** The right answer beside a wrong part (a gap, a slot), once checked: "→ kurz" (the arrow never
+ *  alone at a line's end). */
 export function RightAnswer({ text, className }: { text: string; className?: string }) {
   const lang = useTargetLang();
   return (
     <span lang={lang} className={cn("ml-2 text-base text-wrong", className)}>
-      → {text}
+      {`→\u00a0${text}`}
     </span>
   );
 }
 
-/** Options that are all pictures are laid out as a grid of equal tiles. */
+/** A gap once checked: the answer given as text in its frame — not a greyed field — with ✓ or ✕. */
+export function CheckedField({ text, ok }: { text: string | undefined; ok: boolean }) {
+  const lang = useTargetLang();
+  return (
+    <span
+      lang={lang}
+      className={cn(
+        "inline-flex min-h-11 max-w-full items-center gap-2 rounded-lg border-2 px-3 text-lg",
+        ok ? "border-correct bg-correct-soft" : "border-wrong bg-wrong-soft",
+      )}
+    >
+      <span className="min-w-0">{text || "\u00a0"}</span>
+      {ok ? (
+        <Check className="size-4 shrink-0 text-correct" aria-hidden />
+      ) : (
+        <X className="size-4 shrink-0 text-wrong" aria-hidden />
+      )}
+    </span>
+  );
+}
+
+/** Options that are all pictures are laid out as tiles. */
 export const allPictures = (options: Option[]) => options.every((o) => o.media?.image);
+
+/** Tiles (pictures): one width, two to a row on a phone and three wider; a last row short of tiles
+ *  is centred (no tile alone at half width on the left). `TILES` on the row, `TILE` on each. */
+export const TILES = "flex flex-wrap justify-center gap-3";
+export const TILE =
+  "shrink-0 grow-0 basis-[calc((100%_-_0.75rem)/2)] sm:basis-[calc((100%_-_1.5rem)/3)]";
+
+/** A tile's mark in its corner: no row of its own under the picture. */
+const MARK_CORNER = "absolute right-2 bottom-2 box-content rounded-full bg-card p-0.5";
 
 export function OptionButton({
   option,
@@ -153,8 +186,8 @@ export function OptionButton({
       className={cn(
         // On a phone options that wrap share their row, so a list of long ones is not ragged; a
         // word longer than the screen breaks ("Oberbürgermeisterin/Oberbürgermeister").
-        "relative flex min-h-12 max-w-full items-center gap-2 rounded-xl border-2 bg-card px-4 py-2 text-left text-lg transition [overflow-wrap:anywhere] max-sm:flex-auto",
-        fill && "flex-col items-stretch px-2",
+        "relative flex min-h-12 max-w-full items-center gap-2 rounded-xl border-2 bg-card px-4 py-2 text-left text-lg transition [overflow-wrap:anywhere]",
+        fill ? cn(TILE, "flex-col items-stretch justify-center px-2") : "max-sm:flex-auto",
         !disabled && "hover:border-primary/60",
         selected && "border-primary bg-accent",
         mark === "correct" && "border-correct bg-correct-soft",
@@ -176,9 +209,11 @@ export function OptionButton({
       )}
       <OptionContent option={option} url={url} fill={fill} />
       {(mark === "correct" || mark === "missed") && (
-        <Check className="size-5 shrink-0 text-correct" aria-hidden />
+        <Check className={cn("size-5 shrink-0 text-correct", fill && MARK_CORNER)} aria-hidden />
       )}
-      {mark === "wrong" && <X className="size-5 shrink-0 text-wrong" aria-hidden />}
+      {mark === "wrong" && (
+        <X className={cn("size-5 shrink-0 text-wrong", fill && MARK_CORNER)} aria-hidden />
+      )}
     </button>
   );
 }
@@ -262,14 +297,13 @@ export function SpecialLetters({ scope }: { scope: React.RefObject<HTMLElement |
   );
 }
 
-/** A pick from a short list inside an exercise (a gap, the right side of a pair): the app's select,
- *  sized for touch, with the item's state as its border. */
+/** A pick from a short list inside an exercise (a gap): the app's list with a mouse; on a touch
+ *  screen the system's own picker (a native select), which one tap opens on iOS and Android alike. */
 export function PickSelect({
   value,
   options,
   placeholder,
   label,
-  disabled,
   className,
   onChange,
 }: {
@@ -277,20 +311,47 @@ export function PickSelect({
   options: Array<{ id: string; text: string }>;
   placeholder: string;
   label: string;
-  disabled?: boolean;
-  /** State classes (border colours) and width. */
+  /** Its width. */
   className?: string;
   onChange(id: string): void;
 }) {
   const lang = useTargetLang();
+  const coarse = useCoarsePointer();
+  const field = "h-11 rounded-lg border-2 border-input bg-card text-lg";
+  if (coarse)
+    return (
+      <span className={cn("relative inline-flex max-w-full", className)}>
+        <select
+          aria-label={label}
+          lang={lang}
+          value={value ?? ""}
+          onChange={(e) => onChange(e.target.value)}
+          className={cn(
+            field,
+            "min-w-0 grow appearance-none truncate pr-9 pl-3 outline-none focus-visible:border-ring focus-visible:ring-[3px] focus-visible:ring-ring/50",
+            !value && "text-muted-foreground",
+          )}
+        >
+          <option value="" disabled>
+            {placeholder}
+          </option>
+          {options.map((o) => (
+            <option key={o.id} value={o.id}>
+              {o.text}
+            </option>
+          ))}
+        </select>
+        <ChevronDown
+          aria-hidden
+          className="pointer-events-none absolute top-1/2 right-3 size-4 -translate-y-1/2 opacity-50"
+        />
+      </span>
+    );
   return (
-    <Select value={value ?? ""} onValueChange={onChange} disabled={disabled}>
+    <Select value={value ?? ""} onValueChange={onChange}>
       <SelectTrigger
         aria-label={label}
-        className={cn(
-          "h-11 rounded-lg border-2 bg-card text-lg data-[size=default]:h-11",
-          className,
-        )}
+        className={cn(field, "max-w-full data-[size=default]:h-11", className)}
       >
         <SelectValue placeholder={placeholder} />
       </SelectTrigger>

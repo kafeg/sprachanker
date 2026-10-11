@@ -63,6 +63,39 @@ test("word bank: a tapped gap takes the next word; a word can be dragged onto a 
   await expect(page.getByRole("group", { name: "Words to place" })).toHaveCount(0);
 });
 
+test("drop-down gaps: one tap opens each, card after card (the system's picker on a touch screen); a prompt both items share shown once", async ({
+  page,
+}, info) => {
+  await openStep(page, "Herr or Frau?");
+  await expect(page.getByText("Herr oder Frau?", { exact: true })).toHaveCount(1);
+  const gaps = await page.locator("ol > li").getByRole("combobox", { name: "Gap 1" }).all();
+  expect(gaps).toHaveLength(2);
+  const touch = !!info.project.use.hasTouch;
+  for (const [gap, word] of [
+    [gaps[0], "Frau"],
+    [gaps[1], "Herr"],
+  ] as const) {
+    if (!gap) throw new Error("no gap");
+    if (touch) {
+      expect(await gap.evaluate((e) => e.tagName)).toBe("SELECT");
+      await gap.tap();
+      await gap.selectOption({ label: word });
+      await expect(gap.locator("option:checked")).toHaveText(word);
+    } else {
+      await gap.click();
+      await page.getByRole("option", { name: word }).click();
+      await expect(gap).toHaveText(word);
+    }
+  }
+  // The next tap is not swallowed: Check checks at once.
+  const check = page.getByRole("button", { name: "Check", exact: true });
+  if (touch) await check.tap();
+  else await check.click();
+  await expect(page.getByRole("status").filter({ hasText: /^Correct$/ })).toHaveCount(2);
+  // Checked: the choices as text with their marks, no lists left.
+  await expect(page.locator("ol > li").getByRole("combobox")).toHaveCount(0);
+});
+
 test("choices: number keys answer the next item to answer; the answer spoken once checked; several choices count what is chosen", async ({
   page,
 }) => {
@@ -100,7 +133,7 @@ test("typed gaps: the letter row types at the cursor; Enter goes to the next gap
   await first.fill("Kaffee");
   await first.press("Enter");
   await expect(second).toBeFocused();
-  // A gap grows with what is typed (its width tells nothing of the answer).
+  // A gap grows with what is typed beyond the room its answer has.
   const before = await second.evaluate((e) => e.getBoundingClientRect().width);
   await second.pressSequentially("Milch mit Zucker");
   expect(await second.evaluate((e) => e.getBoundingClientRect().width)).toBeGreaterThan(before);

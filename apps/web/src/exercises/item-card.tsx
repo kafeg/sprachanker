@@ -12,6 +12,42 @@ import { useRequiredTargetLang } from "@/ui/target-lang.ts";
 import { cn } from "@/ui/utils.ts";
 import { correctAnswer, ExerciseItem, toHear } from "./index.tsx";
 
+/** The prompt every item of an exercise has alike (two items or more), to show once above them
+ *  instead of in each card; else none. The data keeps it per item. */
+export function sharedPrompt(exercise: Exercise, locale: LocaleExercise | null | undefined) {
+  if (exercise.items.length < 2) return undefined;
+  const target = exercise.items.map((item) => item.prompt ?? "");
+  const learner = exercise.items.map((_, i) => locale?.items[`#${i + 1}`]?.prompt ?? "");
+  const alike = (texts: string[]) => texts.every((t) => t === texts[0]);
+  if (!alike(target) || !alike(learner) || !(target[0] || learner[0])) return undefined;
+  return { target: target[0] || undefined, learner: learner[0] || undefined };
+}
+
+/** The items' shared prompt (`sharedPrompt`), above them; nothing when they have none. */
+export function SharedPrompt({
+  exercise,
+  locale,
+  className,
+}: {
+  exercise: Exercise;
+  locale: LocaleExercise | null | undefined;
+  className?: string;
+}) {
+  const lang = useRequiredTargetLang();
+  const shared = sharedPrompt(exercise, locale);
+  if (!shared) return null;
+  return (
+    <div className={className}>
+      {shared.target && (
+        <p lang={lang} className="text-lg font-semibold">
+          {shared.target}
+        </p>
+      )}
+      {shared.learner && <p className="text-lg font-semibold">{shared.learner}</p>}
+    </div>
+  );
+}
+
 export function ItemCard({
   exercise,
   locale,
@@ -23,6 +59,7 @@ export function ItemCard({
   active,
   heard = true,
   onHeard,
+  promptAbove = false,
   className,
 }: {
   exercise: Exercise;
@@ -38,6 +75,8 @@ export function ItemCard({
   /** The item's recording was heard (an answer waits for it). */
   heard?: boolean;
   onHeard?(): void;
+  /** The prompt is shown above the items (`SharedPrompt`), not in the card. */
+  promptAbove?: boolean;
   className?: string;
 }) {
   const lang = useRequiredTargetLang();
@@ -46,7 +85,7 @@ export function ItemCard({
   if (!item) return null;
   const loc = locale?.items[`#${index + 1}`];
   const marked = outcome && outcome.result !== "unscored";
-  const right = correctAnswer(exercise, index);
+  const right = correctAnswer(exercise, index, outcome);
   const shown = marked && outcome.result !== "correct" ? right : undefined;
   const ok = outcome?.result === "correct";
   return (
@@ -81,13 +120,13 @@ export function ItemCard({
           onHeard={onHeard}
         />
       )}
-      <div className="mb-3">
-        {item.prompt && (
+      <div className="mb-3 empty:hidden">
+        {item.prompt && !promptAbove && (
           <p lang={lang} className="text-lg font-semibold">
             {item.prompt}
           </p>
         )}
-        {loc?.prompt && <p className="text-lg font-semibold">{loc.prompt}</p>}
+        {loc?.prompt && !promptAbove && <p className="text-lg font-semibold">{loc.prompt}</p>}
         {loc?.hintHtml && (
           <CourseHtml className="text-sm text-muted-foreground" html={loc.hintHtml} />
         )}

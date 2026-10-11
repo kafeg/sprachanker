@@ -1,6 +1,6 @@
 // Exercise renderers by type (root rule 2: every type has a renderer). No API calls here.
 import { isChecked } from "@sprachanker/engine";
-import { type Exercise, type ItemOf, joinParts } from "@sprachanker/schema";
+import { type Exercise, type ItemOf, joinParts, type Outcome } from "@sprachanker/schema";
 import { useTranslation } from "react-i18next";
 import { MultiChoice, SingleChoice } from "./choice.tsx";
 import { Dictation } from "./dictation.tsx";
@@ -56,9 +56,14 @@ export function toHear(exercise: Exercise, index: number): string[] {
 
 /**
  * The correct answer as text, under a wrong item, where the renderer does not show it itself (choices,
- * gaps and pairs mark the right option in place).
+ * gaps and pairs mark the right option in place; a dictation checked word by word shows the right
+ * words in its diff).
  */
-export function correctAnswer(exercise: Exercise, index: number): string | undefined {
+export function correctAnswer(
+  exercise: Exercise,
+  index: number,
+  outcome?: Outcome,
+): string | undefined {
   const item = exercise.items[index];
   switch (exercise.type) {
     case "order": {
@@ -71,7 +76,7 @@ export function correctAnswer(exercise: Exercise, index: number): string | undef
           );
     }
     case "dictation":
-      return (item as ItemOf<"dictation">).answer.accepted[0];
+      return outcome?.diff ? undefined : (item as ItemOf<"dictation">).answer.accepted[0];
     default:
       return undefined;
   }

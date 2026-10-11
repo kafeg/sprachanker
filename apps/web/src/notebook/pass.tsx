@@ -21,7 +21,7 @@ import { useState } from "react";
 import { useTranslation } from "react-i18next";
 import { mediaUrl } from "@/api/client.ts";
 import { type NotebookPass, useNotebookPass } from "@/api/notebook.ts";
-import { ItemCard } from "@/exercises/item-card.tsx";
+import { ItemCard, SharedPrompt, sharedPrompt } from "@/exercises/item-card.tsx";
 import { ShuffleSeed } from "@/exercises/shared.tsx";
 import { ItemHistory } from "@/library/item-history.tsx";
 import { SpokenCheckNote, spokenCheckOf } from "@/library/spoken-check.tsx";
@@ -93,6 +93,7 @@ function Pass({ pass }: { pass: NotebookPass }) {
                 {open.isOpen(key) && (
                   // The options in the order this pass showed them.
                   <ShuffleSeed.Provider value={run.id}>
+                    <SharedPrompt exercise={exercise} locale={locale} className="pt-1" />
                     <ol className="space-y-4 pt-1 pb-4">
                       {exercise.items.map((item, index) => {
                         const last = r?.last[item.key];
@@ -107,6 +108,7 @@ function Pass({ pass }: { pass: NotebookPass }) {
                               answer={last?.answer}
                               outcome={last?.outcome}
                               url={url}
+                              promptAbove={!!sharedPrompt(exercise, locale)}
                             />
                             <div className="flex flex-wrap items-center gap-2 text-sm text-muted-foreground">
                               <span>

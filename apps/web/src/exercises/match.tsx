@@ -6,8 +6,9 @@ import type { Option } from "@sprachanker/schema";
 import { useState } from "react";
 import { useTranslation } from "react-i18next";
 import { useTargetLang } from "@/ui/target-lang.ts";
+import { cn } from "@/ui/utils.ts";
 import { Chip, DragBoard, Slot } from "./dnd.tsx";
-import { partRight, RightAnswer, useShuffled } from "./shared.tsx";
+import { partRight, RightAnswer, TILE, TILES, useShuffled } from "./shared.tsx";
 import type { RendererProps } from "./types.ts";
 
 const hasImage = (options: Option[]) => options.some((o) => o.media?.image);
@@ -96,13 +97,15 @@ export function Match({ item, answer, onAnswer, outcome, url }: RendererProps<"m
           </fieldset>
         )}
         {flip ? (
-          <div className="grid grid-cols-2 gap-3 sm:grid-cols-3">
+          <div className={TILES}>
             {slots.map((s, i) => (
-              <div key={s.id} className="space-y-1.5">
+              <div key={s.id} className={cn(TILE, "space-y-1.5")}>
                 {s.media?.image && (
                   <img src={url(s.media.image)} alt="" className="w-full rounded-xl object-cover" />
                 )}
-                <Slot {...slotProps(s, i + 1)} className="w-full">
+                {/* A tile's slot is narrow on a phone: smaller type, so a short phrase ("die
+                    Kreuzung") keeps to one line beside its mark. */}
+                <Slot {...slotProps(s, i + 1)} className="w-full px-2 text-base sm:text-lg">
                   {slotContent(s.id)}
                 </Slot>
                 {correction(s.id)}

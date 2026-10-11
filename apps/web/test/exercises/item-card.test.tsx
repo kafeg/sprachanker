@@ -1,6 +1,6 @@
 import { expect, test } from "bun:test";
 import type { Exercise } from "@sprachanker/schema";
-import { ItemCard } from "../../src/exercises/item-card.tsx";
+import { ItemCard, sharedPrompt } from "../../src/exercises/item-card.tsx";
 import { TargetLang } from "../../src/ui/target-lang.ts";
 import { renderApp } from "../render.tsx";
 
@@ -44,6 +44,55 @@ test("an item shows its prompt and, under a wrong answer, the right one", async 
   expect(wrong.getByText("Hör zu")).toBeTruthy();
   expect(wrong.getByText("Guten Tag")).toBeTruthy();
   expect(wrong.getByText(/Correct answer/)).toBeTruthy();
+});
+
+test("a dictation checked word by word shows the right words once, in its diff", async () => {
+  const view = await renderApp(
+    <TargetLang value="de">
+      <ItemCard
+        exercise={dictation}
+        locale={null}
+        index={0}
+        answer={{ text: "Gutten Tag" }}
+        outcome={{
+          result: "wrong",
+          score: 0,
+          diff: [
+            { op: "wrong", actual: "Gutten", expected: "Guten" },
+            { op: "equal", expected: "Tag", actual: "Tag" },
+          ],
+        }}
+        url={(p) => `/library/x/${p}`}
+      />
+    </TargetLang>,
+  );
+  expect(view.getByText("Gutten → Guten")).toBeTruthy();
+  expect(view.queryByText(/Correct answer/)).toBeNull();
+});
+
+test("a prompt every item has alike is shown once above them, not in each card", () => {
+  const items = (prompts: Array<string | undefined>) =>
+    ({
+      ...dictation,
+      items: prompts.map((prompt) => ({ ...dictation.items[0], prompt })),
+    }) as Exercise;
+  expect(sharedPrompt(items(["Hör zu", "Hör zu"]), null)).toEqual({
+    target: "Hör zu",
+    learner: undefined,
+  });
+  expect(sharedPrompt(items(["Hör zu", "Schreib"]), null)).toBeUndefined();
+  // One item, or none with a prompt: nothing to share.
+  expect(sharedPrompt(items(["Hör zu"]), null)).toBeUndefined();
+  expect(sharedPrompt(items([undefined, undefined]), null)).toBeUndefined();
+  // The learner's language's prompts count too.
+  const locale = {
+    sourceId: "x",
+    items: { "#1": { prompt: "Слушай" }, "#2": { prompt: "Слушай" } },
+  };
+  expect(sharedPrompt(items([undefined, undefined]), locale)).toEqual({
+    target: undefined,
+    learner: "Слушай",
+  });
 });
 
 test("a right answer or one not checked yet shows no answer under it", async () => {

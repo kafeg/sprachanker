@@ -7,7 +7,7 @@ import type { Exercise, LocaleExercise } from "@sprachanker/schema";
 import { History, RotateCcw, Sparkles } from "lucide-react";
 import { useRef, useState } from "react";
 import { useTranslation } from "react-i18next";
-import { ItemCard } from "@/exercises/item-card.tsx";
+import { ItemCard, SharedPrompt, sharedPrompt } from "@/exercises/item-card.tsx";
 import { ItemHistory } from "@/library/item-history.tsx";
 import { Button } from "@/ui/components/button.tsx";
 import { Tooltip, TooltipContent, TooltipTrigger } from "@/ui/components/tooltip.tsx";
@@ -108,6 +108,7 @@ export function ExerciseStep({
   useEnterKey(article, primary);
   /** The item whose earlier attempts are open (the Notebook's item history). */
   const [history, setHistory] = useState<string>();
+  const promptAbove = !!sharedPrompt(exercise, locale);
 
   return (
     // At least a screen tall, so the action bar sits at the bottom even under a short exercise.
@@ -142,6 +143,12 @@ export function ExerciseStep({
           </div>
         </div>
       )}
+      {/* A prompt every item has alike, once above them (not repeated in each card). */}
+      {promptAbove && (
+        <div className={ITEM_GRID}>
+          <SharedPrompt exercise={exercise} locale={locale} className="col-start-1" />
+        </div>
+      )}
       <ol aria-label={t("lesson.itemsList")} className="space-y-6 pb-2">
         {exercise.items.map((item, i) => {
           const outcome = outcomes?.[i];
@@ -168,6 +175,7 @@ export function ExerciseStep({
                 active={i === ex.activeItem && !readOnly}
                 heard={readOnly || ex.itemHeard(i)}
                 onHeard={() => ex.hear(`item-${i}`)}
+                promptAbove={promptAbove}
               />
               <div className="col-start-1 flex gap-1.5 pt-2 empty:hidden sm:col-start-2 sm:flex-col">
                 {marked && !right && explain && (

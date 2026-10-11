@@ -60,7 +60,7 @@ test("open the course, go through the words, the grammar and an exercise, resume
     await ((await skip.isVisible()) ? skip : next).click();
   }
   // One right; the wrong picture and the skipped checked items count as wrong. Every step is listed.
-  await expect(page.getByText("Correct on the first try: 1 of 9")).toBeVisible();
+  await expect(page.getByText("Correct on the first try: 1 of 10")).toBeVisible();
   await expect(
     page.locator("section").getByRole("button", { name: /Cafés in Germany/ }),
   ).toBeVisible();
