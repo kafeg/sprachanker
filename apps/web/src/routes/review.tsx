@@ -161,18 +161,17 @@ function MyDecks({ open }: { open(scope: string): void }) {
 /** The decks to take: each of My courses' words and each imported deck, with how many are cards
  *  already; an imported deck deleted (after asking); a deck file imported. */
 function DeckOffers() {
-  const { t } = useTranslation();
+  const { t, i18n } = useTranslation();
   const offers = useDeckOffers();
   const actions = useDeckActions();
   const remove = useDeleteDeck();
   const pairName = usePairName();
+  const list = new Intl.ListFormat(i18n.language, { type: "conjunction" });
   const [removing, setRemoving] = useState<{
     id: string;
     title: string;
-    /** The learner has cards of it: they are left first. */
-    mine: boolean;
-    /** Another profile studies it: it cannot be deleted now. */
-    elsewhere: boolean;
+    /** The profiles studying it: it is deleted only when none does. */
+    studiedBy: string[];
   }>();
   const open = [
     ...(offers.data?.courses ?? []).map((o) => ({
@@ -221,8 +220,7 @@ function DeckOffers() {
                   setRemoving({
                     id: o.deck,
                     title: o.title,
-                    mine: o.mine > 0,
-                    elsewhere: "usedElsewhere" in o && !!o.usedElsewhere,
+                    studiedBy: "studiedBy" in o ? o.studiedBy : [],
                   })
                 }
               >
@@ -248,22 +246,19 @@ function DeckOffers() {
         description={
           remove.isError
             ? errorText(t, remove.error)
-            : removing?.elsewhere
-              ? t("decks.removeElsewhere")
-              : removing?.mine
-                ? t("decks.removeMine")
-                : t("decks.removeBody")
+            : removing?.studiedBy.length
+              ? t("decks.removeStudied", {
+                  count: removing.studiedBy.length,
+                  profiles: list.format(removing.studiedBy),
+                })
+              : t("decks.removeBody")
         }
-        confirm={removing?.mine ? t("decks.leaveAndRemove") : t("decks.remove")}
-        cancel={removing?.elsewhere ? t("common.close") : t("common.cancel")}
+        confirm={t("decks.remove")}
+        cancel={removing?.studiedBy.length ? t("common.close") : t("common.cancel")}
         busy={remove.isPending}
-        hideConfirm={removing?.elsewhere}
+        hideConfirm={!!removing?.studiedBy.length}
         onConfirm={() =>
-          removing &&
-          remove.mutate(
-            { id: removing.id, leave: removing.mine },
-            { onSuccess: () => setRemoving(undefined) },
-          )
+          removing && remove.mutate(removing.id, { onSuccess: () => setRemoving(undefined) })
         }
       />
     </Panel>

@@ -53,19 +53,9 @@ export function deckRoutes() {
         c.var.s.decks.discard(c.req.valid("param").upload);
         return c.json({ ok: true as const });
       })
-      // `leave`: the learner's own cards of it go first (left as from Decks), then the deck.
-      .delete(
-        "/:id",
-        zod("param", z.object({ id: DeckId })),
-        zod("query", z.object({ leave: z.literal("1").optional() })),
-        async (c) => {
-          const { id } = c.req.valid("param");
-          const deck = c.var.s.decks.deck(id);
-          if (deck && c.req.valid("query").leave)
-            await c.var.s.cards.leaveDeck({ scope: `deck:${id}`, lang: deck.lang });
-          c.var.s.decks.remove(id);
-          return c.json({ ok: true as const });
-        },
-      )
+      .delete("/:id", zod("param", z.object({ id: DeckId })), (c) => {
+        c.var.s.decks.remove(c.req.valid("param").id);
+        return c.json({ ok: true as const });
+      })
   );
 }

@@ -70,7 +70,8 @@ export function createDecks(deps: {
   /** The runtime's SQLite and zstd, which reading a package needs. */
   apkg: ApkgRuntime;
   /** Whether any profile has cards made from the deck. */
-  inUse(id: DeckId, except?: string): boolean;
+  /** The names of the profiles with cards made from a deck. */
+  studiedBy(id: DeckId): string[];
   /** After an import: cards follow their words (relinking). */
   onImport?(): void;
   /** A deck's folder about to be written anew or removed: what writes into it stops. */
@@ -325,13 +326,13 @@ export function createDecks(deps: {
     /** Lets an uploaded package go unimported (the sheet closed). */
     discard: (upload: string) => files.unstage(upload),
 
-    /** Whether a profile — but `except` — has cards made from a deck. */
-    inUse: (id: DeckId, except?: string) => deps.inUse(id, except),
+    /** The names of the profiles studying a deck (it is deleted only when none does). */
+    studiedBy: (id: DeckId) => deps.studiedBy(id),
 
     /** Deletes a deck with its files; refused while a profile has its cards (they leave it first). */
     remove(id: DeckId) {
       if (!deckOf(id)) throw new ServiceError("no_such_deck", 404);
-      if (deps.inUse(id)) throw new ServiceError("deck_in_use", 409);
+      if (deps.studiedBy(id).length) throw new ServiceError("deck_in_use", 409);
       deps.onReplace?.(id);
       files.remove(id);
       read.delete(id);

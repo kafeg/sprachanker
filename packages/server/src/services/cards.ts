@@ -44,8 +44,8 @@ export function createCards(deps: {
   myCourses: () => Promise<Set<string>>;
   /** A word's audio read aloud for its deck (deck-audio.ts): `<folder>/media/<file>`. */
   readAudio: (folder: string, key: string, text: string) => string | undefined;
-  /** Another profile has cards made from an imported deck (it cannot be deleted from here). */
-  usedElsewhere: (deck: DeckId) => boolean;
+  /** The profiles studying an imported deck (it is deleted only when none does). */
+  studiedBy: (deck: DeckId) => string[];
   now: () => number;
 }) {
   const { cards, content, decks, settings, now } = deps;
@@ -308,7 +308,7 @@ export function createCards(deps: {
           words: new Set(deck.words.map((w) => w.lexeme)).size,
           withAudio: d.withAudio,
           mine: mineOf(d.translationLang, new Set(deck.words.map((w) => w.lexeme))),
-          usedElsewhere: deps.usedElsewhere(d.id),
+          studiedBy: deps.studiedBy(d.id),
         };
       });
       return { courses, imported };

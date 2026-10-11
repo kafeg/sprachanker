@@ -72,7 +72,6 @@ const DAY_MS = 24 * 60 * 60_000;
 /** A profile's services over its database; the content and downloads are the server's. */
 function profileServices(
   config: ServicesConfig,
-  profileId: string,
   shared: {
     content: Content;
     decks: Decks;
@@ -121,7 +120,7 @@ function profileServices(
     myCourses: async () =>
       new Set((await lessons.courses()).filter((c) => c.started).map((c) => c.key)),
     readAudio: deckAudio.readAudio,
-    usedElsewhere: (deck) => decks.inUse(deck, profileId),
+    studiedBy: decks.studiedBy,
     now,
   });
   const study = createStudy({ cards: cardStore, store, content, decks, settings, now });
@@ -234,16 +233,16 @@ export function createServices(config: ServicesConfig) {
   const decks = createDecks({
     files: config.decks,
     apkg: config.apkg,
-    // Any profile's cards made from the deck keep it (a profile not opened yet too); `except`: one
-    // profile left out (whether others study it).
-    inUse: (id, except) =>
-      profiles.list().some(
-        (p) =>
-          p.id !== except &&
+    // The profiles whose cards made from the deck keep it (a profile not opened yet too).
+    studiedBy: (id) =>
+      profiles
+        .list()
+        .filter((p) =>
           createCardStore(config.profiles.open(p.id))
             .all()
             .some((n) => n.deck === `deck:${id}`),
-      ),
+        )
+        .map((p) => p.name),
     // Cards follow their words in a deck imported again.
     onImport: () => {
       for (const s of open.values()) void relink(s);
@@ -290,7 +289,6 @@ export function createServices(config: ServicesConfig) {
       if (!s) {
         s = profileServices(
           config,
-          profileId,
           { content, decks, deckAudio, downloads, speech, readAloud, qwenTts },
           config.profiles.open(profileId),
           config.profiles.recordings(profileId),

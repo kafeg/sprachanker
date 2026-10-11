@@ -908,9 +908,7 @@
       "install": "Dafür installiere eine Stimme für {language} unter Einstellungen → Sprechen",
       "failed": "{count, plural, one {# Wort konnte nicht vorgelesen werden} other {# Wörter konnten nicht vorgelesen werden}}"
     },
-    "removeElsewhere": "Ein anderes Profil lernt diesen Stapel. Löschen lässt er sich, wenn es ihn entfernt hat (Wiederholung → Stapel → Stapel entfernen…).",
-    "removeMine": "Du lernst diesen Stapel: Er wird zuerst bei dir entfernt — die Karten seiner Wörter und ihr Fortschritt gehen (Wörter, die ein anderer deiner Stapel hat, wandern dorthin). Dann werden der Stapel, seine Wörter und sein Audio von diesem Computer gelöscht. Das lässt sich nicht rückgängig machen.",
-    "leaveAndRemove": "Entfernen und löschen"
+    "removeStudied": "{count, plural, one {Das Profil {profiles} lernt diesen Stapel.} other {Die Profile {profiles} lernen diesen Stapel.}} Löschen lässt er sich, wenn ihn alle Profile entfernt haben: Wiederholung → Stapel → Stapel entfernen…."
   },
   "guide": {
     "open": "So funktioniert's",

@@ -908,9 +908,7 @@
       "install": "To make it, install a voice for {language} in Settings → Speech",
       "failed": "{count, plural, one {# word could not be read aloud} other {# words could not be read aloud}}"
     },
-    "removeElsewhere": "Another profile studies this deck. It can be deleted once they leave it (Review → Decks → Leave deck…).",
-    "removeMine": "You study this deck: it is left first — its words' cards and their progress go (words another of your decks has move there). Then the deck, its words and audio are deleted from this computer. This cannot be undone.",
-    "leaveAndRemove": "Leave and delete"
+    "removeStudied": "{count, plural, one {The profile {profiles} studies this deck.} other {The profiles {profiles} study this deck.}} It can be deleted once every profile has left it: Review → Decks → Leave deck…."
   },
   "guide": {
     "open": "How it works",
