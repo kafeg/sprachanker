@@ -1,5 +1,5 @@
 import { expect, test } from "bun:test";
-import { fireEvent } from "@testing-library/react";
+import { fireEvent, waitFor } from "@testing-library/react";
 import { DeckImportSheet } from "../../src/study/deck-import.tsx";
 import { renderApp } from "../render.tsx";
 
@@ -19,7 +19,7 @@ const preview = {
 const file = new File([new Uint8Array([1])], "words.apkg");
 const counts = { new: 0, learning: 0, review: 0 };
 
-test("a deck file's sheet: its name, the words' language (the learner's decks'), the translations' (the interface's), its first words", async () => {
+test("a deck file's sheet: its name, the words' language (the learner's decks'), the translations' (another), its first words", async () => {
   const view = await renderApp(
     <DeckImportSheet file={file} preview={preview} onClose={() => {}} />,
     {
@@ -28,7 +28,8 @@ test("a deck file's sheet: its name, the words' language (the learner's decks'),
   );
   expect((view.getByLabelText("Name") as HTMLInputElement).value).toBe("Deutsch A1");
   expect(view.getByRole("combobox", { name: "Words in" }).textContent).toBe("English");
-  expect(view.getByRole("combobox", { name: "Translations in" }).textContent).toBe("English");
+  // Never the words' own language: the interface's is that, so the first other.
+  expect(view.getByRole("combobox", { name: "Translations in" }).textContent).toBe("German");
   expect(view.getByText("2 words · 1 with audio · no examples")).toBeTruthy();
   expect(view.getByText("der Abend")).toBeTruthy();
   expect(view.getByText("· evening")).toBeTruthy();
@@ -45,6 +46,16 @@ test("a deck without a name of its own is named after its file; German words by 
   );
   expect((view.getByLabelText("Name") as HTMLInputElement).value).toBe("words");
   expect(view.getByRole("combobox", { name: "Words in" }).textContent).toBe("German");
+  expect(view.getByRole("combobox", { name: "Translations in" }).textContent).toBe("English");
+  // The words in the translations' language: the translations move to another.
+  fireEvent.click(view.getByRole("combobox", { name: "Words in" }));
+  fireEvent.click(await view.findByRole("option", { name: "English" }));
+  await waitFor(() =>
+    expect(view.getByRole("combobox", { name: "Translations in" }).textContent).toBe("German"),
+  );
+  fireEvent.click(view.getByRole("combobox", { name: "Translations in" }));
+  await view.findByRole("option", { name: "Russian" });
+  expect(view.queryByRole("option", { name: "English" })).toBeNull();
 });
 
 test("fields named by language: the words' is the first, the translations' one of the others, each shown in it", async () => {

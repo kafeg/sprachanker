@@ -1182,10 +1182,11 @@
     "no_such_deck": "Diesen Stapel gibt es hier (nicht mehr).",
     "not_a_deck": "Diese Datei lässt sich nicht als Stapeldatei (.apkg) lesen.",
     "deck_without_words": "Dieser Stapel hat keine Wörter zum Lernen.",
-    "deck_too_large": "Diese Stapeldatei ist zu groß (höchstens 100 MB).",
+    "deck_too_large": "Diese Stapeldatei ist zu groß (höchstens 512 MB).",
     "deck_in_use": "Ein Profil lernt diesen Stapel: Löschen geht, wenn ihn niemand mehr lernt.",
     "deck_upload_gone": "Die hochgeladene Stapeldatei ist nicht mehr da: wähle sie noch einmal.",
-    "deck_unpacked_too_large": "Diese Stapeldatei entpackt sich zu mehr, als auf einmal gelesen werden kann."
+    "deck_unpacked_too_large": "Diese Stapeldatei entpackt sich zu mehr, als auf einmal gelesen werden kann.",
+    "deck_same_languages": "Wörter und Übersetzungen brauchen zwei verschiedene Sprachen."
   },
   "exams": {
     "tabs": {

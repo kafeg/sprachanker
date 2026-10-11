@@ -1182,10 +1182,11 @@
     "no_such_deck": "This deck is not here (any more).",
     "not_a_deck": "This file is not a deck file (.apkg) that can be read.",
     "deck_without_words": "This deck has no words to learn.",
-    "deck_too_large": "This deck file is too large (100 MB at most).",
+    "deck_too_large": "This deck file is too large (512 MB at most).",
     "deck_in_use": "A profile studies this deck: it can be deleted once nobody does.",
     "deck_upload_gone": "The uploaded deck file is no longer here: choose it again.",
-    "deck_unpacked_too_large": "This deck file unpacks to more than can be read at once."
+    "deck_unpacked_too_large": "This deck file unpacks to more than can be read at once.",
+    "deck_same_languages": "The words and their translations need two different languages."
   },
   "exams": {
     "tabs": {

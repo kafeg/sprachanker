@@ -64,8 +64,8 @@ JSON under `/api`, validated with zod and typed for the web client through Hono 
 - Cards (04): `POST /api/cards/lesson` (cards of a lesson's words), `GET /api/cards/decks` (each
   language with its courses and imported decks and their counts), `GET /api/cards/decks/offers` (each
   of My courses' words and each imported deck as a deck to take), `POST /api/cards/decks/take`
-  (`{series, course, edition}` or `{deck}`: taken whole), `POST /api/cards/decks/leave` (`{scope:
-  course:<key> | deck:<id>, lang}`: left),|leave` (a course's deck taken whole, or left),
+  (`{series, course, edition}` or `{deck}`: a course's or an imported deck's words taken whole), `POST
+  /api/cards/decks/leave` (`{scope: course:<key> | deck:<id>, lang}`: the deck left),
   `POST /api/cards/decks/more` (more new cards today in a deck), `GET /api/cards/study?scope=` (the
   counts, the current face with its due time per rating, why a finished deck is finished, whether there is an answer to
   take back), `POST /api/cards/:id/review` (a rating), `POST /api/cards/undo`, `POST /api/cards/:id/bury`,
@@ -78,7 +78,8 @@ JSON under `/api`, validated with zod and typed for the web client through Hono 
   at most 512 MB, streamed to `decks/.uploads/`: the upload's id, its deck's name, words, the languages
   its fields are named by, the first words with their translation in each — read from the same notes
   —, the decks here it would update, each with its languages), `POST /api/decks/import` (`{upload, title, lang, translationLang, file}`: a new deck, or the
-  deck most of whose notes it holds, in the same languages, updated; 404 `deck_upload_gone`; 422
+  deck most of whose notes it holds, in the same languages, updated; 400 `deck_same_languages` (the
+  words' language and the translations' must differ); 404 `deck_upload_gone`; 422
   `not_a_deck`, `deck_without_words`, `deck_unpacked_too_large`; 413 `deck_too_large`), `DELETE /api/decks/:id` (409
   `deck_in_use` while any profile has cards made from it). Bun takes bodies up to that size and waits
   up to 255 s on a request (`runtime/bun.ts`).

@@ -89,22 +89,29 @@ export function DeckImportSheet({
   const [title, setTitle] = useState(
     kept?.title || preview.title || file.name.replace(/\.apkg$/i, ""),
   );
+  const all = [...new Set([...COMMON, i18n.language, ...known, ...own])].sort();
+  // The translations' languages: those the deck's fields name, else any — never the words' own.
+  const translationsFor = (words: string) =>
+    (own.length > 1 ? own : all).filter((l) => l !== words);
   const [lang, setLang] = useState(kept?.lang ?? own[0] ?? known[0] ?? "de");
-  const translations = own.length > 1 ? own.filter((l) => l !== lang) : [];
+  const translations = translationsFor(lang);
   const [translationLang, setTranslationLang] = useState(
     kept?.translationLang ??
-      (translations.length && !translations.includes(i18n.language)
-        ? (translations[0] as string)
-        : i18n.language),
+      (translations.includes(i18n.language) ? i18n.language : (translations[0] as string)),
   );
+  const chooseLang = (next: string) => {
+    setLang(next);
+    if (!translationsFor(next).includes(translationLang))
+      setTranslationLang(translationsFor(next)[0] as string);
+  };
   const updating = preview.updates.find(
     (d) => d.lang === lang && d.translationLang === translationLang,
   );
-  const all = [...new Set([...COMMON, i18n.language, ...known, ...own])].sort();
   const language = (label: string, value: string, set: (v: string) => void, options: string[]) => (
     <div className="space-y-1">
       <p className="text-sm text-muted-foreground">{label}</p>
-      <Select value={value} onValueChange={set}>
+      {/* A value set while the list is closed comes back once as "" from the form's select: kept. */}
+      <Select value={value} onValueChange={(v) => v && set(v)}>
         <SelectTrigger className="h-11 w-full bg-card" aria-label={label}>
           <SelectValue />
         </SelectTrigger>
@@ -157,12 +164,12 @@ export function DeckImportSheet({
             className="h-11"
           />
         </div>
-        {language(t("decks.import.lang"), lang, setLang, all)}
+        {language(t("decks.import.lang"), lang, chooseLang, all)}
         {language(
           t("decks.import.translationLang"),
           translationLang,
           setTranslationLang,
-          translations.length ? translations : all,
+          translations,
         )}
         <section>
           <h3 className="mb-1 font-semibold">

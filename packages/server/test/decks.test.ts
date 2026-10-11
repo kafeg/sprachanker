@@ -5,6 +5,7 @@ import { buildApkg } from "@sprachanker/anki-export/testing";
 import { FIXTURE_SERIES } from "@sprachanker/course-fixture";
 import { CLIENT_HEADERS } from "@sprachanker/schema";
 import { ulid } from "ulid";
+import { DECK_MAX_BYTES } from "../src/services/decks.ts";
 import { setup } from "./setup.ts";
 
 const COURSE = "sprachanker.fixture/demo";
@@ -69,7 +70,8 @@ async function withDecks() {
 }
 
 test("a package previewed, imported as a deck with its audio; its media served from its folder alone", async () => {
-  const { upload, preview, importDeck, getJson, get, sendJson, wordsOf } = await withDecks();
+  const api = await withDecks();
+  const { upload, preview, importDeck, getJson, get, send, sendJson, wordsOf } = api;
   const seen = await preview(deck());
   expect(seen).toEqual({
     upload: expect.stringMatching(/^[0-9a-f-]{36}$/),
@@ -92,6 +94,31 @@ test("a package previewed, imported as a deck with its audio; its media served f
     (await sendJson("POST", "/api/decks/import", { ...request, upload: crypto.randomUUID() }))
       .error,
   ).toBe("deck_upload_gone");
+  // The words and their translations in one language: refused.
+  const same = await send("POST", "/api/decks/import", {
+    ...request,
+    translationLang: "de",
+    upload: seen.upload,
+  });
+  expect([same.status, ((await same.json()) as { error: string }).error]).toEqual([
+    400,
+    "deck_same_languages",
+  ]);
+  // A package announced larger than taken: refused before it is read.
+  const large = await api.app.request("/api/decks/preview", {
+    method: "POST",
+    headers: {
+      cookie: api.cookie,
+      ...CLIENT_HEADERS,
+      "content-type": "application/octet-stream",
+      "content-length": String(DECK_MAX_BYTES + 1),
+    },
+    body: new Uint8Array(8),
+  });
+  expect([large.status, ((await large.json()) as { error: string }).error]).toEqual([
+    413,
+    "deck_too_large",
+  ]);
   const bad = await upload("/api/decks/preview", new Uint8Array([1, 2, 3]));
   expect([bad.status, ((await bad.json()) as { error: string }).error]).toEqual([
     422,

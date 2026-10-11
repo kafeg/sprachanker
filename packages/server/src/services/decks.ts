@@ -188,6 +188,8 @@ export function createDecks(deps: {
       translationLang: Lang;
       file: string;
     }) {
+      if (request.lang === request.translationLang)
+        throw new ServiceError("deck_same_languages", 400);
       const apkg = open(request.upload);
       const notes = noteWords(apkg.notes, request);
       // Where each audio file the notes name is kept in the deck's folder; those the words use.
