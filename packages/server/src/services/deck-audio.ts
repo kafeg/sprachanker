@@ -1,13 +1,13 @@
 // Audio read aloud for a deck's words without their own (04, "A deck's words read aloud"; 08): the
-// words of a deck, taken or not — an imported deck's notes, a course's words —, read by the server's
-// engine (Piper or Qwen3-TTS) a word at a time and kept in the deck's folder by lexeme (deck-extras.ts),
-// so cards play it on any device. A word read is not read again unless its text changed; the file
-// its earlier reading was in goes then; what was read is removed on request (never the deck's own).
-import type { DeckReadAudio } from "@sprachanker/schema";
+// words of a deck, taken or not — an imported deck's notes, a course's words in every headword its
+// lessons give them as —, read by the server's engine (Piper or Qwen3-TTS) a headword at a time and
+// kept in the deck's folder by lexeme (deck-extras.ts), so cards play it on any device. A headword read
+// is not read again; one the deck no longer gives the word as goes with its file when the word is read
+// again; what was read is removed on request (never the deck's own).
+import type { DeckExtrasWord, DeckReadAudio } from "@sprachanker/schema";
 import { ServiceError } from "../errors.ts";
 import { sha256Hex } from "../security/encoding.ts";
 import type { DeckExtrasStore, DeckJobSpec, DeckNote } from "./deck-extras.ts";
-import type { DeckFiles } from "./decks.ts";
 
 /** A server engine reading a language with one voice (profile-speech.ts chooses them). */
 export interface DeckReader {
@@ -24,76 +24,107 @@ const SAVE_EVERY = 20;
 /** The text read for a word as its card shows it: variants ("der Großvater / der Opa") as a list. */
 export const spokenText = (target: string) => target.replace(/\s*\/\s*/g, ", ").trim();
 
-type Word = { key: string; text: string; own: boolean };
+/** A word's readings, one per headword: the first, then the others. */
+export const readingsOf = (word: DeckExtrasWord | undefined): DeckReadAudio[] =>
+  word ? [...(word.audio ? [word.audio] : []), ...(word.variants ?? [])] : [];
 
-/** A deck's words, one per lexeme (a lexeme's cards in two translation languages are one word). */
+/** A deck's word (a lexeme: its cards in two translation languages are one word) and the texts of
+ *  its headwords — `own` when every one shown so has a recording. */
+type Word = { key: string; texts: Array<{ text: string; own: boolean }> };
+/** A headword to read: its word's key, its text, and the texts of the word to keep readings of. */
+type Step = { key: string; text: string; keep: string[] };
+
+/** A deck's words, one per lexeme, each with its headwords' texts. */
 function wordsOf(notes: DeckNote[]): Word[] {
   const words = new Map<string, Word>();
-  for (const n of notes)
-    if (!words.has(n.lexeme))
-      words.set(n.lexeme, {
-        key: n.lexeme,
-        text: spokenText(n.display.target),
-        own: !!n.display.audio,
-      });
+  for (const n of notes) {
+    let word = words.get(n.lexeme);
+    if (!word) {
+      word = { key: n.lexeme, texts: [] };
+      words.set(n.lexeme, word);
+    }
+    const text = spokenText(n.display.target);
+    const own = !!n.display.audio;
+    const known = word.texts.find((t) => t.text === text);
+    if (known) known.own &&= own;
+    else word.texts.push({ text, own });
+  }
   return [...words.values()];
 }
 
+/** The texts of a word read aloud for it (those without a recording). */
+const toRead = (w: Word) => w.texts.filter((t) => !t.own).map((t) => t.text);
+
 export function createDeckAudio(deps: {
   extras: DeckExtrasStore;
-  files: Pick<DeckFiles, "writeMedia" | "removeMedia">;
   /** After a job: cards follow (their display takes the audio read). */
   onRead(): Promise<void>;
   now(): number;
 }) {
-  const { extras, files } = deps;
+  const { extras } = deps;
 
-  /** A word's reading while it is of the word's text now and its file is there. */
-  const readingOf = (folder: string, key: string, text: string) => {
-    const audio = extras.book(folder).words[key]?.audio;
-    return audio?.text === text && extras.has(folder, audio.path) ? audio : undefined;
-  };
+  /** A headword's reading while it is of that text and its file is there. */
+  const readingOf = (folder: string, key: string, text: string) =>
+    readingsOf(extras.book(folder).words[key]).find(
+      (r) => r.text === text && extras.has(folder, r.path),
+    );
 
-  /** Reads one word into the deck's folder (a file read before with this engine, voice and text is
-   *  taken as it is); the file of the word's earlier reading goes unless another word's is it. */
-  const readWord =
-    (folder: string, reader: DeckReader): DeckJobSpec<Word>["work"] =>
-    async ([word], book, dropped) => {
-      const w = word as Word;
-      const hash = await sha256Hex(`${reader.engine}\n${reader.voice}\n${w.text}`, 12);
+  /** A word read: every headword of it to read has its reading. */
+  const isRead = (folder: string, w: Word) =>
+    toRead(w).every((text) => readingOf(folder, w.key, text));
+
+  /** Reads one headword into the deck's folder (a file read before with this engine, voice and text
+   *  is taken as it is); the word's readings of texts it is no longer given as go, their files too
+   *  unless another word's reading is in them. */
+  const readStep =
+    (folder: string, reader: DeckReader): DeckJobSpec<Step>["work"] =>
+    async ([step], book, dropped) => {
+      const s = step as Step;
+      const hash = await sha256Hex(`${reader.engine}\n${reader.voice}\n${s.text}`, 12);
       const path = `media/read-${hash}.wav`;
       if (!extras.has(folder, path)) {
-        const bytes = await reader.read(w.text);
+        const bytes = await reader.read(s.text);
         // A folder removed meanwhile is not made again.
         if (dropped()) return { done: 0, failed: 0 };
-        files.writeMedia(folder, path, bytes);
+        extras.writeMedia(folder, path, bytes);
       }
       if (dropped()) return { done: 0, failed: 0 };
-      const before = book.words[w.key]?.audio?.path;
-      book.words[w.key] = {
-        ...book.words[w.key],
-        audio: { path, engine: reader.engine, voice: reader.voice, text: w.text, made: deps.now() },
+      const before = readingsOf(book.words[s.key]);
+      const made: DeckReadAudio = {
+        path,
+        engine: reader.engine,
+        voice: reader.voice,
+        text: s.text,
+        made: deps.now(),
       };
-      if (
-        before &&
-        before !== path &&
-        !Object.values(book.words).some((x) => x.audio?.path === before)
-      )
-        files.removeMedia(folder, before);
+      const kept = [
+        ...before.filter((r) => r.text !== s.text && s.keep.includes(r.text)),
+        made,
+      ].sort((a, b) => s.keep.indexOf(a.text) - s.keep.indexOf(b.text));
+      const [first, ...others] = kept;
+      const entry: DeckExtrasWord = { ...book.words[s.key], audio: first };
+      if (others.length) entry.variants = others;
+      else delete entry.variants;
+      book.words[s.key] = entry;
+      const used = new Set(
+        Object.values(book.words).flatMap((x) => readingsOf(x).map((r) => r.path)),
+      );
+      for (const gone of new Set(before.map((r) => r.path)))
+        if (!used.has(gone)) extras.removeMedia(folder, gone);
       return { done: 1, failed: 0 };
     };
 
   return {
-    /** A word's audio read aloud, `<folder>/media/<file>`, while it is of the word as shown now
+    /** A word's audio read aloud, `<folder>/media/<file>`, while it is of the headword as shown now
      *  (`target`) and its file is there. */
     readAudio(folder: string, key: string, target: string) {
       const audio = readingOf(folder, key, spokenText(target));
       return audio && `${folder}/${audio.path}`;
     },
 
-    /** A deck's words (taken or not) — with audio of their own, read aloud, without —
-     *  the engine that would read them (none: nothing here reads their language) and the deck's job,
-     *  running or the latest. */
+    /** A deck's words (taken or not) — with audio of their own, read aloud, without (a word with a
+     *  headword neither has) — the engine that would read them (none: nothing here reads their
+     *  language) and the deck's job, running or the latest. */
     async state(
       scope: string,
       notes: DeckNote[],
@@ -102,8 +133,8 @@ export function createDeckAudio(deps: {
       const folder = await extras.folderOf(scope);
       const words = wordsOf(notes);
       const lang = notes[0]?.lang ?? "";
-      const own = words.filter((w) => w.own).length;
-      const read = words.filter((w) => !w.own && readingOf(folder, w.key, w.text)).length;
+      const own = words.filter((w) => !toRead(w).length).length;
+      const read = words.filter((w) => toRead(w).length && isRead(folder, w)).length;
       const reader = lang ? readerOf(lang) : undefined;
       return {
         lang,
@@ -129,14 +160,19 @@ export function createDeckAudio(deps: {
       const reader = notes[0] && readerOf(notes[0].lang);
       if (!reader) throw new ServiceError("speech_unavailable", 409);
       if (again && extras.clear("audio", folder)) await deps.onRead();
-      const todo = wordsOf(notes).filter((w) => !w.own && !readingOf(folder, w.key, w.text));
+      const steps = wordsOf(notes).flatMap((w) => {
+        const keep = toRead(w);
+        return keep
+          .filter((text) => !readingOf(folder, w.key, text))
+          .map((text): Step[] => [{ key: w.key, text, keep }]);
+      });
       extras.start("audio", folder, {
-        steps: todo.map((w) => [w]),
+        steps,
         atOnce: AT_ONCE[reader.engine],
         saveEvery: SAVE_EVERY,
         info: { engine: reader.engine },
-        label: ([w]) => (w as Word).text,
-        work: readWord(folder, reader),
+        label: ([s]) => (s as Step).text,
+        work: readStep(folder, reader),
         end: deps.onRead,
       });
     },

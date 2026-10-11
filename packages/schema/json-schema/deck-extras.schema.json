@@ -4,7 +4,7 @@
   "properties": {
     "format": {
       "type": "number",
-      "const": 1
+      "const": 2
     },
     "words": {
       "type": "object",
@@ -52,6 +52,46 @@
               "made"
             ],
             "additionalProperties": false
+          },
+          "variants": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "properties": {
+                "path": {
+                  "type": "string",
+                  "pattern": "^media\\/[^/\\\\]+$"
+                },
+                "engine": {
+                  "type": "string",
+                  "enum": [
+                    "piper",
+                    "qwen"
+                  ]
+                },
+                "voice": {
+                  "type": "string",
+                  "minLength": 1
+                },
+                "text": {
+                  "type": "string",
+                  "minLength": 1
+                },
+                "made": {
+                  "type": "integer",
+                  "minimum": -9007199254740991,
+                  "maximum": 9007199254740991
+                }
+              },
+              "required": [
+                "path",
+                "engine",
+                "voice",
+                "text",
+                "made"
+              ],
+              "additionalProperties": false
+            }
           },
           "examples": {
             "type": "object",

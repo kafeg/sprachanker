@@ -252,6 +252,9 @@ const DisplayFields = {
   /** No audio of its own: the word read aloud by the server's engine, `<deck folder>/media/<file>`
    *  (served under /decks/). */
   readAudio: z.string().optional(),
+  /** Shown in a deck with no audio of its own for the word nor read for it: the card's own recording,
+   *  by its path under the server (`library/<series>/<file>`, `decks/<folder>/<file>`; 04). */
+  recordingPath: z.string().optional(),
   /** An imported deck's own example sentences, with their translations and audio (in its folder). */
   examples: z
     .array(

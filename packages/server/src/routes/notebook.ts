@@ -35,7 +35,8 @@ export function notebookRoutes() {
       "/review/:id",
       zod("param", RunParam),
       zod("query", z.object({ lang: Lang.optional() })),
-      (c) => c.json(c.var.s.study.reviewDay(c.req.valid("param").id, c.req.valid("query").lang)),
+      async (c) =>
+        c.json(await c.var.s.study.reviewDay(c.req.valid("param").id, c.req.valid("query").lang)),
     )
     .get("/exam", zod("query", z.object({ exam: ExamKey })), async (c) =>
       c.json(await c.var.s.exams.journal(c.req.valid("query").exam)),

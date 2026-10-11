@@ -16,11 +16,14 @@ export const mediaUrl = (series: string, path: string) => `/library/${series}/${
 export const cardMediaUrl = (display: CardDisplay, path: string) =>
   "deck" in display ? `/decks/${display.deck}/${path}` : mediaUrl(display.series, path);
 
-/** URL of a card's recording: its own, else its word read aloud for its deck (in a deck's folder). */
+/** URL of a card's recording: its own, else its word read aloud for its deck (in a deck's folder),
+ *  else the recording of the card's word where it was made. */
 export const cardAudioUrl = (display: CardDisplay) =>
   display.audio
     ? cardMediaUrl(display, display.audio)
-    : display.readAudio && `/decks/${display.readAudio}`;
+    : display.readAudio
+      ? `/decks/${display.readAudio}`
+      : display.recordingPath && `/${display.recordingPath}`;
 
 export class ApiError extends Error {
   constructor(

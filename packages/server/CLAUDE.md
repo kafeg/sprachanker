@@ -70,7 +70,8 @@ src/
                      #   marks; standing, a review day in full), words, decks (imported .apkg decks, server-wide: preview,
                      #   import — the same deck again updated —, list, delete while no profile uses it),
                      #   deck-extras (what is made for a deck's words, kept in its folder by lexeme:
-                     #   extras.json read once, a job per deck and kind, what was made removed, sweeping),
+                     #   extras.json read once, a job per deck and kind — its media known while it works —,
+                     #   what was made removed, sweeping),
                      #   deck-audio (its words without audio read aloud: the engine and voice handed in by
                      #   index.ts from profile-speech, the deck's words — taken or not — from cards.ts),
                      #   deck-examples (its words given examples by a model handed in: five a call, a

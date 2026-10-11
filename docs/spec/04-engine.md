@@ -171,7 +171,14 @@ imported `.apkg` decks fit in. Scheduling and the queue are pure functions in
   the audio read for it, the card having been made by that deck first): studied in a deck — an
   imported deck, a course's, a lesson's "Words" step — the word as that deck gives it (its headword,
   forms, translation, its own recording, else the audio read aloud for that deck), when it has the
-  word; else as the card was made. In a language's queue, My words and the word sheet a course's entry
+  word; else as the card was made. An imported deck with neither a recording of the word nor its
+  reading plays the card's own recording (a course's, another deck's: owner, 2026-10-12, the real
+  recording over none). A course's lessons may give one word as several headwords ("die
+  Bank, die Banken", later "die Bänke"; DW's "weg" recorded in its first lesson only): a lesson's
+  word without a recording there takes the course's first recording of the same headword, else the
+  reading of that headword (owner, 2026-10-12) — so every headword a card or a "Words" step shows
+  has audio once its deck is read aloud. In a language's queue, My words, the word sheet and the
+  Notebook's review day a course's entry
   comes before an imported deck's: the card's own course, else the first of the learner's courses in
   its language pair (by deck) that has the word, else the card's own — a course's words are those its
   lessons teach, with its recordings (`services/cards.ts` `shown`).
@@ -237,7 +244,10 @@ imported `.apkg` decks fit in. Scheduling and the queue are pure functions in
   Opa"), with the language's voice the profile picked (else the best one; Qwen3-TTS: its speaker, its
   model) at the speed recorded — the audio is every profile's, kept in the deck's folder alone (never
   in the readings' cache). Kept beside the deck (`decks/<folder>/extras.json`, 05) by lexeme — a deck's
-  words count once per lexeme, as its cards do, so two notes of one word are read once — with the engine, voice and text:
+  words count once per lexeme, as its cards do, so two notes of one word are read once; a course's
+  word is read in each headword its lessons give it as that the course has no recording of (one
+  reading each; the word counts as its own when every headword is recorded, read when every other one
+  is read) — with the engine, voice and text:
   a word whose text changed since (an import, a normalisation) is read again and its earlier file goes;
   a reading whose file is gone counts as not read; a file read before with the same engine, voice and
   text is taken as it is. The words are counted by lexeme (as the decks to take count them). A job per
@@ -269,7 +279,8 @@ imported `.apkg` decks fit in. Scheduling and the queue are pure functions in
   Tasse", "fahre" not "das Fahrrad") — is dropped; the words left without any are asked for once
   more, together in one call; still none, they count as failed with the reason. Kept beside the deck
   (`extras.json`, 05) by lexeme and translation language — every profile's cards show them — with
-  the model and when. A job per deck (as the audio's, `deck-extras.ts`): one at a time, the server's,
+  the model and when. A job per deck and language pair (as the audio's, `deck-extras.ts`; a course's
+  editions each have their own): one at a time, the server's,
   its progress (words given examples of all, the words under way, failures and why, about how long
   the rest takes), extras.json written after every call; stopped, the call under way is finished and
   kept, started again only the rest; three calls in a row that give nothing (the model out of reach,

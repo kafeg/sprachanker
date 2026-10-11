@@ -12,8 +12,9 @@ interface StudySlots {
    *  time after its own; renders nothing itself. */
   examples?(card: { cardId: string; deck: string; onItems(items: CardExample[]): void }): ReactNode;
   /** In a card's corner (with the answer) and the word's sheet: the way to its deck in Decks for what
-   *  the deck has yet to make for it — its audio (`audio`: the word has none), its examples. */
-  corner?(card: { cardId: string; scope: string; audio: boolean }): ReactNode;
+   *  the deck has yet to make for it — its audio (`audio`: the word has none), its examples (`compact`:
+   *  an icon on a phone, as the card's corner has it). */
+  corner?(card: { cardId: string; scope: string; audio: boolean; compact?: boolean }): ReactNode;
   /** Under a deck in Review → Decks: what is made for its words (examples) — its actions under a deck
    *  to take, how it stands under a deck taken. */
   deck?(deck: DeckSlot): ReactNode;

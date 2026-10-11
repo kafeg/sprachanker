@@ -121,8 +121,9 @@ export function createExamples(deps: {
     },
 
     async stop(scope: string, edition?: string) {
-      await deps.deckExamples.stop(scope);
-      return deps.deckExamples.state(scope, await deps.sourceNotes(scope, edition));
+      const notes = await deps.sourceNotes(scope, edition);
+      await deps.deckExamples.stop(scope, notes);
+      return deps.deckExamples.state(scope, notes);
     },
 
     /** Removes the examples made for a deck's words in an edition's language; refused while its job

@@ -1,8 +1,9 @@
 import { expect, test } from "bun:test";
-import { existsSync, readFileSync, rmSync } from "node:fs";
+import { existsSync, readFileSync, rmSync, writeFileSync } from "node:fs";
 import { join } from "node:path";
 import { buildApkg } from "@sprachanker/anki-export/testing";
 import { FIXTURE_SERIES } from "@sprachanker/course-fixture";
+import { ulid } from "ulid";
 import { COURSE, deck, study, withDecks } from "./deck-setup.ts";
 import { piper, qwen } from "./speech-fakes.ts";
 import { until } from "./until.ts";
@@ -83,7 +84,7 @@ test("an imported deck's words without audio read by Piper into its folder by le
   expect(p.said.map((s) => s.key)).toEqual(["", "", ""]);
   // Kept beside the deck: extras.json by lexeme, each file in its media.
   const extras = extrasOf(root, id);
-  expect(extras.format).toBe(1);
+  expect(extras.format).toBe(2);
   expect(Object.keys(extras.words).sort()).toEqual([
     "lex:de:antworten:verb",
     "lex:de:apfel:noun:m",
@@ -487,7 +488,163 @@ test("a word taken first from an imported deck: a course's lesson shows the cour
   const inDeck = await shownIn(deckScope);
   expect(inDeck).toMatchObject({ target: "der Kaffee", translation: "кофе (напиток)", deck: id });
   expect(inDeck.readAudio).toStartWith(`${id}/media/read-`);
+  // Answered, the Notebook's review day shows it as the language's queue does.
+  await sendJson("POST", `/api/cards/${kaffee.cardId}/review`, {
+    id: ulid(),
+    reps: 0,
+    face: "recognition",
+    rating: 3,
+  });
+  const notebook = await getJson("/api/notebook");
+  const review = notebook.modules.find((m: { module: string }) => m.module === "review");
+  const day = await getJson(`/api/notebook/review/${review.entries[0].runs[0].id}`);
+  expect(day.answers[0].card.display).toMatchObject(course);
   // The deck left, the card moves to the course: shown there as before.
   await sendJson("POST", "/api/cards/decks/leave", { scope: deckScope, lang: "de" });
   expect(await shownIn(`lesson:ru-de:${COURSE}/00-01`)).toMatchObject(course);
+});
+
+/** The course's second lesson giving words of the first again: Kaffee as another headword ("die Bank,
+ *  die Banken" / "die Bänke"), Tasse as the same one without its recording (DW's "weg"), gern as
+ *  "gerne" — none recorded there. */
+function laterHeadwords(library: string) {
+  const series = join(library, FIXTURE_SERIES);
+  const lesson = `${COURSE}/00-02`;
+  const canonical = join(series, "canonical/demo/lessons/00-02.json");
+  const file = JSON.parse(readFileSync(canonical, "utf8"));
+  file.vocab.push(
+    {
+      key: `${lesson}/v-kaffee`,
+      lexeme: "lex:de:kaffee:noun:m",
+      target: "der Kaffee",
+      gender: "m",
+    },
+    {
+      key: `${lesson}/v-tasse`,
+      lexeme: "lex:de:tasse:noun:f",
+      target: "die Tasse, die Tassen",
+      gender: "f",
+      plural: "die Tassen",
+    },
+    { key: `${lesson}/v-gern`, lexeme: "lex:de:gern:word", target: "gerne" },
+  );
+  writeFileSync(canonical, JSON.stringify(file));
+  const locale = join(series, "locale/ru-de/demo/lessons/00-02.json");
+  const texts = JSON.parse(readFileSync(locale, "utf8"));
+  texts.vocab[`${lesson}/v-kaffee`] = { translation: "кофе" };
+  texts.vocab[`${lesson}/v-tasse`] = { translation: "чашка" };
+  texts.vocab[`${lesson}/v-gern`] = { translation: "охотно" };
+  writeFileSync(locale, JSON.stringify(texts));
+}
+
+/** Each word of a lesson's Words step as it shows it, by lexeme (each card buried in turn). */
+async function step(api: Awaited<ReturnType<typeof withDecks>>, lessonKey: string) {
+  const { getJson, sendJson } = api;
+  const lesson = `lesson:ru-de:${lessonKey}`;
+  const out: Record<string, Record<string, string>> = {};
+  for (let current = (await getJson(study(lesson))).current; current; ) {
+    const card = (await getJson(`/api/cards/${current.cardId}`)) as { lexemeKey: string };
+    out[card.lexemeKey] = current.display;
+    await sendJson("POST", `/api/cards/${current.cardId}/bury`, {});
+    current = (await getJson(study(lesson))).current;
+  }
+  await sendJson("POST", "/api/cards/unbury", { scope: "lang:de" });
+  return out;
+}
+
+const KAFFEE = "lex:de:kaffee:noun:m";
+const TASSE = "lex:de:tasse:noun:f";
+const GERN = "lex:de:gern:word";
+
+test("a word in two lessons: each headword has audio — the course's recording of it, else its own reading", async () => {
+  const p = piper([VOICE]);
+  const api = await withDecks({ piper: p.host, editLibrary: laterHeadwords });
+  const { getJson, sendJson, root } = api;
+  const scope = `course:${COURSE}`;
+  const [first, second] = [`${COURSE}/00-01`, `${COURSE}/00-02`];
+  await sendJson("POST", "/api/cards/lesson", {
+    series: FIXTURE_SERIES,
+    lessonKey: first,
+    edition: "ru-de",
+  });
+  // The later lesson: Tasse's headword is recorded in the first — its recording; Kaffee's and gern's
+  // are not: nothing until the deck is read aloud.
+  let later = await step(api, second);
+  expect(later[TASSE]).toMatchObject({
+    target: "die Tasse, die Tassen",
+    audio: "media/audio/tasse.mp3",
+  });
+  expect(later[KAFFEE]).toMatchObject({ target: "der Kaffee", translation: "кофе" });
+  expect(later[KAFFEE]?.audio).toBeUndefined();
+  // The deck's words count by lexeme: a word is its own when every headword of it is recorded.
+  expect(await getJson(audio(scope))).toMatchObject({ words: 6, own: 1, read: 0, missing: 5 });
+  await sendJson("POST", "/api/decks/audio", { scope });
+  expect(await settled(getJson, scope)).toMatchObject({ words: 6, own: 1, read: 5, missing: 0 });
+  // Each headword without a recording read once; a recorded one never.
+  expect(p.said.map((s) => s.text).sort()).toEqual([
+    "(etwas) bestellen",
+    "Guten Tag.",
+    "der Kaffee",
+    "die Leute (Plural)",
+    "gern",
+    "gerne",
+  ]);
+  const words = extrasOf(root, COURSE_FOLDER).words;
+  expect(words[GERN].audio.text).toBe("gern");
+  expect(words[GERN].variants.map((r: { text: string }) => r.text)).toEqual(["gerne"]);
+  // Every headword the steps show has its audio: the first lesson's recordings and reading, the
+  // later one's own readings.
+  const earlier = await step(api, first);
+  expect(earlier[KAFFEE]).toMatchObject({
+    target: "der Kaffee, die Kaffees",
+    audio: "media/audio/kaffee.mp3",
+  });
+  expect(earlier[GERN]?.readAudio).toBe(`${COURSE_FOLDER}/${words[GERN].audio.path}`);
+  later = await step(api, second);
+  expect(later[KAFFEE]?.readAudio).toBe(`${COURSE_FOLDER}/${words[KAFFEE].audio.path}`);
+  expect(later[GERN]?.readAudio).toBe(`${COURSE_FOLDER}/${words[GERN].variants[0].path}`);
+  expect(later[TASSE]?.audio).toBe("media/audio/tasse.mp3");
+  // Removed: every reading of a word goes, with its file.
+  const files = Object.values(
+    words as Record<string, { audio: { path: string }; variants?: Array<{ path: string }> }>,
+  ).flatMap((w) => [w.audio, ...(w.variants ?? [])].map((r) => r.path));
+  expect(files).toHaveLength(6);
+  await sendJson("POST", "/api/decks/audio/remove", { scope });
+  expect(extrasOf(root, COURSE_FOLDER).words).toEqual({});
+  for (const path of files)
+    expect(existsSync(join(root, "decks", COURSE_FOLDER, path))).toBe(false);
+});
+
+test("cards first made in a later lesson: the course's recording of the same headword, else the reading of theirs", async () => {
+  const p = piper([VOICE]);
+  const { getJson, sendJson } = await withDecks({ piper: p.host, editLibrary: laterHeadwords });
+  const scope = `course:${COURSE}`;
+  await sendJson("POST", "/api/cards/lesson", {
+    series: FIXTURE_SERIES,
+    lessonKey: `${COURSE}/00-02`,
+    edition: "ru-de",
+  });
+  const shown = async (lexeme: string) =>
+    (await cardsOf(getJson)).find((w) => w.lexemeKey === lexeme)?.display;
+  // Tasse, made in a lesson without its recording: the first lesson's of the same headword.
+  expect(await shown(TASSE)).toMatchObject({
+    lessonKey: `${COURSE}/00-02`,
+    audio: "media/audio/tasse.mp3",
+  });
+  // Kaffee's headword here has none: its reading, once the deck is read aloud — in the course's
+  // deck too, where the card shows what it was made with.
+  expect((await shown(KAFFEE))?.readAudio).toBeUndefined();
+  await sendJson("POST", "/api/decks/audio", { scope });
+  await settled(getJson, scope);
+  const read = (await shown(KAFFEE))?.readAudio;
+  expect(read).toStartWith(`${COURSE_FOLDER}/media/read-`);
+  for (let i = 0; i < 6; i++) {
+    const current = (await getJson(study(scope))).current;
+    if (current.display.target === "der Kaffee") {
+      expect(current.display.readAudio).toBe(read);
+      return;
+    }
+    await sendJson("POST", `/api/cards/${current.cardId}/bury`, {});
+  }
+  throw new Error("Kaffee not studied in the course's deck");
 });

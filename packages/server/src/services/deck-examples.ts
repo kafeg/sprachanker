@@ -3,8 +3,8 @@
 // that bring no example of their own get three to five sentences from a model, five words a call, kept in the deck's folder by
 // lexeme and the language they are translated into (deck-extras.ts), so every profile's cards show
 // them. A sentence that does not use its word is dropped; the words left without any are asked for
-// once more, together in one call. Server-wide, one job per deck; the model is the profile's that
-// starts it.
+// once more, together in one call. Server-wide, one job per deck and language pair; the model is the
+// profile's that starts it.
 import { hasForm, usesWord, type VocabWord } from "@sprachanker/engine";
 import type { DeckMadeExamples, WordExamples } from "@sprachanker/schema";
 import { type DeckExtrasStore, type DeckJobSpec, type DeckNote, failureOf } from "./deck-extras.ts";
@@ -36,6 +36,8 @@ function wordsOf(notes: DeckNote[]) {
 
 /** The translation languages of a deck's words (an edition's one). */
 const languagesOf = (notes: DeckNote[]) => new Set(notes.map((n) => n.translationLang));
+/** The translation language of a deck's words in an edition: its job's (one per language pair). */
+const langOf = (notes: DeckNote[]) => notes[0]?.translationLang;
 
 export function createDeckExamples(deps: { extras: DeckExtrasStore; now(): number }) {
   const { extras } = deps;
@@ -138,7 +140,7 @@ export function createDeckExamples(deps: { extras: DeckExtrasStore; now(): numbe
         own,
         made,
         missing: words.length - own - made,
-        job: extras.job("examples", folder),
+        job: extras.job("examples", folder, langOf(notes)),
       };
     },
 
@@ -153,21 +155,26 @@ export function createDeckExamples(deps: { extras: DeckExtrasStore; now(): numbe
      *  the examples made for them in their translation language go first, every word asked anew. */
     async start(scope: string, notes: DeckNote[], write: ExampleWriter, again = false) {
       const folder = await extras.folderOf(scope);
-      if (extras.going("examples", folder)) return;
+      if (extras.going("examples", folder, langOf(notes))) return;
       if (again) for (const lang of languagesOf(notes)) extras.clear("examples", folder, lang);
-      extras.start("examples", folder, {
-        steps: batches(folder, notes),
-        atOnce: 1,
-        // A paid call's work is kept as soon as it is made: a server stopped loses at most a call.
-        saveEvery: 1,
-        label: (step) => step.map((n) => n.display.target).join(", "),
-        work: writeWords(write),
-      });
+      extras.start(
+        "examples",
+        folder,
+        {
+          steps: batches(folder, notes),
+          atOnce: 1,
+          // A paid call's work is kept as soon as it is made: a server stopped loses at most a call.
+          saveEvery: 1,
+          label: (step) => step.map((n) => n.display.target).join(", "),
+          work: writeWords(write),
+        },
+        langOf(notes),
+      );
     },
 
-    /** Stops a deck's job: the examples written so far are kept. */
-    async stop(scope: string) {
-      extras.stop("examples", await extras.folderOf(scope));
+    /** Stops a deck's job in its words' translation language: the examples written so far are kept. */
+    async stop(scope: string, notes: DeckNote[]) {
+      extras.stop("examples", await extras.folderOf(scope), langOf(notes));
     },
 
     /** Removes the examples made for a deck's words in their translation language (never the deck's
