@@ -15,7 +15,7 @@ import {
   noteWords,
   readApkg,
 } from "@sprachanker/anki-export";
-import { DECK_FORMAT, Deck, DeckId, DeckWord, type Lang } from "@sprachanker/schema";
+import { DECK_FORMAT, Deck, DeckFolder, DeckId, DeckWord, type Lang } from "@sprachanker/schema";
 import { ServiceError } from "../errors.ts";
 import type { MediaBlob } from "../media.ts";
 import { createOnce } from "../once.ts";
@@ -29,11 +29,19 @@ export interface DeckFiles {
   read(id: string): string | undefined;
   /** Writes a deck's folder anew, whole or not at all: its media by path, a batch at a time (each
    *  read when the one before is written), then deck.json as `deck` gives it. Media of the deck as it
-   *  was that this import does not bring stay (a card of a word an update drops keeps its audio). */
+   *  was that this import does not bring stay (a card of a word an update drops keeps its audio), and
+   *  so does its extras.json. */
   write(id: string, media: Iterable<Map<string, Uint8Array>>, deck: () => string): Promise<void>;
   remove(id: string): void;
-  /** A file of the deck's own (`media/<name>`); undefined when there is none. */
-  media(id: string, path: string): MediaBlob | undefined;
+  /** A file of a deck folder's own (`media/<name>`): an imported deck's, or a course's (`DeckFolder`);
+   *  undefined when there is none. */
+  media(folder: string, path: string): MediaBlob | undefined;
+  /** A deck folder's extras.json as text; undefined when there is none. */
+  extras(folder: string): string | undefined;
+  /** Writes a deck folder's extras.json, whole (beside, then renamed into place). */
+  writeExtras(folder: string, text: string): void;
+  /** Writes a file into a deck folder's media, whole. */
+  writeMedia(folder: string, path: string, bytes: Uint8Array): void;
   /** Keeps an uploaded package — the request's body streamed to a file — until it is imported (one
    *  a day old goes); its id, or undefined past `max` bytes. */
   stage(body: ReadableStream<Uint8Array>, max: number): Promise<string | undefined>;
@@ -65,6 +73,8 @@ export function createDecks(deps: {
   inUse(id: DeckId): boolean;
   /** After an import: cards follow their words (relinking). */
   onImport?(): void;
+  /** A deck's folder about to be written anew or removed: what writes into it stops. */
+  onReplace?(id: DeckId): void;
   now: () => number;
 }) {
   const { files } = deps;
@@ -297,6 +307,7 @@ export function createDecks(deps: {
             words: words.map((w) => withHeld(w, held)),
           });
         let deck: Deck | undefined;
+        deps.onReplace?.(id);
         // deck.json last, once the files its words name are known to be there.
         await refused(() =>
           files.write(id, media(), () => {
@@ -318,13 +329,14 @@ export function createDecks(deps: {
     remove(id: DeckId) {
       if (!deckOf(id)) throw new ServiceError("no_such_deck", 404);
       if (deps.inUse(id)) throw new ServiceError("deck_in_use", 409);
+      deps.onReplace?.(id);
       files.remove(id);
       read.delete(id);
     },
 
-    /** A file of a deck's own media. */
-    media: (id: string, path: string) =>
-      DeckId.safeParse(id).success ? files.media(id, path) : undefined,
+    /** A file of a deck folder's own media: an imported deck's, or a course's (audio read aloud). */
+    media: (folder: string, path: string) =>
+      DeckFolder.safeParse(folder).success ? files.media(folder, path) : undefined,
   };
 }
 export type Decks = ReturnType<typeof createDecks>;

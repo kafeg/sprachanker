@@ -73,3 +73,13 @@ test("an imported deck's word: no lesson to go to; its recording in the deck's f
     "/library/x/media/audio/auch.mp3",
   );
 });
+
+test("a word without its own recording plays the one read aloud for its deck, from the deck's folder", () => {
+  const read = "course~x.y~c/media/read-0123456789ab.wav";
+  expect(cardAudioUrl({ ...display, readAudio: read })).toBe(`/decks/${read}`);
+  // Its own recording first.
+  expect(cardAudioUrl({ ...display, audio: "media/audio/auch.mp3", readAudio: read })).toBe(
+    "/library/x/media/audio/auch.mp3",
+  );
+  expect(cardAudioUrl(display)).toBeUndefined();
+});

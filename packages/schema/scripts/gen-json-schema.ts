@@ -5,6 +5,7 @@ import { z } from "zod";
 import {
   CourseIndex,
   Deck,
+  DeckExtras,
   Enrichment,
   Exam,
   ExamSources,
@@ -19,6 +20,7 @@ import {
 const FORMATS: Record<string, z.ZodType> = {
   "course-index.schema.json": CourseIndex,
   "deck.schema.json": Deck,
+  "deck-extras.schema.json": DeckExtras,
   "lesson.schema.json": Lesson,
   "exam.schema.json": Exam,
   "exam-sources.schema.json": ExamSources,

@@ -10,6 +10,7 @@ import { secretBox } from "../security/secrets.ts";
 import { createCardStore } from "./card-store.ts";
 import { createCards } from "./cards.ts";
 import { type Content, createContent } from "./content.ts";
+import { createDeckAudio, type DeckAudio } from "./deck-audio.ts";
 import { createDecks, type DeckFiles, type Decks } from "./decks.ts";
 import { createDevices } from "./devices.ts";
 import { type CourseInstaller, createDownloads, type Downloads } from "./downloads.ts";
@@ -74,6 +75,7 @@ function profileServices(
   shared: {
     content: Content;
     decks: Decks;
+    deckAudio: DeckAudio;
     downloads: Downloads;
     speech: Speech;
     readAloud: ReadAloud;
@@ -83,7 +85,7 @@ function profileServices(
   recordingFiles: RecordingFiles,
 ) {
   const { now } = config;
-  const { content, decks, downloads, speech, readAloud, qwenTts } = shared;
+  const { content, decks, deckAudio, downloads, speech, readAloud, qwenTts } = shared;
   const settings = createSettings(db);
   const speechOfProfile = createProfileSpeech({ speech, readAloud, qwenTts, settings });
   const llm = createLlm({
@@ -117,6 +119,7 @@ function profileServices(
     session: lessons.shown,
     myCourses: async () =>
       new Set((await lessons.courses()).filter((c) => c.started).map((c) => c.key)),
+    readAudio: deckAudio.readAudio,
     now,
   });
   const study = createStudy({ cards: cardStore, store, content, decks, settings, now });
@@ -171,6 +174,12 @@ function profileServices(
     library: config.library,
     content,
     decks,
+    // A deck's words read aloud with the engine and voice this profile reads them with.
+    deckAudio: {
+      state: (scope: string) => deckAudio.state(scope, speechOfProfile.deckReader),
+      start: (scope: string) => deckAudio.start(scope, speechOfProfile.deckReader),
+      stop: deckAudio.stop,
+    },
     downloads,
     settings,
     speech: speechOfProfile,
@@ -234,6 +243,17 @@ export function createServices(config: ServicesConfig) {
     onImport: () => {
       for (const s of open.values()) void relink(s);
     },
+    onReplace: (id) => deckAudio.forget(id),
+    now,
+  });
+  // Cards take the audio read aloud for their decks' words.
+  const deckAudio = createDeckAudio({
+    files: config.decks,
+    decks,
+    content,
+    onRead: async () => {
+      await Promise.all([...open.values()].map(relink));
+    },
     now,
   });
   // Downloads a restart interrupted go on.
@@ -265,7 +285,7 @@ export function createServices(config: ServicesConfig) {
       if (!s) {
         s = profileServices(
           config,
-          { content, decks, downloads, speech, readAloud, qwenTts },
+          { content, decks, deckAudio, downloads, speech, readAloud, qwenTts },
           config.profiles.open(profileId),
           config.profiles.recordings(profileId),
         );

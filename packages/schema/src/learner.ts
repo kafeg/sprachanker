@@ -228,6 +228,9 @@ const DisplayFields = {
   example: z.string().optional(),
   /** In the library of `series`, or in the folder of `deck`. */
   audio: z.string().optional(),
+  /** No audio of its own: the word read aloud by the server's engine, `<deck folder>/media/<file>`
+   *  (served under /decks/). */
+  readAudio: z.string().optional(),
   /** An imported deck's own example sentences, with their translations and audio (in its folder). */
   examples: z
     .array(

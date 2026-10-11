@@ -42,6 +42,8 @@ const QWEN_SPEAKERS = [
 ] as const;
 /** The speaker unless the learner picks one: one voice for every language, as a chosen one is. */
 const DEFAULT_SPEAKER = "ryan";
+/** The speaker chosen, else the default one. */
+const speakerOf = (choice: unknown) => QWEN_SPEAKERS.find((s) => s === choice) ?? DEFAULT_SPEAKER;
 
 const CODEC: ModelFile = {
   id: "codec",
@@ -214,6 +216,14 @@ export function createQwenTts(deps: {
     /** Whether a language can be read with Qwen3-TTS here. */
     canRead: (lang: string) => ready() && lang in QWEN_LANGUAGES,
 
+    /** The model and speaker a language is read with (the profile's choices, else the large model
+     *  there and the default speaker), when Qwen3-TTS can read it. */
+    voice(lang: string, choice: unknown, modelChoice?: unknown) {
+      const model = inUse(modelChoice);
+      if (!binary() || !model || !QWEN_LANGUAGES[lang]) return undefined;
+      return { model: model.id, speaker: speakerOf(choice) };
+    },
+
     /** A WAV of a text in a language, said with the profile's model by its speaker (else the default
      *  one). `mixed`: the text mixes languages, read whole with the model telling them apart
      *  ("auto"), never cut into each language's pieces. */
@@ -222,7 +232,7 @@ export function createQwenTts(deps: {
       if (!binary() || !model || !QWEN_LANGUAGES[lang])
         throw new ServiceError("speech_unavailable", 409);
       const language = mixed ? "auto" : (QWEN_LANGUAGES[lang] as string);
-      const speaker = QWEN_SPEAKERS.find((s) => s === choice) ?? DEFAULT_SPEAKER;
+      const speaker = speakerOf(choice);
       const key = await sha256(`qwen\n${model.id}\n${speaker}\n${language}\n${text}`);
       return kept(key, () =>
         engine.use(model.id, async (url) => {

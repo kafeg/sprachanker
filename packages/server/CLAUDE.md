@@ -23,7 +23,8 @@ src/
                      # runs), readings.ts (what was read aloud, kept in cache/tts);
                      # backup.ts (a copy of each database a day);
                      # cli.ts (runs `claude` / `codex` for the command-line LLM providers);
-                     # decks.ts (imported decks' folders, written whole; packages uploaded, streamed to
+                     # decks.ts (imported decks' folders, written whole; a deck folder's extras.json and
+                     # media read aloud — an imported deck's or a course's; packages uploaded, streamed to
                      # decks/.uploads; swept at the start; SQLite from bytes and zstd for reading an .apkg)
   db/
     server/          # Drizzle schema + migrations for server.sqlite
@@ -38,10 +39,10 @@ src/
                      # out — before the session check; the profile itself — after it), courses
                      # (courses, catalog, downloads, lesson content), lessons (lesson runs: /api/runs),
                      # progress (reset), exams, cards, decks (imported: list, preview, import, an upload
-                     # let go, delete), settings, notebook, recordings, speech, llm
-                     # (removable as a whole); env.ts: what a profile's routes read (`c.var.s`, its
+                     # let go, delete; any deck's words read aloud), settings, notebook, recordings,
+                     # speech, llm (removable as a whole); env.ts: what a profile's routes read (`c.var.s`, its
                      # services; `c.var.profileId`); params.ts: what several take alike (a run's id in
-                     # the path, a batch of events)
+                     # the path, a batch of events, a deck taken)
   services/          # index.ts wires them: shared (content, decks, downloads, profiles, devices) and each
                      # profile's own (`of(id)`, made on first use; what one module needs of another is
                      # a function handed in here). By area:
@@ -54,7 +55,9 @@ src/
                      # - review: cards (from lesson words or an imported deck; decks taken, left;
                      #   relinking), study (Anki's decks, queue, ratings, undo, bury, suspend, flags,
                      #   marks; standing), words, decks (imported .apkg decks, server-wide: preview,
-                     #   import — the same deck again updated —, list, delete while no profile uses it)
+                     #   import — the same deck again updated —, list, delete while no profile uses it),
+                     #   deck-audio (a deck's words without audio read aloud into its folder: a job per
+                     #   deck, the engine and voice handed in by index.ts from profile-speech)
                      # - across modules: notebook (study days, the standings gathered), progress (resets;
                      #   recordings in use), content, settings, stored (a JSON value read by its schema)
                      # - AI (07), each task in the module whose run keeps its answers: llm (providers,
@@ -68,7 +71,7 @@ src/
                      # - downloads: course installs (queue, progress, resume; the installer injected)
   security/          # secrets.ts (AES-GCM sealing of API keys), host.ts (Host check, CSP and security
                      # headers), encoding.ts (base64url, SHA-256)
-  media.ts           # Range responses for library and deck media and profile recordings; body limits
+  media.ts           # Range responses for library and deck folders' media and profile recordings; body limits
                      # (JSON 1 MB — app.ts, every route but those taking a file —, audio, deck files)
 test/                # bun test; integration tests call createApp().request() — setup.ts signs a profile in
                      # and sends its cookie (`anonymous` sends none)

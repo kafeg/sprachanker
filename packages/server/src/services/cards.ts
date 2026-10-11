@@ -2,10 +2,12 @@
 // reused when the word is met again in that language, made in the run the lesson shows (its origin);
 // a course of the learner's own or an imported deck as a deck to take (all its words at once, in its
 // order) or leave (its cards removed, those of words another of the learner's decks has moving there);
-// and notes that follow their words when a course is normalised or a deck imported again. Studying them
+// and notes that follow their words when a course is normalised, a deck imported again or its words
+// read aloud. Studying them
 // is study.ts; listing them, words.ts.
 import {
   CardDisplay,
+  courseDeckFolder,
   type Deck,
   type DeckId,
   type DeckWord,
@@ -16,6 +18,7 @@ import {
   type LocaleLesson,
   lessonOrder,
   parseEditionId,
+  parseLessonKey,
 } from "@sprachanker/schema";
 import { monotonicFactory } from "ulid";
 import { ServiceError } from "../errors.ts";
@@ -39,6 +42,8 @@ export function createCards(deps: {
   session: (lessonKey: LessonKey) => Promise<{ run: { id: string } } | undefined>;
   /** The courses the learner has started (My courses, by course key): the decks offered. */
   myCourses: () => Promise<Set<string>>;
+  /** A word's audio read aloud for its deck (deck-audio.ts): `<folder>/media/<file>`. */
+  readAudio: (folder: string, key: string, text: string) => string | undefined;
   now: () => number;
 }) {
   const { cards, content, decks, settings, now } = deps;
@@ -58,11 +63,23 @@ export function createCards(deps: {
       ...(v.plural && { plural: v.plural }),
       ...(translation && { translation }),
       ...(v.examples?.[0] && { example: v.examples[0] }),
-      ...(v.audio && { audio: v.audio }),
+      ...readAloud(
+        v.audio,
+        courseDeckFolder(parseLessonKey(lesson.key).course),
+        v.lexeme,
+        v.target,
+      ),
       series,
       lessonKey: lesson.key,
     };
   }
+
+  /** A word's own audio, else the audio read aloud for its deck (by its key there). */
+  const readAloud = (audio: string | undefined, folder: string, key: string, text: string) => {
+    if (audio) return { audio };
+    const read = deps.readAudio(folder, key, text);
+    return read ? { readAudio: read } : {};
+  };
 
   /** What a card of an imported deck's word shows. */
   const deckDisplay = (deck: Deck, w: DeckWord): CardDisplay => ({
@@ -70,7 +87,7 @@ export function createCards(deps: {
     ...(w.gender && { gender: w.gender }),
     ...(w.plural && { plural: w.plural }),
     ...(w.translation && { translation: w.translation }),
-    ...(w.audio && { audio: w.audio }),
+    ...readAloud(w.audio, deck.id, w.key, w.target),
     ...(w.examples?.length && { examples: w.examples }),
     deck: deck.id,
   });
@@ -298,8 +315,9 @@ export function createCards(deps: {
      * Each card follows the word it was made from (its source key, stable across normalisations and
      * imports): when the course's files or the deck give that word another lexeme now (a normaliser
      * rule changed, a deck imported again), the card takes it — unless a card of that lexeme exists
-     * already; and what it shows of the word (the word, gender, plural, example, recording) is the
-     * word's now — a recording renamed when the series was fetched again is not another word's.
+     * already; and what it shows of the word (the word, gender, plural, example, recording — its own,
+     * else the one read aloud for its deck) is the word's now — a recording renamed when the series
+     * was fetched again is not another word's.
      * Returns how many changed.
      */
     async relink(): Promise<number> {

@@ -114,6 +114,11 @@ export function createReadAloud(deps: { host?: PiperHost; readings?: ReadingCach
     /** Whether a language can be read with Piper (the engine built and a voice installed). */
     canRead: (lang: string) => !!host?.binary() && !!voiceFor(lang, undefined),
 
+    /** The voice a language is read with — the profile's choice if installed, else the best one —
+     *  when Piper can read it. */
+    voice: (lang: string, choice: unknown) =>
+      host?.binary() ? voiceFor(lang, choice)?.id : undefined,
+
     /** A WAV of a text in a language, with the profile's voice and speed (0.5–1.5). */
     async say(text: string, lang: string, choice: unknown, rate: number) {
       const binary = host?.binary();

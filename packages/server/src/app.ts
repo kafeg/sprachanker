@@ -128,7 +128,7 @@ export function createApp(config: AppConfig) {
         const file = path && config.library.mediaFile(series, path);
         return file ? blobResponse(config.mediaBlob(file), c.req.header("range")) : c.notFound();
       })
-      // An imported deck's own media.
+      // A deck folder's media: an imported deck's own, and what was read aloud for a deck's words.
       .get("/decks/:id/*", (c) => {
         const id = c.req.param("id");
         const path = safeDecode(c.req.path.slice(`/decks/${id}/`.length));

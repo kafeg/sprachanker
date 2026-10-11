@@ -74,6 +74,15 @@ writes (owner, 2026-10-08).
   scene's partner lines and of a word's AI example; in a card's corner for a word without a
   recording (replayed with R and autoplayed like a recording). A second tap stops; one text is read at
   a time, and a recording or video starting stops it (and it stops them, `ui/playback.tsx`).
+- **A deck's words, read ahead** (04, "A deck's words read aloud"): on request from Review → Decks,
+  every word of a deck without a recording is read by Piper or Qwen3-TTS on this computer and kept as
+  the engine gives it (WAV; no transcoding) in the deck's folder (05), so a card plays it as a
+  recording on any device, the server's engines not asked again. Measured on an A1 deck of 774 words
+  (M2 Pro): Piper (thorsten, medium; 22.05 kHz 16-bit mono) about 0.7 s and 30 KB a word — some 23 MB
+  for the deck — two words read at once in 0.27 s a word; Qwen3-TTS (0.6B; 24 kHz 16-bit mono) about
+  1 s a word after its start, 2–6 s and 100–290 KB a word (silence at the end). Whisper heard 28 of
+  32 Piper words and 11 of 11 Qwen3-TTS words as written (the misses short verbs: "bitten" as
+  "Bitte", "mögen" not at all).
 - **What is said** (`audio/speak.ts`): a model's Markdown without its markup; a tutor reply mixing the
   learner's language and the one learnt (told apart by script — Cyrillic, Latin, …: `Intl.Locale`; one
   voice when both share a script) is read whole by Qwen3-TTS, one voice, the model telling the

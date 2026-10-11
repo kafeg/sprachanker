@@ -3,7 +3,6 @@
 import {
   CardFace,
   CardRating,
-  CourseKey,
   DeckId,
   EditionId,
   Lang,
@@ -16,13 +15,9 @@ import { Hono } from "hono";
 import { z } from "zod";
 import { zod } from "../validate.ts";
 import type { ProfileEnv } from "./env.ts";
+import { TakenDeck } from "./params.ts";
 
 const CardParam = z.object({ id: Ulid });
-/** A deck as Review lists it: a course's or an imported one. */
-const TakenDeck = z.union([
-  z.templateLiteral(["course:", CourseKey]),
-  z.templateLiteral(["deck:", DeckId]),
-]);
 /** Every deck, a language, a course, an imported deck, or a lesson's own words (services/study.ts). */
 const DeckScope = z.union([
   z.literal("all"),

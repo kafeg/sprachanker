@@ -11,9 +11,13 @@
 ├── decks/<deck-id>/             # imported decks (04, "Decks"): deck.json (schema `deck.ts`: the words with
 │                                # the deck's own examples, their languages, the file it came from) and media/
 │                                # (the audio the .apkg brought, `<slug>-<hash of its name>.<ext>`; an update
-│                                # keeps the earlier files); a folder written whole (beside, then renamed
-│                                # into place). Planned beside deck.json: extras.json (by word key: audio read
-│                                # aloud, AI examples), and folders for course decks (`course~<series>~…`)
+│                                # keeps the earlier files and extras.json); a folder written whole (beside,
+│                                # then renamed into place). Beside deck.json: extras.json (schema `deck.ts`
+│                                # `DeckExtras`, by word key — the note's guid: the audio read aloud for a word
+│                                # without its own, its engine, voice and text) with that audio in media/
+│                                # (`read-<hash of engine, voice, text>.wav`). Planned there: AI examples
+├── decks/course~<series>~<course>/ # a course's deck (every edition's): extras.json by lexeme key, media/
+│                                # (04, "Decks"; the same as an imported deck's)
 ├── decks/.uploads/              # .apkg files uploaded and previewed, kept until imported or their sheet is
 │                                # closed (a day at most); an imported one's note of the deck it made
 │                                # (<upload>.deck, a day). At the server's start uploads a day old and the

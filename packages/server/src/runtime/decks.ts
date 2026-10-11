@@ -1,5 +1,6 @@
 // Imported decks on disk (05, "Locations"): `<data-root>/decks/<id>/` with deck.json and media/; a
-// folder replaced whole (written beside, then renamed into place); packages uploaded to be imported,
+// folder replaced whole (written beside, then renamed into place); a deck folder's extras.json and the
+// audio read aloud for its words (an imported deck's, a course's `course~…`); packages uploaded to be imported,
 // streamed to `decks/.uploads/`; and what reading an .apkg needs of the runtime: SQLite from bytes, zstd.
 import { Database } from "bun:sqlite";
 import { randomUUID } from "node:crypto";
@@ -15,7 +16,7 @@ import {
   writeFileSync,
 } from "node:fs";
 import { mkdir, writeFile } from "node:fs/promises";
-import { join } from "node:path";
+import { dirname, join } from "node:path";
 import { zstdDecompressSync } from "node:zlib";
 import type { ApkgRuntime } from "@sprachanker/anki-export";
 import type { DeckFiles } from "../services/decks.ts";
@@ -28,6 +29,16 @@ const UPLOAD = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/;
 const UPLOAD_KEPT_MS = 24 * 60 * 60_000;
 /** A deck folder being written (`.<id>.tmp-<x>`), and the one it replaces (`… .old`). */
 const WRITING = /^\.(.+)\.tmp-[0-9a-f]{8}(\.old)?$/;
+/** What the server made for a deck's words (audio read aloud), beside deck.json. */
+const EXTRAS = "extras.json";
+
+/** A file written whole: beside it, then renamed into place (its folder made). */
+function writeWhole(file: string, data: string | Uint8Array) {
+  mkdirSync(dirname(file), { recursive: true });
+  const part = `${file}.part`;
+  writeFileSync(part, data);
+  renameSync(part, file);
+}
 
 /** A file linked to another name, else copied (a disk without hard links: exFAT, a network share). */
 function linked(from: string, to: string) {
@@ -78,12 +89,14 @@ export function deckFiles(dataRoot: string): DeckFiles {
         await writeFile(join(fresh, "deck.json"), deck());
         const old = `${fresh}.old`;
         const had = !!statSync(target, { throwIfNoEntry: false });
-        // The deck's earlier media stay, linked: the deck as it was is untouched until swapped.
+        // The deck's earlier media and extras stay, linked: the deck as it was is untouched until
+        // swapped.
         const earlier = join(target, "media");
         if (had && statSync(earlier, { throwIfNoEntry: false })?.isDirectory())
           for (const name of readdirSync(earlier))
             if (!statSync(join(fresh, "media", name), { throwIfNoEntry: false }))
               linked(join(earlier, name), join(fresh, "media", name));
+        if (isFile(join(target, EXTRAS))) linked(join(target, EXTRAS), join(fresh, EXTRAS));
         if (had) renameSync(target, old);
         try {
           renameSync(fresh, target);
@@ -102,6 +115,15 @@ export function deckFiles(dataRoot: string): DeckFiles {
       if (!MEDIA.test(path)) return undefined;
       const file = join(folder(id), path);
       return isFile(file) ? Bun.file(file) : undefined;
+    },
+    extras(id) {
+      const file = join(folder(id), EXTRAS);
+      return isFile(file) ? readFileSync(file, "utf8") : undefined;
+    },
+    writeExtras: (id, text) => writeWhole(join(folder(id), EXTRAS), text),
+    writeMedia(id, path, bytes) {
+      if (!MEDIA.test(path)) throw new Error(`bad deck media path ${path}`);
+      writeWhole(join(folder(id), path), bytes);
     },
     async stage(body, max) {
       mkdirSync(uploads, { recursive: true });

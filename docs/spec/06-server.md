@@ -89,6 +89,16 @@ JSON under `/api`, validated with zod and typed for the web client through Hono 
   takes bodies up to a deck file's size; the preview and the import wait as long as they take, every
   other request up to 255 s of silence (Bun's most: a local model's first words, 07; `runtime/bun.ts`).
   A deck's earlier audio is linked into its update, copied where the disk has no hard links.
+- A deck's words read aloud (04, "Decks"; a course's or an imported deck's, `scope` as Review names
+  it: `course:<key>` | `deck:<id>`): `GET /api/decks/audio?scope=` (the words' language, how many
+  words, with audio of their own, read aloud, without; the engine and voice the profile's settings read
+  them with — null when nothing here reads that language —; the deck's job, running or the latest:
+  status `running` | `done` | `stopped` | `failed`, words read of all it set out to read, failures, the
+  word being read, the latest failure's code), `POST /api/decks/audio` (`{scope}`: the job started —
+  once; a job running goes on — and the state; 409 `speech_unavailable` when nothing reads the
+  language), `DELETE /api/decks/audio?scope=` (the job stopped, what it read kept); 404
+  `no_such_deck` for a deck or course not here. A job is the server's (any profile sees it), in
+  memory: a server stopped stops it, and it is started again by asking.
 - Settings: `GET` / `PUT /api/settings` (one key at a time): only the learner's preferences, each
   checked against its schema (`packages/schema/src/settings.ts`); the assistant's endpoints and prompts
   are changed only through `/api/llm`.
@@ -137,8 +147,9 @@ JSON under `/api`, validated with zod and typed for the web client through Hono 
   message with `newChat` opens a new chat (the current one ends once the reply has come; a failed call
   changes nothing); `GET prompts` lists the system prompts and `PUT prompts/:task` sets or clears the
   learner's own one.
-- `GET /library/:series/*` (outside `/api`): library media with Range support; `GET /decks/:id/media/*`:
-  an imported deck's own audio, likewise.
+- `GET /library/:series/*` (outside `/api`): library media with Range support; `GET /decks/:folder/media/*`:
+  a deck folder's audio — an imported deck's own and what was read aloud for it, a course deck's read
+  aloud (`course~<series>~<course>`) —, likewise.
 - Every other path serves the web build: existing files as they are (`/assets/*` hashed and
   `immutable`, the rest `no-cache`), extension-less paths fall back to `index.html` (client routes).
 

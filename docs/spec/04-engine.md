@@ -187,10 +187,27 @@ imported `.apkg` decks fit in. Scheduling and the queue are pure functions in
   two — updates that deck (another deck sharing a note, or the same in other languages,
   is one of its own), and cards follow their words (relinking); a card of a word the update drops
   keeps what it showed, its audio too (the deck's earlier audio stays); a deck is deleted only while no
-  profile has cards made from it (they leave it first: nobody's progress goes unasked). Planned
-  (phases after the import): audio read aloud by the server's engine for a deck's words without it,
-  and examples by the AI for a whole deck's words without the deck's own (plan, item 1), kept beside
-  the deck (`extras.json`, 05).
+  profile has cards made from it (they leave it first: nobody's progress goes unasked). Planned:
+  examples by the AI for a whole deck's words without the deck's own (plan, item 1), kept beside the
+  deck as its audio is (below).
+- **A deck's words read aloud** (owner, 2026-10-11; `services/deck-audio.ts`): any deck the learner
+  has — a course's (its lexemes, each by its first entry in course order, as it is taken) or an
+  imported one (its notes) — on request reads its words without audio of their own with the server's
+  engine (08): the profile's when it is Piper or Qwen3-TTS and reads the words' language, else Piper
+  with a voice for it, else Qwen3-TTS; neither here, the request is refused and Decks says what to
+  install. The text read is the word as the card shows it ("der Abend"), with the language's voice the
+  profile picked (else the best one; Qwen3-TTS: its speaker, its model) at the speed recorded — the
+  audio is every profile's. Kept beside the deck (`decks/<folder>/extras.json`, 05) by word key — an
+  imported deck's note guid; a course's lexeme key, its cards being one per lexeme whichever lesson
+  made them — with the engine, voice and text: a word whose text changed since (an import, a
+  normalisation) is read again, one read is not. A job per deck at a time, the server's (one profile
+  starts it, any sees it), its progress in memory (words read of all, the word being read, failures);
+  Piper reads two words at once (a process each), Qwen3-TTS one; stopped, what it read is kept, and
+  started again it reads only the rest; three words in a row the engine cannot read end it; an
+  imported deck imported again or deleted stops it. When it ends, every open profile's cards follow
+  (relinking): a card's display has its word's own audio, else the reading (`readAudio`, served from
+  the deck's folder), else the device's voice as before. A course's word whose entry shows another
+  text than its first entry (the same lexeme written otherwise in a later lesson) gets no reading.
 - **Decks to take** (owner, 2026-10-08/09): each course of My courses (begun) and language pair offers
   its words as one deck; so does each imported deck. Taking it makes every lesson's words cards at once, new and in course order
   (Anki: a deck imported); words with a card already keep it. **Leaving** a course's deck (after asking)

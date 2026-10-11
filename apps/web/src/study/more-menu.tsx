@@ -3,6 +3,7 @@
 import { Flag, MoreHorizontal } from "lucide-react";
 import { useTranslation } from "react-i18next";
 import type { useStudy } from "@/api/cards.ts";
+import { cardAudioUrl } from "@/api/client.ts";
 import { Button } from "@/ui/components/button.tsx";
 import {
   DropdownMenu,
@@ -52,7 +53,10 @@ export function MoreMenu({
         </Button>
       </DropdownMenuTrigger>
       <DropdownMenuContent align="end">
-        <DropdownMenuItem onSelect={() => act({ do: "replay" })} disabled={!current.display.audio}>
+        <DropdownMenuItem
+          onSelect={() => act({ do: "replay" })}
+          disabled={!cardAudioUrl(current.display)}
+        >
           {t("study.replay")}
           <DropdownMenuShortcut>R</DropdownMenuShortcut>
         </DropdownMenuItem>

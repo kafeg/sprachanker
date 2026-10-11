@@ -1,6 +1,6 @@
 // A profile's speech (08): the server's engines — recognition, Piper, Qwen3-TTS — with the profile's
 // choices in its settings: recognition on or off and its model, the engine reading aloud, its voices,
-// speed and Qwen3-TTS's model.
+// speed and Qwen3-TTS's model — also the engine and voice a deck's words are read with.
 import { ALL_LANGS } from "@sprachanker/schema";
 import { ServiceError } from "../errors.ts";
 import type { QwenTts } from "./qwen-tts.ts";
@@ -82,6 +82,33 @@ export function createProfileSpeech(deps: {
         return readAloud.say(text, lang, chosen, settings.value("speech.readRate"));
       const mixed = new Set([lang, ...(input.langs ?? [])]).size > 1;
       return qwenTts.say(text, lang, chosen, qwenModel(), mixed);
+    },
+
+    /** The engine on this computer that reads a deck's words in `lang`, with its voice: the profile's
+     *  (Piper or Qwen3-TTS) when it reads the language, else Piper with a voice for it, else
+     *  Qwen3-TTS; none when neither can. Read at the speed recorded: the audio is every profile's. */
+    deckReader(lang: string) {
+      const own = settings.value("speech.voices");
+      const engines =
+        settings.value("speech.readEngine") === "qwen"
+          ? (["qwen", "piper"] as const)
+          : (["piper", "qwen"] as const);
+      for (const engine of engines) {
+        if (engine === "piper") {
+          const voice = readAloud.voice(lang, own?.piper?.[lang]);
+          if (voice)
+            return { engine, voice, read: (text: string) => readAloud.say(text, lang, voice, 1) };
+        } else {
+          const voice = qwenTts.voice(lang, own?.qwen?.[ALL_LANGS], qwenModel());
+          if (voice)
+            return {
+              engine,
+              voice: `${voice.model}/${voice.speaker}`,
+              read: (text: string) => qwenTts.say(text, lang, voice.speaker, voice.model),
+            };
+        }
+      }
+      return undefined;
     },
   };
 }

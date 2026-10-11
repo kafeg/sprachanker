@@ -12,13 +12,14 @@ browser ──localhost or a LAN name (phones over Tailscale: planned)──┐
               sprachanker serve  (apps/cli, one compiled Bun binary with the web build inside)
                  ├─ Hono app: /api/* routes → services   (packages/server)
                  ├─ web build: the React app (apps/web), SPA fallback
-                 ├─ /library/<series>/media/* and /decks/<id>/media/* with Range
+                 ├─ /library/<series>/media/* and /decks/<folder>/media/* with Range
                  ├─ whisper-server and Qwen3-TTS's tts-server on 127.0.0.1 (native/, beside the
                  │  binary), started on demand by the supervisor, stopped when idle
                  └─ Piper (sherpa-onnx-offline-tts), run once per text read aloud
                         │
 <data root> (~/SprachAnker) ── library/<series>/…         courses (02), written only by the importers
-                            ├─ decks/<id>/                imported .apkg decks: deck.json, media/ (05)
+                            ├─ decks/<id>/                imported .apkg decks: deck.json, extras.json, media/ (05)
+                            ├─ decks/course~<s>~<c>/      a course deck's words read aloud: extras.json, media/
                             ├─ models/                    speech models, voices/ Piper's voices, engines.pid (08)
                             ├─ cache/tts/                 texts read aloud by Piper and Qwen3-TTS
                             ├─ server.sqlite, server.pid  profiles, devices signed in; one server per root
@@ -80,7 +81,8 @@ gets the types through Hono RPC (`AppType`), no codegen.
   item across passes), `mistakes`; exams: `exams` (the standings) over `exam-runs` (mock exams and
   practice taken); review: `cards` (cards from a lesson's words, decks taken and left, relinking),
   `decks` (imported `.apkg` decks, the server's: preview, import, list, delete; their folders through
-  `runtime/decks.ts`), `study` (Anki's decks, queue, ratings, undo, bury, suspend, flags, marks), `words` (My words); and
+  `runtime/decks.ts`), `deck-audio` (a deck's words without audio read aloud by the server's
+  engine, kept in its folder; a job per deck), `study` (Anki's decks, queue, ratings, undo, bury, suspend, flags, marks), `words` (My words); and
   across them `notebook` (the study days and the modules' standings, gathered), `progress` (reset over
   every module's runs, recordings in use), `settings`.
 - **AI** (a feature across the learning modules, below): `llm` (providers, LM Studio, prompt

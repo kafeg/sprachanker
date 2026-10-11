@@ -1,16 +1,30 @@
 // An imported deck (04, "Decks"; 05, "Locations"): `<data-root>/decks/<id>/deck.json`, its words in
 // deck order with the audio it brought in `media/` beside it. Server-wide, as the library: every
-// profile takes it as a course's deck.
+// profile takes it as a course's deck. Beside it, and in a course's deck folder, `extras.json`: what
+// the server made for the words (audio read aloud).
 import { z } from "zod";
 import { format } from "./common.ts";
-import { Gender, LexemeKey, Slug } from "./keys.ts";
+import { type CourseKey, Gender, LexemeKey, Slug } from "./keys.ts";
 import { Lang } from "./lang.ts";
 
 export const DECK_FORMAT = 1;
+export const DECK_EXTRAS_FORMAT = 1;
 
 /** An imported deck's id: its title's slug and a short hash (`deutsch-a1-3f9c2a`); its folder's name. */
 export const DeckId = Slug.max(80).brand<"DeckId">();
 export type DeckId = z.infer<typeof DeckId>;
+
+/** A deck's folder in `<data-root>/decks/`: an imported deck's id, or a course's (its words' extras:
+ *  `course~<series>~<course>`). */
+export const DeckFolder = z.union([
+  DeckId,
+  z.string().regex(/^course~[a-z0-9]+(?:[.-][a-z0-9]+)*~[a-z0-9]+(?:-[a-z0-9]+)*$/),
+]);
+
+/** A course's deck folder: `dw.nicos-weg/a1` → `course~dw.nicos-weg~a1`, the same in every edition
+ *  (what it keeps is of the words, in the language they teach). */
+export const courseDeckFolder = (course: CourseKey | string) =>
+  `course~${course.replace("/", "~")}`;
 
 /** A card's source key for a deck's word: the deck and the note's guid (`deck:<id>/<guid>`), so two
  *  decks sharing a note never share a card's source. */
@@ -60,3 +74,23 @@ export const Deck = z.strictObject({
   words: z.array(DeckWord).min(1),
 });
 export type Deck = z.infer<typeof Deck>;
+
+/** A word read aloud by the server's engine (a word without audio of its own): the file in the deck's
+ *  folder, the engine and voice that read it, and the text read — a word changed since is read again. */
+export const DeckReadAudio = z.strictObject({
+  path: DeckMediaPath,
+  engine: z.enum(["piper", "qwen"]),
+  voice: z.string().min(1),
+  text: z.string().min(1),
+  /** When it was read (epoch ms). */
+  made: z.number().int(),
+});
+export type DeckReadAudio = z.infer<typeof DeckReadAudio>;
+
+/** `decks/<folder>/extras.json`: what the server made for a deck's words, by word key — an imported
+ *  deck's note guid, a course's lexeme key (a course's cards are one per lexeme). */
+export const DeckExtras = z.strictObject({
+  format: format(DECK_EXTRAS_FORMAT),
+  words: z.record(z.string().min(1).max(200), z.strictObject({ audio: DeckReadAudio.optional() })),
+});
+export type DeckExtras = z.infer<typeof DeckExtras>;
