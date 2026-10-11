@@ -18,7 +18,7 @@ import {
   placeLine,
   topicsLine,
 } from "./lesson.ts";
-import { type RulesInput, systemPrompt } from "./rules.ts";
+import { NEUTRAL, type RulesInput, systemPrompt } from "./rules.ts";
 
 /** A Dialogue takes the lesson's topic, words, grammar and what is known by it. */
 type SceneLesson = LessonInfo;
@@ -94,10 +94,6 @@ const known = (lesson: SceneLesson) =>
   ]
     .filter(Boolean)
     .join("\n");
-
-/** Said in every Dialogue rule set: the learner's gender is never assumed. */
-const NEUTRAL =
-  "The learner's gender is unknown: wherever a language would mark it (a translation, an explanation, feedback, your lines), choose wording that does not.";
 
 export function sceneSetupRules(
   language: Lang,

@@ -14,9 +14,10 @@ import {
   OrderAnswer,
   SingleChoiceAnswer,
   SpeechSelfrateAnswer,
+  type WrongPart,
 } from "@sprachanker/schema";
 import type { z } from "zod";
-import { clip, htmlToText } from "../text.ts";
+import { htmlToText } from "../text.ts";
 
 interface ItemDescription {
   task: string;
@@ -192,17 +193,47 @@ export interface TutorMistake {
   answer: unknown;
   /** An answer said aloud: the model's correction of what was heard. */
   corrected?: string;
+  /** Its wrong parts only (engine `wrongParts`): a gap of many, a pair, the choice. */
+  parts?: WrongPart[];
   /** A later attempt was correct. */
   fixed: boolean;
 }
 
-/** A mistake in two short lines: where (lesson, exercise, item) and the item's task, then the correct
- *  and the learner's answer. */
+/** How a wrong part's words around it are named: a gap's sentence, a pair's left, a choice's
+ *  question. */
+const AROUND: Partial<Record<WrongPart["what"], string>> = {
+  pair: "for",
+  choice: "to",
+  spoken: "to",
+};
+
+/** A wrong part in a line: what the learner gave, what is right, where — never the whole item. */
+export const wrongPartLine = (p: WrongPart) =>
+  `learner ${p.given ? `"${p.given}"` : "(no answer)"}, correct "${p.right}"${
+    p.context ? ` ${AROUND[p.what] ?? "in"} "${p.context}"` : ""
+  }`;
+
+/** A text cut to `max` characters at a word's end. */
+function words(text: string, max: number) {
+  if (text.length <= max) return text;
+  const at = text.lastIndexOf(" ", max);
+  return `${text.slice(0, at > 0 ? at : max).trimEnd()} …`;
+}
+
+/** A mistake in short lines: where (lesson, exercise, item), then its wrong parts only — or, for an
+ *  item whose parts are not known, its task (cut at a word) with the correct and the learner's
+ *  answer. */
 export function mistakeLine(m: TutorMistake): string {
-  const d = describeItem(m.exercise, m.locale, m.index, m.answer, { header: false });
   const where = [m.lesson, m.locale?.title, `item ${m.index + 1}`].filter(Boolean);
+  const fixed = m.fixed ? " (fixed later)" : "";
+  if (m.parts?.length)
+    return [
+      `- [${where.join(" · ")}]${fixed}`,
+      ...m.parts.map((p) => `  ${wrongPartLine(p)}`),
+    ].join("\n");
+  const d = describeItem(m.exercise, m.locale, m.index, m.answer, { header: false });
   return [
-    `- [${where.join(" · ")}] ${clip(d.task.replaceAll("\n", " · "), 200)}`.trimEnd(),
-    `  correct: ${m.corrected ?? d.correct}; learner: ${d.learner ?? "(no answer)"}${m.fixed ? " (fixed later)" : ""}`,
+    `- [${where.join(" · ")}] ${words(d.task.replaceAll("\n", " · "), 200)}`.trimEnd(),
+    `  correct: ${m.corrected ?? d.correct}; learner: ${d.learner ?? "(no answer)"}${fixed}`,
   ].join("\n");
 }

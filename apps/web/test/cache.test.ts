@@ -1,5 +1,12 @@
 import { expect, test } from "bun:test";
-import { prepend, withAttempt, withScene, withText, withTurns } from "../src/api/cache.ts";
+import {
+  prepend,
+  withAttempt,
+  withReview,
+  withScene,
+  withText,
+  withTurns,
+} from "../src/api/cache.ts";
 
 test("a new item goes on top, replacing an older copy of it", () => {
   const same = (a: { id: number }, b: { id: number }) => a.id === b.id;
@@ -49,4 +56,8 @@ test("an Understanding text: one just written on top, one answered in its place;
     preparing: false,
   });
   expect(withText(undefined, { id: "a", n: 2 })).toBeUndefined();
+  // A mistakes review the same way.
+  const reviews = { reviews: state.texts, preparing: false };
+  expect(withReview(reviews, { id: "c", n: 0 })?.reviews.map((t) => t.id)).toEqual(["c", "b", "a"]);
+  expect(withReview(reviews, { id: "b", n: 3 })?.reviews[0]).toEqual({ id: "b", n: 3 });
 });

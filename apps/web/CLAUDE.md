@@ -47,7 +47,7 @@ apps/web/src/
   library/         # what feature folders share: card (a course's or an exam's, an offer, the publisher),
                    # hero (their page's head), tab-page (Courses' and Exams' tabs), download, upkeep, bundle (a course to a file and back),
                    # reset-progress, exam-address, item-history (an item across passes), spoken-check,
-                   # understanding-text (a text, its glossed words — glossed.ts —, its questions answered)
+                   # understanding-text (a text, its glossed words — glossed.ts —, its questions answered), mistakes-review (mistakes gone over by type), practice-item (an item the assistant set)
   api/             # client (Hono RPC, hono/client; no codegen) + TanStack Query hooks by area: settings
                    # (the app and its addresses, the profile's settings), courses, downloads, cards, decks (imported; a deck's
                    # words read aloud, polled while read), notebook,
@@ -65,7 +65,7 @@ apps/web/src/
                    # experimental (stable sources always, experimental ones turned on), experimental-settings
   llm/             # AI assistant: settings (AssistantSetup: provider-cards, key-state, model-list over the
                    # pure model-filter; LM Studio), "Why is this wrong?", tutor (the chat view; the lesson's
-                   # header panel — History: tutor-history —, the mistakes step), tutor-section (the Tutor
+                   # header panel — History: tutor-history), going-over (the mistakes step), tutor-section (the Tutor
                    # section: its chats, a chat and its language — a new one's chosen in a SelectField), understanding (heard, answered by ear, read), writing, dialogue (the Dialogue step: goal card, lines read aloud, summary; dialogue-line: a line said and heard, or typed), spoken-check (the AI's check under an answer said aloud), word-examples (a deck's: on a card, under a deck — the slots); exam-assistant (an exam run's slots): exam-rating ("Propose a
                    # rating"), exam-conversation (a speaking part held as a conversation);
                    # settings-section (Settings → AI assistant), lmstudio-section, prompts-info (where it

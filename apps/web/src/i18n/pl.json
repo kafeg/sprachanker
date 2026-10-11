@@ -324,7 +324,7 @@
   },
   "tutor": {
     "title": "Tutor",
-    "intro": "Pytaj o tę lekcję: gramatykę, słowa, ćwiczenie na ekranie — albo przećwicz krótki dialog. Odpowiedzi trzymają się tego, co już znasz.",
+    "intro": "Pytaj o tę lekcję: gramatykę, słowa, ćwiczenie na ekranie. Odpowiedzi trzymają się tego, co już znasz.",
     "needsSetup": "Tutor potrzebuje modelu AI.",
     "openSettings": "Skonfiguruj asystenta AI",
     "placeholder": "Zadaj pytanie…",
@@ -334,11 +334,7 @@
     "suggest": {
       "grammar": "Wyjaśnij gramatykę tej lekcji",
       "examples": "Daj mi więcej przykładów z nowymi słowami",
-      "dialogue": "Przećwiczmy krótki dialog",
       "exercise": "Daj mi wskazówkę do tego ćwiczenia",
-      "wordsQuiz": "Przepytaj mnie z nowych słów tej lekcji",
-      "wordsMemory": "Pomóż mi zapamiętać nowe słowa",
-      "grammarDrill": "Daj mi krótkie ćwiczenie z gramatyki tej lekcji",
       "script": "Przejdźmy przez tekst lekcji zdanie po zdaniu"
     },
     "context": "Kontekst ≈ {used} z {window} tokenów",
@@ -361,13 +357,9 @@
     "deleteTitle": "Usunąć tę rozmowę?",
     "deleteBody": "Jej wiadomości zostaną usunięte na zawsze.",
     "ask": {
-      "grammar": "Wyjaśnij krótko gramatykę tej lekcji na 2–3 przykładach z lekcji. Potem zapytaj, czy wszystko jest jasne.",
-      "examples": "Podaj 3 krótkie przykłady z nowymi słowami tej lekcji, z tłumaczeniem. Potem poproś mnie o własne zdanie z jednym z nich.",
-      "dialogue": "Przećwiczmy krótki dialog na temat lekcji. Zacznij jedną kwestią i poczekaj na moją odpowiedź; poprawiaj moje błędy na bieżąco.",
+      "grammar": "Wyjaśnij krótko gramatykę tej lekcji na 2–3 przykładach z lekcji.",
+      "examples": "Podaj 3 krótkie przykłady z nowymi słowami tej lekcji, z tłumaczeniem.",
       "exercise": "Daj mi wskazówkę do tego ćwiczenia, ale nie odpowiedź.",
-      "wordsQuiz": "Przepytaj mnie z nowych słów tej lekcji, po jednym słowie. Zapytaj o słowo, poczekaj na moją odpowiedź, powiedz, czy jest dobra, i dopiero wtedy przejdź do następnego.",
-      "wordsMemory": "Pomóż mi zapamiętać nowe słowa tej lekcji, po jednym: weź jedno słowo, daj mi skojarzenie (podobnie brzmiące słowo, obraz, rdzeń) i krótki przykład, a potem poproś mnie, żeby je powtórzyć lub użyć w zdaniu. Następne słowo dopiero po mojej odpowiedzi.",
-      "grammarDrill": "Daj mi krótki trening z gramatyki tej lekcji: jedno zadanie naraz, poczekaj na moją odpowiedź, sprawdź ją i wyjaśnij każdy błąd.",
       "script": "Przejdźmy przez tekst lekcji po jednym zdaniu: pokaż pierwsze zdanie, przetłumacz je i wyjaśnij, co jest w nim nowego. Następne zdanie dopiero, gdy napiszę „dalej”."
     }
   },
@@ -403,6 +395,7 @@
       "explain": "„Dlaczego to błąd?”",
       "tutor": "Tutor",
       "tutorSection": "Sekcja „Tutor”",
+      "writingTask": "„Napisz własny tekst”: zadanie",
       "writing": "„Napisz własny tekst”",
       "speaking": "Odpowiedzi ustne",
       "exam": "Egzamin: ocena odpowiedzi",
@@ -412,7 +405,8 @@
       "examples": "Przykłady do słów talii",
       "sceneSummary": "Dialog: podsumowanie",
       "understanding": "Rozumienie: tekst",
-      "understandingCheck": "Rozumienie: drugie czytanie"
+      "understandingCheck": "Rozumienie: drugie czytanie",
+      "mistakes": "Omówienie błędów"
     },
     "contextIntro": "Dodane z lekcji:",
     "contextIntroCourses": "Dodane z twoich kursów (tych w języku, który ćwiczy rozmowa):",
@@ -452,7 +446,10 @@
       "dialogue": "kwestie dialogu z poprawkami do nich",
       "length": "jak długi jest tekst na poziomie kursu",
       "readText": "napisany tekst",
-      "textQuestions": "jego pytania z odpowiedziami do wyboru, bez rozwiązań"
+      "textQuestions": "jego pytania z odpowiedziami do wyboru, bez rozwiązań",
+      "writingTask": "zadanie: sytuacja, jego trzy punkty i długość",
+      "levelCriteria": "czego potrzebuje tekst na poziomie kursu (kryteria egzaminów pisemnych)",
+      "mistakeGroups": "twoje błędy z tego podejścia według rodzaju, każdy tylko to, co było źle (także źle odpowiedziane pytania z „Rozumienia”)"
     },
     "upTo": "do {chars, plural, one {# znaku} few {# znaków} many {# znaków} other {# znaku}}",
     "debug": "Pokazuj przyciski „Prompt”",
@@ -499,9 +496,10 @@
     },
     "about": {
       "explain": "Wyjaśnia błędną odpowiedź pod ćwiczeniem („Dlaczego to błąd?”): na czym polega błąd i jaka reguła za nim stoi, w twoim języku.",
-      "tutor": "Tutor lekcji: odpowiada na twoje pytania o lekcję, jej słowa i gramatykę, a w kroku „Omówienie błędów” omawia twoje błędy jeden po drugim.",
+      "tutor": "Tutor lekcji: odpowiada na twoje pytania o lekcję, jej słowa i gramatykę i wyjaśnia — przy ćwiczeniu na ekranie najpierw podpowiedziami. Ćwiczenia są w krokach AI lekcji.",
       "tutorSection": "Tutor osobno, w sekcji „Tutor”: odpowiada poza lekcją na wszystko, o co zapytasz — pytanie o gramatykę, tekst do omówienia, rozmowę do przećwiczenia — i zna materiał twoich kursów.",
-      "writing": "Sprawdza krótki tekst napisany w kroku „Napisz własny tekst”: poprawki, kryteria A1 (zadanie, komunikacja, poprawność) i komentarz.",
+      "writingTask": "Ustala zadanie „Napisz własny tekst”: sytuację z lekcji z trzema punktami do omówienia, o długości według poziomu kursu — tak, jak stawia je egzamin pisemny na tym poziomie. Pytane raz na zadanie.",
+      "writing": "Sprawdza krótki tekst napisany na zadanie z „Napisz własny tekst”: czy każdy punkt omówiono, najwyżej trzy poprawki, kryteria poziomu kursu (zadanie, komunikacja, poprawność), tekst wzorcowy i komentarz.",
       "speaking": "Sprawdza odpowiedź powiedzianą na głos (to, co usłyszało rozpoznawanie mowy) względem pytania i odpowiedzi z kursu, gdy naciśniesz „Sprawdź z AI”.",
       "exam": "Ocenia pisemną odpowiedź egzaminacyjną według kryteriów samego egzaminu: poziom w każdym kryterium z uzasadnieniem i co dałoby więcej punktów. Nic się nie liczy, dopóki tego nie przyjmiesz lub nie zmienisz.",
       "conversation": "Prowadzi część ustną egzaminu: odgrywa egzaminatora i drugiego kandydata, jak przewiduje ta część, kwestia po kwestii z tobą; nigdy nie pomaga ani nie poprawia. Potem oceniana jest według kryteriów tej części.",
@@ -510,17 +508,26 @@
       "examples": "Pisze od trzech do pięciu przykładowych zdań do każdego słowa talii, która nie ma własnych, po pięć słów naraz (Powtórki → Talie, „Utwórz przykłady”), w miarę możliwości ze znanymi ci słowami, a nowe tłumaczy.",
       "sceneSummary": "Podsumowuje dialog po jego zakończeniu: jedną lub dwie najważniejsze poprawki, każdą z twoim zdaniem powiedzianym dobrze, i krótką uwagę.",
       "understanding": "Pisze krótki tekst w języku, którego się uczysz, ze znanych ci słów — dialog lub komunikat do słuchania albo menu czy ogłoszenie do czytania — z pytaniami jak na egzaminach (prawda/fałsz, a/b/c, liczby). Twoje odpowiedzi sprawdza aplikacja, nie model.",
-      "understandingCheck": "Czyta tekst jeszcze raz i odpowiada na własne pytania tylko na podstawie tekstu: pytanie, na które odpowie inaczej albo które uzna za niejasne, odpada."
+      "understandingCheck": "Czyta tekst jeszcze raz i odpowiada na własne pytania tylko na podstawie tekstu: pytanie, na które odpowie inaczej albo które uzna za niejasne, odpada.",
+      "mistakes": "Omawia błędy podejścia według rodzaju: dla każdego rodzaju tylko błędne części (co podano, co jest dobrze, słowa wokół), krótkie wyjaśnienie i dwa–trzy nowe zadania tego rodzaju ze znanych słów. Odpowiedzi sprawdza aplikacja, nie model."
     }
   },
   "writing": {
-    "task": "Napisz 3–5 zdań na temat lekcji: {topic}. Język tekstu: {language}. Użyj nowych słów.",
+    "task": "Twoje zadanie (język tekstu: {language}):",
+    "intro": "Krótki tekst o sytuacji z lekcji: trzy punkty do omówienia, tak długi, jak wymaga egzamin na twoim poziomie. AI go sprawdza: omówione punkty, najwyżej trzy poprawki i tekst wzorcowy.",
+    "start": "Daj mi zadanie",
+    "preparing": "Piszę zadanie…",
+    "newTask": "Nowe zadanie",
+    "length": "Około {words, number} słów.",
+    "count": "{count, plural, one {# słowo} few {# słowa} many {# słów} other {# słowa}} z około {words, number}",
     "placeholder": "Twój tekst…",
     "check": "Sprawdź",
     "checking": "Sprawdzanie…",
     "rewrite": "Popraw i sprawdź ponownie",
     "score": "{name}: {score, number} z {max, number}",
     "points": "{score, number} z {max, number}",
+    "pointsTitle": "Punkty zadania",
+    "modelText": "Tekst wzorcowy",
     "past": "Wcześniejsze teksty z tej lekcji",
     "verdict": {
       "good": "Dobrze",
@@ -542,10 +549,7 @@
     "items": "{count, plural, one {zadanie} few {zadania} many {zadania} other {zadania}} {items}",
     "fixed": "{count, plural, one {# poprawione później} few {# poprawione później} many {# poprawionych później} other {# poprawionego później}}",
     "none": "W tym podejściu nie ma błędów.",
-    "notYet": "Brak odpowiedzi: najpierw zrób ćwiczenia.",
-    "tutorIntro": "Tutor omawia twoje błędy po kolei: co poszło nie tak, jaka reguła za tym stoi i krótki nowy przykład do sprawdzenia.",
-    "start": "Omów moje błędy z tutorem",
-    "message": "Omów proszę moje błędy w tej lekcji."
+    "notYet": "Brak odpowiedzi: najpierw zrób ćwiczenia."
   },
   "scene": {
     "intro": "Krótki dialog na głos na temat celów lekcji: kwestie rozmówcy są czytane na głos, a ty odpowiadasz przez mikrofon. Rozmówca wie rzeczy, o które musisz zapytać.",
@@ -1358,6 +1362,8 @@
     "unknown_setting": "To ustawienie (już) nie istnieje.",
     "unsupported_audio": "Ta przeglądarka nagrywa w formacie, którego aplikacja nie może zapisać.",
     "writing_busy": "Tekst z tej lekcji jest właśnie sprawdzany. Poczekaj.",
+    "mistakes_busy": "Błędy tej lekcji są właśnie omawiane. Poczekaj.",
+    "no_mistakes": "W tym podejściu nie ma błędów do omówienia.",
     "other": "Coś poszło nie tak: {message}",
     "exam_needs_setting": "Najpierw wybierz swój kraj związkowy: egzamin zawiera pytania o niego.",
     "exam_time_over": "Czas tego egzaminu próbnego minął: został oddany w obecnym stanie.",
@@ -1600,5 +1606,28 @@
     "readNow": "Przeczytaj tekst i odpowiedz",
     "result": "{right, number} z {total, number} dobrze",
     "past": "Wcześniejsze teksty tej lekcji"
+  },
+  "goingOver": {
+    "title": "Omówienie błędów",
+    "intro": "Twoje błędy z tego podejścia według rodzaju: co było źle, reguła za tym i dwa–trzy nowe zadania każdego rodzaju do spróbowania — sprawdzane od razu.",
+    "start": "Omów moje błędy",
+    "preparing": "Omawiam twoje błędy…",
+    "again": "Omów ponownie",
+    "group": "Rodzaj {n, number} z {total, number}",
+    "yours": "Twoje błędy",
+    "try": "Teraz ty",
+    "next": "Następny rodzaj",
+    "previous": "Poprzedni rodzaj",
+    "result": "{right, number} z {total, number} dobrze",
+    "past": "Wcześniejsze omówienia błędów w tej lekcji",
+    "what": {
+      "ending": "Końcówki",
+      "word": "Słowa",
+      "choice": "Wybór",
+      "order": "Szyk wyrazów",
+      "pair": "Pary",
+      "spelling": "Pisownia",
+      "spoken": "Powiedziane na głos"
+    }
   }
 }

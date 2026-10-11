@@ -2,20 +2,17 @@
 // 09): its lines — a dialogue's with their speakers —, the glossed words marked with their
 // translations and listed under it; its questions as the items of their closed types, in the order
 // written (Richtig before Falsch), answered here or read as answered.
-import { answerComplete, understandingExercise } from "@sprachanker/engine";
+import { understandingExercise } from "@sprachanker/engine";
 import type {
   Outcome,
   PracticeAnsweredPayload,
   UnderstandingQuestion,
   UnderstandingText,
 } from "@sprachanker/schema";
-import { useState } from "react";
 import { useTranslation } from "react-i18next";
-import { ItemCard } from "@/exercises/item-card.tsx";
-import { SourceOrder } from "@/exercises/shared.tsx";
-import { Button } from "@/ui/components/button.tsx";
 import { inLang } from "@/ui/direction.tsx";
 import { glossed } from "./glossed.ts";
+import { PracticeItemCard } from "./practice-item.tsx";
 
 /** An answer kept on a text's question. */
 type Given = Pick<PracticeAnsweredPayload, "question" | "answer" | "outcome">;
@@ -67,11 +64,9 @@ export function UnderstandingLines({ text, lang }: { text: UnderstandingText; la
   );
 }
 
-const noMedia = () => "";
-
-/** A question as the item of its kind: a choice answered by choosing, an answer typed by "Check";
- *  read-only once answered, or without `onAnswer`. `id`: the question's own (its text's and its
- *  number). */
+/** A question as the item of its kind (a choice answered by choosing, an answer typed by "Check"),
+ *  its options in the order written; read-only once answered, or without `onAnswer`. `id`: the
+ *  question's own (its text's and its number). */
 export function UnderstandingQuestionCard({
   question,
   id,
@@ -83,41 +78,13 @@ export function UnderstandingQuestionCard({
   given?: { answer: unknown; outcome: Outcome };
   onAnswer?(answer: unknown): void;
 }) {
-  const { t } = useTranslation();
-  const exercise = understandingExercise(question, id);
-  const [draft, setDraft] = useState<unknown>();
-  const typed = !question.options;
-  const change =
-    onAnswer && !given
-      ? (a: unknown) => {
-          setDraft(a);
-          if (!typed) onAnswer(a);
-        }
-      : undefined;
   return (
-    <div>
-      <SourceOrder.Provider value>
-        <ItemCard
-          exercise={exercise}
-          locale={null}
-          index={0}
-          answer={given?.answer ?? draft}
-          outcome={given?.outcome}
-          url={noMedia}
-          onAnswer={change}
-        />
-      </SourceOrder.Provider>
-      {typed && change && (
-        <Button
-          variant="outline"
-          className="mt-2"
-          disabled={!answerComplete(exercise, 0, draft)}
-          onClick={() => onAnswer?.(draft)}
-        >
-          {t("lesson.check")}
-        </Button>
-      )}
-    </div>
+    <PracticeItemCard
+      exercise={understandingExercise(question, id)}
+      given={given}
+      onAnswer={onAnswer}
+      sourceOrder
+    />
   );
 }
 

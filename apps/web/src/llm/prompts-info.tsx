@@ -18,7 +18,7 @@ import { DEBUG_PROMPTS, type PromptTaskId, useSetPrompt, useTaskPrompts } from "
 
 /** What each task adds from the lesson, in prompt order; a part with a budget shows its limit. */
 const PARTS = {
-  explain: ["level", "item", "script", "notes"],
+  explain: ["level", "item", "script", "topics", "notes"],
   tutor: [
     "lesson",
     "level",
@@ -34,12 +34,33 @@ const PARTS = {
     "tools",
   ],
   tutorSection: ["courses", "metWords", "metGrammar", "courseMistakes", "chatHistory"],
-  writing: ["lesson", "level", "lessonVocab", "grammar", "text"],
+  writingTask: [
+    "lesson",
+    "place",
+    "level",
+    "lessonVocab",
+    "knownVocab",
+    "topics",
+    "grammar",
+    "length",
+    "levelCriteria",
+  ],
+  writing: [
+    "lesson",
+    "level",
+    "lessonVocab",
+    "knownVocab",
+    "grammar",
+    "writingTask",
+    "text",
+    "levelCriteria",
+  ],
   speaking: ["lesson", "level", "lessonVocab", "grammar", "item", "heard", "answer"],
   exam: ["exam", "criteria", "samples", "writtenAnswer"],
   conversation: ["exam", "partner", "conversation"],
   understanding: ["lesson", "place", "level", "lessonVocab", "knownVocab", "topics", "length"],
   understandingCheck: ["readText", "textQuestions"],
+  mistakes: ["lesson", "level", "lessonVocab", "knownVocab", "topics", "grammar", "mistakeGroups"],
   sceneSetup: ["lesson", "place", "level", "lessonVocab", "knownVocab", "topics", "grammar"],
   scene: ["lesson", "level", "lessonVocab", "knownVocab", "topics", "grammar", "history"],
   sceneSummary: ["level", "dialogueGoals", "dialogue"],

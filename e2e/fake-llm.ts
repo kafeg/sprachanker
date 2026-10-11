@@ -4,6 +4,12 @@
 export const FAKE_LLM_PORT = 4593;
 export const FAKE_TEXT = "FAKE: the verb ends in -e here.";
 
+/** A writing task: a situation and its three points (the length is the app's). */
+const WRITING_TASK = {
+  situation: "FAKE: You are meeting Lena at the café. Write her a message.",
+  points: ["FAKE: say who you are", "FAKE: say why you write", "FAKE: say when you come"],
+};
+/** A text on it checked: each point rated, a correction, a model text. */
 const WRITING_CHECK = {
   verdict: "minor_errors",
   corrected: "Ich heiße Lena.",
@@ -13,6 +19,12 @@ const WRITING_CHECK = {
     communication: { score: 2, comment: "ok" },
     accuracy: { score: 1, comment: "one spelling mistake" },
   },
+  points: [
+    { score: 2, comment: "FAKE: said who." },
+    { score: 0, comment: "FAKE: no reason given." },
+    { score: 0, comment: "FAKE: no time given." },
+  ],
+  modelText: "FAKE: Hallo Lena, ich heiße Anna. Ich komme um fünf.",
   feedback: "FAKE: a good start.",
 };
 
@@ -87,6 +99,55 @@ const UNDERSTANDING_CHECK = {
   ],
 };
 
+/** Two new items of a type going over mistakes, as the model writes them. */
+const NEW_ITEMS: Record<string, unknown[]> = {
+  single_choice: [
+    { prompt: "FAKE: Wo ist Tom?", options: ["Im Café.", "Im Park."], answer: 0 },
+    { prompt: "FAKE: Wo ist Anna?", options: ["Im Café.", "Im Park."], answer: 0 },
+  ],
+  gap_text: [
+    { text: "Ich ___ Tee.", gaps: [{ accepted: ["trinke"] }] },
+    { text: "Du ___ Tee.", gaps: [{ accepted: ["trinkst"] }] },
+  ],
+  gap_choice: [
+    { text: "Ich ___ Tee.", gaps: [{ options: ["trinke", "trinkst"], answer: 0 }] },
+    { text: "Du ___ Tee.", gaps: [{ options: ["trinke", "trinkst"], answer: 1 }] },
+  ],
+  order: [{ parts: ["Ich", "trinke", "Tee."] }, { parts: ["Du", "trinkst", "Tee."] }],
+  match: [1, 2].map(() => ({
+    pairs: [
+      { left: "die Tasse", right: "cup" },
+      { left: "der Tee", right: "tea" },
+      { left: "das Glas", right: "glass" },
+    ],
+  })),
+};
+
+/** A new item as the model writes it: every field, null where its type has none (strict structured
+ *  outputs). */
+const full = (item: unknown) => {
+  const it = item as Record<string, unknown>;
+  return {
+    ...Object.fromEntries(
+      ["prompt", "options", "answer", "text", "gaps", "parts", "pairs"].map((k) => [k, null]),
+    ),
+    ...it,
+    ...(Array.isArray(it.gaps) && {
+      gaps: it.gaps.map((g) => ({ accepted: null, options: null, answer: null, ...g })),
+    }),
+  };
+};
+
+/** Going over mistakes: each group of the prompt ("Group 1 — …; new items: <type>, …") explained,
+ *  with two new items of its type. */
+const mistakeItems = (prompt: string) => ({
+  groups: [...prompt.matchAll(/^Group (\d+) — .*?; new items: (\w+),/gm)].map(([, n, type]) => ({
+    n: Number(n),
+    explanation: "FAKE: read the question again.",
+    items: (NEW_ITEMS[type as string] ?? []).map(full),
+  })),
+});
+
 /** Three examples for each word numbered in <words> ("1. der Kaffee, die Kaffees — coffee (noun)" →
  *  "Hier ist der Kaffee heute."). */
 const wordExamples = (prompt: string) => {
@@ -148,6 +209,7 @@ const conversation = (prompt: string) =>
 
 /** Structured replies by the task's schema name; the writing check otherwise. */
 const STRUCTURED: Record<string, unknown> = {
+  writing_task: WRITING_TASK,
   scene_setup: SCENE_SETUP,
   scene_turn: SCENE_TURN,
   scene_summary: SCENE_SUMMARY,
@@ -195,9 +257,11 @@ if (import.meta.main) {
           : JSON.stringify(
               task === "word_examples"
                 ? wordExamples(body.messages.at(-1)?.content ?? "")
-                : task === "exam_conversation"
-                  ? conversation(body.messages.at(-1)?.content ?? "")
-                  : (STRUCTURED[task] ?? WRITING_CHECK),
+                : task === "mistake_items"
+                  ? mistakeItems(body.messages.at(-1)?.content ?? "")
+                  : task === "exam_conversation"
+                    ? conversation(body.messages.at(-1)?.content ?? "")
+                    : (STRUCTURED[task] ?? WRITING_CHECK),
             );
         return Response.json({ choices: [{ message: { role: "assistant", content } }] });
       }

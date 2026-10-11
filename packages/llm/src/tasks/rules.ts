@@ -34,3 +34,8 @@ export const systemPrompt = (input: RulesInput, standing: TaskRules, fixed: stri
     fixed,
     languagesLine(input.language, input.target),
   ].join("\n");
+
+/** Said in every rule set that addresses the learner or writes about them: their gender is never
+ *  assumed. */
+export const NEUTRAL =
+  "The learner's gender is unknown: wherever a language would mark it (a translation, an explanation, feedback, your lines), choose wording that does not.";

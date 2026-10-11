@@ -324,7 +324,7 @@
   },
   "tutor": {
     "title": "Tutor",
-    "intro": "Ask about this lesson: grammar, words, the exercise on screen — or practise a short dialogue. Answers stay within what you have learnt so far.",
+    "intro": "Ask about this lesson: grammar, words, the exercise on screen. Answers stay within what you have learnt so far.",
     "needsSetup": "The tutor needs an AI model.",
     "openSettings": "Set up the AI assistant",
     "placeholder": "Ask a question…",
@@ -334,11 +334,7 @@
     "suggest": {
       "grammar": "Explain the grammar of this lesson",
       "examples": "Give me more examples with the new words",
-      "dialogue": "Let's practise a short dialogue",
       "exercise": "Give me a hint for this exercise",
-      "wordsQuiz": "Quiz me on the new words of this lesson",
-      "wordsMemory": "Help me remember the new words",
-      "grammarDrill": "Give me a short exercise on this lesson's grammar",
       "script": "Go through the lesson text phrase by phrase"
     },
     "context": "Context ≈ {used} of {window} tokens",
@@ -361,13 +357,9 @@
     "deleteTitle": "Delete this chat?",
     "deleteBody": "Its messages are deleted for good.",
     "ask": {
-      "grammar": "Explain this lesson's grammar briefly with 2–3 examples from the lesson. Then ask whether it is clear.",
-      "examples": "Give 3 short examples with the lesson's new words, with translations. Then ask me to make my own sentence with one of them.",
-      "dialogue": "Let's practise a short dialogue on the lesson's topic. You start with one line and wait for my answer; correct my mistakes as we go.",
+      "grammar": "Explain this lesson's grammar briefly with 2–3 examples from the lesson.",
+      "examples": "Give 3 short examples with the lesson's new words, with translations.",
       "exercise": "Give me a hint for this exercise, not the answer.",
-      "wordsQuiz": "Quiz me on the lesson's new words, one word at a time. Ask a word, wait for my answer, tell me whether it is right, and only then go on to the next.",
-      "wordsMemory": "Help me remember the lesson's new words one at a time: take one word, give me a memory hook (a sound-alike, an image, the root) and a short example, then ask me to repeat or use it. The next word only after my answer.",
-      "grammarDrill": "Give me a short drill on the lesson's grammar: one task at a time, wait for my answer, check it and explain any mistake.",
       "script": "Let's go through the lesson's text one phrase at a time: show the first phrase, translate it and explain what is new in it. The next phrase only when I say \"next\"."
     }
   },
@@ -403,6 +395,7 @@
       "explain": "“Why is this wrong?”",
       "tutor": "Tutor",
       "tutorSection": "Tutor section",
+      "writingTask": "“Write it yourself”: the task",
       "writing": "“Write it yourself”",
       "speaking": "Spoken answers",
       "exam": "Exam: rating an answer",
@@ -412,7 +405,8 @@
       "examples": "Examples for a deck's words",
       "sceneSummary": "Dialogue: the summary",
       "understanding": "Understanding: the text",
-      "understandingCheck": "Understanding: the second reading"
+      "understandingCheck": "Understanding: the second reading",
+      "mistakes": "Going over mistakes"
     },
     "contextIntro": "Added from the lesson:",
     "contextIntroCourses": "Added from your courses (those in the language the chat practises):",
@@ -452,7 +446,10 @@
       "dialogue": "the dialogue's lines with the corrections given on them",
       "length": "how long the text is at the course's level",
       "readText": "the text it wrote",
-      "textQuestions": "its questions with their options, without the answers"
+      "textQuestions": "its questions with their options, without the answers",
+      "writingTask": "the task: the situation, its three points and the length",
+      "levelCriteria": "what a text at the course's level needs (the writing exams' criteria)",
+      "mistakeGroups": "your mistakes in this pass by type, each only what was wrong (Understanding questions answered wrong too)"
     },
     "upTo": "up to {chars, plural, one {# character} other {# characters}}",
     "debug": "Show “Prompt” buttons",
@@ -499,9 +496,10 @@
     },
     "about": {
       "explain": "Explains a wrong answer under the exercise (“Why is this wrong?”): what the mistake is and the rule behind it, in your language.",
-      "tutor": "The lesson's tutor: answers your questions about the lesson, its words and grammar, and goes over your mistakes one by one in the “Going over mistakes” step.",
+      "tutor": "The lesson's tutor: answers your questions about the lesson, its words and grammar, and explains — hints first for the exercise on screen. Practice is in the lesson's AI steps.",
       "tutorSection": "The tutor on its own, in the Tutor section: answers whatever you ask outside a lesson — a grammar question, a text to go through, a conversation to practise — knowing what you have met in your courses.",
-      "writing": "Checks a short text you wrote in “Write it yourself”: corrections, the A1 criteria (task, communication, accuracy) and feedback.",
+      "writingTask": "Sets the task of “Write it yourself”: a situation from the lesson with three points to cover, its length by the course's level, as a writing exam at that level sets one. Asked once per task.",
+      "writing": "Checks a short text written on the task of “Write it yourself”: each point covered or not, at most three corrections, the criteria of the course's level (task, communication, accuracy), a model text and feedback.",
       "speaking": "Checks an answer you said aloud (what the recogniser heard) against the question and the course's answer, when you press “Check with AI”.",
       "exam": "Rates a written answer of an exam by the exam's own criteria: a level of each with its reason, and what would score more. Nothing counts until you take or change it.",
       "conversation": "Holds a speaking part of an exam: plays the examiner and the other candidate, as the part prescribes, line by line with you; it never helps or corrects. Rated afterwards by the part's criteria.",
@@ -510,17 +508,26 @@
       "examples": "Writes three to five example sentences for each word of a deck that has none of its own, five words at a time (Review → Decks, “Make examples”), with words you know where it can and the new ones translated.",
       "sceneSummary": "Sums up a dialogue once it is over: the one or two corrections that matter most, each with your line said well, and a word of feedback.",
       "understanding": "Writes a short text in the language you learn from the words you know — a dialogue or an announcement to listen to, or a menu or a notice to read — with questions as exams ask them (true/false, a/b/c, numbers). Your answers are checked by the app, not by the model.",
-      "understandingCheck": "Reads the text again and answers its own questions from the text alone: a question it answers otherwise, or finds unclear, is left out."
+      "understandingCheck": "Reads the text again and answers its own questions from the text alone: a question it answers otherwise, or finds unclear, is left out.",
+      "mistakes": "Goes over a pass's mistakes by type: each type's wrong parts only (what you gave, what is right, the words around it), a short explanation, and two or three new items of the type from words you know. Your answers are checked by the app, not by the model."
     }
   },
   "writing": {
-    "task": "Write 3–5 sentences in {language} on the lesson's topic: {topic}. Use the new words.",
+    "task": "Your task (write in {language}):",
+    "intro": "A short text on a situation from the lesson: three points to cover, about as long as an exam at your level asks. The AI checks it: the points covered, at most three corrections, and a model text.",
+    "start": "Get a task",
+    "preparing": "Writing a task…",
+    "newTask": "New task",
+    "length": "About {words, number} words.",
+    "count": "{count, plural, one {# word} other {# words}} of about {words, number}",
     "placeholder": "Your text…",
     "check": "Check",
     "checking": "Checking…",
     "rewrite": "Fix it and check again",
     "score": "{name}: {score, number} of {max, number}",
     "points": "{score, number} of {max, number}",
+    "pointsTitle": "The task's points",
+    "modelText": "Model text",
     "past": "Earlier texts of this lesson",
     "verdict": {
       "good": "Correct",
@@ -542,10 +549,7 @@
     "items": "{count, plural, one {item} other {items}} {items}",
     "fixed": "{count, plural, one {# fixed later} other {# fixed later}}",
     "none": "No mistakes in this run.",
-    "notYet": "Nothing answered yet: do the exercises first.",
-    "tutorIntro": "The tutor goes through your mistakes one at a time: what went wrong, the rule behind it, and a short new example to check it.",
-    "start": "Go through my mistakes with the tutor",
-    "message": "Please go through my mistakes in this lesson."
+    "notYet": "Nothing answered yet: do the exercises first."
   },
   "scene": {
     "intro": "A short dialogue on the lesson's goals, by voice: your partner's lines are read aloud and you answer with the microphone. Your partner knows things you have to ask for.",
@@ -1358,6 +1362,8 @@
     "unknown_setting": "This setting does not exist (any more).",
     "unsupported_audio": "This browser records in a format the app cannot keep.",
     "writing_busy": "A text of this lesson is being checked. Wait for it.",
+    "mistakes_busy": "The mistakes of this lesson are being gone over. Wait for it.",
+    "no_mistakes": "No mistakes in this pass to go over.",
     "other": "Something went wrong: {message}",
     "exam_needs_setting": "Choose your federal state first: the exam asks questions about it.",
     "exam_time_over": "The time of this mock exam is up: it was handed in as it was.",
@@ -1600,5 +1606,28 @@
     "readNow": "Read the text and answer",
     "result": "{right, number} of {total, number} right",
     "past": "Earlier texts of this lesson"
+  },
+  "goingOver": {
+    "title": "Going over mistakes",
+    "intro": "Your mistakes in this pass, by type: what went wrong, the rule behind it, and two or three new items of each type to try — checked at once.",
+    "start": "Go over my mistakes",
+    "preparing": "Going over your mistakes…",
+    "again": "Go over again",
+    "group": "Type {n, number} of {total, number}",
+    "yours": "Your mistakes",
+    "try": "Now you",
+    "next": "Next type",
+    "previous": "Previous type",
+    "result": "{right, number} of {total, number} right",
+    "past": "Mistakes gone over earlier in this lesson",
+    "what": {
+      "ending": "Endings",
+      "word": "Words",
+      "choice": "Choices",
+      "order": "Word order",
+      "pair": "Pairs",
+      "spelling": "Spelling",
+      "spoken": "Said aloud"
+    }
   }
 }

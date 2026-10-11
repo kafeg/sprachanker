@@ -22,6 +22,10 @@ export interface Segment {
 const WORD = /(\p{L}[\p{L}'’-]*)/u;
 const lower = (word: string) => word.normalize("NFC").toLocaleLowerCase();
 
+/** How many words a text has, as a writing task counts them: a dash or a lone mark is no word. */
+export const wordCount = (text: string) =>
+  text.split(/\s+/).filter((t) => /[\p{L}\p{N}]/u.test(t)).length;
+
 /** The written forms of a word, lower case: its headword, plural and forms, without what is in
  *  brackets ("(etwas)"). */
 export function wordForms(word: VocabWord): string[] {

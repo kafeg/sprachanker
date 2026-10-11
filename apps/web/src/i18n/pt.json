@@ -324,7 +324,7 @@
   },
   "tutor": {
     "title": "Tutor",
-    "intro": "Pergunte sobre esta lição: gramática, palavras, o exercício na tela… ou pratique um diálogo curto. As respostas ficam dentro do que você já aprendeu.",
+    "intro": "Pergunte sobre esta lição: gramática, palavras, o exercício na tela. As respostas ficam dentro do que você já aprendeu.",
     "needsSetup": "O tutor precisa de um modelo de IA.",
     "openSettings": "Configurar o assistente de IA",
     "placeholder": "Faça uma pergunta…",
@@ -334,11 +334,7 @@
     "suggest": {
       "grammar": "Explique a gramática desta lição",
       "examples": "Me dê mais exemplos com as palavras novas",
-      "dialogue": "Vamos praticar um diálogo curto",
       "exercise": "Me dê uma dica para este exercício",
-      "wordsQuiz": "Me teste nas palavras novas desta lição",
-      "wordsMemory": "Me ajude a memorizar as palavras novas",
-      "grammarDrill": "Me dê um exercício curto sobre a gramática desta lição",
       "script": "Percorra o texto da lição frase por frase"
     },
     "context": "Contexto ≈ {used} de {window} tokens",
@@ -361,13 +357,9 @@
     "deleteTitle": "Excluir esta conversa?",
     "deleteBody": "As mensagens dela serão excluídas para sempre.",
     "ask": {
-      "grammar": "Explique brevemente a gramática desta lição com 2 ou 3 exemplos da lição. Depois pergunte se ficou claro.",
-      "examples": "Dê 3 exemplos curtos com as palavras novas da lição, com tradução. Depois me peça para formar uma frase minha com uma delas.",
-      "dialogue": "Vamos praticar um diálogo curto sobre o tema da lição. Você começa com uma fala e espera a minha resposta; corrija meus erros ao longo da conversa.",
+      "grammar": "Explique brevemente a gramática desta lição com 2 ou 3 exemplos da lição.",
+      "examples": "Dê 3 exemplos curtos com as palavras novas da lição, com tradução.",
       "exercise": "Me dê uma dica para este exercício, não a resposta.",
-      "wordsQuiz": "Me teste nas palavras novas da lição, uma de cada vez. Pergunte uma palavra, espere a minha resposta, diga se está certa e só então passe para a próxima.",
-      "wordsMemory": "Me ajude a memorizar as palavras novas da lição uma de cada vez: pegue uma palavra, me dê um truque para lembrar (algo com som parecido, uma imagem, a raiz) e um exemplo curto, depois me peça para repeti-la ou usá-la. A próxima palavra só depois da minha resposta.",
-      "grammarDrill": "Me dê um exercício curto sobre a gramática da lição: uma tarefa por vez, espere a minha resposta, corrija-a e explique qualquer erro.",
       "script": "Vamos percorrer o texto da lição uma frase de cada vez: mostre a primeira frase, traduza-a e explique o que há de novo nela. A próxima frase só quando eu disser “próxima”."
     }
   },
@@ -403,6 +395,7 @@
       "explain": "“Por que está errado?”",
       "tutor": "Tutor",
       "tutorSection": "Seção “Tutor”",
+      "writingTask": "“Escreva você”: a tarefa",
       "writing": "“Escreva você”",
       "speaking": "Respostas faladas",
       "exam": "Exame: avaliar uma resposta",
@@ -412,7 +405,8 @@
       "examples": "Exemplos para as palavras de um baralho",
       "sceneSummary": "Diálogo: o resumo",
       "understanding": "Compreensão: o texto",
-      "understandingCheck": "Compreensão: a segunda leitura"
+      "understandingCheck": "Compreensão: a segunda leitura",
+      "mistakes": "Revisando os erros"
     },
     "contextIntro": "Adicionado da lição:",
     "contextIntroCourses": "Adicionado dos seus cursos (os do idioma que a conversa pratica):",
@@ -452,7 +446,10 @@
       "dialogue": "as falas do diálogo com as correções dadas",
       "length": "o tamanho do texto no nível do curso",
       "readText": "o texto escrito",
-      "textQuestions": "as perguntas com as opções, sem as respostas"
+      "textQuestions": "as perguntas com as opções, sem as respostas",
+      "writingTask": "a tarefa: a situação, os três pontos e a extensão",
+      "levelCriteria": "o que um texto do nível do curso precisa (os critérios das provas escritas)",
+      "mistakeGroups": "seus erros nesta rodada por tipo, cada um só o que estava errado (também as perguntas de “Compreensão” erradas)"
     },
     "upTo": "até {chars, plural, =0 {# caracteres} one {# caractere} other {# caracteres}}",
     "debug": "Mostrar os botões “Prompt”",
@@ -499,9 +496,10 @@
     },
     "about": {
       "explain": "Explica uma resposta errada embaixo do exercício (“Por que está errado?”): qual é o erro e a regra por trás dele, no seu idioma.",
-      "tutor": "O tutor da lição: responde às suas perguntas sobre a lição, as palavras e a gramática dela, e revisa os seus erros um por um na etapa “Revisando os erros”.",
+      "tutor": "O tutor da lição: responde às suas perguntas sobre a lição, as palavras e a gramática dela, e explica — para o exercício na tela, primeiro com dicas. A prática fica nas etapas de IA da lição.",
       "tutorSection": "O tutor por conta própria, na seção “Tutor”: responde ao que você perguntar fora de uma lição — uma dúvida de gramática, um texto para estudar, uma conversa para praticar — sabendo o que você já viu nos seus cursos.",
-      "writing": "Corrige um texto curto que você escreveu em “Escreva você”: correções, os critérios do A1 (tarefa, comunicação, correção) e comentários.",
+      "writingTask": "Define a tarefa de “Escreva você”: uma situação da lição com três pontos a abordar, com a extensão que o nível do curso pede, como uma prova escrita desse nível a define. Pedida uma vez por tarefa.",
+      "writing": "Corrige um texto curto escrito sobre a tarefa de “Escreva você”: se cada ponto foi abordado, no máximo três correções, os critérios do nível do curso (tarefa, comunicação, correção), um texto modelo e comentários.",
       "speaking": "Verifica uma resposta que você disse em voz alta (o que o reconhecedor ouviu) em relação à pergunta e à resposta do curso, quando você toca em “Verificar com IA”.",
       "exam": "Avalia uma resposta escrita de um exame pelos critérios do próprio exame: um nível para cada um com o motivo, e o que valeria mais pontos. Nada conta até você aceitar ou alterar.",
       "conversation": "Conduz uma parte oral de um exame: faz o papel do examinador e do outro candidato, como a parte prevê, fala por fala com você; nunca ajuda nem corrige. Avaliada depois pelos critérios da parte.",
@@ -510,17 +508,26 @@
       "examples": "Escreve de três a cinco frases de exemplo para cada palavra de um baralho que não tenha exemplos próprios, cinco palavras por vez (Revisão → Baralhos, “Criar exemplos”), com palavras que você já conhece sempre que possível e as novas traduzidas.",
       "sceneSummary": "Resume um diálogo quando termina: as uma ou duas correções mais importantes, cada uma com a sua frase bem dita, e um comentário breve.",
       "understanding": "Escreve um texto curto no idioma que você aprende com as palavras que você conhece — um diálogo ou um anúncio para ouvir, ou um cardápio ou um aviso para ler — com perguntas como as das provas (verdadeiro/falso, a/b/c, números). Suas respostas são corrigidas pelo app, não pelo modelo.",
-      "understandingCheck": "Lê o texto de novo e responde às próprias perguntas só pelo texto: uma pergunta que ele responde de outro jeito, ou que acha confusa, é retirada."
+      "understandingCheck": "Lê o texto de novo e responde às próprias perguntas só pelo texto: uma pergunta que ele responde de outro jeito, ou que acha confusa, é retirada.",
+      "mistakes": "Revisa os erros de uma rodada por tipo: de cada tipo só as partes erradas (o que você deu, o que é certo, as palavras em volta), uma explicação curta e dois ou três exercícios novos do tipo com palavras que você conhece. Suas respostas são corrigidas pelo app, não pelo modelo."
     }
   },
   "writing": {
-    "task": "Escreva de 3 a 5 frases em {language} sobre o tema da lição: {topic}. Use as palavras novas.",
+    "task": "Sua tarefa (escreva em {language}):",
+    "intro": "Um texto curto sobre uma situação da lição: três pontos a abordar, do tamanho que uma prova do seu nível pede. A IA o corrige: os pontos abordados, no máximo três correções e um texto modelo.",
+    "start": "Receber uma tarefa",
+    "preparing": "Escrevendo a tarefa…",
+    "newTask": "Nova tarefa",
+    "length": "Cerca de {words, number} palavras.",
+    "count": "{count, plural, one {# palavra} other {# palavras}} de cerca de {words, number}",
     "placeholder": "Seu texto…",
     "check": "Verificar",
     "checking": "Verificando…",
     "rewrite": "Corrija e verifique de novo",
     "score": "{name}: {score, number} de {max, number}",
     "points": "{score, number} de {max, number}",
+    "pointsTitle": "Os pontos da tarefa",
+    "modelText": "Texto modelo",
     "past": "Textos anteriores desta lição",
     "verdict": {
       "good": "Correto",
@@ -542,10 +549,7 @@
     "items": "{count, plural, =0 {itens} one {item} other {itens}} {items}",
     "fixed": "{count, plural, =0 {# corrigidos depois} one {# corrigido depois} other {# corrigidos depois}}",
     "none": "Nenhum erro nesta rodada.",
-    "notYet": "Nada respondido ainda: faça os exercícios primeiro.",
-    "tutorIntro": "O tutor revisa os seus erros um por vez: o que deu errado, a regra por trás e um exemplo novo e curto para testar.",
-    "start": "Revisar meus erros com o tutor",
-    "message": "Por favor, revise os meus erros desta lição."
+    "notYet": "Nada respondido ainda: faça os exercícios primeiro."
   },
   "scene": {
     "intro": "Um diálogo curto, falado, sobre os objetivos da lição: as falas do seu interlocutor são lidas em voz alta e você responde com o microfone. O seu interlocutor sabe coisas que você precisa perguntar.",
@@ -1358,6 +1362,8 @@
     "unknown_setting": "Esta configuração não existe (mais).",
     "unsupported_audio": "Este navegador grava num formato que o app não consegue guardar.",
     "writing_busy": "Um texto desta lição está sendo corrigido. Aguarde.",
+    "mistakes_busy": "Os erros desta lição estão sendo revisados. Aguarde.",
+    "no_mistakes": "Não há erros nesta rodada para revisar.",
     "other": "Algo deu errado: {message}",
     "exam_needs_setting": "Escolha primeiro o seu estado: o exame faz perguntas sobre ele.",
     "exam_time_over": "O tempo deste simulado acabou: ele foi entregue como estava.",
@@ -1600,5 +1606,28 @@
     "readNow": "Leia o texto e responda",
     "result": "{right, number} de {total, number} certas",
     "past": "Textos anteriores desta lição"
+  },
+  "goingOver": {
+    "title": "Revisando os erros",
+    "intro": "Seus erros nesta rodada, por tipo: o que deu errado, a regra por trás e dois ou três exercícios novos de cada tipo para tentar — corrigidos na hora.",
+    "start": "Revisar meus erros",
+    "preparing": "Revisando seus erros…",
+    "again": "Revisar de novo",
+    "group": "Tipo {n, number} de {total, number}",
+    "yours": "Seus erros",
+    "try": "Agora você",
+    "next": "Próximo tipo",
+    "previous": "Tipo anterior",
+    "result": "{right, number} de {total, number} certas",
+    "past": "Revisões anteriores nesta lição",
+    "what": {
+      "ending": "Terminações",
+      "word": "Palavras",
+      "choice": "Escolhas",
+      "order": "Ordem das palavras",
+      "pair": "Pares",
+      "spelling": "Ortografia",
+      "spoken": "Dito em voz alta"
+    }
   }
 }

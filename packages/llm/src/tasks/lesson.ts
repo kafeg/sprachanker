@@ -24,12 +24,25 @@ export interface LessonInfo {
   place?: { n: number; of: number; unit?: string };
   /** Words of the earlier lessons with translations, in course order (the latest kept). */
   knownWords?: LessonWord[];
-  /** Grammar topics met so far — the earlier lessons' and this one's —, in course order. */
-  topics?: string[];
+  /** Grammar topics met so far — the earlier lessons' and this one's —, in course order, each with
+   *  the lesson that taught it first. */
+  topics?: TopicMet[];
+}
+
+/** A grammar topic (a grammar page's title) and where it was taught first: the lesson as the app
+ *  names it ("1.2") and its title. */
+export interface TopicMet {
+  title: string;
+  lesson: string;
+  lessonTitle?: string;
 }
 
 /** The level as the prompts say it: the course's, else a beginner's. */
 export const levelText = (level: string | undefined) => level ?? "beginner (A1–A2)";
+
+/** The level a task sizes its work by: the first of a span ("A1–A2" → A1), a beginner's (A1) when
+ *  the course names none. */
+export const cefrOf = (level: string | undefined) => /[ABC][12]/.exec(level ?? "")?.[0] ?? "A1";
 
 export const levelLine = (lesson: Pick<LessonInfo, "level">) =>
   `Learner's level: ${levelText(lesson.level)}`;
@@ -63,7 +76,26 @@ export const knownWordsLine = ({ knownWords = [] }: Pick<LessonInfo, "knownWords
 
 /** The grammar topics met so far (oldest first): the most recent within `max` characters. */
 export const topicsLine = ({ topics = [] }: Pick<LessonInfo, "topics">, max: number) =>
-  topics.length ? `Grammar met so far: ${newest(topics, max, "; ")}` : undefined;
+  topics.length
+    ? `Grammar met so far: ${newest(
+        topics.map((t) => t.title),
+        max,
+        "; ",
+      )}`
+    : undefined;
+
+/** The grammar topics met so far with the lesson that taught each ("Modalverben — lesson 2.3
+ *  «Im Café»"): the most recent within `max` characters. */
+export const topicPlacesLine = ({ topics = [] }: Pick<LessonInfo, "topics">, max: number) =>
+  topics.length
+    ? `Grammar topics met so far, each with the lesson that taught it: ${newest(
+        topics.map(
+          (t) => `${t.title} — lesson ${t.lesson}${t.lessonTitle ? ` «${t.lessonTitle}»` : ""}`,
+        ),
+        max,
+        "; ",
+      )}`
+    : undefined;
 
 /** The lesson's grammar notes as plain text within `max` characters. */
 export const grammarNotes = (lesson: Pick<LessonInfo, "grammarHtml">, max: number) =>

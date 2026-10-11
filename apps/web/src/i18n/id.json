@@ -324,7 +324,7 @@
   },
   "tutor": {
     "title": "Tutor",
-    "intro": "Tanyakan tentang pelajaran ini: tata bahasa, kata-kata, latihan di layar — atau latih dialog singkat. Jawabannya tetap dalam batas yang sudah kamu pelajari.",
+    "intro": "Tanyakan tentang pelajaran ini: tata bahasa, kata-kata, latihan di layar. Jawabannya tetap dalam batas yang sudah kamu pelajari.",
     "needsSetup": "Tutor memerlukan model AI.",
     "openSettings": "Siapkan asisten AI",
     "placeholder": "Ajukan pertanyaan…",
@@ -334,11 +334,7 @@
     "suggest": {
       "grammar": "Jelaskan tata bahasa pelajaran ini",
       "examples": "Beri aku contoh lain dengan kata-kata baru",
-      "dialogue": "Ayo latihan dialog singkat",
       "exercise": "Beri aku petunjuk untuk latihan ini",
-      "wordsQuiz": "Uji aku dengan kata-kata baru pelajaran ini",
-      "wordsMemory": "Bantu aku mengingat kata-kata baru",
-      "grammarDrill": "Beri aku latihan singkat tentang tata bahasa pelajaran ini",
       "script": "Bahas teks pelajaran frasa demi frasa"
     },
     "context": "Konteks ≈ {used} dari {window} token",
@@ -361,13 +357,9 @@
     "deleteTitle": "Hapus obrolan ini?",
     "deleteBody": "Pesan-pesannya akan dihapus permanen.",
     "ask": {
-      "grammar": "Jelaskan tata bahasa pelajaran ini secara singkat dengan 2–3 contoh dari pelajaran. Lalu tanyakan apakah sudah jelas.",
-      "examples": "Berikan 3 contoh singkat dengan kata-kata baru pelajaran ini, beserta terjemahannya. Lalu minta aku membuat kalimat sendiri dengan salah satunya.",
-      "dialogue": "Ayo latihan dialog singkat tentang topik pelajaran ini. Kamu mulai dengan satu kalimat dan tunggu jawabanku; koreksi kesalahanku sambil jalan.",
+      "grammar": "Jelaskan tata bahasa pelajaran ini secara singkat dengan 2–3 contoh dari pelajaran.",
+      "examples": "Berikan 3 contoh singkat dengan kata-kata baru pelajaran ini, beserta terjemahannya.",
       "exercise": "Beri aku petunjuk untuk latihan ini, bukan jawabannya.",
-      "wordsQuiz": "Uji aku dengan kata-kata baru pelajaran ini, satu per satu. Tanyakan satu kata, tunggu jawabanku, katakan apakah jawabanku benar, baru lanjut ke kata berikutnya.",
-      "wordsMemory": "Bantu aku mengingat kata-kata baru pelajaran ini satu per satu: ambil satu kata, beri aku jembatan keledai (kata yang bunyinya mirip, gambaran, akar kata) dan contoh singkat, lalu minta aku mengulang atau memakainya. Kata berikutnya baru setelah aku menjawab.",
-      "grammarDrill": "Beri aku latihan singkat tentang tata bahasa pelajaran ini: satu tugas setiap kali, tunggu jawabanku, periksa, dan jelaskan setiap kesalahan.",
       "script": "Ayo bahas teks pelajaran ini frasa demi frasa: tunjukkan frasa pertama, terjemahkan, dan jelaskan apa yang baru di dalamnya. Frasa berikutnya baru setelah aku bilang “lanjut”."
     }
   },
@@ -403,6 +395,7 @@
       "explain": "“Kenapa ini salah?”",
       "tutor": "Tutor",
       "tutorSection": "Bagian “Tutor”",
+      "writingTask": "“Tulis sendiri”: tugasnya",
       "writing": "“Tulis sendiri”",
       "speaking": "Jawaban lisan",
       "exam": "Ujian: menilai jawaban",
@@ -412,7 +405,8 @@
       "examples": "Contoh untuk kata-kata dek",
       "sceneSummary": "Dialog: ringkasan",
       "understanding": "Pemahaman: teks",
-      "understandingCheck": "Pemahaman: bacaan kedua"
+      "understandingCheck": "Pemahaman: bacaan kedua",
+      "mistakes": "Membahas kesalahan"
     },
     "contextIntro": "Ditambahkan dari pelajaran:",
     "contextIntroCourses": "Ditambahkan dari kursus-kursusmu (yang mengajarkan bahasa percakapan ini):",
@@ -452,7 +446,10 @@
       "dialogue": "kalimat-kalimat dialog dengan koreksi yang diberikan",
       "length": "seberapa panjang teks pada tingkat kursus",
       "readText": "teks yang ditulisnya",
-      "textQuestions": "pertanyaannya dengan pilihan, tanpa jawaban"
+      "textQuestions": "pertanyaannya dengan pilihan, tanpa jawaban",
+      "writingTask": "tugasnya: situasi, tiga poinnya, dan panjangnya",
+      "levelCriteria": "apa yang dibutuhkan teks di level kursus (kriteria ujian menulis)",
+      "mistakeGroups": "kesalahanmu di putaran ini menurut jenis, masing-masing hanya yang salah (termasuk soal “Pemahaman” yang salah)"
     },
     "upTo": "hingga {chars, plural, other {# karakter}}",
     "debug": "Tampilkan tombol “Prompt”",
@@ -499,9 +496,10 @@
     },
     "about": {
       "explain": "Menjelaskan jawaban yang salah di bawah latihan (“Kenapa ini salah?”): apa kesalahannya dan aturan di baliknya, dalam bahasa kamu.",
-      "tutor": "Tutor pelajaran: menjawab pertanyaan kamu tentang pelajaran, kosakata, dan tata bahasanya, serta membahas kesalahan kamu satu per satu di langkah “Membahas kesalahan”.",
+      "tutor": "Tutor pelajaran: menjawab pertanyaan kamu tentang pelajaran, kosakata, dan tata bahasanya, serta menjelaskan — untuk latihan di layar, petunjuk dulu. Berlatih ada di langkah-langkah AI pelajaran.",
       "tutorSection": "Tutor tersendiri, di bagian “Tutor”: menjawab apa pun yang kamu tanyakan di luar pelajaran — pertanyaan tata bahasa, teks untuk dibahas, percakapan untuk dilatih — dengan mengetahui apa yang sudah kamu pelajari di kursus-kursusmu.",
-      "writing": "Memeriksa teks pendek yang kamu tulis di “Tulis sendiri”: koreksi, kriteria A1 (tugas, komunikasi, ketepatan), dan umpan balik.",
+      "writingTask": "Menetapkan tugas “Tulis sendiri”: situasi dari pelajaran dengan tiga poin yang harus dibahas, panjangnya sesuai level kursus, seperti ujian menulis di level itu. Diminta sekali per tugas.",
+      "writing": "Memeriksa teks pendek yang ditulis untuk tugas “Tulis sendiri”: tiap poin terbahas atau tidak, paling banyak tiga koreksi, kriteria level kursus (tugas, komunikasi, ketepatan), teks contoh, dan umpan balik.",
       "speaking": "Memeriksa jawaban yang kamu ucapkan (apa yang didengar pengenal ucapan) terhadap pertanyaan dan jawaban kursus, saat kamu menekan “Periksa dengan AI”.",
       "exam": "Menilai jawaban tertulis dalam ujian menurut kriteria ujian itu sendiri: tingkat untuk setiap kriteria beserta alasannya, dan apa yang akan mendapat nilai lebih. Belum ada yang dihitung sampai kamu menerima atau mengubahnya.",
       "conversation": "Menjalankan bagian berbicara dalam ujian: memerankan penguji dan peserta lain sesuai ketentuan bagian itu, baris demi baris bersama kamu; tidak pernah membantu atau mengoreksi. Dinilai setelahnya menurut kriteria bagian itu.",
@@ -510,17 +508,26 @@
       "examples": "Menulis tiga sampai lima contoh kalimat untuk setiap kata dari dek yang tidak punya contoh sendiri, lima kata sekaligus (Pengulangan → Dek, “Buat contoh”), sebisa mungkin dengan kata-kata yang kamu kenal, dan kata baru diterjemahkan.",
       "sceneSummary": "Merangkum dialog setelah selesai: satu atau dua koreksi yang paling penting, masing-masing dengan kalimat Anda yang diucapkan dengan benar, dan sedikit umpan balik.",
       "understanding": "Menulis teks pendek dalam bahasa yang Anda pelajari dari kata-kata yang Anda kenal — dialog atau pengumuman untuk didengar, atau menu atau pemberitahuan untuk dibaca — dengan pertanyaan seperti di ujian (benar/salah, a/b/c, angka). Jawaban Anda diperiksa oleh aplikasi, bukan oleh model.",
-      "understandingCheck": "Membaca teks sekali lagi dan menjawab pertanyaannya sendiri hanya dari teks: pertanyaan yang dijawabnya berbeda atau yang dianggapnya tidak jelas dihapus."
+      "understandingCheck": "Membaca teks sekali lagi dan menjawab pertanyaannya sendiri hanya dari teks: pertanyaan yang dijawabnya berbeda atau yang dianggapnya tidak jelas dihapus.",
+      "mistakes": "Membahas kesalahan sebuah putaran menurut jenis: tiap jenis hanya bagian yang salah (jawabanmu, yang benar, kata di sekitarnya), penjelasan singkat, dan dua atau tiga soal baru jenis itu dari kata yang kamu kenal. Jawabanmu diperiksa aplikasi, bukan model."
     }
   },
   "writing": {
-    "task": "Tulis 3–5 kalimat dalam bahasa {language} tentang topik pelajaran: {topic}. Gunakan kata-kata baru.",
+    "task": "Tugasmu (tulis dalam bahasa {language}):",
+    "intro": "Teks pendek tentang situasi dari pelajaran: tiga poin yang harus dibahas, sepanjang yang diminta ujian di levelmu. AI memeriksanya: poin yang terbahas, paling banyak tiga koreksi, dan teks contoh.",
+    "start": "Minta tugas",
+    "preparing": "Menulis tugas…",
+    "newTask": "Tugas baru",
+    "length": "Sekitar {words, number} kata.",
+    "count": "{count, plural, other {# kata}} dari sekitar {words, number}",
     "placeholder": "Teks kamu…",
     "check": "Periksa",
     "checking": "Memeriksa…",
     "rewrite": "Perbaiki dan periksa lagi",
     "score": "{name}: {score, number} dari {max, number}",
     "points": "{score, number} dari {max, number}",
+    "pointsTitle": "Poin-poin tugas",
+    "modelText": "Teks contoh",
     "past": "Teks sebelumnya di pelajaran ini",
     "verdict": {
       "good": "Benar",
@@ -542,10 +549,7 @@
     "items": "{count, plural, other {soal}} {items}",
     "fixed": "{count, plural, other {# diperbaiki kemudian}}",
     "none": "Tidak ada kesalahan di putaran ini.",
-    "notYet": "Belum ada yang dijawab: kerjakan latihannya dulu.",
-    "tutorIntro": "Tutor membahas kesalahan kamu satu per satu: apa yang salah, aturan di baliknya, dan contoh baru yang singkat untuk mengujinya.",
-    "start": "Bahas kesalahanku bersama tutor",
-    "message": "Tolong bahas kesalahanku di pelajaran ini."
+    "notYet": "Belum ada yang dijawab: kerjakan latihannya dulu."
   },
   "scene": {
     "intro": "Dialog singkat secara lisan tentang tujuan pelajaran: kalimat lawan bicara dibacakan dan Anda menjawab dengan mikrofon. Lawan bicara mengetahui hal-hal yang harus Anda tanyakan.",
@@ -1358,6 +1362,8 @@
     "unknown_setting": "Pengaturan ini tidak (lagi) ada.",
     "unsupported_audio": "Browser ini merekam dalam format yang tidak bisa disimpan aplikasi.",
     "writing_busy": "Sebuah teks dari pelajaran ini sedang diperiksa. Tunggu sebentar.",
+    "mistakes_busy": "Kesalahan pelajaran ini sedang dibahas. Tunggu sebentar.",
+    "no_mistakes": "Tidak ada kesalahan di putaran ini untuk dibahas.",
     "other": "Terjadi kesalahan: {message}",
     "exam_needs_setting": "Pilih negara bagian kamu dulu: ujian ini menanyakan hal tentang negara bagian itu.",
     "exam_time_over": "Waktu simulasi ujian ini sudah habis: ujian diserahkan apa adanya.",
@@ -1600,5 +1606,28 @@
     "readNow": "Baca teks dan jawab",
     "result": "{right, number} dari {total, number} benar",
     "past": "Teks sebelumnya di pelajaran ini"
+  },
+  "goingOver": {
+    "title": "Membahas kesalahan",
+    "intro": "Kesalahanmu di putaran ini menurut jenisnya: apa yang salah, aturan di baliknya, dan dua atau tiga soal baru dari tiap jenis untuk dicoba — langsung diperiksa.",
+    "start": "Bahas kesalahanku",
+    "preparing": "Kesalahanmu sedang dibahas…",
+    "again": "Bahas lagi",
+    "group": "Jenis {n, number} dari {total, number}",
+    "yours": "Kesalahanmu",
+    "try": "Sekarang kamu",
+    "next": "Jenis berikutnya",
+    "previous": "Jenis sebelumnya",
+    "result": "{right, number} dari {total, number} benar",
+    "past": "Pembahasan sebelumnya di pelajaran ini",
+    "what": {
+      "ending": "Akhiran",
+      "word": "Kata",
+      "choice": "Pilihan",
+      "order": "Urutan kata",
+      "pair": "Pasangan",
+      "spelling": "Ejaan",
+      "spoken": "Diucapkan"
+    }
   }
 }

@@ -16,14 +16,14 @@ The lesson flow (the plan's steps, `lessonSteps` in `packages/engine/src/compose
 of the lesson" (cards; when it has words) → one "Grammar" step per grammar page (a page is one topic) → the exercises →
 one "Culture" step per culture page → AI practice when an assistant is set up and its place is on (07;
 "AI practice in courses" below): Understanding, "Write it yourself", Dialogue, "Going over mistakes" (owner 2026-10-07: the run's status counted by the app — exercises
-worked, scored items right at the first attempt, mistakes by exercise — then the tutor goes through
-the mistakes one at a time in the lesson's chat, inline on the step) → summary of all of it. The steps
+worked, scored items right at the first attempt, mistakes by exercise — then the mistakes by type
+with new items; in the plan only while the run has mistakes to go over, `practiceInPlan`) → summary
+of all of it. The steps
 come from what the provider's normaliser put into the canonical and locale files, the same way for
 every course. Every step has a mark in the plan and "Next" goes through all of them; any step can be
 skipped (and shows it). The lesson is completed when every step is done or skipped: an exercise
 answered, a reading step opened, an AI step done once (Understanding: every question of a text
-answered; the mistakes step: the tutor's first reply, or opened with every exercise worked and no
-mistakes). AI steps are in the plan only while an assistant
+answered; the mistakes step: every new item of a review answered). AI steps are in the plan only while an assistant
 is set up, so a lesson never depends on one. The reference tabs (vocabulary, grammar, culture, script,
 homework, downloads) stay available at any time for looking things up.
 
@@ -334,18 +334,19 @@ Seven exercises with the assistant in a course's lessons (owner, 2026-10-11; not
 parts are the exam's own). Each works from what the learner knows by the lesson — the knowledge
 snapshot (07): the course's level, the words and grammar topics met so far, the lesson's goals and
 its place in the course. Built in phases (plan, item 9): the snapshot and the Dialogue, then
-Understanding (built); **next** — Writing, Going over mistakes and the tutor's practice presets taken
-out. What is not built yet is marked *planned*.
+Understanding, then Writing on a task, Going over mistakes by type and the tutor kept to
+explanations (all built). What is not built yet is marked *planned*.
 
 Inside a lesson, at any time:
 
 1. **"Why is this wrong?"** under a wrong item: that one mistake explained (`explain_mistake`, 07), at
-   the course's level; *planned*: with where its topic was met (the lesson and grammar page that
-   teach it, from the snapshot).
+   the course's level, with where its topic was taught when it is a grammar topic met so far ("this
+   is X from lesson 1.2", from the snapshot); what is wrong, never a guess at why it was chosen.
 2. **"Check with AI"** under an answer said aloud to one of the course's own speaking items without
    a line to say (`check_speaking`, 08): built.
-3. **The lesson tutor**: questions and explanations only; *planned (third phase)*: its practice
-   presets go — practice is the exercises below.
+3. **The lesson tutor**: questions and explanations only — its ways into an empty chat explain (the
+   lesson's grammar, examples with its words, a hint for the exercise on screen, its text phrase by
+   phrase); practice is the exercises below.
 
 The step "AI practice" at the lesson's end — its exercises, each a step of the plan under one
 label and each skippable as any step:
@@ -356,10 +357,9 @@ label and each skippable as any step:
    opens for reading and a second question is asked. A reading-type text (a menu, a notice, a
    timetable) is shown to read instead. Questions: true/false, a/b/c, numbers (prices, times) —
    items of the existing closed types, checked by the engine, never by the model.
-5. **Writing** (built as "Write it yourself"; *planned, third phase*: a task with three content
-   points, as Goethe's Schreiben sets one, its length and criteria by the course's level — `check_writing`
-   gives at most three corrections and a model text). Typed only: no dictation where the task is
-   writing (08).
+5. **Writing** ("Write it yourself"; below): a task with three content points, as Goethe's Schreiben
+   sets one, its length and criteria by the course's level; the check rates each point and gives at
+   most three corrections and a model text. Typed only: no dictation where the task is writing (08).
 6. **Dialogue** (built; plan, item 8): a conversation held by voice on a goal card with an
    information gap — the partner holds facts the learner must ask for. The partner's lines are read
    aloud in the language learnt; the learner answers by voice, sees what was heard and sends it as
@@ -367,9 +367,9 @@ label and each skippable as any step:
    line —; done when the goals are met; then a summary: the goals met and one or two key corrections,
    each with a model line. Typing only as a fallback where there is no microphone or no recognition
    (09, the step says why). Replaces the typed scene (its runs read on as Dialogues).
-7. **Going over mistakes** (built as the tutor's walk-through; *planned, third phase*): the pass's
-   mistakes by type, a short explanation per type and two or three new items of the same type
-   (`mistake_items`, items of the existing closed types), checked by the engine.
+7. **Going over mistakes** (below): the pass's mistakes by type, a short explanation per type and
+   two or three new items of the same type (`mistake_items`, items of the existing closed types),
+   checked by the engine.
 
 Owner's rules for all of them: a text is read aloud only in one language, given explicitly (never
 detected, never a mix; 08); no dictation where the task is writing; the tutor's replies are not read
@@ -394,7 +394,41 @@ added; where the learner is — listening, reading, done — is the engine's too
 The text is an `llm_verdict` (`task: understanding`) in the lesson run the lesson shows, as a writing
 check is; each answer a `practice_answered` event on it, checked by the server, one per question
 (05). Answers are not in the lesson's score nor its mistakes: AI practice, as the Dialogue's lines;
-*planned (third phase)*: Going over mistakes takes the wrong ones in (owner, 2026-10-12).
+Going over mistakes takes the wrong ones in (owner, 2026-10-12).
+
+**Going over mistakes** (`mistake_items`; 07; owner, 2026-10-12, from the walkthrough: a chat dumped
+every mistake at once and missed the one inside a long gap item): structured, never a chat. The
+mistakes of the run the lesson shows — items wrong (or partly right) at the first attempt, an answer
+said aloud by its model check (`mistakesOf`), and Understanding's questions answered wrong
+(`understandingMistakes`) — are cut to their wrong parts only (`wrongParts`, `learner/going-over.ts`):
+a gap of many with the words around it (six on each side, whole words, "…" where cut; the gap
+marked [_], the other gaps filled right), a pair with its left, the option chosen with the question,
+the order, words written or said — what was given, what is right. The engine groups them by type
+(`mistakeGroups`): the closed type new items are set of (the exercise's own; a multiple choice → one
+answer; dictation and speech → a gap typed) and what went wrong (`slipOf`: the spelling — accents
+and ß aside the same —, an ending — the same start —, another word; a choice, an order, a pair,
+spoken), the commonest first, at most three types of at most six parts. One model call gives each
+type a short explanation (what is wrong, never why it was chosen) and two or three new items in one
+flat shape (`MistakeItem`, checked per type: `mistakeItemProblem`; repaired once), from the words
+known; the engine makes each an item of its type (`mistakeItemExercise`) and checks the answers. The
+review is an `llm_verdict` (`task: mistakes`) in the run, its groups with their wrong parts; each
+answer a `practice_answered` on it, the items numbered across its groups (05). The step shows one
+type at a time ("Type 1 of 3"), the next once its items are answered (`reviewAt`); "Go over again"
+makes a new review of the run's mistakes as they are then.
+
+**Writing** (`writing_task`, `check_writing`; 07; owner, 2026-10-12, from the walkthrough): the
+model sets the task from the lesson's goals and the snapshot — a situation (who the learner writes to
+and why) and three content points, in the learner's language; a goal of learning about something is
+no task, it becomes a situation where the learner tells, asks for or arranges something; a lesson
+without goals takes its situation from its title and grammar. Its length is the level's, set by the
+app (A1 about 30 words, A2 40, B1 80; with the data), and what a text at the level needs (the CEFR
+writing exams' criteria, Goethe's Schreiben named for German) goes with the data to both calls. A
+task is asked for once ("Get a task") and kept; "New task" sets another. A text on it is checked:
+each point rated (covered, partly, not), task · communication · accuracy, at most three corrections —
+the most important first, never a requirement the task does not make —, the text corrected, a model
+text at the level from the words known, a line of feedback. Both are `llm_verdict`s in the lesson
+run the lesson shows (`writing_task`, `writing` with the task it answered; 05); a check counts in no
+score.
 
 **Dialogue** (`scene_setup`, `scene_turn`, `scene_summary`; 07): a `scene` run as scenes were (05)
 — the step and its place keep the id `scene`. Setup from the lesson's goals and the snapshot: a

@@ -1,16 +1,17 @@
 // The AI assistant in the lesson player (09, 07): the tutor in the header, "Why is this wrong?" under a
 // wrong item, the check of an answer said aloud under it, and the practice steps of the plan —
-// Understanding, writing, the Dialogue, and the tutor going through the run's mistakes — each where its place is on (Settings → AI
-// assistant). The router passes these slots to the player; nothing in lesson/ imports llm/.
+// Understanding, writing, the Dialogue and going over the pass's mistakes — each where its place is on
+// (Settings → AI assistant). The router passes these slots to the player; nothing in lesson/ imports llm/.
 import { PRACTICE, type PracticeKind } from "@sprachanker/engine";
 import type { AiPlace } from "@sprachanker/schema";
 import { useSetting } from "@/api/settings.ts";
 import type { LessonSlots } from "@/lesson/slots.ts";
 import { DialogueStep } from "./dialogue.tsx";
 import { ExplainMistake } from "./explain.tsx";
+import { GoingOverStep } from "./going-over.tsx";
 import { useAiIn, useLlm } from "./setup-api.ts";
 import { SpokenAnswerCheck } from "./spoken-check.tsx";
-import { LessonTutor, MistakesTutor } from "./tutor.tsx";
+import { LessonTutor } from "./tutor.tsx";
 import { UnderstandingStep } from "./understanding.tsx";
 import { WritingTask } from "./writing.tsx";
 
@@ -19,7 +20,7 @@ function In({ place, children }: { place: AiPlace; children: React.ReactNode }) 
   return useAiIn(place) ? children : null;
 }
 
-/** The practice steps and the place each belongs to ("Going over mistakes" is the tutor's). */
+/** The practice steps and the place each belongs to ("Going over mistakes" goes with the tutor's). */
 const PLACE_OF: Record<PracticeKind, AiPlace> = {
   understanding: "understanding",
   writing: "writing",
@@ -52,15 +53,15 @@ export const lessonAssistant: LessonSlots = {
       if (llm.isPending) return undefined;
       return llm.data?.model ? PRACTICE.filter((kind) => !off.includes(PLACE_OF[kind])) : [];
     },
-    step: (kind, { hasMistakes, done, onDone, ...context }) =>
+    step: (kind, { onDone, onStored, ...context }) =>
       kind === "understanding" ? (
-        <UnderstandingStep {...context} onDone={onDone} />
+        <UnderstandingStep {...context} onDone={onDone} onStored={onStored} />
       ) : kind === "writing" ? (
         <WritingTask {...context} onDone={onDone} />
       ) : kind === "scene" ? (
         <DialogueStep {...context} onDone={onDone} />
-      ) : hasMistakes ? (
-        <MistakesTutor {...context} done={done} onDone={onDone} />
-      ) : null,
+      ) : (
+        <GoingOverStep {...context} onDone={onDone} />
+      ),
   },
 };

@@ -8,6 +8,7 @@ import {
   openingRecord,
   type PracticeKind,
   planCoverage,
+  practiceInPlan,
   recordedStep,
   resumeStep,
   stepId,
@@ -45,7 +46,10 @@ export function useLessonFlow({
   const finishTried = useRef<string>(undefined);
   const [finishError, setFinishError] = useState<unknown>();
 
-  const steps = lesson ? lessonSteps(lesson, locale, practice ?? []) : [];
+  // Going over mistakes only while the run has some (practiceInPlan).
+  const steps = lesson
+    ? lessonSteps(lesson, locale, practiceInPlan(practice ?? [], run.events))
+    : [];
   const ids = steps.map(stepId);
   const coverage = lesson
     ? planCoverage(steps, lesson, run.results, run.done, ids.indexOf(current))
@@ -98,13 +102,7 @@ export function useLessonFlow({
   /** Records what opening a step records (the engine's `openingRecord`). */
   const record = (target: LessonStep, fresh = false) => {
     if (!lesson) return;
-    const { pageShown, stepDone } = openingRecord(target, {
-      lesson,
-      results: run.results,
-      done: run.done,
-      mistakes: run.mistakes.length,
-      fresh,
-    });
+    const { pageShown, stepDone } = openingRecord(target, { done: run.done, fresh });
     if (pageShown !== undefined) run.pageShown(pageShown);
     if (stepDone) run.stepDone(stepDone);
   };

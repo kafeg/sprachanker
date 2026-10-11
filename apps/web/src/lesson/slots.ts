@@ -37,17 +37,18 @@ export interface LessonSlots {
       onStored(event: TypedEvent): void;
     },
   ): ReactNode;
-  /** AI practice as steps of the plan (writing, scene, going over mistakes), while an assistant is set
-   *  up. The player shows the run's own status above the mistakes step's page. */
+  /** AI practice as steps of the plan (Understanding, writing, the Dialogue, going over mistakes), while
+   *  an assistant is set up. The player shows the run's own status above the mistakes step's page. */
   practice?: {
     /** The kinds offered now, undefined while that is not known yet (the player waits: the flow
      *  resumes on a step only once it knows every step); a hook, called on every render. */
     useKinds(): readonly PracticeKind[] | undefined;
-    /** A practice step's page; `done` when the run has it done; `onDone` once the learner has done it
-     *  (a check, a scene, the tutor's first reply on the mistakes). */
+    /** A practice step's page; `onDone` once the learner has done it
+     *  (a text checked, a Dialogue held, every question or new item answered); `onStored` once it kept
+     *  an answer in the run (the run is read again: a wrong one puts going over mistakes in the plan). */
     step(
       kind: PracticeKind,
-      context: LessonSlotContext & { hasMistakes: boolean; done: boolean; onDone(): void },
+      context: LessonSlotContext & { onDone(): void; onStored(): void },
     ): ReactNode;
   };
 }

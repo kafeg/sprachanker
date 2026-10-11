@@ -324,7 +324,7 @@
   },
   "tutor": {
     "title": "Öğretmen",
-    "intro": "Bu dersle ilgili sor: dil bilgisi, kelimeler, ekrandaki alıştırma — ya da kısa bir diyalog çalış. Cevaplar şimdiye kadar öğrendiklerinin sınırında kalır.",
+    "intro": "Bu dersle ilgili sor: dil bilgisi, kelimeler, ekrandaki alıştırma. Cevaplar şimdiye kadar öğrendiklerinin sınırında kalır.",
     "needsSetup": "Öğretmen için bir yapay zekâ modeli gerekli.",
     "openSettings": "Yapay zekâ asistanını kur",
     "placeholder": "Bir soru sor…",
@@ -334,11 +334,7 @@
     "suggest": {
       "grammar": "Bu dersin dil bilgisini açıkla",
       "examples": "Yeni kelimelerle bana daha fazla örnek ver",
-      "dialogue": "Kısa bir diyalog çalışalım",
       "exercise": "Bu alıştırma için bana bir ipucu ver",
-      "wordsQuiz": "Bu dersin yeni kelimelerinden beni sına",
-      "wordsMemory": "Yeni kelimeleri aklımda tutmama yardım et",
-      "grammarDrill": "Bu dersin dil bilgisi üzerine bana kısa bir alıştırma ver",
       "script": "Dersin metnini cümle cümle inceleyelim"
     },
     "context": "Bağlam ≈ {used} / {window} token",
@@ -361,13 +357,9 @@
     "deleteTitle": "Bu sohbet silinsin mi?",
     "deleteBody": "Mesajları kalıcı olarak silinir.",
     "ask": {
-      "grammar": "Bu dersin dil bilgisini dersten 2–3 örnekle kısaca açıkla. Sonra anlaşılır olup olmadığını sor.",
-      "examples": "Dersin yeni kelimeleriyle, çevirileriyle birlikte 3 kısa örnek ver. Sonra bunlardan biriyle kendi cümlemi kurmamı iste.",
-      "dialogue": "Dersin konusu üzerine kısa bir diyalog çalışalım. Sen bir cümleyle başla ve cevabımı bekle; ilerledikçe hatalarımı düzelt.",
+      "grammar": "Bu dersin dil bilgisini dersten 2–3 örnekle kısaca açıkla.",
+      "examples": "Dersin yeni kelimeleriyle, çevirileriyle birlikte 3 kısa örnek ver.",
       "exercise": "Bu alıştırma için bana cevabı değil, bir ipucu ver.",
-      "wordsQuiz": "Dersin yeni kelimelerinden beni sına, her seferinde bir kelime. Bir kelime sor, cevabımı bekle, doğru olup olmadığını söyle ve ancak ondan sonra bir sonrakine geç.",
-      "wordsMemory": "Dersin yeni kelimelerini teker teker aklımda tutmama yardım et: bir kelime al, bana bir hafıza ipucu (sesçe benzeyen bir kelime, bir imge, kökü) ve kısa bir örnek ver, sonra onu tekrar etmemi ya da kullanmamı iste. Bir sonraki kelimeye ancak cevabımdan sonra geç.",
-      "grammarDrill": "Dersin dil bilgisi üzerine bana kısa bir alıştırma ver: her seferinde bir görev, cevabımı bekle, kontrol et ve her hatayı açıkla.",
       "script": "Dersin metnini cümle cümle inceleyelim: ilk cümleyi göster, çevir ve içinde neyin yeni olduğunu açıkla. Bir sonraki cümleye ancak “devam” dediğimde geç."
     }
   },
@@ -403,6 +395,7 @@
       "explain": "“Bu neden yanlış?”",
       "tutor": "Öğretmen",
       "tutorSection": "“Öğretmen” bölümü",
+      "writingTask": "“Kendin yaz”: görev",
       "writing": "“Kendin yaz”",
       "speaking": "Sözlü cevaplar",
       "exam": "Sınav: bir cevabı puanlama",
@@ -412,7 +405,8 @@
       "examples": "Bir destenin kelimeleri için örnekler",
       "sceneSummary": "Diyalog: özet",
       "understanding": "Anlama: metin",
-      "understandingCheck": "Anlama: ikinci okuma"
+      "understandingCheck": "Anlama: ikinci okuma",
+      "mistakes": "Hataların üzerinden geç"
     },
     "contextIntro": "Dersten eklenenler:",
     "contextIntroCourses": "Kurslarından eklenenler (sohbetin çalıştığı dildeki kurslar):",
@@ -452,7 +446,10 @@
       "dialogue": "diyalogdaki cümleler ve onlara yapılan düzeltmeler",
       "length": "kursun seviyesinde metnin uzunluğu",
       "readText": "yazdığı metin",
-      "textQuestions": "seçenekleriyle soruları, cevaplar olmadan"
+      "textQuestions": "seçenekleriyle soruları, cevaplar olmadan",
+      "writingTask": "görev: durum, üç noktası ve uzunluk",
+      "levelCriteria": "kursun seviyesindeki bir metnin neye ihtiyacı olduğu (yazma sınavlarının ölçütleri)",
+      "mistakeGroups": "bu turdaki hataların türüne göre, her birinde yalnızca yanlış olan (yanlış cevaplanan “Anlama” soruları da)"
     },
     "upTo": "en fazla {chars, plural, one {# karakter} other {# karakter}}",
     "debug": "“İstem” düğmelerini göster",
@@ -499,9 +496,10 @@
     },
     "about": {
       "explain": "Alıştırmanın altında yanlış bir cevabı açıklar (“Bu neden yanlış?”): hatanın ne olduğunu ve arkasındaki kuralı, senin dilinde.",
-      "tutor": "Dersin öğretmeni: ders, kelimeleri ve dil bilgisi hakkındaki sorularını cevaplar ve “Hataların üzerinden geç” adımında hatalarını tek tek ele alır.",
+      "tutor": "Dersin öğretmeni: ders, kelimeleri ve dil bilgisi hakkındaki sorularını cevaplar ve açıklar — ekrandaki alıştırma için önce ipucu verir. Pratik, dersin yapay zekâ adımlarındadır.",
       "tutorSection": "Tek başına öğretmen, “Öğretmen” bölümünde: ders dışında ne sorarsan yanıtlar — bir dil bilgisi sorusu, birlikte geçilecek bir metin, pratik yapılacak bir konuşma — ve kurslarında gördüklerini bilir.",
-      "writing": "“Kendin yaz” bölümünde yazdığın kısa bir metni kontrol eder: düzeltmeler, A1 ölçütleri (görev, iletişim, doğruluk) ve geri bildirim.",
+      "writingTask": "“Kendin yaz” görevini belirler: dersten bir durum ve ele alınacak üç nokta, uzunluğu kursun seviyesine göre — o seviyedeki bir yazma sınavının verdiği gibi. Her görev için bir kez istenir.",
+      "writing": "“Kendin yaz” görevine yazılmış kısa bir metni kontrol eder: her nokta ele alınmış mı, en fazla üç düzeltme, kursun seviyesinin ölçütleri (görev, iletişim, doğruluk), örnek bir metin ve geri bildirim.",
       "speaking": "“Yapay zekâ ile kontrol et”e bastığında sesli söylediğin bir cevabı (konuşma tanımanın duyduğunu) soruya ve kursun cevabına göre kontrol eder.",
       "exam": "Bir sınavın yazılı cevabını sınavın kendi ölçütlerine göre puanlar: her biri için gerekçesiyle bir seviye ve daha yüksek puan için ne gerektiği. Sen kabul edene ya da değiştirene kadar hiçbir şey sayılmaz.",
       "conversation": "Sınavın bir konuşma bölümünü yürütür: bölümün öngördüğü şekilde sınav görevlisini ve diğer adayı oynar, seninle replik replik ilerler; asla yardım etmez ya da düzeltmez. Sonrasında bölümün ölçütlerine göre puanlanır.",
@@ -510,17 +508,26 @@
       "examples": "Kendi örnekleri olmayan bir destenin her kelimesi için, her seferinde beş kelime olmak üzere üç ila beş örnek cümle yazar (Tekrar → Desteler, “Örnek oluştur”); mümkün olduğunca bildiğin kelimeleri kullanır, yenilerini çevirir.",
       "sceneSummary": "Diyalog bitince özetler: en önemli bir ya da iki düzeltme, her biri cümlenin doğru söylenişiyle, ve kısa bir değerlendirme.",
       "understanding": "Öğrendiğin dilde, bildiğin kelimelerle kısa bir metin yazar — dinlenecek bir diyalog ya da anons, veya okunacak bir menü ya da duyuru — sınavlardaki gibi sorularla (doğru/yanlış, a/b/c, sayılar). Cevaplarını model değil, uygulama kontrol eder.",
-      "understandingCheck": "Metni yeniden okur ve kendi sorularını yalnızca metne bakarak cevaplar: farklı cevapladığı ya da belirsiz bulduğu soru çıkarılır."
+      "understandingCheck": "Metni yeniden okur ve kendi sorularını yalnızca metne bakarak cevaplar: farklı cevapladığı ya da belirsiz bulduğu soru çıkarılır.",
+      "mistakes": "Bir turun hatalarını türüne göre ele alır: her türde yalnızca yanlış kısımlar (verdiğin, doğrusu, çevresindeki kelimeler), kısa bir açıklama ve bildiğin kelimelerle o türden iki üç yeni alıştırma. Cevaplarını model değil uygulama kontrol eder."
     }
   },
   "writing": {
-    "task": "Dersin konusu üzerine {language} 3–5 cümle yaz: {topic}. Yeni kelimeleri kullan.",
+    "task": "Görevin ({language} yaz):",
+    "intro": "Dersten bir durum üzerine kısa bir metin: ele alman gereken üç nokta, seviyendeki bir sınavın istediği uzunlukta. Yapay zekâ onu kontrol eder: ele alınan noktalar, en fazla üç düzeltme ve örnek bir metin.",
+    "start": "Görev al",
+    "preparing": "Görev yazılıyor…",
+    "newTask": "Yeni görev",
+    "length": "Yaklaşık {words, number} kelime.",
+    "count": "yaklaşık {words, number} kelimeden {count, plural, one {# kelime} other {# kelime}}",
     "placeholder": "Metnin…",
     "check": "Kontrol et",
     "checking": "Kontrol ediliyor…",
     "rewrite": "Düzelt ve yeniden kontrol et",
     "score": "{name}: {score, number} / {max, number}",
     "points": "{score, number} / {max, number}",
+    "pointsTitle": "Görevin noktaları",
+    "modelText": "Örnek metin",
     "past": "Bu dersin önceki metinleri",
     "verdict": {
       "good": "Doğru",
@@ -542,10 +549,7 @@
     "items": "{count, plural, one {madde} other {maddeler}} {items}",
     "fixed": "{count, plural, one {# tanesi sonra düzeltildi} other {# tanesi sonra düzeltildi}}",
     "none": "Bu turda hata yok.",
-    "notYet": "Henüz hiçbir şey cevaplanmadı: önce alıştırmaları yap.",
-    "tutorIntro": "Öğretmen hatalarını tek tek ele alır: neyin yanlış gittiğini, arkasındaki kuralı ve kontrol için kısa yeni bir örneği.",
-    "start": "Hatalarımın üzerinden öğretmenle geç",
-    "message": "Lütfen bu dersteki hatalarımın üzerinden geç."
+    "notYet": "Henüz hiçbir şey cevaplanmadı: önce alıştırmaları yap."
   },
   "scene": {
     "intro": "Dersin hedefleri üzerine sesli, kısa bir diyalog: karşındakinin cümleleri sesli okunur, sen mikrofonla cevap verirsin. Karşındaki, senin sorman gereken şeyleri bilir.",
@@ -1358,6 +1362,8 @@
     "unknown_setting": "Bu ayar (artık) yok.",
     "unsupported_audio": "Bu tarayıcı, uygulamanın saklayamadığı bir biçimde kayıt yapıyor.",
     "writing_busy": "Bu dersin bir metni kontrol ediliyor. Biraz bekle.",
+    "mistakes_busy": "Bu dersin hatalarının üzerinden geçiliyor. Biraz bekle.",
+    "no_mistakes": "Bu turda üzerinden geçilecek hata yok.",
     "other": "Bir şeyler ters gitti: {message}",
     "exam_needs_setting": "Önce eyaletini seç: sınav onunla ilgili sorular soruyor.",
     "exam_time_over": "Bu deneme sınavının süresi doldu: olduğu gibi teslim edildi.",
@@ -1600,5 +1606,28 @@
     "readNow": "Metni oku ve cevapla",
     "result": "{total, number} sorudan {right, number} doğru",
     "past": "Bu dersin önceki metinleri"
+  },
+  "goingOver": {
+    "title": "Hataların üzerinden geç",
+    "intro": "Bu turdaki hataların, türüne göre: neyin yanlış olduğu, arkasındaki kural ve her türden denemen için iki üç yeni alıştırma — hemen kontrol edilir.",
+    "start": "Hatalarımın üzerinden geç",
+    "preparing": "Hatalarının üzerinden geçiliyor…",
+    "again": "Yeniden geç",
+    "group": "{total, number} türden {n, number}. tür",
+    "yours": "Hataların",
+    "try": "Şimdi sen",
+    "next": "Sonraki tür",
+    "previous": "Önceki tür",
+    "result": "{total, number} alıştırmadan {right, number} doğru",
+    "past": "Bu dersteki önceki hata incelemeleri",
+    "what": {
+      "ending": "Ekler",
+      "word": "Kelimeler",
+      "choice": "Seçimler",
+      "order": "Kelime sırası",
+      "pair": "Eşleştirmeler",
+      "spelling": "Yazım",
+      "spoken": "Sesli söylenenler"
+    }
   }
 }

@@ -324,7 +324,7 @@
   },
   "tutor": {
     "title": "Tutor",
-    "intro": "Kérdezz erről a leckéről: nyelvtan, szavak, a képernyőn lévő feladat — vagy gyakorolj egy rövid párbeszédet. A válaszok nem lépik túl azt, amit eddig tanultál.",
+    "intro": "Kérdezz erről a leckéről: nyelvtan, szavak, a képernyőn lévő feladat. A válaszok nem lépik túl azt, amit eddig tanultál.",
     "needsSetup": "A tutorhoz MI-modell kell.",
     "openSettings": "MI-asszisztens beállítása",
     "placeholder": "Tegyél fel egy kérdést…",
@@ -334,11 +334,7 @@
     "suggest": {
       "grammar": "Magyarázd el a lecke nyelvtanát",
       "examples": "Adj még példákat az új szavakkal",
-      "dialogue": "Gyakoroljunk egy rövid párbeszédet",
       "exercise": "Adj egy tippet ehhez a feladathoz",
-      "wordsQuiz": "Kérdezz ki a lecke új szavaiból",
-      "wordsMemory": "Segíts megjegyezni az új szavakat",
-      "grammarDrill": "Adj egy rövid gyakorlatot a lecke nyelvtanából",
       "script": "Menjünk végig a lecke szövegén részletről részletre"
     },
     "context": "Kontextus ≈ {used} / {window} token",
@@ -361,13 +357,9 @@
     "deleteTitle": "Törlöd ezt a beszélgetést?",
     "deleteBody": "Az üzenetei véglegesen törlődnek.",
     "ask": {
-      "grammar": "Magyarázd el röviden a lecke nyelvtanát 2–3 példával a leckéből. Aztán kérdezd meg, hogy érthető-e.",
-      "examples": "Adj 3 rövid példát a lecke új szavaival, fordítással. Aztán kérd meg, hogy írjak egy saját mondatot valamelyikkel.",
-      "dialogue": "Gyakoroljunk egy rövid párbeszédet a lecke témájában. Te kezdesz egy mondattal, és megvárod a válaszomat; menet közben javítsd a hibáimat.",
+      "grammar": "Magyarázd el röviden a lecke nyelvtanát 2–3 példával a leckéből.",
+      "examples": "Adj 3 rövid példát a lecke új szavaival, fordítással.",
       "exercise": "Adj egy tippet ehhez a feladathoz, de ne a választ.",
-      "wordsQuiz": "Kérdezz ki a lecke új szavaiból, egyszerre egy szót. Kérdezz rá egy szóra, várd meg a válaszomat, mondd meg, hogy helyes-e, és csak utána lépj a következőre.",
-      "wordsMemory": "Segíts megjegyezni a lecke új szavait egyenként: vegyél egy szót, adj hozzá emlékeztetőt (hasonló hangzású szót, képet, szótövet) és egy rövid példát, aztán kérd, hogy ismételjem el vagy használjam. A következő szó csak a válaszom után jöjjön.",
-      "grammarDrill": "Adj egy rövid gyakorlatot a lecke nyelvtanából: egyszerre egy feladatot, várd meg a válaszomat, ellenőrizd, és magyarázd el a hibákat.",
       "script": "Menjünk végig a lecke szövegén részletről részletre: mutasd az első részletet, fordítsd le, és magyarázd el, mi új benne. A következő részlet csak akkor jöjjön, ha azt mondom: „tovább”."
     }
   },
@@ -403,6 +395,7 @@
       "explain": "„Miért hibás?”",
       "tutor": "Tutor",
       "tutorSection": "„Tutor” szakasz",
+      "writingTask": "„Írj saját szöveget”: a feladat",
       "writing": "„Írj saját szöveget”",
       "speaking": "Szóbeli válaszok",
       "exam": "Vizsga: egy válasz értékelése",
@@ -412,7 +405,8 @@
       "examples": "Példák egy pakli szavaihoz",
       "sceneSummary": "Párbeszéd: az összegzés",
       "understanding": "Szövegértés: a szöveg",
-      "understandingCheck": "Szövegértés: a második olvasás"
+      "understandingCheck": "Szövegértés: a második olvasás",
+      "mistakes": "Hibák átnézése"
     },
     "contextIntro": "A leckéből hozzáadva:",
     "contextIntroCourses": "A kurzusaidból hozzáadva (azokból, amelyek a beszélgetés nyelvét tanítják):",
@@ -452,7 +446,10 @@
       "dialogue": "a párbeszéd mondatai a hozzájuk adott javításokkal",
       "length": "milyen hosszú a szöveg a kurzus szintjén",
       "readText": "a megírt szöveg",
-      "textQuestions": "a kérdései a válaszlehetőségekkel, megoldások nélkül"
+      "textQuestions": "a kérdései a válaszlehetőségekkel, megoldások nélkül",
+      "writingTask": "a feladat: a helyzet, a három pontja és a hossz",
+      "levelCriteria": "mire van szüksége egy szövegnek a kurzus szintjén (az írásbeli vizsgák szempontjai)",
+      "mistakeGroups": "a hibáid ebben a körben fajtánként, mindegyikből csak ami rossz volt (a „Szövegértés” rosszul megválaszolt kérdései is)"
     },
     "upTo": "legfeljebb {chars, plural, one {# karakter} other {# karakter}}",
     "debug": "„Prompt” gombok megjelenítése",
@@ -499,9 +496,10 @@
     },
     "about": {
       "explain": "Elmagyarázza a feladat alatt a hibás választ („Miért hibás?”): mi a hiba, és milyen szabály áll mögötte, a te nyelveden.",
-      "tutor": "A lecke tutora: válaszol a kérdéseidre a leckéről, a szavairól és a nyelvtanáról, és a „Hibák átnézése” lépésben egyenként végigmegy veled a hibáidon.",
+      "tutor": "A lecke tutora: válaszol a kérdéseidre a leckéről, a szavairól és a nyelvtanáról, és magyaráz — a képernyőn lévő feladathoz először tippekkel. Gyakorolni a lecke MI-lépéseiben lehet.",
       "tutorSection": "A tutor önállóan, a „Tutor” szakaszban: leckén kívül bármire válaszol – nyelvtani kérdésre, átnézendő szövegre, gyakorolni való beszélgetésre –, és tudja, mit tanultál a kurzusaidban.",
-      "writing": "Ellenőrzi a rövid szöveget, amelyet az „Írj saját szöveget” lépésben írtál: javítások, az A1-es szempontok (feladat, kommunikáció, pontosság) és visszajelzés.",
+      "writingTask": "Kitűzi az „Írj saját szöveget” feladatát: egy helyzetet a leckéből három kifejtendő ponttal, a kurzus szintjének megfelelő hosszal, ahogy egy ilyen szintű írásbeli vizsga adja. Feladatonként egyszer kérdezi.",
+      "writing": "Ellenőrzi az „Írj saját szöveget” feladatára írt rövid szöveget: kifejtetted-e az egyes pontokat, legfeljebb három javítás, a kurzus szintjének szempontjai (feladat, kommunikáció, pontosság), mintaszöveg és visszajelzés.",
       "speaking": "Ellenőrzi a hangosan mondott válaszodat (amit a beszédfelismerő hallott) a kérdés és a kurzus válasza alapján, ha megnyomod az „Ellenőrzés MI-vel” gombot.",
       "exam": "Értékeli egy vizsga írásbeli válaszát a vizsga saját szempontjai szerint: mindegyikhez egy szintet indoklással, és azt, mi érne több pontot. Semmi sem számít, amíg el nem fogadod vagy meg nem változtatod.",
       "conversation": "Levezeti a vizsga egy szóbeli részét: a vizsgáztatót és a másik vizsgázót játssza, ahogy a rész előírja, soronként veled; soha nem segít és nem javít. Utána a rész szempontjai szerint kerül értékelésre.",
@@ -510,17 +508,26 @@
       "examples": "Három-öt példamondatot ír egy pakli minden olyan szavához, amelynek nincs saját példája, egyszerre öt szóhoz (Ismétlés → Paklik, „Példák készítése”); ahol lehet, ismert szavakkal, az újakat lefordítva.",
       "sceneSummary": "Összegzi a párbeszédet, amikor véget ért: az egy-két legfontosabb javítás, mindegyik mellett a mondatod helyesen, és egy rövid visszajelzés.",
       "understanding": "Rövid szöveget ír a tanult nyelven az általad ismert szavakból — meghallgatandó párbeszédet vagy bemondást, illetve elolvasandó étlapot vagy hirdetményt — vizsgákhoz hasonló kérdésekkel (igaz/hamis, a/b/c, számok). A válaszaidat az app ellenőrzi, nem a modell.",
-      "understandingCheck": "Újra elolvassa a szöveget, és csak a szövegből válaszol a saját kérdéseire: az a kérdés, amelyre másképp válaszol, vagy amelyet nem talál egyértelműnek, kimarad."
+      "understandingCheck": "Újra elolvassa a szöveget, és csak a szövegből válaszol a saját kérdéseire: az a kérdés, amelyre másképp válaszol, vagy amelyet nem talál egyértelműnek, kimarad.",
+      "mistakes": "Fajtánként átnézi egy kör hibáit: minden fajtánál csak a hibás részeket (mit adtál meg, mi a helyes, a körülötte lévő szavakat), egy rövid magyarázatot és két-három új, ilyen fajtájú feladatot ismert szavakból. A válaszaidat az app ellenőrzi, nem a modell."
     }
   },
   "writing": {
-    "task": "Írj 3–5 mondatot a lecke témájáról: {topic}. Nyelv: {language}. Használd az új szavakat.",
+    "task": "A feladatod (a szöveg nyelve: {language}):",
+    "intro": "Rövid szöveg egy, a leckéből vett helyzetről: három pont, amelyre ki kell térned, olyan hosszan, amennyit egy vizsga a szinteden kér. A MI ellenőrzi: a kifejtett pontokat, legfeljebb három javítást és egy mintaszöveget ad.",
+    "start": "Feladatot kérek",
+    "preparing": "Készül a feladat…",
+    "newTask": "Új feladat",
+    "length": "Körülbelül {words, number} szó.",
+    "count": "{count, plural, one {# szó} other {# szó}} a nagyjából {words, number}-ból",
     "placeholder": "A szöveged…",
     "check": "Ellenőrzés",
     "checking": "Ellenőrzés…",
     "rewrite": "Javítsd és ellenőrizd újra",
     "score": "{name}: {score, number}/{max, number}",
     "points": "{score, number}/{max, number}",
+    "pointsTitle": "A feladat pontjai",
+    "modelText": "Mintaszöveg",
     "past": "A lecke korábbi szövegei",
     "verdict": {
       "good": "Helyes",
@@ -542,10 +549,7 @@
     "items": "{count, plural, one {részfeladat:} other {részfeladatok:}} {items}",
     "fixed": "{count, plural, one {# később javítva} other {# később javítva}}",
     "none": "Ebben a körben nincs hiba.",
-    "notYet": "Még nincs válasz: előbb oldd meg a feladatokat.",
-    "tutorIntro": "A tutor egyenként végigmegy a hibáidon: mi ment félre, milyen szabály áll mögötte, és egy rövid új példa az ellenőrzéshez.",
-    "start": "Hibáim átnézése a tutorral",
-    "message": "Kérlek, nézzük át a hibáimat ebben a leckében."
+    "notYet": "Még nincs válasz: előbb oldd meg a feladatokat."
   },
   "scene": {
     "intro": "Rövid, szóbeli párbeszéd a lecke céljairól: a partnered mondatait felolvassa az app, te mikrofonnal válaszolsz. A partnered tud dolgokat, amelyeket meg kell kérdezned.",
@@ -1358,6 +1362,8 @@
     "unknown_setting": "Ez a beállítás (már) nem létezik.",
     "unsupported_audio": "Ez a böngésző olyan formátumban rögzít, amelyet az alkalmazás nem tud tárolni.",
     "writing_busy": "A lecke egyik szövegének ellenőrzése folyamatban van. Várj egy kicsit.",
+    "mistakes_busy": "Épp folyik ennek a leckének a hibaátnézése. Várj egy kicsit.",
+    "no_mistakes": "Ebben a körben nincs átnézendő hiba.",
     "other": "Hiba történt: {message}",
     "exam_needs_setting": "Előbb válaszd ki a szövetségi tartományodat: a vizsga kérdez róla.",
     "exam_time_over": "A próbavizsga ideje lejárt: a vizsga az addigi állapotában lett beadva.",
@@ -1600,5 +1606,28 @@
     "readNow": "Olvasd el a szöveget, és válaszolj",
     "result": "{right, number}/{total, number} helyes",
     "past": "A lecke korábbi szövegei"
+  },
+  "goingOver": {
+    "title": "Hibák átnézése",
+    "intro": "A hibáid ebben a körben, fajtánként: mi volt rossz, mi a szabály mögötte, és minden fajtából két-három új feladat kipróbálásra — azonnal ellenőrizve.",
+    "start": "Nézzük át a hibáimat",
+    "preparing": "A hibáid átnézése folyik…",
+    "again": "Átnézés újra",
+    "group": "{n, number}. fajta a(z) {total, number}-ból",
+    "yours": "A hibáid",
+    "try": "Most te",
+    "next": "Következő fajta",
+    "previous": "Előző fajta",
+    "result": "{right, number}/{total, number} helyes",
+    "past": "Korábbi hibaátnézések ebben a leckében",
+    "what": {
+      "ending": "Végződések",
+      "word": "Szavak",
+      "choice": "Választás",
+      "order": "Szórend",
+      "pair": "Párok",
+      "spelling": "Helyesírás",
+      "spoken": "Kimondva"
+    }
   }
 }

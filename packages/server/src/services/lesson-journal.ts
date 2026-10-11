@@ -125,8 +125,8 @@ export function createLessonJournal(deps: {
     },
 
     /** One pass in full: its run and events, the lesson as installed now (the events carry the
-     *  exercises as shown), explanations, writing checks, Understanding's texts, words added, chats
-     *  and scenes. */
+     *  exercises as shown), explanations, writing checks, Understanding's texts, mistakes gone over,
+     *  words added, chats and scenes. */
     async pass(runId: string) {
       const row = store.get(runId, "lesson");
       if (!row) throw new ServiceError("no_such_run", 404);
@@ -147,6 +147,8 @@ export function createLessonJournal(deps: {
         writing: verdicts(store, "writing", { runIds: [runId] }),
         // Its answers are the run's `practice_answered` events, among `events`.
         understanding: verdicts(store, "understanding", { runIds: [runId] }),
+        // Going over its mistakes: the answers to the new items among `events` too.
+        mistakes: verdicts(store, "mistakes", { runIds: [runId] }),
         words: deps.cards.madeIn(runId).map((w) => w.display),
         chats: held?.chats ?? [],
         scenes: held?.scenes ?? [],

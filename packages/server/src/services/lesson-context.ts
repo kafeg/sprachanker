@@ -1,7 +1,7 @@
 // What the LLM tasks know about a lesson (07): the lesson in the learner's edition, earlier lessons as
 // words and titles, and mistakes with their exercises; the course's vocabulary. Shared by the tutor
 // (and its tools), writing, scenes, explain, speaking and word examples.
-import type { VocabWord } from "@sprachanker/engine";
+import { type VocabWord, wrongParts } from "@sprachanker/engine";
 import type { LessonInfo, TutorMistake } from "@sprachanker/llm";
 import {
   findExercise,
@@ -86,11 +86,18 @@ export function createLessonContext(content: Content) {
         files.flatMap((f) => wordsOf(f.lesson, f.locale)),
         (w) => w.target,
       );
+      // Each topic where it was first taught: "unit.lesson" as the app names lessons, and the title.
       const topics = once(
-        [...files.map((f) => f.locale), locale].flatMap(
-          (loc) => loc?.tabs.grammar.flatMap((t) => t.title?.trim() || []) ?? [],
-        ),
-        (t) => t,
+        [...files.map((f) => f.locale), locale].flatMap((loc, i) => {
+          const key = [...earlier, lessonKey][i] as LessonKey;
+          const { unit, lesson: n } = parseLessonKey(key);
+          return (loc?.tabs.grammar ?? []).flatMap((t) =>
+            t.title?.trim()
+              ? [{ title: t.title.trim(), lesson: `${unit}.${n}`, lessonTitle: map.titles[key] }]
+              : [],
+          );
+        }),
+        (t) => t.title,
       );
       const unit = map.index.units.find((u) => u.lessons.includes(lessonKey));
       const level = levelOf(course);
@@ -146,14 +153,16 @@ export function createLessonContext(content: Content) {
       return { upTo: words.slice(0, at).flat(), later: words.slice(at).flat() };
     },
 
-    /** Mistakes with their exercises as the edition shows them; items no longer in the course are
-     *  skipped. With `titles`, each names its lesson. */
+    /** Mistakes with their exercises as the edition shows them, each with its wrong parts only (a
+     *  gap of many, a pair, the choice); items no longer in the course are skipped. With `titles`,
+     *  each names its lesson. */
     async mistakes(
       series: string,
       edition: string,
       list: Mistake[],
       titles?: Record<string, string>,
     ): Promise<TutorMistake[]> {
+      const target = parseEditionId(edition).target;
       const out: TutorMistake[] = [];
       for (const m of list) {
         const key = m.lessonKey as LessonKey;
@@ -163,13 +172,18 @@ export function createLessonContext(content: Content) {
         ]);
         const exercise = lesson && findExercise(lesson, m.exerciseKey);
         if (!exercise?.items[m.index]) continue;
-        out.push({
-          lesson: titles ? (titles[m.lessonKey] ?? m.lessonKey) : undefined,
+        const mistake = {
+          itemKey: m.itemKey,
           exercise,
           locale: locale?.exercises[exercise.key],
           index: m.index,
           answer: m.answer,
           ...(m.corrected !== undefined && { corrected: m.corrected }),
+        };
+        out.push({
+          ...mistake,
+          lesson: titles ? (titles[m.lessonKey] ?? m.lessonKey) : undefined,
+          parts: wrongParts(mistake, target),
           fixed: m.fixed,
         });
       }

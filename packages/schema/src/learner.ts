@@ -4,10 +4,12 @@ import {
   Correction,
   DialogueSummary,
   ExamRatingProposal,
+  MistakesReview,
   SpokenCheck,
   UnderstandingText,
   WordExample,
   WritingCheck,
+  WritingTask,
 } from "./assistant.ts";
 import { ExamItem, ExamModuleId } from "./exam.ts";
 import { Exercise } from "./exercise/index.ts";
@@ -196,12 +198,17 @@ const LlmVerdictPayload = z.discriminatedUnion("task", [
     /** The attempt at the item it explains (1 = the first answer). */
     attempt: z.number().int().positive().optional(),
   }),
-  verdict("writing", WritingCheck),
+  verdict("writing", WritingCheck).extend({
+    /** The task the text was written on; texts on the lesson's topic, before tasks, have none. */
+    writingTask: WritingTask.optional(),
+  }),
+  verdict("writing_task", WritingTask),
   verdict("example", WordExample),
   verdict("speaking", SpokenCheck),
   verdict("exam", ExamRatingProposal),
   verdict("dialogue", DialogueSummary),
   verdict("understanding", UnderstandingText),
+  verdict("mistakes", MistakesReview),
 ]);
 type LlmVerdictPayload = z.infer<typeof LlmVerdictPayload>;
 export type VerdictTask = LlmVerdictPayload["task"];
@@ -349,9 +356,10 @@ export const ExamRatedPayload = z.object({
 });
 export type ExamRatedPayload = z.infer<typeof ExamRatedPayload>;
 
-/** An answer to a question the assistant set (an Understanding text's, 04): on the verdict that set
- *  it (`verdict`: its event's id) by the question's index, in the verdict's run, its outcome checked
- *  by the server with the engine as the item of its kind (never by a model). One answer a question. */
+/** An answer to a question the assistant set (an Understanding text's, a mistakes review's new items —
+ *  counted across its groups —; 04): on the verdict that set it (`verdict`: its event's id) by the
+ *  question's index, in the verdict's run, its outcome checked by the server with the engine as the
+ *  item of its kind (never by a model). One answer a question. */
 export const PracticeAnsweredPayload = z.object({
   verdict: Ulid,
   question: z.number().int().nonnegative(),

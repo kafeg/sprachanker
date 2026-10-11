@@ -324,7 +324,7 @@
   },
   "tutor": {
     "title": "Tutor",
-    "intro": "Stell Fragen zu dieser Lektion: Grammatik, Wörter, die Übung auf dem Bildschirm – oder übe einen kurzen Dialog. Die Antworten bleiben beim bisher Gelernten.",
+    "intro": "Stell Fragen zu dieser Lektion: Grammatik, Wörter, die Übung auf dem Bildschirm. Die Antworten bleiben beim bisher Gelernten.",
     "needsSetup": "Der Tutor braucht ein KI-Modell.",
     "openSettings": "KI-Assistent einrichten",
     "placeholder": "Stell eine Frage…",
@@ -334,11 +334,7 @@
     "suggest": {
       "grammar": "Erklär mir die Grammatik dieser Lektion",
       "examples": "Gib mir mehr Beispiele mit den neuen Wörtern",
-      "dialogue": "Lass uns einen kurzen Dialog üben",
       "exercise": "Gib mir einen Tipp zu dieser Übung",
-      "wordsQuiz": "Frag mich die neuen Wörter der Lektion ab",
-      "wordsMemory": "Hilf mir, die neuen Wörter zu behalten",
-      "grammarDrill": "Gib mir eine kurze Übung zur Grammatik der Lektion",
       "script": "Geh den Lektionstext Satz für Satz mit mir durch"
     },
     "context": "Kontext ≈ {used} von {window} Tokens",
@@ -361,13 +357,9 @@
     "deleteTitle": "Dieses Gespräch löschen?",
     "deleteBody": "Seine Nachrichten werden endgültig gelöscht.",
     "ask": {
-      "grammar": "Erklär die Grammatik dieser Lektion kurz mit 2–3 Beispielen aus der Lektion. Frag dann, ob alles klar ist.",
-      "examples": "Gib 3 kurze Beispiele mit den neuen Wörtern der Lektion, mit Übersetzung. Bitte mich dann, mit einem davon einen eigenen Satz zu bilden.",
-      "dialogue": "Lass uns einen kurzen Dialog zum Thema der Lektion üben. Du beginnst mit einem Satz und wartest auf meine Antwort; korrigiere meine Fehler unterwegs.",
+      "grammar": "Erklär die Grammatik dieser Lektion kurz mit 2–3 Beispielen aus der Lektion.",
+      "examples": "Gib 3 kurze Beispiele mit den neuen Wörtern der Lektion, mit Übersetzung.",
       "exercise": "Gib mir einen Hinweis zu dieser Übung, nicht die Lösung.",
-      "wordsQuiz": "Frag mich die neuen Wörter der Lektion ab, ein Wort nach dem anderen. Frag ein Wort, warte auf meine Antwort, sag, ob sie stimmt, und geh erst dann zum nächsten.",
-      "wordsMemory": "Hilf mir, die neuen Wörter der Lektion einzeln zu behalten: nimm ein Wort, gib mir eine Merkhilfe (ein ähnlicher Klang, ein Bild, der Stamm) und ein kurzes Beispiel, dann bitte mich, es zu wiederholen oder zu benutzen. Das nächste Wort erst nach meiner Antwort.",
-      "grammarDrill": "Gib mir eine kurze Übung zur Grammatik der Lektion: eine Aufgabe nach der anderen, warte auf meine Antwort, prüfe sie und erklär Fehler.",
       "script": "Gehen wir den Text der Lektion Satz für Satz durch: zeig den ersten Satz, übersetze ihn und erklär, was neu daran ist. Den nächsten Satz erst, wenn ich „weiter“ sage."
     }
   },
@@ -403,6 +395,7 @@
       "explain": "„Warum ist das falsch?“",
       "tutor": "Tutor",
       "tutorSection": "Bereich „Tutor“",
+      "writingTask": "„Schreib selbst“: die Aufgabe",
       "writing": "„Schreib selbst“",
       "speaking": "Mündliche Antworten",
       "exam": "Prüfung: eine Antwort bewerten",
@@ -412,7 +405,8 @@
       "examples": "Beispiele für die Wörter eines Stapels",
       "sceneSummary": "Dialog: die Zusammenfassung",
       "understanding": "Verstehen: der Text",
-      "understandingCheck": "Verstehen: das zweite Lesen"
+      "understandingCheck": "Verstehen: das zweite Lesen",
+      "mistakes": "Fehler durchgehen"
     },
     "contextIntro": "Aus der Lektion kommt dazu:",
     "contextIntroCourses": "Aus deinen Kursen kommt dazu (denen in der Sprache, die das Gespräch übt):",
@@ -452,7 +446,10 @@
       "dialogue": "die Sätze des Dialogs mit den Korrekturen dazu",
       "length": "wie lang der Text auf dem Niveau des Kurses ist",
       "readText": "der geschriebene Text",
-      "textQuestions": "seine Fragen mit den Antwortmöglichkeiten, ohne die Lösungen"
+      "textQuestions": "seine Fragen mit den Antwortmöglichkeiten, ohne die Lösungen",
+      "writingTask": "die Aufgabe: die Situation, ihre drei Punkte und die Länge",
+      "levelCriteria": "was ein Text auf dem Niveau des Kurses braucht (die Kriterien der Schreibprüfungen)",
+      "mistakeGroups": "deine Fehler in diesem Durchgang nach Art, jeder nur das Falsche (falsch beantwortete Fragen aus „Verstehen“ auch)"
     },
     "upTo": "bis {chars, number} Zeichen",
     "debug": "Schaltflächen „Prompt“ anzeigen",
@@ -499,9 +496,10 @@
     },
     "about": {
       "explain": "Erklärt eine falsche Antwort unter der Übung („Warum ist das falsch?“): was der Fehler ist und welche Regel dahintersteht, in deiner Sprache.",
-      "tutor": "Der Tutor der Lektion: beantwortet deine Fragen zur Lektion, ihren Wörtern und ihrer Grammatik und geht im Schritt „Fehler durchgehen“ deine Fehler einzeln durch.",
+      "tutor": "Der Tutor der Lektion: beantwortet deine Fragen zur Lektion, ihren Wörtern und ihrer Grammatik und erklärt – zur Übung auf dem Bildschirm zuerst mit Hinweisen. Geübt wird in den KI-Schritten der Lektion.",
       "tutorSection": "Der Tutor für sich, im Bereich „Tutor“: beantwortet außerhalb einer Lektion alles, was du fragst – eine Grammatikfrage, einen Text zum Durchgehen, ein Gespräch zum Üben – und weiß dabei, was du in deinen Kursen gelernt hast.",
-      "writing": "Prüft einen kurzen Text aus „Schreib selbst“: Korrekturen, die A1-Kriterien (Aufgabe, Kommunikation, Richtigkeit) und eine Rückmeldung.",
+      "writingTask": "Stellt die Aufgabe für „Schreib selbst“: eine Situation aus der Lektion mit drei Punkten, die du behandelst, so lang, wie das Niveau des Kurses es verlangt — wie eine Schreibprüfung auf diesem Niveau sie stellt. Einmal pro Aufgabe gefragt.",
+      "writing": "Prüft einen kurzen Text zur Aufgabe aus „Schreib selbst“: jeden Punkt behandelt oder nicht, höchstens drei Korrekturen, die Kriterien des Kursniveaus (Aufgabe, Kommunikation, Richtigkeit), einen Mustertext und eine Rückmeldung.",
       "speaking": "Prüft eine gesprochene Antwort (was die Erkennung gehört hat) an der Frage und der Antwort des Kurses, wenn du „Mit KI prüfen“ drückst.",
       "exam": "Bewertet eine schriftliche Antwort einer Prüfung nach deren eigenen Kriterien: eine Stufe je Kriterium mit Begründung und was mehr Punkte bringen würde. Nichts zählt, bis du sie übernimmst oder änderst.",
       "conversation": "Führt einen Sprechteil einer Prüfung: spielt die Prüfenden und die andere Person, wie der Teil es vorgibt, Zeile für Zeile mit dir; hilft und korrigiert nie. Danach wird nach den Kriterien des Teils bewertet.",
@@ -510,17 +508,26 @@
       "examples": "Schreibt drei bis fünf Beispielsätze zu jedem Wort eines Stapels, das keine eigenen hat, fünf Wörter auf einmal (Wiederholen → Stapel, „Beispiele erstellen“), möglichst mit Wörtern, die du kennst, neue übersetzt.",
       "sceneSummary": "Fasst einen Dialog zusammen, wenn er vorbei ist: die ein oder zwei wichtigsten Korrekturen, jede mit deinem Satz, wie man ihn gut sagt, und eine kurze Rückmeldung.",
       "understanding": "Schreibt einen kurzen Text in der Sprache, die du lernst, aus den Wörtern, die du kennst — einen Dialog oder eine Durchsage zum Hören oder eine Speisekarte, einen Aushang zum Lesen — mit Fragen wie in Prüfungen (richtig/falsch, a/b/c, Zahlen). Deine Antworten prüft die App, nicht das Modell.",
-      "understandingCheck": "Liest den Text noch einmal und beantwortet die eigenen Fragen nur aus dem Text: Eine Frage, die es anders beantwortet oder unklar findet, fällt weg."
+      "understandingCheck": "Liest den Text noch einmal und beantwortet die eigenen Fragen nur aus dem Text: Eine Frage, die es anders beantwortet oder unklar findet, fällt weg.",
+      "mistakes": "Geht die Fehler eines Durchgangs nach Art durch: je Art nur die falschen Teile (was du gegeben hast, was richtig ist, die Wörter darum), eine kurze Erklärung und zwei, drei neue Aufgaben dieser Art aus Wörtern, die du kennst. Deine Antworten prüft die App, nicht das Modell."
     }
   },
   "writing": {
-    "task": "Schreib 3–5 Sätze auf {language} zum Thema der Lektion: {topic}. Benutze die neuen Wörter.",
+    "task": "Deine Aufgabe (schreib auf {language}):",
+    "intro": "Ein kurzer Text zu einer Situation aus der Lektion: drei Punkte, die du behandelst, so lang, wie eine Prüfung auf deinem Niveau verlangt. Die KI prüft ihn: die behandelten Punkte, höchstens drei Korrekturen und ein Mustertext.",
+    "start": "Aufgabe stellen lassen",
+    "preparing": "Aufgabe wird geschrieben…",
+    "newTask": "Neue Aufgabe",
+    "length": "Etwa {words, number} Wörter.",
+    "count": "{count, plural, one {# Wort} other {# Wörter}} von etwa {words, number}",
     "placeholder": "Dein Text…",
     "check": "Prüfen",
     "checking": "Wird geprüft…",
     "rewrite": "Verbessern und neu prüfen",
     "score": "{name}: {score, number} von {max, number}",
     "points": "{score, number} von {max, number}",
+    "pointsTitle": "Die Punkte der Aufgabe",
+    "modelText": "Mustertext",
     "past": "Frühere Texte dieser Lektion",
     "verdict": {
       "good": "Richtig",
@@ -542,10 +549,7 @@
     "items": "{count, plural, one {Aufgabe} other {Aufgaben}} {items}",
     "fixed": "{count, plural, one {# später korrigiert} other {# später korrigiert}}",
     "none": "In diesem Durchgang keine Fehler.",
-    "notYet": "Noch nichts beantwortet: Mach zuerst die Übungen.",
-    "tutorIntro": "Der Tutor geht deine Fehler einzeln mit dir durch: was falsch war, die Regel dahinter und ein kurzes neues Beispiel zur Kontrolle.",
-    "start": "Fehler mit dem Tutor durchgehen",
-    "message": "Geh bitte meine Fehler in dieser Lektion mit mir durch."
+    "notYet": "Noch nichts beantwortet: Mach zuerst die Übungen."
   },
   "scene": {
     "intro": "Ein kurzer Dialog zu den Zielen der Lektion, gesprochen: Die Sätze deines Gegenübers werden vorgelesen, du antwortest mit dem Mikrofon. Dein Gegenüber weiß Dinge, nach denen du fragen musst.",
@@ -1358,6 +1362,8 @@
     "unknown_setting": "Diese Einstellung gibt es nicht (mehr).",
     "unsupported_audio": "Dieser Browser nimmt in einem Format auf, das die App nicht speichern kann.",
     "writing_busy": "Ein Text dieser Lektion wird gerade geprüft. Warte darauf.",
+    "mistakes_busy": "Die Fehler dieser Lektion werden gerade durchgegangen. Warte darauf.",
+    "no_mistakes": "In diesem Durchgang gibt es keine Fehler durchzugehen.",
     "other": "Etwas ist schiefgelaufen: {message}",
     "exam_needs_setting": "Wähle zuerst dein Bundesland: die Prüfung stellt Fragen dazu.",
     "exam_time_over": "Die Zeit dieser Probeprüfung ist um: sie wurde abgegeben, wie sie war.",
@@ -1600,5 +1606,28 @@
     "readNow": "Lies den Text und antworte",
     "result": "{right, number} von {total, number} richtig",
     "past": "Frühere Texte dieser Lektion"
+  },
+  "goingOver": {
+    "title": "Fehler durchgehen",
+    "intro": "Deine Fehler in diesem Durchgang nach Art: was falsch war, die Regel dahinter und zwei, drei neue Aufgaben jeder Art zum Ausprobieren — sofort geprüft.",
+    "start": "Meine Fehler durchgehen",
+    "preparing": "Deine Fehler werden durchgegangen…",
+    "again": "Noch einmal durchgehen",
+    "group": "Art {n, number} von {total, number}",
+    "yours": "Deine Fehler",
+    "try": "Jetzt du",
+    "next": "Nächste Art",
+    "previous": "Vorige Art",
+    "result": "{right, number} von {total, number} richtig",
+    "past": "Frühere Durchgänge der Fehler in dieser Lektion",
+    "what": {
+      "ending": "Endungen",
+      "word": "Wörter",
+      "choice": "Auswahl",
+      "order": "Wortstellung",
+      "pair": "Paare",
+      "spelling": "Rechtschreibung",
+      "spoken": "Gesprochenes"
+    }
   }
 }

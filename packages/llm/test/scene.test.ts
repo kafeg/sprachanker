@@ -124,7 +124,7 @@ test("sceneSetupTask: the level and place with the data; of many earlier words t
       level: "A2",
       place: { n: 3, of: 30 },
       knownWords,
-      topics: ["Modalverben"],
+      topics: [{ title: "Modalverben", lesson: "3.1" }],
     },
   });
   const [system, data] = task.request.messages.map((m) => String(m.content));

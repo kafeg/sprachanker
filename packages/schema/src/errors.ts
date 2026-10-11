@@ -88,6 +88,8 @@ export const ERROR_CODES = [
   "no_active_scene",
   "understanding_busy",
   "writing_busy",
+  "mistakes_busy",
+  "no_mistakes",
   "scene_busy",
   "speaking_busy",
   "examples_without_word",

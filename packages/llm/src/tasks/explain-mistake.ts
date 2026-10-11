@@ -3,8 +3,8 @@ import type { Exercise, Lang, LocaleExercise } from "@sprachanker/schema";
 import type { ChatMessage, LlmClient, TaskRequest } from "../client.ts";
 import { clip, htmlToText, languageNames } from "../text.ts";
 import { describeItem } from "./describe.ts";
-import { grammarNotes, type LessonInfo, levelLine } from "./lesson.ts";
-import { type RulesInput, systemPrompt } from "./rules.ts";
+import { grammarNotes, type LessonInfo, levelLine, topicPlacesLine } from "./lesson.ts";
+import { NEUTRAL, type RulesInput, systemPrompt } from "./rules.ts";
 
 export interface ExplainMistakeInput extends RulesInput {
   exercise: Exercise;
@@ -15,6 +15,9 @@ export interface ExplainMistakeInput extends RulesInput {
   grammarHtml: LessonInfo["grammarHtml"];
   /** The course's level (07, the knowledge snapshot). */
   level?: LessonInfo["level"];
+  /** The grammar topics met so far, each with the lesson that taught it: where the mistake's topic
+   *  was met. */
+  topics?: LessonInfo["topics"];
   /** The lesson's transcript (course HTML), given when the item is about its audio or video. */
   scriptHtml?: string;
   /** Language of the explanation: the learner's interface language. */
@@ -23,8 +26,9 @@ export interface ExplainMistakeInput extends RulesInput {
   target: Lang;
 }
 
-/** Characters of the lesson's grammar notes and transcript that go into the prompt. */
-export const EXPLAIN_MISTAKE_BUDGETS = { notes: 6000, script: 4000 } as const;
+/** Characters of the lesson's grammar notes, the topics met and the transcript that go into the
+ *  prompt. */
+export const EXPLAIN_MISTAKE_BUDGETS = { notes: 6000, topics: 800, script: 4000 } as const;
 
 /** The task's standing rules: the system prompt. */
 export function explainMistakeRules(
@@ -37,12 +41,13 @@ export function explainMistakeRules(
     `You are a patient ${t} teacher. The learner speaks ${l} and is working through a ${t} course at the level given with the exercise; explain at that level.`,
     `They answered one exercise item incorrectly. Explain in ${l}, briefly (at most 120 words):`,
     "1. what the correct answer is and why;",
-    "2. what exactly is wrong in the learner's answer (if they gave one);",
-    `3. if a grammar or vocabulary rule is behind it, that rule with one short ${t} example;`,
-    "   if the item checks understanding of a text, audio or video, what in it gives the answer instead (quote the transcript when it is given; never guess what was said).",
+    "2. what exactly is wrong in the learner's answer (if they gave one) — say what is wrong, never guess why they chose it;",
+    `3. if a grammar or vocabulary rule is behind it, that rule with one short ${t} example — a tendency ("usually", "often") is no rule: say it as one;`,
+    "   if the item checks understanding of a text, audio or video, what in it gives the answer instead (quote the transcript when it is given; never guess what was said);",
+    '4. if that rule is one of the grammar topics met so far, one short sentence saying where it was taught ("This is X from lesson 1.2 «title»").',
     `Write ${t} words and examples in ${t}. Do not invent rules; when the lesson notes cover the topic, use their terms.`,
     "If several answers are accepted, they are separated by |. Gaps are shown in [brackets].",
-    "Plain text in short paragraphs; **bold** is allowed; no headings, no tables.",
+    `Plain text in short paragraphs; **bold** is allowed; no headings, no tables, no emoji. ${NEUTRAL}`,
   ].join("\n");
 }
 
@@ -53,6 +58,7 @@ const EXPLAIN_FIXED =
 export function explainMistakeMessages(input: ExplainMistakeInput): ChatMessage[] {
   const item = describeItem(input.exercise, input.locale, input.index, input.answer);
   const notes = grammarNotes(input, EXPLAIN_MISTAKE_BUDGETS.notes);
+  const topics = topicPlacesLine(input, EXPLAIN_MISTAKE_BUDGETS.topics);
   const script =
     input.scriptHtml && clip(htmlToText(input.scriptHtml), EXPLAIN_MISTAKE_BUDGETS.script);
   const system = systemPrompt(input, explainMistakeRules, EXPLAIN_FIXED);
@@ -64,7 +70,9 @@ export function explainMistakeMessages(input: ExplainMistakeInput): ChatMessage[
     `Learner's answer: ${item.learner ?? "(no answer)"}`,
     "</exercise>",
     ...(script ? ["<transcript>", script, "</transcript>"] : []),
-    ...(notes ? ["<lesson_notes>", notes, "</lesson_notes>"] : []),
+    ...(topics || notes
+      ? ["<lesson_notes>", ...[topics, notes].filter((x) => !!x), "</lesson_notes>"]
+      : []),
   ].join("\n");
   return [
     { role: "system", content: system },

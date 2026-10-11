@@ -7,13 +7,16 @@ import { type StructuredTask, structuredRequest } from "../src/structured.ts";
 import { checkSpeakingTask } from "../src/tasks/check-speaking.ts";
 import { checkWritingTask } from "../src/tasks/check-writing.ts";
 import { examConversationTask } from "../src/tasks/exam-conversation.ts";
+import { mistakeItemsTask } from "../src/tasks/mistake-items.ts";
 import { rateExamAnswerTask } from "../src/tasks/rate-exam-answer.ts";
 import { sceneSetupTask, sceneSummaryTask, sceneTurnTask } from "../src/tasks/scene.ts";
 import { wordExamplesTask } from "../src/tasks/word-examples.ts";
+import { writingTaskTask } from "../src/tasks/writing-task.ts";
 
 const RU_DE = { language: "ru", target: "de" } as const;
 const lesson = { title: "Begrüßung", goals: [], vocab: [], grammarHtml: [] };
 const setup = { title: "T", situation: "S", partner: "P", goals: ["G"], opening: "Hallo!" };
+const WRITING = { situation: "S", points: ["a", "b", "c"], words: 30 };
 const speaking = fixture.lessons
   .flatMap((l) => l.pages)
   .flatMap((p) => ("exercise" in p ? [p.exercise] : []))
@@ -22,7 +25,9 @@ if (!speaking) throw new Error("no speaking exercise in the fixture");
 
 /** Every task answered in JSON. */
 const TASKS: StructuredTask<unknown>[] = [
-  checkWritingTask({ ...RU_DE, lesson, text: "Ich heiße Anna." }),
+  checkWritingTask({ ...RU_DE, lesson, task: WRITING, text: "Ich heiße Anna." }),
+  writingTaskTask({ ...RU_DE, lesson }),
+  mistakeItemsTask({ ...RU_DE, lesson, groups: [] }),
   checkSpeakingTask({ ...RU_DE, lesson, exercise: speaking, index: 0, transcript: "Hallo" }),
   examConversationTask({ ...RU_DE, exam: "E", part: "Teil 1", task: [], partner: "", history: [] }),
   rateExamAnswerTask({ ...RU_DE, exam: "E", task: [], criteria: [], samples: [], answer: "A" }),

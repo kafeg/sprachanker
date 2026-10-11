@@ -34,18 +34,25 @@ src/
   text.ts          # course HTML → plain text for prompts (a table: a row a line, cells joined by " · ")
   tasks/
     rules.ts           # systemPrompt: the learner's rules or the standing ones, then the fixed suffix and
-                       # the reply's languages (languagesLine)
+                       # the reply's languages (languagesLine); NEUTRAL: the line that no
+                       # rule assumes the learner's gender
     registry.ts        # TASK_PROMPTS: the tasks whose prompt the learner sees and rewrites, in order —
                        # their rules and budgets (the server's prompt settings read it)
     lesson.ts          # LessonInfo (what tasks know of a lesson, with the knowledge snapshot: level,
                        # place, earlier words with translations, topics met) and its prompt lines
     describe.ts        # an exercise as text: its header (instruction, texts) and items (task, correct,
-                       # learner answer); a mistake as two lines naming lesson, exercise and item
+                       # learner answer); a mistake naming lesson, exercise and item with its wrong
+                       # parts only (wrongPartLine)
     exam-conversation.ts # exam_conversation: a speaking part — the examiner's and the partner's lines
-    explain-mistake.ts # explain_mistake: prompt + call
+    explain-mistake.ts # explain_mistake: prompt + call (where its topic was taught)
+    mistake-items.ts   # mistake_items: going over mistakes — an explanation and new items per type of
+                       # mistakes (the engine's groups), each item checked for its type
     chat-turn.ts       # chat_turn: the lesson tutor (lesson context, known words, exercise, mistakes, history)
     section-chat.ts    # section_chat_turn: the tutor on its own (what the learner met in their courses, history)
-    check-writing.ts   # check_writing: the learner's text on the lesson's topic → structured verdict
+    writing-task.ts    # writing_task: a situation and three content points from the lesson; the length
+                       # and what a text needs at a level (data), the exam that sets and rates it (German)
+    check-writing.ts   # check_writing: a text on the task → each point rated, at most three corrections,
+                       # the level's criteria, a model text
     check-speaking.ts  # check_speaking: an answer said aloud (what was heard) against the item, its
                        # question and the source's answer as heard → structured verdict
     corrections.ts     # cleanCheck: a check's corrections cleaned, a good text kept as written (writing,
