@@ -19,8 +19,8 @@ export const CANONICAL_FORMAT = 1;
 /** Where a course comes from and on what terms (shown with the course; attribution in its locale). */
 export const CourseSource = z.strictObject({
   publisher: z.string().min(1),
-  /** The source's home page of the course. */
-  url: z.url(),
+  /** The source's home page of the course (http or https: shown as a link). */
+  url: z.httpUrl(),
   /** `free-access`: free to use online, no open licence (personal study only). */
   licence: z.enum(["cc-by-4.0", "public-domain", "free-access"]),
 });

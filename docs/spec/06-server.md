@@ -162,15 +162,18 @@ JSON under `/api`, validated with zod and typed for the web client through Hono 
   (`course_bundle_too_large`). A body without `Content-Length` is counted as it comes, held in memory,
   so the large files — a deck file, a profile file, a course bundle — are taken only
   with their length announced (`Content-Length`, no `Transfer-Encoding`; else 411 `length_required`,
-  before a byte is read; the web client's uploads send it) and streamed to disk up to that length.
+  before a byte is read; the web client's uploads send it) and streamed to disk up to that length;
+  a profile file's or course bundle's upload that sends nothing for two minutes ends (408
+  `upload_stalled`), so the one import at a time it holds lets the next in.
 - Errors: `{error: <code>}`, the code one of `ERROR_CODES` (`schema/src/errors.ts`; the web has words
   for each, tested), with 400 (input; a request that does not validate is `invalid_request` with a
   `detail`, the AI's routes included), 403 (`missing_client_header`, `registration_closed`), 404
   (`not_installed` for a course, lesson or file that is not in the library; unknown ids), 409 (state:
-  a run not active, an assistant not set up, a model already busy with the same thing), 413, 415, 422
+  a series being imported, `series_busy`; a run not active, an assistant not set up, a model already busy with the same thing), 413, 415, 422
   (a deck file that does not read, unpacks too large or has no words; a profile file or a course
   bundle that is none, damaged or from a newer app), 421
-  (a host name this machine is not reached by), 411 (`length_required`: a file without its length), 502 (the LLM provider, the speech engine), 507 (no room
+  (a host name this machine is not reached by), 411 (`length_required`: a file without its length), 408
+  (`upload_stalled`), 502 (the LLM provider, the speech engine), 507 (no room
   on the disk for a profile file or a course bundle, `not_enough_space`); services raise `ServiceError(code, status)` (`src/errors.ts`). Anything else, a
   stored row that no longer parses included, is a 500 (`server_error`).
 - `/api/llm` (`routes/llm.ts`): `GET /` (state), `PUT route`, `PUT providers/:id`, `GET models`,
@@ -374,7 +377,9 @@ profiles with device tokens (above).
 - **Tokens**: device tokens 256-bit random, stored hashed (SHA-256), revocable.
 - **Secrets**: AES-256-GCM with a key file (`0600`, `<app-data>/secret.key`); write-only through the API;
   never logged; never in a profile file (emptied from its copy of the database, 05).
-- **Content**: course HTML sanitised at normalisation; markdown rendered with raw HTML disabled. Every
+- **Content**: course HTML sanitised at normalisation; markdown rendered with raw HTML disabled; a
+  course's source and an exam's documents, shown as links, are http(s) addresses only (their schemas:
+  never a `javascript:` link from a course bundle). Every
   response has a CSP that loads scripts, styles, images, media and connections from this server only
   (images also `data:`/`blob:`, media `blob:`; inline styles allowed, `style-src 'unsafe-inline'`),
   no inline scripts, `frame-ancestors 'none'` (also `X-Frame-Options`), `nosniff` and `no-referrer`: model output cannot make the browser send data to another host.
@@ -383,7 +388,15 @@ profiles with device tokens (above).
   refused (`mediaFile` in `packages/course-kit/src/library.ts`). The library reader takes series,
   course and edition names only when they are keys, so nothing from a request points outside it.
   Recordings are served only to their profile (`/api/recordings/:id` behind the session check, ids
-  are ULIDs, files named by the server).
+  are ULIDs, files named by the server). Every media file — the library's, a deck folder's (an
+  `.apkg` names its own), a recording — is served with a type fixed by its extension (`mediaType`,
+  `src/media.ts`: audio, video, images, subtitles, PDF; never HTML, SVG, XML or JavaScript — any
+  other is `application/octet-stream`) and `nosniff`, so no file a course or deck brings runs as a
+  page of our origin. Opened on its own it is a document that runs and loads nothing:
+  `Content-Security-Policy: default-src 'none'; style-src 'unsafe-inline'; sandbox` (the header does
+  nothing to an `<img>`, `<audio>`, `<video>` or `<track>` of the app). A PDF keeps the app's own
+  policy instead: browsers show it in a viewer that a sandbox blocks (Chrome refuses it in a
+  sandboxed document), and that viewer runs no script on our origin.
 - **Downloads** (speech models): HTTPS, sha256 pinned, verified before use.
 - **LLM**: course text and learner input are passed as delimited data; output is validated against
   schemas and never executed.

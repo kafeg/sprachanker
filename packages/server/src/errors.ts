@@ -5,7 +5,7 @@ import type { ErrorCode } from "@sprachanker/schema";
 import { HTTPException } from "hono/http-exception";
 import type { ContentfulStatusCode } from "hono/utils/http-status";
 
-type ErrorStatus = 400 | 401 | 403 | 404 | 409 | 411 | 413 | 415 | 422 | 429 | 502 | 507;
+type ErrorStatus = 400 | 401 | 403 | 404 | 408 | 409 | 411 | 413 | 415 | 422 | 429 | 502 | 507;
 
 export class ServiceError extends Error {
   constructor(

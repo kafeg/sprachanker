@@ -38,6 +38,29 @@ test("a media name that walks out of its folder is refused", async () => {
     await expect(store.put(name, bytes("x"))).rejects.toThrow("unsafe media name");
 });
 
+test("only what browsers play or show is stored, under a name any disk takes; an extension lower-cased", async () => {
+  const dir = mkdtempSync(join(tmpdir(), "sprachanker-media-"));
+  const store = createMediaStore(dir);
+  for (const name of [
+    "audio/page.html",
+    "image/logo.svg",
+    "video/x.js",
+    "pdf/x.xhtml",
+    "audio/noext",
+    "audio/a:b.mp3",
+    "audio/con.mp3",
+    "audio/x.mp3.",
+    `audio/${"a".repeat(252)}.mp3`,
+  ])
+    await expect(store.put(name, bytes("x"))).rejects.toThrow("unsafe media name");
+  expect((await store.put("image/Photo.JPG", bytes("p"))).path).toBe(
+    "media/image/Photo.jpg" as never,
+  );
+  expect((await store.put("audio/teil-1.mp4", bytes("a"))).path).toBe(
+    "media/audio/teil-1.mp4" as never,
+  );
+});
+
 test("two downloads of one name at once: one file, the other a numbered one or the same", async () => {
   const dir = mkdtempSync(join(tmpdir(), "sprachanker-media-"));
   const store = createMediaStore(dir);

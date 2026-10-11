@@ -1333,6 +1333,7 @@
     "deck_same_languages": "Kata dan terjemahannya harus dalam dua bahasa yang berbeda.",
     "examples_without_word": "Kalimat dari model tidak memakai kata tersebut.",
     "length_required": "Berkas dikirim tanpa ukurannya. Coba lagi, atau di peramban lain.",
+    "upload_stalled": "File berhenti terkirim. Periksa koneksi dan coba lagi.",
     "profile_import_busy": "Berkas profil lain sedang diimpor. Coba lagi setelah selesai.",
     "llm_url_with_login": "Jangan sertakan nama pengguna dan kata sandi di alamat: masukkan kunci di kolom kunci API.",
     "course_export_gone": "Ekspor ini sudah tidak ada: ekspor kursus lagi.",
@@ -1341,7 +1342,8 @@
     "course_bundle_too_large": "Berkas kursus ini terlalu besar (paling besar 16 GB).",
     "course_bundle_from_newer_app": "Berkas kursus ini berasal dari versi SprachAnker yang lebih baru: perbarui dulu aplikasinya di sini.",
     "course_bundle_clash": "Komputer ini punya berkas lain dengan nama berkas media kursus ini: unduh saja kursusnya di sini.",
-    "course_import_busy": "Berkas kursus lain sedang diimpor. Coba lagi setelah selesai."
+    "course_import_busy": "Berkas kursus lain sedang diimpor. Coba lagi setelah selesai.",
+    "series_busy": "Kursus dari sumber ini sedang diunduh atau diimpor. Coba lagi setelah selesai."
   },
   "exams": {
     "tabs": {

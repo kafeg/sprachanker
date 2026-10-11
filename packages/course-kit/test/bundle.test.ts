@@ -6,7 +6,9 @@ import {
   existsSync,
   mkdirSync,
   mkdtempSync,
+  readdirSync,
   readFileSync,
+  rmSync,
   statSync,
   writeFileSync,
 } from "node:fs";
@@ -293,4 +295,110 @@ test("a bundle's files are checked before anything is installed: schemas, places
     "media/video/extra.mp4: a media file the course does not use",
     `keys.json ${MINI_SERIES}/other/u00: not a scope of ${COURSE}`,
   ]);
+});
+
+test("a bundle's lines of media.json say what it holds: its file, of that kind, size and content, of a web address", async () => {
+  const { root } = await library();
+  const problemsOf = async (change: (b: Awaited<ReturnType<typeof bundled>>) => void) => {
+    const b = await bundled(root, ["ru-de"]);
+    change(b);
+    return checkBundle(b.files, b.manifest);
+  };
+  const url = "https://example.org/hallo.mp3";
+  const line = (b: Awaited<ReturnType<typeof bundled>>) =>
+    b.manifest.media[url] as { sha256: string; size: number; kind: string };
+  const refused = [`media.json ${url}: not a media file of the bundle as listed`];
+  expect(await problemsOf((b) => (line(b).sha256 = "0".repeat(64)))).toEqual(refused);
+  expect(await problemsOf((b) => (line(b).size += 1))).toEqual(refused);
+  expect(await problemsOf((b) => (line(b).kind = "image"))).toEqual(refused);
+  expect(
+    await problemsOf((b) => {
+      b.manifest.media["javascript:alert(1)"] = b.manifest.media[url] as never;
+    }),
+  ).toEqual(["media.json javascript:alert(1): not a media file of the bundle as listed"]);
+});
+
+/** Every file under `dir` with its content. */
+const filesOf = (dir: string) =>
+  Object.fromEntries(
+    (readdirSync(dir, { recursive: true, withFileTypes: true }) as import("node:fs").Dirent[])
+      .filter((d) => d.isFile())
+      .map((d) => [
+        join(d.parentPath, d.name).slice(dir.length),
+        readFileSync(join(d.parentPath, d.name), "utf8"),
+      ]),
+  );
+
+test("an install that fails midway is undone: media placed removed, the course's folders as they were", async () => {
+  const { root, series } = await library();
+  const other = dir();
+  await install(other, await bundled(root, ["ru-de"]));
+  const otherSeries = join(other, MINI_SERIES);
+  // The library to install into lacks a picture; the bundle's course differs, and adds an edition.
+  rmSync(join(otherSeries, "media/image/frage.png"));
+  const index = join(series, "canonical/basic/course.json");
+  writeFileSync(index, `${readFileSync(index, "utf8")}\n`);
+  const bundle = await bundled(root);
+  const before = filesOf(other);
+  const plan = await planBundle(other, bundle.manifest);
+  expect(await checkBundle(bundle.files, bundle.manifest)).toEqual([]);
+  // The new edition's folder cannot be moved in: after the picture and the course's index were.
+  rmSync(join(bundle.files, "locale/en-de/basic"), { recursive: true });
+  await expect(installBundle({ libraryRoot: other, ...bundle, plan })).rejects.toThrow();
+  expect(filesOf(other)).toEqual(before);
+});
+
+test("a bundle replaces nothing of the library but its course's folders: a source copy there with other content is a clash, another course's copy no bundle's", async () => {
+  const { root } = await library();
+  const bundle = await bundled(root, ["ru-de"]);
+  const other = dir();
+  put(join(other, MINI_SERIES, "raw/de-de/basic/quiz.pdf"), "the quiz as read elsewhere");
+  expect((await planBundle(other, bundle.manifest)).clash).toEqual(["raw/de-de/basic/quiz.pdf"]);
+  // A copy in another course's folder, named by this course's exam sources.
+  const theirs = "raw/de-de/other/quiz.pdf";
+  cpSync(join(bundle.files, "raw/de-de/basic/quiz.pdf"), join(bundle.files, theirs));
+  const sources = join(bundle.files, "canonical/basic/sources/quiz.json");
+  writeFileSync(
+    sources,
+    readFileSync(sources, "utf8").replace("raw/de-de/basic/", "raw/de-de/other/"),
+  );
+  bundle.manifest.files.push({ path: theirs, size: 1, sha256: "0".repeat(64) });
+  expect(await checkBundle(bundle.files, bundle.manifest)).toContain(`${theirs}: not of ${COURSE}`);
+  // Nor is it exported.
+  const series = join(root, MINI_SERIES);
+  writeFileSync(
+    join(series, "canonical/basic/sources/quiz.json"),
+    readFileSync(join(series, "canonical/basic/sources/quiz.json"), "utf8").replace(
+      "raw/de-de/basic/",
+      "raw/de-de/other/",
+    ),
+  );
+  put(join(series, theirs), "another course's copy");
+  const content = await courseBundleContent(root, MINI_SERIES, "basic", ["ru-de"]);
+  expect(content.files.map((f) => f.path).filter((p) => p.startsWith("raw/"))).toEqual([]);
+});
+
+test("the same content under another name is linked only when that file holds it now, not as the index says", async () => {
+  const { root } = await library();
+  const bundle = await bundled(root, ["ru-de"]);
+  const other = dir();
+  const otherSeries = join(other, MINI_SERIES);
+  const audio = bundle.manifest.files.find((f) => f.path === MINI_AUDIO);
+  // The index says hallo-2.mp3 holds the recording; the file holds something else of its size.
+  put(join(otherSeries, "media/audio/hallo-2.mp3"), "x".repeat(audio?.size ?? 0));
+  put(
+    join(otherSeries, "media.json"),
+    JSON.stringify({
+      "https://example.org/elsewhere.mp3": {
+        kind: "audio",
+        path: "media/audio/hallo-2.mp3",
+        sha256: audio?.sha256,
+        size: audio?.size,
+        mime: "audio/mpeg",
+      },
+    }),
+  );
+  const plan = await planBundle(other, bundle.manifest);
+  expect([...plan.link]).toEqual([]);
+  expect(plan.unpack.has(MINI_AUDIO)).toBe(true);
 });

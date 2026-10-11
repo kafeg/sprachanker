@@ -10,6 +10,7 @@ export const ERROR_CODES = [
   "invalid_request",
   "request_too_large",
   "length_required",
+  "upload_stalled",
   "server_error",
   // Profiles.
   "no_such_profile",
@@ -37,6 +38,7 @@ export const ERROR_CODES = [
   "course_bundle_from_newer_app",
   "course_bundle_clash",
   "course_import_busy",
+  "series_busy",
   // Lesson runs and their events.
   "no_such_run",
   "run_not_active",

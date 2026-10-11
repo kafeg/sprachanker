@@ -198,6 +198,8 @@ const COURSE_BUNDLE_ERRORS: Record<string, string> = {
   course_bundle_clash:
     "this library has other files under the names of the course's media: download the course here instead",
   course_import_busy: "another course file is being imported: try again when it is done",
+  series_busy:
+    "courses of its source are being downloaded or imported by another program: try again when it is done",
   not_enough_space: "there is not enough free space on the disk",
 };
 const inWords = (error: unknown, words = PROFILE_FILE_ERRORS) =>

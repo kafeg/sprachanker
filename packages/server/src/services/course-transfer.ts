@@ -16,6 +16,7 @@ import {
   type MediaIndex,
 } from "@sprachanker/schema";
 import { ServiceError } from "../errors.ts";
+import { createOnce } from "../once.ts";
 import { guarded, oneAtATime, preparedExports } from "./transfers.ts";
 
 /** A file of a bundle besides its manifest, as listed in the manifest. */
@@ -53,8 +54,11 @@ export interface InstalledBundle {
  * own (`library/.transfers/<id>/`), removed when it ends. A full disk is an error with code `ENOSPC`.
  */
 export interface CourseTransferFiles {
-  /** Transfers an hour old go (a course folder an install left aside put back first). */
+  /** Transfers an hour old go (an install one stopped midway undone first). */
   sweep(): void;
+  /** Installs stopped midway (the process stopped) undone, whatever their age, each under its
+   *  series' lock (one another process holds is its install, running). */
+  recover(): Promise<void>;
   /** A course's files (`editions`: those asked, else every one installed) linked into a new
    *  transfer, each hashed; NotInstalledError when the course or an edition is not here. */
   stage(series: string, course: string, editions?: string[]): Promise<StagedCourse>;
@@ -108,7 +112,9 @@ export function createCourseTransfer(deps: {
     bytes: number;
   }>(files.discard, "course_export_gone");
   const SERVER = "server";
-  // At the start: a stopped server's transfers.
+  // At the start: an install a stopped process left midway undone, whatever its age (each export
+  // and import waits for it); a stopped server's transfers.
+  const recovered = files.recover();
   files.sweep();
   /** An import, the only one while it runs (each needs the room of its file and more). */
   const alone = oneAtATime("course_import_busy");
@@ -160,6 +166,11 @@ export function createCourseTransfer(deps: {
     };
   }
 
+  /** The export made ready of each course (`<series>/<course>`), as asked (its editions, or "" for
+   *  all): one a course, while it waits to be downloaded. */
+  const byCourse = new Map<string, { asked: string; ready: ReturnType<typeof keep> }>();
+  const staging = createOnce<ReturnType<typeof keep>>();
+
   /** A staged course made a prepared export: its manifest, file name and size. */
   function keep(staged: StagedCourse) {
     const paths = staged.files.map((f) => f.path);
@@ -193,13 +204,25 @@ export function createCourseTransfer(deps: {
      *  its name and size. One not downloaded within an hour goes. */
     async prepare(series: string, course: string, editions?: string[]) {
       files.sweep();
-      const staged = await guarded(() => files.stage(series, course, editions));
-      try {
-        return keep(staged);
-      } catch (error) {
-        files.discard(staged.id);
-        throw error;
-      }
+      await recovered;
+      const key = `${series}/${course}`;
+      const asked = editions ? [...editions].sort().join("+") : "";
+      return staging(`${key} ${asked}`, async () => {
+        // One export of a course at a time: the same asked again while it waits is that one.
+        const had = byCourse.get(key);
+        if (had?.asked === asked && prepared.waiting(SERVER, had.ready.id)) return had.ready;
+        if (had) prepared.drop(had.ready.id);
+        byCourse.delete(key);
+        const staged = await guarded(() => files.stage(series, course, editions));
+        try {
+          const ready = keep(staged);
+          byCourse.set(key, { asked, ready });
+          return ready;
+        } catch (error) {
+          files.discard(staged.id);
+          throw error;
+        }
+      });
     },
 
     /** A prepared export still there to download: its file's name and size (404 when it is gone or
@@ -247,13 +270,14 @@ export function createCourseTransfer(deps: {
       if (!body) throw new ServiceError("not_a_course_bundle", 422);
       return alone(async () => {
         files.sweep();
+        await recovered;
         const id = files.begin();
         try {
           return await guarded(async () => {
             if (!(await files.receive(id, body, length)))
               throw new ServiceError("course_bundle_too_large", 413);
             return await settle(id);
-          });
+          }, "course_bundle_damaged");
         } finally {
           files.discard(id);
         }
@@ -264,9 +288,10 @@ export function createCourseTransfer(deps: {
     importFile: (file: string) =>
       alone(async () => {
         files.sweep();
+        await recovered;
         const id = files.begin();
         try {
-          return await guarded(() => settle(id, file));
+          return await guarded(() => settle(id, file), "course_bundle_damaged");
         } finally {
           files.discard(id);
         }

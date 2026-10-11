@@ -27,6 +27,7 @@ test("recordings: saved as recorded, played with ranges, counted, removed; bad o
 
   const whole = await get(`/api/recordings/${id}`);
   expect([whole.status, (await whole.arrayBuffer()).byteLength]).toEqual([200, 1000]);
+  expect(whole.headers.get("content-type")).toBe("video/webm");
   const part = await get(`/api/recordings/${id}`, { headers: { range: "bytes=10-19" } });
   expect(part.status).toBe(206);
   expect([...new Uint8Array(await part.arrayBuffer())]).toEqual([

@@ -286,7 +286,9 @@ recordings/<ulid>.<ext>
   1. the file streamed to disk (an upload: its length announced, 06; room for it twice — the file and
      what it unpacks to — checked first; 413 `profile_file_too_large` past 4 GB);
   2. read by its zip directory, believed only as far as it is checked: the directory right before the
-     end record (or the ZIP64 end record, right before its locator), at most 16 MB and no larger than its entries need, short names and fields, each
+     end record (or the ZIP64 end record, right before its locator), no more entries than a manifest
+     lists (and it) and no larger than as many entries need (`zipLimits`), both checked before it is
+     read — read once —, short names and fields, each
      entry's local header the same as its directory entry, the entries in order and none overlapping
      another; a manifest that reads, stored entries only, only `profile.sqlite` and
      `recordings/<ulid>.<ext>`, each once — else 422 `not_a_profile_file`; a newer format or a

@@ -7,9 +7,9 @@ import { createHash } from "node:crypto";
 import {
   copyFileSync,
   existsSync,
-  linkSync,
   mkdirSync,
   readdirSync,
+  readFileSync,
   renameSync,
   rmSync,
   statSync,
@@ -17,6 +17,7 @@ import {
 import { readFile } from "node:fs/promises";
 import { dirname, join } from "node:path";
 import {
+  bundlePathCourse,
   type CourseBundleManifest,
   CourseBundlePath,
   CourseIndex,
@@ -34,7 +35,7 @@ import {
   Slug,
 } from "@sprachanker/schema";
 import type { z } from "zod";
-import { hashFile, writeFileAtomic } from "./files.ts";
+import { hashFile, linkOrCopy, writeFileAtomic } from "./files.ts";
 import { NotInstalledError, openLibrary } from "./library.ts";
 import { type LibraryFile, libraryFile } from "./provider.ts";
 import { mediaPaths } from "./verify.ts";
@@ -127,6 +128,8 @@ export async function courseBundleContent(
     [...paths]
       .sort()
       .filter((path) => CourseBundlePath.safeParse(path).success)
+      // A copy outside the course's own folder of `raw/` is no bundle's (it could be another's).
+      .filter((path) => !path.startsWith("raw/") || bundlePathCourse(path) === courseId)
       .flatMap((path) => {
         const file = fileOf(path);
         return file ? [{ path, file }] : [];
@@ -213,9 +216,8 @@ async function holds(file: string, want: { sha256: string; size: number }, known
 /**
  * What to unpack of a bundle: every library file; a media file or source copy only when the series
  * does not hold it already — the same content under its name is skipped, under another name of the
- * media index linked. A media file there with other content is a clash (the bundle cannot be
- * installed); a source copy there with other content is replaced (the exam's sources name the one
- * they were read from).
+ * media index linked. A media file or source copy there with other content is a clash (the bundle
+ * cannot be installed): nothing of the library is replaced by a bundle but the course's own folders.
  */
 export async function planBundle(
   libraryRoot: string,
@@ -243,12 +245,14 @@ export async function planBundle(
       continue;
     }
     const isMedia = f.path.startsWith("media/");
-    if (isMedia && existsSync(file)) {
+    if (existsSync(file)) {
       plan.clash.push(f.path);
       continue;
     }
+    // The file linked to is hashed: the index says what it held when it was fetched, and a link
+    // makes the bundle's name hold whatever it holds now.
     const other = isMedia ? byHash.get(f.sha256) : undefined;
-    if (other && (await holds(join(seriesDir, other), f, f.sha256))) plan.link.set(f.path, other);
+    if (other && (await holds(join(seriesDir, other), f))) plan.link.set(f.path, other);
     else plan.unpack.add(f.path);
   }
   return plan;
@@ -256,6 +260,12 @@ export async function planBundle(
 
 const courseSeries = (manifest: CourseBundleManifest) =>
   manifest.course.slice(0, manifest.course.indexOf("/"));
+
+/** Whether two of the paths are one file on a disk that does not tell case or Unicode forms apart
+ *  (APFS, NTFS): the second would be written over the first. */
+export function aliased(paths: readonly string[]) {
+  return new Set(paths.map((p) => p.normalize("NFC").toLowerCase())).size !== paths.length;
+}
 
 /** A library file's schema and the path its value says it has (libraryFile), by its kind. */
 function kindOf(path: string): {
@@ -338,12 +348,27 @@ export async function checkBundle(files: string, manifest: CourseBundleManifest)
   for (const path of paths) {
     if (path.startsWith("media/") && !named.has(path))
       problems.push(`${path}: a media file the course does not use`);
+    if (bundlePathCourse(path) !== undefined && bundlePathCourse(path) !== courseId)
+      problems.push(`${path}: not of ${manifest.course}`);
     if (path.startsWith("raw/") && !raw.has(path))
       problems.push(`${path}: a copy no exam's sources name`);
   }
-  for (const [url, entry] of Object.entries(manifest.media))
-    if (!("path" in entry) || !paths.has(entry.path))
-      problems.push(`media.json ${url}: not a media file of the bundle`);
+  // A line of media.json is believed by the next download of the series (a URL stored is not
+  // fetched again): each says what the bundle holds — its file, of its kind, size and content — of
+  // an address on the web.
+  const listed = new Map(manifest.files.map((f) => [f.path, f]));
+  for (const [url, entry] of Object.entries(manifest.media)) {
+    const file = "path" in entry ? listed.get(entry.path) : undefined;
+    if (
+      !("path" in entry) ||
+      !file ||
+      !entry.path.startsWith(`media/${entry.kind}/`) ||
+      entry.sha256 !== file.sha256 ||
+      entry.size !== file.size ||
+      !/^https?:$/.test(URL.parse(url)?.protocol ?? "")
+    )
+      problems.push(`media.json ${url}: not a media file of the bundle as listed`);
+  }
   for (const scope of Object.keys(manifest.keys))
     if (!scope.startsWith(`${manifest.course}/`))
       problems.push(`keys.json ${scope}: not a scope of ${manifest.course}`);
@@ -365,15 +390,30 @@ function moveInto(from: string, to: string) {
   renameSync(from, to);
 }
 
+/** What an install is changing, written in `aside` before it changes anything and removed once it is
+ *  done: an install the process stopped in the middle of is undone by it (`undoInstall`). */
+const JOURNAL = "install.json";
+interface InstallJournal {
+  series: string;
+  /** Media and source copies placed: none was there before. */
+  placed: string[];
+  /** The course's folders replaced (`had`: there before; the old one kept aside). */
+  folders: Array<{ prefix: string; had: boolean }>;
+  /** The series' files it rewrites (media.json, keys.json): each kept aside as it was, if it was. */
+  state: string[];
+}
+
 /**
  * A checked bundle, unpacked into `files`, installed into the library — the caller holds the series'
  * import lock. First what must hold is checked again (the library may have changed since the plan):
- * nothing of it is changed before. Then: its media and source copies moved (or linked) into place,
- * the series' media index given the lines it lacks and the key map the course's scopes, and the
- * course's folders — canonical and each edition's — replaced whole where their content version
- * differs (the folder replaced is kept in `aside` until the new one is in place). Other editions of
- * the course stay as they are. `same` when nothing of its content differed, `added` when the course
- * was not here, else `replaced`.
+ * nothing of it is changed before. Then, all or nothing: its media and source copies moved (or
+ * linked) into place, the course's folders — canonical and each edition's — replaced whole where
+ * their content version differs, and last the series' media index given the lines it lacks and the
+ * key map the course's scopes (replaced: the bundle's are the course's). What it changes is written to
+ * `aside` first, with the old folders and files kept there: an error midway undoes it here, a process
+ * stopped midway is undone by `undoInstall` (the server's start). Other editions of the course stay
+ * as they are. `same` when nothing of its content differed, `added` when the course was not here,
+ * else `replaced`.
  */
 export async function installBundle(options: {
   libraryRoot: string;
@@ -382,57 +422,43 @@ export async function installBundle(options: {
   manifest: CourseBundleManifest;
   plan: BundlePlan;
 }) {
-  const { manifest, plan, files, aside } = options;
-  const seriesDir = join(options.libraryRoot, courseSeries(manifest));
+  const { manifest, plan, files, aside, libraryRoot } = options;
+  const series = courseSeries(manifest);
+  const seriesDir = join(libraryRoot, series);
   const courseId = courseIdOf(manifest.course);
   const listed = new Map(manifest.files.map((f) => [f.path, f]));
   // What must hold, checked again before anything changes: the files the plan found still there, of
-  // their size (their content was found then; a stored name keeps its content, 02).
-  const still = (path: string, file: string) => {
+  // their size (their content was found then; a stored name keeps its content, 02) — a file linked
+  // to hashed again (`hashed`).
+  const still = (path: string, file: string, hashed = false) => {
     const want = listed.get(path) as { sha256: string; size: number };
-    return holds(join(seriesDir, file), want, want.sha256);
+    return holds(join(seriesDir, file), want, hashed ? undefined : want.sha256);
   };
   for (const path of plan.skip)
     if (!(await still(path, path))) throw new Error(`${path} changed in the library meanwhile`);
   for (const [path, from] of plan.link)
-    if (existsSync(join(seriesDir, path)) || !(await still(path, from)))
+    if (existsSync(join(seriesDir, path)) || !(await still(path, from, true)))
       throw new Error(`${path} changed in the library meanwhile`);
   for (const path of plan.unpack)
-    if (path.startsWith("media/") && existsSync(join(seriesDir, path)))
+    if (!isLibraryJson(path) && existsSync(join(seriesDir, path)))
       throw new Error(`${path} came into the library meanwhile`);
   const state = await seriesState(seriesDir);
   const before = await installedVersions(seriesDir, courseId, manifest.editions);
 
-  // Media and source copies.
-  for (const path of plan.unpack)
-    if (!isLibraryJson(path)) moveInto(join(files, path), join(seriesDir, path));
-  for (const [path, from] of plan.link) {
-    mkdirSync(dirname(join(seriesDir, path)), { recursive: true });
-    try {
-      linkSync(join(seriesDir, from), join(seriesDir, path));
-    } catch {
-      copyFileSync(join(seriesDir, from), join(seriesDir, path));
-    }
-  }
   // The series' own state: lines it lacks (or whose file failed) from the bundle; the course's scopes.
   const media = { ...state.media };
-  let mediaChanged = false;
   for (const [url, entry] of Object.entries(manifest.media)) {
     const known = media[url];
-    if (known && "path" in known) continue;
-    media[url] = entry;
-    mediaChanged = true;
+    if (!known || !("path" in known)) media[url] = entry;
   }
   const others = Object.entries(state.keys).filter(
     ([scope]) => !scope.startsWith(`${manifest.course}/`),
   );
   const keys = { ...Object.fromEntries(others), ...manifest.keys };
-  if (mediaChanged)
-    await writeFileAtomic(join(seriesDir, "media.json"), `${JSON.stringify(media, null, 1)}\n`);
-  if (JSON.stringify(keys) !== JSON.stringify(state.keys))
-    await writeFileAtomic(join(seriesDir, "keys.json"), `${JSON.stringify(keys, null, 1)}\n`);
-
-  // The course's folders, each replaced whole where it differs.
+  const rewrites = [
+    { name: "media.json", value: media, was: state.media },
+    { name: "keys.json", value: keys, was: state.keys },
+  ].filter((r) => JSON.stringify(r.value) !== JSON.stringify(r.was));
   const folders = [
     { prefix: `canonical/${courseId}`, was: before.canonical, now: manifest.content.canonical },
     ...manifest.editions.map((e) => ({
@@ -442,29 +468,42 @@ export async function installBundle(options: {
     })),
   ];
   const changed = folders.filter((f) => f.was !== f.now);
-  const asideOf = (prefix: string) => join(aside, courseSeries(manifest), prefix);
-  const moved: string[] = [];
+  const placed = [...[...plan.unpack].filter((p) => !isLibraryJson(p)), ...plan.link.keys()];
+
+  // What it changes, first; the series' files as they were kept beside it.
+  const kept = join(aside, series);
+  mkdirSync(kept, { recursive: true });
+  for (const r of rewrites)
+    if (existsSync(join(seriesDir, r.name)))
+      copyFileSync(join(seriesDir, r.name), join(kept, r.name));
+  const journal: InstallJournal = {
+    series,
+    placed,
+    folders: changed.map((f) => ({ prefix: f.prefix, had: existsSync(join(seriesDir, f.prefix)) })),
+    state: rewrites.map((r) => r.name),
+  };
+  await writeFileAtomic(join(aside, JOURNAL), JSON.stringify(journal));
   try {
-    for (const f of changed) {
+    for (const path of plan.unpack)
+      if (!isLibraryJson(path)) moveInto(join(files, path), join(seriesDir, path));
+    for (const [path, from] of plan.link) {
+      mkdirSync(dirname(join(seriesDir, path)), { recursive: true });
+      linkOrCopy(join(seriesDir, from), join(seriesDir, path));
+    }
+    for (const f of journal.folders) {
       const target = join(seriesDir, f.prefix);
-      if (existsSync(target)) {
-        moveInto(target, asideOf(f.prefix));
-        moved.push(f.prefix);
-      }
+      if (f.had) moveInto(target, join(kept, f.prefix));
       moveInto(join(files, f.prefix), target);
     }
+    for (const r of rewrites)
+      await writeFileAtomic(join(seriesDir, r.name), `${JSON.stringify(r.value, null, 1)}\n`);
   } catch (error) {
-    // Back as it was: the old folders into place again.
-    for (const prefix of moved) {
-      const target = join(seriesDir, prefix);
-      if (existsSync(asideOf(prefix))) {
-        rmSync(target, { recursive: true, force: true });
-        renameSync(asideOf(prefix), target);
-      }
-    }
+    undoInstall(libraryRoot, aside);
     throw error;
   }
-  for (const prefix of moved) rmSync(asideOf(prefix), { recursive: true, force: true });
+  // Done: what was kept aside goes.
+  rmSync(join(aside, JOURNAL));
+  rmSync(aside, { recursive: true, force: true });
   const unpackedMedia = [...plan.unpack].filter((p) => p.startsWith("media/")).length;
   return {
     status: !before.canonical
@@ -477,9 +516,48 @@ export async function installBundle(options: {
   };
 }
 
-/** Course folders an install stopped midway left in `aside` (`<aside>/<series>/<folder>`) put back
- *  where nothing took their place. */
-export function restoreAside(libraryRoot: string, aside: string) {
+/** The series an install that `aside` is the transfer folder of was changing, if it was stopped
+ *  before it was done. */
+export function installing(aside: string): string | undefined {
+  const file = join(aside, JOURNAL);
+  return existsSync(file)
+    ? (JSON.parse(readFileSync(file, "utf8")) as InstallJournal).series
+    : undefined;
+}
+
+/**
+ * An install stopped midway (`aside` its transfer's folder for it) undone — the caller holds the
+ * series' import lock: the media and copies it placed removed, the course's folders it replaced put
+ * back (those it added removed), the series' files it rewrote as they were. Without its journal (it
+ * was done, or an older app's): course folders left aside put back where nothing took their place.
+ */
+export function undoInstall(libraryRoot: string, aside: string) {
+  const file = join(aside, JOURNAL);
+  if (!existsSync(file)) return restoreAside(libraryRoot, aside);
+  const journal = JSON.parse(readFileSync(file, "utf8")) as InstallJournal;
+  if (!SeriesKey.safeParse(journal.series).success) throw new Error(`${file}: no series`);
+  const seriesDir = join(libraryRoot, journal.series);
+  const kept = join(aside, journal.series);
+  for (const path of journal.placed) rmSync(join(seriesDir, path), { force: true });
+  for (const f of journal.folders) {
+    const target = join(seriesDir, f.prefix);
+    const old = join(kept, f.prefix);
+    // A folder it had not moved aside yet is the old one still.
+    if (f.had && !existsSync(old)) continue;
+    rmSync(target, { recursive: true, force: true });
+    if (f.had) moveInto(old, target);
+  }
+  for (const name of journal.state) {
+    const old = join(kept, name);
+    if (existsSync(old)) renameSync(old, join(seriesDir, name));
+    else rmSync(join(seriesDir, name), { force: true });
+  }
+  rmSync(file);
+}
+
+/** Course folders left in `aside` (`<aside>/<series>/<folder>`) put back where nothing took their
+ *  place. */
+function restoreAside(libraryRoot: string, aside: string) {
   const dirs = (dir: string) => (existsSync(dir) ? readdirSync(dir) : []);
   for (const series of dirs(aside).filter((s) => SeriesKey.safeParse(s).success)) {
     const base = join(aside, series);

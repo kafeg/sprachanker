@@ -18,8 +18,8 @@ packages/course-kit/src/
   pool.ts              # runPool: work with a bounded number in flight
   media-index.ts       # fetchMedia (a series' media.json and media store), mediaRef, urlFileName, mediaPath,
                        # failed and gone media
-  media-store.ts       # media files under readable names, one file per content
-  files.ts             # atomic writes, temporary names, streamed hashes
+  media-store.ts       # media files under readable names, one file per content (storableMedia: a kind's extensions)
+  files.ts             # atomic writes, temporary names, streamed hashes, a hard link (a copy) never over a file
   zip.ts               # zips of stored entries (profile files, course bundles): written with sizes and
                        # CRC-32 known (ZIP64 where needed), read by a directory checked before believed
   library.ts           # the library read from its folder, validated
@@ -28,6 +28,7 @@ packages/course-kit/src/
   verify.ts            # a course's integrity and counts (LibraryView.check)
   bundle.ts            # course bundles, the library's side: what a course's bundle holds, content
                        # versions, a bundle unpacked checked (schemas, places, media used) and installed
+                       # all or nothing (install.json: undone on an error, or at the next start)
   canonical-json.ts    # canonical JSON (hashes) and library files' JSON
   fingerprint.ts       # exercise fingerprints
   exercise-draft.ts    # draftExercise, Unmapped, unknownExercise, draftOrUnknown (a mapping run)

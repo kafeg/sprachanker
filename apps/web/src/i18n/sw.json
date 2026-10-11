@@ -1333,6 +1333,7 @@
     "deck_same_languages": "Maneno na tafsiri zake yanahitaji lugha mbili tofauti.",
     "examples_without_word": "Sentensi za modeli hazikutumia neno hilo.",
     "length_required": "Faili ilitumwa bila ukubwa wake. Jaribu tena, au kwenye kivinjari kingine.",
+    "upload_stalled": "Faili limeacha kufika. Angalia muunganisho kisha ujaribu tena.",
     "profile_import_busy": "Faili nyingine ya wasifu inaingizwa sasa. Jaribu tena itakapokamilika.",
     "llm_url_with_login": "Usiweke jina la mtumiaji na nenosiri kwenye anwani: weka ufunguo kwenye sehemu ya ufunguo wa API.",
     "course_export_gone": "Uhamishaji huu haupo tena: hamisha kozi tena.",
@@ -1341,7 +1342,8 @@
     "course_bundle_too_large": "Faili hili la kozi ni kubwa mno (GB 16 kwa zaidi).",
     "course_bundle_from_newer_app": "Faili hili la kozi limetoka kwenye toleo jipya zaidi la SprachAnker: sasisha programu hapa kwanza.",
     "course_bundle_clash": "Kompyuta hii ina faili nyingine kwa majina ya faili za midia za kozi hii: badala yake pakua kozi hapa.",
-    "course_import_busy": "Faili nyingine ya kozi inaingizwa sasa. Jaribu tena itakapokamilika."
+    "course_import_busy": "Faili nyingine ya kozi inaingizwa sasa. Jaribu tena itakapokamilika.",
+    "series_busy": "Kozi kutoka chanzo hiki zinapakuliwa au kuingizwa sasa hivi. Jaribu tena itakapokamilika."
   },
   "exams": {
     "tabs": {

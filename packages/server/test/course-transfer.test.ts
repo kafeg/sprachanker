@@ -5,11 +5,13 @@
 import { expect, test } from "bun:test";
 import { createHash } from "node:crypto";
 import {
+  cpSync,
   existsSync,
   mkdirSync,
   readdirSync,
   readFileSync,
   renameSync,
+  rmSync,
   utimesSync,
   writeFileSync,
 } from "node:fs";
@@ -18,6 +20,7 @@ import { FIXTURE_SERIES } from "@sprachanker/course-fixture";
 import { CLIENT_HEADERS } from "@sprachanker/schema";
 import { strFromU8, strToU8, unzipSync, zipSync } from "fflate";
 import { ulid } from "ulid";
+import { withSeriesLock } from "../src/providers.ts";
 import { courseTransferFiles } from "../src/runtime/course-transfer.ts";
 import { setup } from "./setup.ts";
 
@@ -263,6 +266,72 @@ test("a file that is no sound bundle is refused before anything is installed: no
   );
 });
 
+test("names the disk refuses (a file where a folder would be) are the bundle's damage, not the server's fault", async () => {
+  const a = await setup();
+  const { bytes } = await exported(a);
+  const b = await setup({ empty: true });
+  const res = await importInto(
+    b,
+    repack(bytes, {
+      files: (f) =>
+        Object.assign(f, {
+          "raw/ru-de/demo/x.html": strToU8("x"),
+          "raw/ru-de/demo/x.html/y.html": strToU8("y"),
+        }),
+    }),
+  );
+  expect([res.status, await read(res)]).toEqual([422, { error: "course_bundle_damaged" }]);
+  nothingLeft(b, {});
+});
+
+test("one export of a course at a time: the same asked again is that one, another edition replaces it", async () => {
+  const a = await setup();
+  const exportOf = async (edition?: string) =>
+    read(
+      a.send("POST", "/api/courses/export", { series: FIXTURE_SERIES, course: "demo", edition }),
+    );
+  const transfers = () => readdirSync(join(a.root, "library", ".transfers"));
+  const first = await exportOf();
+  expect((await exportOf()).id).toBe(first.id);
+  expect(transfers()).toEqual([first.id]);
+  const ru = await exportOf("ru-de");
+  expect(ru.id).not.toBe(first.id);
+  expect((await a.get(`/api/courses/export/${first.id}`, { method: "HEAD" })).status).toBe(404);
+  expect(transfers()).toEqual([ru.id]);
+  // Downloaded: the next is made anew.
+  await (await a.get(`/api/courses/export/${ru.id}`)).arrayBuffer();
+  expect((await exportOf("ru-de")).id).not.toBe(ru.id);
+});
+
+test("an export does not wait for a download of its series: it says so", async () => {
+  const a = await setup();
+  let release = () => {};
+  const held = withSeriesLock(
+    join(a.root, "library"),
+    FIXTURE_SERIES,
+    () =>
+      new Promise<void>((resolve) => {
+        release = resolve;
+      }),
+  );
+  await Bun.sleep(10);
+  const busy = await a.send("POST", "/api/courses/export", {
+    series: FIXTURE_SERIES,
+    course: "demo",
+  });
+  expect([busy.status, await read(busy)]).toEqual([409, { error: "series_busy" }]);
+  release();
+  await held;
+  expect(
+    (await a.send("POST", "/api/courses/export", { series: FIXTURE_SERIES, course: "demo" }))
+      .status,
+  ).toBe(200);
+  // A series that is not one: not installed, and no folder made for it.
+  const absent = await a.send("POST", "/api/courses/export", { series: "no.such", course: "demo" });
+  expect(absent.status).toBe(404);
+  expect(existsSync(join(a.root, "library", "no.such"))).toBe(false);
+});
+
 test("a zip's directory is believed only as far as it is checked: entries overlapping", async () => {
   const a = await setup();
   const { bytes } = await exported(a);
@@ -277,6 +346,23 @@ test("a zip's directory is believed only as far as it is checked: entries overla
   buffer.writeUInt32LE(0, p + 42);
   const res = await importInto(b, new Uint8Array(buffer));
   expect([res.status, await read(res)]).toEqual([422, { error: "not_a_course_bundle" }]);
+  nothingLeft(b, {});
+});
+
+test("two names one file on a disk that does not tell case or Unicode forms apart: refused before a byte is unpacked", async () => {
+  const a = await setup();
+  const { bytes } = await exported(a);
+  const b = await setup({ empty: true });
+  const media = Object.keys(unzipSync(bytes)).find((p) => p.startsWith("media/audio/")) as string;
+  const upper = media.replace(/[^/]+$/, (name) => name.toUpperCase().replace(/\.MP3$/, ".mp3"));
+  for (const alias of [upper, media.normalize("NFD") === media ? null : media.normalize("NFD")]) {
+    if (!alias) continue;
+    const res = await importInto(
+      b,
+      repack(bytes, { files: (f) => Object.assign(f, { [alias]: strToU8("other") }) }),
+    );
+    expect([res.status, await read(res)]).toEqual([422, { error: "not_a_course_bundle" }]);
+  }
   nothingLeft(b, {});
 });
 
@@ -356,6 +442,26 @@ test("a full disk: the export and the import say so and leave nothing behind", a
   expect([absent.status, await read(absent)]).toEqual([404, { error: "not_installed" }]);
 });
 
+test("an upload that stalls ends: the next import is let in", async () => {
+  const a = await setup();
+  const { bytes } = await exported(a);
+  const b = await setup({
+    empty: true,
+    courseTransfers: (root) => courseTransferFiles(root, { uploadIdleMs: 50 }),
+  });
+  const stalled = await importInto(
+    b,
+    new ReadableStream<Uint8Array>({
+      start(controller) {
+        controller.enqueue(bytes.slice(0, 100));
+      },
+    }),
+    bytes.length,
+  );
+  expect([stalled.status, await read(stalled)]).toEqual([408, { error: "upload_stalled" }]);
+  expect((await read(importInto(b, bytes))).status).toBe("added");
+});
+
 test("one import at a time", async () => {
   const a = await setup();
   const { bytes } = await exported(a);
@@ -398,4 +504,35 @@ test("a course folder an install stopped midway left aside comes back when its t
   expect(existsSync(join(series, "canonical/demo/course.json"))).toBe(true);
   expect(readdirSync(join(b.root, "library", ".transfers"))).toEqual([]);
   expect((await read(b.get("/api/courses"))).length).toBe(1);
+});
+
+test("an install the process stopped midway is undone at the start, however new: media, folders and the series' files as they were", async () => {
+  const b = await setup();
+  const before = libraryOf(b);
+  const series = join(b.root, "library", FIXTURE_SERIES);
+  const id = courseTransferFiles(b.root).begin();
+  const aside = join(b.root, "library", ".transfers", id, "aside");
+  const kept = join(aside, FIXTURE_SERIES);
+  // Stopped after everything but the end: a picture placed, the course's index folder replaced, the
+  // key map rewritten.
+  mkdirSync(join(kept, "canonical"), { recursive: true });
+  renameSync(join(series, "canonical/demo"), join(kept, "canonical/demo"));
+  cpSync(join(kept, "canonical/demo"), join(series, "canonical/demo"), { recursive: true });
+  rmSync(join(series, "canonical/demo/lessons/00-01.json"));
+  writeFileSync(join(series, "media/image/new.png"), "placed");
+  const keys = join(series, "keys.json");
+  if (existsSync(keys)) cpSync(keys, join(kept, "keys.json"));
+  writeFileSync(keys, "{}");
+  writeFileSync(
+    join(aside, "install.json"),
+    JSON.stringify({
+      series: FIXTURE_SERIES,
+      placed: ["media/image/new.png"],
+      folders: [{ prefix: "canonical/demo", had: true }],
+      state: ["keys.json"],
+    }),
+  );
+  await courseTransferFiles(b.root).recover();
+  expect(libraryOf(b)).toEqual(before);
+  expect(existsSync(join(aside, "install.json"))).toBe(false);
 });

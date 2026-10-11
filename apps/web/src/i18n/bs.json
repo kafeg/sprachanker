@@ -1333,6 +1333,7 @@
     "deck_same_languages": "Za riječi i njihove prijevode trebaju dva različita jezika.",
     "examples_without_word": "Rečenice modela nisu koristile tu riječ.",
     "length_required": "Datoteka je poslana bez svoje veličine. Pokušaj ponovo ili u drugom pregledniku.",
+    "upload_stalled": "Datoteka je prestala stizati. Provjeri vezu i pokušaj ponovo.",
     "profile_import_busy": "Upravo se uvozi druga datoteka profila. Pokušaj ponovo kad se završi.",
     "llm_url_with_login": "Izostavi korisničko ime i lozinku iz adrese: unesi ključ u polje za API ključ.",
     "course_export_gone": "Ovog izvoza više nema: izvezi kurs ponovo.",
@@ -1341,7 +1342,8 @@
     "course_bundle_too_large": "Ova datoteka kursa je prevelika (najviše 16 GB).",
     "course_bundle_from_newer_app": "Ova datoteka kursa potiče iz novije verzije SprachAnkera: prvo ažuriraj aplikaciju ovdje.",
     "course_bundle_clash": "Na ovom računaru pod imenima medijskih datoteka ovog kursa postoje druge datoteke: umjesto toga preuzmi kurs ovdje.",
-    "course_import_busy": "Upravo se uvozi druga datoteka kursa. Pokušaj ponovo kad se završi."
+    "course_import_busy": "Upravo se uvozi druga datoteka kursa. Pokušaj ponovo kad se završi.",
+    "series_busy": "Kursevi iz ovog izvora se upravo preuzimaju ili uvoze. Pokušaj ponovo kad se to završi."
   },
   "exams": {
     "tabs": {

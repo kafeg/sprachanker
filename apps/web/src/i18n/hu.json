@@ -1333,6 +1333,7 @@
     "deck_same_languages": "A szavakhoz és a fordításaikhoz két különböző nyelv kell.",
     "examples_without_word": "A modell mondataiban nem szerepelt a szó.",
     "length_required": "A fájl a mérete nélkül érkezett. Próbáld újra, vagy egy másik böngészőben.",
+    "upload_stalled": "A fájl érkezése megakadt. Ellenőrizd a kapcsolatot, és próbáld újra.",
     "profile_import_busy": "Épp egy másik profilfájl importálása folyik. Próbáld újra, ha végzett.",
     "llm_url_with_login": "A felhasználónevet és a jelszót hagyd ki a címből: a kulcsot az API-kulcs mezőbe írd.",
     "course_export_gone": "Ez az exportálás már nincs meg: exportáld újra a kurzust.",
@@ -1341,7 +1342,8 @@
     "course_bundle_too_large": "Ez a kurzusfájl túl nagy (legfeljebb 16 GB).",
     "course_bundle_from_newer_app": "Ez a kurzusfájl a SprachAnker egy újabb verziójából származik: előbb frissítsd itt az alkalmazást.",
     "course_bundle_clash": "Ezen a számítógépen a kurzus médiafájljainak nevén más fájlok vannak: töltsd le inkább itt a kurzust.",
-    "course_import_busy": "Épp egy másik kurzusfájl importálása folyik. Próbáld újra, ha végzett."
+    "course_import_busy": "Épp egy másik kurzusfájl importálása folyik. Próbáld újra, ha végzett.",
+    "series_busy": "Ebből a forrásból éppen kurzusok letöltése vagy importálása folyik. Próbáld újra, ha végzett."
   },
   "exams": {
     "tabs": {

@@ -8,6 +8,55 @@ import { MediaPath, Sha256 } from "./common.ts";
 export const MediaKind = z.enum(["audio", "image", "video", "subtitles", "pdf"]);
 export type MediaKind = z.infer<typeof MediaKind>;
 
+/** The extensions a media file of each kind may have, lower case (02, "Media references"): what
+ *  browsers play or show — never a document that runs scripts (HTML, SVG, XML). Goethe's recordings
+ *  are MP4 audio. */
+export const MEDIA_EXTENSIONS: Record<MediaKind, readonly string[]> = {
+  audio: ["mp3", "m4a", "aac", "ogg", "opus", "wav", "mp4"],
+  image: ["jpg", "jpeg", "png", "webp", "gif"],
+  video: ["mp4", "webm", "m4v"],
+  subtitles: ["vtt", "srt"],
+  pdf: ["pdf"],
+};
+
+/** Windows' device names, with any extension. */
+const DEVICE = /^(?:con|prn|aux|nul|com[0-9¹²³]|lpt[0-9¹²³])(?:\..*)?$/i;
+const NAME_BYTES = 255;
+
+const utf8Bytes = (text: string) => {
+  let bytes = 0;
+  for (const char of text) {
+    const code = char.codePointAt(0) ?? 0;
+    bytes += code < 0x80 ? 1 : code < 0x800 ? 2 : code < 0x10000 ? 3 : 4;
+  }
+  return bytes;
+};
+
+/** A file or folder name every disk takes as it is (02): no separator, control character or
+ *  character Windows refuses (`<>:"|?*`), not `.` or `..`, no trailing dot or space, no device name
+ *  (CON, NUL, …), at most 255 bytes (UTF-8). */
+export function portableName(name: string) {
+  return (
+    name !== "" &&
+    name !== "." &&
+    name !== ".." &&
+    !/[\\/<>:"|?*\p{Cc}]/u.test(name) &&
+    !/[. ]$/.test(name) &&
+    !DEVICE.test(name) &&
+    utf8Bytes(name) <= NAME_BYTES
+  );
+}
+
+/** A media file as the media store keeps it, `<kind>/<name>` under `media/`: a portable name with an
+ *  extension of its kind's. */
+export function storableMedia(path: string) {
+  const [kind, name, ...rest] = path.split("/");
+  const parsed = MediaKind.safeParse(kind);
+  if (!parsed.success || name === undefined || rest.length || !portableName(name)) return false;
+  const dot = name.lastIndexOf(".");
+  return dot > 0 && MEDIA_EXTENSIONS[parsed.data].includes(name.slice(dot + 1));
+}
+
 /** A source URL's stored file (path, sha256 and size for integrity checks), or why it is not. */
 const MediaIndexEntry = z.union([
   z.strictObject({

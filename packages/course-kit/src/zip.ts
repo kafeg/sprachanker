@@ -205,12 +205,22 @@ export interface ZipEntry {
   size: number;
 }
 
-/** How much of a zip is believed: each field (name, extra field, comment) at most `fieldMax` bytes,
- *  the directory at most `directoryMax`. */
+/** How much of a zip is believed: at most `countMax` entries, each field (name, extra field, comment)
+ *  at most `fieldMax` bytes, the directory at most `directoryMax` — all checked before the directory
+ *  is read. */
 export interface ZipLimits {
+  countMax: number;
   fieldMax: number;
   directoryMax: number;
 }
+
+/** The limits of a zip of at most `files` entries, names at most `nameMax` bytes: its directory as
+ *  large as entries of names `nameAverage` bytes long on average need (with ZIP64 fields, no comment). */
+export const zipLimits = (files: number, nameMax: number, nameAverage: number): ZipLimits => ({
+  countMax: files,
+  fieldMax: nameMax,
+  directoryMax: files * (CENTRAL_HEADER + 4 + 3 * 8 + nameAverage),
+});
 
 /** The ZIP64 extra field's values, each in place of a 32-bit field that holds MAX32; undefined when
  *  the extra field is anything else (only that block, exactly filled). */
@@ -293,6 +303,7 @@ export function zipEntries(file: string, limits: ZipLimits): ZipEntry[] | undefi
       dirEnd = Number(recordAt);
     }
     if (
+      count > limits.countMax ||
       dirAt + dirBytes !== dirEnd ||
       dirBytes > Math.min(limits.directoryMax, count * (CENTRAL_HEADER + 3 * limits.fieldMax))
     )

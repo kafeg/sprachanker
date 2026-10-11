@@ -1333,6 +1333,7 @@
     "deck_same_languages": "Les mots et leurs traductions doivent être dans deux langues différentes.",
     "examples_without_word": "Les phrases du modèle n’utilisaient pas le mot.",
     "length_required": "Le fichier a été envoyé sans sa taille. Réessaie, ou dans un autre navigateur.",
+    "upload_stalled": "Le fichier a cessé d'arriver. Vérifie la connexion et réessaie.",
     "profile_import_busy": "Un autre fichier de profil est en cours d’import. Réessaie quand il sera terminé.",
     "llm_url_with_login": "Retire le nom d’utilisateur et le mot de passe de l’adresse : saisis la clé dans le champ de la clé API.",
     "course_export_gone": "Cet export n’est plus là : exporte le cours à nouveau.",
@@ -1341,7 +1342,8 @@
     "course_bundle_too_large": "Ce fichier de cours est trop volumineux (16 Go au plus).",
     "course_bundle_from_newer_app": "Ce fichier de cours vient d’une version plus récente de SprachAnker : mets d’abord l’application à jour ici.",
     "course_bundle_clash": "Cet ordinateur a d’autres fichiers sous les noms des médias de ce cours : télécharge plutôt le cours ici.",
-    "course_import_busy": "Un autre fichier de cours est en cours d’import. Réessaie quand il sera terminé."
+    "course_import_busy": "Un autre fichier de cours est en cours d’import. Réessaie quand il sera terminé.",
+    "series_busy": "Des cours de cette source sont en cours de téléchargement ou d'import. Réessaie quand ce sera fini."
   },
   "exams": {
     "tabs": {
