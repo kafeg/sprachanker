@@ -377,7 +377,9 @@ profiles with device tokens (above).
 - **Tokens**: device tokens 256-bit random, stored hashed (SHA-256), revocable.
 - **Secrets**: AES-256-GCM with a key file (`0600`, `<app-data>/secret.key`); write-only through the API;
   never logged; never in a profile file (emptied from its copy of the database, 05).
-- **Content**: course HTML sanitised at normalisation; markdown rendered with raw HTML disabled. Every
+- **Content**: course HTML sanitised at normalisation; markdown rendered with raw HTML disabled; a
+  course's source and an exam's documents, shown as links, are http(s) addresses only (their schemas:
+  never a `javascript:` link from a course bundle). Every
   response has a CSP that loads scripts, styles, images, media and connections from this server only
   (images also `data:`/`blob:`, media `blob:`; inline styles allowed, `style-src 'unsafe-inline'`),
   no inline scripts, `frame-ancestors 'none'` (also `X-Frame-Options`), `nosniff` and `no-referrer`: model output cannot make the browser send data to another host.

@@ -1,7 +1,7 @@
 // The paths a course bundle may hold: the library's places only, media of their kind's extensions,
-// names every disk takes.
+// names every disk takes; the addresses a course shows as links, web addresses only.
 import { expect, test } from "bun:test";
-import { CourseBundlePath } from "../src/index.ts";
+import { CourseBundlePath, CourseSource, ExamSources } from "../src/index.ts";
 
 const ok = (path: string) => CourseBundlePath.safeParse(path).success;
 
@@ -43,4 +43,17 @@ test("never a page that runs scripts as media, a name a disk refuses, a copy out
     "canonical/a1/notes.txt",
   ])
     expect([path, ok(path)]).toEqual([path, false]);
+});
+
+test("a course's source and an exam's documents are web addresses: shown as links, nothing else runs", () => {
+  const source = (url: string) =>
+    CourseSource.safeParse({ publisher: "P", url, licence: "free-access" }).success;
+  const document = (url: string) =>
+    ExamSources.shape.documents.element.safeParse({ id: "d", title: "D", url }).success;
+  for (const check of [source, document]) {
+    expect(check("https://example.org/a")).toBe(true);
+    expect(check("http://example.org/a")).toBe(true);
+    for (const url of ["javascript:alert(1)", "data:text/html,x", "file:///etc/passwd"])
+      expect([url, check(url)]).toEqual([url, false]);
+  }
 });
