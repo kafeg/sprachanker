@@ -1,7 +1,63 @@
 // The Notebook: progress and the study days (today's lesson work in the calendar), lessons worked on
-// with their passes, two passes compared, a pass in full, an item's history across passes.
+// with their passes, two passes compared, a pass in full, an item's history across passes; its
+// pictures over a span, a deck's words by state and a review day opening its answers.
 import { expect, test } from "@playwright/test";
 import { answerPicture, DEMO_LESSON, freshLessonRun, openStep, post } from "./api.ts";
+
+test("the Notebook's pictures: cards answered, time spent, a deck's words by state; today's review day opens its answers", async ({
+  page,
+  request,
+}) => {
+  // The demo course's words as cards; two of them answered in Review (they stay: the Notebook shows them).
+  await post(request, "/api/cards/lesson", {
+    series: "sprachanker.fixture",
+    lessonKey: DEMO_LESSON,
+    edition: "en-de",
+  });
+  await page.goto("/review/decks");
+  await page.getByRole("button", { name: "Demo course", exact: true }).click();
+  await expect(page.getByText("Studying: Demo course")).toBeVisible();
+  const show = page.getByRole("button", { name: "Show answer" });
+  for (const rating of ["Again", "Good"]) {
+    await show.click();
+    await page.getByRole("button", { name: rating, exact: true }).click();
+    await expect(show).toBeVisible();
+  }
+
+  await page.goto("/notebook");
+  await expect(page.getByRole("heading", { name: "Notebook" })).toBeVisible();
+  // Time spent: the cards' answers were timed.
+  await expect(page.getByRole("img", { name: "Time spent" })).toBeVisible();
+  const time = page.locator("p", { hasText: /^Time spent$/ }).locator("xpath=..");
+  await expect(time).not.toContainText("—");
+  // Review's section: the cards answered and the share remembered over the span, the deck's words.
+  await expect(page.getByRole("img", { name: "Cards answered" })).toBeVisible();
+  await expect(page.getByRole("img", { name: /^Remembered/ })).toBeVisible();
+  await expect(
+    page.getByRole("img", { name: /^Words by state: New \d+, Learning [1-9]/ }),
+  ).toBeVisible();
+  // The last 7 days: a bar a day.
+  await page.getByRole("button", { name: "7 days" }).click();
+  await expect(page.getByText(/by day/).first()).toBeVisible();
+  await expect(
+    page.getByRole("img", { name: "Cards answered" }).locator(":scope > div"),
+  ).toHaveCount(7);
+
+  // Today's review day, with its answers, opens its page: each answer with its rating and its time.
+  await page
+    .getByRole("button", { name: /\d+ answers?$/ })
+    .first()
+    .click();
+  await expect(page).toHaveURL(/\/notebook\/review\/[0-9A-Z]{26}$/);
+  await expect(page.getByRole("heading", { name: /^Review of / })).toBeVisible();
+  const answers = page.getByRole("main").getByRole("listitem");
+  await expect(answers.filter({ hasText: "Again" }).first()).toBeVisible();
+  await expect(answers.filter({ hasText: "Good" }).first()).toBeVisible();
+  await expect(answers.last()).toContainText(/\d+ sec/);
+  await expect(page.getByRole("button", { name: "Later day" })).toBeDisabled();
+  await page.getByRole("button", { name: "Notebook" }).click();
+  await expect(page).toHaveURL(/\/notebook$/);
+});
 
 test("the Notebook: a lesson's passes, compared, one in full, an item across passes", async ({
   page,
