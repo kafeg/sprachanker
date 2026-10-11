@@ -1,7 +1,7 @@
 // What the server makes for a deck's words, kept beside the deck (04; 05): `extras.json` and media/ in
 // the deck's folder — an imported deck's, or a course's (`course~<series>~<course>`) — by lexeme, as
 // a deck's cards are one per lexeme. Read once and shared by the jobs that write it: one job per deck
-// and kind (audio read aloud, examples) at a time, the server's — one profile starts it, any sees
+// and kind (audio read aloud, examples — in each translation language) at a time, the server's — one profile starts it, any sees
 // it —, its progress in memory; stopped, the work under way is finished and kept, and started again
 // it does only the rest; what a kind made is removed on request (never the deck's own files).
 
@@ -19,8 +19,7 @@ import { ServiceError } from "../errors.ts";
 import type { DeckFiles, Decks } from "./decks.ts";
 import { parseJson } from "./stored.ts";
 
-const KINDS = ["audio", "examples"] as const;
-export type DeckJobKind = (typeof KINDS)[number];
+export type DeckJobKind = "audio" | "examples";
 
 /** A word of a deck as the deck's jobs take it, in the deck's order (cards.ts gives them): one per
  *  lexeme — a course's, one per headword its lessons give it as, the word's first one first. */
@@ -58,6 +57,7 @@ export interface DeckJobSpec<T> {
 }
 
 type Job = {
+  folder: string;
   /** Stopping: asked to stop, the steps under way still being done (kept when they are). */
   status: "running" | "stopping" | "done" | "stopped" | "failed";
   total: number;
@@ -100,7 +100,10 @@ export function createDeckExtras(deps: {
    *  are and written back). */
   const books = new Map<string, { book: DeckExtras; unread: Record<string, unknown> }>();
   const jobs = new Map<string, Job>();
-  const jobKey = (kind: DeckJobKind, folder: string) => `${kind} ${folder}`;
+  /** A job's key: its kind and folder — the examples' by the language they are translated into too, a
+   *  course's editions each having its own. */
+  const jobKey = (kind: DeckJobKind, folder: string, lang?: string) =>
+    `${kind} ${folder} ${kind === "examples" ? (lang ?? "") : ""}`;
   /** While a folder's job works, which of its media are there: found once, then as the job writes
    *  and removes them — its state, asked again and again while it works, finds every word's file
    *  without the disk. Otherwise the disk is asked (a file removed by hand counts as gone). */
@@ -170,13 +173,12 @@ export function createDeckExtras(deps: {
   /** A deck's folder replaced (imported again) or removed: its jobs stop, saving nothing more there,
    *  and its extras are read anew. */
   function forget(folder: string) {
-    for (const kind of KINDS) {
-      const job = jobs.get(jobKey(kind, folder));
-      if (!job) continue;
+    for (const [key, job] of jobs) {
+      if (job.folder !== folder) continue;
       job.dropped = true;
       if (going(job)) job.status = "stopped";
       job.controller.abort();
-      jobs.delete(jobKey(kind, folder));
+      jobs.delete(key);
     }
     books.delete(folder);
     present.delete(folder);
@@ -240,7 +242,7 @@ export function createDeckExtras(deps: {
     await spec.end?.().catch((error: unknown) => console.error(`after ${folder}'s job:`, error));
     if (job.status === "running") job.status = "done";
     else if (job.status === "stopping") job.status = "stopped";
-    if (!KINDS.some((kind) => going(jobs.get(jobKey(kind, folder))))) present.delete(folder);
+    if (![...jobs.values()].some((j) => j.folder === folder && going(j))) present.delete(folder);
   }
 
   return {
@@ -271,8 +273,8 @@ export function createDeckExtras(deps: {
     },
 
     /** A deck's job of a kind, running or the latest; `leftMs`: about how long the rest takes. */
-    job(kind: DeckJobKind, folder: string) {
-      const job = jobs.get(jobKey(kind, folder));
+    job(kind: DeckJobKind, folder: string, lang?: string) {
+      const job = jobs.get(jobKey(kind, folder, lang));
       if (!job) return null;
       const past = job.done + job.failed;
       const left = job.total - past;
@@ -291,12 +293,14 @@ export function createDeckExtras(deps: {
     },
 
     /** Whether a deck's job of a kind is working. */
-    going: (kind: DeckJobKind, folder: string) => going(jobs.get(jobKey(kind, folder))),
+    going: (kind: DeckJobKind, folder: string, lang?: string) =>
+      going(jobs.get(jobKey(kind, folder, lang))),
 
     /** Starts a deck's job of a kind (once: one working goes on). */
-    start<T>(kind: DeckJobKind, folder: string, spec: DeckJobSpec<T>) {
-      if (going(jobs.get(jobKey(kind, folder)))) return;
+    start<T>(kind: DeckJobKind, folder: string, spec: DeckJobSpec<T>, lang?: string) {
+      if (going(jobs.get(jobKey(kind, folder, lang)))) return;
       const job: Job = {
+        folder,
         status: "running",
         total: spec.steps.reduce((sum, step) => sum + step.length, 0),
         done: 0,
@@ -305,14 +309,14 @@ export function createDeckExtras(deps: {
         info: spec.info ?? {},
         controller: new AbortController(),
       };
-      jobs.set(jobKey(kind, folder), job);
+      jobs.set(jobKey(kind, folder, lang), job);
       if (!present.has(folder)) present.set(folder, new Map());
       void run(folder, job, spec);
     },
 
     /** Stops a deck's job of a kind: what it made so far is kept. */
-    stop(kind: DeckJobKind, folder: string) {
-      const job = jobs.get(jobKey(kind, folder));
+    stop(kind: DeckJobKind, folder: string, lang?: string) {
+      const job = jobs.get(jobKey(kind, folder, lang));
       if (job?.status !== "running") return;
       job.status = "stopping";
       job.controller.abort();
@@ -326,7 +330,8 @@ export function createDeckExtras(deps: {
      * it. Refused while that job works. Returns how many words lost theirs.
      */
     clear(kind: DeckJobKind, folder: string, lang?: string) {
-      if (going(jobs.get(jobKey(kind, folder)))) throw new ServiceError("deck_job_running", 409);
+      if (going(jobs.get(jobKey(kind, folder, lang))))
+        throw new ServiceError("deck_job_running", 409);
       const words = book(folder).words;
       const read: string[] = [];
       let cleared = 0;
@@ -344,7 +349,7 @@ export function createDeckExtras(deps: {
         }
         if (!word.audio && !word.examples) delete words[key];
       }
-      jobs.delete(jobKey(kind, folder));
+      jobs.delete(jobKey(kind, folder, lang));
       if (!cleared) return 0;
       write(folder);
       // What the deck brought is its own: an imported deck's word's and examples' audio stay.

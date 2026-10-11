@@ -150,25 +150,33 @@ test("what was made removed: the audio read with its files, never the deck's own
     "lex:de:birne:noun:f": { examples: { en: made("Die Birne!") } },
   });
   expect(extras.clear("examples", folder, "ru")).toBe(0);
-  // Its job working: refused.
+  // Its job working (in that language): refused.
   let go = () => {};
-  extras.start("examples", folder, {
-    steps: [["x"]],
-    atOnce: 1,
-    saveEvery: 1,
-    label: () => "x",
-    work: () =>
-      new Promise((resolve) => {
-        go = () => resolve({ done: 0, failed: 0 });
-      }),
-  });
+  extras.start(
+    "examples",
+    folder,
+    {
+      steps: [["x"]],
+      atOnce: 1,
+      saveEvery: 1,
+      label: () => "x",
+      work: () =>
+        new Promise((resolve) => {
+          go = () => resolve({ done: 0, failed: 0 });
+        }),
+    },
+    "en",
+  );
   expect(() => extras.clear("examples", folder, "en")).toThrow("deck_job_running");
-  // The other kind is not held back.
+  // The other kind, and the examples of another language pair, are not held back: each its own job.
   expect(extras.clear("audio", folder)).toBe(0);
+  expect(extras.clear("examples", folder, "ru")).toBe(0);
+  expect(extras.going("examples", folder, "ru")).toBe(false);
+  expect(extras.job("examples", folder, "ru")).toBeNull();
   go();
-  for (let i = 0; i < 100 && extras.going("examples", folder); i++) await Bun.sleep(1);
+  await until(() => !extras.going("examples", folder, "en"));
   expect(extras.clear("examples", folder, "en")).toBe(1);
-  expect(extras.job("examples", folder)).toBeNull();
+  expect(extras.job("examples", folder, "en")).toBeNull();
 });
 
 test("while a job works its folder's media are found once, then as it writes them (its state polled); otherwise on the disk", async () => {

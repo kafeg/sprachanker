@@ -279,7 +279,8 @@ imported `.apkg` decks fit in. Scheduling and the queue are pure functions in
   Tasse", "fahre" not "das Fahrrad") — is dropped; the words left without any are asked for once
   more, together in one call; still none, they count as failed with the reason. Kept beside the deck
   (`extras.json`, 05) by lexeme and translation language — every profile's cards show them — with
-  the model and when. A job per deck (as the audio's, `deck-extras.ts`): one at a time, the server's,
+  the model and when. A job per deck and language pair (as the audio's, `deck-extras.ts`; a course's
+  editions each have their own): one at a time, the server's,
   its progress (words given examples of all, the words under way, failures and why, about how long
   the rest takes), extras.json written after every call; stopped, the call under way is finished and
   kept, started again only the rest; three calls in a row that give nothing (the model out of reach,
