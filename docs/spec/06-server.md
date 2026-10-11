@@ -213,16 +213,19 @@ owner, no admin screens; server matters are the `sprachanker profiles` command's
   whatever its name.
 - Plain HTTP on the LAN (`--host 0.0.0.0`) works without a secure context: no microphone (the UI
   says why, 08).
-- **The addresses the app is reached at** (`GET /api/addresses`, schema `network.ts`; behind the
-  session check like every route but choosing a profile: only a signed-in device is told the
-  machine's addresses, and only a profile's screens show them): this machine
+- **The addresses the app is reached at** (`GET /api/addresses`, schema `network.ts`): this machine
   (`http://localhost:<port>`); the local network while the server listens beyond 127.0.0.1 — each
   IPv4 address of the machine (the tailnet's left out) and its `.local` name, `http://<address>:<port>`;
   the tailnet while Tailscale runs here — its name, and `https://<name>` once `tailscale serve`
   proxies HTTPS to this port (from `tailscale serve status --json`), else the name alone (not
   served). Each says whether it is a secure context (HTTPS or localhost). Gathered (Tailscale and
   the `.local` name asked) at most every five seconds: calls together or soon after one another get
-  the same answer. Where the app shows them: plan, "Phones".
+  the same answer. Where the app shows them: plan, "Phones". What protects them: the Host check
+  (a page of another site cannot read them) and the session check like every route but choosing a
+  profile — which keeps out no one who reaches the server, since any device that does can sign in
+  (no PINs, "Profiles and access"). So whoever reaches the server learns the machine's local IPv4
+  addresses, its `.local` name, its tailnet name and whether `tailscale serve` or Funnel is on —
+  nothing the network it is reached on does not already show.
 - The PWA is installable (manifest, icons). No offline use: a request that fails shows its error with
   "Try again"; a lesson's unsent events stay in memory and are sent again (05, "Sending").
 
@@ -304,17 +307,18 @@ profiles with device tokens (above).
   reached by — `localhost`, an IP address, a `.local` name, its host name, the address it listens on,
   the names given by `serve --allow-host <name>` (repeatable: a reverse proxy's name), and this
   machine's own tailnet name — else 421 (DNS-rebinding protection: a page on another site cannot
-  rebind its name to this server). The tailnet name is `Self.DNSName` of
-  `tailscale status --json --peers=false` (else `Self.HostName` with `MagicDNSSuffix`), read at the
-  start and, on a refused `*.ts.net` name, again at most once a minute (Tailscale may come up after
-  the server); the macOS app's binary, else `tailscale` looked up on the PATH; a command not done in
-  five seconds is killed (SIGKILL) and taken as no answer. A read without an answer changes nothing
-  (the name known stays known; tried again after five seconds); none while Tailscale, answering, says
-  it is stopped or logged out. Never any
-  `*.ts.net`: another tailnet's name could be rebound to this server. With the name,
-  `tailscale serve status --json` is read too: while Funnel is on for the name it is refused (above,
-  "Network and HTTPS"); a name accepted is read again in the background once a minute has passed, so
-  Funnel turned on later is seen. No CORS (same-origin only).
+  rebind its name to this server). Never any `*.ts.net`: another tailnet's name could be rebound to
+  this server. No CORS (same-origin only).
+  - The tailnet name is `Self.DNSName` of `tailscale status --json --peers=false` (else
+    `Self.HostName` with `MagicDNSSuffix`), with `tailscale serve status --json` read alongside
+    (Funnel: refused while on, "Network and HTTPS"); none while Tailscale, answering, says it is
+    stopped or logged out. The command: the macOS app's binary, else `tailscale` looked up on the
+    PATH; one not done in five seconds is killed (SIGKILL) and taken as no answer.
+  - Tailscale is read: at the start; on a refused `*.ts.net` name, at most once a minute; for a name
+    accepted, in the background once a minute has passed since the last read (Funnel turned on later
+    is seen); and for the addresses, at most every five seconds (above). A read without an answer
+    changes nothing — the name known stays known — and is tried again after five seconds, not a
+    minute.
 - **Cookies**: `HttpOnly`, `SameSite=Strict`, `Secure` on HTTPS addresses — the request's own, or
   `X-Forwarded-Proto: https` from a proxy of ours: believed only for the tailnet name (`tailscale
   serve`) and the `--allow-host` names, never for a name the server is reached by directly.
