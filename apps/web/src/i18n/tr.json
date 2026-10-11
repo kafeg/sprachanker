@@ -145,7 +145,8 @@
       "writing": "Kendin yaz",
       "scene": "Diyalog",
       "mistakes": "Hataların üzerinden geç",
-      "summary": "Özet"
+      "summary": "Özet",
+      "understanding": "Anlama"
     },
     "section": {
       "grammar": "Dil bilgisi",
@@ -408,7 +409,9 @@
       "sceneSetup": "Diyalog: kurgu",
       "scene": "Diyalog: bir cümle",
       "examples": "Bir destenin kelimeleri için örnekler",
-      "sceneSummary": "Diyalog: özet"
+      "sceneSummary": "Diyalog: özet",
+      "understanding": "Anlama: metin",
+      "understandingCheck": "Anlama: ikinci okuma"
     },
     "contextIntro": "Dersten eklenenler:",
     "contextIntroCourses": "Kurslarından eklenenler (sohbetin çalıştığı dildeki kurslar):",
@@ -445,7 +448,10 @@
       "place": "dersin kurstaki yeri: numarası ve ünitesi",
       "topics": "kursta şimdiye kadar görülen dil bilgisi konuları",
       "dialogueGoals": "durum ve ulaştığınız hedefler",
-      "dialogue": "diyalogdaki cümleler ve onlara yapılan düzeltmeler"
+      "dialogue": "diyalogdaki cümleler ve onlara yapılan düzeltmeler",
+      "length": "kursun seviyesinde metnin uzunluğu",
+      "readText": "yazdığı metin",
+      "textQuestions": "seçenekleriyle soruları, cevaplar olmadan"
     },
     "upTo": "en fazla {chars, plural, one {# karakter} other {# karakter}}",
     "debug": "“İstem” düğmelerini göster",
@@ -484,6 +490,10 @@
       "exam": {
         "name": "Sınav cevapları",
         "where": "bir cevabın ölçütlerinin üstündeki “Puan öner” ve konuşma şeklinde yürütülen sözlü bölümler"
+      },
+      "understanding": {
+        "name": "Anlama",
+        "where": "dersin bir adımı: dinlenecek ya da okunacak bir metin, sorularıyla"
       }
     },
     "about": {
@@ -497,7 +507,9 @@
       "sceneSetup": "Bir diyalog başlatır: dersin hedeflerinden ve bildiklerinden durumu, kiminle konuştuğunu, hedef kartını ve yalnızca karşındakinin bildiklerini — senin sorman gerekenleri — kurgular. Her diyalogda bir kez.",
       "scene": "Karşındaki kişiyi oynar: söylediğin (tanıma nasıl duyduysa) ya da yazdığın her cümleye cevap verir, anlaşılıp anlaşılmadığını ve uyup uymadığını söyler, içindeki en fazla iki hatayı düzeltir, çeviri verir ve ulaştığın hedefleri işaretler.",
       "examples": "Kendi örnekleri olmayan bir destenin her kelimesi için, her seferinde beş kelime olmak üzere üç ila beş örnek cümle yazar (Tekrar → Desteler, “Örnek oluştur”); mümkün olduğunca bildiğin kelimeleri kullanır, yenilerini çevirir.",
-      "sceneSummary": "Diyalog bitince özetler: en önemli bir ya da iki düzeltme, her biri cümlenin doğru söylenişiyle, ve kısa bir değerlendirme."
+      "sceneSummary": "Diyalog bitince özetler: en önemli bir ya da iki düzeltme, her biri cümlenin doğru söylenişiyle, ve kısa bir değerlendirme.",
+      "understanding": "Öğrendiğin dilde, bildiğin kelimelerle kısa bir metin yazar — dinlenecek bir diyalog ya da anons, veya okunacak bir menü ya da duyuru — sınavlardaki gibi sorularla (doğru/yanlış, a/b/c, sayılar). Cevaplarını model değil, uygulama kontrol eder.",
+      "understandingCheck": "Metni yeniden okur ve kendi sorularını yalnızca metne bakarak cevaplar: farklı cevapladığı ya da belirsiz bulduğu soru çıkarılır."
     }
   },
   "writing": {
@@ -826,7 +838,8 @@
       "doneTitle": "{when}: {count, plural, one {# ders tamamlandı} other {# ders tamamlandı}}, toplam {total, number}",
       "part": "{label}: {n, number}",
       "words": "Duruma göre kelimeler: {parts}"
-    }
+    },
+    "understanding": "{count, plural, one {# anlama metni} other {# anlama metni}}"
   },
   "study": {
     "listen": "Dinle ve anlamını hatırla",
@@ -1350,7 +1363,8 @@
     "course_bundle_from_newer_app": "Bu kurs dosyası SprachAnker'in daha yeni bir sürümünden: önce buradaki uygulamayı güncelle.",
     "course_bundle_clash": "Bu bilgisayarda bu kursun medya dosyalarının adlarını taşıyan başka dosyalar var: kursu bunun yerine burada indir.",
     "course_import_busy": "Şu anda başka bir kurs dosyası içe aktarılıyor. Bittiğinde yeniden dene.",
-    "series_busy": "Bu kaynaktan kurslar şu anda indiriliyor ya da içe aktarılıyor. Bittiğinde yeniden dene."
+    "series_busy": "Bu kaynaktan kurslar şu anda indiriliyor ya da içe aktarılıyor. Bittiğinde yeniden dene.",
+    "understanding_busy": "Bu ders için bir metin yazılıyor. Biraz bekle."
   },
   "exams": {
     "tabs": {
@@ -1543,5 +1557,28 @@
       "verified": "Denetlendi: bütün dosyalar burada.",
       "problems": "Denetlendi: {count, plural, one {# sorun bulundu} other {# sorun bulundu}} — kartındaki “Kontrol et” onları listeler."
     }
+  },
+  "understanding": {
+    "intro": "Bildiğin kelimelerle kısa bir metin. Diyalog ya da anons sesli okunur: dinle ve kulaktan cevapla, sonra metni oku ve bir soru daha cevapla. Menü ya da duyuru okumak içindir.",
+    "start": "Metin yaz",
+    "writing": "Metin yazılıyor…",
+    "new": "Yeni metin",
+    "kind": {
+      "dialogue": "dinlenecek bir diyalog",
+      "announcement": "dinlenecek bir anons",
+      "reading": "okunacak bir metin"
+    },
+    "listen": "Dinle",
+    "resume": "Devam",
+    "replay": "Baştan",
+    "line": "Cümle {n, number} / {total, number}",
+    "heard": "{count, plural, one {Bir kez dinlendi} other {# kez dinlendi}}",
+    "noVoice": "Burada {language} için sesli okuyan bir şey yok, bu yüzden metin okumak için gösteriliyor. Dinlemek için Ayarlar → Konuşma’dan bir ses seç.",
+    "byEar": "Kulaktan cevapla — metin sonra açılır.",
+    "text": "Metin",
+    "newWords": "Yeni kelimeler",
+    "readNow": "Metni oku ve cevapla",
+    "result": "{total, number} sorudan {right, number} doğru",
+    "past": "Bu dersin önceki metinleri"
   }
 }

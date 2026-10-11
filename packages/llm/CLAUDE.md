@@ -53,6 +53,8 @@ src/
                        # line judged; cleanSceneTurn: remarks in place of corrections dropped), scene_summary
                        # (key corrections, model lines without the error); goal kinds by level (data)
     tutor-tools.ts     # the tutor's tool definitions (progress, mistakes, word, lesson) and prompt lines
+    understanding.ts   # Understanding: understanding_text (a text to hear or read with its questions, its
+                       # length by the level), understanding_check (read again: settledQuestions)
     word-examples.ts   # word_examples: three to five sentences for each of a few words of a deck, in the
                        # words known up to them, at the level when known
 test/              # fake endpoints (no network); fixture course from @sprachanker/course-fixture

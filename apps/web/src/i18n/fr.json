@@ -145,7 +145,8 @@
       "writing": "À toi d’écrire",
       "scene": "Dialogue",
       "mistakes": "Revoir ses erreurs",
-      "summary": "Bilan"
+      "summary": "Bilan",
+      "understanding": "Compréhension"
     },
     "section": {
       "grammar": "Grammaire",
@@ -408,7 +409,9 @@
       "sceneSetup": "Dialogue : la mise en place",
       "scene": "Dialogue : une réplique",
       "examples": "Exemples pour les mots d’un paquet",
-      "sceneSummary": "Dialogue : le bilan"
+      "sceneSummary": "Dialogue : le bilan",
+      "understanding": "Compréhension : le texte",
+      "understandingCheck": "Compréhension : la seconde lecture"
     },
     "contextIntro": "Ajouté depuis la leçon :",
     "contextIntroCourses": "Ajouté depuis tes cours (ceux de la langue que pratique la discussion) :",
@@ -445,7 +448,10 @@
       "place": "la place de la leçon dans le cours : son numéro et son unité",
       "topics": "les points de grammaire vus jusqu’ici dans le cours",
       "dialogueGoals": "la situation et les objectifs atteints",
-      "dialogue": "les répliques du dialogue avec les corrections données"
+      "dialogue": "les répliques du dialogue avec les corrections données",
+      "length": "la longueur du texte au niveau du cours",
+      "readText": "le texte écrit",
+      "textQuestions": "ses questions avec leurs options, sans les réponses"
     },
     "upTo": "jusqu’à {chars, plural, one {# caractère} many {# de caractères} other {# caractères}}",
     "debug": "Afficher les boutons « Prompt »",
@@ -484,6 +490,10 @@
       "exam": {
         "name": "Réponses d’examen",
         "where": "« Proposer une note » au-dessus des critères d’une réponse, et les épreuves orales menées en conversation"
+      },
+      "understanding": {
+        "name": "Compréhension",
+        "where": "une étape de la leçon : un texte à écouter ou à lire, avec des questions"
       }
     },
     "about": {
@@ -497,7 +507,9 @@
       "sceneSetup": "Lance un dialogue : à partir des objectifs de la leçon et de ce que tu sais, invente la situation, ton interlocuteur, ta carte d’objectifs et ce que seul ton interlocuteur sait — et que tu dois lui demander. Une fois par dialogue.",
       "scene": "Joue ton interlocuteur : répond à chaque réplique que tu dis (telle que la reconnaissance l’a entendue) ou que tu tapes, dit si elle a été comprise et si elle convient, corrige au plus deux erreurs, donne une traduction et coche tes objectifs atteints.",
       "examples": "Écrit trois à cinq phrases d’exemple pour chaque mot d’un paquet qui n’en a pas, cinq mots à la fois (Révision → Paquets, « Créer des exemples »), avec des mots que tu connais si possible et les nouveaux traduits.",
-      "sceneSummary": "Fait le bilan d’un dialogue une fois terminé : la ou les deux corrections qui comptent le plus, chacune avec ta phrase bien dite, et un mot de retour."
+      "sceneSummary": "Fait le bilan d’un dialogue une fois terminé : la ou les deux corrections qui comptent le plus, chacune avec ta phrase bien dite, et un mot de retour.",
+      "understanding": "Écrit un court texte dans la langue que tu apprends avec les mots que tu connais — un dialogue ou une annonce à écouter, ou un menu, un avis à lire — avec des questions comme aux examens (vrai/faux, a/b/c, nombres). Tes réponses sont corrigées par l’app, pas par le modèle.",
+      "understandingCheck": "Relit le texte et répond à ses propres questions à partir du texte seul : une question à laquelle il répond autrement, ou qu’il trouve floue, est retirée."
     }
   },
   "writing": {
@@ -826,7 +838,8 @@
       "doneTitle": "{when} : {count, plural, one {# leçon faite} many {# de leçons faites} other {# leçons faites}}, {total, number} en tout",
       "part": "{label} : {n, number}",
       "words": "Mots par état : {parts}"
-    }
+    },
+    "understanding": "{count, plural, one {# texte de compréhension} many {# de textes de compréhension} other {# textes de compréhension}}"
   },
   "study": {
     "listen": "Écoute et retrouve le sens",
@@ -1350,7 +1363,8 @@
     "course_bundle_from_newer_app": "Ce fichier de cours vient d’une version plus récente de SprachAnker : mets d’abord l’application à jour ici.",
     "course_bundle_clash": "Cet ordinateur a d’autres fichiers sous les noms des médias de ce cours : télécharge plutôt le cours ici.",
     "course_import_busy": "Un autre fichier de cours est en cours d’import. Réessaie quand il sera terminé.",
-    "series_busy": "Des cours de cette source sont en cours de téléchargement ou d'import. Réessaie quand ce sera fini."
+    "series_busy": "Des cours de cette source sont en cours de téléchargement ou d'import. Réessaie quand ce sera fini.",
+    "understanding_busy": "Un texte pour cette leçon est en cours d’écriture. Patiente."
   },
   "exams": {
     "tabs": {
@@ -1543,5 +1557,28 @@
       "verified": "Vérifié : tous les fichiers sont là.",
       "problems": "Vérifié : {count, plural, one {# problème trouvé} many {# de problèmes trouvés} other {# problèmes trouvés}} — « Vérifier » sur sa carte les liste."
     }
+  },
+  "understanding": {
+    "intro": "Un court texte avec les mots que tu connais. Un dialogue ou une annonce est lu à voix haute : écoute et réponds à l’oreille, puis lis le texte et réponds à une question de plus. Un menu ou un avis est à lire.",
+    "start": "Écrire un texte",
+    "writing": "Écriture du texte…",
+    "new": "Nouveau texte",
+    "kind": {
+      "dialogue": "un dialogue à écouter",
+      "announcement": "une annonce à écouter",
+      "reading": "un texte à lire"
+    },
+    "listen": "Écouter",
+    "resume": "Continuer",
+    "replay": "Depuis le début",
+    "line": "Ligne {n, number} sur {total, number}",
+    "heard": "{count, plural, one {Écouté une fois} many {Écouté # de fois} other {Écouté # fois}}",
+    "noVoice": "Rien ici ne lit en {language} à voix haute : le texte est donc affiché à lire. Pour écouter, choisis une voix dans Réglages → Parole.",
+    "byEar": "Réponds à l’oreille : le texte s’ouvre ensuite.",
+    "text": "Le texte",
+    "newWords": "Mots nouveaux",
+    "readNow": "Lis le texte et réponds",
+    "result": "{right, number} sur {total, number} justes",
+    "past": "Textes précédents de cette leçon"
   }
 }

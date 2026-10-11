@@ -145,7 +145,8 @@
       "writing": "Write it yourself",
       "scene": "Dialogue",
       "mistakes": "Going over mistakes",
-      "summary": "Summary"
+      "summary": "Summary",
+      "understanding": "Understanding"
     },
     "section": {
       "grammar": "Grammar",
@@ -408,7 +409,9 @@
       "sceneSetup": "Dialogue: the setup",
       "scene": "Dialogue: a line",
       "examples": "Examples for a deck's words",
-      "sceneSummary": "Dialogue: the summary"
+      "sceneSummary": "Dialogue: the summary",
+      "understanding": "Understanding: the text",
+      "understandingCheck": "Understanding: the second reading"
     },
     "contextIntro": "Added from the lesson:",
     "contextIntroCourses": "Added from your courses (those in the language the chat practises):",
@@ -445,7 +448,10 @@
       "place": "where the lesson is in the course: its number and unit",
       "topics": "the grammar topics met so far in the course",
       "dialogueGoals": "the situation and the goals you reached",
-      "dialogue": "the dialogue's lines with the corrections given on them"
+      "dialogue": "the dialogue's lines with the corrections given on them",
+      "length": "how long the text is at the course's level",
+      "readText": "the text it wrote",
+      "textQuestions": "its questions with their options, without the answers"
     },
     "upTo": "up to {chars, plural, one {# character} other {# characters}}",
     "debug": "Show “Prompt” buttons",
@@ -484,6 +490,10 @@
       "exam": {
         "name": "Exam answers",
         "where": "“Propose a rating” above an answer's criteria, and the speaking parts held as a conversation"
+      },
+      "understanding": {
+        "name": "Understanding",
+        "where": "a step of the lesson: a text to listen to or read, with questions"
       }
     },
     "about": {
@@ -497,7 +507,9 @@
       "sceneSetup": "Starts a dialogue: from the lesson's goals and what you know, invents the situation, who you talk to, your goal card and what only your partner knows — which you must ask for. Asked once per dialogue.",
       "scene": "Plays your partner: answers each line you say (as the recogniser heard it) or type, says whether it was understood and fits, corrects at most two mistakes in it, gives a translation and ticks off your goals.",
       "examples": "Writes three to five example sentences for each word of a deck that has none of its own, five words at a time (Review → Decks, “Make examples”), with words you know where it can and the new ones translated.",
-      "sceneSummary": "Sums up a dialogue once it is over: the one or two corrections that matter most, each with your line said well, and a word of feedback."
+      "sceneSummary": "Sums up a dialogue once it is over: the one or two corrections that matter most, each with your line said well, and a word of feedback.",
+      "understanding": "Writes a short text in the language you learn from the words you know — a dialogue or an announcement to listen to, or a menu or a notice to read — with questions as exams ask them (true/false, a/b/c, numbers). Your answers are checked by the app, not by the model.",
+      "understandingCheck": "Reads the text again and answers its own questions from the text alone: a question it answers otherwise, or finds unclear, is left out."
     }
   },
   "writing": {
@@ -826,7 +838,8 @@
       "doneTitle": "{when}: {count, plural, one {# lesson} other {# lessons}} done, {total, number} in all",
       "part": "{label}: {n, number}",
       "words": "Words by state: {parts}"
-    }
+    },
+    "understanding": "{count, plural, one {# text understood} other {# texts understood}}"
   },
   "study": {
     "listen": "Listen and recall the meaning",
@@ -1350,7 +1363,8 @@
     "course_bundle_from_newer_app": "This course file comes from a newer version of SprachAnker: update the app here first.",
     "course_bundle_clash": "This computer has other files under the names of this course's media: download the course here instead.",
     "course_import_busy": "Another course file is being imported. Try again when it is done.",
-    "series_busy": "Courses from this source are being downloaded or imported right now. Try again when that is done."
+    "series_busy": "Courses from this source are being downloaded or imported right now. Try again when that is done.",
+    "understanding_busy": "A text for this lesson is being written. Wait for it."
   },
   "exams": {
     "tabs": {
@@ -1543,5 +1557,28 @@
       "verified": "Checked: every file is there.",
       "problems": "Checked: {count, plural, one {# problem found} other {# problems found}} — “Check” on its card lists them."
     }
+  },
+  "understanding": {
+    "intro": "A short text from the words you know. A dialogue or an announcement is read aloud: listen and answer by ear, then read it and answer one more question. A menu or a notice is there to read.",
+    "start": "Write a text",
+    "writing": "Writing a text…",
+    "new": "New text",
+    "kind": {
+      "dialogue": "a dialogue to listen to",
+      "announcement": "an announcement to listen to",
+      "reading": "a text to read"
+    },
+    "listen": "Listen",
+    "resume": "Go on",
+    "replay": "From the start",
+    "line": "Line {n, number} of {total, number}",
+    "heard": "{count, plural, one {Heard once} other {Heard # times}}",
+    "noVoice": "Nothing here reads {language} aloud, so the text is shown to read. To listen, choose a voice in Settings → Speech.",
+    "byEar": "Answer by ear — the text opens afterwards.",
+    "text": "The text",
+    "newWords": "New words",
+    "readNow": "Read the text and answer",
+    "result": "{right, number} of {total, number} right",
+    "past": "Earlier texts of this lesson"
   }
 }

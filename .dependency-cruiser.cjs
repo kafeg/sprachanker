@@ -136,7 +136,7 @@ module.exports = {
       // the stores, content, settings, the model, lesson-context, in-flight — is no module's.
       [
         "lessons",
-        "lessons|lesson-journal|mistakes|explain|writing|speaking|tutor|tutor-tools|courses-context|scene",
+        "lessons|lesson-journal|mistakes|explain|understanding|writing|speaking|tutor|tutor-tools|courses-context|scene",
       ],
       ["exams", "exams|exam-runs|exam-rating|exam-conversation"],
       ["review", "study|words|cards|examples|decks|deck-audio"],

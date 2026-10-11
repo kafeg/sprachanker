@@ -45,6 +45,48 @@ const SCENE_SUMMARY = {
   ],
   feedback: "FAKE: well asked.",
 };
+/** An Understanding text (a dialogue of two, heard first) and its second reading, which settles
+ *  every question as its key does. */
+const UNDERSTANDING_TEXT = {
+  kind: "dialogue",
+  title: "FAKE: Beim Bäcker",
+  situation: "FAKE: Anna buys rolls.",
+  lines: [
+    { speaker: "Anna", text: "Guten Morgen! Zwei Brötchen, bitte." },
+    { speaker: "Verkäufer", text: "Gern. Das macht 1,20 Euro." },
+  ],
+  glossary: [{ word: "Brötchen", translation: "FAKE: rolls" }],
+  questions: [
+    {
+      phase: "listening",
+      question: "Anna möchte drei Brötchen.",
+      options: ["Richtig", "Falsch"],
+      answer: 1,
+    },
+    { phase: "listening", question: "Wie viel kostet das?", accepted: ["1,20", "1,20 Euro"] },
+    {
+      phase: "listening",
+      question: "Wann ist das?",
+      options: ["am Abend", "am Morgen", "in der Nacht"],
+      answer: 1,
+    },
+    {
+      phase: "reading",
+      question: "Wer verkauft?",
+      options: ["Anna", "der Verkäufer", "niemand"],
+      answer: 1,
+    },
+  ],
+};
+const UNDERSTANDING_CHECK = {
+  answers: [
+    { n: 1, choice: "b", ambiguous: false },
+    { n: 2, answer: "1,20", ambiguous: false },
+    { n: 3, choice: "b", ambiguous: false },
+    { n: 4, choice: "b", ambiguous: false },
+  ],
+};
+
 /** Three examples for each word numbered in <words> ("1. der Kaffee, die Kaffees — coffee (noun)" →
  *  "Hier ist der Kaffee heute."). */
 const wordExamples = (prompt: string) => {
@@ -109,6 +151,8 @@ const STRUCTURED: Record<string, unknown> = {
   scene_setup: SCENE_SETUP,
   scene_turn: SCENE_TURN,
   scene_summary: SCENE_SUMMARY,
+  understanding_text: UNDERSTANDING_TEXT,
+  understanding_check: UNDERSTANDING_CHECK,
   speaking_check: SPOKEN_CHECK,
   exam_rating: EXAM_RATING,
 };

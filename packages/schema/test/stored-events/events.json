@@ -135,6 +135,12 @@
         "step": "grammar:1",
         "skipped": true
       }
+    },
+    {
+      "since": "2026-10-12",
+      "payload": {
+        "step": "understanding"
+      }
     }
   ],
   "llm_verdict": [
@@ -247,6 +253,55 @@
             }
           ],
           "feedback": "Good questions."
+        },
+        "model": "m",
+        "latencyMs": 10
+      }
+    },
+    {
+      "since": "2026-10-12",
+      "payload": {
+        "task": "understanding",
+        "input": "",
+        "result": {
+          "kind": "dialogue",
+          "title": "At the bakery",
+          "situation": "Two people at a bakery.",
+          "lines": [
+            {
+              "speaker": "Anna",
+              "text": "Guten Morgen! Zwei Brötchen, bitte."
+            },
+            {
+              "speaker": "Verkäufer",
+              "text": "Gern. Das macht 1,20 Euro."
+            }
+          ],
+          "glossary": [
+            {
+              "word": "Brötchen",
+              "translation": "roll"
+            }
+          ],
+          "questions": [
+            {
+              "phase": "listening",
+              "question": "Anna möchte drei Brötchen.",
+              "options": ["Richtig", "Falsch"],
+              "answer": 1
+            },
+            {
+              "phase": "listening",
+              "question": "Wie viel kostet das?",
+              "accepted": ["1,20", "1,20 Euro"]
+            },
+            {
+              "phase": "reading",
+              "question": "Wer verkauft?",
+              "options": ["Anna", "der Verkäufer", "niemand"],
+              "answer": 1
+            }
+          ]
         },
         "model": "m",
         "latencyMs": 10
@@ -379,6 +434,22 @@
         },
         "by": "assistant",
         "model": "claude-x"
+      }
+    }
+  ],
+  "practice_answered": [
+    {
+      "since": "2026-10-12",
+      "payload": {
+        "verdict": "01HZY0000000000000000000AA",
+        "question": 0,
+        "answer": {
+          "optionId": "b"
+        },
+        "outcome": {
+          "result": "correct",
+          "score": 1
+        }
       }
     }
   ]

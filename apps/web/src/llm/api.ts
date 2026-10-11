@@ -1,11 +1,12 @@
-// The assistant's tasks in the API (07): explanations, the tutor, writing, spoken answers, scenes, a
-// deck's words given examples (and a card's), exam ratings and conversations, and the request each would send (the prompt viewer). Its
-// setup — providers, models, LM Studio, the prompts — is setup-api.ts.
+// The assistant's tasks in the API (07): explanations, the tutor, Understanding, writing, spoken
+// answers, scenes, a deck's words given examples (and a card's), exam ratings and conversations, and
+// the request each would send (the prompt viewer). Its setup — providers, models, LM Studio, the
+// prompts — is setup-api.ts.
 import { CHAT_ID_HEADER, type LessonKey, STREAM_ERROR } from "@sprachanker/schema";
 import { useInfiniteQuery, useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import type { InferResponseType } from "hono/client";
 import { useEffect, useRef } from "react";
-import { withAttempt, withCheck, withScene, withTurns } from "@/api/cache.ts";
+import { withAttempt, withCheck, withScene, withText, withTurns } from "@/api/cache.ts";
 import { ApiError, api, apiError, json } from "@/api/client.ts";
 
 export type ExplainRequest = Parameters<typeof api.llm.explain.$post>[0]["json"];
@@ -260,6 +261,7 @@ export type PromptRequest =
   | { explain: ExplainRequest }
   | { tutor: TutorPromptRequest }
   | { section: SectionPromptRequest }
+  | { understanding: UnderstandingRequest }
   | { writing: WritingRequest }
   | { speaking: SpeakingRequest }
   | { scene: SceneLineRequest }
@@ -272,6 +274,8 @@ export function fetchPrompt(kind: PromptRequest): Promise<PromptPreview> {
   if ("explain" in kind) return fetchExplainPrompt(kind.explain);
   if ("tutor" in kind) return json(api.llm.tutor.prompt.$post({ json: kind.tutor }));
   if ("section" in kind) return json(api.llm.tutor.section.prompt.$post({ json: kind.section }));
+  if ("understanding" in kind)
+    return json(api.llm.understanding.prompt.$post({ json: kind.understanding }));
   if ("writing" in kind) return json(api.llm.writing.prompt.$post({ json: kind.writing }));
   if ("speaking" in kind) return json(api.llm.speaking.prompt.$post({ json: kind.speaking }));
   if ("deckExamples" in kind)
@@ -331,6 +335,53 @@ export function useCheckWriting(onChecked?: () => void) {
       );
       onChecked?.();
     },
+  });
+}
+
+type UnderstandingRequest = Parameters<typeof api.llm.understanding.$post>[0]["json"];
+type UnderstandingAnswer = Parameters<typeof api.llm.understanding.answer.$post>[0]["json"];
+type UnderstandingState = Awaited<ReturnType<typeof fetchUnderstanding>>;
+export type Understood = UnderstandingState["texts"][number];
+const fetchUnderstanding = (lessonKey: LessonKey) =>
+  json(api.llm.understanding.$get({ query: { lessonKey } }));
+
+/** The lesson's Understanding texts with their answers, newest first; asked again while one is being
+ *  written (from here or before). */
+export const useUnderstanding = (lessonKey: LessonKey) =>
+  useQuery({
+    queryKey: ["understanding", lessonKey],
+    queryFn: () => fetchUnderstanding(lessonKey),
+    refetchInterval: (query) => (query.state.data?.preparing ? WHILE_BUSY : false),
+  });
+
+/** Shows a text at once: on top when just written, in its place with an answer added. */
+function useTextShown(lessonKey: LessonKey) {
+  const client = useQueryClient();
+  return (text: Understood) =>
+    client.setQueryData(["understanding", lessonKey], (old: UnderstandingState | undefined) =>
+      withText(old, text),
+    );
+}
+
+/** Writes a text for the lesson (shown on top at once, also when the page that asked is gone). */
+export function useStartUnderstanding(lessonKey: LessonKey) {
+  const shown = useTextShown(lessonKey);
+  return useMutation({
+    mutationFn: (request: UnderstandingRequest) =>
+      json(api.llm.understanding.$post({ json: request })),
+    onSuccess: shown,
+  });
+}
+
+/** Keeps an answer to a text's question, checked by the server; the text shown with it. Answers go
+ *  one after another, so each reply holds those before it. */
+export function useAnswerUnderstanding(lessonKey: LessonKey) {
+  const shown = useTextShown(lessonKey);
+  return useMutation({
+    scope: { id: `understanding:${lessonKey}` },
+    mutationFn: (answer: UnderstandingAnswer) =>
+      json(api.llm.understanding.answer.$post({ json: answer })),
+    onSuccess: shown,
   });
 }
 

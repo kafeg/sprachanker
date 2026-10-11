@@ -23,11 +23,13 @@ export function nextProfileColour(used: readonly ProfileColour[]): ProfileColour
 }
 
 /** Where the AI assistant works (07), each of which the learner can turn off: "Why is this wrong?",
- *  the tutor (with the lesson's "Going over mistakes"), "Write it yourself", scenes, the check of an
- *  answer said aloud, a word's examples, an exam's open answer rated by its criteria. */
+ *  the tutor (with the lesson's "Going over mistakes"), Understanding, "Write it yourself", the
+ *  Dialogue (`scene`), the check of an answer said aloud, a word's examples, an exam's open answer
+ *  rated by its criteria. */
 export const AI_PLACES = [
   "explain",
   "tutor",
+  "understanding",
   "writing",
   "scene",
   "speaking",

@@ -135,3 +135,54 @@ export const ExamConversationTurn = z.object({
   done: z.boolean(),
 });
 export type ExamConversationTurn = z.infer<typeof ExamConversationTurn>;
+
+/** A question on an Understanding text (04, "AI practice in courses"), in the target language: a
+ *  choice — true/false as two options in the target language, a/b/c, a number, price or time among
+ *  three — or a short answer typed (a number, a price, a time, a name; the ways of writing it
+ *  accepted). Shown and checked as the item of the closed type it is (`single_choice`, `gap_text`:
+ *  engine `understandingExercise`), never by a model. */
+export const UnderstandingQuestion = z.object({
+  /** Asked while only listening (the text hidden), or with the text shown. */
+  phase: z.enum(["listening", "reading"]),
+  question: z.string().min(1).max(300),
+  /** A choice's options and the right one's index (0-based); none for an answer typed. */
+  options: z.array(z.string().min(1).max(200)).min(2).max(4).optional(),
+  answer: z.number().int().nonnegative().optional(),
+  /** An answer typed: every way of writing it that is right ("2,50", "2,50 Euro"). */
+  accepted: z.array(z.string().min(1).max(100)).min(1).max(6).optional(),
+});
+export type UnderstandingQuestion = z.infer<typeof UnderstandingQuestion>;
+
+/** What keeps a question from being asked: a choice needs its right option among them, an answer
+ *  typed what is accepted; undefined when it holds. */
+export function questionProblem(q: UnderstandingQuestion): string | undefined {
+  if (q.options)
+    return q.answer !== undefined && q.answer < q.options.length
+      ? undefined
+      : "a choice's answer is the index of one of its options";
+  return q.accepted?.length ? undefined : "a question without options needs its accepted answers";
+}
+
+/** An Understanding text (`understanding_text`; 04): a dialogue of two or an announcement or
+ *  message to listen to, or a text to read (a menu, a notice, a note, an ad), in the target
+ *  language, with its questions; kept as an `llm_verdict` (`task: understanding`) in the lesson run,
+ *  the learner's answers as `practice_answered` events on it. */
+export const UnderstandingText = z.object({
+  kind: z.enum(["dialogue", "announcement", "reading"]),
+  /** Short title in the learner's language. */
+  title: z.string().min(1).max(120),
+  /** What it is, one sentence in the learner's language ("Two colleagues plan a meeting."). */
+  situation: z.string().max(300),
+  /** The text in the target language, a line each — a speaker's turn (with the speaker's name), a
+   *  paragraph, a line of a menu. */
+  lines: z
+    .array(z.object({ speaker: z.string().max(40).optional(), text: z.string().min(1).max(600) }))
+    .min(1)
+    .max(40),
+  /** The few words of the text beyond those known, as written there, with their translation. */
+  glossary: z
+    .array(z.object({ word: z.string().min(1).max(80), translation: z.string().min(1).max(120) }))
+    .max(10),
+  questions: z.array(UnderstandingQuestion).min(1).max(8),
+});
+export type UnderstandingText = z.infer<typeof UnderstandingText>;

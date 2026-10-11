@@ -9,7 +9,8 @@ No network, no filesystem, no `Date.now()` — time and randomness are parameter
 src/
   compose/        # steps.ts: the lesson plan as steps, what is done, where a run resumes
   check/          # index.ts: checkItem(exercise, item, answer) → Outcome (+ diff, parts), one case per
-                  # type; itemScored; answers.ts: checked or not, an answer complete, the words said
+                  # type; itemScored; answers.ts: checked or not, an answer complete, the words said;
+                  # understanding.ts: Understanding's questions as items of their types, its stage
   text/           # normalisation and word diff used by checkers and speech; words (a sentence's words
                   # met or new against a vocabulary; whether it uses a word, or a form given of it —
                   # irregular-verbs: the commonest German ones' forms no stem finds)

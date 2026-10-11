@@ -1,10 +1,12 @@
 // What reading aloud says and with which voice (08): a text in one language, given explicitly (a text
 // mixing languages is never read), and the best voice of a language among those there are. Pure: tested without a browser.
 
-/** A piece of text to read, in its one language. */
+/** A piece of text to read, in its one language; `alt`: by another voice of the language when there
+ *  is one (a dialogue's second speaker). */
 export interface SpokenPart {
   text: string;
   lang: string;
+  alt?: boolean;
 }
 
 /** A text in one language as parts to read: none while the language is not known. */

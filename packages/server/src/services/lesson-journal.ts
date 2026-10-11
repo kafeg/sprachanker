@@ -1,8 +1,8 @@
 // A lesson's journal in the Notebook (09; owner's choice A, 2026-10-07), a part of the lessons module:
-// its passes, a pass in full (its events, the exercises as shown, explanations, writing checks, words
-// added, chats and scenes held meanwhile), and one item across passes. Read only, through the run
-// store; the cards a pass made through the card store; the chats and scenes about the lesson are
-// handed in (the AI practice's own services).
+// its passes, a pass in full (its events, the exercises as shown, explanations, writing checks,
+// Understanding's texts, words added, chats and scenes held meanwhile), and one item across passes.
+// Read only, through the run store; the cards a pass made through the card store; the chats and
+// scenes about the lesson are handed in (the AI practice's own services).
 import { exerciseResults, LESSON_WORK, lessonCoverage } from "@sprachanker/engine";
 import {
   type AnsweredPayload,
@@ -115,6 +115,7 @@ export function createLessonJournal(deps: {
             total: coverage ? coverage.total : null,
             explanations: verdictCount(own, "explain"),
             writing: verdictCount(own, "writing"),
+            understanding: verdictCount(own, "understanding"),
             words: deps.cards.madeIn(row.id).length,
             chats: held.get(row.id)?.chats.length ?? 0,
             scenes: held.get(row.id)?.scenes.length ?? 0,
@@ -124,7 +125,8 @@ export function createLessonJournal(deps: {
     },
 
     /** One pass in full: its run and events, the lesson as installed now (the events carry the
-     *  exercises as shown), explanations, writing checks, words added, chats and scenes. */
+     *  exercises as shown), explanations, writing checks, Understanding's texts, words added, chats
+     *  and scenes. */
     async pass(runId: string) {
       const row = store.get(runId, "lesson");
       if (!row) throw new ServiceError("no_such_run", 404);
@@ -143,6 +145,8 @@ export function createLessonJournal(deps: {
         explanations: verdicts(store, "explain", { runIds: [runId] }),
         spoken: verdicts(store, "speaking", { runIds: [runId] }),
         writing: verdicts(store, "writing", { runIds: [runId] }),
+        // Its answers are the run's `practice_answered` events, among `events`.
+        understanding: verdicts(store, "understanding", { runIds: [runId] }),
         words: deps.cards.madeIn(runId).map((w) => w.display),
         chats: held?.chats ?? [],
         scenes: held?.scenes ?? [],

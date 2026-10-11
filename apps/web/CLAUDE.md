@@ -46,7 +46,8 @@ apps/web/src/
                    # exam (an exam's runs and questions as they stand), review-day (a deck's day: its answers), mark
   library/         # what feature folders share: card (a course's or an exam's, an offer, the publisher),
                    # hero (their page's head), tab-page (Courses' and Exams' tabs), download, upkeep, bundle (a course to a file and back),
-                   # reset-progress, exam-address, item-history (an item across passes), spoken-check
+                   # reset-progress, exam-address, item-history (an item across passes), spoken-check,
+                   # understanding-text (a text, its glossed words — glossed.ts —, its questions answered)
   api/             # client (Hono RPC, hono/client; no codegen) + TanStack Query hooks by area: settings
                    # (the app and its addresses, the profile's settings), courses, downloads, cards, decks (imported; a deck's
                    # words read aloud, polled while read), notebook,
@@ -65,7 +66,7 @@ apps/web/src/
   llm/             # AI assistant: settings (AssistantSetup: provider-cards, key-state, model-list over the
                    # pure model-filter; LM Studio), "Why is this wrong?", tutor (the chat view; the lesson's
                    # header panel — History: tutor-history —, the mistakes step), tutor-section (the Tutor
-                   # section: its chats, a chat and its language — a new one's chosen in a SelectField), writing, dialogue (the Dialogue step: goal card, lines read aloud, summary; dialogue-line: a line said and heard, or typed), spoken-check (the AI's check under an answer said aloud), word-examples (a deck's: on a card, under a deck — the slots); exam-assistant (an exam run's slots): exam-rating ("Propose a
+                   # section: its chats, a chat and its language — a new one's chosen in a SelectField), understanding (heard, answered by ear, read), writing, dialogue (the Dialogue step: goal card, lines read aloud, summary; dialogue-line: a line said and heard, or typed), spoken-check (the AI's check under an answer said aloud), word-examples (a deck's: on a card, under a deck — the slots); exam-assistant (an exam run's slots): exam-rating ("Propose a
                    # rating"), exam-conversation (a speaking part held as a conversation);
                    # settings-section (Settings → AI assistant), lmstudio-section, prompts-info (where it
                    # works; the prompts under Advanced), prompt-view (a request as sent), context-meter
@@ -96,7 +97,7 @@ apps/web/src/
                    # speech-settings (Settings → Speech; SpeechSetup is also the onboarding's step),
                    # reading aloud: speak.ts (what is said, by which voice; pure), speaker.ts (each part by
                    # the server's engine — Piper or Qwen3-TTS — or the device's voices, one text at a
-                   # time), speak-button, read-by (who reads a language, named), read-aloud-settings (engine cards, speed) with each
+                   # time; a dialogue's second speaker by another voice), listening (a text line by line: pause, on, again), speak-button, read-by (who reads a language, named), read-aloud-settings (engine cards, speed) with each
                    # engine's voices: device-, piper-, qwen-voices (voice-pick: a language's voice and
                    # "Listen"; voice-names: a server voice's name, pure); download-row (a model or voice the server downloads), read-languages (the
                    # languages read aloud), samples ("Listen"'s sentences; pure), in-use (the in-use mark)
@@ -106,8 +107,7 @@ apps/web/public/   # favicon.svg (the icon master: speech bubble with an anchor)
 apps/web/scripts/  # icons.ts: renders the PNG icons from favicon.svg (needs rsvg-convert)
 ```
 
-shadcn components are added with `bunx --bun shadcn@<version> add <name>` (components.json points
-to `@/ui`).
+shadcn components are added with `bunx --bun shadcn@<version> add <name>` (components.json: `@/ui`).
 
 ## Rules
 

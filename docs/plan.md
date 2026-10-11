@@ -65,10 +65,12 @@ Specs: 04 ("AI practice in courses"), 07, 08, 09.
   not read aloud; recognised speech taken as a person would understand it.
 - Phase 1 (done): the knowledge snapshot ("what the learner knows by now", 07) under every lesson
   task — no task assumes A1 or a beginner — and the Dialogue (item 8).
-- Phase 2 (next): **Understanding** — `understanding_text`, a text or dialogue from the words known,
-  heard by reading aloud (the engine and voice named), questions answered by ear, then read with a
-  second question; reading-type texts shown to read; closed items checked by the engine.
-- Phase 3: **Writing** on a task of three content points (length and criteria by level, at most three
+- Phase 2 (done): **Understanding** — a text or dialogue from the words known, read again by the
+  model to keep only the questions it settles, heard by reading aloud (two voices for a dialogue, the
+  engine and voices named), answered by ear, then read with its reading question; reading-type texts
+  shown to read; the questions closed items checked by the engine. Remaining: tried on a real course
+  with a real model and Piper or Qwen3-TTS (the e2e run uses the fake model and the device's voices).
+- Phase 3 (next): **Writing** on a task of three content points (length and criteria by level, at most three
   corrections and a model text); **Going over mistakes** by type with new items checked by the engine
   (`mistake_items`); "Why is this wrong?" saying where the topic was met; the tutor's practice
   presets taken out.

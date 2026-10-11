@@ -15,14 +15,15 @@ The lesson flow (the plan's steps, `lessonSteps` in `packages/engine/src/compose
 2026-10-06): overview (synopsis, goals, the video or recording with its transcript under it) → "Words
 of the lesson" (cards; when it has words) → one "Grammar" step per grammar page (a page is one topic) → the exercises →
 one "Culture" step per culture page → AI practice when an assistant is set up and its place is on (07;
-"AI practice in courses" below): "Write it yourself", Dialogue, "Going over mistakes" (owner 2026-10-07: the run's status counted by the app — exercises
+"AI practice in courses" below): Understanding, "Write it yourself", Dialogue, "Going over mistakes" (owner 2026-10-07: the run's status counted by the app — exercises
 worked, scored items right at the first attempt, mistakes by exercise — then the tutor goes through
 the mistakes one at a time in the lesson's chat, inline on the step) → summary of all of it. The steps
 come from what the provider's normaliser put into the canonical and locale files, the same way for
 every course. Every step has a mark in the plan and "Next" goes through all of them; any step can be
 skipped (and shows it). The lesson is completed when every step is done or skipped: an exercise
-answered, a reading step opened, an AI step done once (the mistakes step: the tutor's first reply, or
-opened with every exercise worked and no mistakes). AI steps are in the plan only while an assistant
+answered, a reading step opened, an AI step done once (Understanding: every question of a text
+answered; the mistakes step: the tutor's first reply, or opened with every exercise worked and no
+mistakes). AI steps are in the plan only while an assistant
 is set up, so a lesson never depends on one. The reference tabs (vocabulary, grammar, culture, script,
 homework, downloads) stay available at any time for looking things up.
 
@@ -96,8 +97,8 @@ Pure functions over events and cards (05), read by the server per request:
   lessons, exams, review, AI practice; a run's module is its kind's) — lesson work (answers, skips,
   steps), exam answers, card answers (one taken back by undo does not count), new cards learnt, answers
   to cards in review and those not "Again" (the share remembered), AI practice (the learner's messages,
-  checks asked for, in whichever run: a lesson's, an exam's, a chat or a Dialogue — whose summary,
-  coming with its end, does not count) —, the time each
+  checks asked for, texts written and the answers to their questions, in whichever run: a lesson's,
+  an exam's, a chat or a Dialogue — whose summary, coming with its end, does not count) —, the time each
   module took, and the totals of a span of days. The day starts at 4 AM (Spaced repetition, below).
   Time spent (owner, 2026-10-07): read from one timeline of every event of every run, so runs open
   together (a lesson and its tutor chat or scene, its Words step's cards, two tabs) count each pause
@@ -317,9 +318,9 @@ An installed exam (02) is taken in runs of kind `exam` (05). Pure functions in
 Seven exercises with the assistant in a course's lessons (owner, 2026-10-11; not in exams, whose
 parts are the exam's own). Each works from what the learner knows by the lesson — the knowledge
 snapshot (07): the course's level, the words and grammar topics met so far, the lesson's goals and
-its place in the course. Built in phases (plan, item 9): **this phase** — the snapshot and the
-Dialogue; **next** — Understanding; **then** — Writing, Going over mistakes and the tutor's practice
-presets taken out. What is not built yet is marked *planned*.
+its place in the course. Built in phases (plan, item 9): the snapshot and the Dialogue, then
+Understanding (built); **next** — Writing, Going over mistakes and the tutor's practice presets taken
+out. What is not built yet is marked *planned*.
 
 Inside a lesson, at any time:
 
@@ -334,7 +335,7 @@ Inside a lesson, at any time:
 The step "AI practice" at the lesson's end — its exercises, each a step of the plan under one
 label and each skippable as any step:
 
-4. **Understanding** (*planned, next phase*): listening first. A text or dialogue the AI writes from
+4. **Understanding** (built; below): listening first. A text or dialogue the AI writes from
    the words known (`understanding_text`), heard through reading aloud in the language learnt only
    (08; the engine and voice that read it named, as the model is) and answered by ear; then the text
    opens for reading and a second question is asked. A reading-type text (a menu, a notice, a
@@ -359,6 +360,26 @@ Owner's rules for all of them: a text is read aloud only in one language, given 
 detected, never a mix; 08); no dictation where the task is writing; the tutor's replies are not read
 aloud; recognised speech is taken as a person would understand it — the recogniser's normalisation
 (punctuation, capitals, numbers written as digits) is accepted, never an error.
+
+**Understanding** (`understanding_text`, `understanding_check`; 07; owner, 2026-10-11 — listening is
+what reading aloud is mostly for): the model writes, from the lesson's goals and the snapshot, one
+text in the language learnt — a dialogue of two or an announcement or message to listen to, or a
+text to read (a menu, a notice, a note, an ad), the kind chosen by the lesson —, its length by the
+course's level (A1 about 40–70 words, A2 80–120, B1 150–200; given with the data), a few new words at
+most, each glossed; and 3–5 questions in the target language as exams ask them, each with one key:
+true/false (two options in the language's words — "Richtig", "Falsch" for German, with the data),
+a/b/c, a number, price or time as three options or typed (every right spelling accepted); a text heard
+first has 3–4 questions by ear and 1–2 on the text read. A second call reads the text again and
+answers the questions from it alone (`understanding_check`): one it answers otherwise or finds
+ambiguous is left out; fewer than three left, the text is written again once and the better kept;
+none left, the call fails. A question is the item of the closed type it is — a choice a
+`single_choice` (true/false one of two options), an answer typed a `gap_text` — built by the engine
+(`understandingExercise`, `check/understanding.ts`) and checked by `checkItem`, so no exercise type is
+added; where the learner is — listening, reading, done — is the engine's too (`understandingStage`).
+The text is an `llm_verdict` (`task: understanding`) in the lesson run the lesson shows, as a writing
+check is; each answer a `practice_answered` event on it, checked by the server, one per question
+(05). Answers are not in the lesson's score nor its mistakes: AI practice, as the Dialogue's lines;
+*planned (third phase)*: Going over mistakes takes the wrong ones in (owner, 2026-10-12).
 
 **Dialogue** (`scene_setup`, `scene_turn`, `scene_summary`; 07): a `scene` run as scenes were (05)
 — the step and its place keep the id `scene`. Setup from the lesson's goals and the snapshot: a

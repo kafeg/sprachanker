@@ -145,7 +145,8 @@
       "writing": "Schreib selbst",
       "scene": "Dialog",
       "mistakes": "Fehler durchgehen",
-      "summary": "Fazit"
+      "summary": "Fazit",
+      "understanding": "Verstehen"
     },
     "section": {
       "grammar": "Grammatik",
@@ -408,7 +409,9 @@
       "sceneSetup": "Dialog: die Ausgangslage",
       "scene": "Dialog: ein Satz",
       "examples": "Beispiele für die Wörter eines Stapels",
-      "sceneSummary": "Dialog: die Zusammenfassung"
+      "sceneSummary": "Dialog: die Zusammenfassung",
+      "understanding": "Verstehen: der Text",
+      "understandingCheck": "Verstehen: das zweite Lesen"
     },
     "contextIntro": "Aus der Lektion kommt dazu:",
     "contextIntroCourses": "Aus deinen Kursen kommt dazu (denen in der Sprache, die das Gespräch übt):",
@@ -445,7 +448,10 @@
       "place": "wo die Lektion im Kurs steht: ihre Nummer und Einheit",
       "topics": "die bisher im Kurs behandelten Grammatikthemen",
       "dialogueGoals": "die Situation und die Ziele, die du erreicht hast",
-      "dialogue": "die Sätze des Dialogs mit den Korrekturen dazu"
+      "dialogue": "die Sätze des Dialogs mit den Korrekturen dazu",
+      "length": "wie lang der Text auf dem Niveau des Kurses ist",
+      "readText": "der geschriebene Text",
+      "textQuestions": "seine Fragen mit den Antwortmöglichkeiten, ohne die Lösungen"
     },
     "upTo": "bis {chars, number} Zeichen",
     "debug": "Schaltflächen „Prompt“ anzeigen",
@@ -484,6 +490,10 @@
       "exam": {
         "name": "Prüfungsantworten",
         "where": "„Bewertung vorschlagen“ über den Kriterien einer Antwort und die Sprechteile als Gespräch"
+      },
+      "understanding": {
+        "name": "Verstehen",
+        "where": "ein Schritt der Lektion: ein Text zum Hören oder Lesen, mit Fragen"
       }
     },
     "about": {
@@ -497,7 +507,9 @@
       "sceneSetup": "Startet einen Dialog: erfindet aus den Zielen der Lektion und dem, was du kannst, die Situation, mit wem du sprichst, deine Zielkarte und was nur dein Gegenüber weiß — danach musst du fragen. Einmal pro Dialog.",
       "scene": "Spielt dein Gegenüber: antwortet auf jeden Satz, den du sagst (so, wie die Erkennung ihn gehört hat) oder tippst, sagt, ob er verstanden wurde und passt, korrigiert höchstens zwei Fehler darin, gibt eine Übersetzung und hakt deine Ziele ab.",
       "examples": "Schreibt drei bis fünf Beispielsätze zu jedem Wort eines Stapels, das keine eigenen hat, fünf Wörter auf einmal (Wiederholen → Stapel, „Beispiele erstellen“), möglichst mit Wörtern, die du kennst, neue übersetzt.",
-      "sceneSummary": "Fasst einen Dialog zusammen, wenn er vorbei ist: die ein oder zwei wichtigsten Korrekturen, jede mit deinem Satz, wie man ihn gut sagt, und eine kurze Rückmeldung."
+      "sceneSummary": "Fasst einen Dialog zusammen, wenn er vorbei ist: die ein oder zwei wichtigsten Korrekturen, jede mit deinem Satz, wie man ihn gut sagt, und eine kurze Rückmeldung.",
+      "understanding": "Schreibt einen kurzen Text in der Sprache, die du lernst, aus den Wörtern, die du kennst — einen Dialog oder eine Durchsage zum Hören oder eine Speisekarte, einen Aushang zum Lesen — mit Fragen wie in Prüfungen (richtig/falsch, a/b/c, Zahlen). Deine Antworten prüft die App, nicht das Modell.",
+      "understandingCheck": "Liest den Text noch einmal und beantwortet die eigenen Fragen nur aus dem Text: Eine Frage, die es anders beantwortet oder unklar findet, fällt weg."
     }
   },
   "writing": {
@@ -826,7 +838,8 @@
       "doneTitle": "{when}: {count, plural, one {# Lektion} other {# Lektionen}} abgeschlossen, insgesamt {total, number}",
       "part": "{label}: {n, number}",
       "words": "Wörter nach Stand: {parts}"
-    }
+    },
+    "understanding": "{count, plural, one {# Text verstanden} other {# Texte verstanden}}"
   },
   "study": {
     "listen": "Hör zu und erinnere dich an die Bedeutung",
@@ -1350,7 +1363,8 @@
     "course_bundle_from_newer_app": "Diese Kursdatei stammt aus einer neueren Version von SprachAnker: Aktualisiere die App hier zuerst.",
     "course_bundle_clash": "Auf diesem Computer liegen unter den Namen der Mediendateien dieses Kurses andere Dateien: Lade den Kurs hier herunter.",
     "course_import_busy": "Gerade wird eine andere Kursdatei importiert. Versuch es noch einmal, wenn sie fertig ist.",
-    "series_busy": "Kurse aus dieser Quelle werden gerade heruntergeladen oder importiert. Versuch es noch einmal, wenn das fertig ist."
+    "series_busy": "Kurse aus dieser Quelle werden gerade heruntergeladen oder importiert. Versuch es noch einmal, wenn das fertig ist.",
+    "understanding_busy": "Ein Text für diese Lektion wird gerade geschrieben. Warte darauf."
   },
   "exams": {
     "tabs": {
@@ -1543,5 +1557,28 @@
       "verified": "Geprüft: Alle Dateien sind da.",
       "problems": "Geprüft: {count, plural, one {# Problem gefunden} other {# Probleme gefunden}} – „Prüfen“ auf seiner Karte zeigt sie."
     }
+  },
+  "understanding": {
+    "intro": "Ein kurzer Text aus den Wörtern, die du kennst. Ein Dialog oder eine Durchsage wird vorgelesen: Hör zu und antworte nach dem Hören, dann lies den Text und beantworte noch eine Frage. Eine Speisekarte oder ein Aushang ist zum Lesen da.",
+    "start": "Text schreiben lassen",
+    "writing": "Text wird geschrieben…",
+    "new": "Neuer Text",
+    "kind": {
+      "dialogue": "ein Dialog zum Hören",
+      "announcement": "eine Durchsage zum Hören",
+      "reading": "ein Text zum Lesen"
+    },
+    "listen": "Anhören",
+    "resume": "Weiter",
+    "replay": "Von vorn",
+    "line": "Satz {n, number} von {total, number}",
+    "heard": "{count, plural, one {Einmal gehört} other {# Mal gehört}}",
+    "noVoice": "Für {language} gibt es hier keine Vorlesestimme, deshalb steht der Text zum Lesen da. Zum Hören wähle eine Stimme unter Einstellungen → Sprechen.",
+    "byEar": "Antworte nach dem Hören — der Text öffnet sich danach.",
+    "text": "Der Text",
+    "newWords": "Neue Wörter",
+    "readNow": "Lies den Text und antworte",
+    "result": "{right, number} von {total, number} richtig",
+    "past": "Frühere Texte dieser Lektion"
   }
 }

@@ -1,9 +1,12 @@
 import { afterEach, beforeEach, expect, test } from "bun:test";
 import { QueryClientProvider } from "@tanstack/react-query";
 import { act, fireEvent, renderHook, waitFor, within } from "@testing-library/react";
+import { useListening } from "../../src/audio/listening.ts";
 import { ReadAloud } from "../../src/audio/read-aloud-settings.tsx";
+import { ReadByLabel } from "../../src/audio/read-by.tsx";
 import { useReadLanguages } from "../../src/audio/read-languages.ts";
 import { samplesOf } from "../../src/audio/samples.ts";
+import type { SpokenPart } from "../../src/audio/speak.ts";
 import { SpeakButton } from "../../src/audio/speak-button.tsx";
 import { ChatBubble } from "../../src/llm/parts.tsx";
 import { queryClient, renderApp } from "../render.tsx";
@@ -348,4 +351,104 @@ test("Settings with Qwen3-TTS: its models (the one in use), each language's spea
   expect(view.getByText(/Qwen3-TTS does not speak Arabic/)).toBeTruthy();
   // It has no speed of its own: no speed slider with it.
   expect(view.queryByText(/^Speed:/)).toBeNull();
+});
+
+/** A text to listen to, as Understanding plays it. */
+function Listener({ parts }: { parts: SpokenPart[] }) {
+  const l = useListening(parts);
+  return (
+    <div>
+      <button type="button" onClick={l.play}>
+        play
+      </button>
+      <button type="button" onClick={l.pause}>
+        pause
+      </button>
+      <button type="button" onClick={l.replay}>
+        replay
+      </button>
+      <span>{`at ${l.at} · heard ${l.plays} · ${l.playing ? "playing" : "still"}`}</span>
+    </div>
+  );
+}
+
+const DIALOGUE: SpokenPart[] = [
+  { text: "Guten Morgen!", lang: "de" },
+  { text: "Hallo!", lang: "de", alt: true },
+  { text: "Zwei Brötchen, bitte.", lang: "de" },
+];
+
+test("a text listened to line by line, the second speaker by the language's other voice: paused, played on from its line, heard to the end, from the start again", async () => {
+  const view = await renderApp(<Listener parts={DIALOGUE} />);
+  fireEvent.click(view.getByRole("button", { name: "play" }));
+  await waitFor(() => expect(said).toHaveLength(1));
+  await finish();
+  await waitFor(() => expect(said).toHaveLength(2));
+  // The best voice reads the first speaker, the other one the second.
+  expect(said.map((s) => [s.text, s.voice])).toEqual([
+    ["Guten Morgen!", "petra"],
+    ["Hallo!", "anna"],
+  ]);
+  fireEvent.click(view.getByRole("button", { name: "pause" }));
+  expect(view.getByText("at 1 · heard 0 · still")).toBeTruthy();
+  // Played on from the line it was at.
+  fireEvent.click(view.getByRole("button", { name: "play" }));
+  await waitFor(() => expect(said).toHaveLength(3));
+  expect(said[2]?.text).toBe("Hallo!");
+  await finish();
+  await waitFor(() => expect(said).toHaveLength(4));
+  await finish();
+  await waitFor(() => expect(view.getByText("at 0 · heard 1 · still")).toBeTruthy());
+  fireEvent.click(view.getByRole("button", { name: "replay" }));
+  await waitFor(() => expect(said).toHaveLength(5));
+  expect(said[4]?.text).toBe("Guten Morgen!");
+});
+
+test("with Piper, the second speaker's lines are asked of another voice of the language; who reads is named with both", async () => {
+  const asked: Array<{ text: string; voice?: string }> = [];
+  const realFetch = globalThis.fetch;
+  const realAudio = globalThis.Audio;
+  globalThis.fetch = (async (input: RequestInfo | URL, init?: RequestInit) => {
+    const request = input instanceof Request ? input : new Request(String(input), init);
+    asked.push((await request.json()) as { text: string; voice?: string });
+    return new Response(new Blob([new Uint8Array([1])], { type: "audio/wav" }));
+  }) as typeof fetch;
+  (globalThis as { Audio: unknown }).Audio = class {
+    onended?: () => void;
+    async play() {
+      setTimeout(() => this.onended?.(), 0);
+    }
+    pause() {}
+  };
+  const two = {
+    ...PIPER,
+    voices: PIPER.voices.map((v) =>
+      v.id === "de_AT-hmm-low" ? { ...v, installed: true, downloaded: undefined } : v,
+    ),
+  };
+  try {
+    const view = await renderApp(
+      <>
+        <ReadByLabel lang="de" two />
+        <Listener parts={DIALOGUE} />
+      </>,
+      {
+        data: [
+          [["settings"], { "speech.readEngine": "piper" }],
+          [["piper-voices"], two],
+        ],
+      },
+    );
+    expect(view.getByText("Read by Piper · thorsten and hmm")).toBeTruthy();
+    fireEvent.click(view.getByRole("button", { name: "play" }));
+    await waitFor(() => expect(view.getByText("at 0 · heard 1 · still")).toBeTruthy());
+    expect(asked.map((a) => [a.text, a.voice])).toEqual([
+      ["Guten Morgen!", undefined],
+      ["Hallo!", "de_AT-hmm-low"],
+      ["Zwei Brötchen, bitte.", undefined],
+    ]);
+  } finally {
+    globalThis.fetch = realFetch;
+    (globalThis as { Audio: unknown }).Audio = realAudio;
+  }
 });

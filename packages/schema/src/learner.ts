@@ -5,6 +5,7 @@ import {
   DialogueSummary,
   ExamRatingProposal,
   SpokenCheck,
+  UnderstandingText,
   WordExample,
   WritingCheck,
 } from "./assistant.ts";
@@ -90,9 +91,9 @@ const AnsweredInput = z.object({
 export const AnsweredPayload = AnsweredInput.extend({ outcome: Outcome });
 export type AnsweredPayload = z.infer<typeof AnsweredPayload>;
 
-/** AI practice in the order of the lesson plan (04): going over the mistakes last, once the exercises
- *  are done. */
-export const PRACTICE = ["writing", "scene", "mistakes"] as const;
+/** AI practice in the order of the lesson plan (04): Understanding, Writing, the Dialogue (`scene`),
+ *  going over the mistakes last, once the exercises are done. */
+export const PRACTICE = ["understanding", "writing", "scene", "mistakes"] as const;
 export type PracticeKind = (typeof PRACTICE)[number];
 
 /**
@@ -200,6 +201,7 @@ const LlmVerdictPayload = z.discriminatedUnion("task", [
   verdict("speaking", SpokenCheck),
   verdict("exam", ExamRatingProposal),
   verdict("dialogue", DialogueSummary),
+  verdict("understanding", UnderstandingText),
 ]);
 type LlmVerdictPayload = z.infer<typeof LlmVerdictPayload>;
 export type VerdictTask = LlmVerdictPayload["task"];
@@ -347,6 +349,17 @@ export const ExamRatedPayload = z.object({
 });
 export type ExamRatedPayload = z.infer<typeof ExamRatedPayload>;
 
+/** An answer to a question the assistant set (an Understanding text's, 04): on the verdict that set
+ *  it (`verdict`: its event's id) by the question's index, in the verdict's run, its outcome checked
+ *  by the server with the engine as the item of its kind (never by a model). One answer a question. */
+export const PracticeAnsweredPayload = z.object({
+  verdict: Ulid,
+  question: z.number().int().nonnegative(),
+  answer: z.unknown(),
+  outcome: Outcome,
+});
+export type PracticeAnsweredPayload = z.infer<typeof PracticeAnsweredPayload>;
+
 export const EVENT_PAYLOADS = {
   page_shown: PageShownPayload,
   answered: AnsweredPayload,
@@ -357,6 +370,7 @@ export const EVENT_PAYLOADS = {
   card_review: CardReviewPayload,
   card_undo: CardUndoPayload,
   exam_rated: ExamRatedPayload,
+  practice_answered: PracticeAnsweredPayload,
 } as const;
 export type EventType = keyof typeof EVENT_PAYLOADS;
 export type EventPayload<T extends EventType> = z.infer<(typeof EVENT_PAYLOADS)[T]>;

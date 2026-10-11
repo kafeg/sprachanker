@@ -25,6 +25,7 @@ import { ItemCard, SharedPrompt, severalNote, sharedPrompt } from "@/exercises/i
 import { ShuffleSeed } from "@/exercises/shared.tsx";
 import { ItemHistory } from "@/library/item-history.tsx";
 import { SpokenCheckNote, spokenCheckOf } from "@/library/spoken-check.tsx";
+import { UnderstoodText, understandingScore } from "@/library/understanding-text.tsx";
 import { Button } from "@/ui/components/button.tsx";
 import { inLang } from "@/ui/direction.tsx";
 import { useDateFormat } from "@/ui/format.ts";
@@ -164,14 +165,35 @@ function Pass({ pass }: { pass: NotebookPass }) {
   );
 }
 
-/** What else the pass did: texts checked, scenes, chats, words added. */
+/** What else the pass did: Understanding's texts (each opening with its answers), texts checked,
+ *  scenes, chats, words added. */
 function More({ pass }: { pass: NotebookPass }) {
   const { t } = useTranslation();
-  const { writing, scenes, chats, words } = pass;
+  const { understanding, writing, scenes, chats, words } = pass;
   const target = useTargetLang();
-  if (!writing.length && !scenes.length && !chats.length && !words.length) return null;
+  if (!understanding.length && !writing.length && !scenes.length && !chats.length && !words.length)
+    return null;
   return (
     <Panel title={t("notebook.alsoDone")} className="space-y-3">
+      {understanding.map((u) => {
+        const answers = pass.events.flatMap((e) =>
+          e.type === "practice_answered" && e.payload.verdict === u.id ? [e.payload] : [],
+        );
+        const score = understandingScore(u.result, answers);
+        return (
+          <details key={u.id} className="group">
+            <summary className="cursor-pointer pointer-coarse:min-h-11">
+              {u.result.title}{" "}
+              <span className="text-muted-foreground">· {t("understanding.result", score)}</span>
+            </summary>
+            {target && (
+              <div className="mt-2">
+                <UnderstoodText id={u.id} text={u.result} answers={answers} lang={target} />
+              </div>
+            )}
+          </details>
+        );
+      })}
       {writing.map((w) => (
         <p key={w.ts}>
           <span className="text-muted-foreground">

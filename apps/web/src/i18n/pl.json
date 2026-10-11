@@ -145,7 +145,8 @@
       "writing": "Napisz własny tekst",
       "scene": "Dialog",
       "mistakes": "Omówienie błędów",
-      "summary": "Podsumowanie"
+      "summary": "Podsumowanie",
+      "understanding": "Rozumienie"
     },
     "section": {
       "grammar": "Gramatyka",
@@ -408,7 +409,9 @@
       "sceneSetup": "Dialog: sytuacja",
       "scene": "Dialog: kwestia",
       "examples": "Przykłady do słów talii",
-      "sceneSummary": "Dialog: podsumowanie"
+      "sceneSummary": "Dialog: podsumowanie",
+      "understanding": "Rozumienie: tekst",
+      "understandingCheck": "Rozumienie: drugie czytanie"
     },
     "contextIntro": "Dodane z lekcji:",
     "contextIntroCourses": "Dodane z twoich kursów (tych w języku, który ćwiczy rozmowa):",
@@ -445,7 +448,10 @@
       "place": "miejsce lekcji w kursie: jej numer i rozdział",
       "topics": "tematy gramatyczne poznane dotąd w kursie",
       "dialogueGoals": "sytuacja i osiągnięte cele",
-      "dialogue": "kwestie dialogu z poprawkami do nich"
+      "dialogue": "kwestie dialogu z poprawkami do nich",
+      "length": "jak długi jest tekst na poziomie kursu",
+      "readText": "napisany tekst",
+      "textQuestions": "jego pytania z odpowiedziami do wyboru, bez rozwiązań"
     },
     "upTo": "do {chars, plural, one {# znaku} few {# znaków} many {# znaków} other {# znaku}}",
     "debug": "Pokazuj przyciski „Prompt”",
@@ -484,6 +490,10 @@
       "exam": {
         "name": "Odpowiedzi egzaminacyjne",
         "where": "„Zaproponuj ocenę” nad kryteriami odpowiedzi oraz części ustne prowadzone jako rozmowa"
+      },
+      "understanding": {
+        "name": "Rozumienie",
+        "where": "krok lekcji: tekst do słuchania lub czytania, z pytaniami"
       }
     },
     "about": {
@@ -497,7 +507,9 @@
       "sceneSetup": "Rozpoczyna dialog: z celów lekcji i tego, co już znasz, wymyśla sytuację, rozmówcę, twoją kartę celów i to, co wie tylko rozmówca — o to musisz zapytać. Raz na dialog.",
       "scene": "Gra twojego rozmówcę: odpowiada na każdą kwestię, którą mówisz (tak jak usłyszało ją rozpoznawanie) lub piszesz, mówi, czy była zrozumiała i pasuje, poprawia w niej najwyżej dwa błędy, podaje tłumaczenie i odhacza osiągnięte cele.",
       "examples": "Pisze od trzech do pięciu przykładowych zdań do każdego słowa talii, która nie ma własnych, po pięć słów naraz (Powtórki → Talie, „Utwórz przykłady”), w miarę możliwości ze znanymi ci słowami, a nowe tłumaczy.",
-      "sceneSummary": "Podsumowuje dialog po jego zakończeniu: jedną lub dwie najważniejsze poprawki, każdą z twoim zdaniem powiedzianym dobrze, i krótką uwagę."
+      "sceneSummary": "Podsumowuje dialog po jego zakończeniu: jedną lub dwie najważniejsze poprawki, każdą z twoim zdaniem powiedzianym dobrze, i krótką uwagę.",
+      "understanding": "Pisze krótki tekst w języku, którego się uczysz, ze znanych ci słów — dialog lub komunikat do słuchania albo menu czy ogłoszenie do czytania — z pytaniami jak na egzaminach (prawda/fałsz, a/b/c, liczby). Twoje odpowiedzi sprawdza aplikacja, nie model.",
+      "understandingCheck": "Czyta tekst jeszcze raz i odpowiada na własne pytania tylko na podstawie tekstu: pytanie, na które odpowie inaczej albo które uzna za niejasne, odpada."
     }
   },
   "writing": {
@@ -826,7 +838,8 @@
       "doneTitle": "{when}: ukończone {count, plural, one {# lekcja} few {# lekcje} many {# lekcji} other {# lekcji}}, łącznie {total, number}",
       "part": "{label}: {n, number}",
       "words": "Słowa według stanu: {parts}"
-    }
+    },
+    "understanding": "{count, plural, one {# tekst do zrozumienia} few {# teksty do zrozumienia} many {# tekstów do zrozumienia} other {# tekstu do zrozumienia}}"
   },
   "study": {
     "listen": "Posłuchaj i przypomnij sobie znaczenie",
@@ -1350,7 +1363,8 @@
     "course_bundle_from_newer_app": "Ten plik kursu pochodzi z nowszej wersji SprachAnker: najpierw zaktualizuj tu aplikację.",
     "course_bundle_clash": "Na tym komputerze pod nazwami plików multimedialnych tego kursu są inne pliki: pobierz kurs tutaj.",
     "course_import_busy": "Trwa import innego pliku kursu. Spróbuj ponownie, gdy się skończy.",
-    "series_busy": "Kursy z tego źródła są właśnie pobierane lub importowane. Spróbuj ponownie, gdy to się skończy."
+    "series_busy": "Kursy z tego źródła są właśnie pobierane lub importowane. Spróbuj ponownie, gdy to się skończy.",
+    "understanding_busy": "Tekst do tej lekcji jest właśnie pisany. Poczekaj."
   },
   "exams": {
     "tabs": {
@@ -1543,5 +1557,28 @@
       "verified": "Sprawdzono: wszystkie pliki są na miejscu.",
       "problems": "Sprawdzono: {count, plural, one {znaleziono # problem} few {znaleziono # problemy} many {znaleziono # problemów} other {znaleziono # problemu}} — „Sprawdź” na jego karcie je pokaże."
     }
+  },
+  "understanding": {
+    "intro": "Krótki tekst ze znanych ci słów. Dialog lub komunikat jest czytany na głos: słuchaj i odpowiadaj ze słuchu, potem przeczytaj tekst i odpowiedz na jeszcze jedno pytanie. Menu czy ogłoszenie są do czytania.",
+    "start": "Napisz tekst",
+    "writing": "Piszę tekst…",
+    "new": "Nowy tekst",
+    "kind": {
+      "dialogue": "dialog do słuchania",
+      "announcement": "komunikat do słuchania",
+      "reading": "tekst do czytania"
+    },
+    "listen": "Słuchaj",
+    "resume": "Dalej",
+    "replay": "Od początku",
+    "line": "Kwestia {n, number} z {total, number}",
+    "heard": "{count, plural, one {Wysłuchano raz} few {Wysłuchano # razy} many {Wysłuchano # razy} other {Wysłuchano # raza}}",
+    "noVoice": "Nic tu nie czyta na głos języka: {language}, więc tekst jest pokazany do czytania. Aby słuchać, wybierz głos w Ustawieniach → Mowa.",
+    "byEar": "Odpowiadaj ze słuchu — tekst otworzy się potem.",
+    "text": "Tekst",
+    "newWords": "Nowe słowa",
+    "readNow": "Przeczytaj tekst i odpowiedz",
+    "result": "{right, number} z {total, number} dobrze",
+    "past": "Wcześniejsze teksty tej lekcji"
   }
 }
