@@ -211,16 +211,18 @@ export function createStudy(deps: {
 
   /**
    * A review day in full (the Notebook's page of it, as a lesson's pass): the study day it is of, its
-   * answers not taken back, oldest first — each card as it shows now (none when it is gone), the side,
+   * answers not taken back, oldest first — each card as it shows now in its language's queue (`shown`:
+   * a course's entry over an imported deck's; none when it is gone), the side,
    * the rating, the interval it gave and how long it took (where measured) —, what the day held
    * (engine `activityByDay`), and the review days with answers before and after it. With `lang`, a
    * language's deck's day: only its cards' answers (a card gone is in no deck), what they held, and
    * the days its cards were answered on.
    */
-  function reviewDay(runId: string, lang?: Lang) {
+  async function reviewDay(runId: string, lang?: Lang) {
     const row = store.get(runId, "review");
     if (!row) throw new ServiceError("no_such_run", 404);
-    const notes = new Map(cards.all().map((n) => [n.id, n]));
+    const all = cards.all();
+    const notes = new Map(all.map((n) => [n.id, n]));
     const inDeck = (cardId: string) => lang === undefined || notes.get(cardId)?.lang === lang;
     const types: CardEvent["type"][] = ["card_review", "card_undo"];
     const events = (store.events(runId, types) as CardEvent[]).filter((e) => inDeck(e.cardId));
@@ -243,20 +245,24 @@ export function createStudy(deps: {
       run: headerOf(row),
       /** The study day's start (a run started before 4 AM is the day before's). */
       date: start,
-      answers: answers.map((a) => {
-        const note = notes.get(a.cardId);
-        return {
-          id: a.id,
-          ts: a.ts,
-          cardId: a.cardId,
-          face: a.face,
-          rating: a.review.rating,
-          /** From the answer to the side's next due. */
-          interval: a.review.stateAfter.due - a.ts,
-          ms: a.review.ms ?? null,
-          card: note ? { display: note.display, lang: note.lang } : null,
-        };
-      }),
+      answers: await Promise.all(
+        answers.map(async (a) => {
+          const note = notes.get(a.cardId);
+          return {
+            id: a.id,
+            ts: a.ts,
+            cardId: a.cardId,
+            face: a.face,
+            rating: a.review.rating,
+            /** From the answer to the side's next due. */
+            interval: a.review.stateAfter.due - a.ts,
+            ms: a.review.ms ?? null,
+            card: note
+              ? { display: await deps.shown(note, `lang:${note.lang}`, all), lang: note.lang }
+              : null,
+          };
+        }),
+      ),
       day: day
         ? {
             answers: day.review,

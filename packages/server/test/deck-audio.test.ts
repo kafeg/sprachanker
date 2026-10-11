@@ -3,6 +3,7 @@ import { existsSync, readFileSync, rmSync, writeFileSync } from "node:fs";
 import { join } from "node:path";
 import { buildApkg } from "@sprachanker/anki-export/testing";
 import { FIXTURE_SERIES } from "@sprachanker/course-fixture";
+import { ulid } from "ulid";
 import { COURSE, deck, study, withDecks } from "./deck-setup.ts";
 import { piper, qwen } from "./speech-fakes.ts";
 import { until } from "./until.ts";
@@ -487,6 +488,17 @@ test("a word taken first from an imported deck: a course's lesson shows the cour
   const inDeck = await shownIn(deckScope);
   expect(inDeck).toMatchObject({ target: "der Kaffee", translation: "кофе (напиток)", deck: id });
   expect(inDeck.readAudio).toStartWith(`${id}/media/read-`);
+  // Answered, the Notebook's review day shows it as the language's queue does.
+  await sendJson("POST", `/api/cards/${kaffee.cardId}/review`, {
+    id: ulid(),
+    reps: 0,
+    face: "recognition",
+    rating: 3,
+  });
+  const notebook = await getJson("/api/notebook");
+  const review = notebook.modules.find((m: { module: string }) => m.module === "review");
+  const day = await getJson(`/api/notebook/review/${review.entries[0].runs[0].id}`);
+  expect(day.answers[0].card.display).toMatchObject(course);
   // The deck left, the card moves to the course: shown there as before.
   await sendJson("POST", "/api/cards/decks/leave", { scope: deckScope, lang: "de" });
   expect(await shownIn(`lesson:ru-de:${COURSE}/00-01`)).toMatchObject(course);

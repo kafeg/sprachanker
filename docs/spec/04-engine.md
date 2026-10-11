@@ -175,7 +175,8 @@ imported `.apkg` decks fit in. Scheduling and the queue are pure functions in
   Bank, die Banken", later "die Bänke"; DW's "weg" recorded in its first lesson only): a lesson's
   word without a recording there takes the course's first recording of the same headword, else the
   reading of that headword (owner, 2026-10-12) — so every headword a card or a "Words" step shows
-  has audio once its deck is read aloud. In a language's queue, My words and the word sheet a course's entry
+  has audio once its deck is read aloud. In a language's queue, My words, the word sheet and the
+  Notebook's review day a course's entry
   comes before an imported deck's: the card's own course, else the first of the learner's courses in
   its language pair (by deck) that has the word, else the card's own — a course's words are those its
   lessons teach, with its recordings (`services/cards.ts` `shown`).
