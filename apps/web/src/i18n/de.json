@@ -1127,6 +1127,7 @@
     "exam_part_done": "Dieser Teil ist schon zu Ende.",
     "invalid_event": "Die App hat einen Eintrag geschickt, den der Server nicht annimmt. Lade die Lektion neu.",
     "invalid_request": "Die App hat etwas geschickt, das der Server nicht annimmt. Lade die Seite neu.",
+    "request_too_large": "Diese Anfrage ist zu groß.",
     "invalid_setting": "Dieser Wert passt nicht zur Einstellung.",
     "lesson_not_in_series": "Diese Lektion gehört nicht zum Kurs. Lade die Seite neu.",
     "llm_bad_response": "Der Server hat einen Fehler gemeldet.",

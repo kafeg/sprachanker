@@ -443,3 +443,16 @@ test("an update that drops a word: its card keeps what it showed and its audio",
   const audio = await get(`/decks/${id}/${after.display.audio}`);
   expect(new Uint8Array(await audio.arrayBuffer())).toEqual(SOUND);
 });
+
+test("an import asked again — at once or after it ended — answers with the deck it made", async () => {
+  const { preview, sendJson, getJson } = await withDecks();
+  const { upload } = await preview(deck());
+  const request = { upload, title: "Mein Deck", lang: "de", translationLang: "ru", file: "m.apkg" };
+  const [first, again] = await Promise.all([
+    sendJson("POST", "/api/decks/import", request),
+    sendJson("POST", "/api/decks/import", request),
+  ]);
+  expect(again).toEqual(first);
+  expect(await sendJson("POST", "/api/decks/import", request)).toEqual(first);
+  expect((await getJson("/api/decks")).decks).toHaveLength(1);
+});

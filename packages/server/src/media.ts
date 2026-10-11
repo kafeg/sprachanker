@@ -39,5 +39,8 @@ export function blobResponse(blob: MediaBlob, range: string | undefined): Respon
 export const limitedBody = (max: number, error: ErrorCode) =>
   bodyLimit({ maxSize: max, onError: (c) => c.json({ error }, 413) });
 
+/** The largest body of a request that sends JSON (every API route but those taking files). */
+export const JSON_BODY_MAX = 1024 * 1024;
+
 /** A request body of audio up to `max` bytes. */
 export const audioBody = (max: number) => limitedBody(max, "recording_too_large");

@@ -1127,6 +1127,7 @@
     "exam_part_done": "This part is over.",
     "invalid_event": "The app sent a record the server did not accept. Reload the lesson.",
     "invalid_request": "The app sent something the server did not accept. Reload the page.",
+    "request_too_large": "This request is too large.",
     "invalid_setting": "This value does not fit the setting.",
     "lesson_not_in_series": "This lesson is not part of the course. Reload the page.",
     "llm_bad_response": "The server returned an error.",

@@ -14,7 +14,8 @@
 │                                # keeps the earlier files); a folder written whole (beside, then renamed
 │                                # into place). Planned beside deck.json: extras.json (by word key: audio read
 │                                # aloud, AI examples), and folders for course decks (`course~<series>~…`)
-├── decks/.uploads/              # .apkg files uploaded and previewed, kept until imported (a day at most)
+├── decks/.uploads/              # .apkg files uploaded and previewed, kept until imported (a day at most);
+│                                # an imported one's note of the deck it made (<upload>.deck, a day)
 ├── models/                      # downloaded speech models; voices/ Piper's voices; engines.pid (06) (08)
 ├── cache/tts/                   # texts read aloud by Piper (by voice, speed, text) and Qwen3-TTS (08)
 ├── server.sqlite                # profiles, devices, server settings

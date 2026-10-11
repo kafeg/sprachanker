@@ -16,6 +16,9 @@ import { DECK_MAX_BYTES } from "../services/decks.ts";
 import type { ProfileFiles, RecordingFiles } from "../services/profiles.ts";
 import type { WebAssets } from "../web.ts";
 
+/** The deck routes that answer only once a package is read (routes/decks.ts). */
+const UNTIMED = /^\/api\/decks\/(preview|import)$/;
+
 export interface Listening {
   url: string;
   stop(): Promise<void>;
@@ -26,14 +29,17 @@ export function listen(
   options: { hostname: string; port: number },
 ): Listening {
   const server = Bun.serve({
-    fetch,
+    fetch(request, bun) {
+      // A deck file's preview and import read or write for minutes before they answer: they wait as
+      // long as they take, every other request Bun's 10 s.
+      if (UNTIMED.test(new URL(request.url).pathname)) bun.timeout(request, 0);
+      return fetch(request);
+    },
     hostname: options.hostname,
     port: options.port,
-    // A deck file is the largest body taken (Bun's own limit is 128 MB).
+    // A deck file is the largest body taken (Bun's own limit is 128 MB); each route keeps its own
+    // limit below it (app.ts).
     maxRequestBodySize: DECK_MAX_BYTES + 1024 * 1024,
-    // Bun's longest wait for a request that sends nothing yet (not its 10 s): a deck's import writes
-    // thousands of files before it answers.
-    idleTimeout: 255,
   });
   return { url: server.url.href, stop: () => server.stop() };
 }

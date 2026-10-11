@@ -81,8 +81,10 @@ JSON under `/api`, validated with zod and typed for the web client through Hono 
   deck most of whose notes it holds, in the same languages, updated; 400 `deck_same_languages` (the
   words' language and the translations' must differ); 404 `deck_upload_gone`; 422
   `not_a_deck`, `deck_without_words`, `deck_unpacked_too_large`; 413 `deck_too_large`), `DELETE /api/decks/:id` (409
-  `deck_in_use` while any profile has cards made from it). Bun takes bodies up to that size and waits
-  up to 255 s on a request (`runtime/bun.ts`).
+  `deck_in_use` while any profile has cards made from it). An import asked again with its upload's id
+  — at once, or after it ended (within a day) — answers with the deck it made, so a retry after a
+  dropped connection gets it. Bun takes bodies up to a deck file's size; the preview and the import
+  wait as long as they take, every other request Bun's 10 s (`runtime/bun.ts`).
 - Settings: `GET` / `PUT /api/settings` (one key at a time): only the learner's preferences, each
   checked against its schema (`packages/schema/src/settings.ts`); the assistant's endpoints and prompts
   are changed only through `/api/llm`.
@@ -105,6 +107,9 @@ JSON under `/api`, validated with zod and typed for the web client through Hono 
   (`{id, itemKey, ratings, by, model?}`: an open answer given in the run, rated whole by levels its
   criteria have; a handed-in run's result computed anew). A running mock exam's answers come back
   without their outcomes; practice's with them.
+- Bodies: every API route takes at most 1 MB (413 `request_too_large`) but those taking a file, each
+  with its own limit — a recording (`recording_too_large`), audio to transcribe, a deck file
+  (`deck_too_large`).
 - Errors: `{error: <code>}`, the code one of `ERROR_CODES` (`schema/src/errors.ts`; the web has words
   for each, tested), with 400 (input; a request that does not validate is `invalid_request` with a
   `detail`, the AI's routes included), 403 (`missing_client_header`, `registration_closed`), 404

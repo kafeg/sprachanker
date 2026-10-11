@@ -8,6 +8,7 @@ export const ERROR_CODES = [
   "unknown_host",
   "not_found",
   "invalid_request",
+  "request_too_large",
   "server_error",
   // Profiles.
   "no_such_profile",

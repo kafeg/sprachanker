@@ -69,7 +69,7 @@ src/
   security/          # secrets.ts (AES-GCM sealing of API keys), host.ts (Host check, CSP and security
                      # headers), encoding.ts (base64url, SHA-256)
   media.ts           # Range responses for library and deck media and profile recordings; body limits
-                     # (audio, deck files)
+                     # (JSON 1 MB — app.ts, every route but those taking a file —, audio, deck files)
 test/                # bun test; integration tests call createApp().request() — setup.ts signs a profile in
                      # and sends its cookie (`anonymous` sends none)
 ```

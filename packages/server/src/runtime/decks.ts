@@ -11,6 +11,7 @@ import {
   renameSync,
   rmSync,
   statSync,
+  writeFileSync,
 } from "node:fs";
 import { mkdir, writeFile } from "node:fs/promises";
 import { join } from "node:path";
@@ -32,7 +33,8 @@ export function deckFiles(dataRoot: string): DeckFiles {
     if (!ID.test(id)) throw new Error(`bad deck id ${id}`);
     return join(root, id);
   };
-  const uploaded = (upload: string) => (UPLOAD.test(upload) ? join(uploads, `${upload}.apkg`) : "");
+  const uploaded = (upload: string, ext = "apkg") =>
+    UPLOAD.test(upload) ? join(uploads, `${upload}.${ext}`) : "";
   const isFile = (path: string) => !!path && !!statSync(path, { throwIfNoEntry: false })?.isFile();
   return {
     ids: () =>
@@ -114,8 +116,14 @@ export function deckFiles(dataRoot: string): DeckFiles {
       const bytes = readFileSync(uploaded(upload));
       return new Uint8Array(bytes.buffer, bytes.byteOffset, bytes.byteLength);
     },
-    unstage(upload) {
-      if (uploaded(upload)) rmSync(uploaded(upload), { force: true });
+    unstage(upload, deck) {
+      if (!uploaded(upload)) return;
+      if (deck) writeFileSync(uploaded(upload, "deck"), deck);
+      rmSync(uploaded(upload), { force: true });
+    },
+    made(upload) {
+      const note = uploaded(upload, "deck");
+      return isFile(note) ? readFileSync(note, "utf8") : undefined;
     },
   };
 }

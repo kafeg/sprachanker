@@ -5,7 +5,7 @@ import { tmpdir } from "node:os";
 import { join } from "node:path";
 import { FIXTURE_SERIES } from "@sprachanker/course-fixture";
 import { openLibrary } from "@sprachanker/course-kit";
-import type { LessonKey } from "@sprachanker/schema";
+import { CLIENT_HEADERS, type LessonKey } from "@sprachanker/schema";
 import { ulid } from "ulid";
 import { directoryAssets, fileAssets } from "../src/runtime/bun.ts";
 import { createContent } from "../src/services/content.ts";
@@ -645,4 +645,19 @@ describe("course check and downloads", () => {
       (await send("POST", "/api/downloads", { series: FIXTURE_SERIES, course: "demo" })).status,
     ).toBe(409);
   });
+});
+
+test("every API route takes a body of at most 1 MB but those taking a file", async () => {
+  const { app, cookie, send } = await setup();
+  const big = await send("PUT", "/api/settings", { key: "x", value: "x".repeat(1024 * 1024) });
+  expect([big.status, ((await big.json()) as { error: string }).error]).toEqual([
+    413,
+    "request_too_large",
+  ]);
+  const recording = await app.request("/api/recordings", {
+    method: "POST",
+    headers: { cookie, ...CLIENT_HEADERS, "content-type": "audio/webm" },
+    body: new Uint8Array(2 * 1024 * 1024),
+  });
+  expect(recording.status).not.toBe(413);
 });

@@ -7,7 +7,7 @@ import { CLIENT_HEADERS } from "@sprachanker/schema";
 import { Hono } from "hono";
 import type { ServerDb } from "./db/server/db.ts";
 import { errorResponse } from "./errors.ts";
-import { blobResponse, type MediaBlob } from "./media.ts";
+import { blobResponse, JSON_BODY_MAX, limitedBody, type MediaBlob } from "./media.ts";
 import { cardRoutes } from "./routes/cards.ts";
 import { courseRoutes } from "./routes/courses.ts";
 import { deckRoutes } from "./routes/decks.ts";
@@ -67,6 +67,10 @@ export interface AppConfig {
   hosts?: string[];
 }
 
+/** The routes that take a file, each with its own body limit: a recording, audio to hear, a deck file. */
+const FILE_ROUTES = /^\/api\/(recordings|speech\/transcribe|decks\/preview)$/;
+const jsonBody = limitedBody(JSON_BODY_MAX, "request_too_large");
+
 export function createApp(config: AppConfig) {
   const svc = createServices({
     ...config,
@@ -86,6 +90,7 @@ export function createApp(config: AppConfig) {
       }
       await next();
     })
+    .use("*", (c, next) => (FILE_ROUTES.test(c.req.path) ? next() : jsonBody(c, next)))
     .get("/health", (c) => c.json({ status: "ok" as const, version: config.appVersion }))
     // Who is studying, signing in and out: before the session check.
     .route("/", sessionRoutes(svc))

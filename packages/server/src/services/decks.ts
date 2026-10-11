@@ -18,6 +18,7 @@ import {
 import { DECK_FORMAT, Deck, DeckId, DeckWord, type Lang } from "@sprachanker/schema";
 import { ServiceError } from "../errors.ts";
 import type { MediaBlob } from "../media.ts";
+import { createOnce } from "../once.ts";
 import { sha256Hex } from "../security/encoding.ts";
 import { readStored } from "./run-store.ts";
 
@@ -38,7 +39,10 @@ export interface DeckFiles {
   stage(body: ReadableStream<Uint8Array>, max: number): Promise<string | undefined>;
   /** An uploaded package's bytes; undefined when it is gone. */
   staged(upload: string): Uint8Array | undefined;
-  unstage(upload: string): void;
+  /** Lets an uploaded package go; with `deck`, notes the deck it made (kept as an upload is). */
+  unstage(upload: string, deck?: string): void;
+  /** The deck an upload made; undefined when it made none (or it was long ago). */
+  made(upload: string): string | undefined;
 }
 
 /** The largest package taken. */
@@ -62,6 +66,7 @@ export function createDecks(deps: {
 }) {
   const { files } = deps;
   const read = new Map<string, Deck | undefined>();
+  const importing = createOnce<ReturnType<typeof summary>>();
 
   /** A deck as stored; undefined when there is none or it no longer reads (logged). */
   function deckOf(id: string): Deck | undefined {
@@ -190,93 +195,100 @@ export function createDecks(deps: {
     }) {
       if (request.lang === request.translationLang)
         throw new ServiceError("deck_same_languages", 400);
-      const apkg = open(request.upload);
-      const notes = noteWords(apkg.notes, request);
-      // Where each audio file the notes name is kept in the deck's folder; those the words use.
-      const named = notes.flatMap((n) => [n.sound, ...(n.examples ?? []).map((e) => e.sound)]);
-      const paths = new Map(
-        await Promise.all(
-          [...new Set(named)]
-            .filter((s): s is string => !!s && AUDIO.test(s))
-            .map(async (s) => [s, await mediaPath(s)] as const),
-        ),
-      );
-      const used = new Set<string>();
-      const pathOf = (sound: string | undefined) => {
-        const path = sound && paths.get(sound);
-        if (path) used.add(sound);
-        return path || undefined;
-      };
-      const words: DeckWord[] = [];
-      const keys = new Set<string>();
-      for (const note of notes) {
-        if (keys.has(note.key)) continue;
-        const lexeme = lexemeIn(note, request.lang);
-        if (!lexeme) continue;
-        const audio = pathOf(note.sound);
-        const examples = (note.examples ?? []).map((e) => {
-          const at = pathOf(e.sound);
-          return {
-            sentence: e.sentence,
-            ...(e.translation && { translation: e.translation }),
-            ...(at && { audio: at }),
-          };
-        });
-        const word = DeckWord.safeParse({
-          key: note.key,
-          target: note.target,
-          ...lexeme,
-          ...(note.translation && { translation: note.translation }),
-          tags: note.tags,
-          ...(audio && { audio }),
-          ...(examples.length && { examples }),
-        });
-        if (!word.success) continue;
-        keys.add(note.key);
-        words.push(word.data);
-      }
-      if (!words.length) throw new ServiceError("deck_without_words", 422);
-      // Paths of sounds the package does not hold are dropped from the words.
-      const sounds = [...used];
-      const held = new Set<string>();
-      function* media() {
-        for (let i = 0; i < sounds.length; i += MEDIA_BATCH) {
-          const batch = apkg.media(sounds.slice(i, i + MEDIA_BATCH));
-          const out = new Map<string, Uint8Array>();
-          for (const [sound, bytes] of batch) {
-            const path = paths.get(sound) as string;
-            held.add(path);
-            out.set(path, bytes);
-          }
-          yield out;
+      // Once per upload: asked again while it runs, the same import; after it, the deck it made (a
+      // retry after a dropped connection gets the deck, not deck_upload_gone).
+      return importing(request.upload, async () => {
+        const made = files.made(request.upload);
+        const done = made ? deckOf(made) : undefined;
+        if (done) return summary(done);
+        const apkg = open(request.upload);
+        const notes = noteWords(apkg.notes, request);
+        // Where each audio file the notes name is kept in the deck's folder; those the words use.
+        const named = notes.flatMap((n) => [n.sound, ...(n.examples ?? []).map((e) => e.sound)]);
+        const paths = new Map(
+          await Promise.all(
+            [...new Set(named)]
+              .filter((s): s is string => !!s && AUDIO.test(s))
+              .map(async (s) => [s, await mediaPath(s)] as const),
+          ),
+        );
+        const used = new Set<string>();
+        const pathOf = (sound: string | undefined) => {
+          const path = sound && paths.get(sound);
+          if (path) used.add(sound);
+          return path || undefined;
+        };
+        const words: DeckWord[] = [];
+        const keys = new Set<string>();
+        for (const note of notes) {
+          if (keys.has(note.key)) continue;
+          const lexeme = lexemeIn(note, request.lang);
+          if (!lexeme) continue;
+          const audio = pathOf(note.sound);
+          const examples = (note.examples ?? []).map((e) => {
+            const at = pathOf(e.sound);
+            return {
+              sentence: e.sentence,
+              ...(e.translation && { translation: e.translation }),
+              ...(at && { audio: at }),
+            };
+          });
+          const word = DeckWord.safeParse({
+            key: note.key,
+            target: note.target,
+            ...lexeme,
+            ...(note.translation && { translation: note.translation }),
+            tags: note.tags,
+            ...(audio && { audio }),
+            ...(examples.length && { examples }),
+          });
+          if (!word.success) continue;
+          keys.add(note.key);
+          words.push(word.data);
         }
-      }
-      const same = updatable(apkg.notes).find(
-        (d) => d.lang === request.lang && d.translationLang === request.translationLang,
-      );
-      const id = same?.id ?? (await newId(request.title, [...keys], files.ids()));
-      const deckOfWords = () =>
-        Deck.parse({
-          format: DECK_FORMAT,
-          id,
-          title: request.title,
-          lang: request.lang,
-          translationLang: request.translationLang,
-          source: { file: request.file, importedAt: deps.now() },
-          words: words.map((w) => withHeld(w, held)),
-        });
-      let deck: Deck | undefined;
-      // deck.json last, once the files its words name are known to be there.
-      await refused(() =>
-        files.write(id, media(), () => {
-          deck = deckOfWords();
-          return `${JSON.stringify(deck, null, 2)}\n`;
-        }),
-      );
-      files.unstage(request.upload);
-      read.delete(id);
-      deps.onImport?.();
-      return summary(deck as Deck);
+        if (!words.length) throw new ServiceError("deck_without_words", 422);
+        // Paths of sounds the package does not hold are dropped from the words.
+        const sounds = [...used];
+        const held = new Set<string>();
+        function* media() {
+          for (let i = 0; i < sounds.length; i += MEDIA_BATCH) {
+            const batch = apkg.media(sounds.slice(i, i + MEDIA_BATCH));
+            const out = new Map<string, Uint8Array>();
+            for (const [sound, bytes] of batch) {
+              const path = paths.get(sound) as string;
+              held.add(path);
+              out.set(path, bytes);
+            }
+            yield out;
+          }
+        }
+        const same = updatable(apkg.notes).find(
+          (d) => d.lang === request.lang && d.translationLang === request.translationLang,
+        );
+        const id = same?.id ?? (await newId(request.title, [...keys], files.ids()));
+        const deckOfWords = () =>
+          Deck.parse({
+            format: DECK_FORMAT,
+            id,
+            title: request.title,
+            lang: request.lang,
+            translationLang: request.translationLang,
+            source: { file: request.file, importedAt: deps.now() },
+            words: words.map((w) => withHeld(w, held)),
+          });
+        let deck: Deck | undefined;
+        // deck.json last, once the files its words name are known to be there.
+        await refused(() =>
+          files.write(id, media(), () => {
+            deck = deckOfWords();
+            return `${JSON.stringify(deck, null, 2)}\n`;
+          }),
+        );
+        files.unstage(request.upload, id);
+        read.delete(id);
+        deps.onImport?.();
+        return summary(deck as Deck);
+      });
     },
 
     /** Deletes a deck with its files; refused while a profile has its cards (they leave it first). */
