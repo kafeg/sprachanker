@@ -8,14 +8,15 @@ import { AudioButton } from "@/ui/media.tsx";
 import { useTargetLang } from "@/ui/target-lang.ts";
 import { GenderWord } from "@/word/word.tsx";
 
-/** A grammar or culture page's title; a topic begun in an earlier lesson says which part this is. */
-/** A page's title as shown, with its part; "" for a page the source gave no title. */
+/** A grammar or culture page's title as shown; a topic begun in an earlier lesson says it continues
+ *  ("· continued": the source's part number counts parts in other lessons); "" for a page the
+ *  source gave no title. */
 export const pageTitle = (
   page: { title?: string; part?: number },
   t: (key: string, values?: Record<string, unknown>) => string,
 ) => {
   if (!page.title) return "";
-  return page.part ? `${page.title}\u00a0· ${t("lesson.part", { n: page.part })}` : page.title;
+  return page.part ? `${page.title}\u00a0· ${t("lesson.continued")}` : page.title;
 };
 
 function VocabularyList({

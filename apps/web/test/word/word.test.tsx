@@ -19,7 +19,8 @@ test("a headword's part in brackets before it is small, the word itself the head
   expect(optional.parentElement?.textContent).toBe("(auf etwas) an|stoßen");
 });
 
-test("a page's part stays with its number and its title", () => {
-  const t = (_: string, v?: Record<string, unknown>) => `part ${v?.n}`;
-  expect(pageTitle({ title: "Adjektive", part: 3 }, t)).toBe("Adjektive · part 3");
+test("a topic begun in an earlier lesson says it continues, kept with its title", () => {
+  const t = (key: string) => (key === "lesson.continued" ? "continued" : key);
+  expect(pageTitle({ title: "Adjektive", part: 3 }, t)).toBe("Adjektive · continued");
+  expect(pageTitle({ title: "Adjektive" }, t)).toBe("Adjektive");
 });
