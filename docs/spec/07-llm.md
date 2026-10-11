@@ -26,11 +26,13 @@ providers run an agent installed on the machine with the user's own subscription
 
 **OpenAI** speaks the OpenAI-compatible API with what sets it apart (`ApiQuirks` on its preset, owner
 2026-10-11): the limit is `max_completion_tokens` (newer models refuse `max_tokens`); its reasoning
-models (ids starting `o<digit>` or `gpt-5`) are sent no temperature, get `reasoning_effort: "minimal"`
-for fast replies (one that refuses it keeps its default) and 4096 tokens of room on top of the task's
-limit, since their reasoning counts in it; its model list leaves out what chat completions do not
-serve (Responses-only `-pro`, `codex`, `deep-research`, `computer-use`; realtime, transcription,
-search, moderation, image, video and legacy completion models).
+models (ids starting `o<digit>` or `gpt-5`, but not the `-chat-latest` ones) are sent no temperature,
+get the least `reasoning_effort` their family takes for fast replies — `"minimal"` for gpt-5, gpt-5-mini
+and gpt-5-nano, `"none"` from gpt-5.1 on (`gpt-5.<n>`), `"low"` for the o-series (one that refuses it
+keeps its default) — and 4096 tokens of room on top of the task's limit, since their reasoning counts
+in it; its model list leaves out what chat completions do not serve (Responses-only `-pro`, `codex`,
+`deep-research`, `computer-use`; realtime, transcription, search, moderation, image, video and legacy
+completion models; o1-mini and o1-preview, which refuse the system role).
 
 **Anthropic** is reached through its Messages API with fetch alone, no SDK (owner 2026-10-11):
 `POST /messages` with `x-api-key` and `anthropic-version: 2023-06-01`. The chat is put in its shape:

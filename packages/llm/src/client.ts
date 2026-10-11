@@ -61,8 +61,9 @@ export type TaskRequest = Omit<ChatRequest, "model" | "signal" | "runTool">;
  * reasoning is turned off, which models reason, what its model list holds that is no chat model.
  */
 export interface ApiQuirks {
-  /** Request fields that turn a model's reasoning off, in this provider's dialect. */
-  noReasoning?: Record<string, unknown>;
+  /** Request fields that turn a model's reasoning off, in this provider's dialect; by model where
+   *  its families take different ones (undefined: the model has none). */
+  noReasoning?: Record<string, unknown> | ((model: string) => Record<string, unknown> | undefined);
   /** The models that reason (OpenAI: o-series, gpt-5…): only they get the switch; they take no
    *  temperature, and their reasoning counts in the token limit, so it gets room. Unset: every model
    *  gets the switch and a temperature. */
@@ -76,10 +77,14 @@ export interface ApiQuirks {
 /** Tokens a reasoning model may think before it answers, on top of the task's limit. */
 export const REASONING_ROOM = 4096;
 
+/** The fields that turn this model's reasoning off, where the provider has them. */
+export const reasoningSwitch = (quirks: ApiQuirks, model: string) =>
+  typeof quirks.noReasoning === "function" ? quirks.noReasoning(model) : quirks.noReasoning;
+
 /** Whether a request turns reasoning off with the provider's switch. */
 export const sendsSwitch = (request: { model: string; reasoning?: boolean }, quirks: ApiQuirks) =>
   request.reasoning === false &&
-  !!quirks.noReasoning &&
+  !!reasoningSwitch(quirks, request.model) &&
   (!quirks.reasoners || quirks.reasoners.test(request.model));
 
 /** What a request may go without when the provider refuses it (http.ts `relaxing`). */
@@ -126,7 +131,7 @@ export function chatBody(
         function: { name: t.name, description: t.description, parameters: t.parameters },
       })),
     }),
-    ...(switchOff ? quirks.noReasoning : undefined),
+    ...(switchOff ? reasoningSwitch(quirks, request.model) : undefined),
   };
 }
 

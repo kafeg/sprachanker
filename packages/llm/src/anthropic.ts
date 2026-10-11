@@ -9,6 +9,7 @@ import {
   type Endpoint,
   type LlmClient,
   REASONING_ROOM,
+  reasoningSwitch,
   sendsSwitch,
   withToolNotes,
 } from "./client.ts";
@@ -155,7 +156,7 @@ function body(
       })),
       ...(!sent.tools && { tool_choice: { type: "none" } }),
     }),
-    ...(sent.switchOff ? quirks.noReasoning : undefined),
+    ...(sent.switchOff ? reasoningSwitch(quirks, request.model) : undefined),
   };
 }
 
