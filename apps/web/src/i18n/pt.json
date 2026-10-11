@@ -697,7 +697,9 @@
       "newCards": "Cartões novos",
       "remembered": "Lembrados",
       "rememberedHint": "dos cartões em revisão",
-      "ai": "Prática com IA"
+      "ai": "Prática com IA",
+      "time": "Tempo dedicado",
+      "timeHint": "uma pausa conta no máximo 5 minutos"
     },
     "examRuns": "Simulados e prática",
     "noExamRuns": "Nada entregue ainda.",
@@ -730,7 +732,8 @@
       },
       "lesson": {
         "lessonsDone": "Lições concluídas",
-        "best": "Melhor resultado"
+        "best": "Melhor resultado",
+        "coursesDone": "Cursos concluídos"
       }
     },
     "runs": {
@@ -739,6 +742,37 @@
     "openEntry": {
       "review": "Abrir os baralhos",
       "exam": "Tudo sobre este exame"
+    },
+    "answers": "{count, plural, one {# resposta} other {# respostas}}",
+    "reviewDay": "Revisão de {date}",
+    "dayAnswers": "Respostas",
+    "noAnswers": "Nenhuma resposta guardada deste dia: uma resposta desfeita não é guardada.",
+    "cardGone": "um cartão que não existe mais",
+    "intervalHint": "Quando o cartão volta depois desta resposta",
+    "tookHint": "Quanto tempo o cartão ficou na tela antes da resposta (no máximo um minuto)",
+    "earlierDay": "Dia anterior",
+    "laterDay": "Dia seguinte",
+    "chart": {
+      "by": {
+        "day": "por dia",
+        "week": "por semana",
+        "month": "por mês"
+      },
+      "weekOf": "semana de {date}",
+      "seen": "Já vistos",
+      "cardsTitle": "{when}: {count, plural, one {# cartão} other {# cartões}}, {fresh, number} novos",
+      "noneRecalled": "{when}: nenhum cartão em revisão respondido",
+      "rememberedTitle": "{when}: {share} de {count, plural, one {# resposta} other {# respostas}}",
+      "timeTitle": "{when}: {time} ({what})",
+      "timeOf": {
+        "lesson": "lições {time}",
+        "exam": "exames {time}",
+        "review": "cartões {time}",
+        "ai": "IA {time}"
+      },
+      "doneTitle": "{when}: {count, plural, one {# lição concluída} other {# lições concluídas}}, {total, number} no total",
+      "part": "{label}: {n, number}",
+      "words": "Palavras por estado: {parts}"
     }
   },
   "study": {

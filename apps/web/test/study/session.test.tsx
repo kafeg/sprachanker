@@ -68,3 +68,28 @@ test("one action at a time: a second rating while the first is being stored send
   await waitFor(() => expect(view.getByText(/Congratulations|finished/i)).toBeTruthy());
   expect(ratings).toHaveLength(1);
 });
+
+test("a rating carries how long its card was on screen", async () => {
+  const sent: Array<{ ms?: number }> = [];
+  globalThis.fetch = (async (input: RequestInfo | URL, init?: RequestInit) => {
+    const request = input instanceof Request ? input : new Request(String(input), init);
+    const { pathname } = new URL(request.url);
+    if (request.method === "POST" && pathname === "/api/cards/c1/review") {
+      sent.push(await request.json());
+      return Response.json({ ok: true });
+    }
+    if (request.method === "GET" && pathname === "/api/cards/study")
+      return Response.json({ ...study, current: null, counts: { new: 0, learning: 0, review: 0 } });
+    throw new Error(`unexpected ${request.method} ${pathname}`);
+  }) as typeof fetch;
+  const view = await renderApp(<StudySession scope="all" />, {
+    data: [[["study", "all"], study]],
+    path: "/",
+  });
+  await new Promise((resolve) => setTimeout(resolve, 30));
+  fireEvent.click(view.getByRole("button", { name: /Show answer/ }));
+  fireEvent.click(view.getByRole("button", { name: /Good/ }));
+  await waitFor(() => expect(sent).toHaveLength(1));
+  expect(sent[0]?.ms).toBeGreaterThanOrEqual(25);
+  expect(sent[0]?.ms).toBeLessThan(5_000);
+});

@@ -697,7 +697,9 @@
       "newCards": "Új kártyák",
       "remembered": "Felidézve",
       "rememberedHint": "az ismétlésben lévő kártyákból",
-      "ai": "Gyakorlás MI-vel"
+      "ai": "Gyakorlás MI-vel",
+      "time": "Tanulással töltött idő",
+      "timeHint": "egy szünet legfeljebb 5 percnek számít"
     },
     "examRuns": "Próbavizsgák és gyakorlás",
     "noExamRuns": "Még semmit sem adtál be.",
@@ -730,7 +732,8 @@
       },
       "lesson": {
         "lessonsDone": "Kész leckék",
-        "best": "Legjobb eredmény"
+        "best": "Legjobb eredmény",
+        "coursesDone": "Kész kurzusok"
       }
     },
     "runs": {
@@ -739,6 +742,37 @@
     "openEntry": {
       "review": "Paklik megnyitása",
       "exam": "Minden erről a vizsgáról"
+    },
+    "answers": "{count, plural, one {# válasz} other {# válasz}}",
+    "reviewDay": "Ismétlés: {date}",
+    "dayAnswers": "Válaszok",
+    "noAnswers": "Erről a napról nincs megőrzött válasz: a visszavont válasz nem marad meg.",
+    "cardGone": "már nem létező kártya",
+    "intervalHint": "Mikor tér vissza a kártya e válasz után",
+    "tookHint": "Mennyi ideig látszott a kártya a válasz előtt (legfeljebb egy perc)",
+    "earlierDay": "Előző nap",
+    "laterDay": "Következő nap",
+    "chart": {
+      "by": {
+        "day": "naponta",
+        "week": "hetente",
+        "month": "havonta"
+      },
+      "weekOf": "{date} kezdetű hét",
+      "seen": "Már látott",
+      "cardsTitle": "{when}: {count, plural, one {# kártya} other {# kártya}}, ebből {fresh, number} új",
+      "noneRecalled": "{when}: nem volt válasz ismétlésben lévő kártyára",
+      "rememberedTitle": "{when}: {share}, {count, plural, one {# válaszból} other {# válaszból}}",
+      "timeTitle": "{when}: {time} ({what})",
+      "timeOf": {
+        "lesson": "leckék {time}",
+        "exam": "vizsgák {time}",
+        "review": "kártyák {time}",
+        "ai": "MI {time}"
+      },
+      "doneTitle": "{when}: {count, plural, one {# lecke kész} other {# lecke kész}}, összesen {total, number}",
+      "part": "{label}: {n, number}",
+      "words": "Szavak állapot szerint: {parts}"
     }
   },
   "study": {

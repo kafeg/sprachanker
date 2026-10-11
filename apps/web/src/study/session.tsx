@@ -14,11 +14,11 @@ import type { AudioControls } from "@/ui/media.tsx";
 import { ErrorState, Loading } from "@/ui/page.tsx";
 import { TargetLang } from "@/ui/target-lang.ts";
 import { cn } from "@/ui/utils.ts";
+import { useIntervalText } from "@/word/time.ts";
+import { COUNT_TONE, RATINGS } from "@/word/tones.ts";
 import { type Side, StudyCard } from "./card.tsx";
 import { FLAG_CLASS, FLAGS, MoreMenu } from "./more-menu.tsx";
 import { type ReviewerAction, useReviewerKeys } from "./reviewer-keys.ts";
-import { useIntervalText } from "./time.ts";
-import { COUNT_TONE, RATINGS } from "./tones.ts";
 
 type Study = NonNullable<ReturnType<typeof useStudy>["data"]>;
 
@@ -120,6 +120,11 @@ export function StudySession({
   const [shownFor, setShownFor] = useState<string>();
   const side: Side = cardKey && shownFor === cardKey ? "answer" : "question";
   const showAnswer = () => setShownFor(cardKey);
+  // When the card on screen was shown: how long it took goes with its rating (kept at most a minute).
+  const shownAt = useRef(0);
+  useEffect(() => {
+    if (cardKey) shownAt.current = Date.now();
+  }, [cardKey]);
 
   // One action at a time: a second press before the first is stored would act on the old state
   // (Ctrl+1 twice would set the flag twice instead of taking it off).
@@ -127,7 +132,13 @@ export function StudySession({
   const rate = (rating: CardRating) => {
     if (!current || busy || side !== "answer") return;
     actions.rate.mutate(
-      { cardId: current.cardId, face: current.face, rating, reps: current.reps },
+      {
+        cardId: current.cardId,
+        face: current.face,
+        rating,
+        reps: current.reps,
+        ms: Date.now() - shownAt.current,
+      },
       { onSuccess: () => setTurn((n) => n + 1) },
     );
   };

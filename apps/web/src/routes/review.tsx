@@ -18,7 +18,6 @@ import { useDeckName } from "@/study/decks.ts";
 import { GuideButton } from "@/study/guide.tsx";
 import { StudySession } from "@/study/session.tsx";
 import { useStudySlots } from "@/study/slots.ts";
-import { COUNT_TONE } from "@/study/tones.ts";
 import { Button } from "@/ui/components/button.tsx";
 import { ConfirmDialog } from "@/ui/confirm.tsx";
 import { errorText } from "@/ui/error-text.ts";
@@ -27,6 +26,7 @@ import { EmptyState, ErrorState, Loading, Page } from "@/ui/page.tsx";
 import { Panel, panelClass } from "@/ui/panel.tsx";
 import { SectionTabs } from "@/ui/section-tabs.tsx";
 import { cn } from "@/ui/utils.ts";
+import { COUNT_TONE } from "@/word/tones.ts";
 import { MyWords } from "./words.tsx";
 
 export type ReviewTab = "study" | "decks" | "words";

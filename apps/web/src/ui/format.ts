@@ -2,17 +2,21 @@
 import { useMemo } from "react";
 import { useTranslation } from "react-i18next";
 
-const DATE: Record<"day" | "dayTime" | "month" | "weekday" | "time", Intl.DateTimeFormatOptions> = {
+const DATE: Record<
+  "day" | "dayTime" | "month" | "monthYear" | "weekday" | "time",
+  Intl.DateTimeFormatOptions
+> = {
   day: { day: "numeric", month: "short" },
   dayTime: { day: "numeric", month: "short", hour: "numeric", minute: "2-digit" },
   // Gregorian whatever the language's own calendar (Persian's): the months stand over Gregorian weeks.
   month: { month: "short", calendar: "gregory" },
+  monthYear: { month: "short", year: "numeric", calendar: "gregory" },
   weekday: { weekday: "short" },
   time: { hour: "numeric", minute: "2-digit" },
 };
 
-/** A date as a day ("7 Oct"), a day with its time ("7 Oct, 15:28"), its Gregorian month ("Oct"), its
- *  weekday ("Mon") or its time of day ("15:28"). */
+/** A date as a day ("7 Oct"), a day with its time ("7 Oct, 15:28"), its Gregorian month ("Oct"), with
+ *  its year ("Oct 2026"), its weekday ("Mon") or its time of day ("15:28"). */
 export function useDateFormat(kind: keyof typeof DATE) {
   const { i18n } = useTranslation();
   return useMemo(() => new Intl.DateTimeFormat(i18n.language, DATE[kind]), [i18n.language, kind]);
@@ -123,5 +127,14 @@ export function useDuration() {
       const m = Math.max(1, Math.round(ms / 60_000));
       return m < 90 ? minutes.format(m) : hours.format(Math.round(m / 60));
     };
+  }, [i18n.language]);
+}
+
+/** A short time in seconds ("12 s"), as long as a card's answer takes. */
+export function useSeconds() {
+  const { i18n } = useTranslation();
+  return useMemo(() => {
+    const format = new Intl.NumberFormat(i18n.language, { style: "unit", unit: "second" });
+    return (ms: number) => format.format(Math.round(ms / 1000));
   }, [i18n.language]);
 }

@@ -697,7 +697,9 @@
       "newCards": "بطاقات جديدة",
       "remembered": "المُتذكَّرة",
       "rememberedHint": "من البطاقات قيد المراجعة",
-      "ai": "التدرّب مع الذكاء الاصطناعي"
+      "ai": "التدرّب مع الذكاء الاصطناعي",
+      "time": "الوقت المستغرق",
+      "timeHint": "الاستراحة تُحسب 5 دقائق على الأكثر"
     },
     "examRuns": "الامتحانات التجريبية والتدريب",
     "noExamRuns": "لم يُسلَّم شيء بعد.",
@@ -730,7 +732,8 @@
       },
       "lesson": {
         "lessonsDone": "الدروس المنجزة",
-        "best": "أفضل نتيجة"
+        "best": "أفضل نتيجة",
+        "coursesDone": "الدورات المنجزة"
       }
     },
     "runs": {
@@ -739,6 +742,37 @@
     "openEntry": {
       "review": "افتح الرزم",
       "exam": "كل ما يخص هذا الامتحان"
+    },
+    "answers": "{count, plural, zero {# إجابة} one {إجابة واحدة} two {إجابتان} few {# إجابات} many {# إجابةً} other {# إجابة}}",
+    "reviewDay": "مراجعة {date}",
+    "dayAnswers": "الإجابات",
+    "noAnswers": "لا إجابات محفوظة لهذا اليوم: الإجابة المتراجَع عنها لا تُحفَظ.",
+    "cardGone": "بطاقة لم تعد موجودة",
+    "intervalHint": "متى تعود البطاقة بعد هذه الإجابة",
+    "tookHint": "مدة عرض البطاقة قبل الإجابة (دقيقة على الأكثر)",
+    "earlierDay": "اليوم السابق",
+    "laterDay": "اليوم التالي",
+    "chart": {
+      "by": {
+        "day": "يوميًا",
+        "week": "أسبوعيًا",
+        "month": "شهريًا"
+      },
+      "weekOf": "أسبوع {date}",
+      "seen": "سبقت رؤيتها",
+      "cardsTitle": "{when}: {count, plural, zero {# بطاقة} one {بطاقة واحدة} two {بطاقتان} few {# بطاقات} many {# بطاقةً} other {# بطاقة}}، منها {fresh, number} جديدة",
+      "noneRecalled": "{when}: لا إجابات عن بطاقات قيد المراجعة",
+      "rememberedTitle": "{when}: {share} من {count, plural, zero {# إجابة} one {إجابة واحدة} two {إجابتين} few {# إجابات} many {# إجابةً} other {# إجابة}}",
+      "timeTitle": "{when}: {time} ({what})",
+      "timeOf": {
+        "lesson": "الدروس {time}",
+        "exam": "الامتحانات {time}",
+        "review": "البطاقات {time}",
+        "ai": "الذكاء الاصطناعي {time}"
+      },
+      "doneTitle": "{when}: {count, plural, zero {# درس منجز} one {درس واحد منجز} two {درسان منجزان} few {# دروس منجزة} many {# درسًا منجزًا} other {# درس منجز}}، المجموع {total, number}",
+      "part": "{label}: {n, number}",
+      "words": "الكلمات حسب الحالة: {parts}"
     }
   },
   "study": {

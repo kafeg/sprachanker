@@ -697,7 +697,9 @@
       "newCards": "Neue Karten",
       "remembered": "Gewusst",
       "rememberedHint": "der Karten in der Wiederholung",
-      "ai": "Übung mit KI"
+      "ai": "Übung mit KI",
+      "time": "Lernzeit",
+      "timeHint": "eine Pause zählt höchstens 5 Minuten"
     },
     "examRuns": "Probeprüfungen und Training",
     "noExamRuns": "Noch nichts abgegeben.",
@@ -730,7 +732,8 @@
       },
       "lesson": {
         "lessonsDone": "Lektionen abgeschlossen",
-        "best": "Bestes Ergebnis"
+        "best": "Bestes Ergebnis",
+        "coursesDone": "Kurse abgeschlossen"
       }
     },
     "runs": {
@@ -739,6 +742,37 @@
     "openEntry": {
       "review": "Stapel öffnen",
       "exam": "Alles zu dieser Prüfung"
+    },
+    "answers": "{count, plural, one {# Antwort} other {# Antworten}}",
+    "reviewDay": "Wiederholung vom {date}",
+    "dayAnswers": "Antworten",
+    "noAnswers": "Für diesen Tag sind keine Antworten da: Zurückgenommene Antworten werden nicht behalten.",
+    "cardGone": "Karte nicht mehr vorhanden",
+    "intervalHint": "Wann die Karte nach dieser Antwort wiederkommt",
+    "tookHint": "Wie lange die Karte vor der Antwort zu sehen war (höchstens eine Minute)",
+    "earlierDay": "Früherer Tag",
+    "laterDay": "Späterer Tag",
+    "chart": {
+      "by": {
+        "day": "pro Tag",
+        "week": "pro Woche",
+        "month": "pro Monat"
+      },
+      "weekOf": "Woche ab {date}",
+      "seen": "Schon gesehen",
+      "cardsTitle": "{when}: {count, plural, one {# Karte} other {# Karten}}, davon neu {fresh, number}",
+      "noneRecalled": "{when}: keine Karten in der Wiederholung beantwortet",
+      "rememberedTitle": "{when}: {share} von {count, plural, one {# Antwort} other {# Antworten}}",
+      "timeTitle": "{when}: {time} ({what})",
+      "timeOf": {
+        "lesson": "Lektionen {time}",
+        "exam": "Prüfungen {time}",
+        "review": "Karten {time}",
+        "ai": "KI {time}"
+      },
+      "doneTitle": "{when}: {count, plural, one {# Lektion} other {# Lektionen}} abgeschlossen, insgesamt {total, number}",
+      "part": "{label}: {n, number}",
+      "words": "Wörter nach Stand: {parts}"
     }
   },
   "study": {

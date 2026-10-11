@@ -48,7 +48,7 @@ table in the same commit with the reason.
 | Language flags | `country-flag-icons` (SVG React components, one module per flag; our language → flag table in `apps/web/src/ui/flags.tsx`) |
 | Routing / server state / UI state | TanStack Router / TanStack Query / React state and context (Zustand when shared client state outgrows them) |
 | i18n | i18next + react-i18next + i18next-icu (intl-messageformat checks the catalogs in tests) |
-| Charts | our own SVG (the activity calendar); Recharts when charts with axes come (plan, Notebook) |
+| Charts | our own, in HTML and CSS (the activity calendar, the Notebook's bars over time and a deck's words by state: no axes to read off — each bar's figures in its title, the top value and the span's ends marked; a flex row mirrors itself right to left); Recharts when charts with axes come |
 | Media | native `<video>`/`<audio>`; MediaRecorder + WebAudio resampling to 16 kHz |
 | Desktop | Tauri 2 (planned) |
 | Native engines | whisper.cpp (`whisper-server`), pinned (`native/whisper/VERSION`); Piper voices through sherpa-onnx (`sherpa-onnx-offline-tts`), pinned (`native/piper/VERSION`); Qwen3-TTS through qwentts.cpp (`tts-server`), pinned by commit (`native/qwen/VERSION`) (08); LLMs run in LM Studio (07) |

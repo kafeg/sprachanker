@@ -697,7 +697,9 @@
       "newCards": "Yeni kartlar",
       "remembered": "Hatırlanan",
       "rememberedHint": "tekrardaki kartlardan",
-      "ai": "Yapay zekâ ile pratik"
+      "ai": "Yapay zekâ ile pratik",
+      "time": "Harcanan süre",
+      "timeHint": "bir mola en fazla 5 dakika sayılır"
     },
     "examRuns": "Deneme sınavları ve pratik",
     "noExamRuns": "Henüz hiçbir şey teslim edilmedi.",
@@ -730,7 +732,8 @@
       },
       "lesson": {
         "lessonsDone": "Tamamlanan dersler",
-        "best": "En iyi sonuç"
+        "best": "En iyi sonuç",
+        "coursesDone": "Tamamlanan kurslar"
       }
     },
     "runs": {
@@ -739,6 +742,37 @@
     "openEntry": {
       "review": "Desteleri aç",
       "exam": "Bu sınavla ilgili her şey"
+    },
+    "answers": "{count, plural, one {# cevap} other {# cevap}}",
+    "reviewDay": "{date} tekrarı",
+    "dayAnswers": "Cevaplar",
+    "noAnswers": "Bu güne ait cevap yok: geri alınan cevap saklanmaz.",
+    "cardGone": "artık olmayan bir kart",
+    "intervalHint": "Bu cevaptan sonra kartın ne zaman döneceği",
+    "tookHint": "Kartın cevaptan önce ne kadar süre gösterildiği (en fazla bir dakika)",
+    "earlierDay": "Önceki gün",
+    "laterDay": "Sonraki gün",
+    "chart": {
+      "by": {
+        "day": "günlük",
+        "week": "haftalık",
+        "month": "aylık"
+      },
+      "weekOf": "{date} haftası",
+      "seen": "Daha önce görülen",
+      "cardsTitle": "{when}: {count, plural, one {# kart} other {# kart}}, {fresh, number} yeni",
+      "noneRecalled": "{when}: tekrardaki kartlara cevap yok",
+      "rememberedTitle": "{when}: {count, plural, one {# cevaptan} other {# cevaptan}} {share}",
+      "timeTitle": "{when}: {time} ({what})",
+      "timeOf": {
+        "lesson": "dersler {time}",
+        "exam": "sınavlar {time}",
+        "review": "kartlar {time}",
+        "ai": "YZ {time}"
+      },
+      "doneTitle": "{when}: {count, plural, one {# ders tamamlandı} other {# ders tamamlandı}}, toplam {total, number}",
+      "part": "{label}: {n, number}",
+      "words": "Duruma göre kelimeler: {parts}"
     }
   },
   "study": {

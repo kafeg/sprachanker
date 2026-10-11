@@ -697,7 +697,9 @@
       "newCards": "Nouvelles cartes",
       "remembered": "Retenues",
       "rememberedHint": "des cartes en révision",
-      "ai": "Entraînement avec l’IA"
+      "ai": "Entraînement avec l’IA",
+      "time": "Temps passé",
+      "timeHint": "une pause compte 5 minutes au plus"
     },
     "examRuns": "Examens blancs et entraînement",
     "noExamRuns": "Rien de rendu pour l’instant.",
@@ -730,7 +732,8 @@
       },
       "lesson": {
         "lessonsDone": "Leçons faites",
-        "best": "Meilleur score"
+        "best": "Meilleur score",
+        "coursesDone": "Cours faits"
       }
     },
     "runs": {
@@ -739,6 +742,37 @@
     "openEntry": {
       "review": "Ouvrir les paquets",
       "exam": "Tout sur cet examen"
+    },
+    "answers": "{count, plural, one {# réponse} many {# de réponses} other {# réponses}}",
+    "reviewDay": "Révision du {date}",
+    "dayAnswers": "Réponses",
+    "noAnswers": "Aucune réponse gardée pour ce jour : une réponse annulée n’est pas gardée.",
+    "cardGone": "une carte qui n’est plus là",
+    "intervalHint": "Quand la carte revient après cette réponse",
+    "tookHint": "Combien de temps la carte est restée affichée avant la réponse (une minute au plus)",
+    "earlierDay": "Jour précédent",
+    "laterDay": "Jour suivant",
+    "chart": {
+      "by": {
+        "day": "par jour",
+        "week": "par semaine",
+        "month": "par mois"
+      },
+      "weekOf": "semaine du {date}",
+      "seen": "Déjà vues",
+      "cardsTitle": "{when} : {count, plural, one {# carte} many {# de cartes} other {# cartes}}, dont {fresh, number} nouvelles",
+      "noneRecalled": "{when} : aucune carte en révision",
+      "rememberedTitle": "{when} : {share} sur {count, plural, one {# réponse} many {# de réponses} other {# réponses}}",
+      "timeTitle": "{when} : {time} ({what})",
+      "timeOf": {
+        "lesson": "leçons {time}",
+        "exam": "examens {time}",
+        "review": "cartes {time}",
+        "ai": "IA {time}"
+      },
+      "doneTitle": "{when} : {count, plural, one {# leçon faite} many {# de leçons faites} other {# leçons faites}}, {total, number} en tout",
+      "part": "{label} : {n, number}",
+      "words": "Mots par état : {parts}"
     }
   },
   "study": {

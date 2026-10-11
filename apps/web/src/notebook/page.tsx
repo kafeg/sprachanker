@@ -1,11 +1,13 @@
-// The Notebook (09): progress first — every module's headline figures (words known, lessons done); the
-// study days of the last year as a calendar, with the totals of all time, 30 or 7 days (lesson work,
-// exam answers, cards answered, new cards, the share remembered, AI practice); then each module's
-// standing the same way (schema `stats.ts`, notebook/standing): each language's review deck, the
-// journal by lesson (owner's choice A, 2026-10-07) — the courses with the lessons worked on, each
+// The Notebook (09): progress first — every module's headline figures (words known, lessons and courses
+// done); the study days of the last year as a calendar, with the totals of all time, 30 or 7 days
+// (lesson work, exam answers, cards answered, new cards, the share remembered, AI practice, time
+// spent) and the time spent over the span; then each module's standing the same way (schema
+// `stats.ts`, notebook/standing): each language's review deck (its words by state, its review days)
+// under the cards answered and the share remembered over the span, the journal by lesson (owner's
+// choice A, 2026-10-07) — the lessons done over the span, the courses with the lessons worked on, each
 // opening its passes — and the exams with their latest mock exams. What a module adds here is only
-// where its entries open and how they are named (`useViews`).
-import { activityTotals } from "@sprachanker/engine";
+// where its entries open, how they are named and its pictures (`useViews`, notebook/pictures).
+import { activityTotals, type Span } from "@sprachanker/engine";
 import {
   type LessonKey,
   MODULES,
@@ -22,15 +24,23 @@ import { examParams } from "@/library/exam-address.ts";
 import { ActivityCalendar } from "@/ui/activity-calendar.tsx";
 import { Chip } from "@/ui/chip.tsx";
 import { LanguageFlag } from "@/ui/flags.tsx";
-import { useDateFormat, useNumber, usePercent } from "@/ui/format.ts";
+import { useDateFormat, useDuration, useNumber, usePercent } from "@/ui/format.ts";
 import { ErrorState, Loading, Page } from "@/ui/page.tsx";
 import { Panel } from "@/ui/panel.tsx";
 import { StatTile } from "@/ui/stat-tile.tsx";
+import {
+  CardsPicture,
+  DonePicture,
+  RememberedPicture,
+  type SpanBars,
+  TimePicture,
+  useSpan,
+  WordsPicture,
+} from "./pictures.tsx";
 import { type EntryView, FigureTile, StandingSection } from "./standing.tsx";
 
 type Day = NotebookOverview["days"][number];
-const RANGES = { all: undefined, month: 30, week: 7 } as const;
-type Range = keyof typeof RANGES;
+const RANGES: Record<Span, number | undefined> = { all: undefined, month: 30, week: 7 };
 
 /** What a day had: its date, then each module's work where there was any. */
 function useDescribeDay(days: Day[]) {
@@ -51,11 +61,21 @@ function useDescribeDay(days: Day[]) {
   };
 }
 
-function Progress({ overview }: { overview: NotebookOverview }) {
+function Progress({
+  overview,
+  range,
+  setRange,
+  span: bars,
+}: {
+  overview: NotebookOverview;
+  range: Span;
+  setRange(range: Span): void;
+  span: SpanBars;
+}) {
   const { t } = useTranslation();
   const percent = usePercent();
+  const duration = useDuration();
   const describe = useDescribeDay(overview.days);
-  const [range, setRange] = useState<Range>("all");
   const count = useNumber();
   const span = RANGES[range];
   const from = (() => {
@@ -89,7 +109,7 @@ function Progress({ overview }: { overview: NotebookOverview }) {
           />
         </div>
         <div className="mt-4 flex flex-wrap gap-2">
-          {(Object.keys(RANGES) as Range[]).map((r) => (
+          {(Object.keys(RANGES) as Span[]).map((r) => (
             <Chip key={r} on={range === r} onClick={() => setRange(r)}>
               {t(`notebook.range.${r}`)}
             </Chip>
@@ -107,18 +127,27 @@ function Progress({ overview }: { overview: NotebookOverview }) {
             note={t("notebook.tile.rememberedHint")}
           />
           <StatTile label={t("notebook.tile.ai")} value={count(totals.ai)} />
+          <StatTile
+            label={t("notebook.tile.time")}
+            value={totals.timeAll ? duration(totals.timeAll) : "—"}
+            note={t("notebook.tile.timeHint")}
+          />
+        </div>
+        <div className="mt-4">
+          <TimePicture span={bars} />
         </div>
       </Panel>
     </>
   );
 }
 
-/** Where each module's entries open and how they are named. */
+/** Where each module's entries open, how they are named and their pictures. */
 function useViews(): Partial<Record<ModuleId, EntryView>> {
   const { i18n } = useTranslation();
   const navigate = useNavigate();
   return {
-    // A language's deck: its flag and name; it opens the decks.
+    // A language's deck: its flag and name, its words by state; it opens the decks, a review day its
+    // answers.
     review: {
       title: (deck) => (
         <span className="flex items-center gap-2">
@@ -126,7 +155,9 @@ function useViews(): Partial<Record<ModuleId, EntryView>> {
           {languageName(deck.key, i18n.language, true)}
         </span>
       ),
+      picture: (deck) => <WordsPicture figures={deck.figures} />,
       open: () => void navigate({ to: "/review/decks" }),
+      openRun: (_, run) => void navigate({ to: "/notebook/review/$run", params: { run: run.id } }),
     },
     // A lesson by its number in the course; it opens its passes.
     lesson: {
@@ -158,24 +189,47 @@ function useViews(): Partial<Record<ModuleId, EntryView>> {
 export function NotebookPage() {
   const { t } = useTranslation();
   const notebook = useNotebook();
-  const views = useViews();
   if (notebook.isPending) return <Loading />;
   if (notebook.isError)
     return <ErrorState error={notebook.error} onRetry={() => notebook.refetch()} />;
-  const { modules } = notebook.data;
   return (
     <Page title={t("notebook.title")}>
-      <div className="max-w-3xl space-y-4">
-        <Progress overview={notebook.data} />
-        {modules.map((m) => (
-          <StandingSection
-            key={m.module}
-            module={m.module}
-            entries={m.entries}
-            view={views[m.module] ?? {}}
-          />
-        ))}
-      </div>
+      <Overview overview={notebook.data} />
     </Page>
+  );
+}
+
+function Overview({ overview }: { overview: NotebookOverview }) {
+  const views = useViews();
+  // The span the totals and the pictures cover.
+  const [range, setRange] = useState<Span>("all");
+  const span = useSpan(overview, range);
+  // Each module's pictures over the span.
+  const pictures: Partial<Record<ModuleId, React.ReactNode>> = {
+    review: (
+      <>
+        <CardsPicture span={span} />
+        <RememberedPicture span={span} />
+      </>
+    ),
+  };
+  const done = overview.modules
+    .find((m) => m.module === "lesson")
+    ?.figures.find((f) => f.id === "lessonsDone");
+  if (done?.value) pictures.lesson = <DonePicture span={span} done={done} />;
+  return (
+    <div className="max-w-3xl space-y-4">
+      <Progress overview={overview} range={range} setRange={setRange} span={span} />
+      {overview.modules.map((m) => (
+        <StandingSection
+          key={m.module}
+          module={m.module}
+          entries={m.entries}
+          view={views[m.module] ?? {}}
+        >
+          {pictures[m.module]}
+        </StandingSection>
+      ))}
+    </div>
   );
 }

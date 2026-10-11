@@ -697,7 +697,9 @@
       "newCards": "Tarjetas nuevas",
       "remembered": "Recordadas",
       "rememberedHint": "de las tarjetas en repaso",
-      "ai": "Práctica con IA"
+      "ai": "Práctica con IA",
+      "time": "Tiempo dedicado",
+      "timeHint": "una pausa cuenta 5 minutos como máximo"
     },
     "examRuns": "Simulacros y práctica",
     "noExamRuns": "Aún no has entregado nada.",
@@ -730,7 +732,8 @@
       },
       "lesson": {
         "lessonsDone": "Lecciones hechas",
-        "best": "Mejor resultado"
+        "best": "Mejor resultado",
+        "coursesDone": "Cursos hechos"
       }
     },
     "runs": {
@@ -739,6 +742,37 @@
     "openEntry": {
       "review": "Abrir los mazos",
       "exam": "Todo sobre este examen"
+    },
+    "answers": "{count, plural, one {# respuesta} other {# respuestas}}",
+    "reviewDay": "Repaso del {date}",
+    "dayAnswers": "Respuestas",
+    "noAnswers": "No quedan respuestas de este día: una respuesta deshecha no se guarda.",
+    "cardGone": "una tarjeta que ya no está",
+    "intervalHint": "Cuándo vuelve la tarjeta tras esta respuesta",
+    "tookHint": "Cuánto tiempo se mostró la tarjeta antes de responder (un minuto como máximo)",
+    "earlierDay": "Día anterior",
+    "laterDay": "Día siguiente",
+    "chart": {
+      "by": {
+        "day": "por día",
+        "week": "por semana",
+        "month": "por mes"
+      },
+      "weekOf": "semana del {date}",
+      "seen": "Ya vistas",
+      "cardsTitle": "{when}: {count, plural, one {# tarjeta} other {# tarjetas}}, {fresh, number} nuevas",
+      "noneRecalled": "{when}: sin respuestas a tarjetas en repaso",
+      "rememberedTitle": "{when}: {share} de {count, plural, one {# respuesta} other {# respuestas}}",
+      "timeTitle": "{when}: {time} ({what})",
+      "timeOf": {
+        "lesson": "lecciones {time}",
+        "exam": "exámenes {time}",
+        "review": "tarjetas {time}",
+        "ai": "IA {time}"
+      },
+      "doneTitle": "{when}: {count, plural, one {# lección hecha} other {# lecciones hechas}}, {total, number} en total",
+      "part": "{label}: {n, number}",
+      "words": "Palabras por estado: {parts}"
     }
   },
   "study": {
