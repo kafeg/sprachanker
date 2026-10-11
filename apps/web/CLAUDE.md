@@ -74,7 +74,8 @@ apps/web/src/
                    # bubbles, header, pending exchange, composer, start prompt, the answer box, errors (with
                    # Retry; errors.ts: an LLM error in words, a provider's own where it has them, and what
                    # a provider's setup lacks); api.ts (the tasks), setup-api.ts (route, providers, models)
-  i18n/            # message catalogs en.json, ru.json, de.json (ICU)
+  i18n/            # message catalogs <code>.json (ICU; en bundled, every other one found by catalogs.ts and
+                   # loaded when chosen), index.ts: the languages, switching, a language's name and direction
   ui/              # presentational only (no API, no features): design tokens in styles.css, line-breaks (where course text may break), shadcn/ui
                    # components (ui/components), rich-text (model Markdown), page (pages, empty states, back
                    # links), media, format (dates, numbers, durations), panel, history
@@ -112,9 +113,11 @@ to `@/ui`).
 ## Rules
 
 - No user-facing string outside i18n catalogs (`src/i18n/*.json`, nested keys, ICU messages);
-  `test/catalogs.test.ts` fails on differing keys, invalid ICU, a key the code asks for that no
-  catalog has, a key no code uses, a ru/de message left as the English text, or one taking other
-  arguments than the English one. Language names come from `Intl.DisplayNames`, not catalogs.
+  `test/catalogs.test.ts` checks every catalog present (spec 10, i18n): keys as English's, valid ICU,
+  the English arguments, plurals with `other` and only their language's categories, nothing left as
+  the English text (but the test's per-language list), every key used. A language is added by its
+  file alone. Language names come from `Intl.DisplayNames`, not catalogs. Tests load the catalogs
+  from the folder (`test/dom.ts` stands in for `import.meta.glob`).
 - Catalog style: ru addresses the learner as «вы», de as "du"; counts use ICU `plural` with `#`, other
   numbers `{x, number}` or `Intl.NumberFormat` (never `toFixed` or `${n}%`).
 - The API client imports only `import type { AppType } from "@sprachanker/server/app"`.

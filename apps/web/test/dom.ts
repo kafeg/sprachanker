@@ -2,8 +2,23 @@
 // the DOM supports as it loads, so happy-dom must be there first. The web's tests run on their own
 // (`bun run test` in apps/web), never in the same process as the server's.
 
-import { afterEach, expect } from "bun:test";
+import { afterEach, expect, mock } from "bun:test";
+import { readdirSync } from "node:fs";
+import { join } from "node:path";
 import { GlobalRegistrator } from "@happy-dom/global-registrator";
+
+// The catalogs beside English as Vite finds them (`import.meta.glob`, which Bun lacks): the folder read.
+const I18N = join(import.meta.dir, "../src/i18n");
+mock.module(join(I18N, "catalogs.ts"), () => ({
+  catalogs: Object.fromEntries(
+    readdirSync(I18N)
+      .filter((name) => name.endsWith(".json") && name !== "en.json")
+      .map((name) => [
+        `./${name}`,
+        () => import(join(I18N, name)).then((m: { default: unknown }) => m.default),
+      ]),
+  ),
+}));
 
 // An origin no server listens on: a test never reaches a real server (the owner's runs on 4580).
 GlobalRegistrator.register({

@@ -1,13 +1,11 @@
+// The interface catalogs (spec 10, i18n): every `src/i18n/<code>.json` present is checked against the
+// English one and against the code — a catalog added is covered without touching this file.
 import { expect, test } from "bun:test";
 import { readdirSync, readFileSync, statSync } from "node:fs";
 import { join } from "node:path";
-import { ERROR_CODES } from "@sprachanker/schema";
+import { ERROR_CODES, Lang } from "@sprachanker/schema";
 import { IntlMessageFormat } from "intl-messageformat";
-import de from "../src/i18n/de.json";
 import en from "../src/i18n/en.json";
-import ru from "../src/i18n/ru.json";
-
-const catalogs = { en, ru, de };
 
 /** Flattens a nested catalog to { "a.b": message }. */
 function flatten(node: object, prefix = ""): Record<string, unknown> {
@@ -20,18 +18,37 @@ function flatten(node: object, prefix = ""): Record<string, unknown> {
   );
 }
 
-test("en, ru and de catalogs have the same keys", () => {
-  const keys = Object.entries(catalogs).map(([lang, catalog]) => [
-    lang,
-    Object.keys(flatten(catalog)).sort(),
-  ]);
-  const english = keys[0]?.[1];
-  for (const [, langKeys] of keys) expect(langKeys).toEqual(english);
+const I18N = join(import.meta.dir, "../src/i18n");
+/** Every catalog present, flattened, by language code (English first). */
+const catalogs = Object.fromEntries(
+  readdirSync(I18N)
+    .filter((name) => name.endsWith(".json"))
+    .map((name) => name.slice(0, -".json".length))
+    .sort((a, b) => (a === "en" ? -1 : b === "en" ? 1 : a.localeCompare(b)))
+    .map((lang) => [lang, flatten(JSON.parse(readFileSync(join(I18N, `${lang}.json`), "utf8")))]),
+);
+const english = flatten(en);
+const keys = Object.keys(english);
+/** The catalogs beside English. */
+const others = Object.entries(catalogs).filter(([lang]) => lang !== "en");
+
+test("every catalog is named by a language code the profile keeps and Intl names", () => {
+  expect(Object.keys(catalogs)).toContain("en");
+  for (const lang of Object.keys(catalogs)) {
+    expect(Lang.safeParse(lang).success, lang).toBe(true);
+    const name = new Intl.DisplayNames([lang], { type: "language" }).of(lang);
+    expect(name && name !== lang, lang).toBe(true);
+  }
+});
+
+test("every catalog has the keys of the English one", () => {
+  for (const [lang, flat] of others)
+    expect(Object.keys(flat).sort(), lang).toEqual([...keys].sort());
 });
 
 test("every message is a valid ICU string", () => {
-  for (const [lang, catalog] of Object.entries(catalogs)) {
-    for (const [key, message] of Object.entries(flatten(catalog))) {
+  for (const [lang, flat] of Object.entries(catalogs)) {
+    for (const [key, message] of Object.entries(flat)) {
       expect(typeof message, `${lang}:${key}`).toBe("string");
       expect(() => new IntlMessageFormat(message as string, lang), `${lang}:${key}`).not.toThrow();
     }
@@ -51,8 +68,6 @@ const sources = (dir: string): string[] =>
         : [];
   });
 const code = sources(SRC).join("\n");
-const english = flatten(en);
-const keys = Object.keys(english);
 
 /** Keys the code asks for by name: `t("a.b")`, `t('a.b')`. */
 const asked = [...code.matchAll(/\bt\(\s*["']([a-zA-Z0-9_.-]+)["']/g)].map((m) => m[1] as string);
@@ -75,26 +90,61 @@ test("every catalog key is used by the code (by name, handed over, or under a pr
   expect(unused).toEqual([]);
 });
 
-/** An ICU message's parts: the arguments it takes, and its words outside them (plural branches in). */
+type Element = {
+  type: number;
+  value?: unknown;
+  options?: Record<string, { value: unknown[] }>;
+  pluralType?: "cardinal" | "ordinal";
+  children?: unknown[];
+};
+/** intl-messageformat's element types used here. */
+const LITERAL = 0;
+const PLURAL = 6;
+const POUND = 7;
+
+/** An ICU message's parts: the arguments it takes, its words outside them (plural branches in), and
+ *  each plural's kind and categories. */
 function partsOf(message: string, lang: string) {
   const args = new Set<string>();
+  const plurals: Array<{ arg: string; type: "cardinal" | "ordinal"; categories: string[] }> = [];
   let text = "";
   const walk = (elements: unknown[]) => {
-    for (const el of elements as Array<{
-      type: number;
-      value?: unknown;
-      options?: Record<string, { value: unknown[] }>;
-      children?: unknown[];
-    }>) {
-      if (el.type === 0) text += String(el.value);
-      else if (el.type !== 7 && typeof el.value === "string") args.add(el.value);
+    for (const el of elements as Element[]) {
+      if (el.type === LITERAL) text += String(el.value);
+      else if (el.type !== POUND && typeof el.value === "string") args.add(el.value);
+      if (el.type === PLURAL)
+        plurals.push({
+          arg: String(el.value),
+          type: el.pluralType ?? "cardinal",
+          categories: Object.keys(el.options ?? {}),
+        });
       for (const option of Object.values(el.options ?? {})) walk(option.value);
       if (el.children) walk(el.children);
     }
   };
   walk(new IntlMessageFormat(message, lang).getAst() as unknown[]);
-  return { args: [...args].sort(), text };
+  return { args: [...args].sort(), text, plurals };
 }
+
+test("every plural has `other` and only categories its language has (exact `=n` cases aside)", () => {
+  const wrong: string[] = [];
+  for (const [lang, flat] of Object.entries(catalogs)) {
+    const has = {
+      cardinal: new Intl.PluralRules(lang).resolvedOptions().pluralCategories as string[],
+      ordinal: new Intl.PluralRules(lang, { type: "ordinal" }).resolvedOptions()
+        .pluralCategories as string[],
+    };
+    for (const [key, message] of Object.entries(flat))
+      for (const plural of partsOf(String(message), lang).plurals) {
+        const foreign = plural.categories.filter(
+          (c) => !c.startsWith("=") && !has[plural.type].includes(c),
+        );
+        if (!plural.categories.includes("other") || foreign.length)
+          wrong.push(`${lang}:${key} {${plural.arg}}: ${plural.categories.join(" ")}`);
+      }
+  }
+  expect(wrong).toEqual([]);
+});
 
 /** Words the same in every language: names, abbreviations, keys. */
 const SAME_EVERYWHERE = new Set(
@@ -102,35 +152,34 @@ const SAME_EVERYWHERE = new Set(
     " ",
   ),
 );
-/** German words written as the English ones; a new message the same as the English one fails until
- *  it is translated or named here. */
-const SAME_IN_GERMAN = new Set([
-  "settings.theme.system",
-  "settings.prompts",
-  "tutor.title",
-  "prompt.places.tutor.name",
-  "prompt.button",
-  "prompt.title",
-  "prompt.titleOf",
-  "prompt.task.tutor",
-  "player.pause",
-  "player.position",
-  "about.version",
-  "myWords.dueIn",
-  "decks.import.name",
-  "study.flag.orange",
-  // Federal states whose German names English keeps.
-  ...["bw", "be", "bb", "hb", "hh", "sl", "sh"].map((s) => `exams.states.${s}`),
-]);
+/** Per language, the messages written as the English ones; a new message the same as the English one
+ *  fails until it is translated or named here under its language. */
+const SAME_AS_ENGLISH: Record<string, string[]> = {
+  de: [
+    "settings.theme.system",
+    "settings.prompts",
+    "tutor.title",
+    "prompt.places.tutor.name",
+    "prompt.button",
+    "prompt.title",
+    "prompt.titleOf",
+    "prompt.task.tutor",
+    "player.pause",
+    "player.position",
+    "about.version",
+    "myWords.dueIn",
+    "decks.import.name",
+    "study.flag.orange",
+    // Federal states whose German names English keeps.
+    ...["bw", "be", "bb", "hb", "hh", "sl", "sh"].map((s) => `exams.states.${s}`),
+  ],
+};
 
-test("ru and de translate every message (none left as the English text)", () => {
-  for (const [lang, catalog] of [
-    ["ru", ru],
-    ["de", de],
-  ] as const) {
-    const flat = flatten(catalog);
+test("every catalog translates every message (none left as the English text)", () => {
+  for (const [lang, flat] of others) {
+    const same = new Set(SAME_AS_ENGLISH[lang]);
     const copied = keys.filter((k) => {
-      if (flat[k] !== english[k] || (lang === "de" && SAME_IN_GERMAN.has(k))) return false;
+      if (flat[k] !== english[k] || same.has(k)) return false;
       const words = partsOf(String(english[k]), "en").text.match(/[a-zA-Z]{3,}/g) ?? [];
       return words.some((w) => !SAME_EVERYWHERE.has(w));
     });
@@ -138,12 +187,8 @@ test("ru and de translate every message (none left as the English text)", () => 
   }
 });
 
-test("ru and de take the same arguments as en in every message", () => {
-  for (const [lang, catalog] of [
-    ["ru", ru],
-    ["de", de],
-  ] as const) {
-    const flat = flatten(catalog);
+test("every catalog's messages take the same arguments as the English ones", () => {
+  for (const [lang, flat] of others) {
     const differ = keys.filter(
       (k) =>
         JSON.stringify(partsOf(String(flat[k]), lang).args) !==
