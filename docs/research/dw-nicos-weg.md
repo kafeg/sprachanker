@@ -124,7 +124,11 @@ All A1 exercises fall into these mechanics (count of exercises; one exercise mix
   edition, A1–B1): 1243 such exercises, 789 with one clip for all items and 454 with the items' own
   (399 of them in A1) (counted 2026-10-11).
 - Speaking tasks (`REPEAT` sub-inquiry `inquiryDescription`) of only "…" or "..." stand for the line
-  the audio speaks (47 items in A1 `ru`).
+  the audio speaks (47 items in A1 `ru`). A German one is what the learner says — the answer to a
+  question heard ("Es geht mir super."), its frame ("Ja, … / Nein, …"), the learner's line of a
+  role-play — and becomes the item's `prompt`; one in the learner's language is the task (locale
+  `prompt`). Questions heard only as audio ("Прослушать аудио", the sub-inquiry's `text` empty) have
+  no text at DW.
 - Vocabulary chips: words of a text linked to their vocabulary entry
   (`<span class="editable placeholder" data-id=…>`, often inside `<span class="invalid_placeholder">`)
   are shown as spaced chips, so editors left out the spaces next to them ("Wir <chip>lernen</chip>Deutsch.",

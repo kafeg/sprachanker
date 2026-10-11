@@ -8,6 +8,7 @@ import { useSpeechHost } from "@/audio/context.ts";
 import { MicButton } from "@/audio/mic-button.tsx";
 import { type Take, useRecorder } from "@/audio/recorder.ts";
 import { TakeButton } from "@/audio/take-button.tsx";
+import { CourseHtml } from "@/ui/course-html.tsx";
 import { clock } from "@/ui/format.ts";
 import { useTargetLang } from "@/ui/target-lang.ts";
 import { cn } from "@/ui/utils.ts";
@@ -198,6 +199,8 @@ export function SpeechSelfrate({
 
   const attempted = answer !== undefined || !!take;
   const textShown = readOnly || !listen || attempted || reveal;
+  // What to say: the item's own line, else, under a question, the locale file's.
+  const line = item.prompt ?? (item.text ? locale?.prompt : undefined);
   const own = take?.url ?? (answer?.recording && host ? host.src(answer.recording) : undefined);
   // The source's own answer, once the learner has tried (their answer first, then the model one).
   const sample =
@@ -231,21 +234,29 @@ export function SpeechSelfrate({
           )}
         </div>
       )}
-      {/* The cue first, then the answer to say (the source's prompt), marked as such. */}
-      {item.text && locale?.prompt && (
-        <div>
-          <p className="text-sm text-muted-foreground">{t("speech.answerLine")}</p>
-          <p dir="auto" className="whitespace-pre-line text-lg font-medium">
-            {keptTogether(locale.prompt)}
-          </p>
-        </div>
-      )}
       {!item.text && (
         <p className="text-muted-foreground">
           {item.media?.audio || item.media?.video
             ? t("speech.answerHeard")
             : t("speech.answerFree")}
         </p>
+      )}
+      {/* The question first, then the line to say (an answer, its frame, a role-play's line) marked
+          as such, then the hint. */}
+      {line && (
+        <div>
+          <p className="text-sm text-muted-foreground">{t("speech.answerLine")}</p>
+          <p
+            lang={item.prompt ? lang : undefined}
+            dir="auto"
+            className="whitespace-pre-line text-lg font-medium text-pretty"
+          >
+            {keptTogether(line)}
+          </p>
+        </div>
+      )}
+      {locale?.hintHtml && (
+        <CourseHtml className="text-sm text-muted-foreground" html={locale.hintHtml} />
       )}
       {readOnly ? (
         <p className="flex flex-wrap items-center gap-2 text-sm text-muted-foreground">

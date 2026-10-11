@@ -200,10 +200,13 @@ function mapItem(ctx: Context, state: ApolloState, q: Entity): Mapped {
       const words = (t: string | undefined) => (t && /[\p{L}\p{N}]/u.test(t) ? t : undefined);
       const text = words(german(ctx, state, subs[0]?.inquiryText));
       const task = words(ctx.written(plain(subs[0]?.inquiryDescription)));
+      // A German one is what to say (an answer, its frame, a line of a role-play); one in the
+      // learner's language the task ("Скажи им, что…").
+      const say = task && !ctx.learnerText(task) ? task : undefined;
       return {
         type: "speech_selfrate",
-        item: { ...base, ...(text ? { text } : {}) },
-        locale: { ...locale, ...(task ? { prompt: task } : {}) },
+        item: { ...base, ...(text ? { text } : {}), ...(say ? { prompt: say } : {}) },
+        locale: { ...locale, ...(task && !say ? { prompt: task } : {}) },
       };
     }
     case "DICTATION": {

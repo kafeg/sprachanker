@@ -211,4 +211,27 @@ test("a speaking item shows the question heard first, then the answer to say, ma
   );
   expect(task.queryByText("Your answer")).toBeNull();
   expect(task.getByText("Frag nach dem Weg.").className).toContain("font-semibold");
+  task.unmount();
+  // The item's own line (a role-play's, an answer's frame), no question: the line, then its hint.
+  const line = await renderApp(
+    <TargetLang value="de">
+      <ItemCard
+        exercise={
+          {
+            ...speaking,
+            items: [{ key: "sprachanker.test/demo/00-01/ex-03#1", prompt: "Ja, … / Nein, …" }],
+          } as never
+        }
+        locale={{ items: { "#1": { hintHtml: "<p>Tipp</p>" } } } as never}
+        index={0}
+        answer={undefined}
+        url={(p) => p}
+      />
+    </TargetLang>,
+  );
+  const own = line.getByText("Ja, … / Nein, …");
+  expect(own.previousSibling?.textContent).toBe("Your answer");
+  expect(
+    own.compareDocumentPosition(line.getByText("Tipp")) & Node.DOCUMENT_POSITION_FOLLOWING,
+  ).toBeTruthy();
 });

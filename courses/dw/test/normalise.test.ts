@@ -176,12 +176,22 @@ test("a speaking item keeps its spoken answer (the link besides the question) fo
     key,
     "raw/en-de/a1/e-9.json",
   );
+  // A German line is what to say: the item's own prompt (not a task in the learner's language).
   expect(Exercise.parse(exercise).items[0]).toEqual({
     key: `${key}#1`,
     media: { audio: "media/audio/q.mp3" },
     answerAudio: "media/audio/a.mp3",
+    prompt: "Ja, ich ... / Nein, ich ...",
   } as never);
-  expect(locale.items["#1"]?.prompt).toBe("Ja, ich ... / Nein, ich ...");
+  expect(locale.items["#1"]?.prompt).toBeUndefined();
+  // One in the learner's language is the task: the locale file's.
+  const task = {
+    ...speaking,
+    "Inquiry:11": { inquiryText: "Play audio", inquiryDescription: "Скажи, что ты устал." },
+  };
+  const asked = normaliseExercise(withAnswer, task as never, 9, key, "raw/ru-de/a1/e-9.json");
+  expect((asked.exercise.items[0] as { prompt?: string }).prompt).toBeUndefined();
+  expect(asked.locale.items["#1"]?.prompt).toBe("Скажи, что ты устал.");
 });
 
 test("an item whose only recording is not main content (DW's Lösungsaudio) keeps it as its spoken answer, not its question", () => {
