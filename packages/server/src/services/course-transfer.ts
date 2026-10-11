@@ -67,8 +67,8 @@ export interface CourseTransferFiles {
   save(stream: ReadableStream<Uint8Array>, file: string, bytes: number): Promise<void>;
   /** A new, empty transfer. */
   begin(): string;
-  /** A bundle of `length` bytes received into the transfer, the room for it twice checked first;
-   *  false when more comes. */
+  /** A bundle of `length` bytes received into the transfer, the room for it checked first; false
+   *  when more comes. */
   receive(id: string, body: AsyncIterable<Uint8Array>, length: number): Promise<boolean>;
   /** A bundle read by its zip directory — the one received, or `file` on disk: its manifest's text
    *  and the other files' paths and sizes; undefined when it is no zip of stored entries with a
@@ -110,7 +110,7 @@ export function createCourseTransfer(deps: {
   const SERVER = "server";
   // At the start: a stopped server's transfers.
   files.sweep();
-  /** An import, the only one while it runs (each needs the room of its file twice). */
+  /** An import, the only one while it runs (each needs the room of its file and more). */
   const alone = oneAtATime("course_import_busy");
 
   /** The received or given file checked, unpacked and installed; the transfer is the caller's to

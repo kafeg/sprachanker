@@ -137,8 +137,8 @@ export function courseTransferFiles(
     },
     save: t.save,
     begin: t.begin,
-    // The file and what it unpacks to.
-    receive: (id, body, length) => t.receive(id, "received", body, length, 2 * length),
+    // The file; the room for what of it is unpacked is checked then (media here already are not).
+    receive: (id, body, length) => t.receive(id, "received", body, length, length),
     read(id, file = received(id)) {
       const entries = entriesOf(file);
       if (!entries) return undefined;

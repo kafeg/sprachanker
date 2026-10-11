@@ -343,7 +343,7 @@ raw/…                               # only the copies an exam's sources name (
   `keys.json`, learner data (05).
 - **Import** (`courses import`, Courses/Exams → Downloaded, 06): all or nothing, one at a time, in a
   transfer folder (`library/.transfers/<id>/`, swept as a profile's, 05). The file (its length
-  announced; room for it twice) read by its zip directory as a profile file is (05, step 2), its names
+  announced; room for it, then for what of it is unpacked) read by its zip directory as a profile file is (05, step 2), its names
   only paths of the format above (`CourseBundlePath`: no `..`, no other folder) and each once, its
   manifest read by its schema; its files exactly those listed. A media file or source copy the
   library holds already is not unpacked: the same name and content skipped, the same content under
