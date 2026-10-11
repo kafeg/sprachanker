@@ -1,0 +1,1371 @@
+{
+  "app": {
+    "name": "SprachAnker"
+  },
+  "nav": {
+    "courses": "Kozi",
+    "settings": "Mipangilio",
+    "review": "Marudio",
+    "notebook": "Daftari",
+    "exams": "Mitihani"
+  },
+  "common": {
+    "loading": "Inapakia…",
+    "retry": "Jaribu tena",
+    "close": "Funga",
+    "cancel": "Ghairi"
+  },
+  "courses": {
+    "lessons": "{count, plural, one {somo #} other {masomo #}}",
+    "progress": "{done, number} kati ya {total, number} yamekamilika",
+    "start": "Anza",
+    "allLessons": "Masomo yote",
+    "languages": "{from} → {to}",
+    "any": "Zote",
+    "noneStarted": "Bado hujaanza kozi yoyote.",
+    "noneMatch": "Hakuna kozi ya lugha hizi.",
+    "course": "Kozi",
+    "pair": "Lugha",
+    "next": "Linalofuata",
+    "nextWorked": "{worked, number} kati ya {total, number} yamekamilika",
+    "doneShort": "{done, number} / {total, number} · {share}",
+    "tabs": {
+      "mine": "Kozi zangu",
+      "downloaded": "Zilizopakuliwa",
+      "available": "Zinazopatikana"
+    },
+    "noneDownloaded": "Bado hakuna kozi iliyopakuliwa.",
+    "allDownloaded": "Kozi zote zinazotolewa zimepakuliwa.",
+    "choose": "Chagua kozi",
+    "anyLanguage": "yoyote"
+  },
+  "course": {
+    "unit": "Sura {number}",
+    "status": {
+      "new": "Haijaanzwa",
+      "in_progress": "Inaendelea · {worked, number} kati ya {total, number}",
+      "done": "Imekamilika · {score, number, percent}",
+      "next": "Linalofuata",
+      "finished": "Imekamilika"
+    },
+    "licence": {
+      "cc-by-4.0": "CC BY 4.0",
+      "public-domain": "mali ya umma",
+      "free-access": "inapatikana bure (bila leseni huria)"
+    },
+    "stats": {
+      "lessons": "{count, plural, one {somo} other {masomo}}",
+      "exercises": "{count, plural, one {zoezi} other {mazoezi}}",
+      "words": "{count, plural, one {neno} other {maneno}}",
+      "audio": "{count, plural, one {rekodi} other {rekodi}}",
+      "video": "{count, plural, one {video} other {video}}",
+      "image": "{count, plural, one {picha} other {picha}}",
+      "pdf": "PDF",
+      "subtitles": "{count, plural, one {faili la manukuu} other {mafaili ya manukuu}}",
+      "size": "kwenye diski"
+    },
+    "checking": "Inakagua faili za kozi…",
+    "missing": "{count, number} hazipo",
+    "problems": "{count, plural, one {Tatizo # limepatikana} other {Matatizo # yamepatikana}}",
+    "intact": "Faili zote zipo na zinalingana.",
+    "checkAgain": "Kagua tena",
+    "complete": "Zote zimepakuliwa",
+    "next": "linalofuata: {where} — {title}",
+    "notInstalled": "Kozi hii haijasakinishwa (tena).",
+    "checkFiles": "Kagua",
+    "problem": {
+      "missingMedia": "Faili haipo: {at}",
+      "unreadable": "Faili haisomeki: {at}",
+      "noLocale": "Hakuna maandishi ya somo katika lugha hii: {at}",
+      "noEdition": "Hakuna toleo la lugha lililosakinishwa",
+      "inconsistent": "Data za kozi hazilingani: {at}"
+    }
+  },
+  "lesson": {
+    "unitLesson": "Sura {unit} · Somo {lesson}",
+    "goals": "Katika somo hili utajifunza:",
+    "counts": "{exercises, plural, =0 {} one {zoezi # · } other {mazoezi # · }}{words, plural, one {neno jipya #} other {maneno mapya #}}",
+    "start": "Anza somo",
+    "resume": "Endelea na somo",
+    "exerciseOf": "Zoezi {n} kati ya {total}",
+    "check": "Kagua",
+    "next": "Endelea",
+    "toSummary": "Kwenye muhtasari",
+    "skip": "Ruka",
+    "retry": "Jaribu tena",
+    "previous": "Rudi",
+    "correct": "Sahihi",
+    "partial": "Sahihi kwa sehemu",
+    "wrong": "Si sahihi kabisa",
+    "summary": "Muhtasari",
+    "score": "Sahihi kwa jaribio la kwanza: {correct, number} kati ya {scored, number}. Asilimia inahesabu pia majibu yaliyo sahihi kwa sehemu.",
+    "skipped": "limerukwa",
+    "notDone": "halijafanywa",
+    "backToCourse": "Rudi kwenye kozi",
+    "nextLesson": "Somo linalofuata",
+    "reference": "Marejeo",
+    "plan": "Mpango wa somo",
+    "audio": "Sikiliza somo",
+    "itemAudio": "Sauti ya kipengele {n}",
+    "redo": "Anza upya",
+    "done": "Imekamilika",
+    "doneScore": "Imekamilika · {score, number, percent} sahihi",
+    "state": {
+      "correct": "sahihi",
+      "wrong": "lina makosa",
+      "done": "limejibiwa",
+      "skipped": "limerukwa",
+      "read": "limekamilika",
+      "partial": "sahihi kwa sehemu"
+    },
+    "correctAnswer": "Jibu sahihi:",
+    "answerAudio": "Sikiliza jibu",
+    "itemsList": "Vipengele",
+    "answerAll": "Jibu kila kipengele · {done, number} kati ya {total, number}",
+    "listenFirst": "Sikiliza rekodi kwanza",
+    "listenItem": "Sikiliza rekodi ya kipengele {n}",
+    "answerAgain": "Jibu tena",
+    "exerciseN": "Zoezi {n}",
+    "stepsDone": "Hatua {done} kati ya {total} zimekamilika",
+    "stepsLeft": "{count, plural, one {Hatua # bado haijafanywa.} other {Hatua # bado hazijafanywa.}}",
+    "toStep": "Nenda: {title}",
+    "videoText": "Maandishi ya video",
+    "audioText": "Maandishi ya rekodi",
+    "step": {
+      "overview": "Muhtasari wa somo",
+      "words": "Maneno ya somo",
+      "wordsCount": "Maneno ya somo · {count}",
+      "grammar": "Sarufi",
+      "culture": "Utamaduni",
+      "writing": "Andika mwenyewe",
+      "scene": "Igizo",
+      "mistakes": "Kupitia makosa",
+      "summary": "Muhtasari"
+    },
+    "section": {
+      "grammar": "Sarufi",
+      "exercises": "Mazoezi",
+      "culture": "Utamaduni",
+      "practice": "Jizoeze na AI"
+    },
+    "continued": "inaendelea",
+    "why": "Kwa nini si sahihi?"
+  },
+  "ref": {
+    "vocabulary": "Msamiati",
+    "grammar": "Sarufi",
+    "culture": "Utamaduni",
+    "script": "Maandishi",
+    "downloads": "PDF",
+    "none": "Hakuna kitu katika somo hili.",
+    "homework": "Kazi ya nyumbani"
+  },
+  "video": {
+    "hd": "HD",
+    "sd": "SD",
+    "subtitles": "Manukuu"
+  },
+  "ex": {
+    "chooseSeveral": "Majibu kadhaa yanaweza kuwa sahihi.",
+    "orderHint": "Gusa au buruta vipande kwenye mstari kwa mpangilio; buruta kipande ndani ya mstari ili kukisogeza, kiguse ili kukirudisha.",
+    "reset": "Weka upya",
+    "dictationPlaceholder": "Andika unachosikia",
+    "rate": {
+      "good": "Vizuri",
+      "fair": "Wastani",
+      "poor": "Tena"
+    },
+    "unknown": "Aina hii ya zoezi bado haitumiki.",
+    "respondPlaceholder": "Jibu lako…",
+    "reference": "{count, plural, one {Jibu la mfano} other {Majibu ya mfano}}",
+    "gap": "Pengo {n}",
+    "partRight": "sahihi",
+    "partWrong": "si sahihi",
+    "nothing": "— (hakuna)",
+    "matchFor": "Kinacholingana na kipengele {n}",
+    "dropHere": "dondosha au gusa hapa",
+    "chips": "Maneno ya kuweka",
+    "orderLine": "Mpangilio wako",
+    "dnd": {
+      "item": "kadi",
+      "instructions": "Ili kuchukua kadi, bonyeza Space au Enter. Isogeze kwa vitufe vya mishale, kisha bonyeza Space au Enter kuiweka, au Escape kuirudisha.",
+      "start": "Imechukuliwa: {item}.",
+      "over": "{item} — juu ya “{place}”.",
+      "away": "{item} — haiko juu ya nafasi yoyote.",
+      "end": "{item} — imewekwa kwenye “{place}”.",
+      "cancel": "{item} — imerudishwa."
+    },
+    "chosen": "{count, plural, one {# imechaguliwa} other {# zimechaguliwa}}",
+    "specialLetters": "Herufi za kuandika",
+    "inPlace": "iko mahali pake",
+    "notInPlace": "haiko mahali pake"
+  },
+  "word": {
+    "plural": "wingi: {plural}"
+  },
+  "settings": {
+    "uiLanguage": "Lugha ya kiolesura",
+    "themeLabel": "Mandhari",
+    "theme": {
+      "system": "Ya mfumo",
+      "light": "Angavu",
+      "dark": "Giza"
+    },
+    "tabs": {
+      "general": "Jumla",
+      "profile": "Wasifu",
+      "review": "Marudio",
+      "speech": "Sauti",
+      "ai": "Msaidizi wa AI",
+      "aiShort": "AI"
+    },
+    "prompts": "Maagizo",
+    "experimental": "Majaribio",
+    "advanced": "Kina zaidi"
+  },
+  "llm": {
+    "title": "Msaidizi wa AI",
+    "intro": "Hueleza makosa, hufundisha katika masomo, hukagua maandishi na huigiza mazungumzo. Chagua modeli kwenye kompyuta hii, kwenye seva katika mtandao wako, mtandaoni (OpenRouter) au wakala wa mstari wa amri kwa usajili wako. Maudhui ya somo na majibu yako huenda kwa mtoa huduma unayemchagua pekee.",
+    "off": "Imezimwa",
+    "provider": {
+      "lmstudio": "LM Studio",
+      "openrouter": "OpenRouter",
+      "gemini": "Google Gemini",
+      "groq": "Groq",
+      "custom": "Seva kwenye mtandao",
+      "claude-code": "Claude Code",
+      "codex": "Codex"
+    },
+    "endpoint": "Anwani ya seva",
+    "endpointInvalid": "Weka anwani kama http://localhost:1234/v1",
+    "apiKey": "Ufunguo wa API",
+    "keyHint": "Ikiwa tu seva inauhitaji. Huhifadhiwa kwa usimbaji fiche na hauonyeshwi tena.",
+    "keySaved": "Umehifadhiwa — weka mpya ili kuubadilisha",
+    "save": "Hifadhi",
+    "removeKey": "Ondoa",
+    "check": "Kagua muunganisho",
+    "checking": "Inaunganisha…",
+    "connected": "Imeunganishwa · {count, plural, =0 {hakuna modeli} one {modeli #} other {modeli #}} · {ms} ms",
+    "model": "Modeli",
+    "setUpHint": "Unataka maelezo? Weka msaidizi wa AI",
+    "explanation": "Maelezo",
+    "thinking": "Inafikiri…",
+    "error": {
+      "lmstudioDown": "LM Studio haijibu. Je, seva yake ya ndani inaendeshwa?"
+    },
+    "cliMissing": {
+      "claude-code": "Claude Code haijasakinishwa hapa. Isakinishe kutoka claude.com/claude-code kisha ingia mara moja kwa kuendesha `claude`.",
+      "codex": "Codex CLI haijasakinishwa hapa. Isakinishe (npm i -g @openai/codex) kisha ingia mara moja kwa `codex login`."
+    },
+    "modelTypeHint": "Andika jina la modeli.",
+    "otherModel": "Modeli nyingine…",
+    "modelName": "Jina la modeli",
+    "explainAgain": "Eleza tena",
+    "changeInSettings": "Modeli huchaguliwa katika Mipangilio → Msaidizi wa AI",
+    "about": {
+      "lmstudio": "LM Studio kwenye kompyuta hii: SprachAnker huanzisha seva yake, hupakia modeli uliyochagua na inaweza kupakua ndani yake modeli zinazopendekezwa. Ni bure, na hakuna kinachotoka kwenye kompyuta. Ikiwa LM Studio inaendeshwa kwenye kompyuta nyingine, chagua “Seva kwenye mtandao”.",
+      "openrouter": "OpenRouter mtandaoni: mamia ya modeli kutoka kwa watengenezaji wengi kwa ufunguo mmoja, baadhi yake bure (kwa vikomo vya kila siku). Maudhui ya somo na majibu yako huenda kwa OpenRouter na kwa mtoa huduma wa modeli.",
+      "gemini": "Modeli za Gemini za Google mtandaoni kwa ufunguo kutoka Google AI Studio. Kiwango cha bure hakihitaji kadi na kina vikomo kwa dakika na kwa siku; baadhi ya modeli zinahitaji malipo. Katika kiwango cha bure Google inaweza kutumia kinachotumwa kuboresha bidhaa zake: maudhui ya somo na majibu yako huenda kwa Google.",
+      "groq": "Modeli huria (Llama, Qwen, GPT-OSS na nyinginezo) kwenye vifaa vya kasi vya Groq mtandaoni. Kiwango cha bure hakihitaji kadi na kina vikomo kwa dakika na kwa siku kwa kila modeli. Maudhui ya somo na majibu yako huenda kwa Groq.",
+      "custom": "Seva yoyote yenye API inayooana na OpenAI kwenye kompyuta nyingine: LM Studio, Ollama, llama.cpp, vLLM na nyinginezo. Weka anwani yake (inayoishia na /v1) na ufunguo ikiwa inauomba.",
+      "claude-code": "Huendesha Claude Code iliyosakinishwa kwenye kompyuta hii (`claude -p`) kwa usajili wako wa Claude. Zana zake zimezimwa: data za somo huwekwa kwenye maagizo. Kila jibu huanzisha amri, kwa hiyo majibu huchelewa sekunde chache zaidi.",
+      "codex": "Huendesha Codex CLI iliyosakinishwa kwenye kompyuta hii (`codex exec`) kwa usajili wako wa ChatGPT, kwa kusoma tu na bila zana zake. Kila jibu huanzisha amri, kwa hiyo majibu huchelewa sekunde chache zaidi."
+    },
+    "cardState": {
+      "off": "hakuna msaidizi",
+      "llm_cli_missing": "haijasakinishwa",
+      "llm_no_endpoint": "anwani haijawekwa",
+      "llm_no_key": "inahitaji ufunguo",
+      "installed": "imesakinishwa",
+      "keySaved": "ufunguo umehifadhiwa",
+      "here": "kwenye kompyuta hii",
+      "at": "kwenye {host}"
+    },
+    "list": {
+      "search": "Tafuta: gemma, claude, deepseek…",
+      "free": "Bure ({count, number})",
+      "json": "Hujibu kwa JSON ({count, number})",
+      "context": "Muktadha ≥ {size}",
+      "more": "Zaidi…",
+      "fewer": "Chache",
+      "jsonHint": "“Hujibu kwa JSON”: modeli zinazoweza kurudisha ukaguzi wa uandishi na maigizo katika muundo ambao programu inausoma.",
+      "none": "Hakuna modeli inayolingana na utafutaji na vichujio.",
+      "freeTag": "bure",
+      "price": "{input} / {output} kwa tokeni milioni 1",
+      "shown": "Modeli {shown, number} kati ya {total, number}",
+      "backToList": "Rudi kwenye orodha"
+    },
+    "key": {
+      "freeTier": "Kiwango cha bure",
+      "credits": "Salio",
+      "used": "imetumika {used}",
+      "usedOf": "imetumika {used} kati ya {limit}",
+      "rate": "maombi {requests, number} kwa {interval}",
+      "freeModels": "Modeli za bure zina kikomo cha maombi kwa siku kilichowekwa na OpenRouter (kikubwa zaidi baada ya kununua salio)."
+    },
+    "keyHintFor": {
+      "openrouter": "Tengeneza ufunguo kwenye openrouter.ai/keys. Huhifadhiwa kwa usimbaji fiche kwenye kompyuta hii na hauonyeshwi tena.",
+      "gemini": "Tengeneza ufunguo kwenye aistudio.google.com/apikey. Huhifadhiwa kwa usimbaji fiche kwenye kompyuta hii na hauonyeshwi tena.",
+      "groq": "Tengeneza ufunguo kwenye console.groq.com/keys. Huhifadhiwa kwa usimbaji fiche kwenye kompyuta hii na hauonyeshwi tena."
+    }
+  },
+  "tutor": {
+    "title": "Mkufunzi",
+    "intro": "Uliza kuhusu somo hili: sarufi, maneno, zoezi lililo kwenye skrini — au jizoeze mazungumzo mafupi. Majibu hayavuki yale uliyojifunza hadi sasa.",
+    "needsSetup": "Mkufunzi anahitaji modeli ya AI.",
+    "openSettings": "Weka msaidizi wa AI",
+    "placeholder": "Uliza swali…",
+    "send": "Tuma",
+    "stop": "Simamisha",
+    "newChat": "Mazungumzo mapya",
+    "suggest": {
+      "grammar": "Nieleze sarufi ya somo hili",
+      "examples": "Nipe mifano zaidi kwa maneno mapya",
+      "dialogue": "Tujizoeze mazungumzo mafupi",
+      "exercise": "Nipe dokezo la zoezi hili",
+      "wordsQuiz": "Nijaribu kwa maneno mapya ya somo hili",
+      "wordsMemory": "Nisaidie kukumbuka maneno mapya",
+      "grammarDrill": "Nipe zoezi fupi la sarufi ya somo hili",
+      "script": "Pitia maandishi ya somo sentensi kwa sentensi"
+    },
+    "context": "Muktadha ≈ {used} kati ya tokeni {window}",
+    "contextSize": "Ombi ≈ tokeni {used}",
+    "remembers": "anakumbuka {kept, number} kati ya {total, plural, one {ujumbe #} other {jumbe #}}",
+    "contextFull": "Muktadha umekaribia kujaa: jumbe za mwanzo kabisa hazifiki tena kwa modeli. Anza mazungumzo mapya kwa mada mpya.",
+    "contextHint": "Ukubwa wa ombi lijalo: muktadha wa somo, mazungumzo na ujumbe wako, pamoja na nafasi ya jibu.",
+    "toolsUsed": "Ameangalia: {tools}",
+    "tool": {
+      "find_word": "neno “{word}”",
+      "get_progress": "maendeleo yako",
+      "get_mistakes": "makosa yako",
+      "get_lesson": "somo {lesson}"
+    },
+    "tabChat": "Mazungumzo",
+    "tabHistory": "Historia",
+    "noHistory": "Bado hakuna mazungumzo ya awali katika somo hili.",
+    "current": "ya sasa",
+    "delete": "Futa mazungumzo",
+    "deleteTitle": "Ufute mazungumzo haya?",
+    "deleteBody": "Jumbe zake zitafutwa kabisa.",
+    "ask": {
+      "grammar": "Nieleze kwa ufupi sarufi ya somo hili kwa mifano 2–3 kutoka kwenye somo. Kisha niulize kama imeeleweka.",
+      "examples": "Nipe mifano 3 mifupi kwa maneno mapya ya somo, pamoja na tafsiri. Kisha niombe nitunge sentensi yangu mwenyewe kwa mojawapo.",
+      "dialogue": "Tujizoeze mazungumzo mafupi kuhusu mada ya somo. Wewe anza kwa sentensi moja na usubiri jibu langu; sahihisha makosa yangu tunapoendelea.",
+      "exercise": "Nipe dokezo la zoezi hili, si jibu.",
+      "wordsQuiz": "Nijaribu kwa maneno mapya ya somo, neno moja baada ya jingine. Niulize neno, usubiri jibu langu, uniambie kama ni sahihi, na hapo tu uendelee na linalofuata.",
+      "wordsMemory": "Nisaidie kukumbuka maneno mapya ya somo moja baada ya jingine: chukua neno moja, nipe kidokezo cha kukumbuka (neno linalofanana kwa sauti, picha, mzizi) na mfano mfupi, kisha niombe nilirudie au nilitumie. Neno linalofuata baada ya jibu langu tu.",
+      "grammarDrill": "Nipe zoezi fupi la sarufi ya somo: kazi moja kwa wakati, subiri jibu langu, likague na ueleze kosa lolote.",
+      "script": "Tupitie maandishi ya somo sentensi moja kwa wakati: onyesha sentensi ya kwanza, itafsiri na ueleze kilicho kipya ndani yake. Sentensi inayofuata pale tu nitakaposema \"inayofuata\"."
+    }
+  },
+  "lmstudio": {
+    "running": "LM Studio inaendeshwa.",
+    "notRunning": "Seva ya LM Studio haiendeshwi.",
+    "notInstalled": "LM Studio haijasakinishwa kwenye kompyuta hii. Ipate kwenye lmstudio.ai, kisha urudi hapa.",
+    "needsToken": "LM Studio inaomba tokeni ya API: iweke hapo juu (LM Studio → Developer → Server settings).",
+    "start": "Anzisha LM Studio",
+    "models": "Modeli katika LM Studio",
+    "noModels": "LM Studio bado haina modeli. Pakua moja hapa chini.",
+    "loaded": "kwenye kumbukumbu",
+    "use": "Tumia",
+    "inUse": "Inatumika",
+    "suggested": "Modeli zinazopendekezwa",
+    "suggestedHint": "LM Studio hupakua toleo bora kwa kompyuta hii (kumbukumbu ya GB {memory}) na kulihifadhi.",
+    "recommended": "Inapendekezwa",
+    "size": "takriban GB {size} · inahitaji takriban GB {ram} za kumbukumbu",
+    "progress": "GB {done} kati ya {total}",
+    "download": "Pakua katika LM Studio",
+    "gb": "GB"
+  },
+  "prompt": {
+    "button": "Maagizo",
+    "title": "Maagizo",
+    "titleOf": "Maagizo · {provider} · {model}",
+    "endpoint": "Anwani",
+    "size": "Ukubwa",
+    "sizeValue": "{chars, plural, one {herufi #} other {herufi #}} ≈ {tokens, plural, one {tokeni #} other {tokeni #}}",
+    "copy": "Nakili ombi kama JSON",
+    "infoIntro": "Kila ombi hutuma kanuni za kudumu (maagizo ya mfumo) na data za kozi za somo la sasa. Sehemu ndefu hukatwa hadi vikomo vilivyo hapa chini ili modeli ndogo za ndani ziweze kwenda sambamba.",
+    "task": {
+      "explain": "“Kwa nini si sahihi?”",
+      "tutor": "Mkufunzi",
+      "writing": "“Andika mwenyewe”",
+      "speaking": "Majibu ya kutamka",
+      "exam": "Mtihani: kutathmini jibu",
+      "conversation": "Mtihani: sehemu ya kuzungumza",
+      "sceneSetup": "Igizo: hali yenyewe",
+      "scene": "Igizo",
+      "examples": "Mifano ya maneno ya seti"
+    },
+    "contextIntro": "Imeongezwa kutoka kwenye somo:",
+    "systemIntro": "Maagizo ya mfumo:",
+    "part": {
+      "item": "kipengele cha zoezi: kazi, chaguo au mapengo, jibu sahihi na jibu lako",
+      "notes": "maelezo ya sarufi ya somo",
+      "lesson": "kichwa na malengo ya somo",
+      "lessonVocab": "maneno ya somo pamoja na tafsiri",
+      "knownVocab": "maneno ya masomo ya awali (ya karibuni kwanza)",
+      "earlierLessons": "vichwa vya masomo ya awali",
+      "grammar": "maelezo ya sarufi ya somo",
+      "exercise": "zoezi lililo kwenye skrini pamoja na majibu yake na majibu yako yaliyokaguliwa (mkufunzi hutoa madokezo kwanza)",
+      "history": "jumbe za karibuni za mazungumzo, kila ujumbe wako ukiwa na alama ya zoezi ulipouandika",
+      "mistakes": "makosa yako: katika somo hili yale ya mzunguko wa sasa, kisha ya karibuni ya masomo ya awali (yaliyosahihishwa yana alama)",
+      "tools": "kwa ombi (zana): maendeleo yako, makosa katika somo lolote, neno linafundishwa wapi, somo linahusu nini",
+      "text": "maandishi yako",
+      "script": "maandishi ya somo, kipengele kinapohusu sauti au video yake",
+      "heard": "swali na jibu la kozi yenyewe, kama kitambuzi kilivyovisikia katika rekodi za kozi",
+      "answer": "ulichosema, kama kitambuzi kilivyokisikia",
+      "exam": "kichwa cha mtihani na kazi kama ilivyotolewa: maelekezo na maandishi ya sehemu, swali",
+      "criteria": "vigezo pamoja na alama zake na maana ya kila kiwango",
+      "samples": "majibu ya mfano ya mtihani, ikiwa yapo",
+      "writtenAnswer": "jibu lako",
+      "partner": "alicho nacho mwenzako: kadi, kalenda au slaidi zake (wewe huzioni)",
+      "conversation": "mazungumzo hadi sasa (mistari ya karibuni)",
+      "level": "kiwango cha kozi au seti jina lake linapokitaja (A1, A2…), vinginevyo cha wanaoanza",
+      "words": "maneno matano ya seti pamoja na tafsiri, aina ya neno na jinsia"
+    },
+    "upTo": "hadi {chars, plural, one {herufi #} other {herufi #}}",
+    "debug": "Onyesha vitufe vya “Maagizo”",
+    "debugHint": "Kando ya maelezo na kwa mkufunzi: ombi kamili pamoja na jumbe zote, kwa utatuzi.",
+    "custom": "imebadilishwa",
+    "placeholders": "'{language}' hubadilishwa na lugha ya majibu, '{target}' na lugha unayojifunza.",
+    "save": "Hifadhi",
+    "restore": "Rejesha maagizo ya kawaida",
+    "places": {
+      "title": "Mahali msaidizi anapofanya kazi",
+      "hint": "Mahali palipozimwa hapaonyeshwi katika masomo, kadi na mitihani. Masomo yaliyokamilika yanabaki yamekamilika.",
+      "explain": {
+        "name": "“Kwa nini si sahihi?”",
+        "where": "kitufe chini ya kosa"
+      },
+      "tutor": {
+        "name": "Mkufunzi",
+        "where": "kitufe katika somo na hatua ya “Kupitia makosa”"
+      },
+      "writing": {
+        "name": "“Andika mwenyewe”",
+        "where": "hatua ya somo"
+      },
+      "scene": {
+        "name": "Maigizo",
+        "where": "hatua ya somo"
+      },
+      "speaking": {
+        "name": "Majibu ya kutamka",
+        "where": "“Kagua kwa AI” chini ya jibu lililotamkwa"
+      },
+      "example": {
+        "name": "Mifano ya neno",
+        "where": "kwenye kadi yake na ukurasa wake; hutengenezwa kwa seti katika Marudio → Seti"
+      },
+      "exam": {
+        "name": "Majibu ya mtihani",
+        "where": "“Pendekeza tathmini” juu ya vigezo vya jibu, na sehemu za kuzungumza zinazofanywa kama mazungumzo"
+      }
+    },
+    "about": {
+      "explain": "Hueleza jibu lisilo sahihi chini ya zoezi (“Kwa nini si sahihi?”): kosa ni nini na kanuni iliyo nyuma yake, kwa lugha yako.",
+      "tutor": "Mkufunzi wa somo: hujibu maswali yako kuhusu somo, maneno na sarufi yake, na hupitia makosa yako moja baada ya jingine katika hatua ya “Kupitia makosa”.",
+      "writing": "Hukagua maandishi mafupi uliyoandika katika “Andika mwenyewe”: masahihisho, vigezo vya A1 (kazi, mawasiliano, usahihi) na maoni.",
+      "speaking": "Hukagua jibu ulilotamka (kile kitambuzi kilichosikia) dhidi ya swali na jibu la kozi, unapobonyeza “Kagua kwa AI”.",
+      "exam": "Hutathmini jibu la maandishi la mtihani kwa vigezo vya mtihani wenyewe: kiwango cha kila kigezo pamoja na sababu yake, na kipi kingeleta alama zaidi. Hakuna kinachohesabiwa hadi ukikubali au ukibadilishe.",
+      "conversation": "Huendesha sehemu ya kuzungumza ya mtihani: huigiza mtahini na mtahiniwa mwingine, kama sehemu inavyoelekeza, mstari kwa mstari pamoja nawe; kamwe hasaidii wala hasahihishi. Hutathminiwa baadaye kwa vigezo vya sehemu hiyo.",
+      "sceneSetup": "Huanzisha igizo: hubuni hali kutokana na mada ya somo — wewe ni nani, unazungumza na nani, wapi, na malengo ya kufikia. Huombwa mara moja kwa kila igizo.",
+      "scene": "Huendesha igizo: hujibu kila mstari wako kama mwenzako, husahihisha makosa yako, hutoa tafsiri na huweka alama kwenye malengo uliyoyafikia.",
+      "examples": "Huandika sentensi tatu hadi tano za mfano kwa kila neno la seti isiyo na mifano yake yenyewe, maneno matano kwa wakati (Marudio → Seti, “Tengeneza mifano”), kwa maneno unayoyajua inapowezekana na yale mapya yakiwa yametafsiriwa."
+    }
+  },
+  "writing": {
+    "task": "Andika sentensi 3–5 kwa {language} kuhusu mada ya somo: {topic}. Tumia maneno mapya.",
+    "placeholder": "Maandishi yako…",
+    "check": "Kagua",
+    "checking": "Inakagua…",
+    "rewrite": "Rekebisha na ukague tena",
+    "score": "{name}: {score, number} kati ya {max, number}",
+    "points": "{score, number} kati ya {max, number}",
+    "past": "Maandishi ya awali ya somo hili",
+    "verdict": {
+      "good": "Sahihi",
+      "minor_errors": "Makosa madogo",
+      "major_errors": "Makosa mengi",
+      "off_task": "Nje ya mada"
+    },
+    "criteria": {
+      "task": "Kazi",
+      "communication": "Mawasiliano",
+      "accuracy": "Usahihi"
+    }
+  },
+  "mistakes": {
+    "exercises": "Mazoezi yaliyofanywa",
+    "firstTry": "Sahihi kwa jaribio la kwanza",
+    "ofTotal": "{n, number} kati ya {total, number}",
+    "list": "Makosa kwa kila zoezi",
+    "items": "{count, plural, one {kipengele} other {vipengele}} {items}",
+    "fixed": "{count, plural, one {# limesahihishwa baadaye} other {# yamesahihishwa baadaye}}",
+    "none": "Hakuna makosa katika mzunguko huu.",
+    "notYet": "Bado hakuna kilichojibiwa: fanya mazoezi kwanza.",
+    "tutorIntro": "Mkufunzi hupitia makosa yako moja baada ya jingine: kilichokwenda vibaya, kanuni iliyo nyuma yake, na mfano mpya mfupi wa kukujaribu.",
+    "start": "Pitia makosa yangu na mkufunzi",
+    "message": "Tafadhali pitia makosa yangu katika somo hili."
+  },
+  "scene": {
+    "intro": "Jizoeze somo katika igizo fupi: mwenzako anazungumza lugha ya kozi, anakusahihisha na anaweka alama kwenye malengo yako.",
+    "start": "Anza igizo",
+    "preparing": "Inaandaa…",
+    "partner": "Mwenzako: {partner}",
+    "translate": "Tafsiri",
+    "placeholder": "Mstari wako…",
+    "done": "Malengo yote yamefikiwa — hongera!",
+    "new": "Igizo jipya",
+    "past": "Maigizo ya awali ya somo hili",
+    "goals": "Malengo: {met, number} kati ya {total, number}",
+    "ended": "Igizo limekwisha."
+  },
+  "player": {
+    "play": "Cheza: {what}",
+    "pause": "Sitisha",
+    "back": "Rudi sekunde 5",
+    "speed": "Kasi ya kucheza {rate}×",
+    "position": "Mahali",
+    "unavailable": "Sauti haikuweza kupakiwa."
+  },
+  "about": {
+    "title": "Kuhusu SprachAnker",
+    "intro": "Mwalimu wa lugha unayemwendesha mwenyewe, anayefanya kazi kwanza kwenye kompyuta yako: kozi halisi katika kicheza kimoja, maendeleo na sauti kwenye kompyuta yako mwenyewe, modeli yoyote ya AI unayounganisha. Bure na chanzo huria.",
+    "version": "Toleo",
+    "licence": "Leseni: MIT",
+    "source": "Msimbo chanzo kwenye GitHub"
+  },
+  "progress": {
+    "resetCourse": "Futa maendeleo ya kozi",
+    "removeCourse": "Ondoa kwenye kozi zangu",
+    "resetLesson": "Futa maendeleo ya somo",
+    "courseTitle": "Ufute maendeleo yako katika “{title}”?",
+    "courseBody": "Majibu yote na mizunguko yote ya masomo ya kozi hii yatafutwa, pamoja na mazungumzo na mkufunzi, ukaguzi wa uandishi na maigizo yanayoihusu, na kadi za maneno zilizotengenezwa na masomo yake pamoja na marudio yake. Kozi itaondoka kwenye “Kozi zangu” lakini itabaki imesakinishwa. Hatua hii haiwezi kutenduliwa.",
+    "lessonTitle": "Ufute maendeleo yako katika “{title}”?",
+    "lessonBody": "Majibu yote na mizunguko yote ya somo hili yatafutwa, pamoja na mazungumzo yake na mkufunzi, ukaguzi wa uandishi na maigizo, na kadi za maneno lililotengeneza pamoja na marudio yake (maneno ya masomo mengine yanabaki). Hatua hii haiwezi kutenduliwa.",
+    "confirm": "Futa",
+    "removeExam": "Ondoa kwenye mitihani yangu",
+    "examTitle": "Uondoe “{title}” kwenye mitihani yako?",
+    "examBody": "Mitihani yake ya majaribio na mazoezi yatafutwa pamoja na majibu na tathmini zake zote. Mtihani wenyewe unabaki umepakuliwa."
+  },
+  "download": {
+    "queued": "Kwenye foleni — kozi nyingine inapakuliwa",
+    "pages": "{count, plural, one {Ukurasa # umesomwa} other {Kurasa # zimesomwa}}",
+    "preparing": "Inaandaa masomo…",
+    "media": "Midia: faili {done, number} kati ya {total, number} · {size}",
+    "downloadSize": "Pakua · ≈ {size}",
+    "continue": "Endelea kupakua",
+    "sync": "Sawazisha na chanzo",
+    "notDownloaded": "Haijapakuliwa",
+    "incomplete": "{count, plural, =0 {Upakuaji haujakamilika} one {Faili # haipo} other {Faili # hazipo}}",
+    "openSoon": "Kozi inaweza kuanzwa ikishapakuliwa yote.",
+    "failed": "Upakuaji umeshindikana: {error}",
+    "done": "Imepakuliwa. {failed, plural, =0 {Midia zote zipo.} one {Faili # haikuweza kupakuliwa.} other {Faili # hazikuweza kupakuliwa.}}",
+    "hint": "Kupakua huleta kilichokosekana kutoka kwenye chanzo (kurasa na midia zilizohifadhiwa zinabaki) na huandaa kozi upya; maendeleo yako yanabaki.",
+    "log": "Kumbukumbu ya upakuaji",
+    "syncShort": "Sawazisha"
+  },
+  "storage": {
+    "title": "Hifadhi",
+    "intro": "Kozi, midia na maendeleo yako yamehifadhiwa katika folda hii kwenye kompyuta inayoendesha SprachAnker. Huchaguliwa seva inapoanza (--data, au SPRACHANKER_DATA); programu ya kompyuta ya mezani itakuruhusu kuibadilisha.",
+    "total": "Jumla",
+    "used": "Kozi zinachukua {size}",
+    "usedFree": "Kozi zinachukua {size} · {free} wazi kwenye diski",
+    "seriesSize": "{name}: {size}",
+    "recordings": "Rekodi zako",
+    "recordingsKept": "{count, plural, =0 {hakuna iliyohifadhiwa} one {rekodi {n} · {size}} other {rekodi {n} · {size}}}",
+    "deleteRecordings": "Futa zote",
+    "deleteRecordingsTitle": "Ufute rekodi zote?",
+    "deleteRecordingsBody": "Rekodi zako zitafutwa kwenye kompyuta hii. Majibu na maendeleo yako yanabaki. Hatua hii haiwezi kutenduliwa."
+  },
+  "windowTitle": {
+    "course": "Kozi",
+    "lesson": "Somo {unit}.{lesson}",
+    "exercise": "Zoezi {n}/{total}",
+    "summary": "Muhtasari",
+    "download": "↓ {percent, number, percent}",
+    "downloading": "↓ …",
+    "words": "Maneno",
+    "grammar": "Sarufi",
+    "culture": "Utamaduni",
+    "writing": "Uandishi",
+    "scene": "Igizo",
+    "mistakes": "Makosa"
+  },
+  "words": {
+    "intro": "Maneno ya somo kama kadi: kumbuka, onyesha jibu, jipe alama. Yakiisha kwa sasa, yanaendelea katika Marudio.",
+    "learnt": "Maneno ya somo yamesomwa kwa sasa.",
+    "goOn": "{count, plural, =0 {Yatarudi katika Marudio wakati wake ukifika.} one {Kadi # inayojifunzwa itarudi katika Marudio hivi karibuni.} other {Kadi # zinazojifunzwa zitarudi katika Marudio hivi karibuni.}}"
+  },
+  "myWords": {
+    "search": "Tafuta neno au tafsiri",
+    "allDecks": "Seti zote",
+    "all": "Zote",
+    "state": {
+      "new": "Mpya",
+      "learning": "Inajifunzwa",
+      "review": "Marudio",
+      "suspended": "Imesimamishwa",
+      "marked": "Imewekwa alama"
+    },
+    "column": {
+      "word": "Neno",
+      "translation": "Tafsiri",
+      "state": "Hali",
+      "due": "Ijayo"
+    },
+    "dueNow": "sasa",
+    "dueIn": "baada ya {interval}",
+    "nothing": "Hakuna neno linalolingana.",
+    "sheet": "Neno",
+    "toLesson": "Somo {unit}.{lesson}",
+    "cards": "Kadi",
+    "answers": "Majibu",
+    "noAnswers": "Bado halijajibiwa.",
+    "face": {
+      "recognition": "Neno → maana",
+      "production": "Maana → neno",
+      "listening": "Kusikiliza"
+    },
+    "lapses": "{count, plural, one {limesahaulika mara #} other {limesahaulika mara #}}",
+    "suspend": "Simamisha",
+    "unsuspend": "Rejesha",
+    "fromDeck": "Kutoka kwenye seti {deck}"
+  },
+  "notebook": {
+    "title": "Daftari",
+    "days": "Shughuli",
+    "dayTitle": "{date}: {what}",
+    "open": "inaendelea",
+    "unfinished": "haijakamilika",
+    "passes": "Mizunguko",
+    "noPasses": "Bado hakuna mzunguko wa somo hili.",
+    "choose": "Chagua mzunguko wa {date} ili kulinganisha",
+    "compare": "Linganisha",
+    "compareHint": "Weka alama kwenye mizunguko miwili ili kuiona kando kwa kando.",
+    "minutes": "{count, plural, one {dak #} other {dak #}}",
+    "worked": "Mazoezi {worked, number} kati ya {total, number}",
+    "workedSome": "{count, plural, one {zoezi #} other {mazoezi #}}",
+    "explanations": "{count, plural, one {maelezo #} other {maelezo #}}",
+    "writing": "{count, plural, one {maandishi #} other {maandishi #}}",
+    "scenes": "{count, plural, one {igizo #} other {maigizo #}}",
+    "chats": "{count, plural, one {mazungumzo #} other {mazungumzo #}}",
+    "words": "{count, plural, one {neno #} other {maneno #}}",
+    "exercises": "Mazoezi",
+    "exercise": "Zoezi",
+    "total": "Jumla",
+    "attempts": "{count, plural, one {jaribio #} other {majaribio #}}",
+    "rightAt": "sahihi kwa jaribio la {n, number}",
+    "itemHistory": "Historia ya kipengele",
+    "passOf": "Mzunguko wa {date}",
+    "attemptN": "Jaribio {n, number}",
+    "more": "Zaidi",
+    "alsoDone": "Pia vimefanywa",
+    "wordsAdded": "Maneno yaliyoongezwa kwenye Marudio",
+    "messages": "{count, plural, one {ujumbe #} other {jumbe #}}",
+    "nothing": "hakuna kilichofanywa",
+    "kind": {
+      "lesson": "masomo {count, number}",
+      "exam": "mitihani {count, number}",
+      "review": "kadi {count, number}",
+      "ai": "AI {count, number}"
+    },
+    "less": "Chache",
+    "calendar": "Siku za kusoma katika mwaka uliopita",
+    "progress": "Maendeleo",
+    "range": {
+      "all": "Muda wote",
+      "month": "Siku 30",
+      "week": "Siku 7"
+    },
+    "tile": {
+      "activeDays": "Siku za kusoma",
+      "lesson": "Majibu na hatua",
+      "exam": "Majibu ya mitihani",
+      "review": "Kadi zilizojibiwa",
+      "newCards": "Kadi mpya",
+      "remembered": "Yaliyokumbukwa",
+      "rememberedHint": "ya kadi zilizo katika marudio",
+      "ai": "Mazoezi na AI"
+    },
+    "examRuns": "Mitihani ya majaribio na mazoezi",
+    "noExamRuns": "Bado hakuna kilichowasilishwa.",
+    "examWrong": "{count, plural, one {Swali # lilijibiwa vibaya mara ya mwisho} other {Maswali # yalijibiwa vibaya mara ya mwisho}}",
+    "section": {
+      "review": "Marudio",
+      "lesson": "Masomo",
+      "exam": "Mitihani"
+    },
+    "none": {
+      "review": "Bado hakuna kadi: chukua seti ya kozi katika Marudio, au soma maneno ya somo.",
+      "lesson": "Bado hujafanyia kazi somo lolote: kila somo unalofanyia kazi linaonekana hapa, pamoja na kila mzunguko.",
+      "exam": "Bado hakuna kilichowasilishwa: mitihani yako ya majaribio na mazoezi yataonekana hapa."
+    },
+    "figure": {
+      "review": {
+        "wordsKnown": "Maneno unayoyajua",
+        "wordsKnownHint": "kila kadi ya neno iko katika marudio",
+        "new": "Mpya",
+        "learning": "Inajifunzwa",
+        "review": "Marudio",
+        "mature": "Yamezoeleka",
+        "matureHint": "kila upande unarudi baada ya wiki tatu au zaidi",
+        "suspended": "Imesimamishwa",
+        "remembered": "Yaliyokumbukwa, siku 30",
+        "rememberedHint": "{count, plural, one {jibu #} other {majibu #}}",
+        "dueToday": "Za leo",
+        "dueTomorrow": "Hadi kesho",
+        "dueWeek": "Ndani ya wiki"
+      },
+      "lesson": {
+        "lessonsDone": "Masomo yaliyokamilika",
+        "best": "Alama bora"
+      }
+    },
+    "runs": {
+      "lesson": "{count, plural, one {mzunguko #} other {mizunguko #}}"
+    },
+    "openEntry": {
+      "review": "Fungua seti",
+      "exam": "Kila kitu kuhusu mtihani huu"
+    }
+  },
+  "study": {
+    "listen": "Sikiliza na ukumbuke maana",
+    "fromLesson": "somo {unit}.{lesson}",
+    "countsTitle": "Mpya {new}, zinajifunzwa {learning}, za kurudia {review}",
+    "finished": "Hongera! Umemaliza seti hii kwa sasa.",
+    "nextLearning": "{minutes, plural, one {Kadi inayofuata ya kujifunza itakuwa tayari baada ya dakika #.} other {Kadi inayofuata ya kujifunza itakuwa tayari baada ya dakika #.}}",
+    "reviewLimit": "Kikomo cha marudio cha leo kimefikiwa, lakini bado kuna kadi zinazosubiri kurudiwa.",
+    "newLimit": "Kuna kadi mpya zaidi, lakini kikomo cha siku kimefikiwa.",
+    "buried": "Kadi moja au zaidi zimeahirishwa, na zitaonyeshwa kesho.",
+    "unbury": "Rejesha zilizoahirishwa",
+    "unit": {
+      "s": "s",
+      "m": "dk",
+      "h": "saa",
+      "d": "siku",
+      "mo": "mwezi",
+      "y": "mwaka"
+    },
+    "flag": {
+      "red": "Nyekundu",
+      "orange": "Machungwa",
+      "green": "Kijani",
+      "blue": "Buluu",
+      "pink": "Waridi",
+      "turquoise": "Feruzi",
+      "purple": "Zambarau"
+    },
+    "marked": "Imewekwa alama",
+    "leech": "ngumu kukumbuka",
+    "undo": "Tendua",
+    "undoKeys": "Tendua (U, Ctrl+Z)",
+    "showKeys": "Space au Enter",
+    "show": "Onyesha jibu",
+    "rating": {
+      "again": "Tena",
+      "hard": "Ngumu",
+      "good": "Vizuri",
+      "easy": "Rahisi"
+    },
+    "more": "Zaidi",
+    "replay": "Cheza sauti tena",
+    "buryCard": "Ahirisha kadi",
+    "buryNote": "Ahirisha neno",
+    "suspendCard": "Simamisha kadi",
+    "suspendNote": "Simamisha neno",
+    "mark": "Weka alama kwenye neno",
+    "unmark": "Ondoa alama kwenye neno",
+    "keys": "Space au Enter: onyesha jibu, kisha Vizuri · 1–4: jipe alama · R: cheza tena · U: tendua",
+    "noCards": "Bado hakuna kadi: zinatoka kwenye hatua ya “Maneno ya somo” ya masomo.",
+    "deck": "Seti",
+    "count": {
+      "new": "Mpya",
+      "learning": "Jifunza",
+      "review": "Rudia"
+    },
+    "due": "{count, plural, one {Kadi # ya kusoma} other {Kadi # za kusoma}}",
+    "flagKey": "Ctrl+{n}",
+    "left": "{n, plural, one {jibu limebaki} other {majibu yamebaki}}",
+    "leftValue": "≈{n, number}",
+    "leftTitle": "Majibu yaliyobaki ikiwa kila moja ni Vizuri: kadi mpya hupitia hatua mbili za kujifunza, kadi inayojifunzwa hupitia hatua zake zilizobaki, marudio huchukua jibu moja. Tena huongeza hatua tena.",
+    "asks": {
+      "recognition": "Maana yake ni nini?",
+      "production": "Kwa {in}?",
+      "in": {
+        "de": "Kijerumani",
+        "en": "Kiingereza",
+        "ru": "Kirusi"
+      }
+    },
+    "deckLink": {
+      "audio": "Soma seti kwa sauti",
+      "examples": "Tengeneza mifano ya seti",
+      "both": "Soma seti kwa sauti, tengeneza mifano"
+    }
+  },
+  "profiles": {
+    "who": "Nani anasoma?",
+    "welcome": "Karibu SprachAnker",
+    "firstHint": "Tengeneza wasifu wako ili kuanza: hatua chache fupi.",
+    "unnamed": "Bado hakuna jina",
+    "new": "Wasifu mpya",
+    "previous": "Wasifu zilizotangulia",
+    "next": "Wasifu zaidi",
+    "page": "{n, number} kati ya {total, number}"
+  },
+  "onboarding": {
+    "progress": "Hatua {n} kati ya {total}",
+    "back": "Rudi",
+    "next": "Endelea",
+    "finish": "Chagua kozi",
+    "profile": {
+      "title": "Karibu",
+      "text": "SprachAnker huweka kozi halisi za lugha katika kicheza kimoja, hukagua majibu yako, huhifadhi maneno yako kwa marudio yaliyopangwa kwa vipindi na inaweza kuleta mkufunzi wa AI. Kila kitu kinabaki kwenye kompyuta hii.",
+      "sources": "Kozi hupakuliwa moja kwa moja kutoka kwenye tovuti za wachapishaji wake (Deutsche Welle na wengine) kwa matumizi yako binafsi. Heshimu masharti yao; SprachAnker haihusiani nao.",
+      "experimental": "Kozi na mitihani ambayo bado inajaribiwa hufichwa hadi uiwashe katika Mipangilio → Jumla → Majaribio.",
+      "name": "Tukuite nani?"
+    },
+    "assistant": {
+      "title": "Msaidizi wa AI",
+      "text": "Msaidizi hueleza makosa, hufundisha katika masomo, hukagua maandishi yako na huigiza mazungumzo. Chagua mmoja sasa au baadaye katika Mipangilio — programu inafanya kazi hata bila msaidizi."
+    },
+    "tour": {
+      "title": "Vitu viko wapi"
+    },
+    "speech": {
+      "title": "Kuzungumza",
+      "text": "Tamka mwenyewe sentensi za kozi na usikilize maandishi yoyote yakisomwa kwa sauti: jaribu maikrofoni yako, pakua kitambuzi cha sauti (mara moja) ili programu isikie ulichosema, na uchague sauti kwa kila lugha. Kila kitu kinabaki kwenye kompyuta hii; yote yanaweza kubadilishwa baadaye katika Mipangilio → Sauti."
+    },
+    "cancel": "Ghairi"
+  },
+  "tour": {
+    "courses": "Kozi zako (ulipoishia), zile zilizopakuliwa, na kila kozi unayoweza kupakua; kila orodha inaweza kuchujwa kwa jozi ya lugha.",
+    "review": "Maneno yako kwa marudio yaliyopangwa kwa vipindi: dakika chache kwa siku.",
+    "notebook": "Kila mzunguko wa kila somo, majibu na makosa yako.",
+    "settings": "Wasifu wako, marudio, sauti, msaidizi wa AI na programu.",
+    "exams": "Mitihani ya kujiandaa nayo, kama Leben in Deutschland: mitihani ya majaribio kama ile halisi, mazoezi, na orodha nzima ya maswali pamoja na majibu yake."
+  },
+  "profile": {
+    "who": "Jina na rangi",
+    "devices": "Vifaa vilivyoingia",
+    "thisDevice": "kifaa hiki",
+    "lastSeen": "kilitumika mwisho {date}",
+    "signOutDevice": "Toka",
+    "switch": "Badilisha wasifu",
+    "open": "Wasifu",
+    "delete": "Futa wasifu…",
+    "deleteTitle": "Ufute wasifu “{name}”?",
+    "deleteBody": "Maendeleo yake, maneno na kadi, rekodi, mazungumzo na AI na vifaa vilivyoingia ndani yake vitafutwa kabisa. Wasifu nyingine na kozi zinabaki.",
+    "deleteConfirm": "Futa kabisa",
+    "name": "Jina au jina la utani",
+    "colour": "Rangi",
+    "colours": {
+      "amber": "Kaharabu",
+      "teal": "Kijani-buluu",
+      "rose": "Waridi",
+      "violet": "Urujuani",
+      "sky": "Samawati",
+      "lime": "Kijani-limau"
+    }
+  },
+  "decks": {
+    "tabs": {
+      "study": "Soma",
+      "decks": "Seti",
+      "words": "Maneno yangu"
+    },
+    "studying": "Unasoma: {deck}",
+    "more": "{count, plural, one {Kadi # mpya zaidi leo} other {Kadi # mpya zaidi leo}}",
+    "leave": "Acha seti…",
+    "offers": "Seti za kuchukua",
+    "offersHint": "Maneno ya kila kozi yako, na ya kila seti iliyoingizwa hapa, ni seti: ikichukuliwa yote, huyaongeza kama kadi mpya kwa mpangilio wake — ndani ya kikomo cha siku, au zaidi kwa “mpya zaidi leo”. Neno ambalo tayari una kadi yake linaibakiza.",
+    "words": "{words, plural, one {neno #} other {maneno #}} · {mine, number} tayari ni yako",
+    "take": "Chukua seti",
+    "takeRest": "Ongeza mengine {count, number}",
+    "study": "Soma",
+    "leaveTitle": "Uache seti {deck}?",
+    "leaveBody": "Kadi zake zinaondoka, pamoja na maendeleo yake. Maneno yaliyo katika seti yako nyingine yanahamia huko, pamoja na maendeleo yote.",
+    "moreShort": "{count, plural, one {+# mpya} other {+# mpya}}",
+    "import": {
+      "button": "Ingiza faili la seti (.apkg)",
+      "title": "Ingiza seti",
+      "hint": "Maneno yake yanakuwa seti ambayo kila wasifu kwenye kompyuta hii unaweza kuichukua, kama ya kozi; sauti zake zinakuja pamoja nayo.",
+      "name": "Jina",
+      "lang": "Maneno kwa",
+      "translationLang": "Tafsiri kwa",
+      "words": "{words, plural, one {neno #} other {maneno #}} · {audio, plural, =0 {hakuna sauti} one {# lina sauti} other {# yana sauti}} · {examples, plural, =0 {hakuna mifano} one {# lina mifano} other {# yana mifano}}",
+      "submit": "Ingiza",
+      "updates": "Faili hili linasasisha seti {deck} iliyopo hapa: maneno yake yanakuwa ya faili hili, na kadi zilizotengenezwa kutoka kwayo zinayafuata. Katika lugha nyingine ni seti yake yenyewe.",
+      "left": "{count, plural, one {Ingizo # lisilo na neno limeachwa.} other {Maingizo # yasiyo na neno yameachwa.}}",
+      "unusable": "{count, plural, one {Ingizo # ambalo neno lake halisomeki limeachwa.} other {Maingizo # ambayo maneno yake hayasomeki yameachwa.}}",
+      "done": "Imeingizwa {deck}: {words, plural, one {neno #} other {maneno #}}."
+    },
+    "remove": "Futa seti",
+    "removeTitle": "Ufute seti {deck}?",
+    "removeBody": "Seti, maneno yake na sauti zitafutwa kwenye kompyuta hii kwa kila wasifu. Hatua hii haiwezi kutenduliwa.",
+    "audio": {
+      "missing": "{count, plural, one {Neno # halina sauti} other {Maneno # hayana sauti}}",
+      "generate": "Tengeneza sauti",
+      "reading": "Inasoma {done, number} kati ya {total, number}…",
+      "stop": "Simamisha",
+      "all": "Maneno yote yana sauti",
+      "install": "Ili kuitengeneza, sakinisha sauti ya {language} katika Mipangilio → Sauti",
+      "failed": "{count, plural, one {Neno # halikuweza kusomwa kwa sauti} other {Maneno # hayakuweza kusomwa kwa sauti}}",
+      "voice": "Imesomwa na {engine, select, qwen {Qwen3-TTS} other {Piper}} · {voice} ({language})",
+      "chooseVoice": "Chagua sauti"
+    },
+    "left": "takriban {time} zimebaki",
+    "why": "Sababu: {reason}",
+    "examples": {
+      "missing": "{count, plural, one {Neno # halina mifano} other {Maneno # hayana mifano}}",
+      "make": "Tengeneza mifano",
+      "writing": "Inaandika mifano {done, number} kati ya {total, number}…",
+      "all": "Maneno yote yana mifano",
+      "failed": "{count, plural, one {Neno # halikupata mifano} other {Maneno # hayakupata mifano}}",
+      "setUp": "Ili kutengeneza mifano, weka msaidizi wa AI katika Mipangilio"
+    },
+    "removeStudied": "{count, plural, one {Wasifu {profiles} unasoma seti hii.} other {Wasifu {profiles} zinasoma seti hii.}} Inaweza kufutwa baada ya kila wasifu kuiacha: Marudio → Seti → Acha seti…."
+  },
+  "guide": {
+    "open": "Inavyofanya kazi",
+    "title": "Marudio yanavyofanya kazi",
+    "curveAlt": "Mikunjo mitatu ya kusahau, kila mmoja ukiwa bapa zaidi kuliko uliotangulia",
+    "days": "siku",
+    "curveCaption": "Kumbukumbu hufifia isipotumiwa: kila marudio kabla tu ya kusahau hufanya mkunjo uwe bapa zaidi, hivyo marudio yanayofuata yanaweza kusubiri muda mrefu zaidi.",
+    "method": {
+      "title": "Marudio yaliyopangwa kwa vipindi",
+      "text": "Kila kadi inarudi kabla tu hujaisahau. Vipindi vinaongezeka kwa kila jibu zuri: dakika, kisha siku, wiki, miezi. Wazo hili linatokana na mkunjo wa kusahau wa Ebbinghaus (1885)."
+    },
+    "recall": {
+      "title": "Kumbuka kwanza, kisha angalia",
+      "text": "Jaribu kukumbuka jibu kabla ya kulionyesha. Juhudi ya kukumbuka ndiyo inayoimarisha kumbukumbu — kusoma jibu tena kunasaidia kidogo sana. Kisha jipe alama kwa uaminifu."
+    },
+    "buttons": {
+      "title": "Vitufe vinne",
+      "again": {
+        "name": "Tena",
+        "text": "hukukumbuka, au si sahihi: kadi inarudi baada ya dakika moja"
+      },
+      "hard": {
+        "name": "Ngumu",
+        "text": "umekumbuka kwa shida: kipindi kifupi zaidi"
+      },
+      "good": {
+        "name": "Vizuri",
+        "text": "umekumbuka: chaguo la kawaida (Space au Enter)"
+      },
+      "easy": {
+        "name": "Rahisi",
+        "text": "rahisi mno: inarudi baada ya muda mrefu zaidi"
+      }
+    },
+    "counts": {
+      "title": "Namba tatu",
+      "text": "Kadi mpya za kujifunza leo, kadi zinazojifunzwa (zinarudi ndani ya dakika chache), na kadi za kurudia. Namba iliyopigiwa mstari inaonyesha kadi iliyo kwenye skrini inatoka wapi. \"Majibu yamebaki\" inakadiria ni majibu mangapi yatamaliza kipindi ikiwa kila moja ni Vizuri."
+    },
+    "faces": {
+      "title": "Kadi za neno",
+      "recognition": {
+        "name": "Kadi 1",
+        "text": "neno → maana yake (kuelewa)"
+      },
+      "production": {
+        "name": "Kadi 2",
+        "text": "maana → neno (kuzungumza); inakuja baada ya kadi 1"
+      },
+      "listening": {
+        "name": "Kadi 3",
+        "text": "neno linalosikika → maana yake (kusikiliza)"
+      }
+    },
+    "more": {
+      "title": "Chini ya \"…\"",
+      "replay": {
+        "name": "Cheza tena (R)",
+        "text": "sikiliza neno tena"
+      },
+      "bury": {
+        "name": "Ahirisha (- au =)",
+        "text": "si leo: kadi au neno zima linarudi kesho"
+      },
+      "suspend": {
+        "name": "Simamisha (@ au !)",
+        "text": "nje ya marudio hadi ulirejeshe — neno unalolijua au usilolihitaji"
+      },
+      "flag": {
+        "name": "Bendera (Ctrl+1–7)",
+        "text": "alama za rangi ili kupata kadi baadaye katika Maneno yangu"
+      },
+      "mark": {
+        "name": "Weka alama (*)",
+        "text": "nyota kwenye neno, ili kulirudia baadaye"
+      }
+    },
+    "keys": {
+      "title": "Vitufe vya kibodi",
+      "text": "Space au Enter huonyesha jibu, kisha hutoa Vizuri; 1–4 hutoa alama; U au Ctrl+Z hurudisha jibu la mwisho; R hucheza tena."
+    },
+    "fsrs": {
+      "title": "FSRS",
+      "text": "Ratiba ni FSRS, modeli huria ya marudio yaliyopangwa kwa vipindi: inakadiria jinsi kila kumbukumbu ilivyo imara na lini utaisahau, ikilenga kiwango cha kukumbuka unachotaka (90% kwa chaguo-msingi). Vikomo, kiwango cha kukumbuka na aina za kadi viko katika Mipangilio."
+    },
+    "schedule": {
+      "title": "Hatua na siku",
+      "steps": "Kadi mpya iliyojibiwa Vizuri inarudi baada ya dakika 10 (baada ya Tena, baada ya dakika moja), kisha baada ya siku; iliyosahaulika baada ya dakika 10, na kipindi chake kinaongezeka tena.",
+      "day": "Siku mpya inaanza {time}: marudio kati ya usiku wa manane na wakati huo yanahesabiwa kwa siku iliyotangulia.",
+      "limit": "Kadi mpya zinahesabiwa katika kiwango cha juu cha marudio: kikifikiwa, hakuna kadi mpya zinazoonyeshwa siku hiyo."
+    }
+  },
+  "reviewSettings": {
+    "intro": "Marudio yaliyopangwa kwa vipindi ya kadi zako: neno linarudi pale unapokaribia kulisahau. Mipangilio ya awali inawafaa wanafunzi wengi.",
+    "limits": "Vikomo vya kila siku",
+    "newPerDay": "Kadi mpya kwa siku",
+    "reviewsPerDay": "Marudio mengi zaidi kwa siku",
+    "limitsHint": "Neno lenye aina mbili za kadi ni kadi mpya mbili. Kila kadi mpya huleta takriban marudio 5–10 katika mwezi wake wa kwanza.",
+    "retention": "Kiwango cha kukumbuka unachotaka",
+    "retentionHint": "Uwezekano kwamba bado unaikumbuka kadi inaporudi. Juu zaidi kunamaanisha marudio zaidi; 90% kwa chaguo-msingi.",
+    "faces": "Aina za kadi za neno jipya",
+    "facesHint": "Kadi zipi neno jipya linapata. Maneno ambayo tayari yana kadi yanabaki nazo."
+  },
+  "speech": {
+    "record": "Jirekodi",
+    "stop": "Acha kurekodi",
+    "showText": "Onyesha maandishi",
+    "answerHeard": "Sikiliza, kisha itamke kwa sauti kama kazi inavyoomba.",
+    "answerFree": "Itamke kwa sauti kama kazi inavyoomba.",
+    "answerLine": "Jibu lako",
+    "mine": "Yangu",
+    "mineFor": "Yangu · {time}",
+    "recordedNotKept": "Imerekodiwa (haikuhifadhiwa)",
+    "listenFirst": "Sikiliza rekodi kwanza.",
+    "recording": "Inarekodi… gusa tena ili kuacha.",
+    "saving": "Inahifadhi…",
+    "notSaved": "Rekodi haikuweza kuhifadhiwa; inahesabiwa hata hivyo.",
+    "again": "Sikiliza zote mbili. Rekodi tena ili kuibadilisha.",
+    "howTo": "Gusa maikrofoni, tamka, gusa tena.",
+    "mic": {
+      "insecure": "Maikrofoni inafanya kazi kwenye anwani salama (https) tu, kama ile ambayo Tailscale inaipa kompyuta hii.",
+      "unsupported": "Kivinjari hiki hakiwezi kurekodi sauti.",
+      "denied": "Ufikiaji wa maikrofoni umekataliwa. Uruhusu katika mipangilio ya tovuti ya kivinjari.",
+      "failed": "Maikrofoni haikuweza kuanzishwa."
+    },
+    "settings": {
+      "mic": "Maikrofoni",
+      "device": "Maikrofoni ya kutumia",
+      "defaultDevice": "Chaguo-msingi la mfumo",
+      "unnamedDevice": "Maikrofoni",
+      "testing": "Sema kitu…",
+      "testHint": "Jaribio: sekunde tatu, kisha jisikilize. Huchaguliwa kwenye kifaa hiki.",
+      "listen": "Sikiliza",
+      "sampleFor": "Maandishi ya kusikiliza kwa {language}",
+      "otherSample": "Sentensi nyingine",
+      "recognition": "Utambuzi",
+      "recognitionHint": "Sauti yako inatambuliwa kwenye kompyuta hii (Whisper): ulichosema kinalinganishwa na sentensi. Inasikia maneno, si sauti za herufi, na si kali. Hakuna kinachotoka kwenye kompyuta.",
+      "noEngine": "Toleo hili halina injini ya utambuzi.",
+      "recognitionOn": "Tambua sauti yangu",
+      "inUse": "Inatumika",
+      "downloadFailed": "upakuaji umeshindikana",
+      "use": "Tumia",
+      "removeModel": "Ondoa modeli",
+      "download": "Pakua",
+      "read": "Kusoma kwa sauti",
+      "readHint": "Sauti husoma maandishi katika lugha moja: mistari ya igizo, mfano wa neno na maneno yasiyo na rekodi. Kila lugha ina sauti yake.",
+      "engine": {
+        "device": "Sauti za kifaa hiki",
+        "deviceLine": "{count, plural, one {sauti #} other {sauti #}}, hakuna cha kusakinisha",
+        "deviceNone": "Kivinjari hiki hakina sauti za kusoma.",
+        "piper": "Piper kwenye kompyuta hii",
+        "piperMissing": "Haipo katika toleo hili: programu ilijengwa bila injini zake za sauti",
+        "piperLine": "{count, plural, =0 {bado hakuna sauti: pakua moja hapa chini} one {sauti # imepakuliwa} other {sauti # zimepakuliwa}}",
+        "qwen": "Qwen3-TTS kwenye kompyuta hii",
+        "qwenMissing": "Haipo katika toleo hili: programu ilijengwa bila injini zake za sauti",
+        "qwenReady": "Tayari: modeli imepakuliwa",
+        "qwenNoModel": "Bado hakuna modeli: pakua moja hapa chini"
+      },
+      "voiceFor": "Sauti ya {language}",
+      "voiceAuto": "Kiotomatiki — {name}",
+      "noVoice": "Kifaa hiki hakina sauti ya {language}.",
+      "betterVoices": "Kwenye Mac, sauti bora zaidi (Premium, Enhanced) hupakuliwa katika System Settings → Accessibility → Spoken Content → System voice → Manage voices.",
+      "readRate": "Kasi: {rate}×",
+      "readRateLabel": "Kasi ya kusoma",
+      "piperNone": "Bado hakuna sauti ya {language}: pakua moja hapa chini.",
+      "piperNoLanguage": "Piper haina sauti ya {language}: sauti za kifaa zinaisoma.",
+      "piperHint": "Kila sauti ya Piper ni takriban MB 60–120 na inabaki kwenye kompyuta hii; lugha isiyo na sauti yake husomwa na sauti za kifaa.",
+      "removeVoice": "Ondoa sauti {voice}",
+      "allVoices": "Sauti zote ({count, number})",
+      "quality": {
+        "x_low": "ubora wa chini kabisa",
+        "low": "ubora wa chini",
+        "medium": "ubora wa kati",
+        "high": "ubora wa juu"
+      },
+      "qwenModel": {
+        "small": "Modeli ndogo (0.6B): ya haraka zaidi",
+        "large": "Modeli kubwa (1.7B): ya asili zaidi, polepole zaidi"
+      },
+      "qwenHint": "Sauti ya mtandao wa neva inayosoma lugha 10 (Kijerumani, Kiingereza, Kirusi, Kifaransa, Kihispania, Kiitaliano, Kireno, Kichina, Kijapani, Kikorea) kwa wazungumzaji tisa. Inapoendeshwa inashikilia takriban GB 3 za kumbukumbu (zaidi kwa modeli kubwa) na inasimama baada ya dakika 10 bila kusoma; usomaji wa kwanza baada ya hapo husubiri takriban sekunde 20 inapopakiwa. Lugha zisizozungumzwa nayo husomwa na sauti za kifaa.",
+      "qwenNoLanguage": "Qwen3-TTS haizungumzi {language}: sauti za kifaa zinaisoma.",
+      "howMic": "Mahali ambapo jibu linatamkwa (sehemu ya kuzungumza ya mtihani), kuna maikrofoni: gusa ili kuanza kurekodi, gusa tena ili kuacha. Mahali ambapo kazi ni kuandika, hakuna.",
+      "howPhrase": "Sentensi ya kurudia imefichwa hadi jaribio lako la kwanza; unaweza kuionyesha mapema.",
+      "howRecordings": "Rekodi zako zinahifadhiwa kwenye kompyuta hii ili uzisikilize tena katika Daftari; zifute katika Jumla → Hifadhi.",
+      "how": "Inavyofanya kazi"
+    },
+    "listening": "Inasikiliza…",
+    "notHeard": "Haikuweza kutambuliwa; rekodi inahesabiwa hata hivyo.",
+    "heard": "Imesikika:",
+    "heardNothing": "hakuna kitu",
+    "verdict": {
+      "correct": "Umeitamka",
+      "partial": "Karibu: maneno machache yamekosekana",
+      "wrong": "Jaribu tena: sikiliza na uitamke mara nyingine"
+    },
+    "model": {
+      "large-v3-turbo-q5_0": "Whisper large-v3 turbo — sahihi (inapendekezwa)",
+      "small-q5_1": "Whisper small — ya haraka zaidi, si sahihi sana"
+    },
+    "sayIn": "Itamke kwa {language}",
+    "notHeardShort": "Haikuweza kutambuliwa. Jaribu tena.",
+    "answerSample": "Mfano",
+    "aiChecking": "AI inakagua jibu lako…",
+    "needsRecognition": "Kutamka sentensi kunahitaji utambuzi wa sauti: uwashe katika Mipangilio → Sauti.",
+    "languageUnknown": "Lugha ya kozi hii haijulikani, kwa hiyo unachosema hakiwezi kusikika.",
+    "read": {
+      "listen": "Soma kwa sauti: {what}",
+      "stop": "Acha kusoma"
+    },
+    "aiCheck": "Kagua kwa AI"
+  },
+  "error": {
+    "answer_does_not_fit": "Jibu halilingani na zoezi hili. Pakia somo upya.",
+    "card_changed": "Kadi hii ilibadilishwa kwenye kifaa kingine. Inaonyeshwa tena.",
+    "downloads_unavailable": "Kozi haziwezi kupakuliwa hapa.",
+    "empty_recording": "Rekodi ni tupu. Jaribu tena.",
+    "event_id_taken": "Jibu hili tayari limerekodiwa kwa namna nyingine. Pakia ukurasa upya.",
+    "event_of_another_run": "Kumbukumbu hii ni ya mzunguko mwingine. Pakia somo upya.",
+    "exam_rating_busy": "Jibu hili linatathminiwa. Subiri.",
+    "exam_conversation_busy": "Mwenzako anajibu. Subiri.",
+    "exam_part_done": "Sehemu hii imekwisha.",
+    "invalid_event": "Programu ilituma kumbukumbu ambayo seva haikuikubali. Pakia somo upya.",
+    "invalid_request": "Programu ilituma kitu ambacho seva haikukikubali. Pakia ukurasa upya.",
+    "request_too_large": "Ombi hili ni kubwa mno.",
+    "invalid_setting": "Thamani hii hailingani na mpangilio.",
+    "lesson_not_in_series": "Somo hili si sehemu ya kozi. Pakia ukurasa upya.",
+    "llm_bad_response": "Seva imerudisha hitilafu.",
+    "llm_cli_missing": "Msaidizi wa mstari wa amri haujasakinishwa kwenye kompyuta hii.",
+    "llm_invalid_output": "Modeli haikuweza kutoa jibu linalotumika. Jaribu tena, au chagua modeli kubwa zaidi katika Mipangilio → Msaidizi wa AI.",
+    "llm_lmstudio_failed": "Seva ya LM Studio haikuanza. Fungua LM Studio na uianzishe humo.",
+    "llm_lmstudio_missing": "LM Studio haijasakinishwa kwenye kompyuta hii.",
+    "llm_lmstudio_remote": "LM Studio inaendeshwa kwenye kompyuta nyingine: anzisha seva yake huko.",
+    "llm_model_not_found": "Modeli haikupatikana kwenye seva.",
+    "llm_no_endpoint": "Weka anwani ya seva.",
+    "llm_no_key": "Weka ufunguo wa API.",
+    "llm_not_configured": "Chagua modeli katika Mipangilio → Msaidizi wa AI.",
+    "llm_rate_limited": "Kikomo cha mtoa huduma kimefikiwa kwa sasa (viwango vya bure hupunguza maombi kwa dakika na kwa siku). Jaribu tena baadaye, au chagua modeli nyingine katika Mipangilio → Msaidizi wa AI.",
+    "llm_timeout": "Modeli ilichukua muda mrefu mno kujibu.",
+    "llm_unauthorized": "Ufunguo wa API haukukubaliwa.",
+    "llm_unreachable": "Seva haijibu. Kagua anwani.",
+    "missing_client_header": "Ombi halikutoka kwenye programu. Pakia ukurasa upya.",
+    "name_required": "Weka jina.",
+    "no_active_scene": "Igizo hili limekwisha. Anza jipya.",
+    "no_device": "Kifaa hiki hakijaingia tena.",
+    "no_lesson_run": "Anza somo kwanza: ukaguzi huhifadhiwa pamoja na mzunguko wake.",
+    "no_session": "Kifaa hiki kimetoka. Chagua wasifu wako tena.",
+    "no_such_attempt": "Jibu hili halipo tena katika mzunguko wa somo. Pakia somo upya.",
+    "no_such_card": "Kadi hii haipo tena.",
+    "no_such_chat": "Mazungumzo haya hayapo tena.",
+    "no_such_item": "Zoezi hili limebadilika. Pakia somo upya.",
+    "no_such_model": "Modeli hii haitolewi.",
+    "no_such_profile": "Wasifu huu haupo tena.",
+    "no_such_recording": "Rekodi hii haipo tena.",
+    "no_such_run": "Mzunguko huu wa somo haupo tena (maendeleo yake yalifutwa). Pakia somo upya.",
+    "not_found": "Haikupatikana. Pakia ukurasa upya.",
+    "not_installed": "Kozi hii haijasakinishwa (tena).",
+    "not_offered": "Kozi hii haitolewi (tena).",
+    "nothing_to_undo": "Hakuna cha kutendua.",
+    "recording_too_large": "Rekodi ni ndefu mno.",
+    "registration_closed": "Wasifu mpya hauwezi kutengenezwa kwenye seva hii.",
+    "run_incomplete": "Somo bado halijakamilika.",
+    "run_not_active": "Mzunguko huu wa somo umekwisha. Pakia somo upya.",
+    "run_without_edition": "Mzunguko huu hauna toleo la lugha. Anza somo tena.",
+    "scene_busy": "Igizo bado linajibu. Subiri.",
+    "server_error": "Hitilafu imetokea kwenye seva.",
+    "speaking_busy": "Jibu hili linakaguliwa. Subiri.",
+    "speech_engine_failed": "Kitambuzi cha sauti hakikujibu. Jaribu tena.",
+    "speech_unavailable": "Utambuzi wa sauti haujawekwa. Angalia Mipangilio → Sauti.",
+    "unknown_host": "Seva haiijui anwani hii. Ifungue kwa anwani ambayo seva inaionyesha.",
+    "unknown_setting": "Mpangilio huu haupo (tena).",
+    "unsupported_audio": "Kivinjari hiki hurekodi katika muundo ambao programu haiwezi kuuhifadhi.",
+    "writing_busy": "Maandishi ya somo hili yanakaguliwa. Subiri.",
+    "other": "Hitilafu imetokea: {message}",
+    "exam_needs_setting": "Chagua jimbo lako kwanza: mtihani unauliza maswali kulihusu.",
+    "exam_time_over": "Muda wa mtihani huu wa majaribio umekwisha: umewasilishwa kama ulivyokuwa.",
+    "exam_test_running": "Mtihani wa majaribio unaendelea: uwasilishe kwanza.",
+    "no_such_deck": "Seti hii haipo hapa (tena).",
+    "not_a_deck": "Faili hili si faili la seti (.apkg) linaloweza kusomwa.",
+    "deck_without_words": "Seti hii haina maneno ya kujifunza.",
+    "deck_too_large": "Faili hili la seti ni kubwa mno (si zaidi ya MB 512).",
+    "deck_in_use": "Wasifu fulani unasoma seti hii: inaweza kufutwa pale ambapo hakuna anayeisoma.",
+    "deck_upload_gone": "Faili la seti lililopakiwa halipo tena hapa: lichague tena.",
+    "deck_unpacked_too_large": "Faili hili la seti likifunguliwa ni kubwa kuliko kinachoweza kusomwa kwa mara moja.",
+    "deck_same_languages": "Maneno na tafsiri zake yanahitaji lugha mbili tofauti.",
+    "examples_without_word": "Sentensi za modeli hazikutumia neno hilo."
+  },
+  "exams": {
+    "tabs": {
+      "mine": "Mitihani yangu",
+      "downloaded": "Iliyopakuliwa",
+      "available": "Inayopatikana"
+    },
+    "noneStarted": "Bado hujaanza mtihani wowote.",
+    "noneDownloaded": "Bado hakuna mtihani uliopakuliwa.",
+    "allDownloaded": "Mitihani yote inayotolewa imepakuliwa.",
+    "noneMatch": "Hakuna swali linalolingana.",
+    "questions": "{count, plural, one {swali #} other {maswali #}}",
+    "lastPoints": "mwisho: {points, number} kati ya {max, number}",
+    "ready": "Unajua {percent} ya maswali",
+    "lastPassed": "Mtihani wa majaribio uliopita ({date}): umefaulu",
+    "lastFailed": "Mtihani wa majaribio uliopita ({date}): hukufaulu",
+    "continueTest": "Endelea na mtihani",
+    "mode": {
+      "test": "Mtihani wa majaribio",
+      "testText": "{count, plural, one {Swali #} other {Maswali #}} kwa {minutes, plural, one {dakika #} other {dakika #}}, kama katika mtihani halisi; majibu yanakaguliwa unapouwasilisha.",
+      "practice": "Kujizoeza",
+      "practiceText": "Swali kwa swali, kila jibu linakaguliwa papo hapo: kwanza yale uliyokosea, kisha yale ambayo hujayaona.",
+      "catalog": "Orodha ya maswali",
+      "catalogText": "{count, plural, one {Swali # pamoja na jibu lake.} other {Maswali yote # pamoja na majibu yake.}}"
+    },
+    "begin": "Anza",
+    "practise": "Jizoeze",
+    "openCatalog": "Fungua",
+    "known": "Unajua {known, number} kati ya {total, plural, one {swali #} other {maswali #}}",
+    "needsState": "Chagua jimbo lako: mtihani unauliza maswali matatu kulihusu.",
+    "needsStateCatalog": "Chagua jimbo lako kwenye ukurasa wa mtihani ili kuona pia maswali yake.",
+    "mapTitle": "Maswali",
+    "mapKnown": "unayajua",
+    "mapWrong": "ulikosea mara ya mwisho",
+    "mapUnseen": "hujayaona",
+    "mapSummary": "Kati ya maswali {total, number}: {known, number} unayajua, {wrong, number} ulikosea mara ya mwisho",
+    "points": "{points, number} kati ya {max, number}",
+    "passed": "Umefaulu",
+    "failed": "Hukufaulu",
+    "state": "Jimbo",
+    "chooseState": "Chagua jimbo",
+    "states": {
+      "bw": "Baden-Württemberg",
+      "by": "Bavaria",
+      "be": "Berlin",
+      "bb": "Brandenburg",
+      "hb": "Bremen",
+      "hh": "Hamburg",
+      "he": "Hesse",
+      "mv": "Mecklenburg-Pomerania Magharibi",
+      "ni": "Saksonia Chini",
+      "nw": "Rhine Kaskazini-Westfalia",
+      "rp": "Rhineland-Palatino",
+      "sl": "Saarland",
+      "sn": "Saksonia",
+      "st": "Saksonia-Anhalt",
+      "sh": "Schleswig-Holstein",
+      "th": "Thuringia"
+    },
+    "handIn": "Wasilisha",
+    "endPractice": "Maliza mazoezi",
+    "handInTitle": "Uwasilishe mtihani?",
+    "handInUnanswered": "{count, plural, one {Swali # bado halijajibiwa} other {Maswali # bado hayajajibiwa}}: maswali yasiyojibiwa yanahesabiwa kuwa si sahihi.",
+    "goOn": "Endelea",
+    "leave": "Rudi kwenye mtihani",
+    "answered": "Yamejibiwa: {done, number} kati ya {total, number}",
+    "question": "Swali {n, number} kati ya {total, number}",
+    "practiceScore": "{points, number} sahihi kati ya {count, plural, one {jibu #} other {majibu #}}",
+    "timeUp": "Muda ulikwisha: majibu yaliyotolewa hadi wakati huo yanahesabiwa.",
+    "needed": "{points, number} kati ya {max, number} zinahitajika",
+    "practiseMistakes": "Jizoeze makosa",
+    "tryAgain": "Mtihani mpya wa majaribio",
+    "toExam": "Kwenye mtihani",
+    "mistakes": "{count, plural, =0 {Hakuna makosa} one {Kosa #} other {Makosa #}}",
+    "allAnswers": "Majibu yote",
+    "onlyMistakes": "Makosa tu",
+    "showAll": "Onyesha majibu yote",
+    "notAnswered": "halijajibiwa",
+    "noMistakes": "Yote ni sahihi.",
+    "search": "Tafuta katika maswali",
+    "playsLeft": "Mara {left, number} kati ya {plays, number} za kusikiliza zimebaki",
+    "plays": "{count, plural, one {Unasikia rekodi mara moja.} other {Unasikia rekodi mara #.}}",
+    "example": "Mfano",
+    "wholeExam": "Mtihani mzima",
+    "next": "Endelea",
+    "previous": "Rudi",
+    "questionsGrid": "Maswali",
+    "goTo": "Swali {n, number}",
+    "practiceTally": "{right, number} sahihi · {wrong, number} si sahihi · {total, plural, one {swali #} other {maswali #}}",
+    "lastResult": "Mtihani wa majaribio uliopita, {date}: {points, number} kati ya {max, number}",
+    "noResultYet": "Bado hujafanya mtihani wa majaribio",
+    "inNotebook": "Yote katika Daftari",
+    "sources": {
+      "title": "Vyanzo na ukaguzi",
+      "allPassed": "kila ukaguzi umefaulu",
+      "someFailed": "ukaguzi mmoja haukufaulu",
+      "statement": "Kila swali, picha, rekodi na jibu hapa vilisomwa kutoka kwenye nyaraka zilizo hapa chini na kiingizaji kwenye kompyuta hii — hakuna kilichoandikwa kwa mkono au na modeli — na vilikaguliwa kama ilivyoorodheshwa. Mtihani wa majaribio unauliza kazi zilezile na kuzipa alama kwa kanuni zilezile kama mtihani rasmi wa mfano; unaonyesha jinsi ulivyo tayari, si kile ambacho mtihani halisi utaleta.",
+      "documents": "Imesomwa kutoka",
+      "copy": "nakala imehifadhiwa, SHA-256 {hash}…, imesomwa {date}",
+      "read": "imesomwa {date}",
+      "checks": "Ukaguzi",
+      "from": "Kutoka"
+    },
+    "check": {
+      "questions-complete": "Maswali yaliyosomwa, kati ya yale yaliyo katika chanzo",
+      "options-agree": "Chaguo zinafanana neno kwa neno katika vyanzo vyote viwili",
+      "answers-marked-twice": "Majibu yamewekwa alama kwa namna ileile mara mbili katika chanzo chake",
+      "answers-matched": "Majibu kutoka kurasa za suluhisho yameoanishwa na chaguo",
+      "numbers-agree": "Namba za maswali kama kurasa zinavyozitoa",
+      "recordings-placed": "Rekodi zimewekwa pamoja na maswali yake",
+      "media-kept": "Picha na rekodi zimehifadhiwa",
+      "criteria-read": "Vigezo vya kuandika na kuzungumza vimesomwa pamoja na alama za kila kiwango"
+    },
+    "rating": {
+      "title": "Tathmini majibu yako",
+      "pending": "{count, plural, one {Jibu # bado halijatathminiwa} other {Majibu # bado hayajatathminiwa}}: yanahesabiwa 0 hadi {count, plural, one {ulitathmini} other {uyatathmini}}.",
+      "hint": "Tathmini kama watahini wa mtihani wanavyofanya; badilisha tathmini wakati wowote unapotaka.",
+      "voided": "kazi haikufanywa: 0 kwa jibu zima",
+      "unrated": "0 hadi “{criterion}” itathminiwe: inaamua kama jibu linahesabiwa",
+      "save": "Hifadhi tathmini",
+      "change": "Badilisha tathmini",
+      "propose": "Pendekeza tathmini (AI)",
+      "proposing": "Msaidizi anatathmini…",
+      "proposed": "Imependekezwa na msaidizi wa AI ({model}): ikubali kama ilivyo au uibadilishe."
+    },
+    "conversation": {
+      "you": "Mimi",
+      "partner": "Mwenzako",
+      "examiner": "Mtahini",
+      "intro": "Msaidizi anaigiza mtahini na mwenzako. Jibu kwa sauti kwa maikrofoni (au andika); mazungumzo ndiyo jibu lako.",
+      "start": "Anza sehemu",
+      "over": "Sehemu imekwisha.",
+      "placeholder": "Jibu lako…",
+      "end": "Maliza sehemu"
+    },
+    "choose": "Chagua mtihani"
+  },
+  "experimental": {
+    "disclaimerTitle": "Ni jaribio, si njia ya kujiandaa",
+    "disclaimer": "Unachowasha hapa bado kinajaribiwa: maudhui yake yanaweza kuwa pungufu au kusomwa vibaya, na alama zake zinaweza kutofautiana na za halisi. Usikitegemee kujiandaa kwa kozi au mtihani.",
+    "section": {
+      "courses": "Kozi",
+      "exams": "Mitihani"
+    },
+    "sectionHint": {
+      "courses": "Kozi zaidi za kupakua, zinaonyeshwa katika Kozi",
+      "exams": "Mitihani zaidi ya kupakua, inaonyeshwa katika Mitihani"
+    },
+    "none": "Hakuna cha majaribio hapa.",
+    "more": "{count, plural, one {# zaidi} other {# zaidi}}"
+  },
+  "examples": {
+    "newWords": "Mapya hapa:",
+    "by": "Mifano ya AI · {model}"
+  }
+}
