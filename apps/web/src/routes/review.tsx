@@ -3,13 +3,13 @@
 // more new cards today or leaving a course's deck; the decks to take — each installed course's words)
 // and My words (words.tsx). "How it works" opens the guide beside.
 import { settingOf } from "@sprachanker/schema";
-import { HelpCircle, Play, Trash2 } from "lucide-react";
+import { Play, Trash2 } from "lucide-react";
 import { useState } from "react";
 import { useTranslation } from "react-i18next";
 import { useDeckActions, useDeckOffers, useDecks } from "@/api/cards.ts";
 import { useSetSetting, useSettings } from "@/api/settings.ts";
 import { useDeckName } from "@/study/decks.ts";
-import { StudyGuide } from "@/study/guide.tsx";
+import { GuideButton } from "@/study/guide.tsx";
 import { StudySession } from "@/study/session.tsx";
 import { COUNT_TONE } from "@/study/tones.ts";
 import { Button } from "@/ui/components/button.tsx";
@@ -18,7 +18,6 @@ import { PairFlags, usePairName } from "@/ui/flags.tsx";
 import { EmptyState, ErrorState, Loading, Page } from "@/ui/page.tsx";
 import { Panel, panelClass } from "@/ui/panel.tsx";
 import { SectionTabs } from "@/ui/section-tabs.tsx";
-import { SideSheet } from "@/ui/side-sheet.tsx";
 import { cn } from "@/ui/utils.ts";
 import { MyWords } from "./words.tsx";
 
@@ -236,16 +235,8 @@ function Study() {
 export function ReviewPage({ tab, go }: { tab: ReviewTab; go(tab: ReviewTab): void }) {
   const { t } = useTranslation();
   const open = useOpenDeck();
-  const [guide, setGuide] = useState(false);
   return (
-    <Page
-      title={t("nav.review")}
-      actions={
-        <Button variant="outline" onClick={() => setGuide(true)}>
-          <HelpCircle /> {t("guide.open")}
-        </Button>
-      }
-    >
+    <Page title={t("nav.review")} actions={<GuideButton />}>
       <SectionTabs
         label={t("nav.review")}
         tabs={(["study", "decks", "words"] as const).map((id) => ({
@@ -267,9 +258,6 @@ export function ReviewPage({ tab, go }: { tab: ReviewTab; go(tab: ReviewTab): vo
         </div>
       )}
       {tab === "words" && <MyWords />}
-      <SideSheet open={guide} onOpenChange={setGuide} title={t("guide.title")}>
-        <StudyGuide />
-      </SideSheet>
     </Page>
   );
 }

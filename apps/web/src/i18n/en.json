@@ -920,7 +920,7 @@
       "text": "New cards still to learn today, cards in learning (coming back within minutes), and cards due for review. The one underlined is where the card on screen comes from. \"Answers to go\" estimates how many answers finish the session if each is Good."
     },
     "faces": {
-      "title": "Two cards per word",
+      "title": "A word's cards",
       "recognition": {
         "name": "Card 1",
         "text": "the word → what it means (understanding)"
@@ -928,6 +928,10 @@
       "production": {
         "name": "Card 2",
         "text": "the meaning → the word (speaking); it comes after card 1"
+      },
+      "listening": {
+        "name": "Card 3",
+        "text": "the word heard → what it means (listening); off by default — turned on in Settings, for words with audio"
       }
     },
     "more": {
@@ -959,7 +963,13 @@
     },
     "fsrs": {
       "title": "FSRS",
-      "text": "The schedule is FSRS, an open spaced-repetition model: it estimates how stable each memory is and when you would forget it, aiming at a 90% chance you still remember. Your settings can change the daily limits."
+      "text": "The schedule is FSRS, an open spaced-repetition model: it estimates how stable each memory is and when you would forget it, aiming at your desired retention (90% by default). The limits, the retention and the card types are in Settings."
+    },
+    "schedule": {
+      "title": "Steps and the day",
+      "steps": "A new card answered Good comes back after 10 minutes (after Again, in a minute), then after days; a forgotten one after 10 minutes, and its interval grows again.",
+      "day": "A new day starts at {time}: reviews between midnight and then count for the day before.",
+      "limit": "New cards count against the maximum reviews: once it is reached, no new cards are shown that day."
     }
   },
   "reviewSettings": {
@@ -971,11 +981,7 @@
     "retention": "Desired retention",
     "retentionHint": "How likely you still remember a card when it comes back. Higher means more reviews; 90% by default.",
     "faces": "Card types of a new word",
-    "facesHint": "Which cards a new word gets. Words that have cards keep theirs.",
-    "how": "How it works",
-    "howSteps": "A new card answered Good comes back after 10 minutes (after Again, in a minute), then after days; a forgotten one after 10 minutes, and its interval grows again.",
-    "howDay": "A new day starts at {time}: reviews between midnight and then count for the day before.",
-    "howLimit": "New cards count against the maximum reviews: once it is reached, no new cards are shown that day."
+    "facesHint": "Which cards a new word gets. Words that have cards keep theirs."
   },
   "example": {
     "show": "Example",

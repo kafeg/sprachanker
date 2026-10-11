@@ -1,8 +1,7 @@
 // Settings → Review (04; 09): the profile's spaced repetition — daily limits, desired retention and the
 // card types a new word gets, each saved when changed; what is not set here (steps, the day's start,
-// new cards within the review limit) said in a few lines.
+// new cards within the review limit) in "How it works", the guide Review opens too.
 
-import { SRS_DEFAULTS } from "@sprachanker/engine";
 import { CardFace, type SettingValue, settingOf } from "@sprachanker/schema";
 import { useEffect, useState } from "react";
 import { useTranslation } from "react-i18next";
@@ -10,8 +9,9 @@ import { useSetSetting, useSettings } from "@/api/settings.ts";
 import { Chip } from "@/ui/chip.tsx";
 import { Input } from "@/ui/components/input.tsx";
 import { Slider } from "@/ui/components/slider.tsx";
-import { useDateFormat, usePercent } from "@/ui/format.ts";
+import { usePercent } from "@/ui/format.ts";
 import { Panel } from "@/ui/panel.tsx";
+import { GuideButton } from "./guide.tsx";
 
 type Option = "srs.newPerDay" | "srs.reviewsPerDay" | "srs.retention" | "srs.faces";
 
@@ -59,7 +59,6 @@ export function ReviewSettings() {
   const [retention, setRetention] = useState<number>();
   const shownRetention = retention ?? get("srs.retention");
   const faces = get("srs.faces");
-  const time = useDateFormat("time");
 
   return (
     <div className="space-y-6">
@@ -119,17 +118,7 @@ export function ReviewSettings() {
         </div>
         <p className="mt-2 text-sm text-muted-foreground">{t("reviewSettings.facesHint")}</p>
       </Panel>
-      <Panel title={t("reviewSettings.how")}>
-        <ul className="mt-2 list-disc space-y-1 pl-5 text-sm text-muted-foreground">
-          <li>{t("reviewSettings.howSteps")}</li>
-          <li>
-            {t("reviewSettings.howDay", {
-              time: time.format(new Date(2026, 0, 1, SRS_DEFAULTS.dayStartHour)),
-            })}
-          </li>
-          <li>{t("reviewSettings.howLimit")}</li>
-        </ul>
-      </Panel>
+      <GuideButton />
     </div>
   );
 }

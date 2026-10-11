@@ -920,7 +920,7 @@
       "text": "Neue Karten, die heute noch zu lernen sind, Karten im Lernen (kommen in Minuten wieder) und fällige Wiederholungen. Unterstrichen ist die Reihe, aus der die Karte auf dem Bildschirm stammt. „Antworten bis zum Ende“ schätzt, wie viele Antworten die Sitzung beenden, wenn jede „Gut“ ist."
     },
     "faces": {
-      "title": "Zwei Karten pro Wort",
+      "title": "Die Karten eines Worts",
       "recognition": {
         "name": "Karte 1",
         "text": "das Wort → seine Bedeutung (verstehen)"
@@ -928,6 +928,10 @@
       "production": {
         "name": "Karte 2",
         "text": "die Bedeutung → das Wort (sprechen); kommt nach Karte 1"
+      },
+      "listening": {
+        "name": "Karte 3",
+        "text": "das Wort gehört → seine Bedeutung (Hören); standardmäßig aus — in den Einstellungen einschaltbar, für Wörter mit Ton"
       }
     },
     "more": {
@@ -959,7 +963,13 @@
     },
     "fsrs": {
       "title": "FSRS",
-      "text": "Den Plan rechnet FSRS, ein offenes Modell für verteilte Wiederholung: es schätzt, wie fest jede Erinnerung ist und wann du sie vergessen würdest, und zielt auf 90 % Wahrscheinlichkeit, dass du dich noch erinnerst. Die Tageslimits änderst du in den Einstellungen."
+      "text": "Den Plan rechnet FSRS, ein offenes Modell für verteilte Wiederholung: es schätzt, wie fest jede Erinnerung ist und wann du sie vergessen würdest, und zielt auf deine gewünschte Merkwahrscheinlichkeit (standardmäßig 90 %). Limits, diese Wahrscheinlichkeit und die Kartentypen stellst du in den Einstellungen ein."
+    },
+    "schedule": {
+      "title": "Schritte und der Tag",
+      "steps": "Eine neue Karte kommt nach „Gut“ nach 10 Minuten wieder (nach „Nochmal“ nach einer Minute), dann nach Tagen; eine vergessene nach 10 Minuten, dann wächst ihr Abstand wieder.",
+      "day": "Ein neuer Tag beginnt um {time}: Wiederholungen von Mitternacht bis dahin zählen zum Vortag.",
+      "limit": "Neue Karten zählen zum Wiederholungslimit: Ist es erreicht, kommen an dem Tag keine neuen mehr."
     }
   },
   "reviewSettings": {
@@ -971,11 +981,7 @@
     "retention": "Gewünschte Behaltensquote",
     "retentionHint": "Wie wahrscheinlich du eine Karte noch weißt, wenn sie wiederkommt. Höher heißt mehr Wiederholungen; standardmäßig 90 %.",
     "faces": "Kartentypen eines neuen Worts",
-    "facesHint": "Welche Karten ein neues Wort bekommt. Wörter mit Karten behalten ihre.",
-    "how": "So funktioniert es",
-    "howSteps": "Eine neue Karte kommt nach „Gut“ nach 10 Minuten wieder (nach „Nochmal“ nach einer Minute), dann nach Tagen; eine vergessene nach 10 Minuten, dann wächst ihr Abstand wieder.",
-    "howDay": "Ein neuer Tag beginnt um {time}: Wiederholungen von Mitternacht bis dahin zählen zum Vortag.",
-    "howLimit": "Neue Karten zählen zum Wiederholungslimit: Ist es erreicht, kommen an dem Tag keine neuen mehr."
+    "facesHint": "Welche Karten ein neues Wort bekommt. Wörter mit Karten behalten ihre."
   },
   "example": {
     "show": "Beispiel",

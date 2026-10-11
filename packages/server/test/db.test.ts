@@ -4,8 +4,12 @@ import { existsSync, mkdtempSync, readdirSync } from "node:fs";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
 import { sql } from "drizzle-orm";
+import { getTableConfig, type SQLiteTable } from "drizzle-orm/sqlite-core";
 import { type Migration, MigrationError, migrate } from "../src/db/migrate.ts";
 import { migrations } from "../src/db/profile/migrations/index.ts";
+import * as profileSchema from "../src/db/profile/schema.ts";
+import { migrations as serverMigrations } from "../src/db/server/migrations/index.ts";
+import * as serverSchema from "../src/db/server/schema.ts";
 import { BUSY_MS, openProfileDb } from "../src/runtime/bun.ts";
 
 const fresh = () => join(mkdtempSync(join(tmpdir(), "sprachanker-db-")), "profile.sqlite");
@@ -59,6 +63,26 @@ test("a new profile database gets every table; reopening changes nothing", () =>
   ]);
   openProfileDb(file, 2);
   expect(readdirSync(join(file, "..")).some((f) => f.includes(".bak-"))).toBe(false);
+});
+
+test("the migrations make every table with exactly the columns its Drizzle schema has", () => {
+  for (const [schema, set] of [
+    [profileSchema, migrations],
+    [serverSchema, serverMigrations],
+  ] as const) {
+    const db = new Database(":memory:");
+    for (const m of set)
+      for (const statement of m.sql.split("--> statement-breakpoint")) db.exec(statement);
+    for (const table of Object.values(schema) as SQLiteTable[]) {
+      const { name, columns } = getTableConfig(table);
+      const made = db
+        .query<{ name: string }, []>(`PRAGMA table_info(${name})`)
+        .all()
+        .map((c) => c.name)
+        .sort();
+      expect([name, made]).toEqual([name, columns.map((c) => c.name).sort()]);
+    }
+  }
 });
 
 test("pending migrations on an existing database are applied after a backup", () => {

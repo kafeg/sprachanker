@@ -77,6 +77,13 @@ test("a correction whose fix holds its phrase is not made twice: a source fixed 
   expect(out.exercises[first]?.title).toBe("Суп дня из морковки");
   run.lesson(out);
   expect(out.exercises[first]?.title).toBe("Суп дня из морковки");
+  // A source already fixed that way: nothing done, the correction reported stale.
+  const fixed = courseCorrections(course, [
+    fix({ exercise: first, field: "title", from: "Суп", to: "Суп дня" }),
+  ]);
+  fixed.lesson(out);
+  expect(out.exercises[first]?.title).toBe("Суп дня из морковки");
+  expect(fixed.report()?.stale).toEqual([`${first} title`]);
 });
 
 test("another course's corrections are not its own: no report", () => {

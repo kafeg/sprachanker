@@ -81,11 +81,13 @@ test("the interface language: one control; in Settings the profile keeps it, on 
   await i18n.changeLanguage("en");
 });
 
-test("Settings → Review: limits, retention and card types, no Advanced; the rest said in lines", async () => {
+test("Settings → Review: limits, retention and card types, no Advanced; the rest in the guide", async () => {
   const view = await renderApp(<ReviewSettings />);
   for (const text of ["New cards per day", "Desired retention", "Card types of a new word"])
     expect(view.getByText(text)).toBeTruthy();
   expect(view.queryByText("Advanced")).toBeNull();
   expect(view.queryByText(/Anki/)).toBeNull();
-  expect(view.getByText(/A new day starts at 4/)).toBeTruthy();
+  // The rest in "How it works", the guide Review opens too.
+  fireEvent.click(view.getByRole("button", { name: "How it works" }));
+  expect((await view.findByText(/A new day starts at 4/)).closest("[role=dialog]")).toBeTruthy();
 });

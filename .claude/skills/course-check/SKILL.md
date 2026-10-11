@@ -42,8 +42,11 @@ says otherwise.
 Uses `e2e/real` (a clone of `SPRACHANKER_LIBRARY` or `~/SprachAnker/library`, empty profiles):
 
 ```bash
-REAL=<series>/<course> REAL_PER_COURSE=all REAL_UI=<ui lang> REAL_DESKTOP=1 REAL_SHOTS=<scratch>/shots bun run e2e:real
+SPRACHANKER_LIBRARY=<scratch>/data/library REAL=<series>/<course> REAL_PER_COURSE=all REAL_UI=<ui lang> REAL_DESKTOP=1 REAL_SHOTS=<scratch>/shots bun run e2e:real
 ```
+
+`SPRACHANKER_LIBRARY` makes the walk use the clone re-normalised in step 1 (without it: the old
+`~/SprachAnker/library`). `REAL_SHOTS` must be an absolute path (the walk runs from `e2e/`).
 
 - Every lesson walked at phone width (and desktop with `REAL_DESKTOP=1`): words rated, reading pages read,
   every exercise answered with a dummy answer and checked, speaking items recorded with the fake

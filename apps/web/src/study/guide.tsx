@@ -1,7 +1,14 @@
-// Review → "How it works" (04; 09): the method and where it comes from — the forgetting curve, active
-// recall, spacing, FSRS — what the buttons and counts mean, the two card types of a word, the actions
-// under "…" and the keys. A side panel, as the tutor and the reference open.
+// "How it works" (04; 09), opened from Review and from Settings → Review: the method and where it comes
+// from — the forgetting curve, active recall, spacing, FSRS — what the buttons and counts mean, the
+// steps and the day, the card types of a word, the actions under "…" and the keys. A side panel, as the
+// tutor and the reference open.
+import { SRS_DEFAULTS } from "@sprachanker/engine";
+import { HelpCircle } from "lucide-react";
+import { useState } from "react";
 import { useTranslation } from "react-i18next";
+import { Button } from "@/ui/components/button.tsx";
+import { useDateFormat } from "@/ui/format.ts";
+import { SideSheet } from "@/ui/side-sheet.tsx";
 
 /** Remembering falls off with time; each review at the edge of forgetting makes the fall slower. */
 function ForgettingCurve() {
@@ -50,8 +57,9 @@ function ForgettingCurve() {
   );
 }
 
-export function StudyGuide() {
+function StudyGuide() {
   const { t } = useTranslation();
+  const time = useDateFormat("time");
   const section = (key: string, body: React.ReactNode) => (
     <section key={key} className="space-y-1.5">
       <h3 className="font-semibold">{t(`guide.${key}.title`)}</h3>
@@ -81,10 +89,38 @@ export function StudyGuide() {
       {section("recall", text("recall"))}
       {section("buttons", list("buttons", ["again", "hard", "good", "easy"]))}
       {section("counts", text("counts"))}
-      {section("faces", list("faces", ["recognition", "production"]))}
+      {section(
+        "schedule",
+        <ul className="list-disc space-y-1 pl-5 text-sm">
+          <li>{t("guide.schedule.steps")}</li>
+          <li>
+            {t("guide.schedule.day", {
+              time: time.format(new Date(2026, 0, 1, SRS_DEFAULTS.dayStartHour)),
+            })}
+          </li>
+          <li>{t("guide.schedule.limit")}</li>
+        </ul>,
+      )}
+      {section("faces", list("faces", ["recognition", "production", "listening"]))}
       {section("more", list("more", ["replay", "bury", "suspend", "flag", "mark"]))}
       {section("keys", text("keys"))}
       {section("fsrs", text("fsrs"))}
     </div>
+  );
+}
+
+/** "How it works" as a button that opens the guide beside. */
+export function GuideButton() {
+  const { t } = useTranslation();
+  const [open, setOpen] = useState(false);
+  return (
+    <>
+      <Button variant="outline" onClick={() => setOpen(true)}>
+        <HelpCircle /> {t("guide.open")}
+      </Button>
+      <SideSheet open={open} onOpenChange={setOpen} title={t("guide.title")}>
+        <StudyGuide />
+      </SideSheet>
+    </>
   );
 }

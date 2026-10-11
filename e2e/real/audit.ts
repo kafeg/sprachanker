@@ -32,7 +32,9 @@ const MEDIA = new Set(["image", "video", "audio", "hd", "sd", "subtitles", "path
 
 function text(value: string, path: string, html: boolean, where: string) {
   if (value === "") add("low", where, `empty string at ${path}`);
-  if (/&(?:[a-z]+|#\d+|#x[0-9a-f]+);/i.test(value) && !(html && /&(amp|lt|gt|quot);/.test(value)))
+  // HTML keeps its own escapes; any other entity is left over.
+  const entities = value.match(/&(?:[a-z]+|#\d+|#x[0-9a-f]+);/gi) ?? [];
+  if (entities.some((e) => !html || !/^&(amp|lt|gt|quot);$/.test(e)))
     add("high", where, `entity left at ${path}`, value);
   if (!html && /<\/?[a-z][^>]*>/i.test(value))
     add("high", where, `markup in plain text at ${path}`, value);
@@ -102,6 +104,9 @@ for (const file of readdirSync(lessons)
       if (item.options.length < 2) add("med", at, "a choice of fewer than two");
     }
   }
+  for (const word of lesson.vocab)
+    if (!locale.vocab[word.key]?.translation)
+      add("med", name, `a word without its translation: ${word.key}`);
   for (const key of Object.keys(locale.exercises ?? {}))
     if (!lesson.pages.some((p) => p.exercise.key === key))
       add("med", name, `locale text of an exercise not in the lesson: ${key}`);
