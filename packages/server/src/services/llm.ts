@@ -6,7 +6,6 @@ import {
   type ChatMessage,
   type CliKind,
   type CliRunner,
-  chatBody,
   cliClient,
   cliCommand,
   cliRun,
@@ -14,10 +13,11 @@ import {
   type LlmClient,
   LMSTUDIO_CONTEXT,
   type OpenRouterKey,
-  openAiCompatible,
   openRouterKey,
   PROVIDERS,
   type ProviderId,
+  providerClient,
+  providerRequest,
   runStructured,
   type StructuredTask,
   type TaskRequest,
@@ -145,10 +145,7 @@ export function createLlm(deps: {
     // load per model at a time.
     if (id === "lmstudio" && model) await lmStudio.ensureLoaded(model);
     return {
-      client: openAiCompatible(
-        { baseUrl: url, apiKey: key, noReasoning: preset.noReasoning },
-        deps.fetch,
-      ),
+      client: providerClient(preset, { baseUrl: url, apiKey: key }, deps.fetch),
       model: model ?? "",
     };
   }
@@ -236,6 +233,7 @@ export function createLlm(deps: {
       const request = { ...task, model: r.model };
       // What the provider gets: the HTTP body, or the command line agent's prompt, files and flags.
       let body: PromptPreview["body"];
+      let url: string;
       if (cli) {
         const { stdin, args, files } = cliRun(cli, request);
         body = {
@@ -246,13 +244,13 @@ export function createLlm(deps: {
           args,
           files: Object.keys(files ?? {}),
         };
-      } else body = chatBody(request, PROVIDERS[r.providerId].noReasoning);
+        url = cliCommand(cli, r.model);
+      } else
+        ({ url, body } = providerRequest(PROVIDERS[r.providerId], baseUrl(r.providerId), request));
       return {
         provider: r.providerId,
         model: r.model,
-        url: cli
-          ? cliCommand(cli, r.model)
-          : `${baseUrl(r.providerId).replace(/\/+$/, "")}/chat/completions`,
+        url,
         body,
         tokens: body.messages.map((m) => estimateTokens(m.content)),
       };

@@ -235,6 +235,8 @@
     "provider": {
       "lmstudio": "LM Studio",
       "openrouter": "OpenRouter",
+      "openai": "OpenAI",
+      "anthropic": "Anthropic",
       "gemini": "Google Gemini",
       "groq": "Groq",
       "custom": "Ağdaki sunucu",
@@ -270,6 +272,8 @@
     "about": {
       "lmstudio": "Bu bilgisayardaki LM Studio: SprachAnker sunucusunu başlatır, seçilen modeli yükler ve önerilen modelleri LM Studio’ya indirebilir. Ücretsizdir ve hiçbir şey bilgisayardan dışarı çıkmaz. LM Studio başka bir bilgisayarda çalışıyorsa “Ağdaki sunucu” seçeneğini seç.",
       "openrouter": "Bulutta OpenRouter: birçok üreticinin yüzlerce modeli tek bir anahtarla, bazıları ücretsiz (günlük sınırlarla). Ders içeriği ve cevapların OpenRouter’a ve modelin sağlayıcısına gider.",
+      "openai": "OpenAI’ın modelleri (GPT-5, GPT-4.1, o serisi ve diğerleri) bulutta, API’si üzerinden, kullandıkça öde — bu bir ChatGPT aboneliği değil: onun için Codex’i seç. Ders içeriği ve cevapların OpenAI’a gider.",
+      "anthropic": "Anthropic’in Claude modelleri bulutta, API’si üzerinden, kullandıkça öde — bu bir Claude aboneliği değil: onun için Claude Code’u seç. Ders içeriği ve cevapların Anthropic’e gider.",
       "gemini": "Google’ın buluttaki Gemini modelleri, Google AI Studio’dan alınan bir anahtarla. Ücretsiz katman kart gerektirmez; dakika ve gün başına sınırları vardır. Bazı modeller faturalandırma ister. Ücretsiz katmanda Google gönderilenleri ürünlerini geliştirmek için kullanabilir: ders içeriği ve cevapların Google’a gider.",
       "groq": "Groq’un buluttaki hızlı donanımında açık modeller (Llama, Qwen, GPT-OSS ve diğerleri). Ücretsiz katman kart gerektirmez; her model için dakika ve gün başına sınırları vardır. Ders içeriği ve cevapların Groq’a gider.",
       "custom": "Başka bir bilgisayarda, OpenAI uyumlu API sunan herhangi bir sunucu: LM Studio, Ollama, llama.cpp, vLLM ve diğerleri. Adresini (/v1 ile biten) ve istiyorsa bir anahtar gir.",
@@ -310,6 +314,8 @@
     },
     "keyHintFor": {
       "openrouter": "openrouter.ai/keys adresinde bir anahtar oluştur. Bu bilgisayarda şifrelenmiş olarak saklanır ve bir daha gösterilmez.",
+      "openai": "platform.openai.com/api-keys adresinde bir anahtar oluştur. Bu bilgisayarda şifrelenmiş olarak saklanır ve bir daha gösterilmez.",
+      "anthropic": "platform.claude.com/settings/keys adresinde bir anahtar oluştur. Bu bilgisayarda şifrelenmiş olarak saklanır ve bir daha gösterilmez.",
       "gemini": "aistudio.google.com/apikey adresinde bir anahtar oluştur. Bu bilgisayarda şifrelenmiş olarak saklanır ve bir daha gösterilmez.",
       "groq": "console.groq.com/keys adresinde bir anahtar oluştur. Bu bilgisayarda şifrelenmiş olarak saklanır ve bir daha gösterilmez."
     }
@@ -1274,6 +1280,7 @@
     "llm_no_endpoint": "Sunucu adresini gir.",
     "llm_no_key": "API anahtarını gir.",
     "llm_not_configured": "Ayarlar → Yapay zekâ asistanı bölümünden bir model seç.",
+    "llm_overloaded": "Sağlayıcı şu anda aşırı yüklü. Birazdan tekrar dene.",
     "llm_rate_limited": "Sağlayıcının sınırına şimdilik ulaşıldı (ücretsiz katmanlar dakika ve gün başına istekleri sınırlar). Daha sonra tekrar dene ya da Ayarlar → Yapay zekâ asistanı bölümünden başka bir model seç.",
     "llm_timeout": "Modelin cevap vermesi çok uzun sürdü.",
     "llm_unauthorized": "API anahtarı kabul edilmedi.",
