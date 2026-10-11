@@ -88,7 +88,7 @@ test("a dialogue heard by two voices, answered by ear with the text hidden, then
   await step.getByRole("button", { name: "am Morgen" }).click();
 
   // The text opens, its new word marked; the reading question follows.
-  await expect(step.getByText("The text")).toBeVisible();
+  await expect(step.getByRole("heading", { name: "The text", exact: true })).toBeVisible();
   await expect(step.getByText(/Das macht 1,20 Euro/)).toBeVisible();
   await expect(step.locator("mark", { hasText: "Brötchen" }).first()).toHaveAttribute(
     "title",
