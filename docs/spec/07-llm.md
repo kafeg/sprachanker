@@ -89,8 +89,8 @@ rules.
 | `section_chat_turn` | the tutor on its own (the Tutor section): what the learner has met in the courses of the chat's language — the courses (lessons done of all, the lessons worked on), those lessons' words with translations and grammar topics, the latest mistakes in them —, history | message (streamed text) |
 | `check_writing` | the lesson (title, goals, words, grammar), the course's level, the writing task from its goals, the learner's text | JSON: verdict, corrected text, corrections[] (wrong, right, explanation), writing criteria at the course's level as CEFR writing exams rate them — Goethe's Schreiben for German, said with the data — (task, communication, accuracy: 0–2 + comment), feedback |
 | `check_speaking` | the lesson (title, words, grammar), the course's level, a speaking item without a line to say (instruction, prompt, hint, the source's written answer or its frame), the question and the source's answer as the recogniser heard them in the course's recordings, what was heard of the learner's answer | JSON: verdict, corrected answer, corrections[] (wrong, right, explanation), feedback |
-| `scene_setup` | a Dialogue's setup: the lesson (title, goals, its place, words) and the snapshot (level, earlier words, grammar topics met) | JSON: title, situation, partner, goals (1–3: the learner's goal card), partnerInfo (2–4 facts the partner holds and the learner must ask for, in the target language), opening line |
-| `scene_turn` | a Dialogue's line: its setup with the partner's information, the level and the words known, history, the learner's new line (said and recognised, or typed) | JSON: reply (target language), translation, understood, fits, corrections[] (of the new line only; at most two kept), goalsMet[], done |
+| `scene_setup` | a Dialogue's setup: the lesson (title, goals, its place, words) and the snapshot (level, earlier words, grammar topics met) | JSON: title, situation, partner, goals (1–3: the learner's goal card), partnerInfo (2–4 facts the partner holds and the learner must ask for, in the target language), opening line and its translation |
+| `scene_turn` | a Dialogue's line: its setup with the partner's information, the level and the words known, history, the learner's new line (said and recognised, or typed) | JSON: reply (target language), translation, understood, fits, corrections[] (of the new line only; at most two kept), goalsMet[], done (the app ends it only when every goal is met) |
 | `scene_summary` | a Dialogue ended: its setup, the goals met, its lines with the corrections given | JSON: corrections[] (one or two key ones, each with a model line: the learner's line said well), feedback |
 | `rate_exam_answer` | an exam's title, the task as set (the Teil's instructions and text, the question), its criteria (titles, each level's points and meaning, which voids the task), the exam's model answers if any, the learner's answer | JSON: criteria[] (id, points — one of its levels, checked with one repair —, reason), feedback |
 | `exam_conversation` | an exam's title, the speaking part and its task as the learner has it (instructions, cards, texts), what the partner has (their card, calendar, slides), the conversation so far | JSON: lines[] (speaker `examiner` \| `partner`, text) up to the learner's turn, done |
@@ -194,6 +194,8 @@ most three corrections and a model text (third phase).
 - A "{}" button (switched on in Settings → AI assistant → Advanced) shows the exact request of a task —
   endpoint, fields, every message with its size — built by the same function as the real call (`<task>Request`,
   `chatBody`; a command-line provider's prompt, files and arguments by `cliRun`); nothing is sent.
+  What the learner is not to see yet stays hidden there too: a running Dialogue's partner facts read
+  "(hidden until the end)".
 - A task's model call and its timing are one path (`llm.structured` in services/llm.ts); a check's
   corrections are cleaned the same way for writing and speaking (`cleanCheck`).
 - The tutor shows how full the next request is (≈ tokens of the window when known, room for the reply)
@@ -261,11 +263,15 @@ Both tutors (the lesson's and the section's) take real-life language as in scope
   take's `recording`), or typed where there is no microphone or recognition; the model plays the
   partner within the level and the words known, takes the line as a person would understand it (the
   recogniser's punctuation, capitals and digits are no errors) and says whether it was understood
-  and fits; the app keeps the model honest: corrections must quote the learner's new line, at most
-  two are kept, met goals only accumulate, all met ends the Dialogue. Ended — its goals met, or
-  "End the dialogue" — it gets its summary (`scene_summary`): the goals met (the app's count), one or
-  two key corrections each with a model line, a line of feedback; an `llm_verdict` (`task:
-  dialogue`) in its run, asked again from the page when the call failed. The step shows the latest
+  and fits; the app keeps the model honest: corrections must quote the learner's new line (compared
+  without case and punctuation) and change more than those, at most two are kept, met goals only
+  accumulate, all met ends the Dialogue — and only that: a model's own `done` before then is
+  ignored. The opening line comes with its translation, as every partner line. Ended — its goals
+  met, or "End the dialogue" — it gets its summary (`scene_summary`): the goals met (the app's
+  count), one or two key corrections each with a model line, a line of feedback; an `llm_verdict`
+  (`task: dialogue`) in its run, asked again from the page when the call failed. The line that meets
+  the last goal comes back at once (read aloud as any); its summary is the next step (`pending`:
+  summing). The step shows the latest
   Dialogue on its page (goal card, the conversation, the microphone); starting a new one ends the
   open one, and the lesson's earlier ones are listed under it (title, goals reached, when), each
   readable again with its summary (owner, 2026-10-07).

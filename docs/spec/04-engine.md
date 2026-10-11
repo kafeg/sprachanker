@@ -364,8 +364,9 @@ aloud; recognised speech is taken as a person would understand it — the recogn
 — the step and its place keep the id `scene`. Setup from the lesson's goals and the snapshot: a
 title, the situation, the partner, the learner's goal card (1–3 goals, at least one asking for
 what the partner holds) and the partner's hidden information, shown only once the Dialogue is over,
-and the opening line. Each learner line goes with whether it was said (recognised) or typed and the
-take's recording; the app keeps the model honest (`cleanSceneTurn`): corrections quote the line,
-at most two; met goals only accumulate; all met ends it. The summary is asked once the Dialogue
-ends (its goals met, or ended by the learner) and kept in its run. Authored dialogues in enrichment:
+and the opening line with its translation. Each learner line goes with whether it was said
+(recognised) or typed and the take's recording; the app keeps the model honest (`cleanSceneTurn`):
+corrections quote the line (case and punctuation aside), at most two; met goals only accumulate;
+all met ends it, nothing else does. The summary is asked once the Dialogue ends (its goals met —
+after its last line is shown —, or ended by the learner) and kept in its run. Authored dialogues in enrichment:
 plan, "Enrichment and rules".

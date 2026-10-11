@@ -106,6 +106,8 @@ export const SceneSetup = z.object({
   goals: z.array(z.string()).min(1).max(3),
   /** The partner's first line, in the target language. */
   opening: z.string(),
+  /** The first line in the learner's language (its "Translate"); scenes before it have none. */
+  openingTranslation: z.string().optional(),
   /** What the partner knows and the learner must ask for (the information gap), in the target
    *  language; hidden from the learner until the Dialogue is over. Scenes before it have none. */
   partnerInfo: z.array(z.string()).max(5).optional(),
