@@ -190,7 +190,9 @@ most three corrections and a model text (third phase).
   saying so). Inline `<think>…</think>` output is stripped.
 - **Time limits**: a request may take 180 s to its first byte (a local server may load the model
   first), then 60 s of silence between chunks of a streamed reply, so a slow model writing a long
-  reply is never cut off; a limit run out is `timeout`, a connection dropped mid-reply `unreachable`.
+  reply is never cut off; a limit run out is `timeout`, a connection dropped mid-reply `unreachable` —
+  as is a stream that ends before its end mark (Anthropic's `message_stop`, OpenAI's `[DONE]` or a
+  `finish_reason`): a tool call in it is never run with arguments cut short.
 - **Streamed replies** (explanations, the tutor): a model that answers nothing is an error before any
   text is sent; a reply that breaks off after its first chunk ends with `STREAM_ERROR` (schema) and the
   error, so the client shows the part it got with the error, never as a whole reply. Only a reply that

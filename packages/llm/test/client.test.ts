@@ -117,6 +117,39 @@ describe("failures while a reply is read", () => {
     expect(await code(chat(() => slow(delta("Erst"), "break")))).toBe("unreachable");
   });
 
+  test("a stream ending before [DONE] or a finish_reason broke off: unreachable, its tool call never run", async () => {
+    const ran: string[] = [];
+    const error = await collect(
+      openAiCompatible(
+        { baseUrl: "http://x/v1" },
+        fakeFetch(() =>
+          sse([
+            `data: ${JSON.stringify({
+              choices: [
+                {
+                  delta: {
+                    tool_calls: [
+                      { index: 0, id: "c1", function: { name: "find", arguments: "{" } },
+                    ],
+                  },
+                },
+              ],
+            })}\n\n`,
+          ]),
+        ).fn,
+      ).chat({
+        model: "m",
+        messages: [],
+        tools: [{ name: "find", description: "", parameters: {} }],
+        runTool: async (name) => {
+          ran.push(name);
+          return {};
+        },
+      }),
+    ).catch((e: LlmError) => e);
+    expect([(error as LlmError).code, ran]).toEqual(["unreachable", []]);
+  });
+
   test("a busy server (429, 5xx) is not asked again without tools or the switch", async () => {
     const { fn, calls } = fakeFetch(() => new Response("busy", { status: 429 }));
     const client = openAiCompatible({ baseUrl: "http://x/v1", noReasoning: { think: false } }, fn);
@@ -149,8 +182,11 @@ describe("failures while a reply is read", () => {
                 call("c1", "progress", ""),
                 call(undefined, "", "{}"),
                 call("c2", "mistakes", "{}"),
+                "data: [DONE]\n\n",
               ])
-            : sse([`data: ${JSON.stringify({ choices: [{ delta: { content: "Fertig" } }] })}`]),
+            : sse([
+                `data: ${JSON.stringify({ choices: [{ delta: { content: "Fertig" }, finish_reason: "stop" }] })}`,
+              ]),
         ).fn,
       ).chat({
         model: "m",
@@ -197,7 +233,7 @@ describe("reasoning switch", () => {
     const { fn, calls } = fakeFetch((_, init) =>
       JSON.parse(init.body as string).reasoning
         ? Response.json({ error: { message: "reasoning is mandatory" } }, { status: 400 })
-        : sse([delta("ok")]),
+        : sse([delta("ok"), "data: [DONE]\n\n"]),
     );
     const client = openAiCompatible(
       { baseUrl: "http://h", noReasoning: { reasoning: { enabled: false } } },

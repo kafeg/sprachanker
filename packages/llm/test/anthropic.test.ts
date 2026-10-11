@@ -277,6 +277,25 @@ describe("Anthropic", () => {
     }
   });
 
+  test("a stream ending before message_stop broke off: unreachable, its tool call never run", async () => {
+    const ran: string[] = [];
+    const { client: c } = client(() =>
+      reply(textBlock(0, "Ich schaue "), toolBlock(1, "toolu_1", "get_progress", '{"less')),
+    );
+    const error = await collect(
+      c.chat({
+        model: "claude-haiku-4-5",
+        messages: [{ role: "user", content: "?" }],
+        tools: TOOLS,
+        runTool: async (name) => {
+          ran.push(name);
+          return {};
+        },
+      }),
+    ).catch((e: LlmError) => e);
+    expect([(error as LlmError).code, ran]).toEqual(["unreachable", []]);
+  });
+
   test("structured output: the schema in the system prompt, read whole, one repair", async () => {
     const replies = ['Sure: {"verdict": 3}', '{"verdict": "good"}'];
     const { client: c, calls } = client(() =>

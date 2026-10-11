@@ -170,8 +170,9 @@ describe("OpenAI", () => {
       return body.messages.length === 1
         ? sse([
             toolDelta({ index: 0, id: "c1", function: { name: "get_progress", arguments: "{}" } }),
+            "data: [DONE]\n\n",
           ])
-        : sse([delta("ok")]);
+        : sse([delta("ok"), "data: [DONE]\n\n"]);
     });
     const text = await collect(
       providerClient(openai, endpoint, fn).chat({

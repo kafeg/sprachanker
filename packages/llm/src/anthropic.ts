@@ -210,7 +210,8 @@ const KEPT = new Set(["text", "tool_use", "thinking", "redacted_thinking"]);
 
 /**
  * A streamed reply's text as it comes and, at the end, its tool calls with the reply's blocks
- * (thinking included: a model that thought before calling a tool is shown its thinking again).
+ * (thinking included: a model that thought before calling a tool is shown its thinking again). A
+ * stream that ends before `message_stop` broke off: `unreachable`, its tool calls never run.
  */
 export async function* anthropicEvents(
   res: Response,
@@ -219,6 +220,7 @@ export async function* anthropicEvents(
 ): AsyncIterable<RoundEvent> {
   const blocks: AnthropicBlock[] = [];
   const inputs: string[] = [];
+  let ended = false;
   for await (const data of sseData(res, stop, onData)) {
     let event: StreamEvent;
     try {
@@ -229,7 +231,10 @@ export async function* anthropicEvents(
     const i = event.index ?? 0;
     const block = blocks[i];
     if (event.type === "error") throw apiError(event.error);
-    if (event.type === "message_stop") break;
+    if (event.type === "message_stop") {
+      ended = true;
+      break;
+    }
     if (event.type === "content_block_start" && event.content_block) {
       blocks[i] = { ...event.content_block };
       inputs[i] = "";
@@ -246,6 +251,7 @@ export async function* anthropicEvents(
     } else if (event.type === "content_block_stop" && block?.type === "tool_use")
       block.input = toolInput(inputs[i] ?? "");
   }
+  if (!ended) throw new LlmError("unreachable", "the reply broke off before its end");
   const turn = blocks.filter((b) => b && KEPT.has(b.type) && !(b.type === "text" && !b.text));
   const calls: ToolCall[] = turn.flatMap((b) =>
     b.type === "tool_use"
