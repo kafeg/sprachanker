@@ -53,8 +53,11 @@ export interface InstalledBundle {
  * own (`library/.transfers/<id>/`), removed when it ends. A full disk is an error with code `ENOSPC`.
  */
 export interface CourseTransferFiles {
-  /** Transfers an hour old go (a course folder an install left aside put back first). */
+  /** Transfers an hour old go (an install one stopped midway undone first). */
   sweep(): void;
+  /** Installs stopped midway (the process stopped) undone, whatever their age, each under its
+   *  series' lock (one another process holds is its install, running). */
+  recover(): Promise<void>;
   /** A course's files (`editions`: those asked, else every one installed) linked into a new
    *  transfer, each hashed; NotInstalledError when the course or an edition is not here. */
   stage(series: string, course: string, editions?: string[]): Promise<StagedCourse>;
@@ -108,7 +111,9 @@ export function createCourseTransfer(deps: {
     bytes: number;
   }>(files.discard, "course_export_gone");
   const SERVER = "server";
-  // At the start: a stopped server's transfers.
+  // At the start: an install a stopped process left midway undone, whatever its age (each export
+  // and import waits for it); a stopped server's transfers.
+  const recovered = files.recover();
   files.sweep();
   /** An import, the only one while it runs (each needs the room of its file and more). */
   const alone = oneAtATime("course_import_busy");
@@ -193,6 +198,7 @@ export function createCourseTransfer(deps: {
      *  its name and size. One not downloaded within an hour goes. */
     async prepare(series: string, course: string, editions?: string[]) {
       files.sweep();
+      await recovered;
       const staged = await guarded(() => files.stage(series, course, editions));
       try {
         return keep(staged);
@@ -247,6 +253,7 @@ export function createCourseTransfer(deps: {
       if (!body) throw new ServiceError("not_a_course_bundle", 422);
       return alone(async () => {
         files.sweep();
+        await recovered;
         const id = files.begin();
         try {
           return await guarded(async () => {
@@ -264,6 +271,7 @@ export function createCourseTransfer(deps: {
     importFile: (file: string) =>
       alone(async () => {
         files.sweep();
+        await recovered;
         const id = files.begin();
         try {
           return await guarded(() => settle(id, file));

@@ -6,7 +6,9 @@ import {
   existsSync,
   mkdirSync,
   mkdtempSync,
+  readdirSync,
   readFileSync,
+  rmSync,
   statSync,
   writeFileSync,
 } from "node:fs";
@@ -314,6 +316,36 @@ test("a bundle's lines of media.json say what it holds: its file, of that kind, 
       b.manifest.media["javascript:alert(1)"] = b.manifest.media[url] as never;
     }),
   ).toEqual(["media.json javascript:alert(1): not a media file of the bundle as listed"]);
+});
+
+/** Every file under `dir` with its content. */
+const filesOf = (dir: string) =>
+  Object.fromEntries(
+    (readdirSync(dir, { recursive: true, withFileTypes: true }) as import("node:fs").Dirent[])
+      .filter((d) => d.isFile())
+      .map((d) => [
+        join(d.parentPath, d.name).slice(dir.length),
+        readFileSync(join(d.parentPath, d.name), "utf8"),
+      ]),
+  );
+
+test("an install that fails midway is undone: media placed removed, the course's folders as they were", async () => {
+  const { root, series } = await library();
+  const other = dir();
+  await install(other, await bundled(root, ["ru-de"]));
+  const otherSeries = join(other, MINI_SERIES);
+  // The library to install into lacks a picture; the bundle's course differs, and adds an edition.
+  rmSync(join(otherSeries, "media/image/frage.png"));
+  const index = join(series, "canonical/basic/course.json");
+  writeFileSync(index, `${readFileSync(index, "utf8")}\n`);
+  const bundle = await bundled(root);
+  const before = filesOf(other);
+  const plan = await planBundle(other, bundle.manifest);
+  expect(await checkBundle(bundle.files, bundle.manifest)).toEqual([]);
+  // The new edition's folder cannot be moved in: after the picture and the course's index were.
+  rmSync(join(bundle.files, "locale/en-de/basic"), { recursive: true });
+  await expect(installBundle({ libraryRoot: other, ...bundle, plan })).rejects.toThrow();
+  expect(filesOf(other)).toEqual(before);
 });
 
 test("a bundle replaces nothing of the library but its course's folders: a source copy there with other content is a clash, another course's copy no bundle's", async () => {

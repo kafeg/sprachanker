@@ -30,7 +30,7 @@ src/
                      # profile-db.ts — the exact schema first); course-transfer.ts (course bundles in
                      # library/.transfers: a course's files linked and streamed as a zip, a bundle read,
                      # what the library lacks unpacked, checked and installed by course-kit's bundle.ts
-                     # under the series' import lock, then verified);
+                     # under the series' lock, then verified; one stopped midway undone at the start);
                      # network.ts (the machine's IPv4 addresses, its `.local` name, `tailscale status`
                      # and `tailscale serve status` as JSON);
                      # cli.ts (runs `claude` / `codex` for the command-line LLM providers);

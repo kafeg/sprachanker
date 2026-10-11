@@ -360,11 +360,15 @@ raw/<edition>/<course>/…            # only the copies an exam's sources name (
   of its media files with that file's kind, size and sha256 for an http(s) address (a URL stored is
   never fetched again by the next download: a line is believed), the content versions those of its
   files. Only then, under the series' import
-  lock (03): media and copies moved into place, the lines of `media.json` it lacks added (a URL
-  the library has stored keeps its own line), the course's
-  scopes of `keys.json` set, and the course's canonical folder and each edition's folder replaced
-  whole where their content version differs (the old one aside in the transfer until the new one is
-  in place; put back if the process stopped in between). The course installed: `verify` runs on it
+  lock (03), all or nothing: media and copies moved into place, the course's canonical folder and
+  each edition's folder replaced whole where their content version differs, then the lines of
+  `media.json` it lacks added (a URL the library has stored keeps its own line) and the course's
+  scopes of `keys.json` replaced by the bundle's (wholesale: a scope of the course the bundle lacks
+  goes — the bundle's key map is the course's as its files were numbered). What it changes is
+  written in the transfer first (`install.json`), the old folders and files kept beside it: an
+  error undoes it at once; a process stopped midway is undone at the next start, whatever the
+  transfer's age, under the series' lock (one another process holds is that process's install,
+  running). The course installed: `verify` runs on it
   and its result is said; a download marker it ends is removed when no media is missing.
 - **The same course installed**: a bundle with the same content versions changes nothing ("already
   here"; media it lacked are added); one that differs replaces the folders that differ (owner may

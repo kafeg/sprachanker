@@ -5,11 +5,13 @@
 import { expect, test } from "bun:test";
 import { createHash } from "node:crypto";
 import {
+  cpSync,
   existsSync,
   mkdirSync,
   readdirSync,
   readFileSync,
   renameSync,
+  rmSync,
   utimesSync,
   writeFileSync,
 } from "node:fs";
@@ -415,4 +417,35 @@ test("a course folder an install stopped midway left aside comes back when its t
   expect(existsSync(join(series, "canonical/demo/course.json"))).toBe(true);
   expect(readdirSync(join(b.root, "library", ".transfers"))).toEqual([]);
   expect((await read(b.get("/api/courses"))).length).toBe(1);
+});
+
+test("an install the process stopped midway is undone at the start, however new: media, folders and the series' files as they were", async () => {
+  const b = await setup();
+  const before = libraryOf(b);
+  const series = join(b.root, "library", FIXTURE_SERIES);
+  const id = courseTransferFiles(b.root).begin();
+  const aside = join(b.root, "library", ".transfers", id, "aside");
+  const kept = join(aside, FIXTURE_SERIES);
+  // Stopped after everything but the end: a picture placed, the course's index folder replaced, the
+  // key map rewritten.
+  mkdirSync(join(kept, "canonical"), { recursive: true });
+  renameSync(join(series, "canonical/demo"), join(kept, "canonical/demo"));
+  cpSync(join(kept, "canonical/demo"), join(series, "canonical/demo"), { recursive: true });
+  rmSync(join(series, "canonical/demo/lessons/00-01.json"));
+  writeFileSync(join(series, "media/image/new.png"), "placed");
+  const keys = join(series, "keys.json");
+  if (existsSync(keys)) cpSync(keys, join(kept, "keys.json"));
+  writeFileSync(keys, "{}");
+  writeFileSync(
+    join(aside, "install.json"),
+    JSON.stringify({
+      series: FIXTURE_SERIES,
+      placed: ["media/image/new.png"],
+      folders: [{ prefix: "canonical/demo", had: true }],
+      state: ["keys.json"],
+    }),
+  );
+  await courseTransferFiles(b.root).recover();
+  expect(libraryOf(b)).toEqual(before);
+  expect(existsSync(join(aside, "install.json"))).toBe(false);
 });

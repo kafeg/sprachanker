@@ -3,7 +3,7 @@
 // place. An export's files linked there (a course normalised again meanwhile keeps the bundle whole),
 // each hashed, streamed as a zip (course-kit); a received bundle read by its zip directory, what the
 // library lacks unpacked streaming and hashed, checked and installed by course-kit's bundle.
-import { mkdirSync, rmSync, statSync } from "node:fs";
+import { existsSync, mkdirSync, readdirSync, rmSync, statSync } from "node:fs";
 import { dirname, join } from "node:path";
 import {
   aliased,
@@ -17,10 +17,11 @@ import {
   fileEntry,
   fileSums,
   installBundle,
+  installing,
   linkOrCopy,
   openLibrary,
   planBundle,
-  restoreAside,
+  undoInstall,
   writeChunks,
   zipEntries,
   zipLength,
@@ -44,9 +45,9 @@ export function courseTransferFiles(
 ): CourseTransferFiles {
   const libraryRoot = join(dataRoot, "library");
   const root = join(libraryRoot, ".transfers");
-  // A transfer swept with a course folder an install put aside (it stopped midway): put back first.
+  // A transfer swept with an install it stopped midway: undone first.
   const t = transferFolders(root, options, (folder) =>
-    restoreAside(libraryRoot, join(folder, "aside")),
+    undoInstall(libraryRoot, join(folder, "aside")),
   );
   const filesOf = (id: string) => join(t.folder(id), "files");
   const asideOf = (id: string) => join(t.folder(id), "aside");
@@ -91,6 +92,19 @@ export function courseTransferFiles(
 
   const self: CourseTransferFiles = {
     sweep: t.sweep,
+    async recover() {
+      for (const id of existsSync(root) ? readdirSync(root) : []) {
+        const aside = join(root, id, "aside");
+        try {
+          const series = installing(aside);
+          // Under the series' lock: one another process holds is its install, running now.
+          if (series)
+            await withSeriesLock(libraryRoot, series, async () => undoInstall(libraryRoot, aside));
+        } catch (error) {
+          console.error(`an install stopped midway not undone (${id}): ${error}`);
+        }
+      }
+    },
     async stage(series, course, editions) {
       const content = await courseBundleContent(libraryRoot, series, course, editions);
       const id = t.begin();

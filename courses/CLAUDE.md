@@ -28,6 +28,7 @@ packages/course-kit/src/
   verify.ts            # a course's integrity and counts (LibraryView.check)
   bundle.ts            # course bundles, the library's side: what a course's bundle holds, content
                        # versions, a bundle unpacked checked (schemas, places, media used) and installed
+                       # all or nothing (install.json: undone on an error, or at the next start)
   canonical-json.ts    # canonical JSON (hashes) and library files' JSON
   fingerprint.ts       # exercise fingerprints
   exercise-draft.ts    # draftExercise, Unmapped, unknownExercise, draftOrUnknown (a mapping run)
