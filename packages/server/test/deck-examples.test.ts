@@ -20,7 +20,8 @@ const wordsAsked = (body: Body) => [
 ];
 
 /** A model writing `perWord` sentences with each word asked for (`skip`: words it leaves out of its
- *  sentences the first time), recording what it was sent; `hold` keeps a reply back until let go. */
+ *  sentences the first time), recording what it was sent; `hold` keeps replies back until let go
+ *  (those after the first `after` calls). */
 function model(
   options: {
     skip?: string[];
@@ -33,12 +34,12 @@ function model(
   const bodies: Body[] = [];
   const skipped = new Set<string>();
   const held: Array<() => void> = [];
-  let holding = false;
+  let holdAfter = Number.POSITIVE_INFINITY;
   const fetch = (async (url: string, init: RequestInit) => {
     if (url.endsWith("/models")) return Response.json({ data: [{ id: "m" }] });
     const body = JSON.parse(init.body as string) as Body;
     bodies.push(body);
-    if (holding) await new Promise<void>((go) => held.push(go));
+    if (bodies.length > holdAfter) await new Promise<void>((go) => held.push(go));
     if (options.broken)
       return Response.json({ choices: [{ message: { content: "not json at all" } }] });
     const words = wordsAsked(body).map((target, i) => {
@@ -61,11 +62,11 @@ function model(
   return {
     fetch,
     bodies,
-    hold: () => {
-      holding = true;
+    hold: (after = 0) => {
+      holdAfter = after;
     },
     release: () => {
-      holding = false;
+      holdAfter = Number.POSITIVE_INFINITY;
       for (const go of held.splice(0)) go();
     },
     held: () => held.length,
@@ -208,6 +209,29 @@ test("a job stopped keeps the words written; started again it writes only the re
   expect(m.bodies.map((b) => wordsAsked(b).length)).toEqual([5, 1, 4]);
   expect(m.bodies[2]?.messages.at(-1)?.content).toContain("the translations in English");
   expect(m.bodies[2]?.messages.at(-1)?.content).toContain("— coffee");
+});
+
+test("each call's examples are written at once: the next call under way, the earlier ones' are on disk", async () => {
+  const m = model();
+  const { sendJson, getJson, root } = await withModel(m);
+  const scope = `course:${COURSE}`;
+  await sendJson("POST", "/api/cards/decks/take", {
+    series: FIXTURE_SERIES,
+    course: "demo",
+    edition: "ru-de",
+  });
+  await sendJson("POST", "/api/cards/lesson", lesson("en-de"));
+  // The Russian five, then the sixth alone; the English four held.
+  m.hold(2);
+  await sendJson("POST", "/api/decks/examples", { scope });
+  for (let i = 0; i < 100 && !m.held(); i++) await Bun.sleep(2);
+  const extras = JSON.parse(readFileSync(join(root, "decks", FOLDER, "extras.json"), "utf8"));
+  const inRussian = Object.values(extras.words).filter(
+    (w) => (w as { examples?: { ru?: unknown } }).examples?.ru,
+  );
+  expect(inRussian).toHaveLength(6);
+  m.release();
+  expect(await settled(getJson, scope)).toMatchObject({ made: 10, missing: 0 });
 });
 
 test("a model that cannot answer usefully: three calls in a row, and the job ends with why", async () => {

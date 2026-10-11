@@ -2,8 +2,9 @@
 // the learner's cards in a deck — an imported deck's or a course's — that bring no example of their
 // own get three to five sentences from a model, five words a call, kept in the deck's folder by
 // lexeme and the language they are translated into (deck-extras.ts), so every profile's cards show
-// them. A sentence that does not use its word is dropped; a word left without any is asked for once
-// more on its own call. Server-wide, one job per deck; the model is the profile's that starts it.
+// them. A sentence that does not use its word is dropped; the words left without any are asked for
+// once more, together in one call. Server-wide, one job per deck; the model is the profile's that
+// starts it.
 import { hasForm, usesWord, type VocabWord } from "@sprachanker/engine";
 import type { DeckMadeExamples, WordExamples } from "@sprachanker/schema";
 import { type DeckExtrasStore, type DeckJobSpec, type DeckNote, failureOf } from "./deck-extras.ts";
@@ -152,7 +153,8 @@ export function createDeckExamples(deps: { extras: DeckExtrasStore; now(): numbe
       extras.start("examples", folder, {
         steps: batches(folder, notes),
         atOnce: 1,
-        saveEvery: EXAMPLES_BATCH,
+        // A paid call's work is kept as soon as it is made: a server stopped loses at most a call.
+        saveEvery: 1,
         label: (step) => step.map((n) => n.display.target).join(", "),
         work: writeWords(write),
       });
