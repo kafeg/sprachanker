@@ -7,6 +7,7 @@ import { useCatalog, useCourses } from "@/api/courses.ts";
 import { useSettings } from "@/api/settings.ts";
 import { offersOf, useShown } from "@/app/experimental.ts";
 import { CourseCard, MyCourseCard } from "@/courses/card.tsx";
+import { shownCount } from "@/courses/filter.ts";
 import { FILTERS, useCourseFilters } from "@/courses/filters.tsx";
 import { CourseImport } from "@/library/bundle.tsx";
 import { OfferCard } from "@/library/card.tsx";
@@ -14,6 +15,8 @@ import { CardGrid, type LibraryTab, LibraryTabPage, NoneHere } from "@/library/t
 import { EmptyState, ErrorState, Loading } from "@/ui/page.tsx";
 
 type CoursesTab = LibraryTab;
+type CourseRow = NonNullable<ReturnType<typeof useCourses>["data"]>[number];
+type Offer = NonNullable<ReturnType<typeof useCatalog>["data"]>[number];
 const PATH: Record<CoursesTab, "/" | "/downloaded" | "/catalog"> = {
   mine: "/",
   downloaded: "/downloaded",
@@ -33,15 +36,49 @@ function useCourseList() {
   };
 }
 
+/** Each tab's cards: a started course (its editions), an installed edition, an offer. */
+const mineCards = (all: CourseRow[]) =>
+  all
+    .filter((c) => c.started)
+    .map((course) => ({
+      key: course.key,
+      course,
+      titles: course.editions.map((e) => course.titles[e] || course.key),
+      editions: course.editions,
+    }));
+const downloadedCards = (all: CourseRow[]) =>
+  all.flatMap((course) =>
+    course.editions.map((edition) => ({
+      key: `${course.key}:${edition}`,
+      course,
+      edition,
+      titles: [course.titles[edition] || course.key],
+      editions: [edition],
+    })),
+  );
+const availableCards = (offers: Offer[]) =>
+  offers.map((offer) => ({
+    key: offer.key,
+    offer,
+    titles: [offer.title],
+    editions: [offer.edition],
+  }));
+
 export function CoursesPage({ tab }: { tab: CoursesTab }) {
-  const { t } = useTranslation();
+  const { t, i18n } = useTranslation();
   const { shown, ready } = useShown();
+  const settings = useSettings().data ?? {};
   const all = (useCourses().data ?? []).filter((c) => shown("courses", c.series));
   const offers = offersOf(useCatalog().data, "courses", shown);
+  // Each tab counts what it shows, its filters applied.
+  const counted = <T extends { titles: string[]; editions: string[] }>(
+    id: CoursesTab,
+    cards: T[],
+  ) => shownCount(cards, FILTERS[id], settings, i18n.language);
   const count: Record<CoursesTab, number> = {
-    mine: all.filter((c) => c.started).length,
-    downloaded: all.reduce((n, c) => n + c.editions.length, 0),
-    available: offers.length,
+    mine: counted("mine", mineCards(all)),
+    downloaded: counted("downloaded", downloadedCards(all)),
+    available: counted("available", availableCards(offers)),
   };
   return (
     <LibraryTabPage
@@ -60,7 +97,7 @@ function MyCourses() {
   const { t } = useTranslation();
   const list = useCourseList();
   if (!list.all) return list.state;
-  const mine = list.all.filter((c) => c.started);
+  const mine = mineCards(list.all);
   // Choosing a course: among those downloaded while there are any, else among those to download.
   if (!mine.length)
     return (
@@ -73,12 +110,7 @@ function MyCourses() {
     <FilteredCards
       tab="mine"
       settings={list.settings}
-      cards={mine.map((course) => ({
-        key: course.key,
-        course,
-        titles: course.editions.map((e) => course.titles[e] || course.key),
-        editions: course.editions,
-      }))}
+      cards={mine}
       card={(c) => <MyCourseCard key={c.key} course={c.course} />}
     />
   );
@@ -89,15 +121,7 @@ function Downloaded() {
   const list = useCourseList();
   if (!list.all) return list.state;
   // Each edition of an installed course is a card of its own.
-  const cards = list.all.flatMap((course) =>
-    course.editions.map((edition) => ({
-      key: `${course.key}:${edition}`,
-      course,
-      edition,
-      titles: [course.titles[edition] || course.key],
-      editions: [edition],
-    })),
-  );
+  const cards = downloadedCards(list.all);
   return (
     <>
       {cards.length ? (
@@ -128,12 +152,7 @@ function Available() {
   // Not "all downloaded" when the catalogue failed (while it loads, the list waits: useShown).
   if (catalog.isError)
     return <ErrorState error={catalog.error} onRetry={() => catalog.refetch()} />;
-  const cards = offersOf(catalog.data, "courses", shown).map((offer) => ({
-    key: offer.key,
-    offer,
-    titles: [offer.title],
-    editions: [offer.edition],
-  }));
+  const cards = availableCards(offersOf(catalog.data, "courses", shown));
   if (!cards.length) return <NoneHere text={t("courses.allDownloaded")} />;
   return (
     <FilteredCards

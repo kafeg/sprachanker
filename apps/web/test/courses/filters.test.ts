@@ -1,5 +1,5 @@
 import { expect, test } from "bun:test";
-import { ALL, filterCourses } from "../../src/courses/filter.ts";
+import { ALL, FILTERS, filterCourses, shownCount } from "../../src/courses/filter.ts";
 
 const items = [
   { name: "a", titles: ["Nicos Weg A1"], editions: ["ru-de"] },
@@ -69,4 +69,11 @@ test("every interface language defaults to its own courses: Arabic, Chinese, Per
     const own = filterCourses(many, ALL, undefined, lang);
     expect([own.pair, own.shown.map((i) => i.name)], lang).toEqual([`${lang}-de`, [lang]]);
   }
+});
+
+test("a tab counts what it shows: its filters as kept, the interface language's pair when unset", () => {
+  const keys = FILTERS.downloaded;
+  expect(shownCount(items, keys, {}, "ru")).toBe(2);
+  expect(shownCount(items, keys, { [keys.pair]: "en-de" }, "ru")).toBe(1);
+  expect(shownCount(items, keys, { [keys.pair]: ALL }, "ru")).toBe(3);
 });

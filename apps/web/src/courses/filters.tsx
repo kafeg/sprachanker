@@ -7,7 +7,7 @@ import { useSetSetting } from "@/api/settings.ts";
 import { languageName } from "@/i18n/index.ts";
 import { LanguageFlag, usePairName } from "@/ui/flags.tsx";
 import { SelectField } from "@/ui/select-field.tsx";
-import { ALL, filterCourses } from "./filter.ts";
+import { ALL, filterCourses, storedFilter } from "./filter.ts";
 
 export { FILTERS } from "./filter.ts";
 
@@ -64,10 +64,7 @@ export function useCourseFilters<T extends { titles: string[]; editions: string[
       </>
     );
   };
-  const stored = (key: string) => {
-    const v = settings[key];
-    return typeof v === "string" ? v : undefined;
-  };
+  const stored = (key: string) => storedFilter(settings, key);
   const { shown, titles, pairs, active, title, pair } = filterCourses(
     items,
     stored(keys.course) ?? ALL,
