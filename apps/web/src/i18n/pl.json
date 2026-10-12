@@ -104,6 +104,8 @@
     "correct": "Dobrze",
     "partial": "Częściowo dobrze",
     "wrong": "Nie całkiem",
+    "incorrect": "Źle",
+    "unanswered": "Bez odpowiedzi",
     "summary": "Podsumowanie",
     "score": "Dobrze za pierwszym razem: {correct, number} z {scored, number}. Wynik procentowy uwzględnia też odpowiedzi częściowo dobre.",
     "skipped": "pominięte",

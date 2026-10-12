@@ -104,6 +104,8 @@
     "correct": "صحيح",
     "partial": "صحيح جزئيًا",
     "wrong": "ليس تمامًا",
+    "incorrect": "خطأ",
+    "unanswered": "بلا إجابة",
     "summary": "الملخّص",
     "score": "صحيح من المحاولة الأولى: {correct, number} من {scored, number}. النسبة المئوية تحتسب الإجابات الصحيحة جزئيًا أيضًا.",
     "skipped": "متخطّى",

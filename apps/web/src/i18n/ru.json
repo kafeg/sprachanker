@@ -104,6 +104,8 @@
     "correct": "Верно",
     "partial": "Частично верно",
     "wrong": "Не совсем",
+    "incorrect": "Неверно",
+    "unanswered": "Без ответа",
     "summary": "Итог",
     "score": "Верно с первой попытки: {correct, number} из {scored, number}. Процент учитывает и частично верные ответы.",
     "skipped": "пропущено",

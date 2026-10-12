@@ -104,6 +104,8 @@
     "correct": "Correct",
     "partial": "Partly correct",
     "wrong": "Not quite",
+    "incorrect": "Wrong",
+    "unanswered": "No answer",
     "summary": "Summary",
     "score": "Correct on the first try: {correct, number} of {scored, number}. The percentage counts partly right answers too.",
     "skipped": "skipped",

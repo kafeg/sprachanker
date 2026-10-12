@@ -104,6 +104,8 @@
     "correct": "Tačno",
     "partial": "Djelimično tačno",
     "wrong": "Nije baš tako",
+    "incorrect": "Netačno",
+    "unanswered": "Bez odgovora",
     "summary": "Sažetak",
     "score": "Tačno iz prvog pokušaja: {correct, number} od {scored, number}. Postotak računa i djelimično tačne odgovore.",
     "skipped": "preskočeno",

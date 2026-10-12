@@ -104,6 +104,8 @@
     "correct": "Doğru",
     "partial": "Kısmen doğru",
     "wrong": "Tam değil",
+    "incorrect": "Yanlış",
+    "unanswered": "Cevapsız",
     "summary": "Özet",
     "score": "İlk denemede doğru: {correct, number} / {scored, number}. Yüzde, kısmen doğru cevapları da sayar.",
     "skipped": "atlandı",

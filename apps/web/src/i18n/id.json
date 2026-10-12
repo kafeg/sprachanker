@@ -104,6 +104,8 @@
     "correct": "Benar",
     "partial": "Sebagian benar",
     "wrong": "Belum tepat",
+    "incorrect": "Salah",
+    "unanswered": "Tanpa jawaban",
     "summary": "Ringkasan",
     "score": "Benar pada percobaan pertama: {correct, number} dari {scored, number}. Persentasenya juga menghitung jawaban yang sebagian benar.",
     "skipped": "dilewati",

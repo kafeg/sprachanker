@@ -237,3 +237,43 @@ test("a speaking item shows what it asks as a prompt, then the source's answer t
   expect(old.getByText("Ich brauche eine Kaffeemaschine, um (Kaffee kochen)")).toBeTruthy();
   expect(old.queryByText("Your answer")).toBeNull();
 });
+
+test("a wrong choice is wrong, an unanswered one says so; a text partly right is not quite", async () => {
+  const choice = {
+    key: "sprachanker.test/demo/00-01/ex-04",
+    type: "single_choice",
+    fingerprint: "x",
+    newWords: [],
+    ruleIds: [],
+    items: [
+      {
+        key: "sprachanker.test/demo/00-01/ex-04#1",
+        options: [
+          { id: "a", text: "ja" },
+          { id: "b", text: "nein" },
+        ],
+        answer: { optionIds: ["a"] },
+      },
+    ],
+  } as unknown as Exercise;
+  const status = async (exercise: Exercise, answer: unknown) => {
+    const view = await renderApp(
+      <TargetLang value="de">
+        <ItemCard
+          exercise={exercise}
+          locale={null}
+          index={0}
+          answer={answer}
+          outcome={{ result: "wrong", score: 0 }}
+          url={(p) => p}
+        />
+      </TargetLang>,
+    );
+    const text = view.getByRole("status").textContent;
+    view.unmount();
+    return text;
+  };
+  expect(await status(choice, { optionId: "b" })).toBe("Wrong");
+  expect(await status(choice, undefined)).toBe("No answer");
+  expect(await status(dictation, { text: "Gutten Tag" })).toBe("Not quite");
+});

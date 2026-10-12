@@ -104,6 +104,8 @@
     "correct": "正确",
     "partial": "部分正确",
     "wrong": "不太对",
+    "incorrect": "错误",
+    "unanswered": "未作答",
     "summary": "总结",
     "score": "第一次就答对：{correct, number}/{scored, number}。百分比也计入部分正确的答案。",
     "skipped": "已跳过",

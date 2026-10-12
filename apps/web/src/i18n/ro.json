@@ -104,6 +104,8 @@
     "correct": "Corect",
     "partial": "Parțial corect",
     "wrong": "Nu chiar",
+    "incorrect": "Greșit",
+    "unanswered": "Fără răspuns",
     "summary": "Rezumat",
     "score": "Corect din prima încercare: {correct, number} din {scored, number}. Procentul ține cont și de răspunsurile parțial corecte.",
     "skipped": "sărit",

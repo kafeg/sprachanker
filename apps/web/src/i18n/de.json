@@ -104,6 +104,8 @@
     "correct": "Richtig",
     "partial": "Teilweise richtig",
     "wrong": "Nicht ganz",
+    "incorrect": "Falsch",
+    "unanswered": "Keine Antwort",
     "summary": "Zusammenfassung",
     "score": "Beim ersten Versuch richtig: {correct, number} von {scored, number}. Der Prozentwert zählt auch teilweise richtige Antworten.",
     "skipped": "übersprungen",

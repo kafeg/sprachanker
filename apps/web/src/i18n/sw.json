@@ -104,6 +104,8 @@
     "correct": "Sahihi",
     "partial": "Sahihi kwa sehemu",
     "wrong": "Si sahihi kabisa",
+    "incorrect": "Si sahihi",
+    "unanswered": "Hakuna jibu",
     "summary": "Muhtasari",
     "score": "Sahihi kwa jaribio la kwanza: {correct, number} kati ya {scored, number}. Asilimia inahesabu pia majibu yaliyo sahihi kwa sehemu.",
     "skipped": "limerukwa",

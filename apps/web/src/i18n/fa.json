@@ -104,6 +104,8 @@
     "correct": "درست است",
     "partial": "تا حدی درست",
     "wrong": "نه کاملاً",
+    "incorrect": "نادرست",
+    "unanswered": "بدون پاسخ",
     "summary": "جمع‌بندی",
     "score": "درست در اولین تلاش: {correct, number} از {scored, number}. در درصد، پاسخ‌های تا حدی درست هم حساب می‌شوند.",
     "skipped": "ردشده",

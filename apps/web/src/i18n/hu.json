@@ -104,6 +104,8 @@
     "correct": "Helyes",
     "partial": "Részben helyes",
     "wrong": "Nem egészen",
+    "incorrect": "Rossz",
+    "unanswered": "Nincs válasz",
     "summary": "Összegzés",
     "score": "Elsőre helyes: {correct, number}/{scored, number}. A százalék a részben helyes válaszokat is beszámítja.",
     "skipped": "kihagyva",
