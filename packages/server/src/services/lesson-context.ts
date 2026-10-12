@@ -32,6 +32,8 @@ interface LessonContext {
 const KNOWN_WORDS = 800;
 /** The course's people kept in a snapshot: the latest met. */
 const CHARACTERS = 30;
+/** Grammar topics ahead kept in a snapshot: the nearest. */
+const UPCOMING = 30;
 
 /** The CEFR level a course's id or a deck's name says ("a1-ru" → A1, "a1-a2-ru" and "A1A2" → A1–A2,
  *  "Deutsch A2", "слова_b1"), a range low to high ("B1 + A2" → A2–B1); undefined when it says none.
@@ -103,6 +105,23 @@ export function createLessonContext(content: Content) {
         (t) => `${t.title}
 ${t.lesson}`,
       );
+      // The grammar still ahead: later lessons' topics not met by now, the nearest first.
+      const later = await Promise.all(
+        order
+          .slice(at + 1)
+          .map((k) => content.localeLesson(series, k, edition).catch(() => undefined)),
+      );
+      const metTitles = new Set(topics.map((t) => t.title));
+      const upcoming = [
+        ...new Set(
+          later.flatMap((loc) =>
+            (loc?.tabs.grammar ?? []).flatMap((t) => {
+              const title = t.title?.trim();
+              return title && !metTitles.has(title) ? [title] : [];
+            }),
+          ),
+        ),
+      ].slice(0, UPCOMING);
       const unit = map.index.units.find((u) => u.lessons.includes(lessonKey));
       const level = levelOf(course);
       // The course's people met so far: its scripts' speakers, the latest last — a label that is a
@@ -137,6 +156,8 @@ ${t.lesson}`,
           knownWords: known.slice(-KNOWN_WORDS),
           topics,
           ...(characters.length && { characters }),
+          ...(locale?.tabs.script?.bodyHtml && { scriptHtml: locale.tabs.script.bodyHtml }),
+          ...(upcoming.length && { upcoming }),
         },
         earlierLessons: earlier.map((k) => map.titles[k] ?? k),
         titles: map.titles,

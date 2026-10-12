@@ -152,7 +152,8 @@
       "scene": "Dijalog",
       "mistakes": "Pregled grešaka",
       "summary": "Sažetak",
-      "understanding": "Razumijevanje"
+      "reading": "Čitanje",
+      "listening": "Slušanje"
     },
     "section": {
       "grammar": "Gramatika",
@@ -410,9 +411,11 @@
       "scene": "Dijalog: replika",
       "examples": "Primjeri za riječi špila",
       "sceneSummary": "Dijalog: sažetak",
-      "understanding": "Razumijevanje: tekst",
-      "understandingCheck": "Razumijevanje: drugo čitanje",
-      "mistakes": "Pregled grešaka"
+      "understandingDraft": "Čitanje i slušanje: tekst",
+      "understandingCheck": "Čitanje i slušanje: drugo čitanje",
+      "mistakes": "Pregled grešaka",
+      "understandingJudge": "Čitanje i slušanje: ocjena nacrta",
+      "understandingQuestions": "Čitanje i slušanje: pitanja"
     },
     "contextIntro": "Dodano iz lekcije:",
     "contextIntroCourses": "Dodano iz tvojih kurseva (onih za jezik koji razgovor vježba):",
@@ -452,11 +455,16 @@
       "dialogueGoals": "situacija i ciljevi koje si postigao",
       "dialogue": "rečenice dijaloga s ispravkama koje su dobile",
       "length": "koliko je tekst dug na nivou kursa",
-      "readText": "napisani tekst",
+      "readText": "tekst",
       "textQuestions": "njegova pitanja s ponuđenim odgovorima, bez rješenja",
       "writingTask": "zadatak: situacija, njegove tri tačke i dužina",
       "levelCriteria": "šta tekst na nivou kursa treba (kriteriji pismenih ispita)",
-      "mistakeGroups": "tvoje greške u ovom prolazu po vrstama, svaka samo ono što je bilo pogrešno (i pogrešno odgovorena pitanja iz „Razumijevanja“)"
+      "mistakeGroups": "tvoje greške u ovom prolazu po vrstama, svaka samo ono što je bilo pogrešno (i pogrešno odgovorena pitanja iz „Razumijevanja“)",
+      "upcoming": "gramatika koju kurs obrađuje kasnije (još nije pređena)",
+      "lessonScript": "scenarij same lekcije (njena tema i situacije)",
+      "genre": "izvučena vrsta teksta, njen oblik, dužina i ideje za situaciju",
+      "drafts": "napisani nacrti",
+      "textFacts": "činjenice s kojima je tekst osmišljen"
     },
     "upTo": "do {chars, plural, one {# znaka} few {# znaka} other {# znakova}}",
     "debug": "Prikaži dugmad „Prompt“",
@@ -497,9 +505,11 @@
         "where": "„Predloži ocjenu“ iznad kriterija odgovora, i usmeni dijelovi vođeni kao razgovor"
       },
       "understanding": {
-        "name": "Razumijevanje",
-        "where": "korak lekcije: tekst za slušanje ili čitanje, s pitanjima"
-      }
+        "name": "Čitanje i slušanje",
+        "where": "dva koraka lekcije: tekst za čitanje i tekst za slušanje, s pitanjima"
+      },
+      "prepare": "Pripremaj vježbe unaprijed",
+      "prepareHint": "Kad lekcija počne, njeni tekstovi za čitanje i slušanje i zadatak za pisanje prave se u pozadini, pa su spremni kad stigneš do njih. Model za to vrijeme radi."
     },
     "about": {
       "explain": "Objašnjava pogrešan odgovor ispod vježbe („Zašto je ovo pogrešno?“): u čemu je greška i koje pravilo stoji iza nje, na tvom jeziku.",
@@ -514,9 +524,11 @@
       "scene": "Igra tvog sagovornika: odgovara na svaku tvoju izgovorenu (kako ju je prepoznavač čuo) ili napisanu repliku, kaže je li razumljiva i odgovara li, ispravlja najviše dvije greške u njoj, daje prijevod i označava postignute ciljeve.",
       "examples": "Piše tri do pet rečenica-primjera za svaku riječ špila koji nema svoje, po pet riječi odjednom (Ponavljanje → Špilovi, „Napravi primjere“), gdje može s riječima koje znaš, a nove prevodi.",
       "sceneSummary": "Sažima dijalog kad se završi: jedna ili dvije najvažnije ispravke, uz svaku tvoja rečenica rečena kako treba, i kratak komentar.",
-      "understanding": "Piše kratak tekst na jeziku koji učiš, od riječi koje znaš — dijalog ili obavještenje za slušanje, ili jelovnik ili oglas za čitanje — s pitanjima kao na ispitima (tačno/netačno, a/b/c, brojevi). Tvoje odgovore provjerava aplikacija, ne model.",
-      "understandingCheck": "Ponovo čita tekst i odgovara na vlastita pitanja samo iz teksta: pitanje na koje odgovori drugačije ili koje mu je nejasno izostavlja se.",
-      "mistakes": "Pregleda greške prolaza po vrstama: za svaku vrstu samo pogrešne dijelove (šta si dao, šta je tačno, riječi oko toga), kratko objašnjenje i dva-tri nova zadatka te vrste od riječi koje znaš. Tvoje odgovore provjerava aplikacija, ne model."
+      "understandingDraft": "Planira i piše kratak tekst na jeziku koji učiš, o temi lekcije, na tvom nivou, u žanru koji aplikacija izvuče — razgovor, poruka ili priča za slušanje; pismo, chat ili obavještenje za čitanje: tri nacrta odjednom.",
+      "understandingCheck": "Odgovara na pitanja samo iz teksta, pa još jednom bez teksta: pitanje na koje odgovori drugačije, koje smatra nejasnim ili na koje odgovara zdrav razum, izbacuje se.",
+      "mistakes": "Pregleda greške prolaza po vrstama: za svaku vrstu samo pogrešne dijelove (šta si dao, šta je tačno, riječi oko toga), kratko objašnjenje i dva-tri nova zadatka te vrste od riječi koje znaš. Tvoje odgovore provjerava aplikacija, ne model.",
+      "understandingJudge": "Ocjenjuje nacrte kao nastavnik izvorni govornik — prirodnost, povezanost, životnost, nivo, vezu s lekcijom, zanimljivost — i navodi probleme: zadržava se najbolji koji prođe, inače se najbolji jednom piše iznova.",
+      "understandingQuestions": "Postavlja 5–10 pitanja o odabranom tekstu, kao na ispitima (tačno/netačno, a/b/c, brojevi), i navodi nove riječi. Tvoje odgovore provjerava aplikacija, ne model."
     }
   },
   "writing": {
@@ -1623,7 +1635,6 @@
     }
   },
   "understanding": {
-    "intro": "Kratak tekst od riječi koje znaš. Dijalog ili obavještenje čita se naglas: slušaj i odgovaraj po sluhu, zatim pročitaj tekst i odgovori na još jedno pitanje. Jelovnik ili oglas je za čitanje.",
     "start": "Napiši tekst",
     "writing": "Piše se tekst…",
     "new": "Novi tekst",
@@ -1645,9 +1656,13 @@
     "result": "{right, number} od {total, number} tačno",
     "past": "Raniji tekstovi ove lekcije",
     "step": {
-      "writing": "Piše se tekst…",
-      "checking": "Provjeravaju se pitanja…"
-    }
+      "writing": "Pišem nacrte…",
+      "checking": "Provjeravaju se pitanja…",
+      "choosing": "Biram najbolji nacrt…",
+      "asking": "Sastavljam pitanja…"
+    },
+    "introReading": "Kratak tekst o temi lekcije, kakav se čita u životu — pismo, chat, obavještenje, priča. Pročitaj ga i odgovori na pitanja.",
+    "introListening": "Kratak tekst o temi lekcije, pročitan naglas — razgovor, poruka, obavještenje, priča. Slušaj i odgovaraj po sluhu; tekst se otvara poslije."
   },
   "goingOver": {
     "title": "Pregled grešaka",

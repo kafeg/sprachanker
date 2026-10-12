@@ -482,6 +482,8 @@ describe("settings and media", () => {
     expect(await getJson("/api/settings")).toEqual({
       uiLanguage: "ru",
       [`edition:${FIXTURE_SERIES}/demo`]: "en-de",
+      // The tests' setup: nothing made ahead.
+      "llm.preparePractice": false,
     });
     const status = async (key: string, value: unknown) =>
       (await send("PUT", "/api/settings", { key, value })).status;

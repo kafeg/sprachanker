@@ -59,7 +59,9 @@ export function stepsDone(events: TypedEvent[]): Map<StepId, "done" | "skipped">
   for (const e of events) {
     if (e.type !== "step_done") continue;
     const { step, skipped } = e.payload;
-    out.set(step, skipped ? "skipped" : "done");
+    // Understanding, before Reading and Listening, was both in one.
+    for (const s of step === "understanding" ? (["reading", "listening"] as const) : [step])
+      out.set(s, skipped ? "skipped" : "done");
   }
   return out;
 }

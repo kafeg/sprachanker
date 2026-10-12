@@ -9,6 +9,7 @@ import {
   Lang,
   LessonKey,
   MESSAGE_MAX,
+  PracticeStep,
   SeriesKey,
   STREAM_ERROR,
   Ulid,
@@ -63,8 +64,11 @@ const SceneLine = LessonRequest.extend({
   recording: Ulid.optional(),
 });
 
-/** An answer to a question the assistant set — an Understanding text's, a mistakes review's new item
- *  (the verdict that set it, the question's number) —, checked by the engine. */
+/** A text of Reading or Listening asked for. */
+const TextRequest = LessonRequest.extend({ step: PracticeStep });
+
+/** An answer to a question the assistant set — a Reading or Listening text's, a mistakes review's new
+ *  item (the verdict that set it, the question's number) —, checked by the engine. */
 const PracticeAnswer = LessonRequest.extend({
   id: Ulid,
   question: z.number().int().nonnegative(),
@@ -291,18 +295,23 @@ export function llmRoutes() {
         zod("json", SceneLine.extend({ text: z.string().max(MESSAGE_MAX) })),
         async (c) => c.json(await c.var.s.scenes.prompt(c.req.valid("json"))),
       )
-      // Understanding: the lesson's texts with their answers; a text written (kept in the lesson run),
-      // an answer checked and kept, the prompt it would send.
-      .get("/understanding", zod("query", z.object({ lessonKey: LessonKey })), (c) =>
-        c.json(c.var.s.understanding.state(c.req.valid("query").lessonKey)),
+      // Reading and Listening: a step's texts of the lesson with their answers; a text made (kept in
+      // the lesson run), an answer checked and kept, the prompt a draft would send.
+      .get(
+        "/understanding",
+        zod("query", z.object({ lessonKey: LessonKey, step: PracticeStep })),
+        (c) => {
+          const { lessonKey, step } = c.req.valid("query");
+          return c.json(c.var.s.understanding.state(lessonKey, step));
+        },
       )
-      .post("/understanding", zod("json", LessonRequest), async (c) =>
+      .post("/understanding", zod("json", TextRequest), async (c) =>
         c.json(await c.var.s.understanding.start(c.req.valid("json"))),
       )
       .post("/understanding/answer", zod("json", PracticeAnswer), (c) =>
         c.json(c.var.s.understanding.answer(c.req.valid("json"))),
       )
-      .post("/understanding/prompt", zod("json", LessonRequest), async (c) =>
+      .post("/understanding/prompt", zod("json", TextRequest), async (c) =>
         c.json(await c.var.s.understanding.prompt(c.req.valid("json"))),
       )
       // Going over mistakes: the lesson's reviews with their answers; the pass's mistakes gone over

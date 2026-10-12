@@ -1,5 +1,5 @@
 import { expect, test } from "bun:test";
-import { nameGender, speakerVoices, voiceGender } from "../../src/audio/voice-genders.ts";
+import { castVoices, nameGender, speakerVoices, voiceGender } from "../src/speech/voices.ts";
 
 test("a server voice's gender where it is known: Qwen3-TTS's speakers, Piper's voices by name", () => {
   expect(voiceGender("qwen", "1.7b/ryan")).toBe("m");
@@ -32,4 +32,46 @@ test("each speaker by a voice of their gender: the main voice reads the one it s
   // The main voice's gender not known: it reads the first to speak.
   expect(speakerVoices(["Nina", "Jonas"], undefined)).toEqual({ Jonas: "m" });
   expect(speakerVoices(["Nina"], "m")).toEqual({});
+});
+
+test("castVoices: each person a voice of their gender, an older one for a senior only, none twice; at random", () => {
+  const QWEN = ["ryan", "aiden", "eric", "uncle_fu", "serena", "vivian", "sohee"];
+  const people = [
+    { name: "Polizist", gender: "m" as const, age: "adult" as const },
+    { name: "Touristin", gender: "f" as const, age: "young" as const },
+  ];
+  const seen = new Set<string>();
+  for (let i = 0; i < 40; i++) {
+    const cast = castVoices("qwen", people, QWEN, Math.random);
+    expect(["ryan", "aiden", "eric"]).toContain(cast.Polizist as string);
+    expect(["serena", "vivian", "sohee"]).toContain(cast.Touristin as string);
+    seen.add(cast.Polizist as string);
+  }
+  // Drawn at random: not always the same voice.
+  expect(seen.size).toBeGreaterThan(1);
+  const opa = castVoices(
+    "qwen",
+    [...people, { name: "Opa", gender: "m", age: "senior" }],
+    QWEN,
+    () => 0,
+  );
+  expect(opa).toEqual({ Opa: "uncle_fu", Polizist: "ryan", Touristin: "serena" });
+  // Two men, one man's voice: the second takes it again rather than a woman's.
+  const two = castVoices(
+    "piper",
+    [
+      { name: "Tom", gender: "m", age: "adult" },
+      { name: "Max", gender: "m", age: "adult" },
+    ],
+    ["de_DE-thorsten-medium", "de_DE-eva_k-x_low"],
+    () => 0,
+  );
+  expect(two).toEqual({ Tom: "de_DE-thorsten-medium", Max: "de_DE-thorsten-medium" });
+  expect(castVoices("piper", people, [], () => 0)).toEqual({});
+  // A voice another person of the text has already is not drawn while another is free.
+  expect(
+    castVoices("qwen", [people[0] as (typeof people)[number]], QWEN, () => 0, ["ryan"]),
+  ).toEqual({
+    Polizist: "aiden",
+  });
 });

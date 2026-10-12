@@ -152,7 +152,8 @@
       "scene": "Párbeszéd",
       "mistakes": "Hibák átnézése",
       "summary": "Összegzés",
-      "understanding": "Szövegértés"
+      "reading": "Olvasás",
+      "listening": "Hallás utáni értés"
     },
     "section": {
       "grammar": "Nyelvtan",
@@ -410,9 +411,11 @@
       "scene": "Párbeszéd: egy mondat",
       "examples": "Példák egy pakli szavaihoz",
       "sceneSummary": "Párbeszéd: az összegzés",
-      "understanding": "Szövegértés: a szöveg",
-      "understandingCheck": "Szövegértés: a második olvasás",
-      "mistakes": "Hibák átnézése"
+      "understandingDraft": "Olvasás és hallás: a szöveg",
+      "understandingCheck": "Olvasás és hallás: a második olvasás",
+      "mistakes": "Hibák átnézése",
+      "understandingJudge": "Olvasás és hallás: a vázlatok értékelése",
+      "understandingQuestions": "Olvasás és hallás: a kérdések"
     },
     "contextIntro": "A leckéből hozzáadva:",
     "contextIntroCourses": "A kurzusaidból hozzáadva (azokból, amelyek a beszélgetés nyelvét tanítják):",
@@ -452,11 +455,16 @@
       "dialogueGoals": "a helyzet és az elért célok",
       "dialogue": "a párbeszéd mondatai a hozzájuk adott javításokkal",
       "length": "milyen hosszú a szöveg a kurzus szintjén",
-      "readText": "a megírt szöveg",
+      "readText": "a szöveg",
       "textQuestions": "a kérdései a válaszlehetőségekkel, megoldások nélkül",
       "writingTask": "a feladat: a helyzet, a három pontja és a hossz",
       "levelCriteria": "mire van szüksége egy szövegnek a kurzus szintjén (az írásbeli vizsgák szempontjai)",
-      "mistakeGroups": "a hibáid ebben a körben fajtánként, mindegyikből csak ami rossz volt (a „Szövegértés” rosszul megválaszolt kérdései is)"
+      "mistakeGroups": "a hibáid ebben a körben fajtánként, mindegyikből csak ami rossz volt (a „Szövegértés” rosszul megválaszolt kérdései is)",
+      "upcoming": "a nyelvtan, amelyet a tanfolyam később tanít (még nem volt)",
+      "lessonScript": "maga a lecke szövegkönyve (a témája és a helyzetei)",
+      "genre": "a kisorsolt szövegfajta, a formája, a hossza és ötletek a helyzethez",
+      "drafts": "a megírt vázlatok",
+      "textFacts": "a tények, amelyekkel a szöveget megtervezte"
     },
     "upTo": "legfeljebb {chars, plural, one {# karakter} other {# karakter}}",
     "debug": "„Prompt” gombok megjelenítése",
@@ -497,9 +505,11 @@
         "where": "„Értékelés javaslata” egy válasz szempontjai fölött, és a beszélgetésként folytatott szóbeli részek"
       },
       "understanding": {
-        "name": "Szövegértés",
-        "where": "a lecke egy lépése: meghallgatandó vagy elolvasandó szöveg kérdésekkel"
-      }
+        "name": "Olvasás és hallás",
+        "where": "a lecke két lépése: egy olvasandó és egy meghallgatandó szöveg, kérdésekkel"
+      },
+      "prepare": "A gyakorlás előkészítése előre",
+      "prepareHint": "Amikor egy lecke elkezdődik, az olvasási és hallgatási szövegei és az írási feladata a háttérben elkészülnek, így készen állnak, mire odaérsz. A modell közben dolgozik."
     },
     "about": {
       "explain": "Elmagyarázza a feladat alatt a hibás választ („Miért hibás?”): mi a hiba, és milyen szabály áll mögötte, a te nyelveden.",
@@ -514,9 +524,11 @@
       "scene": "Eljátssza a partneredet: válaszol minden mondatodra, amit kimondasz (ahogy a felismerő hallotta) vagy beírsz, megmondja, érthető volt-e és illik-e, legfeljebb két hibát javít benne, fordítást ad és kipipálja az elért célokat.",
       "examples": "Három-öt példamondatot ír egy pakli minden olyan szavához, amelynek nincs saját példája, egyszerre öt szóhoz (Ismétlés → Paklik, „Példák készítése”); ahol lehet, ismert szavakkal, az újakat lefordítva.",
       "sceneSummary": "Összegzi a párbeszédet, amikor véget ért: az egy-két legfontosabb javítás, mindegyik mellett a mondatod helyesen, és egy rövid visszajelzés.",
-      "understanding": "Rövid szöveget ír a tanult nyelven az általad ismert szavakból — meghallgatandó párbeszédet vagy bemondást, illetve elolvasandó étlapot vagy hirdetményt — vizsgákhoz hasonló kérdésekkel (igaz/hamis, a/b/c, számok). A válaszaidat az app ellenőrzi, nem a modell.",
-      "understandingCheck": "Újra elolvassa a szöveget, és csak a szövegből válaszol a saját kérdéseire: az a kérdés, amelyre másképp válaszol, vagy amelyet nem talál egyértelműnek, kimarad.",
-      "mistakes": "Fajtánként átnézi egy kör hibáit: minden fajtánál csak a hibás részeket (mit adtál meg, mi a helyes, a körülötte lévő szavakat), egy rövid magyarázatot és két-három új, ilyen fajtájú feladatot ismert szavakból. A válaszaidat az app ellenőrzi, nem a modell."
+      "understandingDraft": "Megtervez és megír egy rövid szöveget a tanult nyelven a lecke témájáról, a szintednek megfelelően, az alkalmazás által kisorsolt műfajban — beszélgetés, üzenet vagy történet meghallgatásra; levél, chat vagy hirdetmény elolvasásra: egyszerre három vázlat.",
+      "understandingCheck": "Csak a szöveg alapján válaszol a kérdésekre, majd még egyszer szöveg nélkül: kimarad a kérdés, amelyre másképp válaszol, amelyet homályosnak talál, vagy amelyre a józan ész is felel.",
+      "mistakes": "Fajtánként átnézi egy kör hibáit: minden fajtánál csak a hibás részeket (mit adtál meg, mi a helyes, a körülötte lévő szavakat), egy rövid magyarázatot és két-három új, ilyen fajtájú feladatot ismert szavakból. A válaszaidat az app ellenőrzi, nem a modell.",
+      "understandingJudge": "Anyanyelvi tanárként értékeli a vázlatokat — természetesség, összefüggés, életszerűség, szint, kapcsolat a leckével, érdekesség — és felsorolja a hibáikat: a legjobb megfelelő marad, különben a legjobbat egyszer újraírja.",
+      "understandingQuestions": "5–10 kérdést tesz fel a kiválasztott szövegről, ahogy a vizsgákon (igaz/hamis, a/b/c, számok), és kiírja az új szavakat. A válaszaidat az alkalmazás ellenőrzi, nem a modell."
     }
   },
   "writing": {
@@ -1623,7 +1635,6 @@
     }
   },
   "understanding": {
-    "intro": "Rövid szöveg az általad ismert szavakból. A párbeszédet vagy bemondást felolvassa az app: hallgasd meg, válaszolj hallás után, aztán olvasd el a szöveget, és válaszolj még egy kérdésre. Az étlap vagy hirdetmény olvasásra való.",
     "start": "Szöveg írása",
     "writing": "Készül a szöveg…",
     "new": "Új szöveg",
@@ -1645,9 +1656,13 @@
     "result": "{right, number}/{total, number} helyes",
     "past": "A lecke korábbi szövegei",
     "step": {
-      "writing": "Készül a szöveg…",
-      "checking": "A kérdések ellenőrzése…"
-    }
+      "writing": "Vázlatok írása…",
+      "checking": "A kérdések ellenőrzése…",
+      "choosing": "A legjobb vázlat kiválasztása…",
+      "asking": "A kérdések írása…"
+    },
+    "introReading": "Rövid szöveg a lecke témájáról, olyan, amilyet az életben olvasunk — levél, chat, hirdetmény, történet. Olvasd el, és válaszolj a kérdésekre.",
+    "introListening": "Rövid szöveg a lecke témájáról, felolvasva — beszélgetés, üzenet, bemondás, történet. Hallgasd meg, és hallás után válaszolj; a szöveg utána jelenik meg."
   },
   "goingOver": {
     "title": "Hibák átnézése",

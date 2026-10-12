@@ -64,6 +64,7 @@ test("the last answer kept: the run read again, then the step done", async () =>
         series="sprachanker.test"
         lessonKey={lesson.key}
         edition="en-de"
+        step="reading"
         onStored={() =>
           new Promise<void>((resolve) => {
             order.push("stored");
@@ -79,7 +80,7 @@ test("the last answer kept: the run read again, then the step done", async () =>
     {
       data: [
         [["llm"], { provider: "custom", model: "test-model" }],
-        [["understanding", lesson.key], { texts: [text([])], preparing: false }],
+        [["understanding", lesson.key, "reading"], { texts: [text([])], preparing: false }],
       ],
     },
   );

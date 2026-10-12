@@ -9,6 +9,8 @@ const EXEMPT: Partial<Record<PromptTask, string>> = {
   // The model answers a text's questions blind: letters and short answers in the target language
   // that the app compares with the text's own, never shown.
   understandingCheck: "read by the app alone",
+  // Ratings of drafts and the problems found in them, read by the app and the next draft alone.
+  understandingJudge: "read by the app alone",
   // Sentences about their own people (a sentence's "ich" or "du" is its speaker's, set by the
   // sentence), translated as written; nothing in them addresses the learner or speaks of them.
   examples: "about no one the learner is",

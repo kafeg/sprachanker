@@ -71,6 +71,8 @@ export interface AppConfig {
   /** Downloads courses (the runtime passes the providers in); without it, nothing can be downloaded. */
   installer?: CourseInstaller;
   now?: () => number;
+  /** Chance in [0, 1): what the AI practice draws (a text's genre, ideas, voices); tests fix it. */
+  random?: () => number;
   /** Names this machine is reached by besides localhost, IPs and `.local` (its host name, the address
    *  it listens on); its tailnet name is read through `network`. */
   hosts?: string[];
@@ -93,6 +95,7 @@ export function createApp(config: AppConfig) {
     ...config,
     fetch: config.fetch ?? fetch,
     now: config.now ?? Date.now,
+    random: config.random ?? Math.random,
   });
 
   const api = new Hono<ProfileEnv>()

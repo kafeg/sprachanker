@@ -80,11 +80,20 @@ function cliError(kind: CliKind, message: string): LlmError {
 /** Time limits: a streamed reply's (the CLIs start in a few seconds, big models think long), and a
  *  JSON reply's per attempt, asked once more when it runs out — a run can hang while the CLI retries
  *  a failing API (a Dialogue's setup once took 224 s). A long JSON task's attempt by its name: a B1
- *  writing check took 69 s, new items for mistakes 67 s — cut short, a good reply is lost. */
+ *  writing check took 69 s, new items for mistakes 67 s, three drafts of a text judged over 90 s —
+ *  cut short, a good reply is lost. */
 export const CLI_LIMITS: CliLimits = {
   streamMs: 240_000,
   jsonAttemptMs: 90_000,
-  jsonAttemptMsOf: { writing_check: 150_000, scene_setup: 150_000, mistake_items: 120_000 },
+  jsonAttemptMsOf: {
+    writing_check: 150_000,
+    scene_setup: 150_000,
+    mistake_items: 120_000,
+    // A text planned and written, three of them rated side by side (made ahead, in the background).
+    understanding_draft: 180_000,
+    understanding_judge: 180_000,
+    understanding_questions: 120_000,
+  },
 };
 
 export interface CliLimits {

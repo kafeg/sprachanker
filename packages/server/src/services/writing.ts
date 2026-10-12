@@ -7,6 +7,7 @@
 import {
   checkWritingTask,
   cleanWritingCheck,
+  pickAreas,
   structuredRequest,
   type WritingInput,
   type WritingTaskInput,
@@ -40,8 +41,10 @@ export function createWriting(deps: {
   session: (lessonKey: LessonKey) => Promise<{ run: Run } | undefined>;
   llm: Llm;
   lessonContext: LessonContexts;
+  random?: () => number;
 }) {
   const { store, llm } = deps;
+  const random = deps.random ?? Math.random;
   /** What the model does for a lesson now: a text checked (`text`), or a task written. */
   const busy = createInFlight<{ text?: string }>("writing_busy");
 
@@ -65,6 +68,10 @@ export function createWriting(deps: {
       target: ctx.target,
       rules: llm.rulesFor("writingTask", request.language, ctx.target),
       lesson: ctx.info,
+      areas: pickAreas(5, random),
+      before: tasks(request.lessonKey)
+        .slice(0, 3)
+        .map((t) => t.result.situation),
     };
   }
 

@@ -30,12 +30,13 @@ import { createExplain } from "./explain.ts";
 import { createGoingOver } from "./going-over.ts";
 import { createLessonContext } from "./lesson-context.ts";
 import { createLessonJournal } from "./lesson-journal.ts";
-import { createLessons } from "./lessons.ts";
+import { createLessons, type LessonStart } from "./lessons.ts";
 import { type CliHost, createLlm, type LmStudioHost } from "./llm.ts";
 import type { ReadingCache, SpeechHost } from "./local-engines.ts";
 import { createMistakes } from "./mistakes.ts";
 import { createNetwork, type ListensOn, type NetworkHost } from "./network.ts";
 import { createNotebook } from "./notebook.ts";
+import { createPracticePrep } from "./practice-prep.ts";
 import { createProfileSpeech } from "./profile-speech.ts";
 import { contentUsed, createProfileTransfer, type TransferFiles } from "./profile-transfer.ts";
 import { createProfiles, type ProfileFiles, type RecordingFiles } from "./profiles.ts";
@@ -83,6 +84,7 @@ export interface ServicesConfig {
   listensOn: ListensOn;
   network?: NetworkHost;
   now: () => number;
+  random: () => number;
 }
 
 /** A take no answer holds goes once it is this old (one younger may be an answer still on its way). */
@@ -131,7 +133,9 @@ function profileServices(
   } catch (error) {
     console.error("removing unused recordings:", error);
   }
-  const lessons = createLessons({ store, content });
+  // The lesson's AI practice made ahead as it starts (the prep is made below, with the AI's services).
+  let lessonStarted: (lesson: LessonStart) => void = () => {};
+  const lessons = createLessons({ store, content, started: (lesson) => lessonStarted(lesson) });
   const exams = createExams({ store, content, settings, now });
   const cards = createCards({
     cards: cardStore,
@@ -169,8 +173,25 @@ function profileServices(
     placeOn: () => !settings.value("llm.offIn").includes("tutor"),
     now,
   });
-  const understanding = createUnderstanding({ store, session: lessons.shown, llm, lessonContext });
-  const writing = createWriting({ store, session: lessons.shown, llm, lessonContext });
+  const understanding = createUnderstanding({
+    store,
+    session: lessons.shown,
+    llm,
+    lessonContext,
+    voices: speechOfProfile.textVoices,
+    readAhead: (text, lang, voice) => speechOfProfile.say({ text, lang, voice }),
+    random: config.random,
+    now,
+  });
+  const writing = createWriting({
+    store,
+    session: lessons.shown,
+    llm,
+    lessonContext,
+    random: config.random,
+  });
+  const practicePrep = createPracticePrep({ understanding, writing, settings, llm });
+  lessonStarted = practicePrep.lessonStarted;
   const goingOver = createGoingOver({ store, session: lessons.shown, llm, lessonContext });
   const scenes = createScenes({ store, llm, lessonContext });
   const explain = createExplain({ llm, lessonContext, lessonRun: lessons.lessonRun, store, now });
@@ -248,6 +269,7 @@ function profileServices(
     tutor,
     understanding,
     writing,
+    practicePrep,
     goingOver,
     scenes,
   };

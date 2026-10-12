@@ -141,6 +141,19 @@
       "payload": {
         "step": "understanding"
       }
+    },
+    {
+      "since": "2026-10-12",
+      "payload": {
+        "step": "listening"
+      }
+    },
+    {
+      "since": "2026-10-12",
+      "payload": {
+        "step": "reading",
+        "skipped": true
+      }
     }
   ],
   "llm_verdict": [
@@ -436,6 +449,73 @@
               ]
             }
           ]
+        },
+        "model": "m",
+        "latencyMs": 10
+      }
+    },
+    {
+      "since": "2026-10-12",
+      "payload": {
+        "task": "understanding",
+        "input": "",
+        "result": {
+          "kind": "dialogue",
+          "step": "listening",
+          "genre": "conversation",
+          "title": "В пекарне",
+          "situation": "Анна покупает булочки.",
+          "people": [
+            {
+              "name": "Anna",
+              "gender": "f",
+              "age": "adult"
+            },
+            {
+              "name": "Herr Brandt",
+              "gender": "m",
+              "age": "senior"
+            }
+          ],
+          "voices": {
+            "engine": "qwen",
+            "by": {
+              "Anna": "serena",
+              "Herr Brandt": "uncle_fu"
+            }
+          },
+          "lines": [
+            {
+              "speaker": "Anna",
+              "text": "Guten Morgen! Zwei Brötchen, bitte."
+            },
+            {
+              "speaker": "Herr Brandt",
+              "text": "Gern. Das macht 1,20 Euro."
+            }
+          ],
+          "glossary": [
+            {
+              "word": "Brötchen",
+              "translation": "булочка"
+            }
+          ],
+          "questions": [
+            {
+              "phase": "listening",
+              "question": "Wie viel kostet das?",
+              "accepted": ["1,20"]
+            }
+          ],
+          "rating": {
+            "natural": 4,
+            "coherent": 5,
+            "realistic": 4,
+            "level": 4,
+            "lesson": 5,
+            "interest": 3,
+            "drafts": 3
+          }
         },
         "model": "m",
         "latencyMs": 10

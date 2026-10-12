@@ -19,6 +19,8 @@ import { SECTION_CHAT_BUDGETS, sectionChatRules } from "./section-chat.ts";
 import {
   UNDERSTANDING_BUDGETS,
   understandingCheckRules,
+  understandingJudgeRules,
+  understandingQuestionsRules,
   understandingTextRules,
 } from "./understanding.ts";
 import { WORD_EXAMPLES_BUDGETS, wordExamplesRules } from "./word-examples.ts";
@@ -38,7 +40,16 @@ export const TASK_PROMPTS = {
   speaking: { rules: checkSpeakingRules, budgets: CHECK_SPEAKING_BUDGETS },
   exam: { rules: rateExamAnswerRules, budgets: RATE_EXAM_ANSWER_BUDGETS },
   conversation: { rules: examConversationRules, budgets: EXAM_CONVERSATION_BUDGETS },
-  understanding: { rules: understandingTextRules, budgets: UNDERSTANDING_BUDGETS },
+  // Its own key, not "understanding": a prompt written for the old one-shot text would not fit.
+  understandingDraft: { rules: understandingTextRules, budgets: UNDERSTANDING_BUDGETS },
+  understandingJudge: { rules: understandingJudgeRules, budgets: UNDERSTANDING_BUDGETS },
+  understandingQuestions: {
+    rules: understandingQuestionsRules,
+    budgets: {
+      lessonVocab: UNDERSTANDING_BUDGETS.lessonVocab,
+      knownVocab: UNDERSTANDING_BUDGETS.knownVocab,
+    },
+  },
   understandingCheck: { rules: understandingCheckRules, budgets: {} },
   mistakes: { rules: mistakeItemsRules, budgets: MISTAKE_ITEMS_BUDGETS },
   sceneSetup: {

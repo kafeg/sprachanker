@@ -1,61 +1,70 @@
-// Understanding (04, "AI practice in courses"; 07): a text written from what the learner knows and read
-// again by the model (the questions it does not settle as the key does left out, written again once
-// when too few are left), kept in the lesson run; heard through the server's reading aloud; answered by
-// ear, then read with its reading questions — each answer checked by the engine and kept on the text;
-// read back in the Notebook's pass.
+// Reading and Listening (04, "AI practice in courses"; 07): a text made by the generator — drafts
+// written side by side, rated, the best kept (none passing: written again once, then nothing), its
+// questions asked and read again with the text and without it (those not settled, or given away by
+// common sense, left out; asked again once when too few are left) —, its people given the server's
+// voices by gender and read aloud ahead, kept in the lesson run; answered, each answer checked by the
+// engine and kept on the text; read back in the Notebook's pass; made ahead as the lesson starts.
 import { expect, test } from "bun:test";
 import { FIXTURE_SERIES } from "@sprachanker/course-fixture";
 import { ulid } from "ulid";
 import { setup } from "./setup.ts";
 import { piper } from "./speech-fakes.ts";
+import { until } from "./until.ts";
 
 const LESSON = "sprachanker.fixture/demo/00-01";
 const START = { series: FIXTURE_SERIES, lessonKey: LESSON, edition: "ru-de" };
-const REQUEST = { ...START, language: "ru" };
+const LISTENING = { ...START, language: "ru", step: "listening" };
 
-const TEXT = {
-  kind: "dialogue",
+const DRAFT = {
   title: "В пекарне",
-  situation: "Анна покупает булочки.",
-  lines: [
-    { speaker: "Anna", text: "Guten Morgen! Zwei Brötchen, bitte." },
-    { speaker: "Verkäufer", text: "Gern. Das macht 1,20 Euro." },
+  situation: "Анна утром покупает булочки.",
+  people: [
+    { name: "Anna", gender: "f", age: "adult", role: "покупательница" },
+    { name: "Herr Brandt", gender: "m", age: "senior", role: "пекарь" },
+  ],
+  beats: ["Анна заходит", "покупает булочки", "платит"],
+  facts: ["zwei Brötchen", "1,20 Euro", "am Morgen"],
+  text: [
+    "Anna: Guten Morgen! Zwei Brötchen, bitte.",
+    "Herr Brandt: Gern. Möchten Sie auch ein Brot?",
+    "Anna: Nein, danke. Was kostet das?",
+    "Herr Brandt: Das macht 1,20 Euro. Schönen Tag noch!",
+    "Anna: Danke, Ihnen auch. Tschüss!",
+    "Herr Brandt: Tschüss, bis morgen!",
+    "Anna: Bis morgen, Herr Brandt!",
+  ].join("\n"),
+};
+
+const rating = (n: number, r: Record<string, unknown> = {}) => ({
+  n,
+  gist: "Анна покупает булочки.",
+  natural: 4,
+  coherent: 4,
+  realistic: 4,
+  level: 4,
+  lesson: 4,
+  interest: 3,
+  problems: [],
+  ...r,
+});
+const JUDGED = { ratings: [rating(1), rating(2, { interest: 5 }), rating(3, { coherent: 2 })] };
+
+const QUESTIONS = {
+  questions: [
+    { question: "Anna möchte drei Brötchen.", options: ["Richtig", "Falsch"], answer: 1 },
+    { question: "Wie viel kostet das?", accepted: ["1,20", "1,20 Euro"] },
+    { question: "Wann ist das?", options: ["am Abend", "am Morgen", "in der Nacht"], answer: 1 },
+    { question: "Was kauft Anna?", options: ["Kuchen", "Brot", "Brötchen"], answer: 2 },
+    { question: "Wer verkauft?", options: ["Anna", "Herr Brandt", "niemand"], answer: 1 },
   ],
   glossary: [
     { word: "Brötchen", translation: "булочка" },
     { word: "gern", translation: "охотно" },
     { word: "macht", translation: "составляет" },
   ],
-  questions: [
-    {
-      phase: "listening",
-      question: "Anna möchte drei Brötchen.",
-      options: ["Richtig", "Falsch"],
-      answer: 1,
-    },
-    { phase: "listening", question: "Wie viel kostet das?", accepted: ["1,20", "1,20 Euro"] },
-    {
-      phase: "listening",
-      question: "Wann ist das?",
-      options: ["am Abend", "am Morgen", "in der Nacht"],
-      answer: 1,
-    },
-    {
-      phase: "listening",
-      question: "Was kauft Anna?",
-      options: ["Kuchen", "Brot", "Brötchen"],
-      answer: 2,
-    },
-    {
-      phase: "reading",
-      question: "Wer verkauft?",
-      options: ["Anna", "der Verkäufer", "niemand"],
-      answer: 1,
-    },
-  ],
 };
 
-/** The second reading: question 3 answered otherwise, question 4 ambiguous; the rest as the key. */
+/** Read with the text: question 3 answered otherwise, question 4 ambiguous; the rest as the key. */
 const CHECK = {
   answers: [
     { n: 1, choice: "b", ambiguous: false },
@@ -65,61 +74,70 @@ const CHECK = {
     { n: 5, choice: "b", ambiguous: false },
   ],
 };
-/** A second reading that settles nothing. */
-const NOTHING = { answers: [] };
+/** Without the text: question 5 given away (who sells — the baker). */
+const BLIND = {
+  answers: [
+    { n: 1, choice: "a", ambiguous: true },
+    { n: 5, choice: "b", ambiguous: false },
+  ],
+};
+const SETTLES_ALL = {
+  answers: [
+    { n: 1, choice: "b", ambiguous: false },
+    { n: 2, answer: "1,20", ambiguous: false },
+    { n: 3, choice: "b", ambiguous: false },
+    { n: 4, choice: "c", ambiguous: false },
+    { n: 5, choice: "b", ambiguous: false },
+  ],
+};
 
-/** A model answering in order, each request's schema name kept. */
-function model(replies: unknown[]) {
+type Replies = Record<string, unknown[]>;
+
+/** A model answering each task (by its schema's name) with its replies in turn — the last one again
+ *  once they run out —, its blind reading by `blind`; the tasks asked kept in order. */
+function model(replies: Replies) {
   const names: string[] = [];
   const fetch = (async (url: string, init: RequestInit) => {
     if (url.endsWith("/api/v1/models")) return Response.json({ models: [] });
     const body = JSON.parse(init.body as string);
-    names.push(body.response_format?.json_schema?.name);
-    return Response.json({ choices: [{ message: { content: JSON.stringify(replies.shift()) } }] });
+    const name: string = body.response_format?.json_schema?.name;
+    const blind = String(body.messages.at(-1)?.content).includes("(No text:");
+    const task = blind ? "blind" : name;
+    names.push(task);
+    const list = replies[task] ?? [];
+    const reply = list.length > 1 ? list.shift() : list[0];
+    return Response.json({ choices: [{ message: { content: JSON.stringify(reply) } }] });
   }) as unknown as typeof globalThis.fetch;
   return { fetch, names };
 }
 
-async function withModel(replies: unknown[], options: Parameters<typeof setup>[0] = {}) {
+const REPLIES: Replies = {
+  understanding_draft: [DRAFT],
+  understanding_judge: [JUDGED],
+  understanding_questions: [QUESTIONS],
+  understanding_check: [CHECK],
+  blind: [BLIND],
+};
+
+async function withModel(replies: Replies, options: Parameters<typeof setup>[0] = {}) {
   const m = model(replies);
-  const api = await setup({ ...options, fetch: m.fetch });
+  // The first of each draw: the step's first genre (a conversation, a chat), the first voice.
+  const api = await setup({ random: () => 0, ...options, fetch: m.fetch });
   await api.send("PUT", "/api/llm/providers/custom", { baseUrl: "http://127.0.0.1:9/v1" });
   await api.send("PUT", "/api/llm/route", { provider: "custom", model: "m" });
   return { ...api, names: m.names };
 }
 
-test("while a text is made its state says at which step — written, then read again —, for the page to say", async () => {
-  const seen: unknown[] = [];
-  const replies: unknown[] = [TEXT, CHECK];
-  let api: Awaited<ReturnType<typeof setup>> | undefined;
-  const fetch = (async (url: string) => {
-    if (url.endsWith("/api/v1/models")) return Response.json({ models: [] });
-    const state = await api?.getJson(`/api/llm/understanding?lessonKey=${LESSON}`);
-    seen.push([state?.preparing, state?.step]);
-    return Response.json({ choices: [{ message: { content: JSON.stringify(replies.shift()) } }] });
-  }) as unknown as typeof globalThis.fetch;
-  api = await setup({ fetch });
-  await api.send("PUT", "/api/llm/providers/custom", { baseUrl: "http://127.0.0.1:9/v1" });
-  await api.send("PUT", "/api/llm/route", { provider: "custom", model: "m" });
-  await api.sendJson("POST", "/api/runs", START);
-  await api.sendJson("POST", "/api/llm/understanding", REQUEST);
-  expect(seen).toEqual([
-    [true, "writing"],
-    [true, "checking"],
-  ]);
-  const after = await api.getJson(`/api/llm/understanding?lessonKey=${LESSON}`);
-  expect([after.preparing, after.step]).toEqual([false, null]);
-});
+const state = (api: Pick<Awaited<ReturnType<typeof setup>>, "getJson">, step: string) =>
+  api.getJson(`/api/llm/understanding?lessonKey=${LESSON}&step=${step}`);
 
-test("a text written and read again, kept in the lesson run; heard, answered by ear, then read; each answer checked by the engine; in the Notebook's pass", async () => {
-  const p = piper(["de_DE-thorsten-medium", "de_DE-eva_k-x_low"]);
-  const { send, sendJson, getJson, names } = await withModel([TEXT, CHECK], {
-    piper: p.host,
-    readings: p.readings,
-  });
-
+test("a text made: three drafts, rated, the best kept; questions asked and read again with and without the text; its people voiced, read ahead; answered and in the Notebook", async () => {
+  const p = piper(["de_DE-thorsten-medium", "de_DE-eva_k-x_low", "de_DE-kerstin-low"]);
+  const api = await withModel(REPLIES, { piper: p.host, readings: p.readings });
+  const { send, sendJson, getJson, names } = api;
+  await send("PUT", "/api/settings", { key: "speech.readEngine", value: "piper" });
   // A text belongs to a run of the lesson: none yet, so it is refused before the model is asked.
-  const early = await send("POST", "/api/llm/understanding", REQUEST);
+  const early = await send("POST", "/api/llm/understanding", LISTENING);
   expect([early.status, ((await early.json()) as { error: string }).error]).toEqual([
     409,
     "no_lesson_run",
@@ -127,34 +145,52 @@ test("a text written and read again, kept in the lesson run; heard, answered by 
   expect(names).toEqual([]);
   const run = (await sendJson("POST", "/api/runs", START)).run.id;
 
-  const text = await sendJson("POST", "/api/llm/understanding", REQUEST);
-  expect(names).toEqual(["understanding_text", "understanding_check"]);
-  // The questions the second reading did not settle as the key does are left out.
-  expect(text.result.questions.map((q: { question: string }) => q.question)).toEqual([
-    "Anna möchte drei Brötchen.",
-    "Wie viel kostet das?",
-    "Wer verkauft?",
+  const text = await sendJson("POST", "/api/llm/understanding", LISTENING);
+  expect(names.slice(0, 5)).toEqual([
+    "understanding_draft",
+    "understanding_draft",
+    "understanding_draft",
+    "understanding_judge",
+    "understanding_questions",
+  ]);
+  // Two questions settled, fewer than four: asked again once (no better), read again again.
+  expect(names.slice(5).sort()).toEqual([
+    "blind",
+    "blind",
+    "understanding_check",
+    "understanding_check",
+    "understanding_questions",
+  ]);
+  const r = text.result;
+  expect([r.step, r.kind, r.title]).toEqual(["listening", "dialogue", "В пекарне"]);
+  expect(r.rating).toMatchObject({ interest: 5, drafts: 3 });
+  expect(r.lines[1]).toEqual({ speaker: "Herr Brandt", text: "Gern. Möchten Sie auch ein Brot?" });
+  // Left out: answered otherwise (3), ambiguous (4), given away without the text (5).
+  expect(
+    r.questions.map((q: { question: string; phase: string }) => [q.question, q.phase]),
+  ).toEqual([
+    ["Anna möchte drei Brötchen.", "listening"],
+    ["Wie viel kostet das?", "listening"],
   ]);
   expect([text.runId, text.model, text.answers]).toEqual([run, "m", []]);
-  // Glossed as new: only words not met — "gern" is one of the lesson's own. "Brötchen" a question
-  // only uses stays glossed.
-  expect(text.result.glossary).toEqual([
-    { word: "Brötchen", translation: "булочка" },
-    { word: "macht", translation: "составляет" },
-  ]);
+  // Glossed as new: only words not met — "gern" is one of the lesson's own.
+  expect(r.glossary.map((g: { word: string }) => g.word)).toEqual(["Brötchen", "macht"]);
+  // Its people voiced by their gender among Piper's voices for German.
+  expect(r.voices.engine).toBe("piper");
+  expect(r.voices.by["Herr Brandt"]).toBe("de_DE-thorsten-medium");
+  expect(["de_DE-eva_k-x_low", "de_DE-kerstin-low"]).toContain(r.voices.by.Anna);
+  // Its first six pieces read ahead (the rest as the page asks).
+  await until(() => p.said.length === 6);
+  expect(p.said[1]).toMatchObject({
+    id: "de_DE-thorsten-medium",
+    text: "Gern. Möchten Sie auch ein Brot?",
+  });
 
-  // Heard through the server's reading aloud, each speaker by a voice of the language.
-  for (const [i, line] of TEXT.lines.entries()) {
-    const voice = i ? "de_DE-eva_k-x_low" : "de_DE-thorsten-medium";
-    const wav = await send("POST", "/api/speech/say", { text: line.text, lang: "de", voice });
-    expect(wav.status).toBe(200);
-  }
-  expect(p.said.map((s) => s.id)).toEqual(["de_DE-thorsten-medium", "de_DE-eva_k-x_low"]);
-
-  // By ear: a choice wrong, an answer typed right; a question answered twice keeps its first answer.
+  // Answered: a choice wrong, an answer typed right; a question answered twice keeps its first.
   const answer = (question: number, value: unknown) =>
     send("POST", "/api/llm/understanding/answer", {
-      ...REQUEST,
+      ...START,
+      language: "ru",
       id: text.id,
       question,
       answer: value,
@@ -168,65 +204,137 @@ test("a text written and read again, kept in the lesson run; heard, answered by 
     [0, "wrong"],
     [1, "correct"],
   ]);
-  // Then the text read, its reading question.
-  await answer(2, { optionId: "b" });
-  // An answer that does not fit the question, a question or text not there.
   expect((await answer(1, { optionId: "a" })).status).toBe(400);
   expect((await answer(9, { optionId: "a" })).status).toBe(404);
   const missing = await send("POST", "/api/llm/understanding/answer", {
-    ...REQUEST,
+    ...START,
+    language: "ru",
     id: ulid(),
     question: 0,
     answer: { optionId: "a" },
   });
   expect(missing.status).toBe(404);
 
-  const state = await getJson(`/api/llm/understanding?lessonKey=${LESSON}`);
-  expect(state.preparing).toBe(false);
-  expect(state.texts).toHaveLength(1);
-  expect(
-    state.texts[0].answers.map((a: { outcome: { result: string } }) => a.outcome.result),
-  ).toEqual(["wrong", "correct", "correct"]);
+  // A step's own texts: Listening's here, none of Reading's.
+  const listening = await state(api, "listening");
+  expect([listening.preparing, listening.texts.length]).toEqual([false, 1]);
+  expect((await state(api, "reading")).texts).toEqual([]);
 
-  // The step done, the pass is one with work: the Notebook counts the text and shows it with its
-  // answers among the run's events.
+  // The step done, the Notebook counts the text and shows it with its answers.
   await sendJson("POST", `/api/runs/${run}/events`, {
-    events: [{ id: ulid(), type: "step_done", payload: { step: "understanding" } }],
+    events: [{ id: ulid(), type: "step_done", payload: { step: "listening" } }],
   });
   const lesson = await getJson(`/api/notebook/lesson?lessonKey=${LESSON}`);
   expect(lesson.passes[0].understanding).toBe(1);
   const pass = await getJson(`/api/notebook/passes/${run}`);
   expect(pass.understanding.map((u: { id: string }) => u.id)).toEqual([text.id]);
-  expect(pass.events.filter((e: { type: string }) => e.type === "practice_answered")).toHaveLength(
-    3,
-  );
 
-  const prompt = await sendJson("POST", "/api/llm/understanding/prompt", REQUEST);
-  expect(prompt.body.response_format.json_schema.name).toBe("understanding_text");
+  const prompt = await sendJson("POST", "/api/llm/understanding/prompt", LISTENING);
+  expect(prompt.body.response_format.json_schema.name).toBe("understanding_draft");
   expect(prompt.body.messages[1].content).toContain("Learner's level: beginner (A1–A2)");
-  expect(prompt.body.messages[1].content).toContain("about 40–70 words");
 });
 
-test("too few questions settled: the text is written again once and the better kept; none settled: nothing is kept", async () => {
-  const few = { answers: CHECK.answers.slice(0, 2) };
-  const { sendJson, getJson, names } = await withModel([TEXT, few, TEXT, CHECK]);
-  await sendJson("POST", "/api/runs", START);
-  const text = await sendJson("POST", "/api/llm/understanding", REQUEST);
-  expect(names).toEqual([
-    "understanding_text",
-    "understanding_check",
-    "understanding_text",
-    "understanding_check",
-  ]);
-  expect(text.result.questions).toHaveLength(3);
+test("no draft passing: the best written again with its problems; still none, nothing is kept", async () => {
+  const failing = {
+    ratings: [rating(1, { coherent: 2, problems: ['"Ich frage zweimal" folgt aus nichts'] })],
+  };
+  const failingAll = {
+    ratings: [failing.ratings[0], rating(2, { coherent: 2 }), rating(3, { realistic: 2 })],
+  };
+  const api = await withModel({
+    ...REPLIES,
+    understanding_judge: [
+      { ratings: [failing.ratings[0], rating(2, { realistic: 1 }), rating(3, { natural: 2 })] },
+      { ratings: [rating(1)] },
+    ],
+  });
+  await api.sendJson("POST", "/api/runs", START);
+  const text = await api.sendJson("POST", "/api/llm/understanding", LISTENING);
+  expect(api.names.filter((n) => n === "understanding_draft")).toHaveLength(4);
+  expect(text.result.rating.drafts).toBe(4);
 
-  const none = await withModel([TEXT, NOTHING, TEXT, NOTHING]);
+  // Written again and still short, but nothing plainly wrong (3s): the better of the two kept.
+  const short = await withModel({
+    ...REPLIES,
+    understanding_judge: [failingAll, { ratings: [rating(1, { coherent: 3 })] }],
+  });
+  await short.sendJson("POST", "/api/runs", START);
+  const kept = await short.sendJson("POST", "/api/llm/understanding", LISTENING);
+  expect(kept.result.rating.coherent).toBe(3);
+
+  const none = await withModel({
+    ...REPLIES,
+    understanding_judge: [failingAll, failing],
+  });
   await none.sendJson("POST", "/api/runs", START);
-  const res = await none.send("POST", "/api/llm/understanding", REQUEST);
+  const res = await none.send("POST", "/api/llm/understanding", LISTENING);
   expect([res.status, ((await res.json()) as { error: string }).error]).toEqual([
     502,
     "llm_invalid_output",
   ]);
-  expect((await none.getJson(`/api/llm/understanding?lessonKey=${LESSON}`)).texts).toEqual([]);
-  expect((await getJson(`/api/llm/understanding?lessonKey=${LESSON}`)).texts).toHaveLength(1);
+  expect((await state(none, "listening")).texts).toEqual([]);
+});
+
+test("too few questions settled: asked again once and the better kept; none settled: nothing is kept", async () => {
+  const few = { answers: CHECK.answers.slice(0, 1) };
+  const api = await withModel({
+    ...REPLIES,
+    understanding_check: [few, SETTLES_ALL],
+    blind: [{ answers: [] }],
+  });
+  await api.sendJson("POST", "/api/runs", START);
+  const text = await api.sendJson("POST", "/api/llm/understanding", LISTENING);
+  expect(api.names.filter((n) => n === "understanding_questions")).toHaveLength(2);
+  expect(text.result.questions).toHaveLength(5);
+
+  const none = await withModel({ ...REPLIES, understanding_check: [{ answers: [] }] });
+  await none.sendJson("POST", "/api/runs", START);
+  const res = await none.send("POST", "/api/llm/understanding", LISTENING);
+  expect(res.status).toBe(502);
+});
+
+test("made ahead as a new run starts: Reading and Listening's texts and the writing task; resumed, nothing; a step's untouched or half-done text never replaced", async () => {
+  const task = {
+    situation: "Вы пишете другу.",
+    points: ["Wann?", "Wo?", "Was?"],
+    words: 40,
+  };
+  const api = await withModel({
+    ...REPLIES,
+    understanding_check: [SETTLES_ALL],
+    blind: [{ answers: [] }],
+    writing_task: [task],
+  });
+  await api.send("PUT", "/api/settings", { key: "llm.preparePractice", value: true });
+  await api.sendJson("POST", "/api/runs", START);
+  await until(async () => (await state(api, "listening")).texts.length === 1);
+  await until(
+    async () =>
+      !!(
+        await api.getJson(
+          `/api/llm/writing?series=${FIXTURE_SERIES}&lessonKey=${LESSON}&edition=ru-de`,
+        )
+      ).task,
+  );
+  const reading = await state(api, "reading");
+  expect(reading.texts[0].result.step).toBe("reading");
+  expect(reading.texts[0].result.kind).toBe("reading");
+  const asked = api.names.length;
+  // Resumed: nothing made ahead; started again: the texts and the task untouched, none made anew.
+  await api.sendJson("POST", "/api/runs", START);
+  await api.sendJson("POST", "/api/runs", { ...START, restart: true });
+  await new Promise((r) => setTimeout(r, 50));
+  expect(api.names.length).toBe(asked);
+  // A text half answered is the learner's to finish: not replaced either.
+  const text = (await state(api, "listening")).texts[0];
+  await api.send("POST", "/api/llm/understanding/answer", {
+    ...START,
+    language: "ru",
+    id: text.id,
+    question: 0,
+    answer: { optionId: "b" },
+  });
+  await api.sendJson("POST", "/api/runs", { ...START, restart: true });
+  await new Promise((r) => setTimeout(r, 50));
+  expect(api.names.length).toBe(asked);
 });

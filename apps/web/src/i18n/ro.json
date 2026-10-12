@@ -152,7 +152,8 @@
       "scene": "Dialog",
       "mistakes": "Analiza greșelilor",
       "summary": "Rezumat",
-      "understanding": "Înțelegere"
+      "reading": "Citire",
+      "listening": "Ascultare"
     },
     "section": {
       "grammar": "Gramatică",
@@ -410,9 +411,11 @@
       "scene": "Dialog: o replică",
       "examples": "Exemple pentru cuvintele unui pachet",
       "sceneSummary": "Dialog: rezumatul",
-      "understanding": "Înțelegere: textul",
-      "understandingCheck": "Înțelegere: a doua citire",
-      "mistakes": "Analiza greșelilor"
+      "understandingDraft": "Citire și ascultare: textul",
+      "understandingCheck": "Citire și ascultare: a doua lectură",
+      "mistakes": "Analiza greșelilor",
+      "understandingJudge": "Citire și ascultare: evaluarea ciornelor",
+      "understandingQuestions": "Citire și ascultare: întrebările"
     },
     "contextIntro": "Adăugat din lecție:",
     "contextIntroCourses": "Adăugat din cursurile tale (cele ale limbii pe care o exersează conversația):",
@@ -452,11 +455,16 @@
       "dialogueGoals": "situația și obiectivele atinse",
       "dialogue": "replicile dialogului cu corecturile primite",
       "length": "cât de lung e textul la nivelul cursului",
-      "readText": "textul scris",
+      "readText": "textul",
       "textQuestions": "întrebările lui cu variantele, fără răspunsuri",
       "writingTask": "sarcina: situația, cele trei puncte ale ei și lungimea",
       "levelCriteria": "de ce are nevoie un text la nivelul cursului (criteriile examenelor scrise)",
-      "mistakeGroups": "greșelile tale din această parcurgere pe tipuri, fiecare doar ce a fost greșit (și întrebările de la „Înțelegere” greșite)"
+      "mistakeGroups": "greșelile tale din această parcurgere pe tipuri, fiecare doar ce a fost greșit (și întrebările de la „Înțelegere” greșite)",
+      "upcoming": "gramatica pe care cursul o predă mai târziu (încă neîntâlnită)",
+      "lessonScript": "scenariul lecției (tema și situațiile ei)",
+      "genre": "genul de text ales, forma, lungimea lui și idei pentru situație",
+      "drafts": "ciornele scrise",
+      "textFacts": "faptele cu care a fost gândit textul"
     },
     "upTo": "până la {chars, plural, one {# caracter} few {# caractere} other {# de caractere}}",
     "debug": "Arată butoanele „Prompt”",
@@ -497,9 +505,11 @@
         "where": "„Propune o notă” deasupra criteriilor unui răspuns și probele orale purtate ca o conversație"
       },
       "understanding": {
-        "name": "Înțelegere",
-        "where": "un pas al lecției: un text de ascultat sau de citit, cu întrebări"
-      }
+        "name": "Citire și ascultare",
+        "where": "doi pași ai lecției: un text de citit și unul de ascultat, cu întrebări"
+      },
+      "prepare": "Pregătește exersarea din timp",
+      "prepareHint": "Când începe o lecție, textele ei de citit și de ascultat și sarcina de scriere se pregătesc în fundal, ca să fie gata când ajungi la ele. Modelul lucrează între timp."
     },
     "about": {
       "explain": "Explică un răspuns greșit sub exercițiu („De ce e greșit?”): care e greșeala și regula din spatele ei, în limba ta.",
@@ -514,9 +524,11 @@
       "scene": "Joacă rolul partenerului tău: răspunde la fiecare replică pe care o spui (cum a auzit-o recunoașterea) sau o scrii, spune dacă a fost înțeleasă și dacă se potrivește, corectează cel mult două greșeli, dă o traducere și bifează obiectivele atinse.",
       "examples": "Scrie trei-cinci propoziții exemplu pentru fiecare cuvânt al unui pachet care nu are exemple proprii, câte cinci cuvinte odată (Recapitulare → Pachete, „Creează exemple”), cu cuvinte pe care le știi unde se poate și cu cele noi traduse.",
       "sceneSummary": "Rezumă un dialog după ce s-a încheiat: una sau două corecturi care contează cel mai mult, fiecare cu replica ta spusă bine, și un scurt comentariu.",
-      "understanding": "Scrie un text scurt în limba pe care o înveți, din cuvintele pe care le știi — un dialog sau un anunț de ascultat, ori un meniu sau un afiș de citit — cu întrebări ca la examene (adevărat/fals, a/b/c, numere). Răspunsurile tale le verifică aplicația, nu modelul.",
-      "understandingCheck": "Recitește textul și răspunde la propriile întrebări doar din text: o întrebare la care răspunde altfel sau pe care o găsește neclară este scoasă.",
-      "mistakes": "Analizează greșelile unei parcurgeri pe tipuri: la fiecare tip doar părțile greșite (ce ai dat, ce e corect, cuvintele din jur), o explicație scurtă și două-trei exerciții noi de acel tip din cuvinte cunoscute. Răspunsurile tale le verifică aplicația, nu modelul."
+      "understandingDraft": "Plănuiește și scrie un text scurt în limba pe care o înveți, pe tema lecției, la nivelul tău, într-un gen ales de aplicație — o conversație, un mesaj sau o poveste de ascultat; o scrisoare, un chat sau un anunț de citit: trei ciorne deodată.",
+      "understandingCheck": "Răspunde la întrebări doar din text, apoi încă o dată fără text: o întrebare la care răspunde altfel, pe care o găsește neclară sau la care răspunde bunul-simț este scoasă.",
+      "mistakes": "Analizează greșelile unei parcurgeri pe tipuri: la fiecare tip doar părțile greșite (ce ai dat, ce e corect, cuvintele din jur), o explicație scurtă și două-trei exerciții noi de acel tip din cuvinte cunoscute. Răspunsurile tale le verifică aplicația, nu modelul.",
+      "understandingJudge": "Evaluează ciornele ca un profesor vorbitor nativ — firesc, coerent, realist, la nivelul tău, legat de lecție, interesant — și enumeră problemele: rămâne cea mai bună care trece, altfel cea mai bună e rescrisă o dată.",
+      "understandingQuestions": "Pune 5–10 întrebări despre textul ales, ca la examene (adevărat/fals, a/b/c, numere), și notează cuvintele noi. Răspunsurile tale le verifică aplicația, nu modelul."
     }
   },
   "writing": {
@@ -1623,7 +1635,6 @@
     }
   },
   "understanding": {
-    "intro": "Un text scurt din cuvintele pe care le știi. Un dialog sau un anunț e citit cu voce tare: ascultă și răspunde după auz, apoi citește textul și răspunde la încă o întrebare. Un meniu sau un afiș e de citit.",
     "start": "Scrie un text",
     "writing": "Se scrie textul…",
     "new": "Text nou",
@@ -1645,9 +1656,13 @@
     "result": "{right, number} din {total, number} corecte",
     "past": "Texte anterioare din această lecție",
     "step": {
-      "writing": "Se scrie textul…",
-      "checking": "Se verifică întrebările…"
-    }
+      "writing": "Scriu ciorne…",
+      "checking": "Se verifică întrebările…",
+      "choosing": "Aleg cea mai bună ciornă…",
+      "asking": "Scriu întrebările…"
+    },
+    "introReading": "Un text scurt pe tema lecției, cum citim în viața de zi cu zi — o scrisoare, un chat, un anunț, o poveste. Citește-l și răspunde la întrebări.",
+    "introListening": "Un text scurt pe tema lecției, citit cu voce tare — o conversație, un mesaj, un anunț, o poveste. Ascultă și răspunde după ureche; textul se deschide după aceea."
   },
   "goingOver": {
     "title": "Analiza greșelilor",

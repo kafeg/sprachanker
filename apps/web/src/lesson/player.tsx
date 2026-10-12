@@ -226,7 +226,8 @@ export function LessonPlayer({
                 />
               </ShuffleSeed.Provider>
             )}
-            {(step.kind === "understanding" ||
+            {(step.kind === "reading" ||
+              step.kind === "listening" ||
               step.kind === "writing" ||
               step.kind === "scene" ||
               step.kind === "mistakes") && (

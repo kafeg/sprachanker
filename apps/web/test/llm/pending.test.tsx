@@ -83,12 +83,15 @@ test("a reply not begun shows Thinking… with the seconds it takes (a CLI answe
 test("a long wait says what is being done beside its seconds: the text's questions checked, new tasks made, a task set", async () => {
   const understanding = await renderApp(
     <TargetLang value="de">
-      <UnderstandingStep {...ids} />
+      <UnderstandingStep {...ids} step="listening" />
     </TargetLang>,
     {
       data: [
         llm,
-        [["understanding", ids.lessonKey], { texts: [], preparing: true, step: "checking" }],
+        [
+          ["understanding", ids.lessonKey, "listening"],
+          { texts: [], preparing: true, step: "checking" },
+        ],
       ],
     },
   );

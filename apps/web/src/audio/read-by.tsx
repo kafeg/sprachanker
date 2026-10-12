@@ -1,6 +1,6 @@
 // Who reads a language aloud (08; 09), named where a line is to be listened to, as the AI's model is:
 // "Read by Piper · thorsten" — a dialogue read by two voices, both: "Read by Piper · thorsten and
-// eva". Where to change it says a hint (not a link: a lesson is not left by a tap on a label), shown
+// eva"; a text whose people have their own voices, each of them. Where to change it says a hint (not a link: a lesson is not left by a tap on a label), shown
 // on hover, on focus and on a tap; nothing reading the language says so. Nothing is named while the
 // server is still asked what it reads.
 import { Volume2 } from "lucide-react";
@@ -15,6 +15,7 @@ import { useSpeaker } from "./speaker.ts";
 export function ReadByLabel({
   lang,
   two = false,
+  named,
   className,
 }: {
   lang: string;
@@ -22,6 +23,9 @@ export function ReadByLabel({
    *  the main one and the other as its parts ask for it (`alt`), or two others (a pair: neither is
    *  the main one's). */
   two?: Alt | readonly [Alt, Alt] | false;
+  /** The server's voices that read it (a text's people's), by id: all named where the server reads
+   *  the language. */
+  named?: readonly string[];
   className?: string;
 }) {
   const { t, i18n } = useTranslation();
@@ -31,10 +35,14 @@ export function ReadByLabel({
   const [first, second] = Array.isArray(two) ? two : [undefined, two];
   const by = speaker.readBy(lang, first);
   const other = second ? speaker.readBy(lang, second)?.voice : undefined;
+  const list = (names: string[]) =>
+    new Intl.ListFormat(i18n.language, { type: "conjunction" }).format(names);
   const voices =
-    by?.voice && other && other !== by.voice
-      ? new Intl.ListFormat(i18n.language, { type: "conjunction" }).format([by.voice, other])
-      : by?.voice;
+    named && by && by.engine !== "device"
+      ? list([...new Set(named.map(speaker.voiceName))])
+      : by?.voice && other && other !== by.voice
+        ? list([by.voice, other])
+        : by?.voice;
   const text = !by
     ? t("speech.readByNone", { language: languageName(lang, i18n.language) })
     : voices

@@ -152,7 +152,8 @@
       "scene": "Dialog",
       "mistakes": "Fehler durchgehen",
       "summary": "Fazit",
-      "understanding": "Verstehen"
+      "reading": "Lesen",
+      "listening": "Hören"
     },
     "section": {
       "grammar": "Grammatik",
@@ -410,9 +411,11 @@
       "scene": "Dialog: ein Satz",
       "examples": "Beispiele für die Wörter eines Stapels",
       "sceneSummary": "Dialog: die Zusammenfassung",
-      "understanding": "Verstehen: der Text",
-      "understandingCheck": "Verstehen: das zweite Lesen",
-      "mistakes": "Fehler durchgehen"
+      "understandingDraft": "Lesen und Hören: der Text",
+      "understandingCheck": "Lesen und Hören: das zweite Lesen",
+      "mistakes": "Fehler durchgehen",
+      "understandingJudge": "Lesen und Hören: die Entwürfe bewertet",
+      "understandingQuestions": "Lesen und Hören: die Fragen"
     },
     "contextIntro": "Aus der Lektion kommt dazu:",
     "contextIntroCourses": "Aus deinen Kursen kommt dazu (denen in der Sprache, die das Gespräch übt):",
@@ -452,11 +455,16 @@
       "dialogueGoals": "die Situation und die Ziele, die du erreicht hast",
       "dialogue": "die Sätze des Dialogs mit den Korrekturen dazu",
       "length": "wie lang der Text auf dem Niveau des Kurses ist",
-      "readText": "der geschriebene Text",
+      "readText": "der Text",
       "textQuestions": "seine Fragen mit den Antwortmöglichkeiten, ohne die Lösungen",
       "writingTask": "die Aufgabe: die Situation, ihre drei Punkte und die Länge",
       "levelCriteria": "was ein Text auf dem Niveau des Kurses braucht (die Kriterien der Schreibprüfungen)",
-      "mistakeGroups": "deine Fehler in diesem Durchgang nach Art, jeder nur das Falsche (falsch beantwortete Fragen aus „Verstehen“ auch)"
+      "mistakeGroups": "deine Fehler in diesem Durchgang nach Art, jeder nur das Falsche (falsch beantwortete Fragen aus Lesen und Hören auch)",
+      "upcoming": "die Grammatik, die der Kurs später behandelt (noch nicht gelernt)",
+      "lessonScript": "das Skript der Lektion (ihr Thema und ihre Situationen)",
+      "genre": "die ausgeloste Textsorte, ihre Form, ihre Länge und Ideen für die Situation",
+      "drafts": "die geschriebenen Entwürfe",
+      "textFacts": "die Fakten, mit denen der Text geplant wurde"
     },
     "upTo": "bis {chars, number} Zeichen",
     "debug": "Schaltflächen „Prompt“ anzeigen",
@@ -497,9 +505,11 @@
         "where": "„Bewertung vorschlagen“ über den Kriterien einer Antwort und die Sprechteile als Gespräch"
       },
       "understanding": {
-        "name": "Verstehen",
-        "where": "ein Schritt der Lektion: ein Text zum Hören oder Lesen, mit Fragen"
-      }
+        "name": "Lesen und Hören",
+        "where": "zwei Schritte der Lektion: ein Text zum Lesen und einer zum Hören, mit Fragen"
+      },
+      "prepare": "Übungen im Voraus vorbereiten",
+      "prepareHint": "Sobald eine Lektion beginnt, werden ihre Texte zum Lesen und Hören und die Schreibaufgabe im Hintergrund erstellt, damit sie bereitstehen, wenn du dort ankommst. Das Modell arbeitet in der Zeit."
     },
     "about": {
       "explain": "Erklärt eine falsche Antwort unter der Übung („Warum ist das falsch?“): was der Fehler ist und welche Regel dahintersteht, in deiner Sprache.",
@@ -514,9 +524,11 @@
       "scene": "Spielt dein Gegenüber: antwortet auf jeden Satz, den du sagst (so, wie die Erkennung ihn gehört hat) oder tippst, sagt, ob er verstanden wurde und passt, korrigiert höchstens zwei Fehler darin, gibt eine Übersetzung und hakt deine Ziele ab.",
       "examples": "Schreibt drei bis fünf Beispielsätze zu jedem Wort eines Stapels, das keine eigenen hat, fünf Wörter auf einmal (Wiederholen → Stapel, „Beispiele erstellen“), möglichst mit Wörtern, die du kennst, neue übersetzt.",
       "sceneSummary": "Fasst einen Dialog zusammen, wenn er vorbei ist: die ein oder zwei wichtigsten Korrekturen, jede mit deinem Satz, wie man ihn gut sagt, und eine kurze Rückmeldung.",
-      "understanding": "Schreibt einen kurzen Text in der Sprache, die du lernst, aus den Wörtern, die du kennst — einen Dialog oder eine Durchsage zum Hören oder eine Speisekarte, einen Aushang zum Lesen — mit Fragen wie in Prüfungen (richtig/falsch, a/b/c, Zahlen). Deine Antworten prüft die App, nicht das Modell.",
-      "understandingCheck": "Liest den Text noch einmal und beantwortet die eigenen Fragen nur aus dem Text: Eine Frage, die es anders beantwortet oder unklar findet, fällt weg.",
-      "mistakes": "Geht die Fehler eines Durchgangs nach Art durch: je Art nur die falschen Teile (was du gegeben hast, was richtig ist, die Wörter darum), eine kurze Erklärung und zwei, drei neue Aufgaben dieser Art aus Wörtern, die du kennst. Deine Antworten prüft die App, nicht das Modell."
+      "understandingDraft": "Plant und schreibt einen kurzen Text in der Sprache, die du lernst, zum Thema der Lektion, auf deinem Niveau, in einer Textsorte, die die App auslost — ein Gespräch, eine Nachricht oder eine Geschichte zum Hören; ein Brief, ein Chat oder ein Aushang zum Lesen: drei Entwürfe nebeneinander.",
+      "understandingCheck": "Beantwortet die Fragen nur aus dem Text und dann noch einmal ohne den Text: Eine Frage, die es anders beantwortet, unklar findet oder die der gesunde Menschenverstand beantwortet, fällt weg.",
+      "mistakes": "Geht die Fehler eines Durchgangs nach Art durch: je Art nur die falschen Teile (was du gegeben hast, was richtig ist, die Wörter darum), eine kurze Erklärung und zwei, drei neue Aufgaben dieser Art aus Wörtern, die du kennst. Deine Antworten prüft die App, nicht das Modell.",
+      "understandingJudge": "Bewertet die Entwürfe wie eine muttersprachliche Lehrkraft — natürlich, stimmig, lebensnah, auf deinem Niveau, zur Lektion passend, interessant — und nennt ihre Probleme: Der beste, der besteht, bleibt; sonst wird der beste einmal neu geschrieben.",
+      "understandingQuestions": "Stellt 5–10 Fragen zum gewählten Text wie in Prüfungen (richtig/falsch, a/b/c, Zahlen) und listet seine neuen Wörter auf. Deine Antworten prüft die App, nicht das Modell."
     }
   },
   "writing": {
@@ -1623,7 +1635,6 @@
     }
   },
   "understanding": {
-    "intro": "Ein kurzer Text aus den Wörtern, die du kennst. Ein Dialog oder eine Durchsage wird vorgelesen: Hör zu und antworte nach dem Hören, dann lies den Text und beantworte noch eine Frage. Eine Speisekarte oder ein Aushang ist zum Lesen da.",
     "start": "Text schreiben lassen",
     "writing": "Text wird geschrieben…",
     "new": "Neuer Text",
@@ -1645,9 +1656,13 @@
     "result": "{right, number} von {total, number} richtig",
     "past": "Frühere Texte dieser Lektion",
     "step": {
-      "writing": "Text wird geschrieben…",
-      "checking": "Fragen werden geprüft…"
-    }
+      "writing": "Entwürfe werden geschrieben…",
+      "checking": "Fragen werden geprüft…",
+      "choosing": "Der beste Entwurf wird gewählt…",
+      "asking": "Fragen werden geschrieben…"
+    },
+    "introReading": "Ein kurzer Text zum Thema der Lektion, wie man ihn im Alltag liest — ein Brief, ein Chat, ein Aushang, eine Geschichte. Lies ihn und beantworte die Fragen.",
+    "introListening": "Ein kurzer Text zum Thema der Lektion, vorgelesen — ein Gespräch, eine Nachricht, eine Durchsage, eine Geschichte. Hör zu und antworte nach dem Hören; der Text öffnet sich danach."
   },
   "goingOver": {
     "title": "Fehler durchgehen",

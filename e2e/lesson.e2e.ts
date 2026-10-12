@@ -54,7 +54,8 @@ test("open the course, go through the words, the grammar and an exercise, resume
   const score = page.getByText(/Correct on the first try/);
   const skip = page.getByRole("button", { name: "Skip", exact: true });
   const next = page.getByRole("button", { name: /^(Next|To the summary)$/ });
-  for (let i = 0; i < 12; i++) {
+  // Every step up to the summary — the AI practice's too, when another test set up a model.
+  for (let i = 0; i < 20; i++) {
     await score.or(skip).or(next).first().waitFor();
     if (await score.isVisible()) break;
     await ((await skip.isVisible()) ? skip : next).click();

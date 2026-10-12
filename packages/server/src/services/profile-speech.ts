@@ -82,6 +82,23 @@ export function createProfileSpeech(deps: {
       return qwenTts.say(text, lang, chosen, qwenModel(), { signal });
     },
 
+    /** The server's voices the profile reads a language with now — its engine's (Piper's installed
+     *  for the language, Qwen3-TTS's speakers) —, for a text's people; none where the profile reads
+     *  on its device or the server cannot read the language. */
+    textVoices(lang: string): { engine: "piper" | "qwen"; voices: string[] } | undefined {
+      const engine = settings.value("speech.readEngine");
+      if (engine === "piper" && readAloud.canRead(lang)) {
+        const voices = readAloud
+          .state()
+          .voices.filter((v) => v.installed && v.lang === lang)
+          .map((v) => v.id);
+        return { engine, voices };
+      }
+      if (engine === "qwen" && qwenTts.voice(lang, undefined, qwenModel()))
+        return { engine, voices: qwenTts.state().speakers };
+      return undefined;
+    },
+
     /** The engine on this computer that reads a deck's words in `lang`, with its voice: the profile's
      *  (Piper or Qwen3-TTS) when it reads the language, else Piper with a voice for it, else
      *  Qwen3-TTS; none when neither can. Read at the speed recorded (the audio is every profile's) and

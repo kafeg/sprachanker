@@ -1,5 +1,6 @@
 // What reading aloud says and with which voice (08): a text in one language, given explicitly (a text
 // mixing languages is never read), and the best voice of a language among those there are. Pure: tested without a browser.
+import type { Alt } from "@sprachanker/engine";
 
 /** A piece of text to read, in its one language; `alt`: by another voice of the language when there
  *  is one (a dialogue's second speaker) — a gender: the speaker's, where their name says it; `f2`,
@@ -8,10 +9,11 @@ export interface SpokenPart {
   text: string;
   lang: string;
   alt?: Alt;
+  /** A server voice to read it with, by its id (a text's person's): where the server reads the
+   *  language; elsewhere `alt` says which other voice. */
+  voice?: string;
 }
-/** Another voice than the language's own: `true`, one of a gender (`"f"`, `"m"`), or a second one of
- *  it (`"f2"`, `"m2"`). */
-export type Alt = true | "f" | "m" | "f2" | "m2";
+export type { Alt };
 
 /** A text in one language as parts to read: none while the language is not known. */
 export const said = (text: string, lang: string | undefined): SpokenPart[] =>

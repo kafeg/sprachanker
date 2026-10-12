@@ -38,6 +38,49 @@ const CHECK = {
     { n: 3, choice: "a", ambiguous: false },
   ],
 };
+/** The text as the generator drafts it (a chat: the first genre to read) and rates it. */
+const DRAFT = {
+  title: TEXT.title,
+  situation: TEXT.situation,
+  people: [
+    { name: "Lena", gender: "f", age: "adult", role: "подруга" },
+    { name: "Tom", gender: "m", age: "adult", role: "друг" },
+  ],
+  beats: ["Лена спрашивает о кафе", "Том пишет цены"],
+  facts: ["Kaffee 2,50 Euro", "Tee 2 Euro", "Tom nimmt einen Tee"],
+  text: [
+    "Lena: Hallo Tom! Ich bin im Café am Markt. Was möchtest du trinken?",
+    "Tom: Hallo Lena! Was kostet der Kaffee dort?",
+    "Lena: Der Kaffee kostet 2,50 Euro. Es gibt auch Tee für 2 Euro.",
+    "Tom: Dann nehme ich einen Tee, bitte. Danke!",
+    "Lena: Gern! Bis gleich, ich warte am Fenster.",
+  ].join("\n"),
+};
+const RATED = {
+  ratings: [1, 2, 3].map((n) => ({
+    n,
+    gist: "Лена и Том выбирают напитки.",
+    natural: 4,
+    coherent: 4,
+    realistic: 4,
+    level: 4,
+    lesson: 4,
+    interest: 4,
+    problems: [],
+  })),
+};
+/** The text's questions as asked, their phase the step's. */
+const ASKED = {
+  questions: TEXT.questions.map(({ phase: _, ...q }) => q),
+  glossary: [],
+};
+/** The generator's calls for a text. */
+const TEXT_TASKS = new Set([
+  "understanding_draft",
+  "understanding_judge",
+  "understanding_questions",
+  "understanding_check",
+]);
 
 /** A new item as the model writes it: every field, null where its type has none. */
 const full = (item: Record<string, unknown>) => ({
@@ -106,8 +149,10 @@ function teacher() {
   let gapChecks = 0;
   return (name: string, body: Body) => {
     const user = body.messages.find((m, i) => i > 0)?.content ?? "";
-    if (name === "understanding_text") return TEXT;
-    if (name === "understanding_check") return CHECK;
+    if (name === "understanding_draft") return DRAFT;
+    if (name === "understanding_judge") return RATED;
+    if (name === "understanding_questions") return ASKED;
+    if (name === "understanding_check") return user.includes("(No text:") ? { answers: [] } : CHECK;
     if (name === "mistake_items")
       return user.includes("the option chosen")
         ? CHOICES
@@ -134,7 +179,7 @@ function teacher() {
 
 test("the pass's mistakes and wrong Understanding answers gone over by type: wrong parts only, an explanation and new items each, answered and checked by the engine, kept in the run", async () => {
   const m = model(teacher());
-  const { send, sendJson, getJson } = await setup({ fetch: m.fetch });
+  const { send, sendJson, getJson } = await setup({ fetch: m.fetch, random: () => 0 });
   await send("PUT", "/api/llm/providers/custom", { baseUrl: "http://127.0.0.1:9/v1" });
   await send("PUT", "/api/llm/route", { provider: "custom", model: "m" });
 
@@ -162,7 +207,7 @@ test("the pass's mistakes and wrong Understanding answers gone over by type: wro
   await answer(`${LESSON}/ex-01#1`, { optionId: "b" });
   await answer(`${LESSON}/ex-01#2`, { optionId: "b" });
   await answer(`${LESSON}/ex-07#1`, { g1: "b", g2: "b" });
-  const text = await sendJson("POST", "/api/llm/understanding", REQUEST);
+  const text = await sendJson("POST", "/api/llm/understanding", { ...REQUEST, step: "reading" });
   await sendJson("POST", "/api/llm/understanding/answer", {
     ...REQUEST,
     id: text.id,
@@ -183,12 +228,13 @@ test("the pass's mistakes and wrong Understanding answers gone over by type: wro
   expect(data).toContain("Remember: 1 group;");
   // Understanding's question is listed only: no new items are asked for it.
   expect(data).not.toContain("Was kostet der Kaffee?");
-  expect(m.names).toEqual(["understanding_text", "understanding_check"]);
+  expect(m.names.filter((n) => !TEXT_TASKS.has(n))).toEqual([]);
+  const before = m.names.length;
 
   const review = await sendJson("POST", "/api/llm/mistakes", REQUEST);
   // Each type asked on its own and tried blind: the choices once; the gaps (an item without gaps
   // repaired each time) twice, none of theirs settled at first.
-  expect(m.names.slice(2).sort()).toEqual([
+  expect(m.names.slice(before).sort()).toEqual([
     "mistake_items",
     "mistake_items",
     "mistake_items",
@@ -230,7 +276,7 @@ test("the pass's mistakes and wrong Understanding answers gone over by type: wro
         given: "2 Euro",
         right: "2,50 Euro",
         context: "Was kostet der Kaffee?",
-        line: "Kaffee 2,50 Euro",
+        line: "Der Kaffee kostet 2,50 Euro. Es gibt auch Tee für 2 Euro.",
       },
     ],
     explanation: "",
@@ -279,11 +325,11 @@ test("the pass's mistakes and wrong Understanding answers gone over by type: wro
 
 test("only mistakes listed (an Understanding question): the review kept without a call", async () => {
   const m = model(teacher());
-  const { send, sendJson } = await setup({ fetch: m.fetch });
+  const { send, sendJson } = await setup({ fetch: m.fetch, random: () => 0 });
   await send("PUT", "/api/llm/providers/custom", { baseUrl: "http://127.0.0.1:9/v1" });
   await send("PUT", "/api/llm/route", { provider: "custom", model: "m" });
   await sendJson("POST", "/api/runs", START);
-  const text = await sendJson("POST", "/api/llm/understanding", REQUEST);
+  const text = await sendJson("POST", "/api/llm/understanding", { ...REQUEST, step: "reading" });
   await sendJson("POST", "/api/llm/understanding/answer", {
     ...REQUEST,
     id: text.id,
@@ -297,12 +343,14 @@ test("only mistakes listed (an Understanding question): the review kept without 
     "no_mistakes",
   ]);
   const review = await sendJson("POST", "/api/llm/mistakes", REQUEST);
-  expect(m.names).toEqual(["understanding_text", "understanding_check"]);
+  expect(m.names.filter((n) => !TEXT_TASKS.has(n))).toEqual([]);
   expect(review.model).toBe("");
   expect(
     review.result.groups.map((g: { what: string; items: unknown[] }) => [g.what, g.items.length]),
   ).toEqual([["comprehension", 0]]);
-  expect(review.result.groups[0].mistakes[0].line).toBe("Tee 2 Euro");
+  expect(review.result.groups[0].mistakes[0].line).toBe(
+    "Der Kaffee kostet 2,50 Euro. Es gibt auch Tee für 2 Euro.",
+  );
 });
 
 test("the step shown: making while any type's items are made, checking only while one is checked", () => {

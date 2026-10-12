@@ -20,6 +20,7 @@ export * from "./tasks/registry.ts";
 export { GENDER_FREE, type RulesInput, type TaskRules } from "./tasks/rules.ts";
 export * from "./tasks/scene.ts";
 export * from "./tasks/section-chat.ts";
+export * from "./tasks/text-genres.ts";
 export * from "./tasks/tutor-tools.ts";
 export * from "./tasks/understanding.ts";
 export * from "./tasks/word-examples.ts";

@@ -59,45 +59,73 @@ const SCENE_SUMMARY = {
 };
 /** An Understanding text (a dialogue of two, heard first) and its second reading, which settles
  *  every question as its key does. */
-const UNDERSTANDING_TEXT = {
-  kind: "dialogue",
-  title: "FAKE: Beim Bäcker",
-  situation: "FAKE: Anna buys rolls.",
-  lines: [
-    { speaker: "Anna", text: "Guten Morgen! Zwei Brötchen, bitte." },
-    { speaker: "Verkäufer", text: "Gern. Das macht 1,20 Euro." },
-  ],
-  glossary: [{ word: "Brötchen", translation: "FAKE: rolls" }],
+/** A text's draft in the form the request asks for — people in turns, one voice, or written —:
+ *  the same facts each way, so the questions hold for any genre drawn. */
+const draft = (prompt: string) => {
+  const lines = [
+    "Guten Morgen! Zwei Brötchen, bitte.",
+    "Gern. Das macht 1,20 Euro.",
+    "Hier bitte. Haben Sie auch Kaffee?",
+    "Ja, heute nicht. Morgen wieder, am Morgen.",
+    "Schade. Dann bis morgen und vielen Dank!",
+    "Bitte sehr, schönen Tag noch!",
+  ];
+  const anna = { name: "Anna", gender: "f", age: "adult", role: "FAKE: buyer" };
+  const base = {
+    title: "FAKE: Beim Bäcker",
+    situation: "FAKE: Anna buys rolls.",
+    beats: ["FAKE: Anna comes in", "FAKE: she pays"],
+    facts: ["zwei Brötchen", "1,20 Euro", "am Morgen"],
+  };
+  if (prompt.includes('Write it as lines "Name:'))
+    return {
+      ...base,
+      people: [anna, { name: "Herr Brandt", gender: "m", age: "senior", role: "FAKE: baker" }],
+      text: lines.map((l, i) => `${i % 2 ? "Herr Brandt" : "Anna"}: ${l}`).join("\n"),
+    };
+  return { ...base, people: [anna], text: lines.join("\n") };
+};
+
+/** Every draft rated as passing. */
+const JUDGED = {
+  ratings: [1, 2, 3].map((n) => ({
+    n,
+    gist: "FAKE: Anna buys rolls.",
+    natural: 4,
+    coherent: 4,
+    realistic: 4,
+    level: 4,
+    lesson: 4,
+    interest: 4,
+    problems: [],
+  })),
+};
+
+const UNDERSTANDING_QUESTIONS = {
   questions: [
+    { question: "Anna möchte drei Brötchen.", options: ["Richtig", "Falsch"], answer: 1 },
+    { question: "Wie viel kostet das?", accepted: ["1,20", "1,20 Euro"] },
     {
-      phase: "listening",
-      question: "Anna möchte drei Brötchen.",
-      options: ["Richtig", "Falsch"],
-      answer: 1,
-    },
-    { phase: "listening", question: "Wie viel kostet das?", accepted: ["1,20", "1,20 Euro"] },
-    {
-      phase: "listening",
-      question: "Wann ist das?",
+      question: "Wann gibt es wieder Kaffee?",
       options: ["am Abend", "am Morgen", "in der Nacht"],
       answer: 1,
     },
-    {
-      phase: "reading",
-      question: "Wer verkauft?",
-      options: ["Anna", "der Verkäufer", "niemand"],
-      answer: 1,
-    },
+    { question: "Was kauft Anna?", options: ["Kuchen", "Kaffee", "Brötchen"], answer: 2 },
   ],
+  glossary: [{ word: "Brötchen", translation: "FAKE: rolls" }],
 };
-const UNDERSTANDING_CHECK = {
-  answers: [
-    { n: 1, choice: "b", ambiguous: false },
-    { n: 2, answer: "1,20", ambiguous: false },
-    { n: 3, choice: "b", ambiguous: false },
-    { n: 4, choice: "b", ambiguous: false },
-  ],
-};
+/** Read with the text: all four settled; without it, none. */
+const understandingCheck = (prompt: string) =>
+  prompt.includes("(No text:")
+    ? { answers: [] }
+    : {
+        answers: [
+          { n: 1, choice: "b", ambiguous: false },
+          { n: 2, answer: "1,20", ambiguous: false },
+          { n: 3, choice: "b", ambiguous: false },
+          { n: 4, choice: "c", ambiguous: false },
+        ],
+      };
 
 /** Two new items of a type going over mistakes, as the model writes them. */
 const NEW_ITEMS: Record<string, unknown[]> = {
@@ -229,8 +257,8 @@ const STRUCTURED: Record<string, unknown> = {
   scene_setup: SCENE_SETUP,
   scene_turn: SCENE_TURN,
   scene_summary: SCENE_SUMMARY,
-  understanding_text: UNDERSTANDING_TEXT,
-  understanding_check: UNDERSTANDING_CHECK,
+  understanding_judge: JUDGED,
+  understanding_questions: UNDERSTANDING_QUESTIONS,
   speaking_check: SPOKEN_CHECK,
   exam_rating: EXAM_RATING,
 };
@@ -279,7 +307,11 @@ if (import.meta.main) {
                     ? itemsTried(body.messages.at(-1)?.content ?? "")
                     : task === "exam_conversation"
                       ? conversation(body.messages.at(-1)?.content ?? "")
-                      : (STRUCTURED[task] ?? WRITING_CHECK),
+                      : task === "understanding_draft"
+                        ? draft(body.messages.at(-1)?.content ?? "")
+                        : task === "understanding_check"
+                          ? understandingCheck(body.messages.at(-1)?.content ?? "")
+                          : (STRUCTURED[task] ?? WRITING_CHECK),
             );
         return Response.json({ choices: [{ message: { role: "assistant", content } }] });
       }

@@ -152,7 +152,8 @@
       "scene": "Dialogue",
       "mistakes": "Going over mistakes",
       "summary": "Summary",
-      "understanding": "Understanding"
+      "reading": "Reading",
+      "listening": "Listening"
     },
     "section": {
       "grammar": "Grammar",
@@ -410,9 +411,11 @@
       "scene": "Dialogue: a line",
       "examples": "Examples for a deck's words",
       "sceneSummary": "Dialogue: the summary",
-      "understanding": "Understanding: the text",
-      "understandingCheck": "Understanding: the second reading",
-      "mistakes": "Going over mistakes"
+      "understandingDraft": "Reading and listening: the text",
+      "understandingCheck": "Reading and listening: the second reading",
+      "mistakes": "Going over mistakes",
+      "understandingJudge": "Reading and listening: the drafts rated",
+      "understandingQuestions": "Reading and listening: the questions"
     },
     "contextIntro": "Added from the lesson:",
     "contextIntroCourses": "Added from your courses (those in the language the chat practises):",
@@ -452,11 +455,16 @@
       "dialogueGoals": "the situation and the goals you reached",
       "dialogue": "the dialogue's lines with the corrections given on them",
       "length": "how long the text is at the course's level",
-      "readText": "the text it wrote",
+      "readText": "the text",
       "textQuestions": "its questions with their options, without the answers",
       "writingTask": "the task: the situation, its three points and the length",
       "levelCriteria": "what a text at the course's level needs (the writing exams' criteria)",
-      "mistakeGroups": "your mistakes in this pass by type, each only what was wrong (Understanding questions answered wrong too)"
+      "mistakeGroups": "your mistakes in this pass by type, each only what was wrong (Reading and Listening questions answered wrong too)",
+      "upcoming": "the grammar the course teaches later (not met yet)",
+      "lessonScript": "the lesson's own script (its topic and situations)",
+      "genre": "the kind of text drawn, its form, its length and ideas for the situation",
+      "drafts": "the drafts written",
+      "textFacts": "the facts the text was planned with"
     },
     "upTo": "up to {chars, plural, one {# character} other {# characters}}",
     "debug": "Show “Prompt” buttons",
@@ -497,9 +505,11 @@
         "where": "“Propose a rating” above an answer's criteria, and the speaking parts held as a conversation"
       },
       "understanding": {
-        "name": "Understanding",
-        "where": "a step of the lesson: a text to listen to or read, with questions"
-      }
+        "name": "Reading and listening",
+        "where": "two steps of the lesson: a text to read and one to hear, with questions"
+      },
+      "prepare": "Prepare the practice ahead",
+      "prepareHint": "As a lesson starts, its texts to read and to hear and its writing task are made in the background, so they are ready when you get there. The model works meanwhile."
     },
     "about": {
       "explain": "Explains a wrong answer under the exercise (“Why is this wrong?”): what the mistake is and the rule behind it, in your language.",
@@ -514,9 +524,11 @@
       "scene": "Plays your partner: answers each line you say (as the recogniser heard it) or type, says whether it was understood and fits, corrects at most two mistakes in it, gives a translation and ticks off your goals.",
       "examples": "Writes three to five example sentences for each word of a deck that has none of its own, five words at a time (Review → Decks, “Make examples”), with words you know where it can and the new ones translated.",
       "sceneSummary": "Sums up a dialogue once it is over: the one or two corrections that matter most, each with your line said well, and a word of feedback.",
-      "understanding": "Writes a short text in the language you learn from the words you know — a dialogue or an announcement to listen to, or a menu or a notice to read — with questions as exams ask them (true/false, a/b/c, numbers). Your answers are checked by the app, not by the model.",
-      "understandingCheck": "Reads the text again and answers its own questions from the text alone: a question it answers otherwise, or finds unclear, is left out.",
-      "mistakes": "Goes over a pass's mistakes by type: each type's wrong parts only (what you gave, what is right, the words around it), a short explanation, and two or three new items of the type from words you know. Your answers are checked by the app, not by the model."
+      "understandingDraft": "Plans and writes a short text in the language you learn on the lesson's topic, at your level, in a genre the app draws — a conversation, a message or a story to hear; a letter, a chat or a notice to read: three drafts side by side.",
+      "understandingCheck": "Answers the questions from the text alone, then once more without the text: a question it answers otherwise, finds unclear, or one common sense answers is left out.",
+      "mistakes": "Goes over a pass's mistakes by type: each type's wrong parts only (what you gave, what is right, the words around it), a short explanation, and two or three new items of the type from words you know. Your answers are checked by the app, not by the model.",
+      "understandingJudge": "Rates the drafts as a native teacher would — natural, coherent, true to life, at your level, on the lesson, interesting — and lists their problems: the best that passes is kept, else the best is written again once.",
+      "understandingQuestions": "Asks 5–10 questions on the text kept, as exams ask them (true/false, a/b/c, numbers), and lists its new words. Your answers are checked by the app, not by the model."
     }
   },
   "writing": {
@@ -1623,7 +1635,6 @@
     }
   },
   "understanding": {
-    "intro": "A short text from the words you know. A dialogue or an announcement is read aloud: listen and answer by ear, then read it and answer one more question. A menu or a notice is there to read.",
     "start": "Write a text",
     "writing": "Writing a text…",
     "new": "New text",
@@ -1645,9 +1656,13 @@
     "result": "{right, number} of {total, number} right",
     "past": "Earlier texts of this lesson",
     "step": {
-      "writing": "Writing the text…",
-      "checking": "Checking the questions…"
-    }
+      "writing": "Writing drafts…",
+      "checking": "Checking the questions…",
+      "choosing": "Choosing the best draft…",
+      "asking": "Writing the questions…"
+    },
+    "introReading": "A short text on the lesson's topic, as people really read them — a letter, a chat, a notice, a story. Read it and answer the questions.",
+    "introListening": "A short text on the lesson's topic, read aloud — a conversation, a message, an announcement, a story. Listen and answer by ear; the text opens afterwards."
   },
   "goingOver": {
     "title": "Going over mistakes",

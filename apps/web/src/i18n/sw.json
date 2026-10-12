@@ -152,7 +152,8 @@
       "scene": "Mazungumzo",
       "mistakes": "Kupitia makosa",
       "summary": "Muhtasari",
-      "understanding": "Kuelewa"
+      "reading": "Kusoma",
+      "listening": "Kusikiliza"
     },
     "section": {
       "grammar": "Sarufi",
@@ -410,9 +411,11 @@
       "scene": "Mazungumzo: sentensi",
       "examples": "Mifano ya maneno ya seti",
       "sceneSummary": "Mazungumzo: muhtasari",
-      "understanding": "Kuelewa: maandishi",
-      "understandingCheck": "Kuelewa: kusoma mara ya pili",
-      "mistakes": "Kupitia makosa"
+      "understandingDraft": "Kusoma na kusikiliza: maandishi",
+      "understandingCheck": "Kusoma na kusikiliza: usomaji wa pili",
+      "mistakes": "Kupitia makosa",
+      "understandingJudge": "Kusoma na kusikiliza: tathmini ya rasimu",
+      "understandingQuestions": "Kusoma na kusikiliza: maswali"
     },
     "contextIntro": "Imeongezwa kutoka kwenye somo:",
     "contextIntroCourses": "Imeongezwa kutoka kwenye kozi zako (za lugha inayozoezwa katika mazungumzo):",
@@ -452,11 +455,16 @@
       "dialogueGoals": "hali na malengo uliyoyafikia",
       "dialogue": "sentensi za mazungumzo pamoja na marekebisho yaliyotolewa",
       "length": "urefu wa maandishi katika kiwango cha kozi",
-      "readText": "maandishi iliyoandika",
+      "readText": "maandishi",
       "textQuestions": "maswali yake na chaguo zake, bila majibu",
       "writingTask": "kazi: hali, mambo yake matatu na urefu",
       "levelCriteria": "kile maandishi ya kiwango cha kozi yanachohitaji (vigezo vya mitihani ya kuandika)",
-      "mistakeGroups": "makosa yako katika mzunguko huu kwa aina, kila moja sehemu iliyokosewa tu (pamoja na maswali ya “Kuelewa” yaliyokosewa)"
+      "mistakeGroups": "makosa yako katika mzunguko huu kwa aina, kila moja sehemu iliyokosewa tu (pamoja na maswali ya “Kuelewa” yaliyokosewa)",
+      "upcoming": "sarufi ambayo kozi inafundisha baadaye (bado haijafikiwa)",
+      "lessonScript": "maandishi ya somo lenyewe (mada na hali zake)",
+      "genre": "aina ya maandishi iliyochaguliwa, umbo lake, urefu wake na mawazo ya hali",
+      "drafts": "rasimu zilizoandikwa",
+      "textFacts": "mambo ambayo maandishi yalipangwa nayo"
     },
     "upTo": "hadi {chars, plural, one {herufi #} other {herufi #}}",
     "debug": "Onyesha vitufe vya “Maagizo”",
@@ -497,9 +505,11 @@
         "where": "“Pendekeza tathmini” juu ya vigezo vya jibu, na sehemu za kuzungumza zinazofanywa kama mazungumzo"
       },
       "understanding": {
-        "name": "Kuelewa",
-        "where": "hatua ya somo: maandishi ya kusikiliza au kusoma, pamoja na maswali"
-      }
+        "name": "Kusoma na kusikiliza",
+        "where": "hatua mbili za somo: maandishi ya kusoma na ya kusikiliza, pamoja na maswali"
+      },
+      "prepare": "Andaa mazoezi mapema",
+      "prepareHint": "Somo linapoanza, maandishi yake ya kusoma na kusikiliza na kazi ya kuandika hutayarishwa chinichini, ili yawe tayari ukifika hapo. Modeli hufanya kazi wakati huo."
     },
     "about": {
       "explain": "Hueleza jibu lisilo sahihi chini ya zoezi (“Kwa nini si sahihi?”): kosa ni nini na kanuni iliyo nyuma yake, kwa lugha yako.",
@@ -514,9 +524,11 @@
       "scene": "Huigiza mwenzako: hujibu kila sentensi unayoitamka (kama kitambuzi kilivyoisikia) au kuiandika, husema kama ilieleweka na kama inafaa, hurekebisha makosa mawili zaidi, hutoa tafsiri na huweka alama kwenye malengo uliyoyafikia.",
       "examples": "Huandika sentensi tatu hadi tano za mfano kwa kila neno la seti isiyo na mifano yake yenyewe, maneno matano kwa wakati (Marudio → Seti, “Tengeneza mifano”), kwa maneno unayoyajua inapowezekana na yale mapya yakiwa yametafsiriwa.",
       "sceneSummary": "Hufupisha mazungumzo yakiisha: marekebisho moja au mawili muhimu zaidi, kila moja na sentensi yako ikisemwa vizuri, na maoni mafupi.",
-      "understanding": "Huandika maandishi mafupi kwa lugha unayojifunza kutoka kwa maneno unayoyajua — mazungumzo au tangazo la kusikiliza, au menyu au tangazo la kusoma — pamoja na maswali kama ya mitihani (kweli/si kweli, a/b/c, namba). Majibu yako hukaguliwa na programu, si na modeli.",
-      "understandingCheck": "Husoma maandishi tena na hujibu maswali yake mwenyewe kutokana na maandishi pekee: swali linalojibiwa tofauti, au lisiloeleweka, huondolewa.",
-      "mistakes": "Hupitia makosa ya mzunguko kwa aina: kwa kila aina sehemu zilizokosewa tu (ulichotoa, kilicho sahihi, maneno yanayozunguka), maelezo mafupi, na mazoezi mapya mawili au matatu ya aina hiyo kwa maneno unayoyajua. Majibu yako hukaguliwa na programu, si modeli."
+      "understandingDraft": "Hupanga na kuandika maandishi mafupi katika lugha unayojifunza kuhusu mada ya somo, kwa kiwango chako, kwa aina ambayo programu inachagua — mazungumzo, ujumbe au hadithi ya kusikiliza; barua, gumzo au tangazo la kusoma: rasimu tatu kwa pamoja.",
+      "understandingCheck": "Hujibu maswali kutoka kwenye maandishi pekee, kisha mara nyingine bila maandishi: swali linalojibiwa tofauti, lisilo wazi au linalojibiwa kwa akili ya kawaida huondolewa.",
+      "mistakes": "Hupitia makosa ya mzunguko kwa aina: kwa kila aina sehemu zilizokosewa tu (ulichotoa, kilicho sahihi, maneno yanayozunguka), maelezo mafupi, na mazoezi mapya mawili au matatu ya aina hiyo kwa maneno unayoyajua. Majibu yako hukaguliwa na programu, si modeli.",
+      "understandingJudge": "Hutathmini rasimu kama mwalimu mzawa wa lugha — uasilia, mfuatano, uhalisia, kiwango, uhusiano na somo, mvuto — na huorodhesha matatizo: bora inayopita hubaki, la sivyo bora huandikwa upya mara moja.",
+      "understandingQuestions": "Huuliza maswali 5–10 kuhusu maandishi yaliyochaguliwa kama katika mitihani (kweli/si kweli, a/b/c, namba) na huorodhesha maneno mapya. Majibu yako hukaguliwa na programu, si na modeli."
     }
   },
   "writing": {
@@ -1623,7 +1635,6 @@
     }
   },
   "understanding": {
-    "intro": "Maandishi mafupi kutoka kwa maneno unayoyajua. Mazungumzo au tangazo husomwa kwa sauti: sikiliza na ujibu kwa kusikia, kisha soma maandishi na ujibu swali moja zaidi. Menyu au tangazo ni la kusoma.",
     "start": "Andika maandishi",
     "writing": "Maandishi yanaandikwa…",
     "new": "Maandishi mapya",
@@ -1645,9 +1656,13 @@
     "result": "{right, number} kati ya {total, number} sahihi",
     "past": "Maandishi ya awali ya somo hili",
     "step": {
-      "writing": "Maandishi yanaandikwa…",
-      "checking": "Maswali yanakaguliwa…"
-    }
+      "writing": "Ninaandika rasimu…",
+      "checking": "Maswali yanakaguliwa…",
+      "choosing": "Ninachagua rasimu bora…",
+      "asking": "Ninaandika maswali…"
+    },
+    "introReading": "Maandishi mafupi kuhusu mada ya somo, kama yale watu husoma maishani — barua, gumzo, tangazo, hadithi. Yasome na ujibu maswali.",
+    "introListening": "Maandishi mafupi kuhusu mada ya somo, yanayosomwa kwa sauti — mazungumzo, ujumbe, tangazo, hadithi. Sikiliza na ujibu kwa kusikia; maandishi yanafunguka baadaye."
   },
   "goingOver": {
     "title": "Kupitia makosa",

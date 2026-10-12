@@ -152,7 +152,8 @@
       "scene": "Diyalog",
       "mistakes": "Hataların üzerinden geç",
       "summary": "Özet",
-      "understanding": "Anlama"
+      "reading": "Okuma",
+      "listening": "Dinleme"
     },
     "section": {
       "grammar": "Dil bilgisi",
@@ -410,9 +411,11 @@
       "scene": "Diyalog: bir cümle",
       "examples": "Bir destenin kelimeleri için örnekler",
       "sceneSummary": "Diyalog: özet",
-      "understanding": "Anlama: metin",
-      "understandingCheck": "Anlama: ikinci okuma",
-      "mistakes": "Hataların üzerinden geç"
+      "understandingDraft": "Okuma ve dinleme: metin",
+      "understandingCheck": "Okuma ve dinleme: ikinci okuma",
+      "mistakes": "Hataların üzerinden geç",
+      "understandingJudge": "Okuma ve dinleme: taslakların değerlendirilmesi",
+      "understandingQuestions": "Okuma ve dinleme: sorular"
     },
     "contextIntro": "Dersten eklenenler:",
     "contextIntroCourses": "Kurslarından eklenenler (sohbetin çalıştığı dildeki kurslar):",
@@ -452,11 +455,16 @@
       "dialogueGoals": "durum ve ulaştığınız hedefler",
       "dialogue": "diyalogdaki cümleler ve onlara yapılan düzeltmeler",
       "length": "kursun seviyesinde metnin uzunluğu",
-      "readText": "yazdığı metin",
+      "readText": "metin",
       "textQuestions": "seçenekleriyle soruları, cevaplar olmadan",
       "writingTask": "görev: durum, üç noktası ve uzunluk",
       "levelCriteria": "kursun seviyesindeki bir metnin neye ihtiyacı olduğu (yazma sınavlarının ölçütleri)",
-      "mistakeGroups": "bu turdaki hataların türüne göre, her birinde yalnızca yanlış olan (yanlış cevaplanan “Anlama” soruları da)"
+      "mistakeGroups": "bu turdaki hataların türüne göre, her birinde yalnızca yanlış olan (yanlış cevaplanan “Anlama” soruları da)",
+      "upcoming": "kursun daha sonra öğrettiği dil bilgisi (henüz görülmedi)",
+      "lessonScript": "dersin kendi metni (konusu ve durumları)",
+      "genre": "seçilen metin türü, biçimi, uzunluğu ve durum için fikirler",
+      "drafts": "yazılan taslaklar",
+      "textFacts": "metnin planlandığı bilgiler"
     },
     "upTo": "en fazla {chars, plural, one {# karakter} other {# karakter}}",
     "debug": "“İstem” düğmelerini göster",
@@ -497,9 +505,11 @@
         "where": "bir cevabın ölçütlerinin üstündeki “Puan öner” ve konuşma şeklinde yürütülen sözlü bölümler"
       },
       "understanding": {
-        "name": "Anlama",
-        "where": "dersin bir adımı: dinlenecek ya da okunacak bir metin, sorularıyla"
-      }
+        "name": "Okuma ve dinleme",
+        "where": "dersin iki adımı: okunacak ve dinlenecek birer metin, sorularla"
+      },
+      "prepare": "Pratiği önceden hazırla",
+      "prepareHint": "Bir ders başladığında okuma ve dinleme metinleri ile yazma görevi arka planda hazırlanır; oraya geldiğinde hazır olurlar. Model bu sırada çalışır."
     },
     "about": {
       "explain": "Alıştırmanın altında yanlış bir cevabı açıklar (“Bu neden yanlış?”): hatanın ne olduğunu ve arkasındaki kuralı, senin dilinde.",
@@ -514,9 +524,11 @@
       "scene": "Karşındaki kişiyi oynar: söylediğin (tanıma nasıl duyduysa) ya da yazdığın her cümleye cevap verir, anlaşılıp anlaşılmadığını ve uyup uymadığını söyler, içindeki en fazla iki hatayı düzeltir, çeviri verir ve ulaştığın hedefleri işaretler.",
       "examples": "Kendi örnekleri olmayan bir destenin her kelimesi için, her seferinde beş kelime olmak üzere üç ila beş örnek cümle yazar (Tekrar → Desteler, “Örnek oluştur”); mümkün olduğunca bildiğin kelimeleri kullanır, yenilerini çevirir.",
       "sceneSummary": "Diyalog bitince özetler: en önemli bir ya da iki düzeltme, her biri cümlenin doğru söylenişiyle, ve kısa bir değerlendirme.",
-      "understanding": "Öğrendiğin dilde, bildiğin kelimelerle kısa bir metin yazar — dinlenecek bir diyalog ya da anons, veya okunacak bir menü ya da duyuru — sınavlardaki gibi sorularla (doğru/yanlış, a/b/c, sayılar). Cevaplarını model değil, uygulama kontrol eder.",
-      "understandingCheck": "Metni yeniden okur ve kendi sorularını yalnızca metne bakarak cevaplar: farklı cevapladığı ya da belirsiz bulduğu soru çıkarılır.",
-      "mistakes": "Bir turun hatalarını türüne göre ele alır: her türde yalnızca yanlış kısımlar (verdiğin, doğrusu, çevresindeki kelimeler), kısa bir açıklama ve bildiğin kelimelerle o türden iki üç yeni alıştırma. Cevaplarını model değil uygulama kontrol eder."
+      "understandingDraft": "Öğrendiğin dilde, dersin konusunda, senin seviyende, uygulamanın seçtiği bir türde kısa bir metin planlar ve yazar — dinlemek için bir konuşma, mesaj ya da hikâye; okumak için bir mektup, sohbet ya da duyuru: yan yana üç taslak.",
+      "understandingCheck": "Soruları yalnızca metinden, sonra bir kez de metin olmadan yanıtlar: farklı yanıtladığı, belirsiz bulduğu ya da sağduyunun yanıtladığı soru çıkarılır.",
+      "mistakes": "Bir turun hatalarını türüne göre ele alır: her türde yalnızca yanlış kısımlar (verdiğin, doğrusu, çevresindeki kelimeler), kısa bir açıklama ve bildiğin kelimelerle o türden iki üç yeni alıştırma. Cevaplarını model değil uygulama kontrol eder.",
+      "understandingJudge": "Taslakları anadili konuşan bir öğretmen gibi değerlendirir — doğallık, tutarlılık, gerçekçilik, seviye, dersle bağ, ilginçlik — ve sorunlarını sıralar: geçen en iyisi kalır, yoksa en iyisi bir kez yeniden yazılır.",
+      "understandingQuestions": "Seçilen metin hakkında sınavlardaki gibi 5–10 soru sorar (doğru/yanlış, a/b/c, sayılar) ve yeni kelimeleri listeler. Yanıtlarını model değil, uygulama denetler."
     }
   },
   "writing": {
@@ -1623,7 +1635,6 @@
     }
   },
   "understanding": {
-    "intro": "Bildiğin kelimelerle kısa bir metin. Diyalog ya da anons sesli okunur: dinle ve kulaktan cevapla, sonra metni oku ve bir soru daha cevapla. Menü ya da duyuru okumak içindir.",
     "start": "Metin yaz",
     "writing": "Metin yazılıyor…",
     "new": "Yeni metin",
@@ -1645,9 +1656,13 @@
     "result": "{total, number} sorudan {right, number} doğru",
     "past": "Bu dersin önceki metinleri",
     "step": {
-      "writing": "Metin yazılıyor…",
-      "checking": "Sorular kontrol ediliyor…"
-    }
+      "writing": "Taslaklar yazılıyor…",
+      "checking": "Sorular kontrol ediliyor…",
+      "choosing": "En iyi taslak seçiliyor…",
+      "asking": "Sorular yazılıyor…"
+    },
+    "introReading": "Dersin konusunda, gerçek hayatta okunan türden kısa bir metin — bir mektup, bir sohbet, bir duyuru, bir hikâye. Oku ve soruları yanıtla.",
+    "introListening": "Dersin konusunda, sesli okunan kısa bir metin — bir konuşma, bir mesaj, bir anons, bir hikâye. Dinle ve duyduğuna göre yanıtla; metin sonra açılır."
   },
   "goingOver": {
     "title": "Hataların üzerinden geç",

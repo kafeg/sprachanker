@@ -27,6 +27,9 @@ src/
                   # question's state, readiness, a question checked, a run's result (a result read
                   # on the exam's scale: withScore); conversation.ts: a speaking part's latest
                   # conversation and its answer
+  speech/         # voices.ts: a server voice's gender and age; a text's people given voices
+                  # (castVoices), a speaker's gender by name (speakerVoices, older texts); a text's
+                  # pieces read aloud (readingPieces: the web's requests, the server's read ahead)
   srs/            # ts-fsrs wrapper, Anki's study queue (limits, the day's start hour, learn ahead),
                   # interval text; state.ts: a face's FSRS state by name (never its number); day.ts: the day's card answers (limits used, undo, the face just taken back);
                   # deck.ts: a deck's standing for the Notebook (words by state, due, the month's answers)

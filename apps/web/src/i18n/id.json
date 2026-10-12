@@ -152,7 +152,8 @@
       "scene": "Dialog",
       "mistakes": "Membahas kesalahan",
       "summary": "Ringkasan",
-      "understanding": "Pemahaman"
+      "reading": "Membaca",
+      "listening": "Menyimak"
     },
     "section": {
       "grammar": "Tata bahasa",
@@ -410,9 +411,11 @@
       "scene": "Dialog: satu kalimat",
       "examples": "Contoh untuk kata-kata dek",
       "sceneSummary": "Dialog: ringkasan",
-      "understanding": "Pemahaman: teks",
-      "understandingCheck": "Pemahaman: bacaan kedua",
-      "mistakes": "Membahas kesalahan"
+      "understandingDraft": "Membaca dan menyimak: teksnya",
+      "understandingCheck": "Membaca dan menyimak: pembacaan kedua",
+      "mistakes": "Membahas kesalahan",
+      "understandingJudge": "Membaca dan menyimak: penilaian draf",
+      "understandingQuestions": "Membaca dan menyimak: pertanyaan"
     },
     "contextIntro": "Ditambahkan dari pelajaran:",
     "contextIntroCourses": "Ditambahkan dari kursus-kursusmu (yang mengajarkan bahasa percakapan ini):",
@@ -452,11 +455,16 @@
       "dialogueGoals": "situasinya dan tujuan yang sudah Anda capai",
       "dialogue": "kalimat-kalimat dialog dengan koreksi yang diberikan",
       "length": "seberapa panjang teks pada tingkat kursus",
-      "readText": "teks yang ditulisnya",
+      "readText": "teksnya",
       "textQuestions": "pertanyaannya dengan pilihan, tanpa jawaban",
       "writingTask": "tugasnya: situasi, tiga poinnya, dan panjangnya",
       "levelCriteria": "apa yang dibutuhkan teks di level kursus (kriteria ujian menulis)",
-      "mistakeGroups": "kesalahanmu di putaran ini menurut jenis, masing-masing hanya yang salah (termasuk soal “Pemahaman” yang salah)"
+      "mistakeGroups": "kesalahanmu di putaran ini menurut jenis, masing-masing hanya yang salah (termasuk soal “Pemahaman” yang salah)",
+      "upcoming": "tata bahasa yang diajarkan kursus nanti (belum dipelajari)",
+      "lessonScript": "naskah pelajaran itu sendiri (topik dan situasinya)",
+      "genre": "jenis teks yang diundi, bentuknya, panjangnya, dan ide untuk situasinya",
+      "drafts": "draf yang ditulis",
+      "textFacts": "fakta yang menjadi rencana teks"
     },
     "upTo": "hingga {chars, plural, other {# karakter}}",
     "debug": "Tampilkan tombol “Prompt”",
@@ -497,9 +505,11 @@
         "where": "“Usulkan penilaian” di atas kriteria jawaban, dan bagian berbicara yang dijalankan sebagai percakapan"
       },
       "understanding": {
-        "name": "Pemahaman",
-        "where": "salah satu langkah pelajaran: teks untuk didengar atau dibaca, dengan pertanyaan"
-      }
+        "name": "Membaca dan menyimak",
+        "where": "dua langkah pelajaran: teks untuk dibaca dan teks untuk didengar, dengan pertanyaan"
+      },
+      "prepare": "Siapkan latihan lebih dulu",
+      "prepareHint": "Saat pelajaran dimulai, teks bacaan, teks simakan, dan tugas menulisnya dibuat di latar belakang, jadi sudah siap saat kamu sampai di sana. Model bekerja selama itu."
     },
     "about": {
       "explain": "Menjelaskan jawaban yang salah di bawah latihan (“Kenapa ini salah?”): apa kesalahannya dan aturan di baliknya, dalam bahasa kamu.",
@@ -514,9 +524,11 @@
       "scene": "Memerankan lawan bicara Anda: menjawab setiap kalimat yang Anda ucapkan (seperti didengar pengenal ucapan) atau ketik, mengatakan apakah kalimat itu dipahami dan sesuai, membetulkan paling banyak dua kesalahan, memberi terjemahan, dan mencentang tujuan yang tercapai.",
       "examples": "Menulis tiga sampai lima contoh kalimat untuk setiap kata dari dek yang tidak punya contoh sendiri, lima kata sekaligus (Pengulangan → Dek, “Buat contoh”), sebisa mungkin dengan kata-kata yang kamu kenal, dan kata baru diterjemahkan.",
       "sceneSummary": "Merangkum dialog setelah selesai: satu atau dua koreksi yang paling penting, masing-masing dengan kalimat Anda yang diucapkan dengan benar, dan sedikit umpan balik.",
-      "understanding": "Menulis teks pendek dalam bahasa yang Anda pelajari dari kata-kata yang Anda kenal — dialog atau pengumuman untuk didengar, atau menu atau pemberitahuan untuk dibaca — dengan pertanyaan seperti di ujian (benar/salah, a/b/c, angka). Jawaban Anda diperiksa oleh aplikasi, bukan oleh model.",
-      "understandingCheck": "Membaca teks sekali lagi dan menjawab pertanyaannya sendiri hanya dari teks: pertanyaan yang dijawabnya berbeda atau yang dianggapnya tidak jelas dihapus.",
-      "mistakes": "Membahas kesalahan sebuah putaran menurut jenis: tiap jenis hanya bagian yang salah (jawabanmu, yang benar, kata di sekitarnya), penjelasan singkat, dan dua atau tiga soal baru jenis itu dari kata yang kamu kenal. Jawabanmu diperiksa aplikasi, bukan model."
+      "understandingDraft": "Merencanakan dan menulis teks pendek dalam bahasa yang kamu pelajari tentang topik pelajaran, sesuai levelmu, dalam genre yang diundi aplikasi — percakapan, pesan, atau cerita untuk didengar; surat, obrolan, atau pengumuman untuk dibaca: tiga draf sekaligus.",
+      "understandingCheck": "Menjawab pertanyaan hanya dari teks, lalu sekali lagi tanpa teks: pertanyaan yang dijawabnya berbeda, dianggap tidak jelas, atau bisa dijawab dengan akal sehat dibuang.",
+      "mistakes": "Membahas kesalahan sebuah putaran menurut jenis: tiap jenis hanya bagian yang salah (jawabanmu, yang benar, kata di sekitarnya), penjelasan singkat, dan dua atau tiga soal baru jenis itu dari kata yang kamu kenal. Jawabanmu diperiksa aplikasi, bukan model.",
+      "understandingJudge": "Menilai draf seperti guru penutur asli — kewajaran, keruntutan, kesesuaian dengan kenyataan, level, kaitan dengan pelajaran, daya tarik — dan mendaftar masalahnya: draf terbaik yang lolos dipakai, jika tidak, yang terbaik ditulis ulang sekali.",
+      "understandingQuestions": "Mengajukan 5–10 pertanyaan tentang teks terpilih seperti dalam ujian (benar/salah, a/b/c, angka) dan mendaftar kata-kata barunya. Jawabanmu diperiksa aplikasi, bukan model."
     }
   },
   "writing": {
@@ -1623,7 +1635,6 @@
     }
   },
   "understanding": {
-    "intro": "Teks pendek dari kata-kata yang Anda kenal. Dialog atau pengumuman dibacakan: dengarkan dan jawab dari pendengaran, lalu baca teksnya dan jawab satu pertanyaan lagi. Menu atau pemberitahuan untuk dibaca.",
     "start": "Tulis teks",
     "writing": "Menulis teks…",
     "new": "Teks baru",
@@ -1645,9 +1656,13 @@
     "result": "{right, number} dari {total, number} benar",
     "past": "Teks sebelumnya di pelajaran ini",
     "step": {
-      "writing": "Menulis teks…",
-      "checking": "Memeriksa pertanyaan…"
-    }
+      "writing": "Menulis draf…",
+      "checking": "Memeriksa pertanyaan…",
+      "choosing": "Memilih draf terbaik…",
+      "asking": "Menulis pertanyaan…"
+    },
+    "introReading": "Teks pendek tentang topik pelajaran, seperti yang dibaca orang sehari-hari — surat, obrolan, pengumuman, cerita. Baca dan jawab pertanyaannya.",
+    "introListening": "Teks pendek tentang topik pelajaran yang dibacakan — percakapan, pesan, pengumuman, cerita. Dengarkan dan jawab berdasarkan apa yang didengar; teksnya muncul sesudahnya."
   },
   "goingOver": {
     "title": "Membahas kesalahan",

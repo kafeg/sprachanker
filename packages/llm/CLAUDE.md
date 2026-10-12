@@ -46,8 +46,9 @@ src/
     registry.ts        # TASK_PROMPTS: the tasks whose prompt the learner sees and rewrites, in order —
                        # their rules and budgets (the server's prompt settings read it)
     lesson.ts          # LessonInfo (what tasks know of a lesson, with the knowledge snapshot: level,
-                       # place, earlier words with translations, topics met, the course's characters —
-                       # speakersOf: a script's speakers by name, roles left out) and its prompt lines
+                       # place — courseThird —, earlier words with translations, topics met and those
+                       # ahead, the lesson's script, the course's characters — speakersOf: a script's
+                       # speakers by name, roles left out) and its prompt lines
     describe.ts        # an exercise as text: its header (instruction, texts) and items (task, correct,
                        # learner answer); a mistake naming lesson, exercise and item with its wrong
                        # parts only (wrongPartLine)
@@ -74,10 +75,15 @@ src/
                        # cleanSceneTurn: remarks in place of corrections dropped), scene_summary
                        # (key corrections, model lines without the error); goal kinds by level (data)
     tutor-tools.ts     # the tutor's tool definitions (progress, mistakes, word, lesson) and prompt lines
-    understanding.ts   # Understanding: understanding_text (a text to hear or read with its questions, its
-                       # length and the lesson's grammar by the level; understandingProblem: no course
-                       # character, the learner's language where asked), understanding_check (read
-                       # again: settledQuestions)
+    text-genres.ts     # Reading's and Listening's genres (data: what each is, its shape — people in
+                       # turns, one voice, written —, its length at A1), areas of life as ideas;
+                       # textWords (by level and place), pickGenre / pickAreas (drawn by code)
+    understanding.ts   # Reading and Listening's text generator: understanding_draft (plan — people with
+                       # gender and age, beats, facts — and text; draftLines: the text's lines by
+                       # speaker; draftProblem), understanding_judge (drafts rated; chooseDraft: the
+                       # best passing, else written again), understanding_questions (5–10 as exams ask;
+                       # understandingText: the text put together), understanding_check (read again,
+                       # and blind without the text: settledQuestions)
     word-examples.ts   # word_examples: three to five sentences for each of a few words of a deck, in the
                        # words known up to them, at the level when known
 test/              # fake endpoints (no network); fixture course from @sprachanker/course-fixture

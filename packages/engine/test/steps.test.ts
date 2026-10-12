@@ -125,7 +125,7 @@ test("opening a step records what it is: a page shown, a page read once", () => 
 });
 
 test("going over mistakes is in the plan only while the run has some: an item or an Understanding question answered wrong, or the step recorded", () => {
-  const offered = ["understanding", "writing", "mistakes"] as const;
+  const offered = ["listening", "writing", "mistakes"] as const;
   // A choice, and a free answer the model rates (no item type to go over).
   const choice = {
     key: "s.x/c/01-01/ex-01#1",
@@ -149,7 +149,7 @@ test("going over mistakes is in the plan only while the run has some: an item or
     ms: 1,
     answer,
   });
-  expect(plan([])).toEqual(["understanding", "writing"]);
+  expect(plan([])).toEqual(["listening", "writing"]);
   expect(
     plan([ev(1, "answered", "s.x/c/01-01/ex-01#1", given("correct", { optionId: "a" }))]),
   ).not.toContain("mistakes");
@@ -159,7 +159,7 @@ test("going over mistakes is in the plan only while the run has some: an item or
   // Nothing the step could go over: a free answer, an exercise no longer in the lesson, an answer
   // that does not read as its type's.
   expect(plan([ev(1, "answered", "s.x/c/01-01/ex-02#1", given("wrong", { text: "x" }))])).toEqual([
-    "understanding",
+    "listening",
     "writing",
   ]);
   expect(
@@ -252,4 +252,9 @@ test("a picture chosen wrong is gone over by the edition's description of it; un
   ];
   expect(practiceInPlan(["mistakes"], wrong, pictures, described, "de")).toEqual(["mistakes"]);
   expect(practiceInPlan(["mistakes"], wrong, pictures, null, "de")).toEqual([]);
+});
+
+test("a step recorded as Understanding, before Reading and Listening, counts as both", () => {
+  const done = stepsDone([ev(1, "step_done", null, { step: "understanding" })]);
+  expect([done.get("reading"), done.get("listening")]).toEqual(["done", "done"]);
 });

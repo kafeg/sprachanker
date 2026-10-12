@@ -1,7 +1,8 @@
-// The Understanding step (09): a text heard first — who reads it named, its questions answered by ear
-// with the text hidden —, then shown with its glossed words marked and its reading questions; a text
-// to read shown at once; without a voice for the language, shown to read with all its questions and
-// the step saying what listening needs; the lesson's earlier texts listed with their scores.
+// Reading and Listening (09): a text heard first — who reads it named (its people's own voices), its
+// questions answered by ear with the text hidden —, then shown with its glossed words marked; a text
+// made before the two steps with its reading questions after; a text to read shown at once; without a
+// voice for the language, shown to read with all its questions and the step saying what listening
+// needs; the step's earlier texts listed with their scores.
 import { expect, test } from "bun:test";
 import type { UnderstandingText } from "@sprachanker/schema";
 import type { Understood } from "../../src/llm/api.ts";
@@ -83,20 +84,60 @@ const PIPER = {
   voices: [voice("de_DE-thorsten-medium", "thorsten"), voice("de_DE-eva_k-x_low", "eva_k")],
 };
 
-const step = (texts: Understood[], voices: unknown = PIPER) =>
+const step = (
+  texts: Understood[],
+  voices: unknown = PIPER,
+  which: "reading" | "listening" = "listening",
+) =>
   renderApp(
     <TargetLang value="de">
-      <UnderstandingStep {...ids} />
+      <UnderstandingStep {...ids} step={which} />
     </TargetLang>,
     {
       data: [
         llm,
         [["settings"], { "speech.readEngine": "piper" }],
         [["piper-voices"], voices],
-        [["understanding", ids.lessonKey], { texts, preparing: false }],
+        [["understanding", ids.lessonKey, which], { texts, preparing: false }],
       ],
     },
   );
+
+/** A text Listening made: its people with their gender and the voices they were given. */
+const MADE: UnderstandingText = {
+  ...TEXT,
+  step: "listening",
+  genre: "conversation",
+  people: [
+    { name: "Anna", gender: "f", age: "adult" },
+    { name: "Verkäufer", gender: "m", age: "senior" },
+  ],
+  voices: {
+    engine: "piper",
+    by: { Anna: "de_DE-eva_k-x_low", Verkäufer: "de_DE-thorsten-medium" },
+  },
+  questions: TEXT.questions.map((q) => ({ ...q, phase: "listening" as const })),
+};
+
+test("Listening's text: read by its people's own voices, every question by ear; all answered, the text opens", async () => {
+  const view = await step([understood([], MADE)]);
+  expect(view.getByText("Read by Piper · eva k and thorsten")).toBeTruthy();
+  // The step says what it is: no word of the text's kind.
+  expect(view.queryByText(/a dialogue to listen to/)).toBeNull();
+  expect(view.getByText("Wer verkauft?")).toBeTruthy();
+  expect(view.queryByText("The text")).toBeNull();
+  view.unmount();
+  const all = [
+    answer(0, { optionId: "b" }, "correct"),
+    answer(1, { g1: "1,20" }, "correct"),
+    answer(2, { optionId: "b" }, "correct"),
+  ];
+  const done = await step([understood(all, MADE)]);
+  expect(done.getByText("The text")).toBeTruthy();
+  expect(done.queryByText("Read the text and answer")).toBeNull();
+  expect(done.getByText("3 of 3 right")).toBeTruthy();
+  done.unmount();
+});
 
 test("a dialogue heard first: who reads it (both voices), its questions by ear, the text hidden", async () => {
   const view = await step([understood()]);
@@ -136,13 +177,24 @@ test("answered by ear: the text opens, its glossed words marked, and its reading
   done.unmount();
 });
 
+test("voices given for another engine than the profile's: its people given this engine's, by their gender", async () => {
+  const qwen: UnderstandingText = {
+    ...MADE,
+    voices: { engine: "qwen", by: { Anna: "serena", Verkäufer: "ryan" } },
+  };
+  const view = await step([understood([], qwen)]);
+  // Piper's man's voice for the (older) seller, its woman's for Anna.
+  expect(view.getByText("Read by Piper · thorsten and eva k")).toBeTruthy();
+  view.unmount();
+});
+
 test("a text to read is shown at once, nothing to listen to", async () => {
   const menu: UnderstandingText = {
     ...TEXT,
     kind: "reading",
     lines: [{ text: "Brötchen 0,60 €" }, { text: "Kaffee 2,50 €" }],
   };
-  const view = await step([understood([], menu)]);
+  const view = await step([understood([], menu)], PIPER, "reading");
   expect(view.getByText(/a text to read/)).toBeTruthy();
   expect(view.queryByRole("button", { name: "Listen" })).toBeNull();
   expect(view.getByText("Kaffee 2,50 €")).toBeTruthy();
@@ -162,9 +214,12 @@ test("nothing here reads the language: the step says what listening needs and sh
 
 test("no text yet: what the step is and the way to write one; earlier texts listed with their scores", async () => {
   const none = await step([]);
-  expect(none.getByText(/A short text from the words you know/)).toBeTruthy();
+  expect(none.getByText(/A short text on the lesson's topic, read aloud/)).toBeTruthy();
   expect(none.getByRole("button", { name: "Write a text" })).toBeTruthy();
   none.unmount();
+  const toRead = await step([], PIPER, "reading");
+  expect(toRead.getByText(/as people really read them/)).toBeTruthy();
+  toRead.unmount();
 
   const earlier = {
     ...understood([answer(0, { optionId: "a" }, "wrong")]),

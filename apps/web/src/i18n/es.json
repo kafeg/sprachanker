@@ -152,7 +152,8 @@
       "scene": "Diálogo",
       "mistakes": "Repaso de errores",
       "summary": "Resumen",
-      "understanding": "Comprensión"
+      "reading": "Lectura",
+      "listening": "Comprensión auditiva"
     },
     "section": {
       "grammar": "Gramática",
@@ -410,9 +411,11 @@
       "scene": "Diálogo: una frase",
       "examples": "Ejemplos para las palabras de un mazo",
       "sceneSummary": "Diálogo: el resumen",
-      "understanding": "Comprensión: el texto",
-      "understandingCheck": "Comprensión: la segunda lectura",
-      "mistakes": "Repaso de errores"
+      "understandingDraft": "Lectura y comprensión auditiva: el texto",
+      "understandingCheck": "Lectura y comprensión auditiva: la segunda lectura",
+      "mistakes": "Repaso de errores",
+      "understandingJudge": "Lectura y comprensión auditiva: valoración de borradores",
+      "understandingQuestions": "Lectura y comprensión auditiva: las preguntas"
     },
     "contextIntro": "Se añade de la lección:",
     "contextIntroCourses": "Se añade de tus cursos (los del idioma que practica la conversación):",
@@ -452,11 +455,16 @@
       "dialogueGoals": "la situación y los objetivos que alcanzaste",
       "dialogue": "las frases del diálogo con las correcciones que recibieron",
       "length": "qué longitud tiene el texto en el nivel del curso",
-      "readText": "el texto que escribió",
+      "readText": "el texto",
       "textQuestions": "sus preguntas con las opciones, sin las respuestas",
       "writingTask": "la tarea: la situación, sus tres puntos y la extensión",
       "levelCriteria": "lo que necesita un texto del nivel del curso (los criterios de los exámenes escritos)",
-      "mistakeGroups": "tus errores en esta vuelta por tipo, cada uno solo lo que estaba mal (también las preguntas de «Comprensión» falladas)"
+      "mistakeGroups": "tus errores en esta vuelta por tipo, cada uno solo lo que estaba mal (también las preguntas de «Comprensión» falladas)",
+      "upcoming": "la gramática que el curso enseña más adelante (aún no vista)",
+      "lessonScript": "el guion de la propia lección (su tema y situaciones)",
+      "genre": "el tipo de texto elegido, su forma, su extensión e ideas para la situación",
+      "drafts": "los borradores escritos",
+      "textFacts": "los datos con los que se planeó el texto"
     },
     "upTo": "hasta {chars, plural, one {# carácter} other {# caracteres}}",
     "debug": "Mostrar los botones «Prompt»",
@@ -497,9 +505,11 @@
         "where": "«Proponer una valoración» sobre los criterios de una respuesta, y las partes orales hechas como conversación"
       },
       "understanding": {
-        "name": "Comprensión",
-        "where": "un paso de la lección: un texto para escuchar o leer, con preguntas"
-      }
+        "name": "Lectura y comprensión auditiva",
+        "where": "dos pasos de la lección: un texto para leer y otro para escuchar, con preguntas"
+      },
+      "prepare": "Preparar la práctica con antelación",
+      "prepareHint": "Al empezar una lección, sus textos para leer y escuchar y su tarea de escritura se preparan en segundo plano, para que estén listos cuando llegues. Mientras tanto, el modelo trabaja."
     },
     "about": {
       "explain": "Explica una respuesta incorrecta bajo el ejercicio («¿Por qué está mal?»): cuál es el error y la regla que hay detrás, en tu idioma.",
@@ -514,9 +524,11 @@
       "scene": "Hace de tu interlocutor: responde a cada frase que dices (tal como la oyó el reconocimiento) o escribes, dice si se entendió y si encaja, corrige como mucho dos errores, da una traducción y marca tus objetivos cumplidos.",
       "examples": "Escribe de tres a cinco frases de ejemplo para cada palabra de un mazo que no tenga ejemplos propios, de cinco en cinco palabras (Repaso → Mazos, «Crear ejemplos»), con palabras que ya conoces siempre que puede y las nuevas traducidas.",
       "sceneSummary": "Resume un diálogo cuando termina: las una o dos correcciones más importantes, cada una con tu frase bien dicha, y un comentario breve.",
-      "understanding": "Escribe un texto breve en el idioma que aprendes con las palabras que conoces —un diálogo o un anuncio para escuchar, o un menú o un aviso para leer— con preguntas como las de los exámenes (verdadero/falso, a/b/c, números). Tus respuestas las corrige la app, no el modelo.",
-      "understandingCheck": "Vuelve a leer el texto y responde a sus propias preguntas solo con el texto: una pregunta que responde de otra forma o que no ve clara se descarta.",
-      "mistakes": "Repasa los errores de una vuelta por tipo: de cada tipo solo las partes erróneas (lo que diste, lo correcto, las palabras alrededor), una explicación breve y dos o tres ejercicios nuevos del tipo con palabras que conoces. Tus respuestas las corrige la app, no el modelo."
+      "understandingDraft": "Planifica y escribe un texto breve en el idioma que aprendes sobre el tema de la lección, a tu nivel, en un género que elige la app: una conversación, un mensaje o una historia para escuchar; una carta, un chat o un aviso para leer. Tres borradores a la vez.",
+      "understandingCheck": "Responde a las preguntas solo a partir del texto y luego otra vez sin él: se quita la pregunta que responda de otro modo, que vea confusa o que se pueda responder con sentido común.",
+      "mistakes": "Repasa los errores de una vuelta por tipo: de cada tipo solo las partes erróneas (lo que diste, lo correcto, las palabras alrededor), una explicación breve y dos o tres ejercicios nuevos del tipo con palabras que conoces. Tus respuestas las corrige la app, no el modelo.",
+      "understandingJudge": "Valora los borradores como lo haría un profesor nativo —naturalidad, coherencia, realismo, nivel, relación con la lección, interés— y enumera sus problemas: se queda el mejor que aprueba; si no, el mejor se reescribe una vez.",
+      "understandingQuestions": "Hace 5–10 preguntas sobre el texto elegido, como en los exámenes (verdadero/falso, a/b/c, números), y recoge sus palabras nuevas. Tus respuestas las corrige la app, no el modelo."
     }
   },
   "writing": {
@@ -1623,7 +1635,6 @@
     }
   },
   "understanding": {
-    "intro": "Un texto breve con las palabras que conoces. Un diálogo o un anuncio se lee en voz alta: escucha y responde de oído; luego lee el texto y responde una pregunta más. Un menú o un aviso es para leer.",
     "start": "Escribir un texto",
     "writing": "Escribiendo un texto…",
     "new": "Texto nuevo",
@@ -1645,9 +1656,13 @@
     "result": "{right, number} de {total, number} correctas",
     "past": "Textos anteriores de esta lección",
     "step": {
-      "writing": "Escribiendo el texto…",
-      "checking": "Comprobando las preguntas…"
-    }
+      "writing": "Escribiendo borradores…",
+      "checking": "Comprobando las preguntas…",
+      "choosing": "Eligiendo el mejor borrador…",
+      "asking": "Escribiendo las preguntas…"
+    },
+    "introReading": "Un texto breve sobre el tema de la lección, como los que se leen en la vida real: una carta, un chat, un aviso, una historia. Léelo y responde a las preguntas.",
+    "introListening": "Un texto breve sobre el tema de la lección, leído en voz alta: una conversación, un mensaje, un anuncio, una historia. Escucha y responde de oído; el texto se abre después."
   },
   "goingOver": {
     "title": "Repaso de errores",

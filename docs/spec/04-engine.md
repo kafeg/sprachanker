@@ -15,14 +15,14 @@ The lesson flow (the plan's steps, `lessonSteps` in `packages/engine/src/compose
 2026-10-06): overview (synopsis, goals, the video or recording with its transcript under it) → "Words
 of the lesson" (cards; when it has words) → one "Grammar" step per grammar page (a page is one topic) → the exercises →
 one "Culture" step per culture page → AI practice when an assistant is set up and its place is on (07;
-"AI practice in courses" below): Understanding, "Write it yourself", Dialogue, "Going over mistakes" (owner 2026-10-07: the run's status counted by the app — exercises
+"AI practice in courses" below): Reading, Listening, "Write it yourself", Dialogue, "Going over mistakes" (owner 2026-10-07: the run's status counted by the app — exercises
 worked, scored items right at the first attempt, mistakes by exercise — then the mistakes by type
 with new items; in the plan only while the run has mistakes to go over, `practiceInPlan`) → summary
 of all of it. The steps
 come from what the provider's normaliser put into the canonical and locale files, the same way for
 every course. Every step has a mark in the plan and "Next" goes through all of them; any step can be
 skipped (and shows it). The lesson is completed when every step is done or skipped: an exercise
-answered, a reading step opened, an AI step done once (Understanding: every question of a text
+answered, a reading step opened, an AI step done once (Reading, Listening: every question of a text
 answered; the mistakes step: every new item of a review answered). AI steps are in the plan only while an assistant
 is set up, so a lesson never depends on one. The reference tabs (vocabulary, grammar, culture, script,
 homework, downloads) stay available at any time for looking things up.
@@ -376,12 +376,13 @@ Inside a lesson, at any time:
 The step "AI practice" at the lesson's end — its exercises, each a step of the plan under one
 label and each skippable as any step:
 
-4. **Understanding** (built; below): listening first. A text or dialogue the AI writes from
-   the words known (`understanding_text`), heard through reading aloud in the language learnt only
-   (08; the engine and voice that read it named, as the model is) and answered by ear; then the text
-   opens for reading and a second question is asked. A reading-type text (a menu, a notice, a
-   timetable) is shown to read instead. Questions: true/false, a/b/c, numbers (prices, times) —
-   items of the existing closed types, checked by the engine, never by the model.
+4. **Reading** and **Listening** (built; owner, 2026-10-12; below): two steps on one text
+   generator. Reading: a text people really read (a letter, a chat, a notice, ads, a programme, a
+   story) shown with its questions. Listening: a text heard (a conversation, someone telling the other
+   at length, a phone call, a voice message, an announcement, a story told) through reading aloud in
+   the language learnt only (08), each person by a server voice of their gender, every question
+   answered by ear; then the text opens with its glossed words. Questions: true/false, a/b/c, numbers
+   (prices, times) — items of the existing closed types, checked by the engine, never by the model.
 5. **Writing** ("Write it yourself"; below): a task with three content points, as Goethe's Schreiben
    sets one, its length and criteria by the course's level; the check rates each point and gives at
    most three corrections and a model text. Typed only: no dictation where the task is writing (08).
@@ -403,27 +404,37 @@ detected, never a mix; 08); no dictation where the task is writing; the tutor's 
 aloud; recognised speech is taken as a person would understand it — the recogniser's normalisation
 (punctuation, capitals, numbers written as digits) is accepted, never an error.
 
-**Understanding** (`understanding_text`, `understanding_check`; 07; owner, 2026-10-11 — listening is
-what reading aloud is mostly for): the model writes, from the lesson's goals and the snapshot, one
-text in the language learnt — a dialogue of two or an announcement or message to listen to, or a
-text to read (a menu, a notice, a note, an ad), the kind chosen by the lesson —, its length by the
-course's level (A1 about 40–70 words, A2 80–120, B1 150–200; given with the data), a few new words at
-most, each glossed; and 3–5 questions in the target language as exams ask them, each with one key:
-true/false (two options in the language's words — "Richtig", "Falsch" for German, with the data),
-a/b/c, a number, price or time as three options or typed (every right spelling accepted; nothing
-else is typed); the people in it new, none of the course's characters; from A2 on the lesson's
-grammar in it twice at least; no glossed word one a question asks the meaning of; a text heard
-first has 3–4 questions by ear and 1–2 on the text read. A second call reads the text again and
-answers the questions from it alone (`understanding_check`): one it answers otherwise or finds
-ambiguous is left out; fewer than three left, the text is written again once and the better kept;
-none left, the call fails. A question is the item of the closed type it is — a choice a
-`single_choice` (true/false one of two options), an answer typed a `gap_text` — built by the engine
-(`understandingExercise`, `check/understanding.ts`) and checked by `checkItem`, so no exercise type is
-added; where the learner is — listening, reading, done — is the engine's too (`understandingStage`).
-The text is an `llm_verdict` (`task: understanding`) in the lesson run the lesson shows, as a writing
-check is; each answer a `practice_answered` event on it, checked by the server, one per question
-(05). Answers are not in the lesson's score nor its mistakes: AI practice, as the Dialogue's lines;
-Going over mistakes takes the wrong ones in (owner, 2026-10-12).
+**Reading and Listening** (`understanding_draft`, `understanding_judge`, `understanding_questions`,
+`understanding_check`; 07; owner, 2026-10-12, after texts that did not hang together — "Ich frage
+zweimal: Ist das richtig?" — and a policeman in three texts of four; Duolingo's DuoRadio the model:
+grounded generation, drafts over-made, a model judge): code draws the genre (`TEXT_GENRES`, data:
+the step's genres at the course's level, not the step's last three in the lesson) and a few areas of
+life as ideas; three drafts are written side by side, each a plan — the situation, its people with
+their gender and age (no child speaks; none of the course's characters), what happens, the facts a
+question can ask — and the text from it, about as long as the genre is at the level and the lesson's
+third of the course (`textWords`; A1 up to ~120 words); words and grammar of about the learner's
+level, the topics met, this lesson's where natural, those the course teaches later as a hint to
+avoid — a guide, no filter; the lesson's own script as its topic. One judge call rates every draft
+1–5 (natural, coherent, realistic, level, lesson, interest) with its problems; the best that passes
+(natural, coherent and realistic 4 at least, level and lesson 3) is kept, else the best is written
+again with its problems and judged alone; failing again, nothing is shown. Then 5–10 questions on
+it (by its length; their kinds by the third: facts said directly first, then options the text also
+names, then the gist), each the item of its closed type, all of the step's phase: Listening's all by
+ear. The questions are answered from the text (`understanding_check`) and once more without it
+(`blind`): one answered otherwise, ambiguous, or that common sense answers is left out; fewer than
+four left, the questions are asked again once and the better kept; none, the call fails. The text
+keeps its genre, people, rating and the server's voices its people were given (`castVoices`: by
+gender and age, at random, none twice while another of the gender is there); Listening's lines are
+read ahead into the readings' cache. Texts before the two steps read on as Listening's (Reading's
+when they were to read). A question is built by the engine (`understandingExercise`,
+`check/understanding.ts`) and checked by `checkItem`; where the learner is — listening, reading,
+done — is the engine's too (`understandingStage`). The text is an `llm_verdict` (`task:
+understanding`, its `step`) in the lesson run the lesson shows; each answer a `practice_answered`
+event on it, checked by the server (05). Answers are not in the lesson's score nor its mistakes;
+Going over mistakes takes the wrong ones in (owner, 2026-10-12). **Made ahead** (owner,
+2026-10-12): as a lesson's run starts or resumes, its Reading and Listening texts and its writing
+task are made in the background, one call after another for the profile, unless the step's latest
+is untouched (`llm.preparePractice`, on by default; Settings → AI assistant).
 
 **Going over mistakes** (`mistake_items`; 07; owner, 2026-10-12, from the walkthrough: a chat dumped
 every mistake at once and missed the one inside a long gap item): structured, never a chat. The

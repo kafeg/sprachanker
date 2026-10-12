@@ -46,6 +46,11 @@ export async function setup(
     empty?: boolean;
     /** Changes the fixture library before the app opens it (an item the fixture course lacks). */
     editLibrary?: (libraryRoot: string) => void;
+    /** What the AI practice draws (a text's genre, ideas, voices); Math.random unless given. */
+    random?: () => number;
+    /** The lesson's AI practice made ahead as it starts, as the app does (off here unless asked:
+     *  a test's model answers what the test asks, in order). */
+    prepare?: boolean;
   } = {},
 ) {
   const root = mkdtempSync(join(tmpdir(), "sprachanker-data-"));
@@ -76,6 +81,7 @@ export async function setup(
     listensOn: options.listensOn ?? { hostname: "127.0.0.1", port: 4580 },
     allowHosts: options.allowHosts,
     now: () => (clock += 1000),
+    random: options.random,
   });
   const json = { "content-type": "application/json", ...CLIENT_HEADERS };
   // The first profile, signed in on this "device".
@@ -110,6 +116,8 @@ export async function setup(
   // biome-ignore lint/suspicious/noExplicitAny: test responses are inspected structurally.
   const sendJson = async (method: string, path: string, body: unknown): Promise<any> =>
     (await send(method, path, body)).json();
+  if (!options.prepare)
+    await send("PUT", "/api/settings", { key: "llm.preparePractice", value: false });
   /** Moves the server's clock on (each reading of it still adds a second). */
   const advance = (ms: number) => {
     clock += ms;

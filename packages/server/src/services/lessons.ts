@@ -78,7 +78,23 @@ export interface StudiedCourse {
   lessons: Array<{ key: LessonKey; lastAt: number; done: boolean }>;
 }
 
-export function createLessons({ store, content }: { store: RunStore; content: Content }) {
+/** A lesson's new run started: what is made for it ahead needs to know (index.ts hands it on). */
+export interface LessonStart {
+  series: string;
+  lessonKey: LessonKey;
+  edition: string;
+}
+
+export function createLessons({
+  store,
+  content,
+  started,
+}: {
+  store: RunStore;
+  content: Content;
+  /** Told once a lesson's new run is started — not when one is resumed (its AI practice made ahead). */
+  started?: (lesson: LessonStart) => void;
+}) {
   /** A lesson run by id (the lesson endpoints take no other kind). */
   const getRun = (id: string) => {
     const row = store.get(id, "lesson");
@@ -339,9 +355,11 @@ export function createLessons({ store, content }: { store: RunStore; content: Co
     async start(series: string, lessonKey: LessonKey, edition: string, restart = false) {
       if (seriesOf(lessonKey) !== series) throw new ServiceError("lesson_not_in_series");
       await content.lesson(series, lessonKey);
+      let fresh = false;
       const row = store.atomic(() => {
         const active = store.active("lesson", lessonKey);
         if (active && !restart && active.edition === edition) return active;
+        fresh = true;
         // A run belongs to one edition; switching editions (or starting over) leaves the old one
         // unfinished; it stays readable.
         return store.replace(
@@ -351,6 +369,7 @@ export function createLessons({ store, content }: { store: RunStore; content: Co
           { edition },
         );
       });
+      if (fresh) started?.({ series, lessonKey, edition: row.edition ?? edition });
       return openState(row);
     },
 

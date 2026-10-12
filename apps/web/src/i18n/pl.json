@@ -152,7 +152,8 @@
       "scene": "Dialog",
       "mistakes": "Omówienie błędów",
       "summary": "Podsumowanie",
-      "understanding": "Rozumienie"
+      "reading": "Czytanie",
+      "listening": "Słuchanie"
     },
     "section": {
       "grammar": "Gramatyka",
@@ -410,9 +411,11 @@
       "scene": "Dialog: kwestia",
       "examples": "Przykłady do słów talii",
       "sceneSummary": "Dialog: podsumowanie",
-      "understanding": "Rozumienie: tekst",
-      "understandingCheck": "Rozumienie: drugie czytanie",
-      "mistakes": "Omówienie błędów"
+      "understandingDraft": "Czytanie i słuchanie: tekst",
+      "understandingCheck": "Czytanie i słuchanie: drugie czytanie",
+      "mistakes": "Omówienie błędów",
+      "understandingJudge": "Czytanie i słuchanie: ocena wersji",
+      "understandingQuestions": "Czytanie i słuchanie: pytania"
     },
     "contextIntro": "Dodane z lekcji:",
     "contextIntroCourses": "Dodane z twoich kursów (tych w języku, który ćwiczy rozmowa):",
@@ -452,11 +455,16 @@
       "dialogueGoals": "sytuacja i osiągnięte cele",
       "dialogue": "kwestie dialogu z poprawkami do nich",
       "length": "jak długi jest tekst na poziomie kursu",
-      "readText": "napisany tekst",
+      "readText": "tekst",
       "textQuestions": "jego pytania z odpowiedziami do wyboru, bez rozwiązań",
       "writingTask": "zadanie: sytuacja, jego trzy punkty i długość",
       "levelCriteria": "czego potrzebuje tekst na poziomie kursu (kryteria egzaminów pisemnych)",
-      "mistakeGroups": "twoje błędy z tego podejścia według rodzaju, każdy tylko to, co było źle (także źle odpowiedziane pytania z „Rozumienia”)"
+      "mistakeGroups": "twoje błędy z tego podejścia według rodzaju, każdy tylko to, co było źle (także źle odpowiedziane pytania z „Rozumienia”)",
+      "upcoming": "gramatyka, którą kurs omawia później (jeszcze nie poznana)",
+      "lessonScript": "scenariusz samej lekcji (jej temat i sytuacje)",
+      "genre": "wylosowany rodzaj tekstu, jego forma, długość i pomysły na sytuację",
+      "drafts": "napisane wersje robocze",
+      "textFacts": "fakty, z którymi tekst zaplanowano"
     },
     "upTo": "do {chars, plural, one {# znaku} few {# znaków} many {# znaków} other {# znaku}}",
     "debug": "Pokazuj przyciski „Prompt”",
@@ -497,9 +505,11 @@
         "where": "„Zaproponuj ocenę” nad kryteriami odpowiedzi oraz części ustne prowadzone jako rozmowa"
       },
       "understanding": {
-        "name": "Rozumienie",
-        "where": "krok lekcji: tekst do słuchania lub czytania, z pytaniami"
-      }
+        "name": "Czytanie i słuchanie",
+        "where": "dwa kroki lekcji: tekst do czytania i tekst do słuchania, z pytaniami"
+      },
+      "prepare": "Przygotowuj ćwiczenia z wyprzedzeniem",
+      "prepareHint": "Gdy lekcja się zaczyna, jej teksty do czytania i słuchania oraz zadanie pisemne powstają w tle, więc są gotowe, gdy do nich dojdziesz. Model w tym czasie pracuje."
     },
     "about": {
       "explain": "Wyjaśnia błędną odpowiedź pod ćwiczeniem („Dlaczego to błąd?”): na czym polega błąd i jaka reguła za nim stoi, w twoim języku.",
@@ -514,9 +524,11 @@
       "scene": "Gra twojego rozmówcę: odpowiada na każdą kwestię, którą mówisz (tak jak usłyszało ją rozpoznawanie) lub piszesz, mówi, czy była zrozumiała i pasuje, poprawia w niej najwyżej dwa błędy, podaje tłumaczenie i odhacza osiągnięte cele.",
       "examples": "Pisze od trzech do pięciu przykładowych zdań do każdego słowa talii, która nie ma własnych, po pięć słów naraz (Powtórki → Talie, „Utwórz przykłady”), w miarę możliwości ze znanymi ci słowami, a nowe tłumaczy.",
       "sceneSummary": "Podsumowuje dialog po jego zakończeniu: jedną lub dwie najważniejsze poprawki, każdą z twoim zdaniem powiedzianym dobrze, i krótką uwagę.",
-      "understanding": "Pisze krótki tekst w języku, którego się uczysz, ze znanych ci słów — dialog lub komunikat do słuchania albo menu czy ogłoszenie do czytania — z pytaniami jak na egzaminach (prawda/fałsz, a/b/c, liczby). Twoje odpowiedzi sprawdza aplikacja, nie model.",
-      "understandingCheck": "Czyta tekst jeszcze raz i odpowiada na własne pytania tylko na podstawie tekstu: pytanie, na które odpowie inaczej albo które uzna za niejasne, odpada.",
-      "mistakes": "Omawia błędy podejścia według rodzaju: dla każdego rodzaju tylko błędne części (co podano, co jest dobrze, słowa wokół), krótkie wyjaśnienie i dwa–trzy nowe zadania tego rodzaju ze znanych słów. Odpowiedzi sprawdza aplikacja, nie model."
+      "understandingDraft": "Planuje i pisze krótki tekst w języku, którego się uczysz, na temat lekcji, na twoim poziomie, w gatunku wylosowanym przez aplikację — rozmowa, wiadomość lub opowiadanie do słuchania; list, czat lub ogłoszenie do czytania: trzy wersje naraz.",
+      "understandingCheck": "Odpowiada na pytania tylko na podstawie tekstu, a potem jeszcze raz bez tekstu: pytanie, na które odpowie inaczej, które uzna za niejasne lub na które odpowiada zdrowy rozsądek, jest usuwane.",
+      "mistakes": "Omawia błędy podejścia według rodzaju: dla każdego rodzaju tylko błędne części (co podano, co jest dobrze, słowa wokół), krótkie wyjaśnienie i dwa–trzy nowe zadania tego rodzaju ze znanych słów. Odpowiedzi sprawdza aplikacja, nie model.",
+      "understandingJudge": "Ocenia wersje jak nauczyciel — rodzimy użytkownik języka: naturalność, spójność, realizm, poziom, związek z lekcją, ciekawość — i wymienia problemy. Zostaje najlepsza, która przeszła, inaczej najlepsza jest raz przepisywana.",
+      "understandingQuestions": "Zadaje 5–10 pytań do wybranego tekstu, jak na egzaminach (prawda/fałsz, a/b/c, liczby), i wypisuje nowe słowa. Twoje odpowiedzi sprawdza aplikacja, nie model."
     }
   },
   "writing": {
@@ -1623,7 +1635,6 @@
     }
   },
   "understanding": {
-    "intro": "Krótki tekst ze znanych ci słów. Dialog lub komunikat jest czytany na głos: słuchaj i odpowiadaj ze słuchu, potem przeczytaj tekst i odpowiedz na jeszcze jedno pytanie. Menu czy ogłoszenie są do czytania.",
     "start": "Napisz tekst",
     "writing": "Piszę tekst…",
     "new": "Nowy tekst",
@@ -1645,9 +1656,13 @@
     "result": "{right, number} z {total, number} dobrze",
     "past": "Wcześniejsze teksty tej lekcji",
     "step": {
-      "writing": "Piszę tekst…",
-      "checking": "Sprawdzam pytania…"
-    }
+      "writing": "Piszę wersje robocze…",
+      "checking": "Sprawdzam pytania…",
+      "choosing": "Wybieram najlepszą wersję…",
+      "asking": "Układam pytania…"
+    },
+    "introReading": "Krótki tekst na temat lekcji, jaki czyta się na co dzień — list, czat, ogłoszenie, opowiadanie. Przeczytaj go i odpowiedz na pytania.",
+    "introListening": "Krótki tekst na temat lekcji, czytany na głos — rozmowa, wiadomość, komunikat, opowiadanie. Słuchaj i odpowiadaj ze słuchu; tekst pojawi się potem."
   },
   "goingOver": {
     "title": "Omówienie błędów",

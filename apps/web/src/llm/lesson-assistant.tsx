@@ -1,6 +1,6 @@
 // The AI assistant in the lesson player (09, 07): the tutor in the header, "Why is this wrong?" under a
 // wrong item, the check of an answer said aloud under it, and the practice steps of the plan —
-// Understanding, writing, the Dialogue and going over the pass's mistakes — each where its place is on
+// Reading, Listening, writing, the Dialogue and going over the pass's mistakes — each where its place is on
 // (Settings → AI assistant). The router passes these slots to the player; nothing in lesson/ imports llm/.
 import { PRACTICE, type PracticeKind } from "@sprachanker/engine";
 import type { AiPlace } from "@sprachanker/schema";
@@ -22,7 +22,8 @@ function In({ place, children }: { place: AiPlace; children: React.ReactNode }) 
 
 /** The practice steps and the place each belongs to ("Going over mistakes" goes with the tutor's). */
 const PLACE_OF: Record<PracticeKind, AiPlace> = {
-  understanding: "understanding",
+  reading: "understanding",
+  listening: "understanding",
   writing: "writing",
   scene: "scene",
   mistakes: "tutor",
@@ -54,8 +55,8 @@ export const lessonAssistant: LessonSlots = {
       return llm.data?.model ? PRACTICE.filter((kind) => !off.includes(PLACE_OF[kind])) : [];
     },
     step: (kind, { runId, onDone, onNothing, onStored, ...context }) =>
-      kind === "understanding" ? (
-        <UnderstandingStep {...context} onDone={onDone} onStored={onStored} />
+      kind === "reading" || kind === "listening" ? (
+        <UnderstandingStep {...context} step={kind} onDone={onDone} onStored={onStored} />
       ) : kind === "writing" ? (
         <WritingTask {...context} onDone={onDone} />
       ) : kind === "scene" ? (

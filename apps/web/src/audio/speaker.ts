@@ -7,29 +7,29 @@
 // one shows "stop" while the others show "listen" — and that it waits for the server's voice (a model
 // loading). The next few pieces may be asked for ahead (`prepare`): read then, they are there at
 // once; stopping lets them go.
+import { type Gender, readingPieces, voiceGender } from "@sprachanker/engine";
 import { useEffect, useState, useSyncExternalStore } from "react";
 import { useSetting, useSettings } from "@/api/settings.ts";
 import { sayOnServer, usePiperVoices, useQwenTts, warmQwen } from "@/api/speech.ts";
 import { claimPlayback } from "@/ui/playback.tsx";
 import { type Alt, bestVoice, type SpokenPart, speaks, type VoiceInfo } from "./speak.ts";
-import { type Gender, voiceGender } from "./voice-genders.ts";
+
 import { voiceName } from "./voice-names.ts";
 
 const synth = () => (typeof speechSynthesis === "undefined" ? undefined : speechSynthesis);
 
-/** Long parts go sentence by sentence: Chrome stops an utterance after about 15 s, and the server's
- *  voice starts sooner on a short piece. */
-const PIECE = 200;
-const pieces = (text: string) =>
-  text.length <= PIECE ? [text] : (text.match(/[^.!?…\n]+[.!?…]*\s*/g) ?? [text]);
+/** Long parts go sentence by sentence (`readingPieces`): Chrome stops an utterance after about 15 s,
+ *  and the server's voice starts sooner on a short piece. */
+const pieces = readingPieces;
 
 /** How a piece is read: with a device voice (none: the browser's for its language), or by the server. */
 type Device = { device: SpeechSynthesisVoice | undefined; rate: number };
 /** By the server (a Piper voice); `fallback`: the device's way, when the server cannot say it. */
 type Way = Device | { server: { voice?: string }; fallback?: Device };
 interface ReadOptions {
-  /** How a language is read, by its voice or (`alt`) another one (undefined: it cannot be). */
-  wayFor(lang: string, alt?: Alt): Way | undefined;
+  /** How a language is read, by its voice, (`alt`) another one or (`voice`) a server's voice named
+   *  (undefined: it cannot be). */
+  wayFor(lang: string, alt?: Alt, voice?: string): Way | undefined;
 }
 
 /** What is being read, for the buttons; and the run reading it — a new run, even of the same text,
@@ -74,8 +74,8 @@ const aheadKey = (text: string, lang: string, voice?: string) => `${lang}\n${voi
  *  its turn comes; pieces asked before and no longer among them are let go. */
 function prepare(parts: SpokenPart[], options: ReadOptions) {
   const next = parts
-    .flatMap(({ text, lang, alt }) => {
-      const way = options.wayFor(lang, alt);
+    .flatMap(({ text, lang, alt, voice }) => {
+      const way = options.wayFor(lang, alt, voice);
       return way && "server" in way
         ? pieces(text).map((piece) => ({ piece, lang, server: way.server }))
         : [];
@@ -161,8 +161,8 @@ export async function read(
   options: ReadOptions,
 ): Promise<boolean> {
   cancelRun();
-  const queue = parts.flatMap(({ text, lang, alt }) => {
-    const way = options.wayFor(lang, alt);
+  const queue = parts.flatMap(({ text, lang, alt, voice }) => {
+    const way = options.wayFor(lang, alt, voice);
     return way ? pieces(text).map((piece) => ({ text: piece, lang, way })) : [];
   });
   if (!queue.length) return false;
@@ -357,12 +357,14 @@ export function useSpeaker() {
     }
     return undefined;
   };
-  const wayFor = (lang: string, alt?: Alt): Way | undefined => {
+  const wayFor = (lang: string, alt?: Alt, named?: string): Way | undefined => {
     const main = deviceVoice(voices, chosen?.device, lang);
     const device = voices.some((v) => speaks(voiceInfo(v), lang))
       ? { device: (alt && otherVoice(voices, main, lang)) || main, rate }
       : undefined;
     if (!serverLangs.has(lang)) return device;
+    if (named)
+      return { server: named === serverVoice(lang) ? {} : { voice: named }, fallback: device };
     // The profile's own voice is the server's to pick; another one is named.
     const voice = alt ? serverVoice(lang, alt) : undefined;
     return {
@@ -403,6 +405,21 @@ export function useSpeaker() {
     say,
     /** Asks the server for parts to be read soon, so they are there when their turn comes. */
     prepare: (parts: SpokenPart[]) => prepare(parts, { wayFor }),
+    /** The server's engine and its voices that read a language now (none: the server reads it
+     *  not), for a text's people to be given voices among them. */
+    serverVoices(lang: string): { engine: "piper" | "qwen"; voices: string[] } | undefined {
+      if (!serverLangs.has(lang)) return undefined;
+      if (engine === "piper" && piper)
+        return {
+          engine,
+          voices: piper.voices.filter((v) => v.installed && v.lang === lang).map((v) => v.id),
+        };
+      if (engine === "qwen" && qwen) return { engine, voices: [...qwen.speakers] };
+      return undefined;
+    },
+    /** A server voice's name as Settings → Speech shows it. */
+    voiceName: (id: string) =>
+      engine === "piper" || engine === "qwen" ? voiceName(engine, id) : id,
     /** The gender of the voice that reads a language, where the server's voice says it. */
     gender(lang: string): Gender | undefined {
       const voice = serverLangs.has(lang) ? serverVoice(lang) : undefined;

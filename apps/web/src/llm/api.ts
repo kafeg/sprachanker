@@ -331,12 +331,23 @@ export const useWriting = (series: string, lessonKey: string, edition: string) =
       query.state.data?.checking || query.state.data?.preparing ? WHILE_BUSY : false,
   });
 
-/** Writes a new task for the lesson (shown at once, also when the page that asked is gone). */
+/** The server busy making what was asked for already (made ahead as the lesson started): the page
+ *  shows it being made, no error. */
+export const busyMaking = (error: unknown) =>
+  error instanceof ApiError &&
+  (error.message === "understanding_busy" || error.message === "writing_busy");
+
+/** Writes a new task for the lesson (shown at once, also when the page that asked is gone); one
+ *  being made already (ahead): its state read again, so the page waits for it. */
 export function useWritingTask() {
   const client = useQueryClient();
   return useMutation({
     mutationFn: (request: WritingTaskRequest) =>
       json(api.llm.writing.task.$post({ json: request })),
+    onError: (error, request) => {
+      if (busyMaking(error))
+        void client.invalidateQueries({ queryKey: ["writing", request.lessonKey] });
+    },
     onSuccess: (task, request) =>
       client.setQueryData(["writing", request.lessonKey, request.edition], (old: WritingState) =>
         old ? { ...old, task, preparing: false } : old,
@@ -363,44 +374,56 @@ type UnderstandingRequest = Parameters<typeof api.llm.understanding.$post>[0]["j
 type UnderstandingAnswer = Parameters<typeof api.llm.understanding.answer.$post>[0]["json"];
 type UnderstandingState = Awaited<ReturnType<typeof fetchUnderstanding>>;
 export type Understood = UnderstandingState["texts"][number];
-const fetchUnderstanding = (lessonKey: LessonKey) =>
-  json(api.llm.understanding.$get({ query: { lessonKey } }));
+export type PracticeStep = UnderstandingRequest["step"];
+const fetchUnderstanding = (lessonKey: LessonKey, step: PracticeStep) =>
+  json(api.llm.understanding.$get({ query: { lessonKey, step } }));
+const understandingKey = (lessonKey: LessonKey, step: PracticeStep) => [
+  "understanding",
+  lessonKey,
+  step,
+];
 
-/** The lesson's Understanding texts with their answers, newest first; asked again while one is being
- *  made — asked from here (`asked`) or before —, so its step shows. */
-export const useUnderstanding = (lessonKey: LessonKey, asked = false) =>
+/** A step's texts of the lesson (Reading's or Listening's) with their answers, newest first; asked
+ *  again while one is being made — asked from here (`asked`) or before (made ahead) —, so its step
+ *  shows. */
+export const useUnderstanding = (lessonKey: LessonKey, step: PracticeStep, asked = false) =>
   useQuery({
-    queryKey: ["understanding", lessonKey],
-    queryFn: () => fetchUnderstanding(lessonKey),
+    queryKey: understandingKey(lessonKey, step),
+    queryFn: () => fetchUnderstanding(lessonKey, step),
     refetchInterval: (query) => (asked || query.state.data?.preparing ? WHILE_BUSY : false),
   });
 
-/** Shows a text at once: on top when just written, in its place with an answer added — a poll on
- *  its way stopped first, so its older state does not cover it. */
-function useTextShown(lessonKey: LessonKey) {
+/** Shows a text at once: on top when just made, in its place with an answer added — a poll on its
+ *  way stopped first, so its older state does not cover it. */
+function useTextShown(lessonKey: LessonKey, step: PracticeStep) {
   const client = useQueryClient();
   return async (text: Understood) => {
-    await client.cancelQueries({ queryKey: ["understanding", lessonKey] });
-    client.setQueryData(["understanding", lessonKey], (old: UnderstandingState | undefined) =>
-      withText(old, text),
-    );
+    const key = understandingKey(lessonKey, step);
+    await client.cancelQueries({ queryKey: key });
+    client.setQueryData(key, (old: UnderstandingState | undefined) => withText(old, text));
   };
 }
 
-/** Writes a text for the lesson (shown on top at once, also when the page that asked is gone). */
-export function useStartUnderstanding(lessonKey: LessonKey) {
-  const shown = useTextShown(lessonKey);
+/** Makes a text for the lesson's step (shown on top at once, also when the page that asked is
+ *  gone); one being made already (ahead): the step's state read again, so the page waits for it. */
+export function useStartUnderstanding(lessonKey: LessonKey, step: PracticeStep) {
+  const client = useQueryClient();
+  const shown = useTextShown(lessonKey, step);
   return useMutation({
-    mutationFn: (request: UnderstandingRequest) =>
-      json(api.llm.understanding.$post({ json: request })),
+    mutationFn: (request: Omit<UnderstandingRequest, "step">) =>
+      json(api.llm.understanding.$post({ json: { ...request, step } })),
     onSuccess: shown,
+    onError: (error) => {
+      if (busyMaking(error))
+        void client.invalidateQueries({ queryKey: understandingKey(lessonKey, step) });
+    },
   });
 }
 
 /** Keeps an answer to a text's question, checked by the server; the text shown with it. Answers go
  *  one after another, so each reply holds those before it. */
-export function useAnswerUnderstanding(lessonKey: LessonKey) {
-  const shown = useTextShown(lessonKey);
+export function useAnswerUnderstanding(lessonKey: LessonKey, step: PracticeStep) {
+  const shown = useTextShown(lessonKey, step);
   return useMutation({
     scope: { id: `understanding:${lessonKey}` },
     mutationFn: (answer: UnderstandingAnswer) =>

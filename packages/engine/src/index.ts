@@ -10,6 +10,7 @@ export * from "./learner/going-over.ts";
 export * from "./learner/mistakes.ts";
 export * from "./learner/progress.ts";
 export * from "./learner/series.ts";
+export * from "./speech/voices.ts";
 export * from "./srs/day.ts";
 export * from "./srs/deck.ts";
 export * from "./srs/index.ts";

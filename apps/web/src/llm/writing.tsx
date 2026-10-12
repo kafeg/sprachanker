@@ -20,7 +20,13 @@ import { HistoryList } from "@/ui/history.tsx";
 import { Panel } from "@/ui/panel.tsx";
 import { useRequiredTargetLang } from "@/ui/target-lang.ts";
 import { cn } from "@/ui/utils.ts";
-import { useCheckWriting, useWriting, useWritingTask, type WritingAttempt } from "./api.ts";
+import {
+  busyMaking,
+  useCheckWriting,
+  useWriting,
+  useWritingTask,
+  type WritingAttempt,
+} from "./api.ts";
 import { AssistantLabel, modelName } from "./assistant-label.tsx";
 import { ErrorLine, StartPrompt, Thinking } from "./parts.tsx";
 import { PromptButton } from "./prompt-view.tsx";
@@ -343,7 +349,10 @@ export function WritingTask({
             <AssistantLabel className="ms-auto" />
           </div>
           {preparing && <Thinking label={t("writing.step.task")} className="text-sm" />}
-          <ErrorLine error={newTask.error} onRetry={preparing ? undefined : write} />
+          <ErrorLine
+            error={busyMaking(newTask.error) ? null : newTask.error}
+            onRetry={preparing ? undefined : write}
+          />
         </Panel>
       )}
       {latest && (

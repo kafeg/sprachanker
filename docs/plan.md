@@ -60,7 +60,7 @@ Specs: 04 ("AI practice in courses"), 07 (Conversations), 08, 09.
 Specs: 04 ("AI practice in courses"), 07, 08, 09.
 - The agreed list (04): inside a lesson "Why is this wrong?", "Check with AI" for spoken answers and
   the lesson tutor (questions and explanations only); at the lesson's end the AI practice step —
-  Understanding, Writing, Dialogue, Going over mistakes —, each skippable. Owner's rules: a text read
+  Reading, Listening, Writing, Dialogue, Going over mistakes —, each skippable. Owner's rules: a text read
   aloud only in one language given explicitly; no dictation where the task is writing; tutor replies
   not read aloud; recognised speech taken as a person would understand it.
 - Phase 1 (done): the knowledge snapshot ("what the learner knows by now", 07) under every lesson
@@ -68,8 +68,7 @@ Specs: 04 ("AI practice in courses"), 07, 08, 09.
 - Phase 2 (done): **Understanding** — a text or dialogue from the words known, read again by the
   model to keep only the questions it settles, heard by reading aloud (two voices for a dialogue, the
   engine and voices named), answered by ear, then read with its reading question; reading-type texts
-  shown to read; the questions closed items checked by the engine. Remaining: tried on a real course
-  with a real model and Piper or Qwen3-TTS (the e2e run uses the fake model and the device's voices).
+  shown to read; the questions closed items checked by the engine. Replaced by phase 4.
 - Phase 3 (done, from the walkthrough of 2026-10-12): **Writing** on a task of three content points
   set by the model (length and criteria by level; each point rated, at most three corrections, a
   model text); **Going over mistakes** by type — the wrong parts only, an explanation and new items
@@ -77,6 +76,12 @@ Specs: 04 ("AI practice in courses"), 07, 08, 09.
   wrong?" saying where the topic was taught; the tutor kept to explanations (practice presets out,
   its rules from the walkthrough). Remaining: tried on a real course with a real model (the e2e run
   uses the fake model).
+- Phase 4 (owner, 2026-10-12: texts that did not hang together, two same voices, women read by men):
+  **Reading** and **Listening** as two steps on one text generator — genres drawn by code, three
+  drafts rated by a judge, 5–10 questions read again with and without the text, each person a voice
+  of their gender, made ahead as the lesson starts (04). Built; tuned on `bun run practice:texts`.
+  Remaining: the Writing task and the Dialogue on the same generator (the owner decides the Dialogue's
+  future: a spoken task instead, perhaps); Listening heard with Qwen3-TTS on a phone.
 - **Accept**: each phase's exercises held end to end in a lesson on the fixture course (e2e) and on a
   real course with a real model.
 

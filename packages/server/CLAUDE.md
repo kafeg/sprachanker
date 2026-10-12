@@ -91,8 +91,9 @@ src/
                      #   (the knowledge snapshot every lesson task takes: level — `levelOf` —, place,
                      #   words and topics met), in-flight (calls outliving the page, the step each is
                      #   at) shared; explain,
-                     #   understanding (a text written, read again, its answers checked by the engine),
-                     #   writing (a task set, a text on it checked), going-over (the pass's mistakes by
+                     #   understanding (Reading's and Listening's texts: drafts rated, questions read again,
+                     #   voices given, read ahead), practice-prep (a lesson's practice made ahead as it
+                     #   starts), writing (a task set, a text on it checked), going-over (the pass's mistakes by
                      #   type, new items checked by the engine), speaking, tutor (+ tutor-tools,
                      #   courses-context), scene (the Dialogue), exam-rating, exam-conversation, examples
                      # - speech (08): speech (whisper-server; silence: a take's loudness, what is not speech of

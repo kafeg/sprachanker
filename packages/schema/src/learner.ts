@@ -93,10 +93,12 @@ const AnsweredInput = z.object({
 export const AnsweredPayload = AnsweredInput.extend({ outcome: Outcome });
 export type AnsweredPayload = z.infer<typeof AnsweredPayload>;
 
-/** AI practice in the order of the lesson plan (04): Understanding, Writing, the Dialogue (`scene`),
- *  going over the mistakes last, once the exercises are done. */
-export const PRACTICE = ["understanding", "writing", "scene", "mistakes"] as const;
+/** AI practice in the order of the lesson plan (04; owner, 2026-10-12): Reading, Listening, Writing,
+ *  the Dialogue (`scene`), going over the mistakes last, once the exercises are done. */
+export const PRACTICE = ["reading", "listening", "writing", "scene", "mistakes"] as const;
 export type PracticeKind = (typeof PRACTICE)[number];
+/** Steps recorded before Reading and Listening: Understanding, both in one. */
+const PRACTICE_BEFORE = ["understanding"] as const;
 
 /**
  * A step of the lesson plan besides its exercises (04, "Lesson composition"): the words, a grammar or
@@ -104,7 +106,11 @@ export type PracticeKind = (typeof PRACTICE)[number];
  */
 export const StepId = z
   .string()
-  .regex(new RegExp(`^(words|grammar:\\d+|culture:\\d+|${PRACTICE.join("|")})$`))
+  .regex(
+    new RegExp(
+      `^(words|grammar:\\d+|culture:\\d+|${[...PRACTICE, ...PRACTICE_BEFORE].join("|")})$`,
+    ),
+  )
   .meta({ id: "StepId" });
 export type StepId = z.infer<typeof StepId>;
 

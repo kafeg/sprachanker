@@ -30,6 +30,10 @@ export interface LessonInfo {
   /** The course's people met so far, by name (its scripts' speakers): a person made up for a task
    *  is none of them. */
   characters?: string[];
+  /** The lesson's own script (its dialogue or text; course HTML): the course's level and style. */
+  scriptHtml?: string;
+  /** Grammar topics of the lessons after this one, in course order: what the learner has not met. */
+  upcoming?: string[];
 }
 
 /** A grammar topic (a grammar page's title) and a lesson that taught it: the lesson as the app names
@@ -161,6 +165,16 @@ const ROLE_WORDS = new Set(
 /** Words before a name that are no part of what makes it one ("Frau Weber"; "Frau" alone a role). */
 const TITLES = new Set(["frau", "herr", "mr", "mrs", "ms", "miss", "dr"]);
 
+/** People's names as their words, each once, a title before a name left out ("Frau Keller" →
+ *  Keller): what a new text's people are not named. */
+export const nameWords = (names: string[]) => [
+  ...new Set(
+    names.flatMap((n) =>
+      n.split(/\s+/).filter((w) => w.length > 1 && !TITLES.has(w.toLowerCase().replace(/\.$/, ""))),
+    ),
+  ),
+];
+
 /** A text's words in lower case, two letters or more ("die Kellnerin, -nen" → die, kellnerin, nen). */
 const wordsIn = (text: string) => text.toLocaleLowerCase().match(/\p{L}{2,}/gu) ?? [];
 
@@ -198,6 +212,30 @@ export function speakersOf(html: string, words: string[] = []): string[] {
 /** "The course's characters: Nico, Lisa, Emma" — names a made-up person never takes. */
 export const charactersLine = ({ characters = [] }: Pick<LessonInfo, "characters">) =>
   characters.length ? `The course's characters: ${characters.join(", ")}` : undefined;
+
+/** The grammar topics still ahead in the course, each once, the nearest first, within `max`
+ *  characters. */
+export const upcomingLine = ({ upcoming = [] }: Pick<LessonInfo, "upcoming">, max: number) => {
+  const ahead = clip([...new Set(upcoming)].join("; "), max);
+  return ahead ? `Grammar the course teaches later (not met yet): ${ahead}` : undefined;
+};
+
+/** The lesson's own script within `max` characters: the situations and topic the learner met in it
+ *  (a film's natural speech, partly above the learner's level). */
+export function scriptLine({ scriptHtml }: Pick<LessonInfo, "scriptHtml">, max: number) {
+  const script = scriptHtml ? htmlToText(scriptHtml).trim() : "";
+  return script
+    ? `The lesson's own script — its topic only: the learner has met its situations, so take another one; natural speech, partly above their level; never copied, never its people:\n${clip(script, max)}`
+    : undefined;
+}
+
+/** Where the lesson is in its course: its first, middle or last third (the middle when not known). */
+export type CourseThird = "early" | "middle" | "late";
+export function courseThird({ place }: Pick<LessonInfo, "place">): CourseThird {
+  if (!place || place.of < 3) return "middle";
+  const at = (place.n - 1) / (place.of - 1);
+  return at < 1 / 3 ? "early" : at > 2 / 3 ? "late" : "middle";
+}
 
 /** The lesson's grammar notes as plain text within `max` characters. */
 export const grammarNotes = (lesson: Pick<LessonInfo, "grammarHtml">, max: number) =>

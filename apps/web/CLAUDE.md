@@ -67,7 +67,7 @@ apps/web/src/
   llm/             # AI assistant: settings (AssistantSetup: provider-cards, key-state, model-list over the
                    # pure model-filter; LM Studio), "Why is this wrong?", tutor (the chat view; the lesson's
                    # header panel — History: tutor-history), going-over (the mistakes step), tutor-section (the Tutor
-                   # section: its chats, a chat and its language — a new one's chosen in a SelectField), understanding (heard, answered by ear, read), writing, dialogue (the Dialogue step: goal card, lines read aloud, summary; dialogue-line: a line said and heard, or typed), spoken-check (the AI's check under an answer said aloud), word-examples (a deck's: on a card, under a deck — the slots); exam-assistant (an exam run's slots): exam-rating ("Propose a
+                   # section: its chats, a chat and its language — a new one's chosen in a SelectField), understanding (Reading and Listening: read, or heard by its people's voices and answered by ear), writing, dialogue (the Dialogue step: goal card, lines read aloud, summary; dialogue-line: a line said and heard, or typed), spoken-check (the AI's check under an answer said aloud), word-examples (a deck's: on a card, under a deck — the slots); exam-assistant (an exam run's slots): exam-rating ("Propose a
                    # rating"), exam-conversation (a speaking part held as a conversation);
                    # settings-section (Settings → AI assistant), lmstudio-section, prompts-info (where it
                    # works; the prompts under Advanced), prompt-view (a request as sent), context-meter
@@ -100,8 +100,8 @@ apps/web/src/
                    # the server's engine — Piper or Qwen3-TTS — or the device's voices, one text at a
                    # time; a dialogue's second speaker by another voice), listening (a text line by line: pause, on, again), speak-button, read-by (who reads a language, named), read-aloud-settings (engine cards, speed) with each
                    # engine's voices: device-, piper-, qwen-voices (voice-pick: a language's voice and
-                   # "Listen"; voice-names: a server voice's name, pure; voice-genders: a server voice's
-                   # gender, a speaker's by name, each speaker's voice by gender — pure); download-row (a model or voice the server downloads), read-languages (the
+                   # "Listen"; voice-names: a server voice's name, pure; a voice's gender: the engine's
+                   # speech/voices); download-row (a model or voice the server downloads), read-languages (the
                    # languages read aloud), samples ("Listen"'s sentences; pure), in-use (the in-use mark)
   word/            # a word as shown: gender colouring; tones (ratings and counts in our hues), time
                    # (intervals, next due)

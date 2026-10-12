@@ -184,16 +184,52 @@ export function questionProblem(q: UnderstandingQuestion): string | undefined {
   return q.accepted?.length ? undefined : "a question without options needs its accepted answers";
 }
 
-/** An Understanding text (`understanding_text`; 04): a dialogue of two or an announcement or
- *  message to listen to, or a text to read (a menu, a notice, a note, an ad), in the target
- *  language, with its questions; kept as an `llm_verdict` (`task: understanding`) in the lesson run,
- *  the learner's answers as `practice_answered` events on it. */
+/** The AI practice steps an Understanding text is made for (04, "AI practice in courses"): read, or
+ *  heard first with the text shown once its questions are answered. */
+export const PracticeStep = z.enum(["reading", "listening"]);
+export type PracticeStep = z.infer<typeof PracticeStep>;
+
+/** A person in a text (a speaker, a sender): their gender and age, which their voice follows. */
+export const TextPerson = z.object({
+  name: z.string().min(1).max(40),
+  gender: z.enum(["f", "m"]),
+  age: z.enum(["young", "adult", "senior"]),
+});
+export type TextPerson = z.infer<typeof TextPerson>;
+
+/** How the drafts' judge rated the text kept, 1–5 each, and how many drafts there were. */
+export const TextRating = z.object({
+  natural: z.number().int().min(1).max(5),
+  coherent: z.number().int().min(1).max(5),
+  realistic: z.number().int().min(1).max(5),
+  level: z.number().int().min(1).max(5),
+  lesson: z.number().int().min(1).max(5),
+  interest: z.number().int().min(1).max(5),
+  drafts: z.number().int().min(1),
+});
+export type TextRating = z.infer<typeof TextRating>;
+
+/** An Understanding text (04): a dialogue or a text one person says to listen to, or a text to
+ *  read (a letter, a chat, a notice, a story), in the target language, with its questions; kept as
+ *  an `llm_verdict` (`task: understanding`) in the lesson run, the learner's answers as
+ *  `practice_answered` events on it. Texts before Reading and Listening have no `step` (a text to
+ *  read is `kind: reading`), nor people, voices or rating. */
 export const UnderstandingText = z.object({
   kind: z.enum(["dialogue", "announcement", "reading"]),
+  /** The step it is for; none: a text before the two steps. */
+  step: PracticeStep.optional(),
+  /** Its genre (`TEXT_GENRES`' id). */
+  genre: z.string().max(40).optional(),
   /** Short title in the learner's language. */
   title: z.string().min(1).max(120),
   /** What it is, one sentence in the learner's language ("Two colleagues plan a meeting."). */
   situation: z.string().max(300),
+  /** The people speaking or writing, with what their voices follow. */
+  people: z.array(TextPerson).max(4).optional(),
+  /** The server's voices of its speakers, chosen when it was made: the engine and each one's voice. */
+  voices: z
+    .object({ engine: z.enum(["piper", "qwen"]), by: z.record(z.string(), z.string()) })
+    .optional(),
   /** The text in the target language, a line each — a speaker's turn (with the speaker's name), a
    *  paragraph, a line of a menu. */
   lines: z
@@ -204,7 +240,8 @@ export const UnderstandingText = z.object({
   glossary: z
     .array(z.object({ word: z.string().min(1).max(80), translation: z.string().min(1).max(120) }))
     .max(10),
-  questions: z.array(UnderstandingQuestion).min(1).max(8),
+  questions: z.array(UnderstandingQuestion).min(1).max(10),
+  rating: TextRating.optional(),
 });
 export type UnderstandingText = z.infer<typeof UnderstandingText>;
 

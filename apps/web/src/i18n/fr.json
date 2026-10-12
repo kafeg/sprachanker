@@ -152,7 +152,8 @@
       "scene": "Dialogue",
       "mistakes": "Revoir ses erreurs",
       "summary": "Bilan",
-      "understanding": "Compréhension"
+      "reading": "Lecture",
+      "listening": "Écoute"
     },
     "section": {
       "grammar": "Grammaire",
@@ -410,9 +411,11 @@
       "scene": "Dialogue : une réplique",
       "examples": "Exemples pour les mots d’un paquet",
       "sceneSummary": "Dialogue : le bilan",
-      "understanding": "Compréhension : le texte",
-      "understandingCheck": "Compréhension : la seconde lecture",
-      "mistakes": "Revoir ses erreurs"
+      "understandingDraft": "Lecture et écoute : le texte",
+      "understandingCheck": "Lecture et écoute : la deuxième lecture",
+      "mistakes": "Revoir ses erreurs",
+      "understandingJudge": "Lecture et écoute : évaluation des brouillons",
+      "understandingQuestions": "Lecture et écoute : les questions"
     },
     "contextIntro": "Ajouté depuis la leçon :",
     "contextIntroCourses": "Ajouté depuis tes cours (ceux de la langue que pratique la discussion) :",
@@ -452,11 +455,16 @@
       "dialogueGoals": "la situation et les objectifs atteints",
       "dialogue": "les répliques du dialogue avec les corrections données",
       "length": "la longueur du texte au niveau du cours",
-      "readText": "le texte écrit",
+      "readText": "le texte",
       "textQuestions": "ses questions avec leurs options, sans les réponses",
       "writingTask": "la tâche : la situation, ses trois points et la longueur",
       "levelCriteria": "ce qu’il faut à un texte du niveau du cours (les critères des examens écrits)",
-      "mistakeGroups": "tes erreurs de ce passage par type, chacune seulement ce qui était faux (les questions de « Compréhension » ratées aussi)"
+      "mistakeGroups": "tes erreurs de ce passage par type, chacune seulement ce qui était faux (les questions de « Compréhension » ratées aussi)",
+      "upcoming": "la grammaire que le cours aborde plus tard (pas encore vue)",
+      "lessonScript": "le script de la leçon elle-même (son thème et ses situations)",
+      "genre": "le genre de texte tiré, sa forme, sa longueur et des idées de situation",
+      "drafts": "les brouillons écrits",
+      "textFacts": "les faits avec lesquels le texte a été conçu"
     },
     "upTo": "jusqu’à {chars, plural, one {# caractère} many {# de caractères} other {# caractères}}",
     "debug": "Afficher les boutons « Prompt »",
@@ -497,9 +505,11 @@
         "where": "« Proposer une note » au-dessus des critères d’une réponse, et les épreuves orales menées en conversation"
       },
       "understanding": {
-        "name": "Compréhension",
-        "where": "une étape de la leçon : un texte à écouter ou à lire, avec des questions"
-      }
+        "name": "Lecture et écoute",
+        "where": "deux étapes de la leçon : un texte à lire et un à écouter, avec des questions"
+      },
+      "prepare": "Préparer la pratique à l'avance",
+      "prepareHint": "Dès qu'une leçon commence, ses textes à lire et à écouter et son sujet d'écriture sont préparés en arrière-plan, pour être prêts quand tu y arrives. Le modèle travaille pendant ce temps."
     },
     "about": {
       "explain": "Explique une réponse fausse sous l’exercice (« Pourquoi est-ce faux ? ») : en quoi consiste l’erreur et la règle qui est derrière, dans ta langue.",
@@ -514,9 +524,11 @@
       "scene": "Joue ton interlocuteur : répond à chaque réplique que tu dis (telle que la reconnaissance l’a entendue) ou que tu tapes, dit si elle a été comprise et si elle convient, corrige au plus deux erreurs, donne une traduction et coche tes objectifs atteints.",
       "examples": "Écrit trois à cinq phrases d’exemple pour chaque mot d’un paquet qui n’en a pas, cinq mots à la fois (Révision → Paquets, « Créer des exemples »), avec des mots que tu connais si possible et les nouveaux traduits.",
       "sceneSummary": "Fait le bilan d’un dialogue une fois terminé : la ou les deux corrections qui comptent le plus, chacune avec ta phrase bien dite, et un mot de retour.",
-      "understanding": "Écrit un court texte dans la langue que tu apprends avec les mots que tu connais — un dialogue ou une annonce à écouter, ou un menu, un avis à lire — avec des questions comme aux examens (vrai/faux, a/b/c, nombres). Tes réponses sont corrigées par l’app, pas par le modèle.",
-      "understandingCheck": "Relit le texte et répond à ses propres questions à partir du texte seul : une question à laquelle il répond autrement, ou qu’il trouve floue, est retirée.",
-      "mistakes": "Revoit les erreurs d’un passage par type : pour chaque type, seules les parties fausses (ce que tu as donné, ce qui est juste, les mots autour), une courte explication et deux ou trois nouveaux exercices du type avec des mots que tu connais. Tes réponses sont corrigées par l’app, pas par le modèle."
+      "understandingDraft": "Prépare et écrit un court texte dans la langue que tu apprends, sur le thème de la leçon, à ton niveau, dans un genre tiré par l'appli — une conversation, un message ou une histoire à écouter ; une lettre, un chat ou un avis à lire : trois brouillons à la fois.",
+      "understandingCheck": "Répond aux questions à partir du texte seul, puis une fois encore sans le texte : une question à laquelle il répond autrement, qu'il trouve floue ou à laquelle le bon sens répond est retirée.",
+      "mistakes": "Revoit les erreurs d’un passage par type : pour chaque type, seules les parties fausses (ce que tu as donné, ce qui est juste, les mots autour), une courte explication et deux ou trois nouveaux exercices du type avec des mots que tu connais. Tes réponses sont corrigées par l’app, pas par le modèle.",
+      "understandingJudge": "Évalue les brouillons comme le ferait un enseignant natif — naturel, cohérent, réaliste, à ton niveau, lié à la leçon, intéressant — et liste leurs problèmes : le meilleur qui passe est gardé, sinon le meilleur est réécrit une fois.",
+      "understandingQuestions": "Pose 5 à 10 questions sur le texte retenu, comme aux examens (vrai/faux, a/b/c, nombres), et relève ses mots nouveaux. Tes réponses sont vérifiées par l'appli, pas par le modèle."
     }
   },
   "writing": {
@@ -1623,7 +1635,6 @@
     }
   },
   "understanding": {
-    "intro": "Un court texte avec les mots que tu connais. Un dialogue ou une annonce est lu à voix haute : écoute et réponds à l’oreille, puis lis le texte et réponds à une question de plus. Un menu ou un avis est à lire.",
     "start": "Écrire un texte",
     "writing": "Écriture du texte…",
     "new": "Nouveau texte",
@@ -1645,9 +1656,13 @@
     "result": "{right, number} sur {total, number} justes",
     "past": "Textes précédents de cette leçon",
     "step": {
-      "writing": "Écriture du texte…",
-      "checking": "Vérification des questions…"
-    }
+      "writing": "Rédaction des brouillons…",
+      "checking": "Vérification des questions…",
+      "choosing": "Choix du meilleur brouillon…",
+      "asking": "Rédaction des questions…"
+    },
+    "introReading": "Un court texte sur le thème de la leçon, comme on en lit dans la vie — une lettre, un chat, un avis, une histoire. Lis-le et réponds aux questions.",
+    "introListening": "Un court texte sur le thème de la leçon, lu à voix haute — une conversation, un message, une annonce, une histoire. Écoute et réponds à l'oreille ; le texte s'affiche ensuite."
   },
   "goingOver": {
     "title": "Revoir ses erreurs",

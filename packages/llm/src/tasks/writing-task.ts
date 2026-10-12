@@ -68,6 +68,10 @@ export interface WritingTaskInput extends RulesInput {
   language: Lang;
   target: Lang;
   lesson: LessonInfo;
+  /** Areas of life offered as ideas for the situation (text-genres' `pickAreas`). */
+  areas?: string[];
+  /** The lesson's earlier tasks' situations: a new task takes another. */
+  before?: string[];
 }
 
 export function writingTaskRules(
@@ -106,6 +110,12 @@ export function writingTaskTask(input: WritingTaskInput): StructuredTask<Writing
       ? `Grammar notes of this lesson:\n${grammarNotes(lesson, B.grammar)}`
       : undefined,
     "</lesson>",
+    input.areas?.length
+      ? `Ideas for the situation, when one fits the lesson's topic: ${input.areas.join("; ")}.`
+      : undefined,
+    input.before?.length
+      ? `Earlier tasks of this lesson (take another situation): ${input.before.join(" | ")}`
+      : undefined,
     `Length of the text asked for: about ${writingWords(lesson.level)} words.`,
     writingCriteriaLine(lesson.level),
     WRITING_EXAM[input.target]?.task,
