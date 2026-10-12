@@ -5,6 +5,7 @@
 import { expect, test } from "bun:test";
 import { FIXTURE_SERIES } from "@sprachanker/course-fixture";
 import { ulid } from "ulid";
+import { stepShown } from "../src/services/going-over.ts";
 import { setup } from "./setup.ts";
 
 const LESSON = "sprachanker.fixture/demo/00-01";
@@ -301,6 +302,12 @@ test("only mistakes listed (an Understanding question): the review kept without 
     review.result.groups.map((g: { what: string; items: unknown[] }) => [g.what, g.items.length]),
   ).toEqual([["comprehension", 0]]);
   expect(review.result.groups[0].mistakes[0].line).toBe("Tee 2 Euro");
+});
+
+test("the step shown: making while any type's items are made, checking only while one is checked", () => {
+  expect(stepShown(["making", "checking"])).toBe("making");
+  expect(stepShown(["done", "checking"])).toBe("checking");
+  expect(stepShown(["done", "done"])).toBe("making");
 });
 
 test("a type whose call fails keeps its mistakes without items; the others are gone over", async () => {

@@ -375,13 +375,16 @@ export const useUnderstanding = (lessonKey: LessonKey, asked = false) =>
     refetchInterval: (query) => (asked || query.state.data?.preparing ? WHILE_BUSY : false),
   });
 
-/** Shows a text at once: on top when just written, in its place with an answer added. */
+/** Shows a text at once: on top when just written, in its place with an answer added — a poll on
+ *  its way stopped first, so its older state does not cover it. */
 function useTextShown(lessonKey: LessonKey) {
   const client = useQueryClient();
-  return (text: Understood) =>
+  return async (text: Understood) => {
+    await client.cancelQueries({ queryKey: ["understanding", lessonKey] });
     client.setQueryData(["understanding", lessonKey], (old: UnderstandingState | undefined) =>
       withText(old, text),
     );
+  };
 }
 
 /** Writes a text for the lesson (shown on top at once, also when the page that asked is gone). */
@@ -422,13 +425,16 @@ export const useGoingOver = (lessonKey: LessonKey, asked = false) =>
     refetchInterval: (query) => (asked || query.state.data?.preparing ? WHILE_BUSY : false),
   });
 
-/** Shows a review at once: on top when just written, in its place with an answer added. */
+/** Shows a review at once: on top when just written, in its place with an answer added — a poll on
+ *  its way stopped first, so its older state does not cover it. */
 function useReviewShown(lessonKey: LessonKey) {
   const client = useQueryClient();
-  return (review: Review) =>
+  return async (review: Review) => {
+    await client.cancelQueries({ queryKey: ["going-over", lessonKey] });
     client.setQueryData(["going-over", lessonKey], (old: GoingOverState | undefined) =>
       withReview(old, review),
     );
+  };
 }
 
 /** Goes over the pass's mistakes (shown on top at once, also when the page that asked is gone). */

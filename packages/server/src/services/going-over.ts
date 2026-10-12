@@ -52,6 +52,11 @@ import {
  *  blind. */
 export type GoingOverStep = "making" | "checking";
 
+/** The step a review shows of its types' own: making while any type's items are made, checking
+ *  while any are checked, else making (a type never checked never shows checking). */
+export const stepShown = (steps: Array<GoingOverStep | "done">): GoingOverStep =>
+  !steps.includes("making") && steps.includes("checking") ? "checking" : "making";
+
 export interface GoingOverRequest {
   series: string;
   lessonKey: LessonKey;
@@ -151,11 +156,11 @@ export function createGoingOver(deps: {
     const { run, groups, more, input } = await inputs(request);
     // Each type gone over in a call of its own, side by side (one call for all took up to three
     // minutes); only types listed: no call. The step shown: making while any type's items are
-    // being made, then checking.
+    // being made, then checking (stepShown).
     const steps = input.groups.map((): GoingOverStep | "done" => "making");
     const step = (i: number) => (now: GoingOverStep | "done") => {
       steps[i] = now;
-      busy.set(request.lessonKey, steps.includes("making") ? "making" : "checking");
+      busy.set(request.lessonKey, stepShown(steps));
     };
     const made = await Promise.allSettled(
       input.groups.map((g, i) => goneOver(input, g, step(i)).finally(() => step(i)("done"))),

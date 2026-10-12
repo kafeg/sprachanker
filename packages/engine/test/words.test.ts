@@ -167,6 +167,7 @@ test("a glossary keeps no word a question asks the meaning of — quoted in it, 
     { question: 'Was bedeutet "nervt" im Text?', options: ["macht froh", "macht wütend"] },
     { question: "Was bedeutet „der Quatsch“?", options: ["ernste Arbeit", "Unsinn"] },
     { question: "Что значит «Geduld»?", options: ["Zeit zum Essen", "Ruhe und Ausdauer"] },
+    { question: "Was heißt hier ‚pünktlich‘?", options: ["zu spät", "zur richtigen Zeit"] },
     // The translation among the options: the gloss is the key.
     { question: "Wie spät ist es?", options: ["в восемь часов", "в девять"] },
     { question: "Was hat Anna?", accepted: ["Uhr"] },
@@ -179,7 +180,8 @@ test("a glossary keeps no word a question asks the meaning of — quoted in it, 
     { word: "acht Uhr", translation: "восемь часов" },
     { word: "die Uhr", translation: "Uhr" },
     { word: "pünktlich", translation: "вовремя" },
+    { word: "die Ruhe", translation: "покой" },
   ];
-  expect(unaskedGlosses(glossary, asked).map((g) => g.word)).toEqual(["das Brötchen", "pünktlich"]);
+  expect(unaskedGlosses(glossary, asked).map((g) => g.word)).toEqual(["das Brötchen", "die Ruhe"]);
   expect(unaskedGlosses(glossary, [])).toEqual(glossary);
 });
