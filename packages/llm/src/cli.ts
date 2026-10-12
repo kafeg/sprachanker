@@ -79,8 +79,26 @@ function cliError(kind: CliKind, message: string): LlmError {
 
 /** Time limits: a streamed reply's (the CLIs start in a few seconds, big models think long), and a
  *  JSON reply's per attempt, asked once more when it runs out — a run can hang while the CLI retries
- *  a failing API (a Dialogue's setup once took 224 s). */
-export const CLI_LIMITS = { streamMs: 240_000, jsonAttemptMs: 90_000 };
+ *  a failing API (a Dialogue's setup once took 224 s). A long JSON task's attempt by its name: a B1
+ *  writing check took 69 s, new items for mistakes 67 s — cut short, a good reply is lost. */
+export const CLI_LIMITS: CliLimits = {
+  streamMs: 240_000,
+  jsonAttemptMs: 90_000,
+  jsonAttemptMsOf: { writing_check: 150_000, scene_setup: 150_000, mistake_items: 120_000 },
+};
+
+export interface CliLimits {
+  streamMs: number;
+  jsonAttemptMs: number;
+  /** By the task's name (its schema's): the attempt's limit where it is not `jsonAttemptMs`. */
+  jsonAttemptMsOf?: Record<string, number>;
+}
+
+/** A request's time limit: a JSON task's attempt by its name, else the default; a streamed reply's. */
+const timeLimit = (limits: CliLimits, request: ChatRequest, json: boolean) =>
+  json
+    ? (limits.jsonAttemptMsOf?.[request.jsonSchema?.name ?? ""] ?? limits.jsonAttemptMs)
+    : limits.streamMs;
 /** Claude Code's own retries of a failing API request (10 by default, backing off up to 32 s each):
  *  a few, so an outage fails in seconds and the app's one more attempt follows. */
 const CLAUDE_API_RETRIES = "3";
@@ -185,7 +203,7 @@ export function cliRun(
 export function cliClient(kind: CliKind, run: CliRunner, limits = CLI_LIMITS): LlmClient {
   /** The run's events; `json`: a whole JSON reply asked for (its own time limit). */
   async function* lines(request: ChatRequest, output: "stream-json" | "json", json: boolean) {
-    const signal = withTimeout(request.signal, json ? limits.jsonAttemptMs : limits.streamMs);
+    const signal = withTimeout(request.signal, timeLimit(limits, request, json));
     const job = run({ ...cliRun(kind, request, output), signal });
     // Claude reports a failure as its result, then exits non-zero: the result says why.
     let failed: Record<string, unknown> | undefined;

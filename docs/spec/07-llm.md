@@ -66,7 +66,9 @@ explanations and new items), a Dialogue — keeps the CLI's default
 walkthrough with Sonnet). The user's `CLAUDE_CODE_EFFORT_LEVEL`, which would win over `--effort`, is
 removed from the command's environment, and Claude Code's own API retries are cut to three
 (`CLAUDE_CODE_MAX_RETRIES`; ten by default, backing off up to 32 s each: a Dialogue's setup once took
-224 s). Time limits: a streamed reply 240 s; a JSON reply 90 s per attempt. A run that fails — the
+224 s). Time limits: a streamed reply 240 s; a JSON reply 90 s per attempt, a long task's longer by its
+name (`CLI_LIMITS`: a writing check and a Dialogue's setup 150 s, going over mistakes 120 s — a good
+B1 writing check took 69 s, and one cut short at 90 s cost 159 s in all). A run that fails — the
 process exits non-zero, the API fails, a JSON reply runs out of time — is run once more, unless its
 text has begun to show, the login was refused, the model is unknown, the command cannot start or the
 learner stopped it. Codex's read-only sandbox still lets it run commands that read
