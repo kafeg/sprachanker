@@ -1324,7 +1324,8 @@
     "readBy": "خوانده با {engine, select, piper {Piper} qwen {Qwen3-TTS} other {این دستگاه}} · {voice}",
     "readByEngine": "خوانده با {engine, select, piper {Piper} qwen {Qwen3-TTS} other {صدای این دستگاه}}",
     "readByNone": "اینجا چیزی {language} را بلند نمی‌خواند: در تنظیمات ← گفتار صدایی انتخاب کنید.",
-    "readByHint": "موتور و صدا در تنظیمات ← گفتار انتخاب می‌شوند."
+    "readByHint": "موتور و صدا در تنظیمات ← گفتار انتخاب می‌شوند.",
+    "micStarting": "میکروفون در حال روشن شدن است… وقتی دکمه قرمز شد صحبت کن."
   },
   "error": {
     "answer_does_not_fit": "پاسخ با این تمرین جور نیست. درس را دوباره بارگذاری کن.",

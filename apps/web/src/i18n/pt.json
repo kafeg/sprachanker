@@ -1324,7 +1324,8 @@
     "readBy": "Lido por {engine, select, piper {Piper} qwen {Qwen3-TTS} other {este dispositivo}} · {voice}",
     "readByEngine": "Lido por {engine, select, piper {Piper} qwen {Qwen3-TTS} other {a voz deste dispositivo}}",
     "readByNone": "Nada aqui lê em {language} em voz alta: escolha uma voz em Configurações → Fala.",
-    "readByHint": "O motor e a voz são escolhidos em Configurações → Fala."
+    "readByHint": "O motor e a voz são escolhidos em Configurações → Fala.",
+    "micStarting": "Ligando o microfone… fale quando o botão ficar vermelho."
   },
   "error": {
     "answer_does_not_fit": "A resposta não corresponde a este exercício. Recarregue a lição.",

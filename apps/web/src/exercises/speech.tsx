@@ -204,23 +204,25 @@ function TakeStatus({
     <p className="text-center text-xs text-muted-foreground" aria-live="polite">
       {recorder.state === "recording"
         ? t("speech.recording")
-        : silent
-          ? t("speech.nothingHeard")
-          : saving
-            ? host?.recognition
-              ? t("speech.listening")
-              : t("speech.saving")
-            : late
-              ? t("speech.heardLater")
-              : unsaved
-                ? t("speech.notSaved")
-                : unheard
-                  ? t("speech.notHeard")
-                  : attempted
-                    ? t("speech.again")
-                    : heard
-                      ? t("speech.howTo")
-                      : null}
+        : recorder.state === "starting"
+          ? t("speech.micStarting")
+          : silent
+            ? t("speech.nothingHeard")
+            : saving
+              ? host?.recognition
+                ? t("speech.listening")
+                : t("speech.saving")
+              : late
+                ? t("speech.heardLater")
+                : unsaved
+                  ? t("speech.notSaved")
+                  : unheard
+                    ? t("speech.notHeard")
+                    : attempted
+                      ? t("speech.again")
+                      : heard
+                        ? t("speech.howTo")
+                        : null}
     </p>
   );
 }

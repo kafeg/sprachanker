@@ -49,6 +49,14 @@ export interface Take {
   peak?: number;
 }
 
+/** The microphone is live once a sample is above this: until then a device just opened gives exact
+ *  silence — a second and more on a Mac (the owner's takes, 2026-10-12: 1.1–1.5 s of zeros, the first
+ *  word said into them lost). "Recording" is shown only then. */
+const LIVE_RMS = 0.00001;
+/** Shown as recording anyway after this long without a live sample (an audio context the browser
+ *  keeps suspended measures nothing). */
+const LIVE_WAIT_MS = 2500;
+
 /** Speech is louder than this (-50 dBFS) somewhere in a take, even a word said quietly; a quiet room
  *  is not (the server's gate too). */
 const SPEECH_RMS = 0.00316;
@@ -74,6 +82,9 @@ interface Session {
   frame: number;
   timer: ReturnType<typeof setTimeout>;
   peak?: number;
+  /** The microphone gives sound: "recording" is shown. */
+  live: boolean;
+  liveTimer: ReturnType<typeof setTimeout>;
 }
 
 /** The types to record in, the first one the browser has. */
@@ -101,6 +112,7 @@ export function useRecorder({
     if (!s) return;
     cancelAnimationFrame(s.frame);
     clearTimeout(s.timer);
+    clearTimeout(s.liveTimer);
     for (const track of s.stream.getTracks()) track.stop();
     void s.context.close();
     session.current = null;
@@ -142,8 +154,17 @@ export function useRecorder({
         started: Date.now(),
         frame: 0,
         timer: setTimeout(stop, maxMs),
+        live: false,
+        liveTimer: setTimeout(() => goLive(), LIVE_WAIT_MS),
       };
       session.current = s;
+      // Shown as recording once the microphone gives sound: speaking into its first silent second
+      // loses the first word.
+      function goLive() {
+        if (s.live || session.current !== s) return;
+        s.live = true;
+        setState("recording");
+      }
       // Loudness as the root mean square of the waveform, for the level shown while recording and
       // the take's loudest moment.
       const measure = () => {
@@ -152,6 +173,8 @@ export function useRecorder({
         for (const v of samples) sum += v * v;
         const rms = Math.sqrt(sum / samples.length);
         s.peak = Math.max(s.peak ?? 0, rms);
+        // Nothing measured while the audio context is not running: shown as recording at once.
+        if (rms > LIVE_RMS || s.context.state !== "running") goLive();
         setLevel(Math.min(1, rms * 4));
         s.frame = requestAnimationFrame(measure);
       };
@@ -170,7 +193,6 @@ export function useRecorder({
         if (take.blob.size) handOver.current(take);
       };
       recorder.start();
-      setState("recording");
     } catch (error) {
       if (session.current) release();
       else void context?.close().catch(() => {});

@@ -1324,7 +1324,8 @@
     "readBy": "Gelesen von {engine, select, piper {Piper} qwen {Qwen3-TTS} other {diesem Gerät}} · {voice}",
     "readByEngine": "Gelesen von {engine, select, piper {Piper} qwen {Qwen3-TTS} other {der Stimme dieses Geräts}}",
     "readByNone": "Für {language} gibt es hier keine Vorlesestimme: Wähle eine unter Einstellungen → Sprechen.",
-    "readByHint": "Engine und Stimme wählst du unter Einstellungen → Sprechen."
+    "readByHint": "Engine und Stimme wählst du unter Einstellungen → Sprechen.",
+    "micStarting": "Das Mikrofon geht an… sprich, wenn der Knopf rot wird."
   },
   "error": {
     "answer_does_not_fit": "Die Antwort passt nicht zur Übung. Lade die Lektion neu.",

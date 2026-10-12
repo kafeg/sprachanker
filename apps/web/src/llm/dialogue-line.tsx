@@ -149,13 +149,15 @@ export function DialogueLine({
           <p className="text-center text-sm text-muted-foreground">
             {recording
               ? t("speech.recording")
-              : hearing
-                ? t("speech.listening")
-                : unheard === "silent"
-                  ? t("speech.nothingHeard")
-                  : unheard
-                    ? t("speech.notHeardShort")
-                    : t("speech.howTo")}
+              : recorder.state === "starting"
+                ? t("speech.micStarting")
+                : hearing
+                  ? t("speech.listening")
+                  : unheard === "silent"
+                    ? t("speech.nothingHeard")
+                    : unheard
+                      ? t("speech.notHeardShort")
+                      : t("speech.howTo")}
           </p>
         </>
       )}

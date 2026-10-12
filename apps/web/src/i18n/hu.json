@@ -1324,7 +1324,8 @@
     "readBy": "Felolvassa: {engine, select, piper {Piper} qwen {Qwen3-TTS} other {ez az eszköz}} · {voice}",
     "readByEngine": "Felolvassa: {engine, select, piper {Piper} qwen {Qwen3-TTS} other {az eszköz hangja}}",
     "readByNone": "Itt semmi nem olvas fel ezen a nyelven: {language}. Válassz hangot itt: Beállítások → Beszéd.",
-    "readByHint": "A motort és a hangot itt választod: Beállítások → Beszéd."
+    "readByHint": "A motort és a hangot itt választod: Beállítások → Beszéd.",
+    "micStarting": "Bekapcsol a mikrofon… beszélj, amikor a gomb pirosra vált."
   },
   "error": {
     "answer_does_not_fit": "A válasz nem illik ehhez a feladathoz. Töltsd be újra a leckét.",

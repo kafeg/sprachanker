@@ -95,7 +95,9 @@ function Microphone() {
             <p className="text-sm">
               {recorder.state === "recording"
                 ? t("speech.settings.testing")
-                : t("speech.settings.testHint")}
+                : recorder.state === "starting"
+                  ? t("speech.micStarting")
+                  : t("speech.settings.testHint")}
             </p>
             <div className="h-2 overflow-hidden rounded-full bg-muted" aria-hidden>
               <div

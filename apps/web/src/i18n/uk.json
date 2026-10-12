@@ -1324,7 +1324,8 @@
     "readBy": "Озвучує {engine, select, piper {Piper} qwen {Qwen3-TTS} other {цей пристрій}} · {voice}",
     "readByEngine": "Озвучує {engine, select, piper {Piper} qwen {Qwen3-TTS} other {голос цього пристрою}}",
     "readByNone": "Тут ніщо не читає вголос мову «{language}»: оберіть голос у Налаштуваннях → Мовлення.",
-    "readByHint": "Рушій і голос обираються в Налаштуваннях → Мовлення."
+    "readByHint": "Рушій і голос обираються в Налаштуваннях → Мовлення.",
+    "micStarting": "Вмикаю мікрофон… говоріть, коли кнопка стане червоною."
   },
   "error": {
     "answer_does_not_fit": "Відповідь не підходить до цієї вправи. Перезавантаж урок.",

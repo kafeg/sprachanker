@@ -2,7 +2,7 @@
 // follows the loudness. When the microphone cannot be used (plain HTTP, no MediaRecorder, access denied)
 // it stays disabled and says why — a tooltip, and on a phone a line under it (no hover there). It is
 // `aria-disabled` rather than `disabled`, so it keeps focus and its tooltip.
-import { Mic, MicOff, Square } from "lucide-react";
+import { Loader2, Mic, MicOff, Square } from "lucide-react";
 import { useTranslation } from "react-i18next";
 import { Tooltip, TooltipContent, TooltipTrigger } from "@/ui/components/tooltip.tsx";
 import { cn } from "@/ui/utils.ts";
@@ -66,6 +66,8 @@ export function MicButton({
       )}
       {problem ? (
         <MicOff className="relative size-6" />
+      ) : recorder === "starting" ? (
+        <Loader2 className="relative size-6 motion-safe:animate-spin" />
       ) : recording ? (
         <Square className="relative size-5 fill-current" />
       ) : (

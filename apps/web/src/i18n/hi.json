@@ -1324,7 +1324,8 @@
     "readBy": "{engine, select, piper {Piper} qwen {Qwen3-TTS} other {यह डिवाइस}} पढ़ता है · {voice}",
     "readByEngine": "{engine, select, piper {Piper} qwen {Qwen3-TTS} other {इस डिवाइस की आवाज़}} पढ़ती है",
     "readByNone": "यहां कुछ भी {language} पढ़कर नहीं सुनाता: सेटिंग्स → स्पीच में आवाज़ चुनें.",
-    "readByHint": "इंजन और आवाज़ सेटिंग्स → स्पीच में चुनी जाती हैं."
+    "readByHint": "इंजन और आवाज़ सेटिंग्स → स्पीच में चुनी जाती हैं.",
+    "micStarting": "माइक्रोफ़ोन चालू हो रहा है… बटन लाल होने पर बोलें।"
   },
   "error": {
     "answer_does_not_fit": "उत्तर इस अभ्यास से मेल नहीं खाता. पाठ फिर से लोड करो.",

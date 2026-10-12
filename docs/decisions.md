@@ -127,6 +127,7 @@ area is built is in its `CLAUDE.md`; work not built yet is in `docs/plan.md`.
 - Speech results are practice feedback, not pronunciation grading. The recogniser autocorrects errors, so the UI shows "Heard: …" literally.
 - A spoken check never counts in a score: a lesson scores the same with recognition on or off; a self-rated speaking item counts once recorded (owner, 2026-10-08).
 - Recordings are always kept (owner, 2026-10-11); only a take in which nothing was heard is deleted, and never while an answer holds it.
+- "Recording" shows only once the microphone gives sound (owner, 2026-10-12): a device just opened gives exact silence for a second and more, and the first word said into it was lost; until then the button says the microphone is starting.
 - The browser's microphone processing (gain, noise suppression, echo cancellation) stays off: it reshaped the voice and Whisper misheard. A take starting stops all playback.
 - Whisper invents words for silence and noise. Its `no_speech_prob` is 0 for silence and its VAD needs another model, so neither is used: `silence.ts` filters by loudness and log probability.
 - Low confidence alone never drops a transcript: a learner's accent makes Whisper less sure of a real answer (owner, 2026-10-12).

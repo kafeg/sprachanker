@@ -1324,7 +1324,8 @@
     "readBy": "Čita {engine, select, piper {Piper} qwen {Qwen3-TTS} other {ovaj uređaj}} · {voice}",
     "readByEngine": "Čita {engine, select, piper {Piper} qwen {Qwen3-TTS} other {glas ovog uređaja}}",
     "readByNone": "Ovdje ništa ne čita naglas jezik: {language}. Izaberi glas u Postavkama → Govor.",
-    "readByHint": "Pogon i glas biraju se u Postavkama → Govor."
+    "readByHint": "Pogon i glas biraju se u Postavkama → Govor.",
+    "micStarting": "Uključujem mikrofon… govori kad dugme postane crveno."
   },
   "error": {
     "answer_does_not_fit": "Odgovor ne odgovara ovoj vježbi. Ponovo učitaj lekciju.",

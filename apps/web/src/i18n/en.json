@@ -1324,7 +1324,8 @@
     "readBy": "Read by {engine, select, piper {Piper} qwen {Qwen3-TTS} other {this device}} · {voice}",
     "readByEngine": "Read by {engine, select, piper {Piper} qwen {Qwen3-TTS} other {this device's voice}}",
     "readByNone": "Nothing here reads {language} aloud: choose a voice in Settings → Speech.",
-    "readByHint": "The engine and voice are chosen in Settings → Speech."
+    "readByHint": "The engine and voice are chosen in Settings → Speech.",
+    "micStarting": "Turning the microphone on… speak when the button turns red."
   },
   "error": {
     "answer_does_not_fit": "The answer does not fit this exercise. Reload the lesson.",
