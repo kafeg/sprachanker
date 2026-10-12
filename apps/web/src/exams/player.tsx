@@ -228,6 +228,7 @@ function Running({
       events,
       onStored: keep,
       onAnswer: (text, final) => (mode === "test" || final ? send({ text }) : undefined),
+      again: mode === "practice",
     });
   const question = conversation ? (
     <section key={item.key} aria-label={label}>

@@ -128,8 +128,11 @@ the course's level and what the learner can be assumed to know at the lesson —
   topic once with all its lessons, the first first — over the budget the lessons' titles go before
   a topic's places do, then the oldest topics;
 - **characters**: the course's people met so far by name — the speakers of the scripts of the
-  earlier lessons and this one (a label in capitals, "LISA:", or one alone on its line: `speakersOf`),
-  the latest 30 — so a person a task makes up (a Dialogue's partner) is none of them (QA 2026-10-12).
+  earlier lessons and this one (`speakersOf`: a label at several lines' start of a script — "LISA:"
+  alone on its line, "Frau: Guten Abend!" before what is said —, in the writing system of what is
+  said; a heading or a sentence's opening word comes once, "Am Bahnhof:", "Also: Hallo"; never a
+  letter alone, "A:"; a speaker of a single line in one lesson is found where they speak more),
+  the latest 30 — so a person a task makes up (a Dialogue's partner) is none of them.
 
 Each task takes the parts it needs within its budgets (`*_BUDGETS`, shown in Settings → AI assistant
 → Advanced). What one target language needs (German's ß, the Goethe exam's name for its writing
@@ -146,7 +149,7 @@ rules.
 | `mistake_items` | Going over mistakes (04): the lesson (title, words, earlier words, grammar topics and notes), the level; the pass's mistakes by type as the engine grouped them — each type with what went wrong, the new items' type and fields, its wrong parts only (given, right, the words around it) | JSON: groups[] (n, explanation — in the learner's language, what is wrong, never why —, items: two or three new items of the type in the target language from the words known, each with one right answer) — checked: every group answered once, each item valid for its type (`mistakeItemProblem`: a typed gap followed by its cue in brackets, options all different, never a sentence of the mistakes again); only the types gone over with new items are sent, each in a call of its own side by side — those listed only (said aloud, Understanding's questions) never, and with none of the others no call is made |
 | `mistake_items_check` | Going over mistakes' new items of a type (choices and gaps), without their keys; fixed rules, low effort | JSON: answers[] (n, the option's letter or each gap's word or letter, ambiguous) — an item answered otherwise or ambiguous is left out (`settledItems`); none left, the type asked once more (04) |
 | `check_speaking` | the lesson (title, words, grammar), the course's level, a speaking item without a line to say (instruction, prompt, hint, the source's written answer or its frame), the question and the source's answer as the recogniser heard them in the course's recordings (none heard: said so — the content then is not checked, only the form, and the feedback says so), what was heard of the learner's answer; nothing invented beyond them (nor of the learner), nothing right corrected, the lesson notes' forms (the case after a preposition) judged as they give them, each right form given at once — never corrected again in the same answer (walkthrough 2, 2026-10-12) | JSON: verdict, corrected answer, corrections[] (wrong, right, explanation), feedback |
-| `understanding_text` | Understanding's text (04, "AI practice in courses"): the lesson (title, goals, its place, words, its grammar notes) and the snapshot (level, earlier words, grammar topics met, the course's characters — none of them in the text); the text's length at the level, how often it uses the lesson's grammar (from A2 twice at least) and how the target language's exams write true and false (German's "Richtig", "Falsch") with the data | JSON: kind (`dialogue` \| `announcement` \| `reading`), title and situation (the learner's language), lines (target language; a dialogue's each with its speaker, two at most), glossary (the few new words, translated; a word of the lesson or met before dropped by the engine — `newGlosses`, QA 2026-10-12 —, and a word a kept question asks the meaning of — quoted in it ("Was bedeutet „nervt“?"), or its translation among the question's options or accepted answers: `unaskedGlosses`, it would give the answer away; a word a question only uses, as a true/false statement does, stays glossed), questions (target language, a question's options in its language; phase `listening` \| `reading`, options with the right one's index, or the accepted answers of one typed — only a number, a price or a time: one typed whose answers hold no digit is left out with the unsettled) — checked: every question askable, at least three, a text heard with questions by ear, no course character in it, title and situation in the learner's language and no question in the target language with an option in the learner's, the last two told by script where the languages' differ (`understandingProblem`; walkthrough 2, 2026-10-12) |
+| `understanding_text` | Understanding's text (04, "AI practice in courses"): the lesson (title, goals, its place, words, its grammar notes) and the snapshot (level, earlier words, grammar topics met, the course's characters — none of them in the text); the text's length at the level, how often it uses the lesson's grammar (from A2 twice at least) and how the target language's exams write true and false (German's "Richtig", "Falsch") with the data | JSON: kind (`dialogue` \| `announcement` \| `reading`), title and situation (the learner's language), lines (target language; a dialogue's each with its speaker, two at most), glossary (the few new words, translated; a word of the lesson or met before dropped by the engine — `newGlosses`, —, and a word a kept question asks the meaning of — quoted in it ("Was bedeutet „nervt“?"), or its translation among the question's options or accepted answers: `unaskedGlosses`, it would give the answer away; a word a question only uses, as a true/false statement does, stays glossed), questions (target language, a question's options in its language; phase `listening` \| `reading`, options with the right one's index, or the accepted answers of one typed — only a number, a price or a time: one typed whose answers hold no digit is left out with the unsettled) — checked: every question askable, at least three, a text heard with questions by ear, no course character in it, title and situation in the learner's language and no question in the target language with an option in the learner's, the last two told by script where the languages' differ (`understandingProblem`; walkthrough 2, 2026-10-12) |
 | `understanding_check` | the text written and its questions without their keys | JSON: answers[] (n, the option's letter or the answer typed, ambiguous) — the questions answered otherwise than their key (an answer typed checked by the engine, as the learner's), ambiguous or not answered are left out (`settledQuestions`) |
 | `scene_setup` | a Dialogue's setup: the lesson (title, goals, its place, words, its grammar notes) and the snapshot (level, earlier words, grammar topics met, the course's characters — none of them the partner), the goal kinds of the level (A1 facts, A2 arranging, B1 an opinion with a reason or a complaint, B2–C2 beyond; from B1 at least one goal an opinion), the card's language last | JSON: title, situation, partner, goals (1–3: the learner's goal card), partnerInfo (2–4 facts the partner holds and the learner must ask for, in the target language), opening line and its translation |
 | `scene_turn` | a Dialogue's line: its setup with the partner's information, the course's characters (the partner never takes their names), the level, the words known and the lesson's grammar notes, history, the learner's new line (said and recognised, or typed) | JSON: reply (target language), translation, understood, fits, corrections[] (of the new line only; at most two kept; keeping to the goals — a goal's form of address is the one corrected to), goalsMet[], done (the app ends it only when every goal is met) |
@@ -165,11 +168,15 @@ model plays the examiner and the other candidate, the learner (candidate A) answ
 part" opens it, each line said (heard by the recogniser) or typed gets the next lines, read aloud;
 never a hint or a correction. Every line is an `llm_turn` on the question in the exam run (in a mock
 exam too, while it runs); "End the part" keeps the learner's ending (an empty line of theirs, `done`:
-once — the part shows ended, nothing more is said). The learner's own lines are the part's answer —
+once — the part shows ended, nothing more is said). Ended with nothing said, a mock exam's part stays
+unanswered and practice's may be begun again — the examiner opens it anew; the part is its latest
+conversation (engine `latestConversation`). The learner's own lines are the part's answer —
 only once they have said something, and again only when they changed (a mock exam keeps it as it
 goes, practice once the part is over or the learner ends it) —, never the speakers' labels in the
 interface's language; it is rated by the part's criteria like any open answer, the rater given the
-conversation around it (QA 2026-10-12). Without an assistant (or its place off) the part is answered aloud or typed as any open
+conversation around it when the answer is that conversation's (not one said or typed another way,
+the assistant switched off after it) — a long one clipped from its start, keeping the learner's last
+lines. Without an assistant (or its place off) the part is answered aloud or typed as any open
 answer.
 "Make examples" under a deck in Review → Decks → `word_examples`, a call per five of its words without
 examples, kept beside the deck (04, "A deck's words given examples"; earlier versions' one-at-a-time
@@ -273,13 +280,14 @@ lesson run the lesson shows, its answers `practice_answered` events checked by t
   language-neutral (`{target}` aside); what one language needs (German's ß in a writing check) goes
   with the data, so it holds under the learner's own rules too. Every task whose words reach the
   learner says in its standing rules that their gender is unknown (`NEUTRAL`: wording that does not
-  mark it — "Ты пришёл" never, nor both forms side by side, "смог(ла)"; QA 2026-10-12); only a check
-  the app reads alone and a deck's example sentences, which address no one, go without. Such a task's
-  fixed suffix ends with how the learner's language avoids it where it marks gender (`GENDER_FREE`,
-  data: Russian's and Ukrainian's past forms and short adjectives — "у тебя получилось", never "ты
-  нашёл" —, Polish's and Bosnian's, Romance and Greek adjectives and participles, Arabic's and
-  Hindi's gendered forms; walkthrough, 2026-10-12), so it holds under the learner's own rules too. The learner's text is at most
-  `WRITING_MAX` characters (what the model checks whole), a message `MESSAGE_MAX`.
+  mark it — "Ты пришёл" never, nor both forms side by side, "смог(ла)"); only a check the app reads
+  alone (Understanding's questions answered blind) and a deck's example sentences — about their own
+  people, a sentence's "ich" or "du" its own — go without. Such a task's fixed suffix ends with how
+  the learner's language avoids it where it marks gender (`GENDER_FREE`, data: Russian's and
+  Ukrainian's past forms and short adjectives — "у тебя получилось", never "ты нашёл" —, Polish's and
+  Bosnian's, Romance and Greek adjectives and participles, Arabic's and Hindi's gendered forms), so it
+  holds under the learner's own rules too. The learner's text is at most `WRITING_MAX` characters
+  (what the model checks whole), a message `MESSAGE_MAX`.
 - A "{}" button (switched on in Settings → AI assistant → Advanced) shows the exact request of a task —
   endpoint, fields, every message with its size — built by the same function as the real call (`<task>Request`,
   `chatBody`; a command-line provider's prompt, files and arguments by `cliRun`); nothing is sent.

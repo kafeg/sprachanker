@@ -1,5 +1,6 @@
 import { afterEach, expect, test } from "bun:test";
 import { fireEvent, waitFor } from "@testing-library/react";
+import { DECK_EXAMPLES } from "../../src/api/cards.ts";
 import {
   CardCorner,
   CardExamples,
@@ -165,7 +166,7 @@ test("a card's answer: no example at first; Example shows one, again the next â€
 
 const deck = { words: 773, own: 0, made: 40, missing: 733, job: null };
 const edition = "ru-de";
-const key = ["deck-examples", scope, edition];
+const key = [DECK_EXAMPLES, scope, edition];
 
 test("a deck to take: its words with examples of all, and Make examples asks the server; its progress with Stop", async () => {
   const asked = server({

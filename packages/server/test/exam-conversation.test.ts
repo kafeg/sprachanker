@@ -3,6 +3,7 @@
 // is closed; only while the run is being taken.
 import { expect, test } from "bun:test";
 import { MODELL } from "@sprachanker/course-fixture";
+import { ulid } from "ulid";
 import { setup } from "./setup.ts";
 
 const m = (id: string) => `${MODELL}/q-${id}`;
@@ -139,4 +140,96 @@ test("only a part said aloud is held as a conversation", async () => {
     language: "en",
   });
   expect([res.status, await res.text()]).toEqual([400, '{"error":"no_such_item"}']);
+});
+
+test("a part ended with nothing said: begun again in practice, not in a mock exam; rated by its conversation only when answered by it", async () => {
+  const bodies: Array<{ messages: Array<{ content: string }> }> = [];
+  const fetch = (async (url: string, init: RequestInit) => {
+    if (url.endsWith("/api/v1/models")) return Response.json({ models: [] });
+    const body = JSON.parse(init.body as string);
+    bodies.push(body);
+    const rating = String(body.messages[0]?.content).includes("rater of a");
+    const reply = rating
+      ? {
+          criteria: [
+            { id: "aufgabe", points: 2, reason: "Teilweise." },
+            { id: "sprache", points: 2, reason: "Einfach." },
+          ],
+          feedback: "Mehr fragen.",
+        }
+      : {
+          lines: [{ speaker: "examiner", text: `Bitte fragen Sie (${bodies.length}).` }],
+          done: false,
+        };
+    return Response.json({ choices: [{ message: { content: JSON.stringify(reply) } }] });
+  }) as unknown as typeof globalThis.fetch;
+  const api = await setup({ fetch });
+  await api.send("PUT", "/api/llm/providers/custom", { baseUrl: "http://127.0.0.1:9/v1" });
+  await api.send("PUT", "/api/llm/route", { provider: "custom", model: "m" });
+  const start = async (mode: string) =>
+    (
+      await api.sendJson("POST", "/api/exams/runs", {
+        exam: MODELL,
+        edition: "en-de",
+        mode,
+        module: "sprechen",
+      })
+    ).run;
+  const talk = (runId: string, extra: object = {}) =>
+    api.send("POST", "/api/llm/exam-conversation", {
+      runId,
+      itemKey: m("p1"),
+      language: "en",
+      ...extra,
+    });
+
+  // A mock exam: ended with nothing said, it stays so.
+  const exam = await start("test");
+  await talk(exam.id);
+  await talk(exam.id, { end: true });
+  const refused = await talk(exam.id);
+  expect([refused.status, await refused.text()]).toEqual([409, '{"error":"exam_part_done"}']);
+  await api.sendJson("POST", `/api/exams/runs/${exam.id}/finish`, {});
+
+  // Practice: begun again, the examiner opening it anew — the conversation not begun.
+  const practice = await start("practice");
+  await talk(practice.id);
+  await talk(practice.id, { end: true });
+  const reopened = await talk(practice.id);
+  expect(reopened.status).toBe(200);
+  expect(bodies.at(-1)?.messages.at(-1)?.content).toContain("(not begun");
+  expect((await talk(practice.id, { text: "Was machst du gern?" })).status).toBe(200);
+  expect(bodies.at(-1)?.messages.at(-1)?.content).toContain("Learner (A): Was machst du gern?");
+  // Said something, then ended: not begun again.
+  await talk(practice.id, { end: true });
+  expect((await talk(practice.id)).status).toBe(409);
+
+  const answer = async (text: string) => {
+    await api.sendJson("POST", `/api/exams/runs/${practice.id}/events`, {
+      events: [
+        {
+          id: ulid(),
+          type: "answered",
+          itemKey: m("p1"),
+          payload: { answer: { text }, attempt: 1, ms: 1 },
+        },
+      ],
+    });
+    await api.sendJson("POST", "/api/llm/exam-rating", {
+      runId: practice.id,
+      itemKey: m("p1"),
+      language: "en",
+    });
+    return bodies.at(-1)?.messages.at(-1)?.content ?? "";
+  };
+  // Answered by the conversation: rated with it (its latest, begun again).
+  const held = await answer("Was machst du gern?");
+  expect(held).toContain(
+    "<answer>\nExaminer: Bitte fragen Sie (3).\nLearner (A): Was machst du gern?",
+  );
+  expect(held).not.toContain("Bitte fragen Sie (2).");
+  // Answered another way (the assistant switched off): its own answer alone.
+  const other = await answer("Ich frage: Was machst du am Wochenende?");
+  expect(other).toContain("<answer>\nIch frage: Was machst du am Wochenende?\n</answer>");
+  expect(other).not.toContain("Learner (A)");
 });

@@ -31,6 +31,8 @@ export interface ConversationContext {
   onStored(events: TypedEvent[]): void;
   /** The conversation as the answer: as it stands (`final` false) or the part over. */
   onAnswer(text: string, final: boolean): void;
+  /** A part ended with nothing said may be begun again (practice; a mock exam's stays unanswered). */
+  again: boolean;
 }
 
 const Slots = createContext<ExamSlots>({});

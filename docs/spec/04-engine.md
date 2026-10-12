@@ -341,6 +341,9 @@ An installed exam (02) is taken in runs of kind `exam` (05). Pure functions in
   also keeps its `score` on the exam's own scale — the scaled points of the modules taken, as the
   pass marks count them (Goethe A1: out of 99.6, the sum rounded) —, which a mock exam is shown by
   everywhere (`examScore`; practice by its questions' points); the tasks' own points are its detail.
+  A result stored before results kept their `score` is given it when read, from its modules' scaled
+  points with the exam as installed (`withScore`), so no view mixes scales; mock exams over
+  different modules are compared — the best — by their share of that scale (`examShare`).
 
 ## AI practice in courses
 

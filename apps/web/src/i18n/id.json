@@ -1537,7 +1537,9 @@
       "start": "Mulai bagian ini",
       "over": "Bagian ini sudah selesai.",
       "placeholder": "Jawaban kamu…",
-      "end": "Akhiri bagian ini"
+      "end": "Akhiri bagian ini",
+      "unsaid": "Tidak ada yang diucapkan: bagian ini belum dijawab.",
+      "again": "Mulai bagian ini lagi"
     },
     "choose": "Pilih ujian"
   },

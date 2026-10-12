@@ -10,7 +10,17 @@ import { readSolutions } from "../src/solutions.ts";
 import { readSpeaking } from "../src/speaking.ts";
 import { readWriting } from "../src/writing.ts";
 import { writingPrompt } from "../src/writing-exam.ts";
-import { HOEREN, LESEN, SCHREIBEN, SCHREIBEN_L1, SOLUTIONS, SPRECHEN, ZETTEL } from "./pages.ts";
+import {
+  HOEREN,
+  LESEN,
+  SCHREIBEN,
+  SCHREIBEN_A2,
+  SCHREIBEN_B1,
+  SCHREIBEN_L1,
+  SOLUTIONS,
+  SPRECHEN,
+  ZETTEL,
+} from "./pages.ts";
 
 const LEVEL: Level = {
   course: "a1",
@@ -459,7 +469,8 @@ test("the regulations' pass marks when their modules are all there", () => {
 });
 
 test("a text to write named by its task, never by its box's label", () => {
-  const prompt = (box: string, ...instructions: string[]) => writingPrompt({ box, instructions });
+  const prompt = (box: string, ...instructions: string[]) =>
+    writingPrompt({ box, instructions, title: "Teil 2" });
   expect(prompt("Ihre Meinung", "Schreiben Sie nun Ihre Meinung (circa 50 Wörter).")).toBe(
     "Ihre Meinung",
   );
@@ -488,5 +499,49 @@ test("a text to write named by its task, never by its box's label", () => {
       "Schreiben Sie 20 Wörter.",
     ),
   ).toBe("Sie sind im Zug und schreiben eine SMS an Ihren Bruder.");
-  expect(prompt("Eingabetextfeld", "Schreiben Sie auch einen Gruß.")).toBeUndefined();
+  // A date or an abbreviation ends no sentence; a date is no length.
+  expect(
+    prompt(
+      "Eingabetextfeld",
+      "Sie sind z. B. am 3. Mai in Wien. Schreiben Sie am 4. Mai an Ihre Tante.",
+    ),
+  ).toBe("Schreiben Sie am 4. Mai an Ihre Tante.");
+  // No sentence says what to write: the task's first sentence, else the Teil's title — never none.
+  expect(
+    prompt("Eingabetextfeld", "Prüfungszeit: 15 Minuten", "Ihr Chef ruft an. Antworten Sie."),
+  ).toBe("Ihr Chef ruft an.");
+  expect(prompt("Eingabetextfeld", "Schreiben Sie auch einen Gruß.")).toBe("Teil 2");
+  expect(prompt("Eingabetextfeld", "Prüfungszeit: 15 Minuten", "• Danken Sie.")).toBe("Teil 2");
+});
+
+test("writing normalised at A2 and B1: every text to write has its task as its prompt", () => {
+  const prompts = (course: Level["course"], html: string, writing: Level["writing"]) => {
+    const out = normaliseLevel(
+      { ...LEVEL, course, modules: ["schreiben"], writing },
+      {
+        modules: [{ id: "schreiben", html }],
+        solution: () => undefined,
+        longdesc: () => undefined,
+        media: (url) => `media/image/${url.split("/").pop()}` as never,
+        readAt: 1_000,
+      },
+    );
+    expect(out.problems).toEqual([]);
+    const exam = Exam.parse(
+      out.files.find((f) => f.path.includes(`canonical/${course}/exams`))?.value,
+    );
+    return Object.fromEntries(
+      exam.items.map((i) => [i.key.split("/q-")[1], i.type === "respond" ? i.prompt : undefined]),
+    );
+  };
+  expect(prompts("a2", SCHREIBEN_A2, { bands: { 5: [5, 3.5, 2, 0.5, 0] }, max: 5 })).toEqual({
+    "schreiben-1": "Schreiben Sie am 4. Mai eine Nachricht an Ihre Freundin Ada.",
+    "schreiben-2": "Ihr Kollege Ben lädt Sie z. B. am 1. Juni zum Essen ein.",
+  });
+  expect(
+    prompts("b1", SCHREIBEN_B1, { bands: { 4: [4, 3, 2, 1, 0] }, voids: "Erfüllung" }),
+  ).toEqual({
+    "schreiben-1": "Schreiben Sie eine E-Mail an Ihren Freund Ole.",
+    "schreiben-3": "Aufgabe 3",
+  });
 });

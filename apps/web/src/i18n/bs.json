@@ -107,7 +107,7 @@
     "summary": "Sažetak",
     "score": "Tačno iz prvog pokušaja: {correct, number} od {scored, number}. Postotak računa i djelimično tačne odgovore.",
     "skipped": "preskočeno",
-    "skippedCount": "{count, plural, one {# preskočena} few {# preskočene} other {# preskočenih}}",
+    "skippedCount": "{count, plural, one {preskočeno: #} few {preskočeno: #} other {preskočeno: #}}",
     "notDone": "nije urađeno",
     "backToCourse": "Nazad na kurs",
     "nextLesson": "Sljedeća lekcija",
@@ -1537,7 +1537,9 @@
       "start": "Počni dio",
       "over": "Dio je završen.",
       "placeholder": "Tvoj odgovor…",
-      "end": "Završi dio"
+      "end": "Završi dio",
+      "unsaid": "Ništa nije rečeno — ovaj dio nema odgovora.",
+      "again": "Počni dio ponovo"
     },
     "choose": "Izaberi ispit"
   },

@@ -1537,7 +1537,9 @@
       "start": "Teil beginnen",
       "over": "Der Teil ist zu Ende.",
       "placeholder": "Deine Antwort…",
-      "end": "Teil beenden"
+      "end": "Teil beenden",
+      "unsaid": "Es wurde nichts gesagt – der Teil ist nicht beantwortet.",
+      "again": "Teil neu beginnen"
     },
     "choose": "Prüfung wählen"
   },

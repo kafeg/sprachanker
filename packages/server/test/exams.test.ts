@@ -3,6 +3,7 @@
 import { expect, test } from "bun:test";
 import { EXAM, MODELL } from "@sprachanker/course-fixture";
 import { ulid } from "ulid";
+import { createRunStore } from "../src/services/run-store.ts";
 import { setup } from "./setup.ts";
 
 const q = (id: string) => `${EXAM}/q-${id}`;
@@ -289,6 +290,8 @@ test("the Notebook lists the mock exams handed in, newest first, with their resu
   ).entries[0];
   expect(after.runs[0]).toMatchObject({ id: left.id, endReason: "timeout" });
   expect(detail.lang).toBe("de");
+  // No modules: its questions numbered by their whole ids, as its catalogue numbers them.
+  expect(detail.modules).toBeUndefined();
   const states = Object.fromEntries(
     detail.items.map((i: { key: string; state: string }) => [i.key, i.state]),
   );
@@ -383,6 +386,60 @@ test("a language exam: one module taken alone, timed by it, its Teile whole; the
   });
   expect(rated.run.result.pending).toBeUndefined();
   expect(rated.events.some((e: { type: string }) => e.type === "exam_rated")).toBe(true);
+});
+
+test("a result kept before results had their score: read on the exam's scale everywhere; the best by share", async () => {
+  const api = await setup();
+  const m = (id: string) => `${MODELL}/q-${id}`;
+  const answer = (id: string, optionId: string) => ({
+    id: ulid(),
+    type: "answered",
+    itemKey: m(id),
+    payload: { answer: { optionId }, attempt: 1, ms: 1 },
+  });
+  const take = async (module: string | undefined, events: unknown[]) => {
+    const { run } = await api.sendJson("POST", "/api/exams/runs", {
+      exam: MODELL,
+      edition: "en-de",
+      mode: "test",
+      ...(module && { module }),
+    });
+    await api.sendJson("POST", `/api/exams/runs/${run.id}/events`, { events });
+    return (await api.sendJson("POST", `/api/exams/runs/${run.id}/finish`, {})).run;
+  };
+  // Reading alone: 16.67 of 25 — kept as results were before their score.
+  const lesen = await take("lesen", [answer("l1", "b"), answer("l2", "b")]);
+  const { score: _, ...old } = lesen.result;
+  createRunStore({ db: api.profile, now: Date.now, appVersion: "test" }).rescore(lesen.id, old);
+  // The whole exam: 25 + 16.67 of 100 — more points, a smaller share.
+  const whole = await take(undefined, [
+    ...["h1", "h2", "h3"].map((id) => answer(id, "a")),
+    answer("l1", "b"),
+    answer("l2", "b"),
+  ]);
+  expect(whole.result.score).toEqual({ points: 41.67, max: 100 });
+
+  const scale = { points: 16.67, max: 25 };
+  expect((await api.getJson(`/api/exams/runs/${lesen.id}`)).run.result.score).toEqual(scale);
+  const [listed] = (await api.getJson("/api/exams")).filter(
+    (e: { key: string }) => e.key === MODELL,
+  );
+  expect(listed.best.id).toBe(lesen.id);
+  expect(listed.best.result.score).toEqual(scale);
+  const page = await api.getJson(
+    `/api/exams/page?exam=${encodeURIComponent(MODELL)}&edition=en-de`,
+  );
+  expect(page.runs.find((r: { id: string }) => r.id === lesen.id).result.score).toEqual(scale);
+  const entry = (await api.getJson("/api/notebook")).modules
+    .find((x: { module: string }) => x.module === "exam")
+    .entries.find((e: { key: string }) => e.key === MODELL);
+  expect(entry.runs.map((r: { points: number; max: number }) => [r.points, r.max])).toEqual([
+    [41.67, 100],
+    [16.67, 25],
+  ]);
+  const journal = await api.getJson(`/api/notebook/exam?exam=${MODELL}`);
+  expect(journal.modules).toBe(true);
+  expect(journal.entry.runs.find((r: { id: string }) => r.id === lesen.id)).toMatchObject(scale);
 });
 
 test("an exam reset: its mock exams and practice go, the course's other exam keeps its own", async () => {

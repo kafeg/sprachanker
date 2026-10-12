@@ -1537,7 +1537,9 @@
       "start": "Begin the part",
       "over": "The part is over.",
       "placeholder": "Your answer…",
-      "end": "End the part"
+      "end": "End the part",
+      "unsaid": "Nothing was said: the part is not answered.",
+      "again": "Begin the part again"
     },
     "choose": "Choose an exam"
   },

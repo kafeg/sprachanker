@@ -1537,7 +1537,9 @@
       "start": "Bölüme başla",
       "over": "Bölüm bitti.",
       "placeholder": "Cevabın…",
-      "end": "Bölümü bitir"
+      "end": "Bölümü bitir",
+      "unsaid": "Hiçbir şey söylenmedi: bu bölüm yanıtsız.",
+      "again": "Bölümü yeniden başlat"
     },
     "choose": "Bir sınav seç"
   },

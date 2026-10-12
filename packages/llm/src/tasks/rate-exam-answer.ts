@@ -4,7 +4,7 @@
 import { ExamRatingProposal, type Lang } from "@sprachanker/schema";
 import type { TaskRequest } from "../client.ts";
 import type { StructuredTask } from "../structured.ts";
-import { clip, languageName, languageNames } from "../text.ts";
+import { clip, languageName, languageNames, newest } from "../text.ts";
 import { type ConversationLine, conversationText } from "./exam-conversation.ts";
 import { NEUTRAL, type RulesInput, systemPrompt } from "./rules.ts";
 
@@ -78,12 +78,10 @@ function rateExamAnswerRequest(input: ExamAnswerInput): TaskRequest {
     "</criteria>",
     ...(input.samples.length ? ["<samples>", ...input.samples, "</samples>"] : []),
     "<answer>",
-    clip(
-      input.conversation?.length
-        ? conversationText(input.conversation).join("\n")
-        : input.answer.trim(),
-      B.writtenAnswer,
-    ),
+    // A long conversation keeps its end: the learner's last lines.
+    input.conversation?.length
+      ? newest(conversationText(input.conversation), B.writtenAnswer, "\n")
+      : clip(input.answer.trim(), B.writtenAnswer),
     "</answer>",
     // Small models follow the last lines best: what they most often get wrong.
     `Remember: points only from each criterion's levels; reasons and feedback in ${languageName(input.language)}.`,

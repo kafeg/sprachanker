@@ -1537,7 +1537,9 @@
       "start": "Empezar la parte",
       "over": "La parte ha terminado.",
       "placeholder": "Tu respuesta…",
-      "end": "Terminar la parte"
+      "end": "Terminar la parte",
+      "unsaid": "No se dijo nada: la parte queda sin respuesta.",
+      "again": "Empezar la parte de nuevo"
     },
     "choose": "Elige un examen"
   },

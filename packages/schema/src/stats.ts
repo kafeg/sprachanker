@@ -118,10 +118,12 @@ const ItemStanding = z.object({
 });
 
 /** An entry in full (its page in the Notebook): every run, and its items as they stand, in the
- *  language they are in. */
+ *  language they are in; `modules`: an exam of modules, its questions numbered without their module
+ *  (as its catalogue numbers them). */
 export const EntryDetail = z.object({
   entry: StandingEntry,
   items: z.array(ItemStanding),
   lang: Lang,
+  modules: z.boolean().optional(),
 });
 export type EntryDetail = z.infer<typeof EntryDetail>;

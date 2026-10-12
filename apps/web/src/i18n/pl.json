@@ -107,7 +107,7 @@
     "summary": "Podsumowanie",
     "score": "Dobrze za pierwszym razem: {correct, number} z {scored, number}. Wynik procentowy uwzględnia też odpowiedzi częściowo dobre.",
     "skipped": "pominięte",
-    "skippedCount": "{count, plural, one {# pominięte} few {# pominięte} many {# pominiętych} other {# pominiętego}}",
+    "skippedCount": "{count, plural, one {pominięto: #} few {pominięto: #} many {pominięto: #} other {pominięto: #}}",
     "notDone": "niezrobione",
     "backToCourse": "Wróć do kursu",
     "nextLesson": "Następna lekcja",
@@ -1537,7 +1537,9 @@
       "start": "Zacznij część",
       "over": "Ta część się zakończyła.",
       "placeholder": "Twoja odpowiedź…",
-      "end": "Zakończ część"
+      "end": "Zakończ część",
+      "unsaid": "Nic nie zostało powiedziane — ta część nie ma odpowiedzi.",
+      "again": "Zacznij część od nowa"
     },
     "choose": "Wybierz egzamin"
   },

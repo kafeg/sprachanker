@@ -179,6 +179,47 @@ export const SCHREIBEN = `<html><body><h1><a id="Inhalt"></a></h1>
 <h3>Gesamtergebnis</h3><p>Konzept: niemand</p>
 </body></html>`;
 
+/** A writing page shaped as A2's: each text written in a box labelled for the box ("Textfeld für
+ *  E-Mail"), the time first, a date in the task; a band table of criteria. */
+export const SCHREIBEN_A2 = `<html><body><h1><a id="Inhalt"></a></h1>
+<p>Reguläre Prüfungszeit: circa 30 Minuten</p>
+<div><h3>Teil 1</h3>
+<p>Prüfungszeit: 10 Minuten</p>
+<p>Sie sind am 3. Mai in Graz. Schreiben Sie am 4. Mai eine Nachricht an Ihre Freundin Ada.</p>
+<ul><li>Wo sind Sie?</li><li>Was machen Sie?</li></ul>
+<p>Schreiben Sie circa 30 Wörter. Schreiben Sie zu allen Punkten.</p></div>
+<form action="schreiben.php?#t1" method="post" id="t_03_1"><h4>Teil 1: <label for="t1">Textfeld für E-Mail</label></h4><textarea id="t1"></textarea></form>
+<table><tr><th></th><th>A</th><th>B</th></tr>
+<tr><th>Aufgabenerfüllung* -<br/>Inhalt</th><td>alles</td><td>wenig</td></tr>
+<tr><th>Sprache -<br/>Spektrum: Wortschatz</th><td>reich</td><td>arm</td></tr></table>
+<p>*Wird das Kriterium “Aufgabenerfüllung” mit E (0 Punkten) bewertet, ist die Punktzahl 0 Punkte.</p>
+<div><h3>Teil 2</h3>
+<p>Prüfungszeit: 20 Minuten</p>
+<p>Ihr Kollege Ben lädt Sie z. B. am 1. Juni zum Essen ein. Sie können nicht kommen.</p>
+<ul><li>Danken Sie.</li><li>Nennen Sie einen Grund.</li></ul>
+<p>Antworten Sie (circa 40 Wörter).</p></div>
+<form action="schreiben.php?#t2" method="post" id="t_03_2"><h4>Teil 2: <label for="t2">Textfeld für E-Mail</label></h4><textarea id="t2"></textarea></form>
+<table><tr><th></th><th>A</th><th>B</th></tr>
+<tr><th>Aufgabenerfüllung* -<br/>Inhalt</th><td>alles</td><td>wenig</td></tr></table>
+</body></html>`;
+
+/** A writing page shaped as B1's: Aufgaben with maxima of points; one whose task is only its time
+ *  and its points to write about. */
+export const SCHREIBEN_B1 = `<html><body><h1><a id="Inhalt"></a></h1>
+<p>Reguläre Prüfungszeit: circa 60 Minuten</p>
+<h3>Aufgabe 1</h3>
+<p>Prüfungszeit: 20 Minuten</p>
+<p>Sie haben am 12. März eine Reise gemacht. Schreiben Sie eine E-Mail an Ihren Freund Ole.</p>
+<ul><li>Beschreiben Sie: Wohin sind Sie gefahren?</li></ul>
+<form action="schreiben.php?#t1" method="post" id="t_03_1"><h4>Aufgabe 1: <label for="t1">Eingabetextfeld</label></h4><textarea id="t1"></textarea></form>
+<div><h4>Bewertet werden:</h4><ul><li><strong>Erfüllung</strong>&nbsp;-&nbsp;maximal 4 Punkte</li></ul></div>
+<h3>Aufgabe 3</h3>
+<p>Prüfungszeit: 15 Minuten</p>
+<ul><li>Entschuldigen Sie sich höflich.</li></ul>
+<form action="schreiben.php?#t3" method="post" id="t_03_3"><h4>Aufgabe 3: <label for="t3">Eingabetextfeld</label></h4><textarea id="t3"></textarea></form>
+<div><h4>Bewertet werden:</h4><ul><li><strong>Erfüllung</strong>&nbsp;-&nbsp;maximal 4 Punkte</li></ul></div>
+</body></html>`;
+
 /** Its form's solution page: a table, alternatives with " / ". */
 export const SCHREIBEN_L1 = table([
   [1, "20 / zwanzig"],

@@ -1,10 +1,12 @@
 // A speaking part of an exam held with the AI assistant (09, Exams; 07, `exam_conversation`; owner's
 // choice B, 2026-10-10): the examiner opens the part, the examiner's and the partner's lines are read
 // aloud as they come, the learner answers by voice (or typing) — line after line until the examiner
-// closes the part or the learner ends it (kept: the part shows ended). The learner's own lines are the
+// closes the part or the learner ends it (kept: the part shows ended; ended with nothing said, practice
+// begins it again). The learner's own lines are the
 // part's answer — stored once they have said something, again only when it changed —, rated afterwards
 // by its criteria with the conversation around them. The router provides it to the exam run
 // (exams/slots.ts); without an assistant the part is answered aloud as any open answer.
+import { conversationAnswer, conversationEnded, latestConversation } from "@sprachanker/engine";
 import type { LlmTurnPayload, RespondAnswer } from "@sprachanker/schema";
 import { Mic } from "lucide-react";
 import { useMemo, useState } from "react";
@@ -34,21 +36,27 @@ export function ExamConversation({
   events,
   onStored,
   onAnswer,
+  again,
 }: ConversationContext) {
   const { t, i18n } = useTranslation();
   const lang = useTargetLang();
   const turn = useConversationTurn();
   const { say } = useSpeaker();
   const [text, setText] = useState("");
+  // The part's latest conversation (one ended with nothing said may be begun again).
   const lines: Line[] = useMemo(
     () =>
-      events.flatMap((e) =>
-        e.type === "llm_turn" && e.itemKey === itemKey ? [{ ...e.payload, id: e.id }] : [],
+      latestConversation(
+        events.flatMap((e) =>
+          e.type === "llm_turn" && e.itemKey === itemKey ? [{ ...e.payload, id: e.id }] : [],
+        ),
       ),
     [events, itemKey],
   );
   // Closed by the examiner, or ended by the learner (their empty line).
-  const done = lines.some((l) => l.done);
+  const done = conversationEnded(lines);
+  // Ended with nothing said: in practice, begun again.
+  const unsaid = done && !conversationAnswer(lines);
   /** The answer stored last for the part, if any. */
   const stored = events.findLast((e) => e.type === "answered" && e.itemKey === itemKey);
   const storedText =
@@ -58,10 +66,7 @@ export function ExamConversation({
   /** The part's answer: the learner's own lines, once there are some and as they changed — the
    *  examiner's greeting alone answers nothing, the same lines are not stored again. */
   const answer = (list: Line[], final: boolean) => {
-    const text = list
-      .filter((l) => l.role === "user" && l.text.trim())
-      .map((l) => l.text)
-      .join("\n");
+    const text = conversationAnswer(latestConversation(list));
     if (text && text !== storedText) onAnswer(text, final);
   };
   const request = { runId, itemKey, language: i18n.language };
@@ -145,6 +150,16 @@ export function ExamConversation({
           <PendingExchange question={turn.variables.text} lang={lang} className="text-lg" />
         )}
         {done && <p className="font-semibold">{t("exams.conversation.over")}</p>}
+        {unsaid && (
+          <div className="space-y-2">
+            <p className="text-sm text-muted-foreground">{t("exams.conversation.unsaid")}</p>
+            {again && (
+              <Button size="sm" loading={turn.isPending} onClick={() => send()}>
+                <Mic aria-hidden /> {t("exams.conversation.again")}
+              </Button>
+            )}
+          </div>
+        )}
         <ErrorLine error={turn.error} />
       </div>
       {!done && (

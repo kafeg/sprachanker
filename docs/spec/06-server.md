@@ -149,7 +149,7 @@ JSON under `/api`, validated with zod and typed for the web client through Hono 
   nothing; idempotent by id, an event sent again returns its stored outcome; outcomes computed by the
   server), `POST /api/runs/:id/finish` (only an active run finishes). These take lesson runs only.
 - Exams (04, "Exams"): `GET /api/exams` (the installed exams with the learner's standing: how ready,
-  the settings still to choose, the active run, the last and best mock exams), `GET
+  the settings still to choose, the active run, the last and best mock exams — the best by its share of the exam's scale; every result read on that scale, 04), `GET
   /api/exams/page?exam=&edition=` (the exam with its texts, each question's last answer, the runs
   handed in), `POST /api/exams/runs` (`{exam, edition, mode, module?}`: a new run — of one module when given, an active practice abandoned; 409
   `exam_needs_setting` while the federal state is not chosen, `exam_test_running` while a mock exam

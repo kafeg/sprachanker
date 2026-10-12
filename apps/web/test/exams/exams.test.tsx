@@ -1,6 +1,7 @@
 import { expect, test } from "bun:test";
 import type { Exam, ExamItem, ExamRun } from "@sprachanker/schema";
-import { fireEvent, waitFor, within } from "@testing-library/react";
+import { act, fireEvent, waitFor, within } from "@testing-library/react";
+import { useState } from "react";
 import { ExamCatalog } from "../../src/exams/catalog.tsx";
 import { ExamPage } from "../../src/exams/page.tsx";
 import { OpenAnswerRating } from "../../src/exams/rating.tsx";
@@ -223,9 +224,9 @@ test("an exam in the Notebook: its runs, the map of its questions, those answere
           },
           // Berlin's: the two general questions and Berlin's one, of which one known, one wrong.
           items: [
-            { key: `${KEY}/q-001`, state: "right", line: "Frage 001?" },
-            { key: `${KEY}/q-002`, state: "unseen", line: "Frage 002?" },
-            { key: `${KEY}/q-be-01`, state: "wrong", line: "Frage be-01?" },
+            { key: `${KEY}/q-001`, state: "right", line: "Frage 001?", group: "General" },
+            { key: `${KEY}/q-002`, state: "unseen", line: "Frage 002?", group: "General" },
+            { key: `${KEY}/q-be-01`, state: "wrong", line: "Frage be-01?", group: "Your state" },
           ],
           lang: "de",
         },
@@ -239,7 +240,9 @@ test("an exam in the Notebook: its runs, the map of its questions, those answere
     view.getByRole("img", { name: "Of 3 questions: 1 known, 1 wrong last time" }),
   ).toBeTruthy();
   expect(view.getByText("1 question answered wrongly last time")).toBeTruthy();
-  expect(view.getByText("Frage be-01?")).toBeTruthy();
+  // Numbered as the catalogue numbers it: an exam without modules keeps its whole id.
+  expect(view.getByText("Frage be-01?").previousElementSibling?.textContent).toBe("be-01");
+  expect(view.container.querySelector('[title="General · 001"]')).toBeTruthy();
 });
 
 test("a language exam in the Notebook: questions by their Teil and number, never by their keys", async () => {
@@ -269,6 +272,7 @@ test("a language exam in the Notebook: questions by their Teil and number, never
             },
           ],
           lang: "de",
+          modules: true,
         },
       ],
     ],
@@ -436,6 +440,85 @@ test("the AI's proposal after one's own rating: not counted until accepted — a
     fireEvent.click(view.getByRole("button", { name: "Accept the proposal" }));
     await waitFor(() => expect(sent).toHaveLength(2));
     expect(sent[1]).toMatchObject({ ratings: { task: 1, form: 1 }, by: "assistant", model: "m" });
+  } finally {
+    globalThis.fetch = real;
+  }
+});
+
+test("one's own rating kept after a proposal: the panel shows one's own levels, and a change saves them", async () => {
+  const item = {
+    key: `${KEY}/q-w1`,
+    type: "respond",
+    criteria: [
+      { id: "task", levels: [0, 1, 2], voids: true },
+      { id: "form", levels: [0, 1] },
+    ],
+  } as unknown as ExamItem & { criteria: NonNullable<ExamItem["criteria"]> };
+  const event = (n: number, type: string, payload: unknown) => ({
+    id: `E${n}`,
+    runId: "R",
+    ts: n,
+    type,
+    itemKey: item.key,
+    payload,
+  });
+  const before = [
+    event(1, "exam_rated", { ratings: { task: 2, form: 0 }, by: "self" }),
+    event(2, "llm_verdict", {
+      task: "exam",
+      input: "Hallo",
+      result: {
+        criteria: [
+          { id: "task", points: 1, reason: "Teilweise." },
+          { id: "form", points: 1, reason: "Gruß da." },
+        ],
+        feedback: "",
+      },
+      model: "m",
+      latencyMs: 1,
+    }),
+  ];
+  // The run's events as the page holds them: a rating saved comes back among them.
+  let setEvents: (events: unknown[]) => void = () => {};
+  function Run() {
+    const [events, set] = useState<unknown[]>(before);
+    setEvents = set;
+    return <OpenAnswerRating runId="R" item={item} events={events as never} answer="Hallo" />;
+  }
+  const sent: Array<{ ratings: Record<string, number>; by: string }> = [];
+  const real = globalThis.fetch;
+  globalThis.fetch = (async (input: RequestInfo | URL, init?: RequestInit) => {
+    const request = input instanceof Request ? input : new Request(String(input), init);
+    sent.push(await request.json());
+    return Response.json({ run: {}, events: [] });
+  }) as typeof fetch;
+  try {
+    const view = await renderApp(<Run />, { path: "/exam/run" });
+    const pressed = (name: string) =>
+      within(view.getByRole("group", { name }))
+        .getAllByRole("button")
+        .filter((b) => b.getAttribute("aria-pressed") === "true")
+        .map((b) => b.textContent);
+    // The proposal shown chosen.
+    expect(pressed("task")).toEqual(["1"]);
+    fireEvent.click(view.getByRole("button", { name: "Keep mine" }));
+    await waitFor(() => expect(sent).toHaveLength(1));
+    act(() =>
+      setEvents([...before, event(3, "exam_rated", { ratings: sent[0]?.ratings, by: "self" })]),
+    );
+    // One's own levels, nothing pending, nothing to save until changed.
+    expect(pressed("task")).toEqual(["2"]);
+    expect(pressed("form")).toEqual(["0"]);
+    expect(view.queryByText(/Not accepted yet/)).toBeNull();
+    const change = view.getByRole("button", { name: "Change rating" }) as HTMLButtonElement;
+    expect(change.disabled).toBe(true);
+    fireEvent.click(
+      within(view.getByRole("group", { name: "form" })).getByRole("button", { name: "1" }),
+    );
+    expect(change.disabled).toBe(false);
+    fireEvent.click(change);
+    await waitFor(() => expect(sent).toHaveLength(2));
+    expect(sent[1]).toMatchObject({ ratings: { task: 2, form: 1 }, by: "self" });
   } finally {
     globalThis.fetch = real;
   }

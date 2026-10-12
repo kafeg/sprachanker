@@ -38,20 +38,26 @@ export interface WritingSection {
 const FIELD_LABEL = /(eingabe|text)feld/i;
 /** A line about the text's length or its points, not what to write ("Schreiben Sie 20–30 Wörter",
  *  "… zu allen drei Punkten", "… auch eine Anrede"). */
-const NOT_THE_TASK = /\d|\b(zu (jedem|allen)|etwas zu|auch)\b/;
+const NOT_THE_TASK =
+  /\d+\s*(?:[–-]\s*\d+\s*)?(?:Wörter|Punkte)|\b(?:zu (?:jedem|allen)|etwas zu|auch)\b/;
+/** A line of the time the Teil takes ("Prüfungszeit: 10 Minuten"). */
+const TIME = /Prüfungszeit|\d+\s*Minuten/;
+/** Where a sentence of the task ends: after "!", "?", ":" or a full stop — not that of a number, a
+ *  date or an abbreviation ("am 3. Mai", "ca.", "z. B."). */
+const SENTENCE_END = /(?<=[!?:]|(?<!(?:^|[^\p{L}\d])(?:\d+|\p{L}|ca|bzw|usw|Nr|Str))\.)\s+/u;
 
 /** What a text to write is, as the task says it: its box's own label ("Ihre Meinung"), else the
- *  task's first sentence saying what to write ("Schreiben Sie an die Touristeninformation"); none
- *  when it has neither. */
-export function writingPrompt(teil: Pick<WritingTeil, "box" | "instructions">) {
+ *  task's first sentence saying what to write ("Schreiben Sie an die Touristeninformation"), else
+ *  its first sentence, else the Teil's title — never none. */
+export function writingPrompt(teil: Pick<WritingTeil, "box" | "instructions" | "title">) {
   if (teil.box && !FIELD_LABEL.test(teil.box)) return teil.box;
   const sentences = teil.instructions
-    .filter((line) => !line.startsWith("•"))
-    .flatMap((line) => line.split(/(?<=[.!?:])\s+/))
-    .map((s) => s.replace(/\s*\([^)]*\)/g, "").trim());
-  return sentences
-    .find((s) => /\bschreiben\b/i.test(s) && !NOT_THE_TASK.test(s))
-    ?.replace(/:$/, "");
+    .filter((line) => !line.startsWith("•") && !TIME.test(line))
+    .flatMap((line) => line.split(SENTENCE_END))
+    .map((s) => s.replace(/\s*\([^)]*\)/g, "").trim())
+    .filter((s) => s && !NOT_THE_TASK.test(s));
+  const task = sentences.find((s) => /\bschreiben\b/i.test(s)) ?? sentences[0];
+  return task?.replace(/:$/, "") || teil.title;
 }
 
 /** A line of the form as the candidate sees it: "Reisetermin: (5)", "PLZ: 78014". */
@@ -174,14 +180,13 @@ export function writingSection(input: {
     return out;
   }
   const key = examItemKey(exam, `${module}-${teil.number}`);
-  const prompt = writingPrompt(teil);
   out.items.push({
     key,
     type: "respond",
     tags: {},
     input: "text",
     reference: [],
-    ...(prompt && { prompt }),
+    prompt: writingPrompt(teil),
     criteria,
   });
   out.locale[key] = { criteria: named };

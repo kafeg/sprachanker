@@ -1537,7 +1537,9 @@
       "start": "Commencer l’épreuve",
       "over": "L’épreuve est terminée.",
       "placeholder": "Ta réponse…",
-      "end": "Terminer l’épreuve"
+      "end": "Terminer l’épreuve",
+      "unsaid": "Rien n’a été dit : la partie reste sans réponse.",
+      "again": "Recommencer la partie"
     },
     "choose": "Choisir un examen"
   },

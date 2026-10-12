@@ -1537,7 +1537,9 @@
       "start": "Anza sehemu",
       "over": "Sehemu imekwisha.",
       "placeholder": "Jibu lako…",
-      "end": "Maliza sehemu"
+      "end": "Maliza sehemu",
+      "unsaid": "Hakuna kilichosemwa: sehemu hii haijajibiwa.",
+      "again": "Anza sehemu hii upya"
     },
     "choose": "Chagua mtihani"
   },

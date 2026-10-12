@@ -24,7 +24,9 @@ src/
                   # Notebook's pictures; planned: rule mastery, can-do
   exam/           # exams: the settings as an exam reads them, the questions open to a learner (a
                   # question's line), a mock exam drawn, practice's order, each
-                  # question's state, readiness, a question checked, a run's result
+                  # question's state, readiness, a question checked, a run's result (a result read
+                  # on the exam's scale: withScore); conversation.ts: a speaking part's latest
+                  # conversation and its answer
   srs/            # ts-fsrs wrapper, Anki's study queue (limits, the day's start hour, learn ahead),
                   # interval text; state.ts: a face's FSRS state by name (never its number); day.ts: the day's card answers (limits used, undo, the face just taken back);
                   # deck.ts: a deck's standing for the Notebook (words by state, due, the month's answers)

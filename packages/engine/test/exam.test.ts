@@ -15,6 +15,7 @@ import {
   examPassed,
   examResult,
   examScore,
+  examShare,
   markMax,
   marksOf,
   missingSettings,
@@ -24,6 +25,7 @@ import {
   readiness,
   sectionsOf,
   timeOf,
+  withScore,
 } from "../src/exam/index.ts";
 
 const EXAM = examKey("bamf.lid/lid" as never, "test");
@@ -275,8 +277,16 @@ test("a language exam's result: points by question, by module scaled, pass marks
   expect(examScore(result, "test")).toEqual({ points: 37.5, max: 50 });
   expect(examScore(result, "practice")).toEqual({ points: 4, max: 5 });
   expect(examScore({ points: 4, max: 5 }, "test")).toEqual({ points: 4, max: 5 });
+  // A result kept before results had their score: given it from its modules, as computed now.
+  const { score: _, ...old } = result;
+  expect(withScore(modell, old)).toEqual(result);
+  expect(examScore(withScore(modell, old), "test")).toEqual({ points: 37.5, max: 50 });
   // Hören alone: judged by its own mark only.
   const alone = examResult(modell, { ...plan, items: items.slice(0, 2), module: "hoeren" }, events);
+  // Runs over different modules compared by their share: Hören alone (12.5 of 25) below the whole.
+  expect(alone.score).toEqual({ points: 12.5, max: 25 });
+  expect(examShare(alone, "test")).toBe(0.5);
+  expect(examShare(result, "test")).toBe(0.75);
   expect(marksOf(modell, ["hoeren"]).map((t) => t.id)).toEqual(["hoeren"]);
   expect(alone).toMatchObject({ passed: ["hoeren"], pass: true });
   // What each mark is out of: the scaled points of its modules (all those taken, by default).
