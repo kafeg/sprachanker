@@ -111,6 +111,21 @@ test("writing_task: points that ask for the same thing in other words are asked 
       "Пригласите друга.",
     ]),
   ).toBeUndefined();
+  // The same friend and school, two things asked: stop words and the words all three share aside.
+  expect(
+    repeatedPoints([
+      "Tell your friend about your school.",
+      "Ask your friend about their school.",
+      "Invite your friend to your school party.",
+    ]),
+  ).toBeUndefined();
+  expect(
+    repeatedPoints([
+      "Tell your friend about your school.",
+      "Ask your friend about their school.",
+      "Suggest a day to meet.",
+    ]),
+  ).toBeUndefined();
   const sent: string[] = [];
   const replies = [
     { situation: "s", points: same },
