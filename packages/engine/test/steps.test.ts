@@ -142,7 +142,7 @@ test("going over mistakes is in the plan only while the run has some: an item or
       { exercise: { key: "s.x/c/01-01/ex-02", type: "respond", items: [{}] } },
     ],
   } as unknown as Lesson;
-  const plan = (events: TypedEvent[]) => practiceInPlan(offered, events, graded, "de");
+  const plan = (events: TypedEvent[]) => practiceInPlan(offered, events, graded, null, "de");
   const given = (result: string, answer: unknown) => ({
     outcome: { result, score: result === "correct" ? 1 : 0 },
     attempt: 1,
@@ -174,6 +174,7 @@ test("going over mistakes is in the plan only while the run has some: an item or
       ["writing"],
       [ev(1, "answered", "s.x/c/01-01/ex-01#1", given("wrong", { optionId: "b" }))],
       graded,
+      null,
       "de",
     ),
   ).toEqual(["writing"]);
@@ -209,4 +210,46 @@ test("going over mistakes is in the plan only while the run has some: an item or
   expect(plan([ev(1, "step_done", null, { step: "mistakes", skipped: true })])).toContain(
     "mistakes",
   );
+});
+
+test("a picture chosen wrong is gone over by the edition's description of it; undescribed, it is not", () => {
+  const pictures = {
+    ...lesson,
+    pages: [
+      {
+        exercise: {
+          key: "s.x/c/01-01/ex-01",
+          type: "single_choice",
+          items: [
+            {
+              key: "s.x/c/01-01/ex-01#1",
+              options: [
+                { id: "a", media: { image: "lena.jpg" } },
+                { id: "b", media: { image: "tom.jpg" } },
+              ],
+              answer: { optionIds: ["b"] },
+            },
+          ],
+        },
+      },
+    ],
+  } as unknown as Lesson;
+  const described = {
+    exercises: {
+      "s.x/c/01-01/ex-01": {
+        sourceId: "x",
+        items: { "#1": { alt: { a: "A woman with a book", b: "A man in a cap" } } },
+      },
+    },
+  } as unknown as LocaleLesson;
+  const wrong = [
+    ev(1, "answered", "s.x/c/01-01/ex-01#1", {
+      outcome: { result: "wrong", score: 0 },
+      attempt: 1,
+      ms: 1,
+      answer: { optionId: "a" },
+    }),
+  ];
+  expect(practiceInPlan(["mistakes"], wrong, pictures, described, "de")).toEqual(["mistakes"]);
+  expect(practiceInPlan(["mistakes"], wrong, pictures, null, "de")).toEqual([]);
 });

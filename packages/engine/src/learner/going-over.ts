@@ -417,7 +417,12 @@ export function mistakesToGoOver(
 }
 
 /** Whether a run has a mistake to go over in the lesson: one with a wrong part to show — its
- *  exercise still there, of a type gone over or listed, its answer read. The plan's step and the
- *  server's review read it alike. */
-export const hasMistakesToGoOver = (events: TypedEvent[], lesson: Lesson, lang: string) =>
-  mistakesToGoOver(events, lesson).some((m) => wrongParts(m, lang).length > 0);
+ *  exercise still there, of a type gone over or listed, its answer read, what it shows named (a
+ *  picture by the edition's description: `locale`). The plan's step and the server's review read it
+ *  alike. */
+export const hasMistakesToGoOver = (
+  events: TypedEvent[],
+  lesson: Lesson,
+  locale: LocaleLesson | null | undefined,
+  lang: string,
+) => mistakesToGoOver(events, lesson, locale).some((m) => wrongParts(m, lang).length > 0);

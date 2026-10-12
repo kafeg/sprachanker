@@ -51,7 +51,11 @@ export function useLessonFlow({
 
   // Going over mistakes only while the run has some (practiceInPlan).
   const steps = lesson
-    ? lessonSteps(lesson, locale, practiceInPlan(practice ?? [], run.events, lesson, lang ?? "und"))
+    ? lessonSteps(
+        lesson,
+        locale,
+        practiceInPlan(practice ?? [], run.events, lesson, locale, lang ?? "und"),
+      )
     : [];
   const ids = steps.map(stepId);
   const coverage = lesson
