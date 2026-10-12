@@ -159,20 +159,27 @@ test("a glossary of new words keeps none the learner has met: a lesson's own wor
   expect(newGlosses(glossary, known).map((g) => g.word)).toEqual(["Bahnhof", "zum Beispiel"]);
 });
 
-test("a glossary keeps no word a question asks about: a form of it in a question or an option", () => {
+test("a glossary keeps no word a question asks the meaning of — quoted in it, or its translation an option — and keeps a word a question uses", () => {
+  const asked = [
+    // A word a question merely uses stays glossed: it gives nothing away.
+    { question: "Anna möchte drei Brötchen.", options: ["Richtig", "Falsch"] },
+    // The walkthrough's meaning questions: the word quoted, whatever the options say.
+    { question: 'Was bedeutet "nervt" im Text?', options: ["macht froh", "macht wütend"] },
+    { question: "Was bedeutet „der Quatsch“?", options: ["ernste Arbeit", "Unsinn"] },
+    { question: "Что значит «Geduld»?", options: ["Zeit zum Essen", "Ruhe und Ausdauer"] },
+    // The translation among the options: the gloss is the key.
+    { question: "Wie spät ist es?", options: ["в восемь часов", "в девять"] },
+    { question: "Was hat Anna?", accepted: ["Uhr"] },
+  ];
   const glossary = [
     { word: "das Brötchen", translation: "булочка" },
-    { word: "zum Beispiel", translation: "например" },
-    { word: "die Uhr", translation: "часы" },
-    { word: "der Bahnhof", translation: "вокзал" },
+    { word: "nervt", translation: "раздражает" },
+    { word: "Quatsch", translation: "чепуха" },
+    { word: "die Geduld", translation: "терпение" },
+    { word: "acht Uhr", translation: "восемь часов" },
+    { word: "die Uhr", translation: "Uhr" },
     { word: "pünktlich", translation: "вовремя" },
   ];
-  const asked = [
-    "Wie viele Brötchen kauft Anna?",
-    "Wann ist sie zum Bahnhof gefahren?",
-    "um 8 Uhr",
-    "am Bahnsteig",
-  ];
-  expect(unaskedGlosses(glossary, asked).map((g) => g.word)).toEqual(["zum Beispiel", "pünktlich"]);
+  expect(unaskedGlosses(glossary, asked).map((g) => g.word)).toEqual(["das Brötchen", "pünktlich"]);
   expect(unaskedGlosses(glossary, [])).toEqual(glossary);
 });

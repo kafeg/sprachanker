@@ -136,9 +136,12 @@ test("a text written and read again, kept in the lesson run; heard, answered by 
     "Wer verkauft?",
   ]);
   expect([text.runId, text.model, text.answers]).toEqual([run, "m", []]);
-  // Glossed as new: only words not met — "gern" is one of the lesson's own — and not asked about
-  // ("Brötchen" is in a question kept).
-  expect(text.result.glossary).toEqual([{ word: "macht", translation: "составляет" }]);
+  // Glossed as new: only words not met — "gern" is one of the lesson's own. "Brötchen" a question
+  // only uses stays glossed.
+  expect(text.result.glossary).toEqual([
+    { word: "Brötchen", translation: "булочка" },
+    { word: "macht", translation: "составляет" },
+  ]);
 
   // Heard through the server's reading aloud, each speaker by a voice of the language.
   for (const [i, line] of TEXT.lines.entries()) {
