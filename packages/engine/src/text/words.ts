@@ -171,6 +171,19 @@ export function newGlosses<G extends { word: string }>(glossary: G[], known: Voc
   );
 }
 
+/** A glossary without the words a question asks about (`asked`: the questions and their options):
+ *  an entry is dropped when a question has a form of one of its words — its words of four letters or
+ *  more, all of them when it has none ("zum Beispiel": "Beispiel"; "Uhr": "Uhr") —, so the glossary
+ *  never gives an answer away. */
+export function unaskedGlosses<G extends { word: string }>(glossary: G[], asked: string[]): G[] {
+  const words = asked.flatMap((text) => text.split(WORD).filter((part) => WORD.test(part)));
+  return glossary.filter((g) => {
+    const forms = glossForms({ target: g.word });
+    const main = forms.some((f) => f.length >= 4) ? forms.filter((f) => f.length >= 4) : forms;
+    return !main.some((f) => words.some((w) => sameWord(w, f, Math.min(4, f.length))));
+  });
+}
+
 /**
  * A sentence in pieces, its words marked new unless `known` has them; a new word takes the
  * translation of the first entry of `glossary` that has it as written, else of the first that has a

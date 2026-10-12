@@ -12,6 +12,10 @@ export function createInFlight<T>(busy: ErrorCode) {
   return {
     /** What is running for a key, if anything. */
     get: (key: string): T | undefined => running.get(key),
+    /** What the call running for a key is doing now (a step of it); nothing when none runs. */
+    set(key: string, what: T) {
+      if (running.has(key)) running.set(key, what);
+    },
     /** Runs `call` as `what` for `key`; 409 `busy` while another runs for it. */
     async run<R>(key: string, what: T, call: () => Promise<R>): Promise<R> {
       if (running.has(key)) throw new ServiceError(busy, 409);

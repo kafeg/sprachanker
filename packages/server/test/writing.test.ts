@@ -18,6 +18,8 @@ const CHECK = {
   corrections: [
     fix("heisse", "heiße"),
     fix("Lena", "Lena"),
+    // Words the text does not have: dropped.
+    fix("bin gekommen", "kam"),
     fix("komme", "komme gleich"),
     fix("um", "gegen"),
     fix("da", "dort"),
@@ -96,7 +98,7 @@ test("writing: a task written and kept, a text on it checked and kept with its t
   expect((await getJson(`/api/llm/writing?${query}`)).task.id).toBe(task.id);
 
   // A text on a task that is not the lesson's is refused.
-  const text = "Ich heisse Lena.";
+  const text = "Ich heisse Lena. Ich komme um acht, da bin ich.";
   const stray = await send("POST", "/api/llm/writing", {
     ...IDS,
     taskId: "01HZY0000000000000000000AA",
@@ -106,7 +108,8 @@ test("writing: a task written and kept, a text on it checked and kept with its t
 
   const attempt = await sendJson("POST", "/api/llm/writing", { ...IDS, taskId: task.id, text });
   expect(attempt.result.verdict).toBe("minor_errors");
-  // The no-op correction dropped, at most three kept (the model's order: the most important first).
+  // The no-op correction and one quoting words the text lacks dropped, at most three kept (the
+  // model's order: the most important first).
   expect(attempt.result.corrections.map((c: { wrong: string }) => c.wrong)).toEqual([
     "heisse",
     "komme",
@@ -137,10 +140,7 @@ test("writing: a task written and kept, a text on it checked and kept with its t
   });
   const after = await getJson(`/api/llm/writing?${query}`);
   expect(after.task.id).toBe(second.id);
-  expect(after.attempts.map((a: { input: string }) => a.input)).toEqual([
-    "Ich heiße Lena.",
-    "Ich heisse Lena.",
-  ]);
+  expect(after.attempts.map((a: { input: string }) => a.input)).toEqual(["Ich heiße Lena.", text]);
   // An earlier task can still be written on.
   const prompt = await sendJson("POST", "/api/llm/writing/prompt", {
     ...IDS,

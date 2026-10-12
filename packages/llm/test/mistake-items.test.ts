@@ -11,6 +11,7 @@ import {
   mistakeItemsTask,
   settledItems,
 } from "../src/tasks/mistake-items.ts";
+import { GENDER_FREE } from "../src/tasks/rules.ts";
 
 const input: MistakeItemsInput = {
   language: "ru",
@@ -64,7 +65,7 @@ test("the groups as data: what went wrong, the new items' type and fields, the w
     expect(system).toContain(part);
   expect(system).not.toContain("A1");
   expect(system).toEndWith(
-    "Reply with the JSON object only.\nWrite only in Russian and German: not a word in any other language.",
+    `Reply with the JSON object only.\nWrite only in Russian and German: not a word in any other language.\n${GENDER_FREE.ru}`,
   );
   expect(user).toContain(
     'Group 1 — what went wrong: the ending or form of a word; new items: gap_text, with "text" (a sentence with each gap written ___',

@@ -16,14 +16,14 @@ test("each topic once, the one taught again as recent as its latest lesson", () 
 
 test("with its places: every lesson that taught it, the first first; over the budget, places kept", () => {
   expect(topicPlacesLine({ topics }, 500)).toBe(
-    "Grammar topics met so far, each with the lessons that taught it: Verb an Position 2 — lesson 1.2 «Kaffee»; Begrüßung — lesson 1.1 «Hallo!», 1.3 «Wiedersehen»",
+    "Grammar topics met so far, each with the lessons (unit.lesson «title») that taught it: Verb an Position 2 — 1.2 «Kaffee»; Begrüßung — 1.1 «Hallo!», 1.3 «Wiedersehen»",
   );
   expect(topicPlacesLine({ topics }, 70)).toBe(
-    "Grammar topics met so far, each with the lessons that taught it: Verb an Position 2 — lesson 1.2; Begrüßung — lesson 1.1, 1.3",
+    "Grammar topics met so far, each with the lessons (unit.lesson «title») that taught it: Verb an Position 2 — 1.2; Begrüßung — 1.1, 1.3",
   );
   // Tighter still: the oldest topic goes, never a topic's first lesson.
   expect(topicPlacesLine({ topics }, 30)).toBe(
-    "Grammar topics met so far, each with the lessons that taught it: … Begrüßung — lesson 1.1, 1.3",
+    "Grammar topics met so far, each with the lessons (unit.lesson «title») that taught it: … Begrüßung — 1.1, 1.3",
   );
   expect(topicPlacesLine({ topics: [] }, 30)).toBeUndefined();
 });

@@ -25,7 +25,7 @@ import { Panel } from "@/ui/panel.tsx";
 import { useRequiredTargetLang } from "@/ui/target-lang.ts";
 import { type Review, useAnswerGoingOver, useGoingOver, useStartGoingOver } from "./api.ts";
 import { AssistantLabel, modelName } from "./assistant-label.tsx";
-import { ErrorLine, StartPrompt } from "./parts.tsx";
+import { ErrorLine, StartPrompt, Thinking } from "./parts.tsx";
 import { PromptButton } from "./prompt-view.tsx";
 import { useLlm } from "./setup-api.ts";
 
@@ -154,8 +154,8 @@ export function GoingOverStep({
 }: LessonSlotContext & { runId?: string; onDone?(): void; onNothing?(): void }) {
   const { t, i18n } = useTranslation();
   const llm = useLlm();
-  const state = useGoingOver(ids.lessonKey);
   const start = useStartGoingOver(ids.lessonKey);
+  const state = useGoingOver(ids.lessonKey, start.isPending);
   const reviews = state.data?.reviews ?? [];
   const current = runId ? reviews.find((r) => r.runId === runId) : undefined;
   const past = reviews.filter((r) => r !== current);
@@ -202,6 +202,9 @@ export function GoingOverStep({
             <AssistantLabel className="ms-auto" />
           </div>
         </Panel>
+      )}
+      {preparing && (
+        <Thinking label={t(`goingOver.step.${state.data.step ?? "making"}`)} className="text-sm" />
       )}
       <ErrorLine error={start.error} onRetry={preparing ? undefined : go} />
       <PastReviews reviews={past} />

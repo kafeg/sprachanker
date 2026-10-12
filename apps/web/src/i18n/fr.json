@@ -543,6 +543,10 @@
       "task": "Tâche",
       "communication": "Communication",
       "accuracy": "Correction"
+    },
+    "step": {
+      "task": "Préparation de la tâche…",
+      "checking": "Vérification de ton texte…"
     }
   },
   "mistakes": {
@@ -1614,7 +1618,11 @@
     "newWords": "Mots nouveaux",
     "readNow": "Lis le texte et réponds",
     "result": "{right, number} sur {total, number} justes",
-    "past": "Textes précédents de cette leçon"
+    "past": "Textes précédents de cette leçon",
+    "step": {
+      "writing": "Écriture du texte…",
+      "checking": "Vérification des questions…"
+    }
   },
   "goingOver": {
     "title": "Revoir ses erreurs",
@@ -1647,6 +1655,10 @@
     "listed": {
       "spoken": "Pas de nouveaux exercices pour ce qui a été dit à voix haute : redites-le dans son exercice.",
       "comprehension": "Réécoutez ou relisez le texte : la réponse s’y trouve."
+    },
+    "step": {
+      "making": "Création de nouveaux exercices…",
+      "checking": "Vérification des nouveaux exercices…"
     }
   }
 }

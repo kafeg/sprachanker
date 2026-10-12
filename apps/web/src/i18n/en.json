@@ -543,6 +543,10 @@
       "task": "Task",
       "communication": "Communication",
       "accuracy": "Accuracy"
+    },
+    "step": {
+      "task": "Setting a task…",
+      "checking": "Checking your text…"
     }
   },
   "mistakes": {
@@ -1614,7 +1618,11 @@
     "newWords": "New words",
     "readNow": "Read the text and answer",
     "result": "{right, number} of {total, number} right",
-    "past": "Earlier texts of this lesson"
+    "past": "Earlier texts of this lesson",
+    "step": {
+      "writing": "Writing the text…",
+      "checking": "Checking the questions…"
+    }
   },
   "goingOver": {
     "title": "Going over mistakes",
@@ -1647,6 +1655,10 @@
     "listed": {
       "spoken": "No new items for what was said aloud: say it again in its exercise.",
       "comprehension": "Listen to or read the text again: the answer is in it."
+    },
+    "step": {
+      "making": "Making new tasks…",
+      "checking": "Checking the new tasks…"
     }
   }
 }

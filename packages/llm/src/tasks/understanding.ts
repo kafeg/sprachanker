@@ -12,10 +12,12 @@ import {
 } from "@sprachanker/schema";
 import { z } from "zod";
 import type { StructuredTask } from "../structured.ts";
-import { languageName, languageNames } from "../text.ts";
+import { languageName, languageNames, writtenIn } from "../text.ts";
 import {
   cefrOf,
+  charactersLine,
   goalsLine,
+  grammarNotes,
   knownWordsLine,
   type LessonInfo,
   lessonWordsLine,
@@ -25,13 +27,11 @@ import {
 } from "./lesson.ts";
 import { NEUTRAL, type RulesInput, systemPrompt } from "./rules.ts";
 
-/** A text needs no grammar pages: the topics met say what it may use. */
-type TextLesson = Omit<LessonInfo, "grammarHtml">;
-
 export const UNDERSTANDING_BUDGETS = {
   lessonVocab: 1200,
   knownVocab: 1500,
   topics: 400,
+  grammar: 800,
 } as const;
 
 /** The fewest questions a text is shown with: fewer settled, it is written again once. */
@@ -58,10 +58,14 @@ const TRUE_FALSE: Partial<Record<Lang, string>> = {
   de: 'True/false options are "Richtig" and "Falsch", as the Goethe-Zertifikat writes them.',
 };
 
+/** How often a text uses the lesson's grammar at a CEFR level (walkthrough, 2026-10-12): from A2
+ *  on, twice at least; a beginner's text is free of it. */
+const GRAMMAR_USES: Record<string, number> = { A2: 2, B1: 2, B2: 2, C1: 2, C2: 2 };
+
 export interface UnderstandingInput extends RulesInput {
   language: Lang;
   target: Lang;
-  lesson: TextLesson;
+  lesson: LessonInfo;
 }
 
 export function understandingTextRules(
@@ -73,10 +77,11 @@ export function understandingTextRules(
   return [
     `You write a short text for a learner of ${t} who speaks ${l}, at the learner's level given with the lesson, and questions on it as language exams ask them.`,
     `- "kind": what fits the lesson's goals and situation — "dialogue" (two people talking), "announcement" (an announcement, a voicemail or a message, one speaker) or "reading" (a menu, a notice, a note, an ad, a timetable).`,
-    `- The text in ${t} only, about as long as given with the lesson, with the words the learner knows and the grammar met so far. At most a few new words, each in "glossary" as written in the text, with its translation into ${l}.`,
+    `- The text in ${t} only, about as long as given with the lesson, with the words the learner knows and the grammar met so far (this lesson's as often as given with the lesson). At most a few new words, each in "glossary" as written in the text, with its translation into ${l} — never a word a question asks about, never one the learner knows.`,
     `- "lines": the text a line each — a dialogue's turns, each with "speaker" (a first name or a role; two speakers only), an announcement's sentences, a reading text's lines.`,
-    `- "title" and "situation" (one sentence: who, where) in ${l}; they give no answer away.`,
-    `- "questions": 3 to 5, in ${t}, each answered by the text alone with one unambiguous answer, never by general knowledge: true/false as two options; a/b/c as three options; a number, a price or a time as three options or typed — no options, "accepted": every right way of writing it. "answer": the right option's index (0-based); spread the right answers over the options.`,
+    "- The people in it are new, made up for this text — never a character of the course, never named as one (their names are given with the lesson).",
+    `- "title" and "situation" (one sentence: who, where) in ${l}, never in ${t}; they give no answer away.`,
+    `- "questions": 3 to 5, in ${t}, each answered by the text alone with one unambiguous answer, never by general knowledge; a question's options in the question's language: true/false as two options; a/b/c as three options; a number, a price or a time as three options or typed — no options, "accepted": every right way of writing it, in digits. Only a number, a price or a time is typed; anything else has options. "answer": the right option's index (0-based); spread the right answers over the options.`,
     `- A dialogue or an announcement: first 3 or 4 questions with "phase": "listening", answered by ear with the text hidden (the main facts), then 1 or 2 with "phase": "reading", asked once the text is shown (a detail to find, what a word means there). A reading text: every question "phase": "reading".`,
     `- ${NEUTRAL}`,
   ].join("\n");
@@ -88,7 +93,7 @@ const TEXT_FIXED =
 
 /** A text the app can show and read aloud: its questions askable, a dialogue of two speakers, a text
  *  heard with questions by ear. Undefined when it holds. */
-export function textProblem(text: UnderstandingText): string | undefined {
+function textProblem(text: UnderstandingText): string | undefined {
   const question = text.questions.map(questionProblem).find(Boolean);
   if (question) return question;
   if (text.questions.length < UNDERSTANDING_MIN_QUESTIONS)
@@ -103,12 +108,50 @@ export function textProblem(text: UnderstandingText): string | undefined {
   return undefined;
 }
 
+/** The course's characters a text names: a speaker or a word of its lines or situation. */
+function charactersIn(text: UnderstandingText, characters: string[]) {
+  const words = new Set(
+    [text.situation, ...text.lines.flatMap((l) => [l.speaker ?? "", l.text])].flatMap(
+      (t) => t.match(/\p{L}[\p{L}'’-]*/gu) ?? [],
+    ),
+  );
+  return characters.filter((name) => name.split(" ").every((part) => words.has(part)));
+}
+
+/**
+ * What keeps a text from being shown, beyond its form (`textProblem`): a character of the course in
+ * it, a title or situation not in the learner's language, a question in the learnt language with an
+ * option in the learner's — the last two told by script where the two languages' differ. Undefined
+ * when it holds; else asked again once.
+ */
+export function understandingProblem(
+  text: UnderstandingText,
+  { language, target, lesson }: Pick<UnderstandingInput, "language" | "target" | "lesson">,
+): string | undefined {
+  const form = textProblem(text);
+  if (form) return form;
+  const named = charactersIn(text, lesson.characters ?? []);
+  if (named.length)
+    return `the people are new, none of the course's characters (${named.join(", ")})`;
+  if (writtenIn(`${text.title} ${text.situation}`, language, target) === false)
+    return `"title" and "situation" in ${languageName(language)}`;
+  const mixed = text.questions.some(
+    (q) =>
+      writtenIn(q.question, target, language) &&
+      q.options?.some((o) => writtenIn(o, language, target)),
+  );
+  if (mixed)
+    return `a question in ${languageName(target)} has its options in ${languageName(target)}`;
+  return undefined;
+}
+
 export function understandingTextTask(
   input: UnderstandingInput,
 ): StructuredTask<UnderstandingText> {
   const { lesson } = input;
   const B = UNDERSTANDING_BUDGETS;
   const [from, to] = textLength(lesson.level);
+  const uses = GRAMMAR_USES[cefrOf(lesson.level)];
   const data = [
     "<lesson>",
     `Lesson: ${lesson.title}`,
@@ -118,8 +161,15 @@ export function understandingTextTask(
     lessonWordsLine(lesson, B.lessonVocab),
     knownWordsLine(lesson, B.knownVocab),
     topicsLine(lesson, B.topics),
+    lesson.grammarHtml.length
+      ? `This lesson's grammar:\n${grammarNotes(lesson, B.grammar)}`
+      : undefined,
+    charactersLine(lesson),
     "</lesson>",
     `Length of the text: about ${from}–${to} words.`,
+    uses && lesson.grammarHtml.length
+      ? `Use this lesson's grammar at least ${uses} times in the text.`
+      : undefined,
     TRUE_FALSE[input.target],
     `Remember: title, situation and the glossary's translations in ${languageName(input.language)}; the text and the questions in ${languageName(input.target)}.`,
   ]
@@ -128,7 +178,7 @@ export function understandingTextTask(
   return {
     name: "understanding_text",
     schema: UnderstandingText,
-    check: textProblem,
+    check: (text) => understandingProblem(text, input),
     request: {
       messages: [
         { role: "system", content: systemPrompt(input, understandingTextRules, TEXT_FIXED) },
@@ -228,8 +278,9 @@ export function understandingCheckTask(
 
 /**
  * The text with the questions its second reading settles as the key does: one answered otherwise,
- * found ambiguous or not answered is left out. `typedRight` says whether an answer typed is right
- * (the engine's checker, the learner's own).
+ * found ambiguous or not answered is left out, and one typed whose answer is no number, price or
+ * time (none of its accepted answers has a digit: the learner could not type it as the key does).
+ * `typedRight` says whether an answer typed is right (the engine's checker, the learner's own).
  */
 export function settledQuestions(
   text: UnderstandingText,
@@ -240,6 +291,7 @@ export function settledQuestions(
     const a = check.answers.find((x) => x.n === i + 1);
     if (!a || a.ambiguous) return false;
     if (q.options) return LETTERS.indexOf(a.choice?.trim().toLowerCase() ?? "?") === q.answer;
+    if (!q.accepted?.some((x) => /\p{N}/u.test(x))) return false;
     return !!a.answer && typedRight(q, a.answer);
   };
   return { ...text, questions: text.questions.filter(settled) };

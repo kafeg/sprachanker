@@ -28,14 +28,17 @@ src/
                    # (the viewer)
   lmstudio.ts      # LM Studio's own API: its models, load with 8k context, downloads; suggested models
   openrouter.ts    # OpenRouter's own API: the key's state (free tier, usage, limit, rate limit)
-  structured.ts    # JSON outputs: schema in the request (Anthropic: its system prompt), zod validation and
-                   # the task's check, one repair
+  structured.ts    # JSON outputs: schema in the request (Anthropic: its system prompt), quotes escaped
+                   # twice made plain, zod validation and the task's check, one repair
   thinking.ts      # strips inline <think>…</think> from streamed text (client.ts also drops control tokens)
-  text.ts          # course HTML → plain text for prompts (a table: a row a line, cells joined by " · ")
+  text.ts          # course HTML → plain text for prompts (a table: a row a line, cells joined by " · ");
+                   # languages' names; scripts (writtenIn: which of two languages a text is in, where
+                   # their scripts differ)
   tasks/
     rules.ts           # systemPrompt: the learner's rules or the standing ones, then the fixed suffix and
                        # the reply's languages (languagesLine); NEUTRAL: the line that no
-                       # rule assumes the learner's gender
+                       # rule assumes the learner's gender, GENDER_FREE: how a learner's language
+                       # avoids it (data, in the suffix of the tasks whose rules say NEUTRAL)
     registry.ts        # TASK_PROMPTS: the tasks whose prompt the learner sees and rewrites, in order —
                        # their rules and budgets (the server's prompt settings read it)
     lesson.ts          # LessonInfo (what tasks know of a lesson, with the knowledge snapshot: level,
@@ -51,22 +54,26 @@ src/
                        # mistake_items_check: the items answered blind, those not settled left out
     chat-turn.ts       # chat_turn: the lesson tutor (lesson context, known words, exercise, mistakes, history)
     section-chat.ts    # section_chat_turn: the tutor on its own (what the learner met in their courses, history)
-    writing-task.ts    # writing_task: a situation and three content points from the lesson; the length
+    writing-task.ts    # writing_task: a situation and three content points from the lesson (repeatedPoints:
+                       # two asking for the same asked again); the length
                        # and what a text needs at a level (data), the exam that sets and rates it (German)
     check-writing.ts   # check_writing: a text on the task → each point rated, at most three corrections,
                        # the level's criteria, a model text
     check-speaking.ts  # check_speaking: an answer said aloud (what was heard) against the item, its
                        # question and the source's answer as heard → structured verdict
-    corrections.ts     # cleanCheck: a check's corrections cleaned, a good text kept as written (writing,
-                       # speaking)
+    corrections.ts     # cleanCheck: a check's corrections cleaned (no-ops and words the text lacks
+                       # dropped), a good text kept as written (writing, speaking)
     rate-exam-answer.ts # rate_exam_answer: an exam's open answer → a level of each of its criteria with
                        # the reason (checked against the levels), feedback
     scene.ts           # the Dialogue: scene_setup (goal card, the partner's hidden facts), scene_turn (a
-                       # line judged; cleanSceneTurn: remarks in place of corrections dropped), scene_summary
+                       # line judged; repeatedQuestion: a reply ending as the last one did asked again;
+                       # cleanSceneTurn: remarks in place of corrections dropped), scene_summary
                        # (key corrections, model lines without the error); goal kinds by level (data)
     tutor-tools.ts     # the tutor's tool definitions (progress, mistakes, word, lesson) and prompt lines
     understanding.ts   # Understanding: understanding_text (a text to hear or read with its questions, its
-                       # length by the level), understanding_check (read again: settledQuestions)
+                       # length and the lesson's grammar by the level; understandingProblem: no course
+                       # character, the learner's language where asked), understanding_check (read
+                       # again: settledQuestions)
     word-examples.ts   # word_examples: three to five sentences for each of a few words of a deck, in the
                        # words known up to them, at the level when known
 test/              # fake endpoints (no network); fixture course from @sprachanker/course-fixture

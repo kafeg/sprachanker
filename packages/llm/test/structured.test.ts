@@ -50,6 +50,15 @@ describe("structured outputs", () => {
     }
   });
 
+  test("a quote escaped twice (Claude Code's structured output) reads as a plain one", async () => {
+    // As the CLI gives it: the string holds a backslash before each quote once parsed.
+    const reply = JSON.stringify({ ok: true, note: 'nicht \\"damit\\", sondern \\"der\\"' });
+    expect(await runStructured(scripted([reply]).client, "m", task)).toEqual({
+      ok: true,
+      note: 'nicht "damit", sondern "der"',
+    });
+  });
+
   test("one repair attempt with the problems listed, then invalid_output", async () => {
     const fixed = scripted(['{"ok":"yes"}', '{"ok":true,"note":"x"}']);
     expect(await runStructured(fixed.client, "m", task)).toEqual({ ok: true, note: "x" });

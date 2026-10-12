@@ -4,6 +4,7 @@ import {
   markWords,
   newGlosses,
   sameWord,
+  unaskedGlosses,
   usesWord,
   wordForms,
 } from "../src/text/words.ts";
@@ -156,4 +157,22 @@ test("a glossary of new words keeps none the learner has met: a lesson's own wor
   ];
   const known = [{ target: "aber" }, { target: "heißen" }, { target: "zum" }];
   expect(newGlosses(glossary, known).map((g) => g.word)).toEqual(["Bahnhof", "zum Beispiel"]);
+});
+
+test("a glossary keeps no word a question asks about: a form of it in a question or an option", () => {
+  const glossary = [
+    { word: "das Brötchen", translation: "булочка" },
+    { word: "zum Beispiel", translation: "например" },
+    { word: "die Uhr", translation: "часы" },
+    { word: "der Bahnhof", translation: "вокзал" },
+    { word: "pünktlich", translation: "вовремя" },
+  ];
+  const asked = [
+    "Wie viele Brötchen kauft Anna?",
+    "Wann ist sie zum Bahnhof gefahren?",
+    "um 8 Uhr",
+    "am Bahnsteig",
+  ];
+  expect(unaskedGlosses(glossary, asked).map((g) => g.word)).toEqual(["zum Beispiel", "pünktlich"]);
+  expect(unaskedGlosses(glossary, [])).toEqual(glossary);
 });

@@ -543,6 +543,10 @@
       "task": "Tugas",
       "communication": "Komunikasi",
       "accuracy": "Ketepatan"
+    },
+    "step": {
+      "task": "Menyiapkan tugas…",
+      "checking": "Memeriksa teksmu…"
     }
   },
   "mistakes": {
@@ -1614,7 +1618,11 @@
     "newWords": "Kata baru",
     "readNow": "Baca teks dan jawab",
     "result": "{right, number} dari {total, number} benar",
-    "past": "Teks sebelumnya di pelajaran ini"
+    "past": "Teks sebelumnya di pelajaran ini",
+    "step": {
+      "writing": "Menulis teks…",
+      "checking": "Memeriksa pertanyaan…"
+    }
   },
   "goingOver": {
     "title": "Membahas kesalahan",
@@ -1647,6 +1655,10 @@
     "listed": {
       "spoken": "Tidak ada latihan baru untuk yang diucapkan: ucapkan lagi di latihannya.",
       "comprehension": "Dengarkan atau baca teksnya lagi: jawabannya ada di sana."
+    },
+    "step": {
+      "making": "Membuat latihan baru…",
+      "checking": "Memeriksa latihan baru…"
     }
   }
 }

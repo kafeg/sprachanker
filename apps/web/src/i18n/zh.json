@@ -543,6 +543,10 @@
       "task": "任务完成",
       "communication": "交际",
       "accuracy": "准确性"
+    },
+    "step": {
+      "task": "正在出题…",
+      "checking": "正在检查你的文本…"
     }
   },
   "mistakes": {
@@ -1614,7 +1618,11 @@
     "newWords": "生词",
     "readNow": "阅读文本并作答",
     "result": "{total, number}题中答对{right, number}题",
-    "past": "本课以前的文本"
+    "past": "本课以前的文本",
+    "step": {
+      "writing": "正在写文本…",
+      "checking": "正在检查问题…"
+    }
   },
   "goingOver": {
     "title": "回顾错误",
@@ -1647,6 +1655,10 @@
     "listed": {
       "spoken": "说出的回答没有新练习：请在原练习中再说一遍。",
       "comprehension": "再听或再读一遍文本：答案就在其中。"
+    },
+    "step": {
+      "making": "正在出新题…",
+      "checking": "正在检查新题…"
     }
   }
 }

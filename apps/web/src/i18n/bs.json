@@ -543,6 +543,10 @@
       "task": "Zadatak",
       "communication": "Komunikacija",
       "accuracy": "Tačnost"
+    },
+    "step": {
+      "task": "Postavlja se zadatak…",
+      "checking": "Provjerava se tvoj tekst…"
     }
   },
   "mistakes": {
@@ -1614,7 +1618,11 @@
     "newWords": "Nove riječi",
     "readNow": "Pročitaj tekst i odgovori",
     "result": "{right, number} od {total, number} tačno",
-    "past": "Raniji tekstovi ove lekcije"
+    "past": "Raniji tekstovi ove lekcije",
+    "step": {
+      "writing": "Piše se tekst…",
+      "checking": "Provjeravaju se pitanja…"
+    }
   },
   "goingOver": {
     "title": "Pregled grešaka",
@@ -1647,6 +1655,10 @@
     "listed": {
       "spoken": "Nema novih zadataka za izgovoreno: izgovori to ponovo u njegovoj vježbi.",
       "comprehension": "Poslušaj ili pročitaj tekst ponovo: odgovor je u njemu."
+    },
+    "step": {
+      "making": "Prave se novi zadaci…",
+      "checking": "Provjeravaju se novi zadaci…"
     }
   }
 }

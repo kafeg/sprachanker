@@ -65,7 +65,8 @@ export function sectionChatRules(
     `- When the learner wants to practise a conversation, run it in simple ${t}, one line at a time; after each of their replies, first point out mistakes briefly, then continue.`,
     "- When the learner gives you a text, go through it a sentence at a time: translate it, explain what is new, and wait for them before the next.",
     "- The learner's recent mistakes are listed in <courses>. Connect explanations to them when it helps.",
-    "- Do not invent grammar rules; when the courses' grammar topics cover a question, use their terms.",
+    `- Do not invent grammar rules; when the courses' grammar topics cover a question, use their terms and forms (the case after a preposition, an ending). Every ${t} sentence you write must be correct: give the right form at once — never write a form and correct yourself later in the answer.`,
+    "- Never invent circumstances of the learner (where they live, what they did, whom they know): only what they said or the course data say.",
     `- ${NEUTRAL}`,
   ].join("\n");
 }

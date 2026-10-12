@@ -138,17 +138,17 @@ rules.
 
 | Task | Input | Output |
 |---|---|---|
-| `explain_mistake` | exercise item, reference answer, learner answer, lesson grammar pages, the course's level, the grammar topics met so far each with the lesson that taught it (the snapshot); the lesson's transcript when the item is about its audio or video | short explanation in the interface language (streamed text): what is wrong (never a guess at why it was chosen; a tendency said as one, not as a rule), the rule, where its topic was taught ("this is X from lesson 1.2") |
+| `explain_mistake` | exercise item, reference answer, learner answer, lesson grammar pages, the course's level, the grammar topics met so far each with the lesson that taught it (the snapshot); the lesson's transcript when the item is about its audio or video | short explanation in the interface language (streamed text): what is wrong (never a guess at why it was chosen; a tendency said as one, not as a rule), the rule, where its topic was taught — in the learner's language, the lesson by its number and title as given ("… 1.2 «title»"; the topics line names lessons with no English word beside them, which a model copied: walkthrough, 2026-10-12) |
 | `chat_turn` | the lesson tutor: lesson context, the course's level and the lesson's place, known words, grammar topics met, the exercise on screen, mistakes, history (the learner's turns marked with the exercise on screen); tools (below) | message (streamed text) |
 | `section_chat_turn` | the tutor on its own (the Tutor section): what the learner has met in the courses of the chat's language — the courses (lessons done of all, the lessons worked on), those lessons' words with translations and grammar topics, the latest mistakes in them —, history | message (streamed text) |
-| `writing_task` | the lesson (title, goals, its place, words, grammar notes) and the snapshot (level, earlier words, grammar topics met); the text's length at the level and what a text at the level needs, with the data; how the target language's exam sets the task (Goethe's Schreiben for German) | JSON: situation, points (exactly three), both in the learner's language — the length added by the app (04, "Writing") |
-| `check_writing` | the lesson (title, words, earlier words, grammar), the course's level, the task (situation, its three points, the length), the learner's text; what a text at the level needs and the exam that rates it (Goethe's Schreiben for German) with the data | JSON: verdict, corrected text, corrections[] (wrong, right, explanation; at most three kept, the most important first), points[] (each of the task's: 0–2 + comment), criteria (task, communication, accuracy: 0–2 + comment), modelText (the task done well at the level, in words known), feedback — comments only on what the task and the level ask |
+| `writing_task` | the lesson (title, goals, its place, words, grammar notes) and the snapshot (level, earlier words, grammar topics met); the text's length at the level and what a text at the level needs, with the data; how the target language's exam sets the task (Goethe's Schreiben for German) | JSON: situation, points (exactly three, three different things — two whose main words mostly match are asked again once: `repeatedPoints`, walkthrough 2, 2026-10-12), both in the learner's language — the length added by the app (04, "Writing") |
+| `check_writing` | the lesson (title, words, earlier words, grammar), the course's level, the task (situation, its three points, the length), the learner's text; what a text at the level needs and the exam that rates it (Goethe's Schreiben for German) with the data | JSON: verdict, corrected text, corrections[] (wrong — the learner's words as written —, right, explanation; at most three kept, the most important first; never a correct form replaced by another correct one), the corrected text (every error fixed, also beyond the three listed; everything correct as written), points[] (each of the task's: 0–2 + comment — its content only, language errors rated in accuracy), criteria (task, communication, accuracy: 0–2 + comment), modelText (the task done well at the level, in words known), feedback — comments only on what the task and the level ask |
 | `mistake_items` | Going over mistakes (04): the lesson (title, words, earlier words, grammar topics and notes), the level; the pass's mistakes by type as the engine grouped them — each type with what went wrong, the new items' type and fields, its wrong parts only (given, right, the words around it) | JSON: groups[] (n, explanation — in the learner's language, what is wrong, never why —, items: two or three new items of the type in the target language from the words known, each with one right answer) — checked: every group answered once, each item valid for its type (`mistakeItemProblem`: a typed gap followed by its cue in brackets, options all different, never a sentence of the mistakes again); only the types gone over with new items are sent, each in a call of its own side by side — those listed only (said aloud, Understanding's questions) never, and with none of the others no call is made |
 | `mistake_items_check` | Going over mistakes' new items of a type (choices and gaps), without their keys; fixed rules, low effort | JSON: answers[] (n, the option's letter or each gap's word or letter, ambiguous) — an item answered otherwise or ambiguous is left out (`settledItems`); none left, the type asked once more (04) |
-| `check_speaking` | the lesson (title, words, grammar), the course's level, a speaking item without a line to say (instruction, prompt, hint, the source's written answer or its frame), the question and the source's answer as the recogniser heard them in the course's recordings (none heard: said so — the content then is not checked, only the form, and the feedback says so), what was heard of the learner's answer; nothing invented beyond them, nothing right corrected | JSON: verdict, corrected answer, corrections[] (wrong, right, explanation), feedback |
-| `understanding_text` | Understanding's text (04, "AI practice in courses"): the lesson (title, goals, its place, words) and the snapshot (level, earlier words, grammar topics met); the text's length at the level and how the target language's exams write true and false (German's "Richtig", "Falsch") with the data | JSON: kind (`dialogue` \| `announcement` \| `reading`), title and situation (the learner's language), lines (target language; a dialogue's each with its speaker, two at most), glossary (the few new words, translated; a word of the lesson or met before dropped by the engine — `newGlosses`, QA 2026-10-12), questions (target language; phase `listening` \| `reading`, options with the right one's index, or the accepted answers of one typed) — checked: every question askable, at least three, a text heard with questions by ear |
+| `check_speaking` | the lesson (title, words, grammar), the course's level, a speaking item without a line to say (instruction, prompt, hint, the source's written answer or its frame), the question and the source's answer as the recogniser heard them in the course's recordings (none heard: said so — the content then is not checked, only the form, and the feedback says so), what was heard of the learner's answer; nothing invented beyond them (nor of the learner), nothing right corrected, the lesson notes' forms (the case after a preposition) judged as they give them, each right form given at once — never corrected again in the same answer (walkthrough 2, 2026-10-12) | JSON: verdict, corrected answer, corrections[] (wrong, right, explanation), feedback |
+| `understanding_text` | Understanding's text (04, "AI practice in courses"): the lesson (title, goals, its place, words, its grammar notes) and the snapshot (level, earlier words, grammar topics met, the course's characters — none of them in the text); the text's length at the level, how often it uses the lesson's grammar (from A2 twice at least) and how the target language's exams write true and false (German's "Richtig", "Falsch") with the data | JSON: kind (`dialogue` \| `announcement` \| `reading`), title and situation (the learner's language), lines (target language; a dialogue's each with its speaker, two at most), glossary (the few new words, translated; a word of the lesson or met before dropped by the engine — `newGlosses`, QA 2026-10-12 —, and a word a kept question or its options has — `unaskedGlosses`: it would give the answer away), questions (target language, a question's options in its language; phase `listening` \| `reading`, options with the right one's index, or the accepted answers of one typed — only a number, a price or a time: one typed whose answers hold no digit is left out with the unsettled) — checked: every question askable, at least three, a text heard with questions by ear, no course character in it, title and situation in the learner's language and no question in the target language with an option in the learner's, the last two told by script where the languages' differ (`understandingProblem`; walkthrough 2, 2026-10-12) |
 | `understanding_check` | the text written and its questions without their keys | JSON: answers[] (n, the option's letter or the answer typed, ambiguous) — the questions answered otherwise than their key (an answer typed checked by the engine, as the learner's), ambiguous or not answered are left out (`settledQuestions`) |
-| `scene_setup` | a Dialogue's setup: the lesson (title, goals, its place, words, its grammar notes) and the snapshot (level, earlier words, grammar topics met, the course's characters — none of them the partner), the goal kinds of the level (A1 facts, A2 arranging, B1 an opinion with a reason or a complaint, B2–C2 beyond), the card's language last | JSON: title, situation, partner, goals (1–3: the learner's goal card), partnerInfo (2–4 facts the partner holds and the learner must ask for, in the target language), opening line and its translation |
+| `scene_setup` | a Dialogue's setup: the lesson (title, goals, its place, words, its grammar notes) and the snapshot (level, earlier words, grammar topics met, the course's characters — none of them the partner), the goal kinds of the level (A1 facts, A2 arranging, B1 an opinion with a reason or a complaint, B2–C2 beyond; from B1 at least one goal an opinion), the card's language last | JSON: title, situation, partner, goals (1–3: the learner's goal card), partnerInfo (2–4 facts the partner holds and the learner must ask for, in the target language), opening line and its translation |
 | `scene_turn` | a Dialogue's line: its setup with the partner's information, the course's characters (the partner never takes their names), the level, the words known and the lesson's grammar notes, history, the learner's new line (said and recognised, or typed) | JSON: reply (target language), translation, understood, fits, corrections[] (of the new line only; at most two kept; keeping to the goals — a goal's form of address is the one corrected to), goalsMet[], done (the app ends it only when every goal is met) |
 | `scene_summary` | a Dialogue ended: its setup, the goals met, its lines with the corrections given | JSON: corrections[] (one or two key ones, each with a model line: the learner's line said well), feedback |
 | `rate_exam_answer` | an exam's title, the task as set (the Teil's instructions and text, the question), its criteria (titles, each level's points and meaning, which voids the task), the exam's model answers if any, the learner's answer (a speaking part held as a conversation: its lines, each speaker named in English) | JSON: criteria[] (id, points — one of its levels, checked with one repair —, reason), feedback |
@@ -229,13 +229,17 @@ lesson run the lesson shows, its answers `practice_answered` events checked by t
 - **Calls outlive the page** (Dialogues, writing checks, Understanding's texts): a structured call runs
   to its end on the server and is stored even when the learner left the page meanwhile; the step's
   state says what is running (`pending` for a Dialogue, `checking` for a text checked, `preparing` for
-  a text being written), so a page opened again shows it as waiting and polls until it lands. One
+  a text being written) and, where a call has steps, which one runs (`step`: Understanding's
+  `writing` the text, then `checking` its questions; Going over's `making` new items while any
+  type's are made, then `checking` them), so a page opened again shows it as waiting and polls until
+  it lands — also while a call it asked itself runs — and says the step beside the seconds (09). One
   such call per lesson at a time; a second is refused (`scene_busy`, `writing_busy`,
   `understanding_busy`, 409). A streamed reply (the tutor, explanations) still ends with its connection.
 - **Structured outputs** (`packages/llm/src/structured.ts`): the JSON Schema of the task's zod schema is
   sent with the request (sent strict, without the keywords strict mode refuses — string lengths and
-  the like —, which zod still checks; a test holds every task's schema to what strict mode takes); the
-  reply is validated with zod; an invalid reply gets one repair attempt with
+  the like —, which zod still checks; a test holds every task's schema to what strict mode takes); a
+  quote escaped twice in a string (`\"`, as Claude Code's structured output sometimes gives it) reads
+  as a plain one (walkthrough, 2026-10-12); the reply is validated with zod; an invalid reply gets one repair attempt with
   the problems listed, then the task fails with `invalid_output` and nothing is stored. A stored result
   is read back with its task's schema; one in a shape that no longer reads is left out.
 - Corrections are `{ wrong, right, explanation }` (schema `Correction`); they carry no rule id (rule
@@ -269,8 +273,12 @@ lesson run the lesson shows, its answers `practice_answered` events checked by t
   language-neutral (`{target}` aside); what one language needs (German's ß in a writing check) goes
   with the data, so it holds under the learner's own rules too. Every task whose words reach the
   learner says in its standing rules that their gender is unknown (`NEUTRAL`: wording that does not
-  mark it — "Ты пришёл" never; QA 2026-10-12); only a check the app reads alone and a deck's
-  example sentences, which address no one, go without. The learner's text is at most
+  mark it — "Ты пришёл" never, nor both forms side by side, "смог(ла)"; QA 2026-10-12); only a check
+  the app reads alone and a deck's example sentences, which address no one, go without. Such a task's
+  fixed suffix ends with how the learner's language avoids it where it marks gender (`GENDER_FREE`,
+  data: Russian's and Ukrainian's past forms and short adjectives — "у тебя получилось", never "ты
+  нашёл" —, Polish's and Bosnian's, Romance and Greek adjectives and participles, Arabic's and
+  Hindi's gendered forms; walkthrough, 2026-10-12), so it holds under the learner's own rules too. The learner's text is at most
   `WRITING_MAX` characters (what the model checks whole), a message `MESSAGE_MAX`.
 - A "{}" button (switched on in Settings → AI assistant → Advanced) shows the exact request of a task —
   endpoint, fields, every message with its size — built by the same function as the real call (`<task>Request`,
@@ -279,7 +287,8 @@ lesson run the lesson shows, its answers `practice_answered` events checked by t
   "(hidden until the end)".
 - A task's model call and its timing are one path (`llm.structured` in services/llm.ts); a check's
   corrections are cleaned the same way for writing and speaking (`cleanCheck`: a correction changing
-  nothing dropped; a good text without corrections keeps the learner's words as "corrected" — the
+  nothing, or quoting words the text does not have — compared without case and punctuation —,
+  dropped; a good text without corrections keeps the learner's words as "corrected" — the
   model's version only when it differs in case and punctuation alone).
 - The tutor shows how full the next request is (≈ tokens of the window when known, room for the reply)
   and how many turns still fit; when the earliest no longer fit it suggests a new chat.
@@ -306,7 +315,9 @@ Both tutors (the lesson's and the section's) take real-life language as in scope
   steps, 04); hints first only for the exercise on screen — any other question, "how do I say X"
   too, answered at once; about 150 words, no headings or emoji, no question at the end unless
   something is unclear; only the interface language and the language learnt; no rule assumes the
-  learner's gender.
+  learner's gender. Every target-language form right at once — never written and corrected later in
+  the same answer —, the lesson notes' forms (the case after a preposition) as they give them, no
+  circumstances of the learner made up (walkthrough 2, 2026-10-12; the tutor on its own alike).
 - **The tutor on its own** (`section_chat_turn`, the Tutor section of 09; owner, 2026-10-10): chats
   about no lesson, on whatever the learner asks (a grammar question, a text to go through, a
   conversation to practise). They are the lesson tutor's chats with another context — one model: a
@@ -350,13 +361,20 @@ Both tutors (the lesson's and the section's) take real-life language as in scope
   learner must ask for it). The setup (walkthrough, 2026-10-12): the partner a new person, never a
   course character, nothing said of the course's characters; 2–3 goals of the kinds the level's data
   line gives, at least one asking for a partner's fact and one needing the lesson's grammar (its
-  notes are in the data); an opening that asks nothing the learner cannot know; the card in the
-  learner's language whatever language the lesson's texts are in. Each learner line is sent as the
+  notes are in the data), from B1 on at least one an opinion (the level's data line says it); an
+  opening within the level, true to the situation, that asks nothing the learner cannot know; one
+  form of address (familiar or polite, where the language has both) for the goals, the opening and
+  every partner line; the card in the learner's language whatever language the lesson's texts are
+  in. Each learner line is sent as the
   recogniser heard it (`spoken`, with the take's `recording`), or typed where there is no microphone
   or recognition; the model plays the partner within the level and the words known, in role: the
   goals are the learner's to reach — the partner never asks the goal questions itself nor offers a
-  fact before it is asked, and a learner who drifts gets a short neutral "anything else?" —, and it
-  never corrects inside its line. It takes the line as a person would understand it (the
+  fact before it is asked —; it answers as a person would (a short reaction, a word about itself or
+  the situation, a question about the learner's plans), asks "anything else?" at most once and only
+  when the learner stalls (walkthrough 2, 2026-10-12: one partner asked it in 18 of 29 lines), and it
+  never corrects inside its line. A reply that ends with the question the partner's last line (or the
+  opening) ended with is asked again once (`repeatedQuestion`, compared without case and
+  punctuation). It takes the line as a person would understand it (the
   recogniser's punctuation, capitals and digits are no errors) and says whether it was understood
   and fits; corrections give only the words corrected, in the target language (word order in
   subordinate and relative clauses, endings, the lesson's grammar checked; never what is correct,

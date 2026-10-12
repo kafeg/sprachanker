@@ -6,12 +6,14 @@ import { runStructured } from "../src/structured.ts";
 import {
   cleanSceneSummary,
   cleanSceneTurn,
+  repeatedQuestion,
   type SceneTurn,
   sceneSetupTask,
   sceneSummaryRules,
   sceneSummaryTask,
   sceneTurnRequest,
   sceneTurnRules,
+  sceneTurnTask,
 } from "../src/tasks/scene.ts";
 
 const turn = (extra: Partial<SceneTurn>): SceneTurn => ({
@@ -146,6 +148,46 @@ test("sceneSetupTask: the level and place with the data; of many earlier words t
   expect(system).toContain("information gap");
 });
 
+test("sceneTurnTask: a reply ending with the question the partner's last line ended with is asked again once", async () => {
+  const sent: string[] = [];
+  const replies = [
+    turn({ reply: "Der Zug fährt um 14:30. Haben Sie noch eine Frage?" }),
+    turn({ reply: "Um 14:30. Fahren Sie oft nach Berlin?" }),
+  ];
+  const client: LlmClient = {
+    models: async () => [],
+    chat: () => (async function* () {})(),
+    complete: async (request) => {
+      sent.push(String(request.messages.at(-1)?.content));
+      return JSON.stringify(replies.shift());
+    },
+  };
+  const task = sceneTurnTask({
+    ...RU_DE,
+    lesson: { title: "L", goals: [], vocab: [], grammarHtml: [] },
+    setup: SETUP,
+    history: [
+      { role: "assistant", text: SETUP.opening },
+      { role: "user", text: "Nach Berlin." },
+      { role: "assistant", text: "Gut. Haben Sie noch eine Frage?" },
+    ],
+    message: "Wann fährt der Zug?",
+  });
+  expect((await runStructured(client, "m", task)).reply).toBe(
+    "Um 14:30. Fahren Sie oft nach Berlin?",
+  );
+  expect(sent[1]).toContain("ends with the same question as your last line");
+  // Compared without case and punctuation; the opening is the last line before any; no question, no check.
+  expect(
+    repeatedQuestion("Ja. haben sie noch eine frage", "Hallo! Haben Sie noch eine Frage?"),
+  ).toBe(undefined);
+  expect(
+    repeatedQuestion("Ja! Haben Sie noch eine Frage ?", "Hallo. haben Sie noch eine Frage?"),
+  ).toBeString();
+  expect(repeatedQuestion("Gern. Und Sie?", "Wohin möchten Sie?")).toBeUndefined();
+  expect(repeatedQuestion("Gern.", "Gern.")).toBeUndefined();
+});
+
 test("sceneSetupTask: a setup without the partner's facts is repaired once", async () => {
   const task = sceneSetupTask({
     language: "ru",
@@ -266,7 +308,9 @@ test("sceneSetupTask: the goal kinds of the level, the lesson's grammar and the 
       String(m.content),
     );
   const data = (level?: string) => messages(level)[1] ?? "";
-  expect(data("B1")).toContain("Goals at this level: B1 — give an opinion with a reason");
+  expect(data("B1")).toContain(
+    "Goals at this level: B1 — give an opinion with a reason (at least one goal does)",
+  );
   expect(data("A1–A2")).toContain("Goals at this level: A1 — ask for and give simple facts");
   expect(data("A1–A2")).toContain("; A2 — arrange or ask for something");
   // No level named: a beginner's.
@@ -279,6 +323,8 @@ test("sceneSetupTask: the goal kinds of the level, the lesson's grammar and the 
     "never a character of the course",
     "needs this lesson's grammar",
     "asks nothing the learner cannot know",
+    "true to the situation",
+    "One form of address for the whole dialogue",
     "of the kinds given for the learner's level",
     "gender is unknown",
   ])
@@ -292,6 +338,11 @@ test("sceneTurnRules and sceneSummaryRules: the learner reaches the goals, the p
   expect(turnRules).not.toContain("towards the learner's goals");
   expect(turnRules).toContain("never ask the learner's goal questions yourself");
   expect(turnRules).toContain("never offer or hint at a fact");
+  // A person, not a help desk: a reaction and something of their own; "anything else?" once at most.
+  expect(turnRules).toContain("Answer like a person in that situation");
+  expect(turnRules).toContain("Ask whether there is anything else at most once");
+  expect(turnRules).toContain("Never end two lines with the same question");
+  expect(turnRules).toContain("in the form of address of your opening");
   expect(turnRules).toContain('Never correct the learner inside "reply"');
   expect(turnRules).toContain("only those words corrected, in {target}");
   const summaryRules = sceneSummaryRules("ru", "de", names);

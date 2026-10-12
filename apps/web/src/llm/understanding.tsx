@@ -35,7 +35,7 @@ import {
   useUnderstanding,
 } from "./api.ts";
 import { modelName } from "./assistant-label.tsx";
-import { ErrorLine, StartPrompt } from "./parts.tsx";
+import { ErrorLine, StartPrompt, Thinking } from "./parts.tsx";
 import { PromptButton } from "./prompt-view.tsx";
 import { useLlm } from "./setup-api.ts";
 
@@ -229,8 +229,8 @@ export function UnderstandingStep({
 }: LessonSlotContext & { onDone?(): void; onStored?(): Promise<void> | void }) {
   const { t, i18n } = useTranslation();
   const llm = useLlm();
-  const state = useUnderstanding(ids.lessonKey);
   const start = useStartUnderstanding(ids.lessonKey);
+  const state = useUnderstanding(ids.lessonKey, start.isPending);
   if (!llm.data?.model || !state.data) return null;
   const [current, ...past] = state.data.texts;
   // Asked from here, or still being written on the server since before this page was opened.
@@ -257,6 +257,12 @@ export function UnderstandingStep({
           icon={Headphones}
           loading={preparing}
           onStart={write}
+        />
+      )}
+      {preparing && (
+        <Thinking
+          label={t(`understanding.step.${state.data.step ?? "writing"}`)}
+          className="text-sm"
         />
       )}
       <ErrorLine error={start.error} onRetry={preparing ? undefined : write} />

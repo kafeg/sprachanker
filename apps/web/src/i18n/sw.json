@@ -543,6 +543,10 @@
       "task": "Kazi",
       "communication": "Mawasiliano",
       "accuracy": "Usahihi"
+    },
+    "step": {
+      "task": "Kazi inaandaliwa…",
+      "checking": "Maandishi yako yanakaguliwa…"
     }
   },
   "mistakes": {
@@ -1614,7 +1618,11 @@
     "newWords": "Maneno mapya",
     "readNow": "Soma maandishi na ujibu",
     "result": "{right, number} kati ya {total, number} sahihi",
-    "past": "Maandishi ya awali ya somo hili"
+    "past": "Maandishi ya awali ya somo hili",
+    "step": {
+      "writing": "Maandishi yanaandikwa…",
+      "checking": "Maswali yanakaguliwa…"
+    }
   },
   "goingOver": {
     "title": "Kupitia makosa",
@@ -1647,6 +1655,10 @@
     "listed": {
       "spoken": "Hakuna mazoezi mapya kwa yaliyosemwa kwa sauti: yaseme tena katika zoezi lake.",
       "comprehension": "Sikiliza au soma maandishi tena: jibu limo ndani yake."
+    },
+    "step": {
+      "making": "Mazoezi mapya yanatengenezwa…",
+      "checking": "Mazoezi mapya yanakaguliwa…"
     }
   }
 }

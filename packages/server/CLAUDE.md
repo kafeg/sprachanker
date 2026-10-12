@@ -86,7 +86,8 @@ src/
                      # - AI (07), each task in the module whose run keeps its answers: llm (providers,
                      #   keys, structured calls, previews; llm-lmstudio, llm-prompts), lesson-context
                      #   (the knowledge snapshot every lesson task takes: level — `levelOf` —, place,
-                     #   words and topics met), in-flight (calls outliving the page) shared; explain,
+                     #   words and topics met), in-flight (calls outliving the page, the step each is
+                     #   at) shared; explain,
                      #   understanding (a text written, read again, its answers checked by the engine),
                      #   writing (a task set, a text on it checked), going-over (the pass's mistakes by
                      #   type, new items checked by the engine), speaking, tutor (+ tutor-tools,

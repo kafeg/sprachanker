@@ -543,6 +543,10 @@
       "task": "Görev",
       "communication": "İletişim",
       "accuracy": "Doğruluk"
+    },
+    "step": {
+      "task": "Görev hazırlanıyor…",
+      "checking": "Metnin kontrol ediliyor…"
     }
   },
   "mistakes": {
@@ -1614,7 +1618,11 @@
     "newWords": "Yeni kelimeler",
     "readNow": "Metni oku ve cevapla",
     "result": "{total, number} sorudan {right, number} doğru",
-    "past": "Bu dersin önceki metinleri"
+    "past": "Bu dersin önceki metinleri",
+    "step": {
+      "writing": "Metin yazılıyor…",
+      "checking": "Sorular kontrol ediliyor…"
+    }
   },
   "goingOver": {
     "title": "Hataların üzerinden geç",
@@ -1647,6 +1655,10 @@
     "listed": {
       "spoken": "Sesli söylenenler için yeni alıştırma yok: alıştırmasında yeniden söyleyin.",
       "comprehension": "Metni yeniden dinleyin ya da okuyun: cevap içinde."
+    },
+    "step": {
+      "making": "Yeni alıştırmalar hazırlanıyor…",
+      "checking": "Yeni alıştırmalar kontrol ediliyor…"
     }
   }
 }

@@ -24,6 +24,7 @@ const TEXT = {
   glossary: [
     { word: "Brötchen", translation: "булочка" },
     { word: "gern", translation: "охотно" },
+    { word: "macht", translation: "составляет" },
   ],
   questions: [
     {
@@ -87,6 +88,29 @@ async function withModel(replies: unknown[], options: Parameters<typeof setup>[0
   return { ...api, names: m.names };
 }
 
+test("while a text is made its state says at which step — written, then read again —, for the page to say", async () => {
+  const seen: unknown[] = [];
+  const replies: unknown[] = [TEXT, CHECK];
+  let api: Awaited<ReturnType<typeof setup>> | undefined;
+  const fetch = (async (url: string) => {
+    if (url.endsWith("/api/v1/models")) return Response.json({ models: [] });
+    const state = await api?.getJson(`/api/llm/understanding?lessonKey=${LESSON}`);
+    seen.push([state?.preparing, state?.step]);
+    return Response.json({ choices: [{ message: { content: JSON.stringify(replies.shift()) } }] });
+  }) as unknown as typeof globalThis.fetch;
+  api = await setup({ fetch });
+  await api.send("PUT", "/api/llm/providers/custom", { baseUrl: "http://127.0.0.1:9/v1" });
+  await api.send("PUT", "/api/llm/route", { provider: "custom", model: "m" });
+  await api.sendJson("POST", "/api/runs", START);
+  await api.sendJson("POST", "/api/llm/understanding", REQUEST);
+  expect(seen).toEqual([
+    [true, "writing"],
+    [true, "checking"],
+  ]);
+  const after = await api.getJson(`/api/llm/understanding?lessonKey=${LESSON}`);
+  expect([after.preparing, after.step]).toEqual([false, null]);
+});
+
 test("a text written and read again, kept in the lesson run; heard, answered by ear, then read; each answer checked by the engine; in the Notebook's pass", async () => {
   const p = piper(["de_DE-thorsten-medium", "de_DE-eva_k-x_low"]);
   const { send, sendJson, getJson, names } = await withModel([TEXT, CHECK], {
@@ -112,8 +136,9 @@ test("a text written and read again, kept in the lesson run; heard, answered by 
     "Wer verkauft?",
   ]);
   expect([text.runId, text.model, text.answers]).toEqual([run, "m", []]);
-  // Glossed as new: only words not met — "gern" is one of the lesson's own.
-  expect(text.result.glossary).toEqual([{ word: "Brötchen", translation: "булочка" }]);
+  // Glossed as new: only words not met — "gern" is one of the lesson's own — and not asked about
+  // ("Brötchen" is in a question kept).
+  expect(text.result.glossary).toEqual([{ word: "macht", translation: "составляет" }]);
 
   // Heard through the server's reading aloud, each speaker by a voice of the language.
   for (const [i, line] of TEXT.lines.entries()) {
