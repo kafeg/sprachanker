@@ -24,13 +24,13 @@ export interface LessonInfo {
   place?: { n: number; of: number; unit?: string };
   /** Words of the earlier lessons with translations, in course order (the latest kept). */
   knownWords?: LessonWord[];
-  /** Grammar topics met so far — the earlier lessons' and this one's —, in course order, each with
-   *  the lesson that taught it first. */
+  /** Grammar topics met so far — the earlier lessons' and this one's —, in course order: a topic
+   *  once in each lesson that taught it. */
   topics?: TopicMet[];
 }
 
-/** A grammar topic (a grammar page's title) and where it was taught first: the lesson as the app
- *  names it ("1.2") and its title. */
+/** A grammar topic (a grammar page's title) and a lesson that taught it: the lesson as the app names
+ *  it ("1.2") and its title. */
 export interface TopicMet {
   title: string;
   lesson: string;
@@ -74,28 +74,47 @@ export const knownWordsLine = ({ knownWords = [] }: Pick<LessonInfo, "knownWords
     ? `Words from earlier lessons: ${newest(knownWords.map(wordWithTranslation), max, "; ")}`
     : undefined;
 
-/** The grammar topics met so far (oldest first): the most recent within `max` characters. */
+/** Each topic once with the lessons that taught it, the first first; the topics in the order last
+ *  taught (the most recent last). */
+function topicPlaces(topics: TopicMet[]) {
+  const by = new Map<string, TopicMet[]>();
+  for (const t of topics) {
+    const places = by.get(t.title) ?? [];
+    by.delete(t.title);
+    by.set(t.title, [...places, t]);
+  }
+  return [...by.entries()];
+}
+
+/** The grammar topics met so far, each once (oldest first): the most recent within `max`
+ *  characters. */
 export const topicsLine = ({ topics = [] }: Pick<LessonInfo, "topics">, max: number) =>
   topics.length
     ? `Grammar met so far: ${newest(
-        topics.map((t) => t.title),
+        topicPlaces(topics).map(([title]) => title),
         max,
         "; ",
       )}`
     : undefined;
 
-/** The grammar topics met so far with the lesson that taught each ("Modalverben — lesson 2.3
- *  «Im Café»"): the most recent within `max` characters. */
-export const topicPlacesLine = ({ topics = [] }: Pick<LessonInfo, "topics">, max: number) =>
-  topics.length
-    ? `Grammar topics met so far, each with the lesson that taught it: ${newest(
-        topics.map(
-          (t) => `${t.title} — lesson ${t.lesson}${t.lessonTitle ? ` «${t.lessonTitle}»` : ""}`,
-        ),
-        max,
-        "; ",
-      )}`
-    : undefined;
+/** The grammar topics met so far with the lessons that taught each, the first first ("Modalverben —
+ *  lesson 2.3 «Im Café», 4.1"): the most recent within `max` characters — the lessons' titles
+ *  dropped before a topic or its first lesson is. */
+export function topicPlacesLine({ topics = [] }: Pick<LessonInfo, "topics">, max: number) {
+  if (!topics.length) return undefined;
+  const entries = (titled: boolean) =>
+    topicPlaces(topics).map(
+      ([title, places]) =>
+        `${title} — lesson ${places
+          .map((t) => `${t.lesson}${titled && t.lessonTitle ? ` «${t.lessonTitle}»` : ""}`)
+          .join(", ")}`,
+    );
+  const full = entries(true);
+  const fits = full.join("; ").length <= max;
+  return `Grammar topics met so far, each with the lessons that taught it: ${
+    fits ? full.join("; ") : newest(entries(false), max, "; ")
+  }`;
+}
 
 /** The lesson's grammar notes as plain text within `max` characters. */
 export const grammarNotes = (lesson: Pick<LessonInfo, "grammarHtml">, max: number) =>

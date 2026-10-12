@@ -123,7 +123,10 @@ the course's level and what the learner can be assumed to know at the lesson —
   course order, each once where it was met last — a word taught again is as recent as that lesson
   (the latest 800 kept; each task's budget takes the most recent);
 - **grammar**: the grammar topics met so far — the titles of the grammar pages of the earlier lessons
-  and this one, in course order.
+  and this one, in course order, a title once in each lesson that has it (a topic taught again keeps
+  every place). A line of them names each topic once; with its places (`explain_mistake`), each
+  topic once with all its lessons, the first first — over the budget the lessons' titles go before
+  a topic's places do, then the oldest topics.
 
 Each task takes the parts it needs within its budgets (`*_BUDGETS`, shown in Settings → AI assistant
 → Advanced). What one target language needs (German's ß, the Goethe exam's name for its writing

@@ -66,10 +66,12 @@ describe("the knowledge snapshot", () => {
         { target: "der Kaffee", translation: "ru:der Kaffee" },
         { target: "hallo", translation: "ru:hallo" },
       ],
-      // Each topic with the lesson that taught it first ("unit.lesson", as the app names it).
+      // Each topic once in each lesson that taught it ("unit.lesson", as the app names it): taught
+      // again, both places kept.
       topics: [
         { title: "Begrüßung", lesson: "1.1", lessonTitle: "Hallo!" },
         { title: "Verb an Position 2", lesson: "1.2", lessonTitle: "Kaffee" },
+        { title: "Begrüßung", lesson: "1.2", lessonTitle: "Kaffee" },
         { title: "Modalverben", lesson: "1.3", lessonTitle: "Zahlen, bitte" },
       ],
     });

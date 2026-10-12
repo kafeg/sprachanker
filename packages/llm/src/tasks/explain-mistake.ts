@@ -15,7 +15,7 @@ export interface ExplainMistakeInput extends RulesInput {
   grammarHtml: LessonInfo["grammarHtml"];
   /** The course's level (07, the knowledge snapshot). */
   level?: LessonInfo["level"];
-  /** The grammar topics met so far, each with the lesson that taught it: where the mistake's topic
+  /** The grammar topics met so far, each with the lessons that taught it: where the mistake's topic
    *  was met. */
   topics?: LessonInfo["topics"];
   /** The lesson's transcript (course HTML), given when the item is about its audio or video. */
