@@ -120,17 +120,15 @@ function charactersIn(text: UnderstandingText, characters: string[]) {
 }
 
 /**
- * What keeps a text from being shown, beyond its form (`textProblem`): a character of the course in
- * it, a title or situation not in the learner's language, a question in the learnt language with an
- * option in the learner's — the last two told by script where the two languages' differ. Undefined
- * when it holds; else asked again once.
+ * What a text sound in its form (`textProblem`) falls short of: a character of the course in it, a
+ * title or situation not in the learner's language, a question in the learnt language with an option
+ * in the learner's — the last two told by script where the two languages' differ. Undefined when it
+ * holds; else asked again once, then kept as it is (the task's quality).
  */
 export function understandingProblem(
   text: UnderstandingText,
   { language, target, lesson }: Pick<UnderstandingInput, "language" | "target" | "lesson">,
 ): string | undefined {
-  const form = textProblem(text);
-  if (form) return form;
   const named = charactersIn(text, lesson.characters ?? []);
   if (named.length)
     return `the people are new, none of the course's characters (${named.join(", ")})`;
@@ -179,7 +177,8 @@ export function understandingTextTask(
   return {
     name: "understanding_text",
     schema: UnderstandingText,
-    check: (text) => understandingProblem(text, input),
+    check: textProblem,
+    quality: (text) => understandingProblem(text, input),
     request: {
       messages: [
         { role: "system", content: systemPrompt(input, understandingTextRules, TEXT_FIXED) },

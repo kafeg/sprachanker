@@ -115,7 +115,7 @@ export function writingTaskTask(input: WritingTaskInput): StructuredTask<Writing
   return {
     name: "writing_task",
     schema: WritingTaskReply,
-    check: (reply) => repeatedPoints(reply.points),
+    quality: (reply) => repeatedPoints(reply.points),
     request: {
       messages: [
         { role: "system", content: systemPrompt(input, writingTaskRules, TASK_FIXED) },

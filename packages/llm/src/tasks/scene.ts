@@ -245,7 +245,7 @@ export function sceneTurnRequest(input: SceneTurnInput): TaskRequest {
 export const sceneTurnTask = (input: SceneTurnInput): StructuredTask<SceneTurn> => ({
   name: "scene_turn",
   schema: SceneTurn,
-  check: (turn) =>
+  quality: (turn) =>
     repeatedQuestion(
       turn.reply,
       input.history.findLast((t) => t.role === "assistant")?.text ?? input.setup.opening,

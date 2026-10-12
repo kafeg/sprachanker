@@ -83,6 +83,25 @@ describe("structured outputs", () => {
     expect((error as LlmError).code).toBe("invalid_output");
   });
 
+  test("the task's quality: asked again once, then the last valid reply kept; never one the check refuses", async () => {
+    const short = {
+      ...task,
+      check: (v: z.infer<typeof Verdict>) => (v.ok ? undefined : "ok is true"),
+      quality: (v: z.infer<typeof Verdict>) => (v.note === "same" ? "a new note" : undefined),
+    };
+    const better = scripted(['{"ok":true,"note":"same"}', '{"ok":true,"note":"x"}']);
+    expect(await runStructured(better.client, "m", short)).toEqual({ ok: true, note: "x" });
+    expect(better.seen[1]?.messages.at(-1)?.content).toContain("a new note");
+    const twice = scripted(['{"ok":true,"note":"same"}', '{"ok":true,"note":"same"}']);
+    expect(await runStructured(twice.client, "m", short)).toEqual({ ok: true, note: "same" });
+    // The repair broken: the earlier valid reply is kept.
+    const broken = scripted(['{"ok":true,"note":"same"}', "no json"]);
+    expect(await runStructured(broken.client, "m", short)).toEqual({ ok: true, note: "same" });
+    const refused = scripted(['{"ok":false,"note":"x"}', '{"ok":false,"note":"x"}']);
+    const error: unknown = await runStructured(refused.client, "m", short).catch((e) => e);
+    expect((error as LlmError).code).toBe("invalid_output");
+  });
+
   test("complete(): non-streamed, with response_format; a server rejecting the schema is asked without it", async () => {
     const bodies: Array<Record<string, unknown>> = [];
     const fetchFn = (async (_: string, init: RequestInit) => {
