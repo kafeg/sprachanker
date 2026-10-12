@@ -60,11 +60,16 @@ export function ExamCard({
           text={percent(exam.readiness)}
           className="size-14 sm:size-16"
         />
+        {/* Titles and publishers wrap, whole (an exam's title runs to three lines beside the ring);
+            only a longer one is cut, shown whole on hover. */}
         <span className="min-w-0">
-          <span dir="auto" className="line-clamp-2 text-xl font-bold leading-tight">
+          <span dir="auto" className="line-clamp-4 text-xl font-bold leading-tight" title={title}>
             {title}
           </span>
-          <span className="block truncate text-sm text-muted-foreground">
+          <span
+            className="line-clamp-2 text-sm text-muted-foreground"
+            title={exam.source?.publisher}
+          >
             {exam.source?.publisher}
           </span>
         </span>
