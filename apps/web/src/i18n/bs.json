@@ -445,6 +445,7 @@
       "chatHistory": "posljednje poruke razgovora",
       "place": "gdje je lekcija u kursu: njen broj i cjelina",
       "topics": "gramatičke teme do sada pređene u kursu",
+      "characters": "dosad upoznati likovi kursa, po imenu (sagovornik nije nijedan od njih)",
       "dialogueGoals": "situacija i ciljevi koje si postigao",
       "dialogue": "rečenice dijaloga s ispravkama koje su dobile",
       "length": "koliko je tekst dug na nivou kursa",

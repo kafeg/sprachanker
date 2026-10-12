@@ -445,6 +445,7 @@
       "chatHistory": "a beszélgetés legutóbbi üzenetei",
       "place": "hol tart a lecke a kurzusban: a száma és a fejezete",
       "topics": "a kurzusban eddig vett nyelvtani témák",
+      "characters": "a kurzus eddig megismert szereplői név szerint (a beszélgetőtárs egyikük sem)",
       "dialogueGoals": "a helyzet és az elért célok",
       "dialogue": "a párbeszéd mondatai a hozzájuk adott javításokkal",
       "length": "milyen hosszú a szöveg a kurzus szintjén",

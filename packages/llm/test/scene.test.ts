@@ -100,6 +100,12 @@ test("sceneTurnRequest: user first, the opening kept, the partner's facts in the
   );
   // Recognised speech is taken as a listener would understand it (owner, 2026-10-11).
   expect(system).toContain("never errors");
+  const named = sceneTurnRequest({
+    ...base,
+    lesson: { ...base.lesson, characters: ["Nico"] },
+    history: [{ role: "assistant", text: SETUP.opening }],
+  });
+  expect(String(named.messages[0]?.content)).toContain("The course's characters: Nico");
   expect(system).toContain('"understood"');
   // Typed (no microphone): a plain line; a scene from before the Dialogue has no facts.
   const typed = sceneTurnRequest({
@@ -125,9 +131,12 @@ test("sceneSetupTask: the level and place with the data; of many earlier words t
       place: { n: 3, of: 30 },
       knownWords,
       topics: [{ title: "Modalverben", lesson: "3.1" }],
+      characters: ["Nico", "Lisa"],
     },
   });
   const [system, data] = task.request.messages.map((m) => String(m.content));
+  // The course's people named, so the partner made up is none of them.
+  expect(data).toContain("The course's characters: Nico, Lisa");
   expect(data).toContain("wort1999");
   expect(data).not.toContain("wort0;");
   expect(data).toContain("Learner's level: A2");
@@ -287,7 +296,10 @@ test("sceneTurnRules and sceneSummaryRules: the learner reaches the goals, the p
   expect(turnRules).toContain("only those words corrected, in {target}");
   const summaryRules = sceneSummaryRules("ru", "de", names);
   expect(summaryRules).toContain("with every error in it fixed");
+  // The partner is none of the course's people; a correction never goes against a goal's form.
+  expect(turnRules).toContain("never take one of their names");
   for (const rules of [turnRules, summaryRules]) {
+    expect(rules).toMatch(/[Aa] correction keeps to the goals/);
     expect(rules).toContain("gender is unknown");
     expect(rules).not.toMatch(/\b[ABC][12]\b|German|Russian/);
   }

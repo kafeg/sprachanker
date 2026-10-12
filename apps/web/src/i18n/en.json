@@ -445,6 +445,7 @@
       "chatHistory": "the latest messages of the conversation",
       "place": "where the lesson is in the course: its number and unit",
       "topics": "the grammar topics met so far in the course",
+      "characters": "the course's characters met so far, by name (the partner is none of them)",
       "dialogueGoals": "the situation and the goals you reached",
       "dialogue": "the dialogue's lines with the corrections given on them",
       "length": "how long the text is at the course's level",

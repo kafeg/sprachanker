@@ -445,6 +445,7 @@
       "chatHistory": "as mensagens mais recentes da conversa",
       "place": "onde a lição está no curso: o número e a unidade",
       "topics": "os temas de gramática vistos até agora no curso",
+      "characters": "as personagens do curso vistas até agora, pelo nome (o interlocutor não é nenhuma delas)",
       "dialogueGoals": "a situação e os objetivos que atingiu",
       "dialogue": "as falas do diálogo com as correções dadas",
       "length": "o tamanho do texto no nível do curso",

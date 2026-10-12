@@ -445,6 +445,7 @@
       "chatHistory": "pesan-pesan terbaru dalam percakapan",
       "place": "letak pelajaran dalam kursus: nomor dan unitnya",
       "topics": "topik tata bahasa yang sudah dipelajari dalam kursus",
+      "characters": "tokoh-tokoh kursus yang sudah muncul, dengan namanya (lawan bicara bukan salah satunya)",
       "dialogueGoals": "situasinya dan tujuan yang sudah Anda capai",
       "dialogue": "kalimat-kalimat dialog dengan koreksi yang diberikan",
       "length": "seberapa panjang teks pada tingkat kursus",

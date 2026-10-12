@@ -2,7 +2,7 @@
 // words and titles, and mistakes with their exercises; the course's vocabulary. Shared by the tutor
 // (and its tools), writing, scenes, explain, speaking and word examples.
 import { type VocabWord, wrongParts } from "@sprachanker/engine";
-import type { LessonInfo, TutorMistake } from "@sprachanker/llm";
+import { type LessonInfo, speakersOf, type TutorMistake } from "@sprachanker/llm";
 import {
   findExercise,
   type Lang,
@@ -30,6 +30,8 @@ interface LessonContext {
 
 /** Earlier words kept in a snapshot: the latest; every task's budget takes fewer. */
 const KNOWN_WORDS = 800;
+/** The course's people kept in a snapshot: the latest met. */
+const CHARACTERS = 30;
 
 /** The CEFR level a course's id or a deck's name says ("a1-ru" → A1, "a1-a2-ru" and "A1A2" → A1–A2,
  *  "Deutsch A2", "слова_b1"), a range low to high ("B1 + A2" → A2–B1); undefined when it says none.
@@ -101,6 +103,13 @@ export function createLessonContext(content: Content) {
       );
       const unit = map.index.units.find((u) => u.lessons.includes(lessonKey));
       const level = levelOf(course);
+      // The course's people met so far: its scripts' speakers, the latest last.
+      const characters = latest(
+        [...files.map((f) => f.locale), locale].flatMap((loc) =>
+          loc?.tabs.script ? speakersOf(loc.tabs.script.bodyHtml) : [],
+        ),
+        (name) => name,
+      ).slice(-CHARACTERS);
       return {
         lesson,
         locale,
@@ -123,6 +132,7 @@ export function createLessonContext(content: Content) {
           }),
           knownWords: known.slice(-KNOWN_WORDS),
           topics,
+          ...(characters.length && { characters }),
         },
         earlierLessons: earlier.map((k) => map.titles[k] ?? k),
         titles: map.titles,

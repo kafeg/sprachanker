@@ -8,6 +8,7 @@ import type { ChatMessage, TaskRequest } from "../client.ts";
 import type { StructuredTask } from "../structured.ts";
 import { clip, languageName, languageNames, recentTurns } from "../text.ts";
 import {
+  charactersLine,
   goalsLine,
   grammarNotes,
   knownWordsLine,
@@ -104,7 +105,7 @@ export function sceneSetupRules(
   return [
     `You design a short spoken dialogue for a learner of ${t} who speaks ${l}, at the learner's level given with the lesson.`,
     "Base it on the lesson below: an everyday situation where the learner does what the lesson's goals say, with the words they know.",
-    "The partner is a new person made up for this dialogue — never a character of the course — and the setup states nothing about the course's characters.",
+    "The partner is a new person made up for this dialogue — never a character of the course, never named as one (their names are given with the lesson) — and the setup states nothing about the course's characters.",
     "Make an information gap: the partner knows 2–4 concrete facts the learner does not (a time, a price, a place, a name, a number) and must ask for.",
     `Write title, situation, partner and goals in ${l}, whatever language the lesson's texts are in. "goals" are the learner's goal card: 2–3 concrete things to say or find out, of the kinds given for the learner's level; at least one asks for a fact the partner holds, without giving the fact away; at least one needs this lesson's grammar to say.`,
     `"partnerInfo": the partner's facts as short sentences in ${t}; the learner does not see them.`,
@@ -128,6 +129,7 @@ export function sceneSetupTask(
     goalsLine(input.lesson),
     known(input.lesson),
     goalKindsLine(input.lesson),
+    charactersLine(input.lesson),
     "</lesson>",
     `Remember: title, situation, partner and goals in ${languageName(input.language)}.`,
   ]
@@ -172,7 +174,7 @@ export function sceneTurnRules(
 ): string {
   const { language: l, target: t } = names;
   return [
-    `You play a role in a short spoken dialogue with a learner of ${t} who speaks ${l}, at the learner's level given in <scene>. Stay in role.`,
+    `You play a role in a short spoken dialogue with a learner of ${t} who speaks ${l}, at the learner's level given in <scene>. Stay in role: you are the person of "You play", none of the course's characters — never take one of their names.`,
     `- "reply": your next line in ${t} only, within the learner's level — one or two short sentences with words they know, in correct ${t}. React to what the learner says.`,
     `- The goals are the learner's to reach: never ask the learner's goal questions yourself, never offer or hint at a fact of "You know" before the learner asks for it. If the learner drifts, answer briefly and ask a short neutral question (whether there is anything else) without naming a goal.`,
     `- If the learner speaks ${l} or is stuck, still answer in ${t}, more simply.`,
@@ -180,7 +182,7 @@ export function sceneTurnRules(
     `- "translation": your reply in ${l}.`,
     `- A line inside <line said> was said aloud and written down by a speech recogniser: take it as a listener would have understood it. Its punctuation, capitals and numbers written as digits are the recogniser's, never errors; a word clearly misheard for a right one is not an error.`,
     `- "understood": would a ${t} speaker have understood the learner's new line? "fits": does it answer you or move towards a goal?`,
-    `- "corrections": at most two real errors in the learner's new line (the one inside <line>) that matter most — never errors of earlier lines. "wrong": the words as the learner said them; "right": only those words corrected, in ${t}, nothing else; "explanation": short, in ${l}. Check word order (also in subordinate and relative clauses), endings and agreement, and this lesson's grammar. Never correct what is correct, never style or a word choice that is correct; none if the line is correct.`,
+    `- "corrections": at most two real errors in the learner's new line (the one inside <line>) that matter most — never errors of earlier lines. "wrong": the words as the learner said them; "right": only those words corrected, in ${t}, nothing else; "explanation": short, in ${l}. Check word order (also in subordinate and relative clauses), endings and agreement, and this lesson's grammar. A correction keeps to the goals: where a goal asks for a form (a form of address, a tense, a word), "right" uses it, never another. Never correct what is correct, never style or a word choice that is correct; none if the line is correct.`,
     '- "goalsMet": 0-based indices of the goals the learner has reached so far in the whole dialogue.',
     '- "done": true when all goals are reached and the dialogue can end; then say goodbye in role.',
     `- ${NEUTRAL}`,
@@ -193,6 +195,7 @@ export function sceneTurnRequest(input: SceneTurnInput): TaskRequest {
     "<scene>",
     `Situation: ${setup.situation}`,
     `You play: ${setup.partner}`,
+    charactersLine(input.lesson),
     setup.partnerInfo?.length ? `You know: ${setup.partnerInfo.join(" ")}` : undefined,
     `Learner's goals: ${setup.goals.map((g, i) => `${i}. ${g}`).join("; ")}`,
     known(input.lesson),
@@ -355,7 +358,7 @@ export function sceneSummaryRules(
   const { language: l, target: t } = names;
   return [
     `You sum up a short spoken dialogue in ${t} that a learner who speaks ${l} has just held, at the learner's level given in <scene>.`,
-    `- "corrections": the one or two errors of the learner's lines that matter most for them now ("wrong": the words as said; "right": only those words corrected, in ${t}; a short explanation in ${l}). Never correct what is correct (word order included) or style. "model" is that whole line of the learner's with every error in it fixed — not only this one —, in ${t}, as a ${t} speaker would say it at the learner's level. No errors: an empty list.`,
+    `- "corrections": the one or two errors of the learner's lines that matter most for them now ("wrong": the words as said; "right": only those words corrected, in ${t}; a short explanation in ${l}). Never correct what is correct (word order included) or style; a correction keeps to the goals (where a goal asks for a form — a form of address, a tense —, "right" and "model" use it). "model" is that whole line of the learner's with every error in it fixed — not only this one —, in ${t}, as a ${t} speaker would say it at the learner's level. No errors: an empty list.`,
     "- The learner's lines were said aloud and written down by a speech recogniser: punctuation, capitals and digits are never errors.",
     `- "feedback": one or two encouraging, concrete sentences in ${l} — what went well, what to practise next; no remarks on what was right as if it were wrong.`,
     `- ${NEUTRAL}`,

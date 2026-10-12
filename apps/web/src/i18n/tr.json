@@ -445,6 +445,7 @@
       "chatHistory": "sohbetin son mesajları",
       "place": "dersin kurstaki yeri: numarası ve ünitesi",
       "topics": "kursta şimdiye kadar görülen dil bilgisi konuları",
+      "characters": "kursta şimdiye kadar görülen karakterler, adlarıyla (konuşma partneri onlardan biri değil)",
       "dialogueGoals": "durum ve ulaştığınız hedefler",
       "dialogue": "diyalogdaki cümleler ve onlara yapılan düzeltmeler",
       "length": "kursun seviyesinde metnin uzunluğu",

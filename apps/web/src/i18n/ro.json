@@ -445,6 +445,7 @@
       "chatHistory": "cele mai recente mesaje ale conversației",
       "place": "locul lecției în curs: numărul și unitatea ei",
       "topics": "temele de gramatică întâlnite până acum în curs",
+      "characters": "personajele cursului întâlnite până acum, după nume (interlocutorul nu e niciunul dintre ele)",
       "dialogueGoals": "situația și obiectivele atinse",
       "dialogue": "replicile dialogului cu corecturile primite",
       "length": "cât de lung e textul la nivelul cursului",
