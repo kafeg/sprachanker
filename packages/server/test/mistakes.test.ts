@@ -51,7 +51,7 @@ test("mistakes reach the tutor: fixed ones marked, redone lessons count afresh",
   expect(here).toContain("In this lesson:");
   // Only what was wrong in each: the gap with its words around it, the option chosen.
   expect(here).toMatch(
-    /item 1\] \(fixed later\)\n {2}learner "Herr", correct "Frau" in "Guten Tag, \[_\] Weber."/,
+    /item 1\] \(fixed later\)\n {2}learner "Herr", correct "Frau" in "Guten Tag, ___ Weber."/,
   );
   expect(here).toContain('learner "Im Park.", correct "Im Café." to "Wo ist Lena?"');
   expect(here).not.toContain("In earlier lessons:");

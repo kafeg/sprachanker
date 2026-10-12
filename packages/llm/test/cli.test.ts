@@ -1,6 +1,6 @@
 // The command-line backends against a fake runner: no process is started.
 import { expect, test } from "bun:test";
-import { type CliRun, cliClient, cliPrompt, cliRun } from "../src/cli.ts";
+import { CLI_LIMITS, type CliRun, cliClient, cliPrompt, cliRun } from "../src/cli.ts";
 import { chatBody } from "../src/client.ts";
 import { LlmError } from "../src/errors.ts";
 import { TUTOR_TOOLS_REMINDER, TUTOR_TOOLS_RULE } from "../src/tasks/tutor-tools.ts";
@@ -171,11 +171,15 @@ test("claude's effort: low only for a short check; the user's environment never 
 });
 
 /** A runner whose runs go as listed: lines then success, lines then a failure, or a hang. */
-function runsAs(...runs: Array<{ lines?: string[]; fail?: string; hang?: boolean }>) {
+function runsAs(
+  ...runs: Array<{ lines?: string[]; fail?: string; hang?: boolean; afterMs?: number }>
+) {
   let n = 0;
   const run = (r: CliRun) =>
     (async function* () {
       const plan = runs[n++] ?? {};
+      if (plan.afterMs) await Bun.sleep(plan.afterMs);
+      if (r.signal?.aborted) throw new Error("aborted");
       yield* plan.lines ?? [];
       if (plan.hang)
         await new Promise((_, reject) =>
@@ -250,6 +254,23 @@ test("a JSON reply out of time is asked once more; a streamed one is not", async
   })().catch((e: unknown) => e);
   expect((error as LlmError).code).toBe("timeout");
   expect(stuck.count()).toBe(1);
+});
+
+test("a long JSON task's attempt has its own time limit, by the task's name", async () => {
+  const limits = { streamMs: 30, jsonAttemptMs: 30, jsonAttemptMsOf: { writing_check: 500 } };
+  const long = { jsonSchema: { name: "writing_check", schema: { type: "object" } } };
+  const slowly = runsAs({ afterMs: 80, lines: [json({ ok: 1 })] });
+  expect(await cliClient("claude", slowly.run, limits).complete({ ...ask, ...long })).toBe(
+    '{"ok":1}',
+  );
+  expect(slowly.count()).toBe(1);
+  // Another task, as slow, is cut at the default and asked once more.
+  const other = runsAs({ afterMs: 80, lines: [json({ ok: 1 })] }, { lines: [json({ ok: 2 })] });
+  expect(await cliClient("claude", other.run, limits).complete({ ...ask, ...schema })).toBe(
+    '{"ok":2}',
+  );
+  expect(CLI_LIMITS.jsonAttemptMsOf?.writing_check).toBe(150_000);
+  expect(CLI_LIMITS.jsonAttemptMsOf?.scene_setup).toBe(150_000);
 });
 
 test("tool notes go only with the tools: the HTTP body with them, without them, and never a CLI prompt", () => {

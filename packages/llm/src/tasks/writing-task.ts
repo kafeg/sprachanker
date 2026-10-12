@@ -8,7 +8,7 @@ import { type Lang, WritingTask } from "@sprachanker/schema";
 import type { z } from "zod";
 import type { StructuredTask } from "../structured.ts";
 import { languageName, languageNames } from "../text.ts";
-import { genderProblem } from "./gender.ts";
+import { genderFreeReply } from "./gender.ts";
 import {
   cefrOf,
   goalsLine,
@@ -20,7 +20,7 @@ import {
   placeLine,
   topicsLine,
 } from "./lesson.ts";
-import { NEUTRAL, type RulesInput, systemPrompt } from "./rules.ts";
+import { learnerWordsProblem, NEUTRAL, type RulesInput, systemPrompt } from "./rules.ts";
 
 export const WRITING_TASK_BUDGETS = {
   lessonVocab: 1200,
@@ -116,9 +116,10 @@ export function writingTaskTask(input: WritingTaskInput): StructuredTask<Writing
   return {
     name: "writing_task",
     schema: WritingTaskReply,
+    fix: (reply) => genderFreeReply(reply, input.language),
     quality: (reply) =>
       repeatedPoints(reply.points) ??
-      genderProblem([reply.situation, ...reply.points], input.language),
+      learnerWordsProblem([reply.situation, ...reply.points], input.language),
     request: {
       messages: [
         { role: "system", content: systemPrompt(input, writingTaskRules, TASK_FIXED) },

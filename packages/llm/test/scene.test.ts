@@ -54,6 +54,52 @@ test("setupProblem: the card in the learner's language with one address; an open
   ).toContain("goal question");
 });
 
+test("setupProblem: a partner the card says the learner has not met opens politely; no goal prescribes a grammar form (real setups)", () => {
+  const langs = { language: "ru", target: "de" } as const;
+  const neighbour = {
+    title: "Собака брата",
+    situation:
+      "Твой брат-близнец уехал путешествовать и попросил тебя покормить его собаку. Во дворе дома тебе встречается незнакомая соседка, которая иногда помогает брату с собакой.",
+    partner: "соседка, которая иногда помогает твоему брату с собакой",
+    goals: ["Сказать, что у тебя есть брат-близнец", "Узнать, во сколько нужно кормить собаку"],
+    partnerInfo: ["Der Hund bekommt um 18 Uhr sein Futter."],
+    opening: "Hallo! Ist das der Hund von deinem Bruder?",
+  };
+  expect(setupProblem(neighbour, langs)).toContain("have not met");
+  expect(
+    setupProblem({ ...neighbour, opening: "Guten Tag! Ist das der Hund von Ihrem Bruder?" }, langs),
+  ).toBeUndefined();
+  const secretary = {
+    ...neighbour,
+    situation: "Ты находишься в школьном секретариате.",
+    partner: "Секретарь школы — новый человек, с которым разговор происходит впервые",
+    opening: "Guten Tag! Ich bin die neue Schulsekretärin. Wie kann ich dir helfen?",
+  };
+  expect(setupProblem(secretary, langs)).toContain("polite form");
+  // A child or a fellow student met for the first time: the familiar form fits.
+  expect(
+    setupProblem(
+      { ...secretary, partner: "Новый одногруппник, с которым ты говоришь впервые" },
+      langs,
+    ),
+  ).toBeUndefined();
+  // Nothing on the card says they have not met: the rules alone.
+  expect(setupProblem({ ...secretary, partner: "Координатор практики" }, langs)).toBeUndefined();
+  expect(
+    setupProblem(
+      {
+        ...neighbour,
+        opening: "Guten Tag! Ist das der Hund von Ihrem Bruder?",
+        goals: [
+          "Узнать, во сколько начинается собрание",
+          "Рассказать, какое расписание занятий хотелось бы иметь, используя форму Konjunktiv II",
+        ],
+      },
+      langs,
+    ),
+  ).toContain("prescribes a grammar form");
+});
+
 const turn = (extra: Partial<SceneTurn>): SceneTurn => ({
   reply: "Woher kommst du?",
   translation: "Откуда ты?",
@@ -380,6 +426,9 @@ test("sceneSetupTask: the goal kinds of the level, the lesson's grammar and the 
     "asks nothing the learner cannot know",
     "true to the situation",
     "One form of address for the whole dialogue",
+    "an adult they do not know, staff, an official, a clerk or a service — the polite one",
+    "whatever form the card speaks in",
+    'never "using the …" form',
     "of the kinds given for the learner's level",
     "gender is unknown",
   ])

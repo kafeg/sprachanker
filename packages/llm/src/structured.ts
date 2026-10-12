@@ -12,6 +12,9 @@ export interface StructuredTask<T> {
   /** Schema name sent to the provider. */
   name: string;
   schema: z.ZodType<T>;
+  /** What code puts right itself in a valid reply, before the check and the quality (a phrase
+   *  marking the learner's gender with a safe rewrite: `genderFreeReply`). */
+  fix?(value: T): T;
   /** What the schema cannot say ("the sentence does not use the word"); undefined when it holds. */
   check?(value: T): string | undefined;
   /** What makes a valid reply a better one ("not the question of the last line again"): a reply short
@@ -66,10 +69,11 @@ export async function runStructured<T>(
     const reply = await client.complete({ ...request, messages, model, signal });
     try {
       const result = task.schema.safeParse(parseJson(reply));
-      const unmet = result.success ? task.check?.(result.data) : undefined;
-      const short = result.success && !unmet ? task.quality?.(result.data) : undefined;
-      if (result.success && !unmet && !short) return result.data;
-      if (result.success && short) kept = { value: result.data, short };
+      const value = result.success && task.fix ? task.fix(result.data) : result.data;
+      const unmet = result.success ? task.check?.(value as T) : undefined;
+      const short = result.success && !unmet ? task.quality?.(value as T) : undefined;
+      if (result.success && !unmet && !short) return value as T;
+      if (result.success && short) kept = { value: value as T, short };
       problem = result.success ? ((unmet ?? short) as string) : issuesText(result.error, 5);
     } catch {
       problem = "the reply was not valid JSON";

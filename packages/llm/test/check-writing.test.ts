@@ -156,20 +156,21 @@ test("check_writing: the task's points as data, each rated; at most three correc
     '"points": for each content point of the task, in its order',
     // Points rate the content; language is rated in accuracy.
     "its content only: a point done with errors in its words is done",
-    // Every error fixed in "corrected", nothing right changed ("angefangen" → "begann").
-    "every error in it fixed — also those beyond the corrections listed",
+    // "corrected" makes the corrections only, nothing right changed ("angefangen" → "begann").
+    "the corrections made and nothing else changed",
     "everything correct kept as written",
     "never a correct form replaced by another correct one (another tense, a synonym)",
     "Read every sentence for errors",
     "never invent a requirement",
-    '"corrections": at most three, the most important first',
+    '"corrections": every error, at most 10, the most important first',
+    "the learner is shown the first 3",
     '"modelText": the task done well at the learner\'s level',
     "Write only in Russian and German",
   ])
     expect(system).toContain(part);
   expect(system).not.toContain("A1");
   expect(system).toEndWith(
-    `Reply with the JSON object only.\nWrite only in Russian and German: not a word in any other language.\n${GENDER_FREE.ru}`,
+    `Reply with the JSON object only.\nWrite only in Russian and German: not a word in any other language. Each word in its own language's letters: never two alphabets in one word, never a German word spelt in Russian letters.\n${GENDER_FREE.ru}`,
   );
   expect(user).toContain(
     "<task>\nSituation: Вы договорились встретиться с Леной в кафе. Напишите ей сообщение.\nContent points:\n1. Скажите, что опоздаете.\n2. Объясните почему.\n3. Напишите, когда придёте.\nLength: about 30 words.\n</task>",
@@ -180,7 +181,7 @@ test("check_writing: the task's points as data, each rated; at most three correc
   expect(user).toContain("What a text at A1 needs:");
   expect(user).toContain("Goethe-Zertifikat's Schreiben");
   expect(user).toEndWith(
-    "Remember: 3 points in the task's order, at most 3 corrections; comments, explanations and feedback in Russian.",
+    'Remember: 3 points in the task\'s order; every change of "corrected" is a correction, the most important first; comments, explanations and feedback in Russian.',
   );
   // A point for each of the task's, or the reply is repaired.
   const reply = {
@@ -199,6 +200,43 @@ test("check_writing: the task's points as data, each rated; at most three correc
   expect(check?.(reply)).toContain("3 content points");
   const three = { ...reply, points: [1, 2, 3].map(() => ({ score: 2, comment: "" })) };
   expect(check?.(three)).toBeUndefined();
+});
+
+test("a check's corrected text makes only the changes its corrections list: a word left out or added silently is asked again once (a real check)", () => {
+  const text =
+    "Hallo zusammen! Mein Lieblingsfach war immer Geschichte, weil ich finde Geschichte sehr spannend. Wenn ich mehr Zeit hätte, ich würde Physik nochmal lernen. Ihr solltet mit euren Lehrern sprechen, wenn ihr ein Problem habt. Viele Grüße, Anna";
+  const fix = (wrong: string, right: string) => ({ wrong, right, explanation: "…" });
+  const corrections = [
+    fix("weil ich finde Geschichte sehr spannend", "weil ich Geschichte sehr spannend finde"),
+    fix("Wenn ich mehr Zeit hätte, ich würde", "Wenn ich mehr Zeit hätte, würde ich"),
+    fix(
+      "Ihr solltet mit euren Lehrern sprechen, wenn ihr ein Problem habt.",
+      "Du solltest mit deinen Lehrern sprechen, wenn du ein Problem hast.",
+    ),
+  ];
+  const quality = (corrected: string, listed = corrections) =>
+    checkWritingTask({ ...input, text }).quality?.({
+      verdict: "minor_errors",
+      corrected,
+      corrections: listed,
+      criteria: {
+        task: { score: 2, comment: "" },
+        communication: { score: 2, comment: "" },
+        accuracy: { score: 1, comment: "" },
+      },
+      points: [],
+      feedback: "",
+    });
+  const made = (greeting: string) =>
+    `${greeting} Mein Lieblingsfach war immer Geschichte, weil ich Geschichte sehr spannend finde. Wenn ich mehr Zeit hätte, würde ich Physik nochmal lernen. Du solltest mit deinen Lehrern sprechen, wenn du ein Problem hast. Viele Grüße, Anna`;
+  // The model's "Hallo zusammen!" made "Hallo!" without a correction.
+  expect(quality(made("Hallo!"))).toContain('"zusammen" of the text is left out');
+  expect(quality(made("Hallo Tom!"))).toContain('"tom" is neither in the text');
+  expect(quality(made("Hallo zusammen!"))).toBeUndefined();
+  // Listed, the change is no problem.
+  expect(
+    quality(made("Hallo!"), [...corrections, fix("Hallo zusammen!", "Hallo!")]),
+  ).toBeUndefined();
 });
 
 test("a check kept: corrections that change nothing or quote words the text lacks dropped, at most three of the rest", () => {

@@ -2,7 +2,8 @@
 // ones, then the fixed suffix that stays whatever the learner wrote — how the data is delimited, the
 // reply's form and its languages.
 import type { Lang } from "@sprachanker/schema";
-import { languageName } from "../text.ts";
+import { languageName, mixedWord, scriptsOnlyOf } from "../text.ts";
+import { genderProblem } from "./gender.ts";
 
 /** A task's standing rules for an answer language and a learnt language; `names` replaces the
  *  languages' names (the placeholders a template shows). */
@@ -21,10 +22,32 @@ export interface RulesInput {
 }
 
 /** The reply's languages, whatever the rules: models drift into a third one (a Chinese or English
- *  word in a Russian explanation). */
+ *  word in a Russian explanation); where the two write in different alphabets, they mix them in a
+ *  word ("Вопрos") or spell a learnt word in the learner's letters ("мит" for "mit"). */
 export function languagesLine(language: Lang, target: Lang): string {
   const [l, t] = [languageName(language), languageName(target)];
-  return `Write only in ${l === t ? t : `${l} and ${t}`}: not a word in any other language.`;
+  const apart = scriptsOnlyOf(language, target).length && scriptsOnlyOf(target, language).length;
+  return [
+    `Write only in ${l === t ? t : `${l} and ${t}`}: not a word in any other language.`,
+    apart
+      ? `Each word in its own language's letters: never two alphabets in one word, never a ${t} word spelt in ${l} letters.`
+      : undefined,
+  ]
+    .filter(Boolean)
+    .join(" ");
+}
+
+/** What a reply's words to the learner fall short of, found in code (a task's quality): a word in
+ *  two alphabets, a mark of the learner's gender (`own`: in a sentence the learner would say too). */
+export function learnerWordsProblem(
+  texts: string[],
+  language: Lang,
+  own = true,
+): string | undefined {
+  const mixed = mixedWord(texts);
+  return mixed
+    ? `"${mixed}" mixes two alphabets in one word: each word in its own language's letters`
+    : genderProblem(texts, language, own);
 }
 
 /** The system prompt as sent: the learner's rules or the standing ones, then the fixed suffix — with,

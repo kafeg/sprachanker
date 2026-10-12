@@ -15,7 +15,7 @@ import {
   scriptsOnlyOf,
   writtenIn,
 } from "../text.ts";
-import { genderProblem } from "./gender.ts";
+import { genderFreeReply } from "./gender.ts";
 import {
   charactersLine,
   goalsLine,
@@ -28,7 +28,7 @@ import {
   placeLine,
   topicsLine,
 } from "./lesson.ts";
-import { NEUTRAL, type RulesInput, systemPrompt } from "./rules.ts";
+import { learnerWordsProblem, NEUTRAL, type RulesInput, systemPrompt } from "./rules.ts";
 
 /** A Dialogue takes the lesson's topic, words, grammar and what is known by it. */
 type SceneLesson = LessonInfo;
@@ -116,10 +116,11 @@ export function sceneSetupRules(
     "Base it on the lesson below: an everyday situation where the learner does what the lesson's goals say, with the words they know.",
     "The partner is a new person made up for this dialogue — never a character of the course, never named as one (their names are given with the lesson) — and the setup states nothing about the course's characters.",
     "Make an information gap: the partner knows 2–4 concrete facts the learner does not (a time, a price, a place, a name, a number) and must ask for.",
-    `Write title, situation, partner and goals in ${l}, whatever language the lesson's texts are in. "goals" are the learner's goal card: 2–3 concrete things to say or find out, of the kinds given for the learner's level; at least one asks for a fact the partner holds, without giving the fact away; at least one needs this lesson's grammar to say. Each goal is one thing, true to the situation and to the other goals; it never prescribes a word to use, and "A or B" in a goal is a choice of one, never both.`,
+    `Write title, situation, partner and goals in ${l}, whatever language the lesson's texts are in. "goals" are the learner's goal card: 2–3 concrete things to say or find out, of the kinds given for the learner's level; at least one asks for a fact the partner holds, without giving the fact away; at least one needs this lesson's grammar to say. Each goal is one thing, true to the situation and to the other goals; it never prescribes a word or a grammar form to use (never "using the …" form, tense or construction: what the goal asks to say calls for it), and "A or B" in a goal is a choice of one, never both.`,
     `"partnerInfo": the partner's facts as short sentences in ${t}; the learner does not see them.`,
     `"opening" is the partner's first line in ${t} within the learner's level, using words they know, and true to the situation (who the two are, where they are, what each already knows); it does not give away the facts and asks nothing the learner cannot know (only about themselves, their wishes or the situation). "openingTranslation": the opening in ${l}.`,
-    `One form of address for the whole dialogue, the one the situation calls for (where ${t} has a familiar and a polite one): the goals, the opening and the partner's facts all use it, and no goal asks for the other.`,
+    `The card (title, situation, goals) speaks to the learner in one form of address throughout.`,
+    `The partner addresses the learner as their relation calls for, where ${t} has a familiar and a polite form: an adult they do not know, staff, an official, a clerk or a service — the polite one; a friend, family, a classmate, a fellow student or a child — the familiar one. One form of address for the whole dialogue: the opening and the partner's facts use it, whatever form the card speaks in, and no goal asks for the other.`,
     NEUTRAL,
   ].join("\n");
 }
@@ -137,14 +138,52 @@ const ADDRESS: Partial<Record<Lang, [RegExp, RegExp]>> = {
   ],
 };
 
+/** A card's words, by the learner's language, saying the partner and the learner have not met — a
+ *  stranger, then, unless the partner is a child or a fellow learner (data). */
+const STRANGER: Partial<Record<Lang, { met: RegExp; peer: RegExp }>> = {
+  ru: {
+    met: /незнаком|впервые|в первый раз/iu,
+    peer: /ребён|ребен|мальчик|девочк|подрост|школьни|ученик|ученица|студент|однокласс|одногрупп|сверстни/iu,
+  },
+  uk: {
+    met: /незнайом|вперше|уперше/iu,
+    peer: /дитин|хлопчик|дівчинк|підліт|школяр|учень|учениц|студент|однокласни|одногрупни/iu,
+  },
+  en: {
+    met: /\bstranger|\bnever met|\bfor the first time|\bdo(?:es)? not know (?:you|each other)/i,
+    peer: /\bchild|\bboy\b|\bgirl\b|\bteenager|\bpupil|\bstudent|\bclassmate/i,
+  },
+  de: {
+    met: /\bfremd|\bunbekannt|\bzum ersten Mal/i,
+    peer: /\bKind\b|\bJunge\b|\bMädchen|\bJugendlich|\bSchüler|\bStudent|\bMitschüler|\bKommiliton/i,
+  },
+};
+
+/** The familiar "you" of a learnt language that has a polite one beside it (data): a stranger
+ *  adult addressed with it. */
+const FAMILIAR: Partial<Record<Lang, RegExp>> = {
+  de: /(?<!\p{L})(?:du|dich|dir|dein|deine|deinen|deinem|deiner|deines)(?!\p{L})/iu,
+};
+
+/** A goal prescribing a grammar form by name, in the learner's language ("используя форму
+ *  Konjunktiv II"): data. */
+const PRESCRIBED_FORM: Partial<Record<Lang, RegExp>> = {
+  ru: /(?:используя|употребляя|применяя|с помощью)\s+(?:\p{L}+\s+){0,2}?(?:форм|конструкци|оборот|времен|наклонени|падеж|залог)/iu,
+  uk: /(?:використовуючи|вживаючи|застосовуючи|за допомогою)\s+(?:\p{L}+\s+){0,2}?(?:форм|конструкці|зворот|час|спосіб|відмін)/iu,
+  en: /\busing (?:\p{L}+ ){0,2}?(?:form|tense|mood|construction|case|voice)\b/iu,
+  de: /\b(?:mit|im|in der) (?:\p{L}+ ){0,2}?(?:Form|Konstruktion|Zeitform|Modus)\b|\bverwende/iu,
+};
+
 /** A word's main part, as a line and a fact are compared: four letters or more, by its first five. */
 const mainWordsOf = (text: string) =>
   new Set((text.toLocaleLowerCase().match(/\p{L}{4,}/gu) ?? []).map((w) => w.slice(0, 5)));
 
 /**
  * What a setup falls short of beyond its form: the card (title, situation, goals) in the learner's
- * language and one form of address; an opening that gives a fact of the partner's away (its number)
- * or asks the learner's goal question itself (its question shares two main words with a fact).
+ * language and one form of address, no goal prescribing a grammar form; a partner the card says the
+ * learner has not met (no child, no fellow learner) opening in the familiar form; an opening that
+ * gives a fact of the partner's away (its number) or asks the learner's goal question itself (its
+ * question shares two main words with a fact).
  * Undefined when it holds; else asked again once (the task's quality).
  */
 export function setupProblem(
@@ -157,6 +196,12 @@ export function setupProblem(
   const address = ADDRESS[language];
   if (address?.every((form) => form.test(card.join(" "))))
     return "one form of address in the title, situation and goals, the one the situation calls for";
+  if (setup.goals.some((g) => PRESCRIBED_FORM[language]?.test(g)))
+    return "no goal prescribes a grammar form: what it asks to say calls for the lesson's grammar";
+  const stranger = STRANGER[language];
+  const met = stranger?.met.test(`${setup.partner} ${setup.situation}`);
+  if (met && !stranger?.peer.test(setup.partner) && FAMILIAR[target]?.test(setup.opening))
+    return `the partner and the learner have not met: the partner addresses the learner in ${languageName(target)}'s polite form, in the opening and every line`;
   const facts = setup.partnerInfo ?? [];
   const numbers = setup.opening.match(/\d+/g) ?? [];
   if (numbers.some((n) => facts.some((f) => new RegExp(`(?<!\\d)${n}(?!\\d)`).test(f))))
@@ -192,10 +237,11 @@ export function sceneSetupTask(
   return {
     name: "scene_setup",
     schema: DialogueSetup,
+    fix: (setup) => genderFreeReply(setup, input.language),
     quality: (setup) =>
       setupProblem(setup, input) ??
-      genderProblem([setup.title, setup.situation, ...setup.goals], input.language) ??
-      genderProblem([setup.openingTranslation ?? ""], input.language, false),
+      learnerWordsProblem([setup.title, setup.situation, ...setup.goals], input.language) ??
+      learnerWordsProblem([setup.openingTranslation ?? ""], input.language, false),
     request: {
       messages: [
         { role: "system", content: system },
@@ -295,13 +341,14 @@ export function sceneTurnRequest(input: SceneTurnInput): TaskRequest {
 export const sceneTurnTask = (input: SceneTurnInput): StructuredTask<SceneTurn> => ({
   name: "scene_turn",
   schema: SceneTurn,
+  fix: (turn) => genderFreeReply(turn, input.language),
   quality: (turn) =>
     repeatedQuestion(
       turn.reply,
       input.history.findLast((t) => t.role === "assistant")?.text ?? input.setup.opening,
     ) ??
-    genderProblem([turn.translation], input.language, false) ??
-    genderProblem(
+    learnerWordsProblem([turn.translation], input.language, false) ??
+    learnerWordsProblem(
       turn.corrections.map((c) => c.explanation),
       input.language,
     ),
@@ -447,8 +494,9 @@ export function sceneSummaryTask(input: SceneSummaryInput): StructuredTask<Dialo
   return {
     name: "scene_summary",
     schema: DialogueSummary,
+    fix: (summary) => genderFreeReply(summary, input.language),
     quality: (summary) =>
-      genderProblem(
+      learnerWordsProblem(
         [summary.feedback, ...summary.corrections.map((c) => c.explanation)],
         input.language,
       ),

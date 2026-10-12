@@ -14,8 +14,8 @@ import {
 import { z } from "zod";
 import type { StructuredTask } from "../structured.ts";
 import { languageName, languageNames, writtenIn } from "../text.ts";
-import { wrongPartLine } from "./describe.ts";
-import { genderProblem } from "./gender.ts";
+import { gapsWritten, wrongPartLine } from "./describe.ts";
+import { genderFreeReply } from "./gender.ts";
 import {
   grammarNotes,
   knownWordsLine,
@@ -24,7 +24,7 @@ import {
   levelLine,
   topicsLine,
 } from "./lesson.ts";
-import { NEUTRAL, type RulesInput, systemPrompt } from "./rules.ts";
+import { learnerWordsProblem, NEUTRAL, type RulesInput, systemPrompt } from "./rules.ts";
 
 export const MISTAKE_ITEMS_BUDGETS = {
   lessonVocab: 1000,
@@ -75,10 +75,15 @@ type ItemReply = z.infer<typeof ItemReply>;
 const withoutNulls = <T extends object>(o: T) =>
   Object.fromEntries(Object.entries(o).filter(([, v]) => v !== null));
 
-/** A new item as kept: the model's without its null fields. */
+/** A new item as kept: the model's without its null fields, a gap written "___" (a model may copy
+ *  the mistakes' "[_]"). */
 export const mistakeItemOf = (item: ItemReply): MistakeItem =>
   MistakeItem.parse({
-    ...withoutNulls(item),
+    ...withoutNulls({
+      ...item,
+      prompt: item.prompt && gapsWritten(item.prompt),
+      text: item.text && gapsWritten(item.text),
+    }),
     ...(item.gaps && { gaps: item.gaps.map(withoutNulls) }),
   });
 
@@ -137,7 +142,7 @@ export function mistakeItemsRules(
 ): string {
   const { language: l, target: t } = names;
   return [
-    `You go over a learner's mistakes in ${t}, at the learner's level given with the lesson. The learner speaks ${l}. The mistakes come in numbered groups of one type, each mistake only what was wrong: what the learner gave, what is right, the words around it ([_] marks a gap).`,
+    `You go over a learner's mistakes in ${t}, at the learner's level given with the lesson. The learner speaks ${l}. The mistakes come in numbered groups of one type, each mistake only what was wrong: what the learner gave, what is right, the words around it (___ marks a gap).`,
     `For each group "n" (its number), then:`,
     `- "explanation": in ${l}, at most 60 words, plain text: the one rule or pattern behind these mistakes with the right forms, at the learner's level. Say what is wrong, never guess why the learner chose it; a tendency ("usually") is no rule; a slip (a typo) is called one in a few words. ${t} forms in ${t}.`,
     `- "items": two or three NEW items of the group's type (its fields given with the group) practising the same point, in ${t} — never a sentence of the mistakes again —, with the words the learner knows (given with the lesson) and the grammar met so far; each with exactly one right answer; options are all real ${t} words or forms, all different. A gap typed always has its cue in brackets right after it (the base form, or the word in ${l}): without one, other right words would be marked wrong; the cue is never the answer itself (a spelling practised: the word in ${l}). An order has one right order only. Every word a real ${t} word; nothing asked that general knowledge answers rather than ${t}. A true/false choice has its statement in "prompt".`,
@@ -204,11 +209,12 @@ export function mistakeItemsTask(input: MistakeItemsInput): StructuredTask<Mista
     name: "mistake_items",
     schema: MistakeItemsReply,
     check: (reply) => itemsProblem(input.groups, reply),
+    fix: (reply) => genderFreeReply(reply, input.language),
     quality: (reply) =>
       (reply.groups.some((g) => writtenIn(g.explanation, input.language, input.target) === false)
         ? `"explanation" in ${languageName(input.language)}, in its own script (never transliterated)`
         : undefined) ??
-      genderProblem(
+      learnerWordsProblem(
         reply.groups.map((g) => g.explanation),
         input.language,
       ),
@@ -273,7 +279,7 @@ export function mistakeItemsCheckRules(
   const { target: t } = names;
   return [
     `You try practice items in ${t} before a learner gets them: answer each from the item alone, as someone who knows ${t} well would. A word in brackets after a gap is its cue: the base form to put in the right form, or the word to say in ${t}.`,
-    `- For each item "n" (its number): a choice — "choice", the letter of the option; gaps — "gaps", for each gap in order the word written (typed gaps) or the letter of its option; parts to put in order — "order", their letters in the order that makes the sentence or the text; null where the item has none.`,
+    `- For each item "n" (its number): a choice — "choice", the letter of the option; gaps — "gaps", for each gap in order the word written (typed gaps) or the letter of its option (gaps with options: their letters in "gaps", never in "choice", one gap too); parts to put in order — "order", their letters in the order that makes the sentence or the text; null where the item has none.`,
     `- "ambiguous": true when more than one answer fits a gap or a question, when the parts make more than one right order, or when none fits (a true/false without its statement); still give your best answer.`,
   ].join("\n");
 }
@@ -339,6 +345,22 @@ function cueIsAnswer(item: MistakeItem) {
   );
 }
 
+/** A gap_choice answered blind, as the item takes it (`{ g1, g2… }`, each an option's letter): the
+ *  gaps' letters — for an item of one gap, its "choice" when "gaps" is empty —, a gap answered with
+ *  its option's word read as that option's letter (models answer all three ways). */
+function chosenLetters(item: MistakeItem, a: MistakeItemsCheck["answers"][number]) {
+  const given = a.gaps?.length ? a.gaps : item.gaps?.length === 1 && a.choice ? [a.choice] : [];
+  return Object.fromEntries(
+    given.map((g, k) => {
+      const said = g.trim().toLowerCase();
+      const word = (item.gaps?.[k]?.options ?? []).findIndex(
+        (o) => o.trim().toLowerCase() === said,
+      );
+      return [`g${k + 1}`, word >= 0 ? LETTER[word] : said];
+    }),
+  );
+}
+
 /**
  * The items the blind answers settle as their keys do: one answered otherwise, found ambiguous or
  * not answered is left out (a match's kept), and — a spelling or a word gone over (`what`) — a typed
@@ -369,12 +391,9 @@ export function settledItems(
                 (l) => LETTER[shown[LETTER.indexOf(l.trim().toLowerCase())] ?? -1] ?? "?",
               ),
             }
-          : Object.fromEntries(
-              (a.gaps ?? []).map((g, k) => [
-                `g${k + 1}`,
-                type === "gap_choice" ? g.trim().toLowerCase() : g,
-              ]),
-            );
+          : type === "gap_choice"
+            ? chosenLetters(item, a)
+            : Object.fromEntries((a.gaps ?? []).map((g, k) => [`g${k + 1}`, g]));
     try {
       return right(item, answer);
     } catch {

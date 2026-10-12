@@ -46,24 +46,33 @@ export function quotes(text: string, wrong: string) {
   return at >= 0;
 }
 
-/** A word of a spoken answer's "corrected" that is neither heard nor a correction's — a heard word
- *  spelled anew ("Friisör") —: the problem the check is asked again once for. A compound written
- *  apart or together, and a number said as a word for the recogniser's digits, are no change. */
+/** Whether word `w` is part of one of `others` or holds one: a compound written together or apart. */
+const within = (w: string, others: string[]) =>
+  others.some((s) => (s.length >= 4 && w.includes(s)) || (w.length >= 4 && s.includes(w)));
+
+/** A word of a checked text's "corrected" that is neither the text's nor a correction's — a heard word
+ *  spelled anew ("Friisör") —, and with `dropped` a word of the text gone from it without a
+ *  correction quoting it (a writing check's "Hallo zusammen!" made "Hallo!"): the problem the check
+ *  is asked again once for. A compound written apart or together, and a number said as a word for
+ *  the recogniser's digits, are no change. */
 export function unlistedChange(
   check: { corrected: string; corrections: Correction[] },
-  heard: string,
+  text: string,
+  dropped = false,
 ): string | undefined {
   if (!check.corrected.trim()) return undefined;
-  const said = words(heard).split(" ").filter(Boolean);
+  const said = words(text).split(" ").filter(Boolean);
+  const made = words(check.corrected).split(" ").filter(Boolean);
   const listed = new Set([...said, ...check.corrections.flatMap((c) => words(c.right).split(" "))]);
-  const within = (w: string) =>
-    said.some((s) => (s.length >= 4 && w.includes(s)) || (w.length >= 4 && s.includes(w)));
-  const changed = words(check.corrected)
-    .split(" ")
-    .filter((w) => w && !listed.has(w) && !isNumber(w) && !within(w));
+  const changed = made.filter((w) => !listed.has(w) && !isNumber(w) && !within(w, said));
   const digits = said.filter(isNumber).length;
-  return changed.length > digits
-    ? `"corrected" makes only the changes "corrections" list: "${changed[0]}" is neither said nor a correction's`
+  if (changed.length > digits)
+    return `"corrected" makes only the changes "corrections" list: "${changed[0]}" is neither in the text nor a correction's`;
+  if (!dropped) return undefined;
+  const quoted = new Set([...made, ...check.corrections.flatMap((c) => words(c.wrong).split(" "))]);
+  const gone = said.find((w) => !quoted.has(w) && !isNumber(w) && !within(w, made));
+  return gone
+    ? `"corrected" makes only the changes "corrections" list: "${gone}" of the text is left out without a correction quoting it`
     : undefined;
 }
 

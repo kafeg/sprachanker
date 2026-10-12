@@ -77,10 +77,88 @@ export function genderMarked(texts: string[], language: Lang, own = true): strin
   return undefined;
 }
 
-/** The problem a reply is asked again once for: the words that mark the learner's gender. */
+/** How to rewrite a mark keeping the sentence whole (data): models asked only to "rebuild" it lost
+ *  the person meant ("что ты хотел бы мне рассказать?" → "что хотелось бы мне рассказать?"). */
+const REWRITE: Partial<Record<Lang, string>> = {
+  ru: 'change only the words that mark it, keeping who is meant and every case: "ты хотел бы X" → "тебе хотелось бы X", "я хотел бы" → "мне хотелось бы", "ты решил" → "у тебя получилось решить", "ты готов?" → "можно начинать?"; "тебе", "мне" and "ты" stay where they were; then reread the whole sentence: correct Russian, the same meaning',
+  uk: 'change only the words that mark it, keeping who is meant and every case: "ти хотів би X" → "тобі хотілося б X", "я хотів би" → "мені хотілося б", "ти знайшов" → "тобі вдалося знайти", "ти готовий?" → "можна починати?"; "тобі", "мені" and "ти" stay where they were; then reread the whole sentence: correct Ukrainian, the same meaning',
+  pl: 'change only the words that mark it, keeping who is meant and every case: "chciałbyś X" → "masz ochotę X", "chciałbym" → "poproszę" or "chcę", "znalazłeś" → "udało ci się znaleźć", "jesteś gotowy?" → "możemy zaczynać?"; then reread the whole sentence: correct Polish, the same meaning',
+};
+
+/** The problem a reply is asked again once for: the words that mark the learner's gender, and how
+ *  the learner's language rewrites them. */
 export function genderProblem(texts: string[], language: Lang, own = true): string | undefined {
   const found = genderMarked(texts, language, own);
   return found
-    ? `"${found}" marks the learner's gender, which is unknown: rebuild the sentence without it`
+    ? `"${found}" marks the learner's gender, which is unknown: ${REWRITE[language] ?? "rebuild the sentence without it"}`
     : undefined;
+}
+
+/** "Would like to" with an infinitive after it, the commonest mark: the person in the dative, the
+ *  verb impersonal (data: the pronouns' datives, the verb's forms and its impersonal one, the
+ *  particle, an infinitive's ending). */
+const WOULD_LIKE: Partial<
+  Record<
+    Lang,
+    { dative: Record<string, string>; verb: string; it: string; bi: string; inf: string }
+  >
+> = {
+  ru: {
+    dative: { ты: "тебе", я: "мне" },
+    verb: "хотела?",
+    it: "хотелось",
+    bi: "бы",
+    inf: "(?:ть|ти|чь)(?:ся|сь)?",
+  },
+  uk: {
+    dative: { ти: "тобі", я: "мені" },
+    verb: "хотів|хотіла",
+    it: "хотілося",
+    bi: "би|б",
+    inf: "(?:ти|ть)(?:ся|сь)?",
+  },
+};
+
+/**
+ * `text` with "would like to" said without the learner's gender, where it is safe in code: an
+ * infinitive follows within the clause, the person is kept in the dative, every other word as it
+ * was ("Что бы ты хотел узнать?" → "Что бы тебе хотелось узнать?", "что ты хотел бы мне рассказать"
+ * → "что тебе хотелось бы мне рассказать"). Without an infinitive ("ты хотел бы кофе?") it is left
+ * to the model, asked again with how to rewrite it (`genderProblem`).
+ */
+export function genderFree(text: string, language: Lang): string {
+  const d = WOULD_LIKE[language];
+  if (!d) return text;
+  const p = `(?<p>${Object.keys(d.dative).join("|")})`;
+  const [verb, bi] = [`(?:${d.verb})`, `(?<b>${d.bi})`];
+  const then = `${R}(?=(?:\\s+\\p{L}+){0,3}?\\s+\\p{L}+${d.inf}${R})`;
+  const forms: Array<[string, (dat: string, b: string) => string]> = [
+    [`${p}\\s+${verb}\\s+${bi}`, (dat, b) => `${dat} ${d.it} ${b}`], // ты хотел бы
+    [`${p}\\s+${bi}\\s+${verb}`, (dat, b) => `${dat} ${b} ${d.it}`], // ты бы хотел
+    [`${verb}\\s+${bi}\\s+${p}`, (dat, b) => `${d.it} ${b} ${dat}`], // хотел бы ты
+    [`${bi}\\s+${p}\\s+${verb}`, (dat, b) => `${b} ${dat} ${d.it}`], // бы ты хотел
+  ];
+  return forms.reduce(
+    (out, [source, made]) =>
+      out.replace(new RegExp(`${L}${source}${then}`, "giu"), (found, ...rest) => {
+        const g = rest.at(-1) as { p: string; b: string };
+        const said = made(d.dative[g.p.toLowerCase()] ?? g.p, g.b.toLowerCase());
+        const upper = found[0] !== found[0]?.toLowerCase();
+        return upper ? `${said[0]?.toUpperCase()}${said.slice(1)}` : said;
+      }),
+    text,
+  );
+}
+
+/** A reply with every string's "would like to" made gender-free (`genderFree`): a task's fix. */
+export function genderFreeReply<T>(value: T, language: Lang): T {
+  const walk = (v: unknown): unknown =>
+    typeof v === "string"
+      ? genderFree(v, language)
+      : Array.isArray(v)
+        ? v.map(walk)
+        : v && typeof v === "object"
+          ? Object.fromEntries(Object.entries(v).map(([k, x]) => [k, walk(x)]))
+          : v;
+  return WOULD_LIKE[language] ? (walk(value) as T) : value;
 }

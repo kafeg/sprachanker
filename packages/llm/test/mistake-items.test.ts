@@ -2,10 +2,14 @@
 // items' type and fields, each mistake its wrong part only —; the rules (what is wrong, never why; new
 // items of the type, never a sentence again); every group answered once, each item valid for its type.
 import { expect, test } from "bun:test";
+import type { MistakeItem } from "@sprachanker/schema";
 import { mistakeLine, wrongPartLine } from "../src/tasks/describe.ts";
 import {
+  type MistakeItemsCheck,
   type MistakeItemsInput,
   type MistakeItemsReply,
+  mistakeItemOf,
+  mistakeItemsCheckRules,
   mistakeItemsCheckTask,
   mistakeItemsRules,
   mistakeItemsTask,
@@ -65,12 +69,13 @@ test("the groups as data: what went wrong, the new items' type and fields, the w
     expect(system).toContain(part);
   expect(system).not.toContain("A1");
   expect(system).toEndWith(
-    `Reply with the JSON object only.\nWrite only in Russian and German: not a word in any other language.\n${GENDER_FREE.ru}`,
+    `Reply with the JSON object only.\nWrite only in Russian and German: not a word in any other language. Each word in its own language's letters: never two alphabets in one word, never a German word spelt in Russian letters.\n${GENDER_FREE.ru}`,
   );
   expect(user).toContain(
     'Group 1 — what went wrong: the ending or form of a word; new items: gap_text, with "text" (a sentence with each gap written ___',
   );
-  expect(user).toContain('- learner "musst", correct "muss" in "In der WG [_] Nina heute kochen."');
+  // The gap as items write theirs (a model copies "[_]").
+  expect(user).toContain('- learner "musst", correct "muss" in "In der WG ___ Nina heute kochen."');
   expect(user).toContain('- learner (no answer), correct "Im Café." to "Wo ist Lena?"');
   expect(user).toContain("Grammar notes of this lesson:\nModalverben: ich muss, du musst");
   expect(user).toEndWith("Remember: 2 groups; explanations in Russian, the items in German.");
@@ -306,4 +311,72 @@ test("an order tried blind: its parts shown by their text, the order chosen read
   );
   expect(sequences).toEqual([{ sequence: ["c", "b", "a", "d"] }, { sequence: ["a", "b", "c"] }]);
   expect(kept).toEqual(items.slice(1));
+});
+
+test("gaps with options tried blind: their letters in gaps, a one-gap item's choice, an option's word read as its letter (real replies)", () => {
+  const items = [
+    {
+      text: "Ohne deine Hilfe ___ ich jetzt sehr traurig.",
+      gaps: [{ options: ["würde", "wäre", "war"], answer: 1 }],
+    },
+    {
+      text: "Wenn das Wetter besser ___, ___ wir jetzt im Park.",
+      gaps: [
+        { options: ["wäre", "würde", "war"], answer: 0 },
+        { options: ["wären", "würden", "waren"], answer: 0 },
+      ],
+    },
+    {
+      text: "An deiner Stelle ___ ich vorsichtiger.",
+      gaps: [{ options: ["würde", "wäre", "bin"], answer: 1 }],
+    },
+  ];
+  const right = (item: MistakeItem, answer: unknown) =>
+    (item.gaps ?? []).every(
+      (g, k) => (answer as Record<string, string>)[`g${k + 1}`] === "abc"[g.answer ?? 0],
+    );
+  const settled = (answers: MistakeItemsCheck["answers"]) =>
+    settledItems("gap_choice", items, { answers }, right);
+  const one = { order: null, ambiguous: false };
+  // Claude Sonnet: the word in "gaps", the letter in "choice" beside it.
+  expect(
+    settled([
+      { n: 1, choice: "b", gaps: ["wäre"], ...one },
+      { n: 2, choice: null, gaps: ["wäre", "wären"], ...one },
+      { n: 3, choice: "b", gaps: ["wäre"], ...one },
+    ]),
+  ).toEqual(items);
+  // The letter in "choice" only, "gaps" empty: a one-gap item's answer; two gaps need theirs.
+  expect(
+    settled([
+      { n: 1, choice: "b", gaps: null, ...one },
+      { n: 2, choice: "a", gaps: null, ...one },
+      { n: 3, choice: "a", gaps: [], ...one },
+    ]),
+  ).toEqual(items.slice(0, 1));
+  // Letters in "gaps", as the rules ask.
+  expect(settled([{ n: 2, choice: null, gaps: ["A", "a"], ...one }])).toEqual(items.slice(1, 2));
+  expect(mistakeItemsCheckRules("ru", "de")).toContain(
+    'their letters in "gaps", never in "choice"',
+  );
+});
+
+test('a gap written "[_]", as the mistakes showed it, is kept as "___"', () => {
+  const reply = {
+    prompt: null,
+    options: null,
+    answer: null,
+    text: "Das ist der Kameramann, [_] dem er gern zusammenarbeitet.",
+    gaps: [{ accepted: null, options: ["mit", "von", "für"], answer: 0 }],
+    parts: null,
+    pairs: null,
+  };
+  expect(mistakeItemOf(reply).text).toBe(
+    "Das ist der Kameramann, ___ dem er gern zusammenarbeitet.",
+  );
+  const { check } = mistakeItemsTask({
+    ...input,
+    groups: [{ type: "gap_choice", what: "choice", mistakes: [] }],
+  });
+  expect(check?.({ groups: [{ n: 1, explanation: "…", items: [reply, reply] }] })).toBeUndefined();
 });
