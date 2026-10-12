@@ -1295,6 +1295,7 @@
     "sayIn": "Mondd ki ezen a nyelven: {language}",
     "notHeardShort": "Nem sikerült felismerni. Próbáld újra.",
     "nothingHeard": "Semmi sem hallatszott. Mondd el újra, kicsit hangosabban.",
+    "starting": "Indul a hang… az első felolvasás fél percig is tarthat.",
     "answerSample": "Minta",
     "aiChecking": "Az MI ellenőrzi a válaszodat…",
     "needsRecognition": "Egy mondat kimondásához beszédfelismerés kell: kapcsold be itt: Beállítások → Beszéd.",
@@ -1628,7 +1629,7 @@
       "reading": "elolvasandó szöveg"
     },
     "listen": "Meghallgatás",
-    "resume": "Tovább",
+    "resume": "Hallgatás folytatása",
     "replay": "Elölről",
     "line": "{n, number}. mondat / {total, number}",
     "heard": "{count, plural, one {Egyszer meghallgatva} other {# alkalommal meghallgatva}}",

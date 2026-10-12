@@ -1295,6 +1295,7 @@
     "sayIn": "用{language}说",
     "notHeardShort": "无法识别。请再试一次。",
     "nothingHeard": "什么也没听到。请再说一遍，稍微大声一点。",
+    "starting": "正在启动语音……首次朗读可能需要半分钟。",
     "answerSample": "示例",
     "aiChecking": "AI正在检查你的答案…",
     "needsRecognition": "说句子需要语音识别：请在“设置 → 语音”中开启。",
@@ -1628,7 +1629,7 @@
       "reading": "供读的文本"
     },
     "listen": "听",
-    "resume": "继续",
+    "resume": "继续收听",
     "replay": "从头开始",
     "line": "第{n, number}句，共{total, number}句",
     "heard": "{count, plural, other {已听#遍}}",

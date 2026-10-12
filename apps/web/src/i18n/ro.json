@@ -1295,6 +1295,7 @@
     "sayIn": "Spune în {language}",
     "notHeardShort": "Nu s-a putut recunoaște. Încearcă din nou.",
     "nothingHeard": "Nu s-a auzit nimic. Spune din nou, puțin mai tare.",
+    "starting": "Vocea pornește… prima citire poate dura o jumătate de minut.",
     "answerSample": "Model",
     "aiChecking": "AI-ul îți verifică răspunsul…",
     "needsRecognition": "Ca să spui o frază ai nevoie de recunoașterea vorbirii: activeaz-o în Setări → Vorbire.",
@@ -1628,7 +1629,7 @@
       "reading": "un text de citit"
     },
     "listen": "Ascultă",
-    "resume": "Continuă",
+    "resume": "Continuă ascultarea",
     "replay": "De la început",
     "line": "Replica {n, number} din {total, number}",
     "heard": "{count, plural, one {Ascultat o dată} few {Ascultat de # ori} other {Ascultat de # de ori}}",

@@ -106,9 +106,15 @@ writes (owner, 2026-10-08).
   listening is what reading aloud is mostly for): its lines one after another on request ("Listen"),
   paused and played on from the line it was at, from the start again, as often as wanted
   (`audio/listening.ts`); a dialogue's second speaker by another voice of the language where there
-  is one — Piper's next installed voice of it, Qwen3-TTS's next speaker, the device's next best voice
-  —, else by the same one; a line the server reads is kept in its reading cache, so hearing it again
-  makes nothing anew. Nothing here reading the language, the text is shown to read instead and the
+  is one — of the other gender where the server's voices say theirs (Qwen3-TTS's speakers, Piper's
+  voices by name: `audio/voice-genders.ts`), else Piper's next installed voice of it, Qwen3-TTS's next
+  speaker, the device's next best voice —, else by the same one; which speaker that is, by their names
+  only where obvious ("Frau Weber", "Nina": the one the main voice does not suit), else the second to
+  speak; every line from where it plays asked of the server at once, one after another, so the next
+  is ready when one ends; a line the server reads is kept in its reading cache, so hearing it again
+  makes nothing anew. A reading that waits for the server's voice longer than a moment (Qwen3-TTS
+  loading its model: half a minute the first time) says so ("Starting the voice…"), on "Listen" in
+  Settings too. Nothing here reading the language, the text is shown to read instead and the
   step says what listening needs. Where a line is to be listened to, the engine and voice reading it are named, as
   the model is ("Read by Piper · thorsten", "Read by this device · Anna"; a dialogue read by two
   voices, both: "Read by Piper · thorsten and eva k"; 09). A card's

@@ -1295,6 +1295,7 @@
     "sayIn": "Dis-le en {language}",
     "notHeardShort": "Rien n’a pu être reconnu. Réessaie.",
     "nothingHeard": "Rien n’a été entendu. Redis-le, un peu plus fort.",
+    "starting": "La voix démarre… la première lecture peut prendre une demi-minute.",
     "answerSample": "Modèle",
     "aiChecking": "L’IA vérifie ta réponse…",
     "needsRecognition": "Dire une phrase nécessite la reconnaissance vocale : active-la dans Réglages → Parole.",
@@ -1628,7 +1629,7 @@
       "reading": "un texte à lire"
     },
     "listen": "Écouter",
-    "resume": "Continuer",
+    "resume": "Continuer l’écoute",
     "replay": "Depuis le début",
     "line": "Ligne {n, number} sur {total, number}",
     "heard": "{count, plural, one {Écouté une fois} many {Écouté # de fois} other {Écouté # fois}}",

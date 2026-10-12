@@ -14,6 +14,7 @@ import { useListening } from "@/audio/listening.ts";
 import { ReadByLabel } from "@/audio/read-by.tsx";
 import type { SpokenPart } from "@/audio/speak.ts";
 import { useSpeaker } from "@/audio/speaker.ts";
+import { type Gender, otherSpeaker } from "@/audio/voice-genders.ts";
 import { languageName } from "@/i18n/index.ts";
 import type { LessonSlotContext } from "@/lesson/slots.ts";
 import {
@@ -44,9 +45,10 @@ const speakersOf = (text: UnderstandingText) => [
   ...new Set(text.lines.flatMap((l) => (l.speaker ? [l.speaker] : []))),
 ];
 
-/** The text as it is read aloud: a line each, the second speaker by the language's other voice. */
-const partsOf = (text: UnderstandingText, lang: string): SpokenPart[] => {
-  const second = speakersOf(text)[1];
+/** The text as it is read aloud: a line each, one speaker by the language's other voice — the one
+ *  whose name says the main voice does not suit them, else the second to speak. */
+const partsOf = (text: UnderstandingText, lang: string, main: Gender | undefined): SpokenPart[] => {
+  const second = otherSpeaker(speakersOf(text), main);
   return text.lines.map((l) => ({
     text: l.text,
     lang,
@@ -57,7 +59,8 @@ const partsOf = (text: UnderstandingText, lang: string): SpokenPart[] => {
 /** The text to listen to: who reads it, play or pause, from the start, which line, how often heard. */
 function Listen({ text, lang }: { text: UnderstandingText; lang: string }) {
   const { t } = useTranslation();
-  const parts = partsOf(text, lang);
+  const speaker = useSpeaker();
+  const parts = partsOf(text, lang, speaker.gender(lang));
   const listening = useListening(parts);
   const going = listening.playing || listening.at > 0;
   return (
@@ -78,9 +81,11 @@ function Listen({ text, lang }: { text: UnderstandingText; lang: string }) {
           <RotateCcw /> {t("understanding.replay")}
         </Button>
         <span className="text-sm text-muted-foreground" aria-live="polite">
-          {going
-            ? t("understanding.line", { n: listening.at + 1, total: parts.length })
-            : listening.plays > 0 && t("understanding.heard", { count: listening.plays })}
+          {listening.playing && speaker.waiting
+            ? t("speech.starting")
+            : going
+              ? t("understanding.line", { n: listening.at + 1, total: parts.length })
+              : listening.plays > 0 && t("understanding.heard", { count: listening.plays })}
         </span>
       </div>
     </div>

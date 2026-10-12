@@ -8,6 +8,7 @@ import { useReadLanguages } from "../../src/audio/read-languages.ts";
 import { samplesOf } from "../../src/audio/samples.ts";
 import type { SpokenPart } from "../../src/audio/speak.ts";
 import { SpeakButton } from "../../src/audio/speak-button.tsx";
+import { stop } from "../../src/audio/speaker.ts";
 import { ChatBubble } from "../../src/llm/parts.tsx";
 import { queryClient, renderApp } from "../render.tsx";
 
@@ -228,6 +229,21 @@ test("Settings with Piper: each language's voices — the one reading, those to 
   expect(rows.some((r) => r?.includes("50 %") || r?.includes("50%"))).toBe(true);
   expect(view.getByText(/No voice for Russian yet/)).toBeTruthy();
   expect(view.getAllByRole("button", { name: "Download" }).length).toBeGreaterThan(0);
+
+  // "Listen" while the server's voice takes its time (a model loading): said, not just a pressed
+  // button.
+  const realFetch = globalThis.fetch;
+  globalThis.fetch = (() => new Promise(() => {})) as unknown as typeof fetch;
+  try {
+    fireEvent.click(view.getByRole("button", { name: "Listen" }));
+    expect(view.queryByText(/^Starting the voice/)).toBeNull();
+    await waitFor(() => expect(view.getByText(/^Starting the voice/)).toBeTruthy(), {
+      timeout: 2000,
+    });
+  } finally {
+    act(() => stop());
+    globalThis.fetch = realFetch;
+  }
 });
 
 test("reading with Piper: a language with a voice is said by the server, one without by the device", async () => {
@@ -447,6 +463,77 @@ test("with Piper, the second speaker's lines are asked of another voice of the l
       ["Hallo!", "de_AT-hmm-low"],
       ["Zwei Brötchen, bitte.", undefined],
     ]);
+  } finally {
+    globalThis.fetch = realFetch;
+    (globalThis as { Audio: unknown }).Audio = realAudio;
+  }
+});
+
+test("the second speaker by a voice of the other gender where the voices say theirs; every line asked for before the first ends", async () => {
+  const asked: Array<{ text: string; voice?: string }> = [];
+  const ends: Array<() => void> = [];
+  const realFetch = globalThis.fetch;
+  const realAudio = globalThis.Audio;
+  globalThis.fetch = (async (input: RequestInfo | URL, init?: RequestInit) => {
+    const request = input instanceof Request ? input : new Request(String(input), init);
+    asked.push((await request.json()) as { text: string; voice?: string });
+    return new Response(new Blob([new Uint8Array([1])], { type: "audio/wav" }));
+  }) as typeof fetch;
+  (globalThis as { Audio: unknown }).Audio = class {
+    onended?: () => void;
+    async play() {
+      ends.push(() => this.onended?.());
+    }
+    pause() {}
+  };
+  const voice = (id: string, name: string) => ({
+    id,
+    lang: "de",
+    region: "DE",
+    name,
+    quality: "medium",
+    bytes: 6e7,
+    installed: true,
+  });
+  const three = {
+    ...PIPER,
+    voices: [
+      voice("de_DE-thorsten-medium", "thorsten"),
+      voice("de_DE-karlsson-low", "karlsson"),
+      voice("de_DE-eva_k-x_low", "eva_k"),
+    ],
+  };
+  try {
+    const view = await renderApp(
+      <>
+        <ReadByLabel lang="de" two />
+        <Listener parts={DIALOGUE} />
+      </>,
+      {
+        data: [
+          [["settings"], { "speech.readEngine": "piper" }],
+          [["piper-voices"], three],
+        ],
+      },
+    );
+    // Thorsten reads; the other speaker not by Karlsson (a man too) but by Eva K.
+    expect(view.getByText("Read by Piper · thorsten and eva k")).toBeTruthy();
+    fireEvent.click(view.getByRole("button", { name: "play" }));
+    await waitFor(() => expect(ends).toHaveLength(1));
+    // The first line playing: the others asked for already, in order.
+    await waitFor(() => expect(asked).toHaveLength(3));
+    expect(asked.map((a) => [a.text, a.voice])).toEqual([
+      ["Guten Morgen!", undefined],
+      ["Hallo!", "de_DE-eva_k-x_low"],
+      ["Zwei Brötchen, bitte.", undefined],
+    ]);
+    for (let i = 0; i < 3; i++) {
+      await waitFor(() => expect(ends).toHaveLength(i + 1));
+      act(() => ends[i]?.());
+    }
+    await waitFor(() => expect(view.getByText("at 0 · heard 1 · still")).toBeTruthy());
+    // Asked once each: what was asked ahead is what is read.
+    expect(asked).toHaveLength(3);
   } finally {
     globalThis.fetch = realFetch;
     (globalThis as { Audio: unknown }).Audio = realAudio;

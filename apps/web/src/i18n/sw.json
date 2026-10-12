@@ -1295,6 +1295,7 @@
     "sayIn": "Itamke kwa {language}",
     "notHeardShort": "Haikuweza kutambuliwa. Jaribu tena.",
     "nothingHeard": "Hakuna kilichosikika. Sema tena, kwa sauti kubwa kidogo.",
+    "starting": "Sauti inaanzishwa… usomaji wa kwanza unaweza kuchukua nusu dakika.",
     "answerSample": "Mfano",
     "aiChecking": "AI inakagua jibu lako…",
     "needsRecognition": "Kutamka sentensi kunahitaji utambuzi wa sauti: uwashe katika Mipangilio → Sauti.",
@@ -1628,7 +1629,7 @@
       "reading": "maandishi ya kusoma"
     },
     "listen": "Sikiliza",
-    "resume": "Endelea",
+    "resume": "Endelea kusikiliza",
     "replay": "Tangu mwanzo",
     "line": "Sentensi {n, number} kati ya {total, number}",
     "heard": "{count, plural, one {Imesikilizwa mara moja} other {Imesikilizwa mara #}}",
