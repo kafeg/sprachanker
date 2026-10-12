@@ -106,8 +106,8 @@ const NEW_ITEMS: Record<string, unknown[]> = {
     { prompt: "FAKE: Wo ist Anna?", options: ["Im Café.", "Im Park."], answer: 0 },
   ],
   gap_text: [
-    { text: "Ich ___ Tee.", gaps: [{ accepted: ["trinke"] }] },
-    { text: "Du ___ Tee.", gaps: [{ accepted: ["trinkst"] }] },
+    { text: "Ich ___ (trinken) Tee.", gaps: [{ accepted: ["trinke"] }] },
+    { text: "Du ___ (trinken) Tee.", gaps: [{ accepted: ["trinkst"] }] },
   ],
   gap_choice: [
     { text: "Ich ___ Tee.", gaps: [{ options: ["trinke", "trinkst"], answer: 0 }] },
@@ -146,6 +146,21 @@ const mistakeItems = (prompt: string) => ({
     explanation: "FAKE: read the question again.",
     items: (NEW_ITEMS[type as string] ?? []).map(full),
   })),
+});
+
+/** The new items tried blind, each answered as keyed (the fake's own: a choice's first option; "Ich"
+ *  the first form, "Du" the second). */
+const itemsTried = (prompt: string) => ({
+  answers: [...prompt.matchAll(/^(\d+)\. (.*)$/gm)].map(([, n, line = ""]) => {
+    const du = /\bDu\b/.test(line);
+    const typed = line.includes("(trinken)");
+    return {
+      n: Number(n),
+      choice: "a",
+      gaps: [typed ? (du ? "trinkst" : "trinke") : du ? "b" : "a"],
+      ambiguous: false,
+    };
+  }),
 });
 
 /** Three examples for each word numbered in <words> ("1. der Kaffee, die Kaffees — coffee (noun)" →
@@ -259,9 +274,11 @@ if (import.meta.main) {
                 ? wordExamples(body.messages.at(-1)?.content ?? "")
                 : task === "mistake_items"
                   ? mistakeItems(body.messages.at(-1)?.content ?? "")
-                  : task === "exam_conversation"
-                    ? conversation(body.messages.at(-1)?.content ?? "")
-                    : (STRUCTURED[task] ?? WRITING_CHECK),
+                  : task === "mistake_items_check"
+                    ? itemsTried(body.messages.at(-1)?.content ?? "")
+                    : task === "exam_conversation"
+                      ? conversation(body.messages.at(-1)?.content ?? "")
+                      : (STRUCTURED[task] ?? WRITING_CHECK),
             );
         return Response.json({ choices: [{ message: { role: "assistant", content } }] });
       }

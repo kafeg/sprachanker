@@ -1627,7 +1627,17 @@
       "order": "语序",
       "pair": "配对",
       "spelling": "拼写",
-      "spoken": "口头回答"
+      "spoken": "口头回答",
+      "sentence_order": "句子顺序",
+      "misheard": "听错",
+      "misread": "读错",
+      "comprehension": "理解文本"
+    },
+    "inText": "文中：",
+    "more": "本轮还有 {n, plural, other {# 处错误}}未在此讲解。",
+    "listed": {
+      "spoken": "说出的回答没有新练习：请在原练习中再说一遍。",
+      "comprehension": "再听或再读一遍文本：答案就在其中。"
     }
   }
 }

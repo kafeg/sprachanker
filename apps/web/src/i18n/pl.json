@@ -1627,7 +1627,17 @@
       "order": "Szyk wyrazów",
       "pair": "Pary",
       "spelling": "Pisownia",
-      "spoken": "Powiedziane na głos"
+      "spoken": "Powiedziane na głos",
+      "sentence_order": "Kolejność zdań",
+      "misheard": "Źle usłyszane",
+      "misread": "Źle przeczytane",
+      "comprehension": "Rozumienie tekstu"
+    },
+    "inText": "W tekście:",
+    "more": "Nie omówiono tutaj: jeszcze {n, plural, one {# błąd} few {# błędy} many {# błędów} other {# błędu}} z tego podejścia.",
+    "listed": {
+      "spoken": "Brak nowych zadań do tego, co powiedziane na głos: powiedz to jeszcze raz w jego ćwiczeniu.",
+      "comprehension": "Posłuchaj tekstu albo przeczytaj go jeszcze raz: odpowiedź w nim jest."
     }
   }
 }

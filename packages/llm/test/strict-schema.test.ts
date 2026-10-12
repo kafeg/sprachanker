@@ -7,7 +7,7 @@ import { type StructuredTask, structuredRequest } from "../src/structured.ts";
 import { checkSpeakingTask } from "../src/tasks/check-speaking.ts";
 import { checkWritingTask } from "../src/tasks/check-writing.ts";
 import { examConversationTask } from "../src/tasks/exam-conversation.ts";
-import { mistakeItemsTask } from "../src/tasks/mistake-items.ts";
+import { mistakeItemsCheckTask, mistakeItemsTask } from "../src/tasks/mistake-items.ts";
 import { rateExamAnswerTask } from "../src/tasks/rate-exam-answer.ts";
 import { sceneSetupTask, sceneSummaryTask, sceneTurnTask } from "../src/tasks/scene.ts";
 import { wordExamplesTask } from "../src/tasks/word-examples.ts";
@@ -28,6 +28,7 @@ const TASKS: StructuredTask<unknown>[] = [
   checkWritingTask({ ...RU_DE, lesson, task: WRITING, text: "Ich heiße Anna." }),
   writingTaskTask({ ...RU_DE, lesson }),
   mistakeItemsTask({ ...RU_DE, lesson, groups: [] }),
+  mistakeItemsCheckTask({ ...RU_DE, type: "single_choice", items: [] }),
   checkSpeakingTask({ ...RU_DE, lesson, exercise: speaking, index: 0, transcript: "Hallo" }),
   examConversationTask({ ...RU_DE, exam: "E", part: "Teil 1", task: [], partner: "", history: [] }),
   rateExamAnswerTask({ ...RU_DE, exam: "E", task: [], criteria: [], samples: [], answer: "A" }),

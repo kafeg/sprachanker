@@ -1627,7 +1627,17 @@
       "order": "Orden de las palabras",
       "pair": "Parejas",
       "spelling": "Ortografía",
-      "spoken": "Dicho en voz alta"
+      "spoken": "Dicho en voz alta",
+      "sentence_order": "Orden de las oraciones",
+      "misheard": "Mal oído",
+      "misread": "Mal leído",
+      "comprehension": "Comprensión del texto"
+    },
+    "inText": "En el texto:",
+    "more": "{n, plural, one {# error más} other {# errores más}} de esta pasada sin repasar aquí.",
+    "listed": {
+      "spoken": "No hay ejercicios nuevos para lo dicho en voz alta: dilo otra vez en su ejercicio.",
+      "comprehension": "Vuelve a escuchar o a leer el texto: la respuesta está en él."
     }
   }
 }

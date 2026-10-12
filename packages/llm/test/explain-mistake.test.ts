@@ -94,7 +94,7 @@ describe("explainMistakeMessages", () => {
     expect(system?.content).toContain("This is X from lesson 1.2 «title»");
     expect(system?.content).toContain("Write only in Russian and German");
     expect(user?.content).toContain(
-      "<lesson_notes>\nGrammar topics met so far, each with the lesson that taught it: Begrüßung — lesson 0.1 «Hallo!»; Herr und Frau — lesson 0.2\nFrau = Mrs\n</lesson_notes>",
+      "<lesson_notes>\nGrammar topics met so far, each with the lessons that taught it: Begrüßung — lesson 0.1 «Hallo!»; Herr und Frau — lesson 0.2\nFrau = Mrs\n</lesson_notes>",
     );
   });
 });

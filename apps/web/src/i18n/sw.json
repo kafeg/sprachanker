@@ -1627,7 +1627,17 @@
       "order": "Mpangilio wa maneno",
       "pair": "Jozi",
       "spelling": "Tahajia",
-      "spoken": "Yaliyosemwa kwa sauti"
+      "spoken": "Yaliyosemwa kwa sauti",
+      "sentence_order": "Mpangilio wa sentensi",
+      "misheard": "Kusikia vibaya",
+      "misread": "Kusoma vibaya",
+      "comprehension": "Kuelewa maandishi"
+    },
+    "inText": "Katika maandishi:",
+    "more": "{n, plural, one {Kosa # zaidi} other {Makosa # zaidi}} ya mzunguko huu hayajapitiwa hapa.",
+    "listed": {
+      "spoken": "Hakuna mazoezi mapya kwa yaliyosemwa kwa sauti: yaseme tena katika zoezi lake.",
+      "comprehension": "Sikiliza au soma maandishi tena: jibu limo ndani yake."
     }
   }
 }

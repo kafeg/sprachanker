@@ -1,27 +1,33 @@
 // Going over mistakes (04, "AI practice in courses"; 07): the mistakes of the pass the lesson shows —
 // its items answered wrong at first and its Understanding questions answered wrong — as their wrong
-// parts only, grouped by type by the engine (`mistakeGroups`); the model gives each type a short
-// explanation and two or three new items of it (`mistake_items`). Kept as an `llm_verdict` (`task:
-// mistakes`) in that run; each answer to a new item a `practice_answered` event on it (numbered across
-// its groups), checked here by the engine as the item of its type, never by a model. The lesson's
-// reviews are read across its runs, newest first.
+// parts only, grouped by type by the engine (`mistakesToGoOver`, `mistakeGroups`); the model gives
+// each type gone over, in a call of its own, a short explanation and two or three new items of it
+// (`mistake_items`), then answers those items blind (`mistake_items_check`): only the items it
+// settles as their keys do are kept, none kept asks the type once more. The types listed only
+// (answers said aloud, Understanding's questions) need no call. Kept as an
+// `llm_verdict` (`task: mistakes`) in that run; each answer to a new item a `practice_answered` event
+// on it (numbered across its groups), checked here by the engine as the item of its type, never by a
+// model. The lesson's reviews are read across its runs, newest first.
 import {
   checkMistakeItem,
-  type MistakeToGoOver,
+  type MistakeGroupDraft,
   mistakeGroups,
-  mistakesOf,
+  mistakesToGoOver,
   reviewItems,
-  understandingMistakes,
 } from "@sprachanker/engine";
 import {
+  CHECKED_TYPES,
+  type MistakeGroupInput,
   type MistakeItemsInput,
   mistakeItemOf,
+  mistakeItemsCheckTask,
   mistakeItemsTask,
+  settledItems,
   structuredRequest,
 } from "@sprachanker/llm";
 import {
-  findExercise,
   type LessonKey,
+  type MistakeItem,
   type MistakesReview,
   type Outcome,
   parseEditionId,
@@ -80,59 +86,81 @@ export function createGoingOver(deps: {
     }));
   }
 
-  /** The pass's mistakes grouped by type, and what the task gets for them. */
+  /** The pass's mistakes grouped by type (none: 409 `no_mistakes`), and what the task gets for those
+   *  gone over with new items. */
   async function inputs(request: GoingOverRequest) {
     const session = await deps.session(request.lessonKey);
     if (!session) throw new ServiceError("no_lesson_run", 409);
     const ctx = await deps.lessonContext.get(request.series, request.lessonKey, request.edition);
-    const page = (key: string) => ctx.lesson.pages.findIndex((p) => p.exercise.key === key);
-    // The items in the lesson's order, then the Understanding questions.
-    const items = mistakesOf([{ events: session.events }])
-      .sort((a, b) => page(a.exerciseKey) - page(b.exerciseKey) || a.index - b.index)
-      .flatMap((m): MistakeToGoOver[] => {
-        const exercise = findExercise(ctx.lesson, m.exerciseKey);
-        return exercise
-          ? [
-              {
-                itemKey: m.itemKey,
-                exercise,
-                locale: ctx.locale?.exercises[exercise.key],
-                index: m.index,
-                answer: m.answer,
-                ...(m.corrected !== undefined && { corrected: m.corrected }),
-              },
-            ]
-          : [];
-      });
-    const groups = mistakeGroups([...items, ...understandingMistakes(session.events)], ctx.target);
+    const { groups, more } = mistakeGroups(
+      mistakesToGoOver(session.events, ctx.lesson, ctx.locale),
+      ctx.target,
+    );
+    if (!groups.length) throw new ServiceError("no_mistakes", 409);
     const input: MistakeItemsInput = {
       language: request.language,
       target: ctx.target,
       rules: llm.rulesFor("mistakes", request.language, ctx.target),
       lesson: ctx.info,
-      groups,
+      groups: groups.filter((g): g is MistakeGroupDraft & MistakeGroupInput => !!g.type),
     };
-    return { run: session.run, input };
+    return { run: session.run, groups, more, input };
+  }
+
+  /** One type gone over, asked on its own: its explanation and the new items the blind try settles
+   *  as their keys do (`mistake_items_check`); none settled, asked once more. */
+  async function goneOver(input: MistakeItemsInput, group: MistakeGroupInput) {
+    const { type } = group;
+    let latencyMs = 0;
+    let made: { explanation: string; items: MistakeItem[]; model: string } | undefined;
+    for (let attempt = 0; attempt < 2 && !made?.items.length; attempt++) {
+      const reply = await llm.structured(mistakeItemsTask({ ...input, groups: [group] }));
+      latencyMs += reply.latencyMs;
+      const [one] = reply.result.groups;
+      const items = (one?.items ?? []).map(mistakeItemOf);
+      let kept = items;
+      if (CHECKED_TYPES.includes(type)) {
+        const tried = await llm.structured(
+          mistakeItemsCheckTask({ language: input.language, target: input.target, type, items }),
+        );
+        latencyMs += tried.latencyMs;
+        kept = settledItems(
+          type,
+          items,
+          tried.result,
+          (item, answer) => checkMistakeItem(type, item, answer, input.target).result === "correct",
+        );
+      }
+      made = { explanation: one?.explanation ?? "", items: kept, model: reply.model };
+    }
+    return { ...(made as NonNullable<typeof made>), latencyMs };
   }
 
   async function write(request: GoingOverRequest): Promise<Review> {
-    const { run, input } = await inputs(request);
-    if (!input.groups.length) throw new ServiceError("no_mistakes", 409);
-    const made = await llm.structured(mistakeItemsTask(input));
+    const { run, groups, more, input } = await inputs(request);
+    // Each type gone over in a call of its own, side by side (one call for all took up to three
+    // minutes); only types listed: no call.
+    const made = await Promise.allSettled(input.groups.map((g) => goneOver(input, g)));
+    const done = made.flatMap((m) => (m.status === "fulfilled" ? [m.value] : []));
+    const failed = made.find((m): m is PromiseRejectedResult => m.status === "rejected");
+    if (failed && !done.length) throw failed.reason;
     const result: MistakesReview = {
-      groups: input.groups.flatMap((g, i) => {
-        const reply = made.result.groups.find((r) => r.n === i + 1);
-        return reply
-          ? [{ ...g, explanation: reply.explanation, items: reply.items.map(mistakeItemOf) }]
-          : [];
+      groups: groups.map((g) => {
+        const at = input.groups.indexOf(g as MistakeGroupInput);
+        const one = made[at];
+        // A type whose call failed keeps its mistakes, without explanation or items.
+        return one?.status === "fulfilled"
+          ? { ...g, explanation: one.value.explanation, items: one.value.items }
+          : { ...g, explanation: "", items: [] };
       }),
+      ...(more > 0 && { more }),
     };
     const { verdict } = keepVerdict(store, run.id, {
       task: "mistakes",
       input: "",
       result,
-      model: made.model,
-      latencyMs: made.latencyMs,
+      model: done[0]?.model ?? "",
+      latencyMs: Math.max(0, ...done.map((d) => d.latencyMs)),
     });
     return { ...verdict, answers: [] };
   }
@@ -180,7 +208,10 @@ export function createGoingOver(deps: {
     async prompt(request: GoingOverRequest): Promise<PromptPreview> {
       const { input } = await inputs(request);
       if (!input.groups.length) throw new ServiceError("no_mistakes", 409);
-      return llm.preview(structuredRequest(mistakeItemsTask(input)));
+      // Each type is asked on its own: the first type's request.
+      return llm.preview(
+        structuredRequest(mistakeItemsTask({ ...input, groups: input.groups.slice(0, 1) })),
+      );
     },
   };
 }

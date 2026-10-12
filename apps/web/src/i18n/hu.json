@@ -1627,7 +1627,17 @@
       "order": "Szórend",
       "pair": "Párok",
       "spelling": "Helyesírás",
-      "spoken": "Kimondva"
+      "spoken": "Kimondva",
+      "sentence_order": "Mondatok sorrendje",
+      "misheard": "Rosszul hallott",
+      "misread": "Rosszul olvasott",
+      "comprehension": "A szöveg megértése"
+    },
+    "inText": "A szövegben:",
+    "more": "Még {n, plural, one {# hiba} other {# hiba}} ebből a körből itt nincs átnézve.",
+    "listed": {
+      "spoken": "A hangosan mondottakhoz nincs új feladat: mondd el újra a gyakorlatában.",
+      "comprehension": "Hallgasd meg vagy olvasd el újra a szöveget: benne van a válasz."
     }
   }
 }

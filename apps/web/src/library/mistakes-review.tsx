@@ -1,7 +1,8 @@
 // Going over mistakes as the lesson's step and the Notebook show it (04, "AI practice in courses";
 // 09): a type of mistakes — what went wrong, the learner's wrong parts only (given → right, the words
-// around it), the explanation — and its new items as the items of their closed types, answered here
-// or read as answered; a whole review read again, type by type.
+// around it, an Understanding question's line of its text), the explanation — and its new items as the
+// items of their closed types, answered here or read as answered (a type listed only: what to do
+// instead); a whole review read again, type by type, with the mistakes left out counted.
 import { mistakeItemExercise, reviewItems } from "@sprachanker/engine";
 import type {
   MistakeGroup,
@@ -47,6 +48,7 @@ export function ReviewGroup({
   const { t } = useTranslation();
   const given = (n: number): { answer: unknown; outcome: Outcome } | undefined =>
     answers.find((a) => a.question === n);
+  const { type } = group;
   return (
     <section className="space-y-3">
       <h3 className="text-lg font-semibold">{t(`goingOver.what.${group.what}`)}</h3>
@@ -55,6 +57,9 @@ export function ReviewGroup({
         <ul className="mt-1 space-y-1.5">
           {group.mistakes.map((m) => (
             <li key={`${m.itemKey}:${m.given}:${m.right}`} className="text-sm">
+              {m.what !== group.what && (
+                <span className="block font-medium">{t(`goingOver.what.${m.what}`)}</span>
+              )}
               <span {...inLang(lang)}>
                 <s className="text-wrong">{m.given || "—"}</s> →{" "}
                 <strong className="text-correct">{m.right}</strong>
@@ -64,27 +69,48 @@ export function ReviewGroup({
                   {m.context}
                 </span>
               )}
+              {m.line && (
+                <span className="block text-muted-foreground">
+                  {t("goingOver.inText")} <q {...inLang(lang)}>{m.line}</q>
+                </span>
+              )}
             </li>
           ))}
         </ul>
       </div>
-      <RichText text={group.explanation} />
-      <div className="space-y-3">
-        <p className="text-sm font-semibold">{t("goingOver.try")}</p>
-        {group.items.map((item, k) => {
-          const n = start + k;
-          return (
-            <PracticeItemCard
-              key={n}
-              exercise={mistakeItemExercise(group.type, item, `${id}-${n}`)}
-              given={given(n)}
-              onAnswer={onAnswer && ((answer) => onAnswer(n, answer))}
-            />
-          );
-        })}
-      </div>
+      {type ? (
+        <>
+          <RichText text={group.explanation} />
+          {group.items.length > 0 && (
+            <div className="space-y-3">
+              <p className="text-sm font-semibold">{t("goingOver.try")}</p>
+              {group.items.map((item, k) => {
+                const n = start + k;
+                return (
+                  <PracticeItemCard
+                    key={n}
+                    exercise={mistakeItemExercise(type, item, `${id}-${n}`)}
+                    given={given(n)}
+                    onAnswer={onAnswer && ((answer) => onAnswer(n, answer))}
+                  />
+                );
+              })}
+            </div>
+          )}
+        </>
+      ) : (
+        <p className="text-sm text-muted-foreground">{t(`goingOver.listed.${group.what}`)}</p>
+      )}
     </section>
   );
+}
+
+/** The mistakes a review left out (beyond its types and parts), if any. */
+export function MoreMistakes({ review }: { review: MistakesReview }) {
+  const { t } = useTranslation();
+  return review.more ? (
+    <p className="text-sm text-muted-foreground">{t("goingOver.more", { n: review.more })}</p>
+  ) : null;
 }
 
 /** A review read again: every type of it, as answered. */
@@ -112,6 +138,7 @@ export function ReviewedMistakes({
           lang={lang}
         />
       ))}
+      <MoreMistakes review={review} />
     </div>
   );
 }

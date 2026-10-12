@@ -1627,7 +1627,17 @@
       "order": "Word order",
       "pair": "Pairs",
       "spelling": "Spelling",
-      "spoken": "Said aloud"
+      "spoken": "Said aloud",
+      "sentence_order": "Order of sentences",
+      "misheard": "Misheard",
+      "misread": "Misread",
+      "comprehension": "Understanding the text"
+    },
+    "inText": "In the text:",
+    "more": "{n, plural, one {# more mistake} other {# more mistakes}} of this pass not gone over here.",
+    "listed": {
+      "spoken": "No new items for what was said aloud: say it again in its exercise.",
+      "comprehension": "Listen to or read the text again: the answer is in it."
     }
   }
 }

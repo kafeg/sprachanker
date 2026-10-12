@@ -221,15 +221,21 @@ export const MistakeItemType = z.enum([
 export type MistakeItemType = z.infer<typeof MistakeItemType>;
 
 /** What went wrong in a part of an item: a word's ending, another word, the option chosen, the
- *  order, a pair, a word's spelling, an answer said aloud. */
+ *  order of words, the order of sentences, a pair, a word's spelling; listed only, without new items
+ *  (04): an answer said aloud, an Understanding question on a text heard or read (their group:
+ *  comprehension). */
 export const MistakeKind = z.enum([
   "ending",
   "word",
   "choice",
   "order",
+  "sentence_order",
   "pair",
   "spelling",
   "spoken",
+  "misheard",
+  "misread",
+  "comprehension",
 ]);
 export type MistakeKind = z.infer<typeof MistakeKind>;
 
@@ -243,6 +249,8 @@ export const WrongPart = z.object({
   given: z.string(),
   right: z.string(),
   context: z.string().optional(),
+  /** An Understanding question's: the line of its text the right answer is in, when one is. */
+  line: z.string().optional(),
 });
 export type WrongPart = z.infer<typeof WrongPart>;
 
@@ -284,35 +292,73 @@ export const MistakeItem = z.object({
 });
 export type MistakeItem = z.infer<typeof MistakeItem>;
 
-/** What keeps a new item from being set as an item of `type`; undefined when it holds. */
-export function mistakeItemProblem(type: MistakeItemType, item: MistakeItem): string | undefined {
+/** A sentence's words for comparing: lower case, a gap one mark, cues in brackets and punctuation
+ *  aside. */
+const sentenceWords = (text: string) =>
+  ` ${text
+    .toLowerCase()
+    .replace(/\([^)]*\)/g, " ")
+    .replace(/_{3,}|\[_\]/g, " _ ")
+    .replace(/[^\p{L}\p{N}_]+/gu, " ")
+    .trim()} `;
+
+/** Whether a new item's sentence is one of the mistakes' again (three words or more, within it). */
+const repeats = (sentence: string, mistake: string) => {
+  const a = sentenceWords(sentence);
+  const b = sentenceWords(mistake);
+  return a.trim().split(" ").length >= 3 && b.includes(a);
+};
+
+/** A typed gap's cue: the base form or the learner-language word in brackets right after it. */
+const CUED_GAP = /_{3,}\s*\([^)]+\)/g;
+
+/** What keeps a new item from being set as an item of `type` — the mistakes it is set for given, a
+ *  sentence of theirs again —; undefined when it holds. */
+export function mistakeItemProblem(
+  type: MistakeItemType,
+  item: MistakeItem,
+  mistakes: Array<Pick<WrongPart, "right" | "context">> = [],
+): string | undefined {
   const index = (options: string[] | undefined, answer: number | undefined) =>
     !!options && answer !== undefined && answer < options.length;
+  const distinct = (texts: string[] = []) =>
+    new Set(texts.map((t) => t.trim().toLowerCase())).size === texts.length;
+  const sentence =
+    type === "order" ? (item.parts ?? []).join(" ") : type === "match" ? "" : (item.text ?? "");
+  const again = [sentence, type === "single_choice" ? (item.prompt ?? "") : ""].some((s) =>
+    mistakes.some((m) => [m.context, m.right].some((t) => t && repeats(s, t))),
+  );
+  if (again) return "a new sentence, never one of the mistakes again";
   switch (type) {
     case "single_choice":
-      return item.prompt && index(item.options, item.answer)
-        ? undefined
-        : 'a choice needs "prompt", "options" and "answer" (the right option\'s index)';
+      if (!item.prompt || !index(item.options, item.answer))
+        return 'a choice needs "prompt", "options" and "answer" (the right option\'s index)';
+      return distinct(item.options) ? undefined : "options all different";
     case "gap_text":
     case "gap_choice": {
       const marks = item.text?.match(GAP_MARK)?.length ?? 0;
       if (!marks || marks !== item.gaps?.length)
         return 'a gap item needs "text" with each gap written ___ and one entry of "gaps" for each';
-      const ok = item.gaps.every((g) =>
-        type === "gap_text" ? !!g.accepted?.length : index(g.options, g.answer),
-      );
-      return ok
+      if (type === "gap_choice") {
+        if (!item.gaps.every((g) => index(g.options, g.answer)))
+          return 'each gap needs "options" and "answer" (the right option\'s index)';
+        return item.gaps.every((g) => distinct(g.options))
+          ? undefined
+          : "each gap's options all different";
+      }
+      if (!item.gaps.every((g) => g.accepted?.length)) return 'each gap needs "accepted"';
+      // A typed gap without a cue lets other right words in, marked wrong.
+      return item.prompt || item.text?.match(CUED_GAP)?.length === marks
         ? undefined
-        : type === "gap_text"
-          ? 'each gap needs "accepted"'
-          : 'each gap needs "options" and "answer" (the right option\'s index)';
+        : "each typed gap followed by its cue in brackets: ___ (base form), or the word in the learner's language";
     }
     case "order":
       return item.parts ? undefined : 'an order item needs "parts" in the right order';
     case "match": {
       const pairs = item.pairs ?? [];
-      const distinct = (side: "left" | "right") => new Set(pairs.map((p) => p[side])).size;
-      return pairs.length && distinct("left") === pairs.length && distinct("right") === pairs.length
+      return pairs.length &&
+        distinct(pairs.map((p) => p.left)) &&
+        distinct(pairs.map((p) => p.right))
         ? undefined
         : 'a match item needs "pairs", each left and each right once';
     }
@@ -320,18 +366,23 @@ export function mistakeItemProblem(type: MistakeItemType, item: MistakeItem): st
 }
 
 /** A type of mistakes gone over: its wrong parts, a short explanation and new items of the type,
- *  answered as `practice_answered` events on the review (counted across its groups). */
+ *  answered as `practice_answered` events on the review (counted across its groups). A type listed
+ *  only (an answer said aloud, Understanding's questions) has no item type, explanation nor items. */
 export const MistakeGroup = z.object({
-  type: MistakeItemType,
+  type: MistakeItemType.optional(),
   what: MistakeKind,
   mistakes: z.array(WrongPart).min(1).max(8),
-  /** The rule or pattern behind them, short, in the learner's language. */
+  /** The rule or pattern behind them, short, in the learner's language; empty for a type listed. */
   explanation: z.string(),
-  items: z.array(MistakeItem).min(1).max(3),
+  items: z.array(MistakeItem).max(3),
 });
 export type MistakeGroup = z.infer<typeof MistakeGroup>;
 
-/** Going over a pass's mistakes (`mistake_items`; 04): its mistakes by type, at most three types,
- *  kept as an `llm_verdict` (`task: mistakes`) in the lesson run. */
-export const MistakesReview = z.object({ groups: z.array(MistakeGroup).min(1).max(3) });
+/** Going over a pass's mistakes (`mistake_items`; 04): its mistakes by type — at most three with new
+ *  items, then those listed only —, kept as an `llm_verdict` (`task: mistakes`) in the lesson run.
+ *  `more`: the wrong parts left out, beyond the types and parts shown. */
+export const MistakesReview = z.object({
+  groups: z.array(MistakeGroup).min(1).max(6),
+  more: z.number().int().positive().optional(),
+});
 export type MistakesReview = z.infer<typeof MistakesReview>;

@@ -53,6 +53,7 @@ export function LessonPlayer({
     locale: data.data?.locale,
     // The AI practice offered (none while no assistant is set up); `slots` is fixed for the player.
     practice: slots.practice ? practice : [],
+    lang: edition && parseEditionId(edition).target,
     run,
     opened,
     onShow: onStep,
