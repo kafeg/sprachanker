@@ -5,7 +5,7 @@
 // understanding`) in the lesson run the lesson shows, as a writing check is; each answer a
 // `practice_answered` event on it, checked here by the engine as the item of its kind, never by a
 // model. The lesson's texts are read across its runs, newest first.
-import { checkUnderstanding } from "@sprachanker/engine";
+import { checkUnderstanding, newGlosses } from "@sprachanker/engine";
 import {
   LlmError,
   settledQuestions,
@@ -89,8 +89,12 @@ export function createUnderstanding(deps: {
     );
     const typedRight = (q: Parameters<typeof checkUnderstanding>[0], answer: string) =>
       checkUnderstanding(q, { g1: answer }, input.target).result === "correct";
+    const settled = settledQuestions(made.result, read.result, typedRight);
+    // New words only: a word of the lesson or met before is never glossed as new.
+    const { lesson } = input.text;
+    const known = [...lesson.vocab, ...(lesson.knownWords ?? [])];
     return {
-      text: settledQuestions(made.result, read.result, typedRight),
+      text: { ...settled, glossary: newGlosses(settled.glossary, known) },
       model: made.model,
       latencyMs: made.latencyMs + read.latencyMs,
     };

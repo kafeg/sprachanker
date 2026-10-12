@@ -158,6 +158,19 @@ function glossForms(word: VocabWord): string[] {
   return [...new Set([...head, ...more])];
 }
 
+/** A model's glossary of new words, without those `known` has (every word of an entry met, as
+ *  `markWords` tells): a word the learner has met is never glossed as new. */
+export function newGlosses<G extends { word: string }>(glossary: G[], known: VocabWord[]): G[] {
+  const knownForms = known.flatMap(wordForms);
+  return glossary.filter(
+    (g) =>
+      !g.word
+        .split(WORD)
+        .filter((part) => WORD.test(part))
+        .every((part) => knownForms.some((f) => sameWord(part, f))),
+  );
+}
+
 /**
  * A sentence in pieces, its words marked new unless `known` has them; a new word takes the
  * translation of the first entry of `glossary` that has it as written, else of the first that has a

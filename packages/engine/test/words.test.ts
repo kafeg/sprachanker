@@ -1,5 +1,12 @@
 import { expect, test } from "bun:test";
-import { hasForm, markWords, sameWord, usesWord, wordForms } from "../src/text/words.ts";
+import {
+  hasForm,
+  markWords,
+  newGlosses,
+  sameWord,
+  usesWord,
+  wordForms,
+} from "../src/text/words.ts";
 
 test("a word's forms: headword, plural and forms, without what is in brackets", () => {
   expect(wordForms({ target: "die Frau, die Frauen" })).toEqual(["die", "frau", "frauen"]);
@@ -138,4 +145,15 @@ test("a new word's translation: as written before a form of it; never by an arti
   expect(marked("Ich studierte.")).toEqual([
     { text: "studierte", new: true, translation: "учиться" },
   ]);
+});
+
+test("a glossary of new words keeps none the learner has met: a lesson's own word is no new word", () => {
+  const glossary = [
+    { word: "aber", translation: "но" },
+    { word: "Bahnhof", translation: "вокзал" },
+    { word: "heißt", translation: "зовут" },
+    { word: "zum Beispiel", translation: "например" },
+  ];
+  const known = [{ target: "aber" }, { target: "heißen" }, { target: "zum" }];
+  expect(newGlosses(glossary, known).map((g) => g.word)).toEqual(["Bahnhof", "zum Beispiel"]);
 });
