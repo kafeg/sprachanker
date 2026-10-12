@@ -61,17 +61,24 @@ export function usePercent() {
   return (share: number) => format.format(share);
 }
 
-/** Bytes as MB or GB. */
+/** Bytes as kB (under a megabyte; a few bytes are 1 kB, none 0), MB or GB. */
+export function formatBytes(bytes: number, language: string) {
+  const [unit, size, digits] =
+    bytes >= 1e9
+      ? (["gigabyte", bytes / 1e9, 1] as const)
+      : bytes >= 1e6
+        ? (["megabyte", bytes / 1e6, 0] as const)
+        : (["kilobyte", bytes && Math.max(1, bytes / 1e3), 0] as const);
+  return new Intl.NumberFormat(language, {
+    style: "unit",
+    unit,
+    maximumFractionDigits: digits,
+  }).format(size);
+}
+
 export function useBytes() {
   const { i18n } = useTranslation();
-  return (bytes: number) => {
-    const giga = bytes >= 1e9;
-    return new Intl.NumberFormat(i18n.language, {
-      style: "unit",
-      unit: giga ? "gigabyte" : "megabyte",
-      maximumFractionDigits: giga ? 1 : 0,
-    }).format(bytes / (giga ? 1e9 : 1e6));
-  };
+  return (bytes: number) => formatBytes(bytes, i18n.language);
 }
 
 /** US dollars, as model prices and credits are given ("$0.42"; small prices with more digits). */
