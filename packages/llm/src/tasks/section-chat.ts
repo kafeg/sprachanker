@@ -6,7 +6,7 @@ import type { ChatMessage, LlmClient, TaskRequest } from "../client.ts";
 import { fitting, languageNames, recentTurns } from "../text.ts";
 import { mistakeLine, type TutorMistake } from "./describe.ts";
 import { levelLine } from "./lesson.ts";
-import { type RulesInput, systemPrompt } from "./rules.ts";
+import { NEUTRAL, type RulesInput, systemPrompt } from "./rules.ts";
 
 /** What the learner has met in the courses of one language, the latest first (the server builds it). */
 export interface CoursesInfo {
@@ -66,6 +66,7 @@ export function sectionChatRules(
     "- When the learner gives you a text, go through it a sentence at a time: translate it, explain what is new, and wait for them before the next.",
     "- The learner's recent mistakes are listed in <courses>. Connect explanations to them when it helps.",
     "- Do not invent grammar rules; when the courses' grammar topics cover a question, use their terms.",
+    `- ${NEUTRAL}`,
   ].join("\n");
 }
 

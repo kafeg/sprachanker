@@ -6,7 +6,7 @@ import type { TaskRequest } from "../client.ts";
 import type { StructuredTask } from "../structured.ts";
 import { clip, languageName, languageNames } from "../text.ts";
 import { type ConversationLine, conversationText } from "./exam-conversation.ts";
-import { type RulesInput, systemPrompt } from "./rules.ts";
+import { NEUTRAL, type RulesInput, systemPrompt } from "./rules.ts";
 
 interface ExamCriterionInput {
   id: string;
@@ -57,6 +57,7 @@ export function rateExamAnswerRules(
     "Model answers, if given, are good answers, not the only ones.",
     `"reason": one or two sentences in ${l} — what was met and what was missing, quoting the learner's words in ${t} where it helps.`,
     `"feedback": one or two concrete sentences in ${l}: what would score more.`,
+    NEUTRAL,
   ].join("\n");
 }
 

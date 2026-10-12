@@ -7,7 +7,7 @@ import { ExamConversationTurn, type Lang, type LlmTurnPayload } from "@sprachank
 import type { TaskRequest } from "../client.ts";
 import type { StructuredTask } from "../structured.ts";
 import { clip, languageNames, newest } from "../text.ts";
-import { type RulesInput, systemPrompt } from "./rules.ts";
+import { NEUTRAL, type RulesInput, systemPrompt } from "./rules.ts";
 
 export interface ConversationLine {
   speaker: "examiner" | "partner" | "learner";
@@ -60,6 +60,7 @@ export function examConversationRules(
     `Write every line in ${t}. The examiner speaks briefly and formally, as in an exam; the partner speaks naturally at the exam's level, answers the learner's questions and asks theirs, with their own (invented, plausible) details.`,
     "Never speak for the learner, never correct or help them, never comment on their mistakes. If the learner cannot be understood, the examiner asks once to repeat, then goes on.",
     `Give 1–3 lines, then stop where the learner must speak. When the part's task is done, the examiner closes it in one line and "done" is true.`,
+    NEUTRAL,
   ].join("\n");
 }
 
