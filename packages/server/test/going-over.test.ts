@@ -302,3 +302,34 @@ test("only mistakes listed (an Understanding question): the review kept without 
   ).toEqual([["comprehension", 0]]);
   expect(review.result.groups[0].mistakes[0].line).toBe("Tee 2 Euro");
 });
+
+test("a type whose call fails keeps its mistakes without items; the others are gone over", async () => {
+  const teach = teacher();
+  const m = model((name, body) =>
+    name === "mistake_items" && body.messages[1]?.content.includes("the word chosen")
+      ? { groups: [] }
+      : teach(name, body),
+  );
+  const { send, sendJson } = await setup({ fetch: m.fetch });
+  await send("PUT", "/api/llm/providers/custom", { baseUrl: "http://127.0.0.1:9/v1" });
+  await send("PUT", "/api/llm/route", { provider: "custom", model: "m" });
+  const run = (await sendJson("POST", "/api/runs", START)).run.id;
+  for (const [itemKey, answer] of [
+    [`${LESSON}/ex-01#1`, { optionId: "b" }],
+    [`${LESSON}/ex-07#1`, { g1: "b", g2: "b" }],
+  ] as const)
+    await sendJson("POST", `/api/runs/${run}/events`, {
+      events: [{ id: ulid(), type: "answered", itemKey, payload: { answer, attempt: 1, ms: 1 } }],
+    });
+  const review = await sendJson("POST", "/api/llm/mistakes", REQUEST);
+  expect(
+    review.result.groups.map((g: { what: string; explanation: string; items: unknown[] }) => [
+      g.what,
+      g.explanation === "",
+      g.items.length,
+    ]),
+  ).toEqual([
+    ["word", true, 0],
+    ["choice", false, 1],
+  ]);
+});
