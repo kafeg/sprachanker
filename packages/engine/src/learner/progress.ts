@@ -130,6 +130,15 @@ export function firstTry(exercise: Exercise, r: ExerciseResult | undefined) {
   return out;
 }
 
+/** An exercise's mark wherever it is shown — the lesson's plan and summary, going over mistakes,
+ *  the Notebook —: its state, `partial` for one with mistakes where some scored items were right at
+ *  the first try. */
+export function exerciseMark(exercise: Exercise, r: ExerciseResult | undefined) {
+  const state = exerciseState(exercise, r);
+  return state === "wrong" && firstTry(exercise, r).correct > 0 ? ("partial" as const) : state;
+}
+export type ExerciseMark = NonNullable<ReturnType<typeof exerciseMark>>;
+
 /** The same over every exercise of the lesson (the summary, the lesson score). */
 export function firstAttempts(lesson: Lesson, results: Record<string, ExerciseResult>) {
   const total = { sum: 0, scored: 0, correct: 0, answered: 0 };

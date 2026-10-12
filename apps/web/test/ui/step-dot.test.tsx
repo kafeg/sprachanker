@@ -1,12 +1,8 @@
 import { expect, test } from "bun:test";
-import { StepDot, withPartial } from "../../src/ui/step-dot.tsx";
+import { StepDot } from "../../src/ui/step-dot.tsx";
 import { renderApp } from "../render.tsx";
 
-test("an exercise with mistakes and some items right at once is partly right, with a mark of its own", async () => {
-  expect(withPartial("wrong", 2)).toBe("partial");
-  expect(withPartial("wrong", 0)).toBe("wrong");
-  expect(withPartial("correct", 3)).toBe("correct");
-  expect(withPartial(undefined)).toBeUndefined();
+test("an exercise partly right has a mark of its own, apart from one with mistakes", async () => {
   const view = await renderApp(
     <>
       <StepDot state="partial" label={1} />

@@ -2,8 +2,8 @@
 // the answer it ended with (marked as checked), how many attempts it took, the explanations kept, and
 // its history across passes. Then what else the pass did: texts checked, scenes, chats, words added.
 import {
+  exerciseMark,
   exerciseResults,
-  exerciseState,
   firstAttempts,
   firstTry,
   itemTries,
@@ -34,7 +34,7 @@ import { ListRow, useSingleOpen } from "@/ui/history.tsx";
 import { ErrorState, Loading } from "@/ui/page.tsx";
 import { Panel } from "@/ui/panel.tsx";
 import { RichText } from "@/ui/rich-text.tsx";
-import { StepDot, withPartial } from "@/ui/step-dot.tsx";
+import { StepDot } from "@/ui/step-dot.tsx";
 import { TargetLang, useTargetLang } from "@/ui/target-lang.ts";
 import { GenderWord } from "@/word/word.tsx";
 import { usePassMark } from "./mark.ts";
@@ -74,13 +74,13 @@ function Pass({ pass }: { pass: NotebookPass }) {
         <ul className="divide-y">
           {shown.map(({ pageIndex, exercise, locale }) => {
             const r = results[exercise.key];
-            const state = exerciseState(exercise, r);
+            const state = exerciseMark(exercise, r);
             const first = firstTry(exercise, r);
             const key = exercise.key;
             return (
               <li key={key}>
                 <ListRow expanded={open.isOpen(key)} onClick={() => open.toggle(key)}>
-                  <StepDot state={withPartial(state, first.correct)} label={pageIndex + 1} />
+                  <StepDot state={state} label={pageIndex + 1} />
                   {/* Two lines before it is cut: on a phone the status takes its share. */}
                   <span className="line-clamp-2 min-w-0 flex-1">
                     {locale?.title || t("lesson.exerciseN", { n: pageIndex + 1 })}
