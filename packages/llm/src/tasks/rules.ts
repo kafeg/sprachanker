@@ -48,12 +48,12 @@ export const NEUTRAL =
   'The learner\'s gender is unknown: wherever a language would mark it (a translation, an explanation, feedback, your lines), choose wording that does not — never both forms side by side ("a(b)", "a/b"); rebuild the sentence instead.';
 
 /** How a learner's language that marks gender in words about the person addressed is written without
- *  it: what to avoid and what to say instead (walkthrough, 2026-10-12: "ты нашёл", "хотел(а)"). Data,
- *  so the rules name no language. */
+ *  it: what to avoid and what to say instead ("ты нашёл", "хотел(а)"). Data, so the rules name no
+ *  language. */
 export const GENDER_FREE: Partial<Record<Lang, string>> = {
-  ru: 'In Russian, no past-tense verb, short adjective or participle about the learner ("ты нашёл", "ты справился", "ты встретил", "ты готов", nor "смог(ла)"): rebuild the sentence — "у тебя получилось", "удалось найти", "это верно", "можно сказать…".',
-  uk: 'In Ukrainian, no past-tense verb, short adjective or participle about the learner ("ти знайшов", "ти впорався", "ти готовий", nor "зміг(ла)"): rebuild the sentence — "у тебе вийшло", "вдалося знайти", "це правильно", "можна сказати…".',
-  pl: 'In Polish, no past-tense verb or adjective about the learner ("znalazłeś", "poradziłeś sobie", "jesteś gotowy", nor "zrobiłeś/aś"): rebuild the sentence — "udało ci się", "to jest poprawne", "można powiedzieć…".',
+  ru: 'In Russian, no past-tense verb, short adjective or participle about the learner ("ты нашёл", "ты решил", "ты справился", "ты готов", "ты единственный", "я хотел бы" in a sentence the learner would say, nor "смог(ла)", "должен/должна"): rebuild the sentence — "у тебя получилось", "удалось найти", "что выбрано", "это верно", "хотелось бы", "можно сказать…".',
+  uk: 'In Ukrainian, no past-tense verb, short adjective or participle about the learner ("ти знайшов", "ти вирішив", "ти впорався", "ти готовий", "я хотів би" in a sentence the learner would say, nor "зміг(ла)"): rebuild the sentence — "у тебе вийшло", "вдалося знайти", "що обрано", "це правильно", "хотілося б", "можна сказати…".',
+  pl: 'In Polish, no past-tense verb or adjective about the learner ("znalazłeś", "zdecydowałeś", "poradziłeś sobie", "jesteś gotowy", "chciałbym" in a sentence the learner would say, nor "zrobiłeś/aś"): rebuild the sentence — "udało ci się", "co wybrano", "to jest poprawne", "proszę o…", "można powiedzieć…".',
   bs: 'In Bosnian, no past participle or adjective about the learner ("našao si", "uspio si", "spreman si", nor "uradio/la"): rebuild the sentence — "uspjelo ti je", "to je tačno", "može se reći…".',
   fr: 'In French, no adjective or participle agreeing with the learner ("tu es prêt", "tu es allé", nor "prêt(e)"): rebuild the sentence — "ta réponse est juste", "tu as réussi", "on peut dire…".',
   es: 'In Spanish, no adjective or participle about the learner ("estás listo", "eres bueno", nor "listo/a"): rebuild the sentence — "tu respuesta es correcta", "lo has hecho bien", "se puede decir…".',

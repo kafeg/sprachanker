@@ -8,6 +8,7 @@ import { type Lang, WritingTask } from "@sprachanker/schema";
 import type { z } from "zod";
 import type { StructuredTask } from "../structured.ts";
 import { languageName, languageNames } from "../text.ts";
+import { genderProblem } from "./gender.ts";
 import {
   cefrOf,
   goalsLine,
@@ -115,7 +116,9 @@ export function writingTaskTask(input: WritingTaskInput): StructuredTask<Writing
   return {
     name: "writing_task",
     schema: WritingTaskReply,
-    quality: (reply) => repeatedPoints(reply.points),
+    quality: (reply) =>
+      repeatedPoints(reply.points) ??
+      genderProblem([reply.situation, ...reply.points], input.language),
     request: {
       messages: [
         { role: "system", content: systemPrompt(input, writingTaskRules, TASK_FIXED) },

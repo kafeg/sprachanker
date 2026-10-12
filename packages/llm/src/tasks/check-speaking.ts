@@ -6,6 +6,7 @@ import type { TaskRequest } from "../client.ts";
 import type { StructuredTask } from "../structured.ts";
 import { clip, languageName, languageNames } from "../text.ts";
 import { describeItem } from "./describe.ts";
+import { genderProblem } from "./gender.ts";
 import { grammarNotes, type LessonInfo, lessonWordsLine, levelLine } from "./lesson.ts";
 import { NEUTRAL, type RulesInput, systemPrompt } from "./rules.ts";
 
@@ -100,4 +101,6 @@ export const checkSpeakingTask = (input: SpeakingInput): StructuredTask<SpokenCh
   name: "speaking_check",
   schema: SpokenCheck,
   request: checkSpeakingRequest(input),
+  quality: (reply) =>
+    genderProblem([reply.feedback, ...reply.corrections.map((c) => c.explanation)], input.language),
 });

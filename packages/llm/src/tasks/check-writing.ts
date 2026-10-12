@@ -7,6 +7,7 @@ import type { TaskRequest } from "../client.ts";
 import type { StructuredTask } from "../structured.ts";
 import { clip, languageName, languageNames } from "../text.ts";
 import { cleanCheck } from "./corrections.ts";
+import { genderProblem } from "./gender.ts";
 import {
   grammarNotes,
   knownWordsLine,
@@ -114,6 +115,16 @@ export const checkWritingTask = (input: WritingInput): StructuredTask<WritingChe
     reply.points?.length === input.task.points.length
       ? undefined
       : `"points" has one entry for each of the task's ${input.task.points.length} content points`,
+  quality: (reply) =>
+    genderProblem(
+      [
+        reply.feedback,
+        ...reply.corrections.map((c) => c.explanation),
+        ...Object.values(reply.criteria).map((c) => c.comment),
+        ...(reply.points ?? []).map((p) => p.comment),
+      ],
+      input.language,
+    ),
   request: checkWritingRequest(input),
 });
 

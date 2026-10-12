@@ -15,6 +15,7 @@ import { z } from "zod";
 import type { StructuredTask } from "../structured.ts";
 import { languageName, languageNames } from "../text.ts";
 import { wrongPartLine } from "./describe.ts";
+import { genderProblem } from "./gender.ts";
 import {
   grammarNotes,
   knownWordsLine,
@@ -203,6 +204,11 @@ export function mistakeItemsTask(input: MistakeItemsInput): StructuredTask<Mista
     name: "mistake_items",
     schema: MistakeItemsReply,
     check: (reply) => itemsProblem(input.groups, reply),
+    quality: (reply) =>
+      genderProblem(
+        reply.groups.map((g) => g.explanation),
+        input.language,
+      ),
     request: {
       messages: [
         { role: "system", content: systemPrompt(input, mistakeItemsRules, ITEMS_FIXED) },

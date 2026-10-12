@@ -14,6 +14,7 @@ import {
   type Script,
   scriptsOnlyOf,
 } from "../text.ts";
+import { genderProblem } from "./gender.ts";
 import {
   charactersLine,
   goalsLine,
@@ -146,6 +147,9 @@ export function sceneSetupTask(
   return {
     name: "scene_setup",
     schema: DialogueSetup,
+    quality: (setup) =>
+      genderProblem([setup.title, setup.situation, ...setup.goals], input.language) ??
+      genderProblem([setup.openingTranslation ?? ""], input.language, false),
     request: {
       messages: [
         { role: "system", content: system },
@@ -249,6 +253,11 @@ export const sceneTurnTask = (input: SceneTurnInput): StructuredTask<SceneTurn> 
     repeatedQuestion(
       turn.reply,
       input.history.findLast((t) => t.role === "assistant")?.text ?? input.setup.opening,
+    ) ??
+    genderProblem([turn.translation], input.language, false) ??
+    genderProblem(
+      turn.corrections.map((c) => c.explanation),
+      input.language,
     ),
   request: sceneTurnRequest(input),
 });
@@ -392,6 +401,11 @@ export function sceneSummaryTask(input: SceneSummaryInput): StructuredTask<Dialo
   return {
     name: "scene_summary",
     schema: DialogueSummary,
+    quality: (summary) =>
+      genderProblem(
+        [summary.feedback, ...summary.corrections.map((c) => c.explanation)],
+        input.language,
+      ),
     request: {
       messages: [
         { role: "system", content: systemPrompt(input, sceneSummaryRules, SUMMARY_FIXED) },

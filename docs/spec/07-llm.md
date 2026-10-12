@@ -293,7 +293,13 @@ lesson run the lesson shows, its answers `practice_answered` events checked by t
   the learner's language avoids it where it marks gender (`GENDER_FREE`, data: Russian's and
   Ukrainian's past forms and short adjectives — "у тебя получилось", never "ты нашёл" —, Polish's and
   Bosnian's, Romance and Greek adjectives and participles, Arabic's and Hindi's gendered forms), so it
-  holds under the learner's own rules too. The learner's text is at most `WRITING_MAX` characters
+  holds under the learner's own rules too. Rules alone do not hold it: a JSON task's words to the
+  learner are checked in code where the language has data (`genderMarked`, Russian, Ukrainian,
+  Polish: "ты решил", "ты единственный", "согласен ты", "рад(а)", "должен/должна", and in a sentence
+  the learner would say "я хотел бы" — a partner's own line aside), the task's quality: asked again
+  once, then kept (writing_task, scene_setup, scene_turn, scene_summary, mistake_items, the writing
+  and speaking checks, rate_exam_answer); a streamed reply (the tutor, explanations) has its rules
+  only. The learner's text is at most `WRITING_MAX` characters
   (what the model checks whole), a message `MESSAGE_MAX`.
 - A "{}" button (switched on in Settings → AI assistant → Advanced) shows the exact request of a task —
   endpoint, fields, every message with its size — built by the same function as the real call (`<task>Request`,
