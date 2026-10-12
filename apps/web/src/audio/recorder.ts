@@ -91,7 +91,7 @@ interface Session {
 const TYPES = ["audio/webm;codecs=opus", "audio/mp4", "audio/ogg;codecs=opus"];
 
 /**
- * A recorder: every take — stopped by the learner or by itself after `maxMs` — goes to `onTake`. It
+ * A recorder: every take — stopped by the learner or by itself `maxMs` after "recording" shows — goes to `onTake`. It
  * lets the microphone go when stopped or unmounted.
  */
 export function useRecorder({
@@ -159,10 +159,12 @@ export function useRecorder({
       };
       session.current = s;
       // Shown as recording once the microphone gives sound: speaking into its first silent second
-      // loses the first word.
+      // loses the first word. The take's time counts from then.
       function goLive() {
         if (s.live || session.current !== s) return;
         s.live = true;
+        clearTimeout(s.timer);
+        s.timer = setTimeout(stop, maxMs);
         setState("recording");
       }
       // Loudness as the root mean square of the waveform, for the level shown while recording and
