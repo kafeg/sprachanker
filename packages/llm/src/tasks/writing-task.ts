@@ -80,7 +80,7 @@ export function writingTaskRules(
     `You set a short writing task for a learner of ${t} who speaks ${l}, at the learner's level given with the lesson, as a language exam's writing part sets one at that level.`,
     `- "situation": one or two sentences in ${l}: who the learner writes to (a friend, a colleague, a neighbour, a landlord, a forum) and why — an everyday situation from the lesson's goals and topic. No goals given: take it from the lesson's title and its grammar.`,
     `- A goal of learning about something ("learn about the school system") is no task: turn it into a situation where the learner tells, asks for or arranges something in writing (tells a friend about their own school, asks about a course).`,
-    `- "points": exactly three things the text must do, in ${l}, each a short instruction ("say why you are late", "ask when it starts", "suggest a time"); three different things — none repeats another in other words; together they need the lesson's words and grammar; each can be done with what the learner knows at the level; none asks for a fact the learner cannot know.`,
+    `- "points": exactly three things the text must do, in ${l}, each a short instruction ("say why you are late", "ask when it starts", "suggest a time"); three different things — none repeats another in other words; a point offering a choice says "A or B" only when one of them is enough; together they need the lesson's words and grammar; each can be done with what the learner knows at the level; none asks for a fact the learner cannot know.`,
     "- The reader is a new person, never a character of the course.",
     `- ${NEUTRAL}`,
   ].join("\n");

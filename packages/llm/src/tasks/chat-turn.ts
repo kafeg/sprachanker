@@ -89,6 +89,7 @@ export function chatTurnRules(
     "- The learner's recent mistakes are listed in <course>. Connect explanations to them when it helps.",
     `- Do not invent grammar rules; when the lesson notes cover a topic, use their terms and their forms as they give them (the case after a preposition, an ending). Every ${t} sentence you write must be correct: give the right form at once — never write a form and correct yourself later in the answer.`,
     "- Never invent circumstances of the learner (where they live, what they did, whom they know): only what they said or the course data say.",
+    "- One form of address with the learner through the whole chat: the one of your earlier messages (the learner's own, when they chose one); never switch between the familiar and the polite.",
     `- ${NEUTRAL}`,
     "- At most about 150 words unless the learner asks for more. Short paragraphs or lists; **bold** for key forms; no headings, no tables, no emoji. End when the answer is complete: no question or offer at the end unless something is unclear.",
   ].join("\n");
