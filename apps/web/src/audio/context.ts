@@ -17,6 +17,10 @@ export interface SpeechHost {
   transcribe(take: Take, lang: string, expected?: readonly string[]): Promise<string>;
   /** Starts the recogniser ahead of a recording (loading its model takes seconds). */
   warm(): void;
+  /** Forgets a kept take nothing was heard in (kept while it was heard); one an answer holds stays. */
+  forget?(id: string): void;
+  /** How long a take waits to be heard before it counts without what was heard (default 15 s). */
+  hearingMs?: number;
 }
 
 const Speech = createContext<SpeechHost | undefined>(undefined);

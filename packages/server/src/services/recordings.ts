@@ -64,6 +64,12 @@ export function createRecordings(files: RecordingFiles, now: () => number) {
       return unused.length ? this.remove(unused) : 0;
     },
 
+    /** Removes a take nothing was heard in (kept while it was heard), unless an answer holds it
+     *  (`inUse`); whether it went. */
+    forget(id: string, inUse: ReadonlySet<string>) {
+      return !inUse.has(id) && this.remove([id]) > 0;
+    },
+
     /** Removes some recordings (those of runs deleted), or all of them. */
     remove(ids?: string[]) {
       const names = files

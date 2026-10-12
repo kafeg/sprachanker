@@ -104,6 +104,22 @@ test("a speaking item answered with a recording; resetting the lesson removes th
     ],
   });
   expect(existsSync(join(root, "profiles/local/recordings", `${id}.m4a`))).toBe(true);
+  // A take nothing was heard in is forgotten; one an answer holds is not.
+  const silent = await app.request("/api/recordings", {
+    method: "POST",
+    headers: { cookie, "content-type": "audio/mp4", ...CLIENT_HEADERS },
+    body: new Uint8Array([4, 5, 6]),
+  });
+  const take = ((await silent.json()) as { id: string }).id;
+  const forget = (which: string) =>
+    app.request(`/api/recordings/${which}`, {
+      method: "DELETE",
+      headers: { cookie, ...CLIENT_HEADERS },
+    });
+  expect(await (await forget(take)).json()).toEqual({ removed: true });
+  expect(existsSync(join(root, "profiles/local/recordings", `${take}.m4a`))).toBe(false);
+  expect(await (await forget(id)).json()).toEqual({ removed: false });
+  expect(existsSync(join(root, "profiles/local/recordings", `${id}.m4a`))).toBe(true);
   await sendJson("POST", "/api/progress/reset", {
     series: FIXTURE_SERIES,
     course: "demo",

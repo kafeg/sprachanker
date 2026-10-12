@@ -1,4 +1,5 @@
-// Recordings kept (08): one sent, where it plays from, how many there are, all deleted.
+// Recordings kept (08): one sent, one nothing was heard in forgotten, where it plays from, how many
+// there are, all deleted.
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { api, json, sendBinary } from "./client.ts";
 
@@ -7,6 +8,10 @@ import { api, json, sendBinary } from "./client.ts";
 export async function uploadRecording(take: { blob: Blob; type: string }): Promise<string> {
   return (await sendBinary<{ id: string }>("/api/recordings", take.blob, take.type)).id;
 }
+
+/** Forgets a take nothing was heard in; the server keeps one an answer holds. */
+export const forgetRecording = (id: string) =>
+  json(api.recordings[":id"].$delete({ param: { id } }));
 
 /** Where a kept recording plays from. */
 export const recordingUrl = (id: string) => `/api/recordings/${id}`;

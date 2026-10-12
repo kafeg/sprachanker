@@ -1282,6 +1282,7 @@
       "how": "How it works"
     },
     "listening": "Listening to it…",
+    "heardLater": "Not heard yet — your take is kept; what was heard follows.",
     "notHeard": "It couldn't be recognised; the recording counts anyway.",
     "heard": "Heard:",
     "heardNothing": "nothing",

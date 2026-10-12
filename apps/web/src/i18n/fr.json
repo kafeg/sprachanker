@@ -1282,6 +1282,7 @@
       "how": "Comment ça marche"
     },
     "listening": "Écoute en cours…",
+    "heardLater": "Pas encore reconnu — ton enregistrement est gardé ; ce qui a été entendu suit.",
     "notHeard": "Rien n’a pu être reconnu ; l’enregistrement compte quand même.",
     "heard": "Entendu :",
     "heardNothing": "rien",

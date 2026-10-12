@@ -226,7 +226,11 @@ function profileServices(
     courseTransfer,
     settings,
     speech: speechOfProfile,
-    recordings,
+    recordings: {
+      ...recordings,
+      /** A take nothing was heard in removed, unless an answer holds it. */
+      forget: (id: string) => recordings.forget(id, progress.recordingsInUse()),
+    },
     lessons,
     progress,
     exams,

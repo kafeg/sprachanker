@@ -74,32 +74,39 @@ function Heard({
   );
 }
 
+/** How long a take waits to be heard before it counts without what was heard (heard later). */
+const HEARING_MS = 15_000;
+const LATE = Symbol("late");
+
 /**
- * One's takes of an item (08): heard first when recognition is on, then kept when recordings are; a
- * take nothing was heard in — nothing loud in it, or only what the recogniser makes of silence and
- * noise — neither kept nor the item's answer, the learner asked to say it again; hearing failing keeps
- * the take itself, but with `heardFirst` it is not kept (a take that counts by its words is not kept
- * without them); a take neither kept nor heard (failing) is no answer over an earlier one
- * (`answered`). `expected`: the lines to say (telling one said from what silence is heard as). `done`
- * gets what was kept and heard, for the latest take only — also once the item is gone (Next pressed
- * while it is heard): the take is still its answer. The recogniser starts loading as the item shows
- * (while the learner listens to the original), and again when recognition comes on or changes model.
+ * One's takes of an item (08): kept when recordings are and heard when recognition is on, at once and
+ * side by side; a take nothing was heard in — nothing loud in it, or only what the recogniser makes of
+ * silence and noise — is not the item's answer, its recording forgotten, the learner asked to say it
+ * again. Hearing failing leaves the take itself, but with `byWords` (a take that counts by its words)
+ * its recording goes too. Hearing taking longer than `HEARING_MS` (the host's `hearingMs`), the take
+ * counts as kept — "not heard yet" — and what was heard follows when it comes. A take neither kept nor
+ * heard (failing) is no answer over an earlier one (`answered`). `expected`: the lines to say (telling
+ * one said from what silence is heard as). `done` gets what was kept and heard, for the latest take
+ * only — also once the item is gone (Next pressed while it is heard): the take is still its answer.
+ * The recogniser starts loading as the item shows (while the learner listens to the original), and
+ * again when recognition comes on or changes model.
  */
 function useTakes(
   lang: string | undefined,
   readOnly: boolean | undefined,
   done: (kept: { recording?: string; transcript?: string }) => void,
   {
-    heardFirst = false,
+    byWords = false,
     expected,
     answered = false,
-  }: { heardFirst?: boolean; expected?: readonly string[]; answered?: boolean } = {},
+  }: { byWords?: boolean; expected?: readonly string[]; answered?: boolean } = {},
 ) {
   const host = useSpeechHost();
   const [take, setTake] = useState<{ url: string; ms: number }>();
   const [saving, setSaving] = useState(false);
   const [unsaved, setUnsaved] = useState(false);
   const [unheard, setUnheard] = useState(false);
+  const [late, setLate] = useState(false);
   const [silent, setSilent] = useState(false);
   /** The latest take's number: an earlier take still being heard gives no answer. */
   const latest = useRef(0);
@@ -121,38 +128,63 @@ function useTakes(
     setTake({ url: URL.createObjectURL(recorded.blob), ms: recorded.ms });
     setUnsaved(false);
     setUnheard(false);
+    setLate(false);
     setSaving(true);
     let failed = false;
+    const saved = host
+      ? host.save(recorded).catch(() => {
+          failed = true;
+          if (current()) setUnsaved(true);
+          return undefined;
+        })
+      : Promise.resolve(undefined);
     // Recognition needs the language spoken (never detected, 08).
-    const transcript =
+    const hearing =
       host?.recognition && lang
-        ? await host.transcribe(recorded, lang, expected).catch(() => {
+        ? host.transcribe(recorded, lang, expected).catch(() => {
             failed = true;
             if (current()) setUnheard(true);
             return undefined;
           })
         : undefined;
-    if (transcript === "") {
+    const timer = { id: undefined as ReturnType<typeof setTimeout> | undefined };
+    const first = hearing
+      ? await Promise.race([
+          hearing,
+          new Promise<typeof LATE>((r) => {
+            timer.id = setTimeout(() => r(LATE), host?.hearingMs ?? HEARING_MS);
+          }),
+        ])
+      : undefined;
+    clearTimeout(timer.id);
+    const recording = await saved;
+    /** What was heard, as it ends: the answer, or nothing heard (the take forgotten — unless it
+     *  counted already, kept before it was heard: `counted`). */
+    const heard = (transcript: string | undefined, counted = false) => {
+      if (!counted && (transcript === "" || (byWords && transcript === undefined)) && recording)
+        host?.forget?.(recording);
       if (!current()) return;
       setSaving(false);
-      setTake(undefined);
-      setSilent(true);
-      return;
+      setLate(false);
+      if (transcript === "") {
+        setTake(undefined);
+        setSilent(true);
+        return;
+      }
+      if (transcript === undefined && (counted || (failed && answered && !recording))) return;
+      done({ ...(recording && { recording }), ...(transcript !== undefined && { transcript }) });
+    };
+    if (first !== LATE) return heard(first);
+    // Not heard in time: kept now (what counts by its words waits), heard later.
+    const counted = !byWords && !!recording && current();
+    if (current()) {
+      setSaving(false);
+      setLate(true);
+      if (counted) done({ recording });
     }
-    const recording =
-      host && !(heardFirst && transcript === undefined)
-        ? await host.save(recorded).catch(() => {
-            failed = true;
-            if (current()) setUnsaved(true);
-            return undefined;
-          })
-        : undefined;
-    if (!current()) return;
-    setSaving(false);
-    if (failed && answered && !recording && transcript === undefined) return;
-    done({ ...(recording && { recording }), ...(transcript !== undefined && { transcript }) });
+    heard(await hearing, counted);
   };
-  return { host, take, saving, unsaved, unheard, silent, recorder };
+  return { host, take, saving, unsaved, unheard, late, silent, recorder };
 }
 
 /** What the take's line under the microphone says: recording, saving or listening, what failed,
@@ -167,7 +199,7 @@ function TakeStatus({
   heard: boolean;
 }) {
   const { t } = useTranslation();
-  const { recorder, saving, host, unsaved, unheard, silent } = takes;
+  const { recorder, saving, host, unsaved, unheard, late, silent } = takes;
   return (
     <p className="text-center text-xs text-muted-foreground" aria-live="polite">
       {recorder.state === "recording"
@@ -178,15 +210,17 @@ function TakeStatus({
             ? host?.recognition
               ? t("speech.listening")
               : t("speech.saving")
-            : unsaved
-              ? t("speech.notSaved")
-              : unheard
-                ? t("speech.notHeard")
-                : attempted
-                  ? t("speech.again")
-                  : heard
-                    ? t("speech.howTo")
-                    : null}
+            : late
+              ? t("speech.heardLater")
+              : unsaved
+                ? t("speech.notSaved")
+                : unheard
+                  ? t("speech.notHeard")
+                  : attempted
+                    ? t("speech.again")
+                    : heard
+                      ? t("speech.howTo")
+                      : null}
     </p>
   );
 }
@@ -334,7 +368,7 @@ export function SpeechRepeat({
       if (transcript !== undefined)
         onAnswer({ speech: { ...(recording && { recording }), transcript } });
     },
-    { heardFirst: true, expected: [item.text] },
+    { byWords: true, expected: [item.text] },
   );
   const { host, take, saving, recorder } = takes;
   // Without recognition, or a language to hear it in, nothing can check the phrase: the item is left

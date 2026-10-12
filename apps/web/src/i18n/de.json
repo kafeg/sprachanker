@@ -1282,6 +1282,7 @@
       "how": "So funktioniert es"
     },
     "listening": "Wird erkannt …",
+    "heardLater": "Noch nicht erkannt — deine Aufnahme ist gespeichert, was gehört wurde, kommt gleich.",
     "notHeard": "Das ließ sich nicht erkennen; die Aufnahme zählt trotzdem.",
     "heard": "Gehört:",
     "heardNothing": "nichts",

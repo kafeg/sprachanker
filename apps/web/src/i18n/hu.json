@@ -1282,6 +1282,7 @@
       "how": "Hogyan működik"
     },
     "listening": "Felismerés…",
+    "heardLater": "Még nincs felismerve — a felvételed megmaradt, a felismert szöveg hamarosan jön.",
     "notHeard": "Nem sikerült felismerni; a felvétel így is beszámít.",
     "heard": "Hallott:",
     "heardNothing": "semmi",

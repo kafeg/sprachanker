@@ -1282,6 +1282,7 @@
       "how": "Como funciona"
     },
     "listening": "Ouvindo…",
+    "heardLater": "Ainda não reconhecido — sua gravação foi guardada; o que foi ouvido vem em seguida.",
     "notHeard": "Não foi possível reconhecer; a gravação conta mesmo assim.",
     "heard": "Ouvido:",
     "heardNothing": "nada",

@@ -3,7 +3,12 @@
 import { useQueryClient } from "@tanstack/react-query";
 import { useMemo } from "react";
 import { decodeTime } from "ulid";
-import { recordingUrl, uploadRecording, useRecordingStats } from "@/api/recordings.ts";
+import {
+  forgetRecording,
+  recordingUrl,
+  uploadRecording,
+  useRecordingStats,
+} from "@/api/recordings.ts";
 import { useSetting } from "@/api/settings.ts";
 import { transcribe, useSpeechState, warmSpeech } from "@/api/speech.ts";
 import type { SpeechHost } from "./context.ts";
@@ -26,6 +31,11 @@ export function useSpeechHostValue(): SpeechHost {
         const id = await uploadRecording(take);
         void client.invalidateQueries({ queryKey: ["recordings"] });
         return id;
+      },
+      forget(id) {
+        void forgetRecording(id)
+          .then(() => client.invalidateQueries({ queryKey: ["recordings"] }))
+          .catch(() => {});
       },
       src: recordingUrl,
       kept: (id) => oldest === undefined || (oldest !== null && decodeTime(id) >= oldest),

@@ -72,7 +72,9 @@ JSON under `/api`, validated with zod and typed for the web client through Hono 
   models with downloads, languages, speakers and the default speaker), `POST` / `DELETE
   /api/speech/qwen/models/:id`, `POST /api/speech/qwen/warm`.
 - Recordings (08): `GET /api/recordings` (count and size), `POST /api/recordings` (the audio as the
-  body, its type in Content-Type), `GET /api/recordings/:id` (with ranges), `DELETE /api/recordings`.
+  body, its type in Content-Type), `GET /api/recordings/:id` (with ranges), `DELETE
+  /api/recordings/:id` (a take nothing was heard in, kept while it was heard: removed unless an answer
+  holds it), `DELETE /api/recordings`.
 - Notebook (09): `GET /api/notebook` (the study days with how much each module did, and every
   module's standing in one shape — schema `stats.ts`: review's decks, the lessons worked on by course,
   the exams with their latest mock exams), `GET /api/notebook/lesson?lessonKey=` (a lesson's passes),

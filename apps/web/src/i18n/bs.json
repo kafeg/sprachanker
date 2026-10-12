@@ -1282,6 +1282,7 @@
       "how": "Kako radi"
     },
     "listening": "Slušam…",
+    "heardLater": "Još nije prepoznato — tvoj snimak je sačuvan, a ono što je čuto stiže kasnije.",
     "notHeard": "Nije se moglo prepoznati; snimak se svejedno računa.",
     "heard": "Čuto:",
     "heardNothing": "ništa",

@@ -77,9 +77,12 @@ off, its model, the engine, voice and speed reading aloud) are applied by `servi
   2026-10-12): human course recordings, Piper and Qwen3-TTS at ×1, ×0.3, ×0.18 and ×0.1 (to -39 dBFS)
   all kept, short answers ("Danke.", "Tschüss.") too; of 136 takes of silence, room noise, breathing,
   hum, white and pink noise and a tap, one heard as a word ("So." of -38 dBFS noise).
-- **A take is heard first**, then kept: one nothing was heard in leaves no recording. Hearing and
-  keeping it both failing, an earlier answer stays. Moving on while a take is heard ("Listening…"),
-  the take is still the item's answer when heard.
+- **A take is kept and heard at once**, side by side: one nothing was heard in is no answer, and its
+  recording is forgotten (`DELETE /api/recordings/:id`, refused while an answer holds it), as is a
+  Dialogue line's not heard and a phrase's that counts by its words. Hearing taking over 15 s, the take
+  counts as kept — "Not heard yet" — and what was heard follows as its answer when it comes (a phrase
+  that counts by its words waits for it). Hearing and keeping it both failing, an earlier answer stays.
+  Moving on while a take is heard ("Listening…"), the take is still the item's answer when heard.
 - Measured on the owner's M2 Pro (large-v3-turbo q5_0, Metal): a 3–4 s phrase in 0.7 s warm, 1.2 s
   the first time.
 

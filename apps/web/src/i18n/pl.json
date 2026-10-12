@@ -1282,6 +1282,7 @@
       "how": "Jak to działa"
     },
     "listening": "Słucham…",
+    "heardLater": "Jeszcze nie rozpoznano — twoje nagranie jest zapisane; to, co usłyszano, pojawi się za chwilę.",
     "notHeard": "Nie udało się rozpoznać; nagranie i tak się liczy.",
     "heard": "Usłyszano:",
     "heardNothing": "nic",

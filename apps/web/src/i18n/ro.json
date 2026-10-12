@@ -1282,6 +1282,7 @@
       "how": "Cum funcționează"
     },
     "listening": "Se ascultă…",
+    "heardLater": "Încă nerecunoscut — înregistrarea ta e păstrată; ce s-a auzit vine imediat.",
     "notHeard": "Nu s-a putut recunoaște nimic; înregistrarea contează oricum.",
     "heard": "Auzit:",
     "heardNothing": "nimic",

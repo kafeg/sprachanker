@@ -1282,6 +1282,7 @@
       "how": "使用说明"
     },
     "listening": "正在识别…",
+    "heardLater": "尚未识别——你的录音已保存，识别结果稍后显示。",
     "notHeard": "无法识别；但录音仍计入作答。",
     "heard": "识别结果：",
     "heardNothing": "无",
