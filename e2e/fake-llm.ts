@@ -158,6 +158,7 @@ const itemsTried = (prompt: string) => ({
       n: Number(n),
       choice: "a",
       gaps: [typed ? (du ? "trinkst" : "trinke") : du ? "b" : "a"],
+      order: null,
       ambiguous: false,
     };
   }),
