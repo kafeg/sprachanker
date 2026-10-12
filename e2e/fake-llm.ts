@@ -78,6 +78,16 @@ const draft = (prompt: string) => {
     beats: ["FAKE: Anna comes in", "FAKE: she pays"],
     facts: ["zwei Brötchen", "1,20 Euro", "am Morgen"],
   };
+  // A role-play's: the baker leads, the learner plays the customer (a role, no name).
+  if (prompt.includes("The learner will play the second person"))
+    return {
+      ...base,
+      people: [
+        { name: "Herr Brandt", gender: "m", age: "senior", role: "FAKE: baker" },
+        { name: "Kunde", gender: "f", age: "adult", role: "FAKE: a customer" },
+      ],
+      text: lines.map((l, i) => `${i % 2 ? "Kunde" : "Herr Brandt"}: ${l}`).join("\n"),
+    };
   if (prompt.includes('Write it as lines "Name:'))
     return {
       ...base,
@@ -86,6 +96,36 @@ const draft = (prompt: string) => {
     };
   return { ...base, people: [anna], text: lines.join("\n") };
 };
+
+/** A monologue card (its time the app's). */
+const TALK_CARD = {
+  setting: "FAKE: About yourself",
+  instruction: "FAKE: Say the three points below.",
+  topic: "Über mich",
+  points: ["Name?", "Woher?", "Hobby?"],
+  model: "FAKE: Ich heiße Mara. Ich komme aus Polen.",
+};
+
+/** The learner's lines of a conversation ("The learner plays "Kunde": lines 1, 3, 5."). */
+const learnerLines = (prompt: string) =>
+  (/The learner plays ".*?": lines ([\d, ]+)\./.exec(prompt)?.[1] ?? "").split(",").map(Number);
+
+/** A hint for each of the learner's lines. */
+const talkCues = (prompt: string) => ({
+  cues: learnerLines(prompt).map((n) => ({ n, cue: `FAKE: hint ${n}` })),
+});
+
+/** What the learner said checked: each LEARNER line fits, the first with a correction. */
+const talkCheck = (prompt: string) => ({
+  turns: [...prompt.matchAll(/^(\d+)\. LEARNER/gm)].map(([, n], i) => ({
+    n: Number(n),
+    fits: true,
+    corrections: i
+      ? []
+      : [{ wrong: "Brötchen", right: "zwei Brötchen", explanation: "FAKE: say how many." }],
+  })),
+  feedback: "FAKE: well played.",
+});
 
 /** Every draft rated as passing. */
 const JUDGED = {
@@ -255,6 +295,7 @@ const conversation = (prompt: string) =>
 /** Structured replies by the task's schema name; the writing check otherwise. */
 const STRUCTURED: Record<string, unknown> = {
   writing_task: WRITING_TASK,
+  talk_card: TALK_CARD,
   scene_setup: SCENE_SETUP,
   scene_turn: SCENE_TURN,
   scene_summary: SCENE_SUMMARY,
@@ -312,7 +353,11 @@ if (import.meta.main) {
                         ? draft(body.messages.at(-1)?.content ?? "")
                         : task === "understanding_check"
                           ? understandingCheck(body.messages.at(-1)?.content ?? "")
-                          : (STRUCTURED[task] ?? WRITING_CHECK),
+                          : task === "talk_cues"
+                            ? talkCues(body.messages.at(-1)?.content ?? "")
+                            : task === "talk_check"
+                              ? talkCheck(body.messages.at(-1)?.content ?? "")
+                              : (STRUCTURED[task] ?? WRITING_CHECK),
             );
         return Response.json({ choices: [{ message: { role: "assistant", content } }] });
       }

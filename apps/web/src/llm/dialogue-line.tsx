@@ -31,6 +31,8 @@ export function DialogueLine({
   lang,
   busy,
   onSend,
+  maxMs,
+  sendLabel,
 }: {
   /** The language spoken (never detected, 08). */
   lang: string;
@@ -38,6 +40,10 @@ export function DialogueLine({
   busy: boolean;
   /** Sends the line; `sent` once it is stored (the line is kept here until then, to send again). */
   onSend(line: DialogueLineInput, sent: () => void): void;
+  /** The longest take (a monologue's: a minute), the recorder's own otherwise. */
+  maxMs?: number;
+  /** What sending is called here (Speaking's: the line kept until Check). */
+  sendLabel?: string;
 }) {
   const { t } = useTranslation();
   const host = useSpeechHost();
@@ -51,6 +57,7 @@ export function DialogueLine({
   useEffect(() => () => void (heard && URL.revokeObjectURL(heard.url)), [heard]);
 
   const recorder = useRecorder({
+    ...(maxMs && { maxMs }),
     onTake: async (take: Take) => {
       if (!host) return;
       const n = ++latest.current;
@@ -96,6 +103,7 @@ export function DialogueLine({
             onSend({ text: typed.trim() }, () => setTyped(""));
           }}
           placeholder={t("scene.placeholder")}
+          sendLabel={sendLabel}
         />
       </div>
     );
@@ -125,7 +133,7 @@ export function DialogueLine({
                 )
               }
             >
-              <Send className="size-4 rtl:-scale-x-100" /> {t("tutor.send")}
+              <Send className="size-4 rtl:-scale-x-100" /> {sendLabel ?? t("tutor.send")}
             </Button>
           </div>
         </>

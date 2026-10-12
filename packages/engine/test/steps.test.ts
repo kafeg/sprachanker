@@ -258,3 +258,8 @@ test("a step recorded as Understanding, before Reading and Listening, counts as 
   const done = stepsDone([ev(1, "step_done", null, { step: "understanding" })]);
   expect([done.get("reading"), done.get("listening")]).toEqual(["done", "done"]);
 });
+
+test("a step recorded as the Dialogue, before Speaking, counts as Speaking", () => {
+  const done = stepsDone([ev(1, "step_done", null, { step: "scene" })]);
+  expect(done.get("speaking")).toBe("done");
+});

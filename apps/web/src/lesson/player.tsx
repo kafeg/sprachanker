@@ -229,7 +229,7 @@ export function LessonPlayer({
             {(step.kind === "reading" ||
               step.kind === "listening" ||
               step.kind === "writing" ||
-              step.kind === "scene" ||
+              step.kind === "speaking" ||
               step.kind === "mistakes") && (
               <PracticeStep
                 kind={step.kind}

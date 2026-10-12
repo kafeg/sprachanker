@@ -30,7 +30,13 @@ function Run({ text, gloss }: { text: string; gloss?: string }) {
 }
 
 /** The text's lines, its glossed words marked, then the new words with their translations. */
-export function UnderstandingLines({ text, lang }: { text: UnderstandingText; lang: string }) {
+export function UnderstandingLines({
+  text,
+  lang,
+}: {
+  text: Pick<UnderstandingText, "lines" | "glossary">;
+  lang: string;
+}) {
   const { t } = useTranslation();
   return (
     <div className="space-y-3">

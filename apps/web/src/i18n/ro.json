@@ -148,12 +148,13 @@
       "wordsCount": "Cuvintele lecției · {count, number}",
       "grammar": "Gramatică",
       "culture": "Cultură",
-      "writing": "Scrie tu",
+      "writing": "Scriere",
       "scene": "Dialog",
       "mistakes": "Analiza greșelilor",
       "summary": "Rezumat",
       "reading": "Citire",
-      "listening": "Ascultare"
+      "listening": "Ascultare",
+      "speaking": "Vorbire"
     },
     "section": {
       "grammar": "Gramatică",
@@ -415,7 +416,10 @@
       "understandingCheck": "Citire și ascultare: a doua lectură",
       "mistakes": "Analiza greșelilor",
       "understandingJudge": "Citire și ascultare: evaluarea ciornelor",
-      "understandingQuestions": "Citire și ascultare: întrebările"
+      "understandingQuestions": "Citire și ascultare: întrebările",
+      "talkCard": "Vorbire: cardul",
+      "talkCues": "Vorbire: indiciile jocului de rol",
+      "talkCheck": "Vorbire: verificarea jocului de rol"
     },
     "contextIntro": "Adăugat din lecție:",
     "contextIntroCourses": "Adăugat din cursurile tale (cele ale limbii pe care o exersează conversația):",
@@ -464,7 +468,10 @@
       "lessonScript": "scenariul lecției (tema și situațiile ei)",
       "genre": "genul de text ales, forma, lungimea lui și idei pentru situație",
       "drafts": "ciornele scrise",
-      "textFacts": "faptele cu care a fost gândit textul"
+      "textFacts": "faptele cu care a fost gândit textul",
+      "replyMessage": "mesajul la care răspunde sarcina (din generatorul de texte)",
+      "roleplay": "conversația și rolul tău",
+      "roleplaySaid": "conversația cu ce ai spus la fiecare replică"
     },
     "upTo": "până la {chars, plural, one {# caracter} few {# caractere} other {# de caractere}}",
     "debug": "Arată butoanele „Prompt”",
@@ -485,12 +492,12 @@
         "where": "butonul dintr-o lecție, pasul „Analiza greșelilor” și secțiunea „Tutore”"
       },
       "writing": {
-        "name": "„Scrie tu”",
+        "name": "Scriere",
         "where": "un pas al lecției"
       },
       "scene": {
-        "name": "Dialog",
-        "where": "un pas al lecției"
+        "name": "Vorbire",
+        "where": "un pas al lecției: vorbire după un card sau joc de rol, cu vocea"
       },
       "speaking": {
         "name": "Răspunsuri orale",
@@ -528,12 +535,15 @@
       "understandingCheck": "Răspunde la întrebări doar din text, apoi încă o dată fără text: o întrebare la care răspunde altfel, pe care o găsește neclară sau la care răspunde bunul-simț este scoasă.",
       "mistakes": "Analizează greșelile unei parcurgeri pe tipuri: la fiecare tip doar părțile greșite (ce ai dat, ce e corect, cuvintele din jur), o explicație scurtă și două-trei exerciții noi de acel tip din cuvinte cunoscute. Răspunsurile tale le verifică aplicația, nu modelul.",
       "understandingJudge": "Evaluează ciornele ca un profesor vorbitor nativ — firesc, coerent, realist, la nivelul tău, legat de lecție, interesant — și enumeră problemele: rămâne cea mai bună care trece, altfel cea mai bună e rescrisă o dată.",
-      "understandingQuestions": "Pune 5–10 întrebări despre textul ales, ca la examene (adevărat/fals, a/b/c, numere), și notează cuvintele noi. Răspunsurile tale le verifică aplicația, nu modelul."
+      "understandingQuestions": "Pune 5–10 întrebări despre textul ales, ca la examene (adevărat/fals, a/b/c, numere), și notează cuvintele noi. Răspunsurile tale le verifică aplicația, nu modelul.",
+      "talkCard": "Dă o sarcină orală scurtă ca primele părți ale unui examen oral: o temă și trei puncte în limba pe care o înveți, cât să vorbești aproximativ și un răspuns model.",
+      "talkCues": "Transformă replicile tale din jocul de rol în indicii în limba ta: ce să spui, niciodată cuvintele.",
+      "talkCheck": "Verifică jocul de rol după ce e spus: fiecare replică dacă face ce cere indiciul, cel mult două corecturi și un scurt comentariu. Ce spui aude recunoașterea vocală."
     }
   },
   "writing": {
     "task": "Sarcina ta (scrie în {language}):",
-    "intro": "Un text scurt despre o situație din lecție: trei puncte de tratat, cam cât de lung cere un examen la nivelul tău. AI-ul îl verifică: punctele tratate, cel mult trei corecturi și un text model.",
+    "intro": "Un mesaj la care răspunzi în scris — un e-mail de la un prieten, un chat, un anunț: trei puncte, cât cere un examen de nivelul tău. AI verifică: punctele, cel mult trei corecturi și un text model.",
     "start": "Primește o sarcină",
     "preparing": "Se scrie sarcina…",
     "newTask": "Sarcină nouă",
@@ -541,7 +551,6 @@
     "count": "{count, plural, one {# cuvânt} few {# cuvinte} other {# de cuvinte}} din circa {words, number}",
     "placeholder": "Textul tău…",
     "check": "Verifică",
-    "checking": "Se verifică…",
     "rewrite": "Corectează și verifică din nou",
     "score": "{name}: {score, number} din {max, number}",
     "points": "{score, number} din {max, number}",
@@ -702,7 +711,8 @@
     "scene": "Dialog",
     "mistakes": "Greșeli",
     "reading": "Citire",
-    "listening": "Ascultare"
+    "listening": "Ascultare",
+    "speaking": "Vorbire"
   },
   "words": {
     "intro": "Cuvintele lecției sub formă de carduri: amintește-ți, arată răspunsul, evaluează-te. Când nu mai rămâne nimic deocamdată, continuă în Recapitulare.",
@@ -1429,7 +1439,8 @@
     "course_bundle_clash": "Pe acest calculator există alte fișiere cu numele fișierelor media ale acestui curs: descarcă mai bine cursul aici.",
     "course_import_busy": "Se importă deja alt fișier de curs. Încearcă din nou după ce se termină.",
     "series_busy": "Cursuri din această sursă se descarcă sau se importă chiar acum. Încearcă din nou după ce se termină.",
-    "understanding_busy": "Se scrie un text pentru această lecție. Așteaptă."
+    "understanding_busy": "Se scrie un text pentru această lecție. Așteaptă.",
+    "talk_busy": "O sarcină pentru această lecție se pregătește sau se verifică. Așteaptă."
   },
   "exams": {
     "tabs": {
@@ -1708,5 +1719,27 @@
       "making": "Se creează sarcini noi…",
       "checking": "Se verifică sarcinile noi…"
     }
+  },
+  "talk": {
+    "intro": "Vorbește în limba pe care o înveți: o scurtă prezentare după un card sau un rol într-o conversație. Totul se verifică la final, fără așteptare între replici.",
+    "start": "Primește o sarcină",
+    "preparing": "Pregătesc sarcina…",
+    "new": "Sarcină nouă",
+    "step": {
+      "writing": "Scriu sarcina…",
+      "choosing": "Aleg cea mai bună variantă…",
+      "hinting": "Scriu indiciile…",
+      "checking": "Verific ce ai spus…"
+    },
+    "seconds": "Vorbește aproximativ {seconds, number} de secunde.",
+    "keep": "Păstrează",
+    "yourRole": "Rolul tău: {role}",
+    "yourTurn": "Replica ta",
+    "model": "Se putea spune",
+    "fits": "Se potrivește",
+    "misses": "Nu urmează indiciul",
+    "result": "{right, number} din {total, number} replici se potrivesc",
+    "modelAnswer": "Răspuns model",
+    "restart": "Începe din nou"
   }
 }

@@ -310,7 +310,7 @@ test("too few questions settled: asked again once and the better kept; none sett
   expect(res.status).toBe(502);
 });
 
-test("made ahead as a new run starts: Reading and Listening's texts and the writing task; resumed, nothing; a step's untouched or half-done text never replaced", async () => {
+test("made ahead as a new run starts: Reading and Listening's texts, the writing task and the speaking one; resumed, nothing; a step's untouched or half-done text never replaced", async () => {
   const task = {
     situation: "Вы пишете другу.",
     points: ["Wann?", "Wo?", "Was?"],
@@ -321,6 +321,15 @@ test("made ahead as a new run starts: Reading and Listening's texts and the writ
     understanding_check: [SETTLES_ALL],
     blind: [{ answers: [] }],
     writing_task: [task],
+    talk_card: [
+      {
+        setting: "О себе",
+        instruction: "Расскажите о себе.",
+        topic: "Über mich",
+        points: ["Name?", "Woher?", "Hobby?"],
+        model: "Ich heiße Mara. Ich komme aus Polen. Ich lese gern.",
+      },
+    ],
   });
   await api.send("PUT", "/api/settings", { key: "llm.preparePractice", value: true });
   await api.sendJson("POST", "/api/runs", START);
@@ -333,6 +342,7 @@ test("made ahead as a new run starts: Reading and Listening's texts and the writ
         )
       ).task,
   );
+  await until(async () => !!(await api.getJson(`/api/llm/talk?lessonKey=${LESSON}`)).task);
   const reading = await state(api, "reading");
   expect(reading.texts[0].result.step).toBe("reading");
   expect(reading.texts[0].result.kind).toBe("reading");

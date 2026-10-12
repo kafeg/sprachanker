@@ -40,10 +40,34 @@ export const WritingCheck = z.object({
 });
 export type WritingCheck = z.infer<typeof WritingCheck>;
 
+/** A line of a text the AI wrote, in the target language: a speaker's turn (with the speaker's name or
+ *  role), a paragraph, a line of a menu. */
+export const TextLine = z.object({
+  speaker: z.string().max(40).optional(),
+  text: z.string().min(1).max(600),
+});
+/** A word of such a text beyond those known, as written there, with its translation. */
+export const TextGloss = z.object({
+  word: z.string().min(1).max(80),
+  translation: z.string().min(1).max(120),
+});
+
+/** A message the learner answers in writing (a writing task's): what it is in the learner's
+ *  language, its lines in the target language, its new words. */
+export const TaskMessage = z.object({
+  /** Its genre (`TEXT_GENRES`' id). */
+  genre: z.string().max(40).optional(),
+  setting: z.string().max(120),
+  lines: z.array(TextLine).min(1).max(40),
+  glossary: z.array(TextGloss).max(10),
+});
+export type TaskMessage = z.infer<typeof TaskMessage>;
+
 /** A writing task (`writing_task`; 04, "AI practice in courses"): a situation from the lesson and
  *  three content points to cover, as a language exam's writing part sets one (Goethe's Schreiben),
- *  in the learner's language; kept as an `llm_verdict` (`task: writing_task`) in the lesson run, the
- *  texts written on it checked against it. */
+ *  in the learner's language — an answer to a message the text generator wrote (a friend's e-mail,
+ *  a chat, an ad), or a situation alone (tasks before the message); kept as an `llm_verdict` (`task:
+ *  writing_task`) in the lesson run, the texts written on it checked against it. */
 export const WritingTask = z.object({
   /** Who the learner writes to and why, one or two sentences. */
   situation: z.string().min(1).max(400),
@@ -51,6 +75,8 @@ export const WritingTask = z.object({
   points: z.array(z.string().min(1).max(200)).length(3),
   /** About how many words, by the course's level (the app's, not the model's). */
   words: z.number().int().positive(),
+  /** The message answered; tasks before it have none. */
+  message: TaskMessage.optional(),
 });
 export type WritingTask = z.infer<typeof WritingTask>;
 
@@ -427,3 +453,86 @@ export const MistakesReview = z.object({
   more: z.number().int().positive().optional(),
 });
 export type MistakesReview = z.infer<typeof MistakesReview>;
+
+/** Speaking's monologue (04, "AI practice in courses"; owner, 2026-10-12): a card as a speaking
+ *  exam's first parts set one — what it is and what to do in the learner's language, the topic and
+ *  three things to say in the target language —, about how long to speak, and a model answer. */
+export const MonologueCard = z.object({
+  kind: z.literal("monologue"),
+  setting: z.string().max(120),
+  instruction: z.string().min(1).max(300),
+  topic: z.string().min(1).max(120),
+  points: z.array(z.string().min(1).max(160)).length(3),
+  /** About how long to speak, by the course's level (the app's). */
+  seconds: z.number().int().positive(),
+  model: z.string().min(1).max(1500),
+});
+export type MonologueCard = z.infer<typeof MonologueCard>;
+
+/** A hint for a line the learner says in a role-play: what to say, in the learner's language, never
+ *  the words. `n`: the line's index in the conversation. */
+export const RoleplayCue = z.object({
+  n: z.number().int().nonnegative(),
+  cue: z.string().max(300),
+});
+
+/** Speaking's role-play (04): a conversation the text generator wrote, the learner playing one part
+ *  (`learner`: their lines' speaker, a role) — each of their lines a hint to say it from, its words a
+ *  model —, the partner read aloud by their voice. */
+export const Roleplay = z.object({
+  kind: z.literal("roleplay"),
+  /** The text generator's genre of the conversation (a talk, a phone call). */
+  genre: z.string().max(40).optional(),
+  setting: z.string().max(120),
+  situation: z.string().max(300),
+  /** Who the learner is in it, in the learner's language ("a guest at a hotel"). */
+  role: z.string().max(120),
+  learner: z.string().min(1).max(40),
+  partner: TextPerson,
+  /** The partner's server voice, chosen when it was made. */
+  voice: z.object({ engine: z.enum(["piper", "qwen"]), id: z.string() }).optional(),
+  lines: z.array(TextLine).min(2).max(30),
+  cues: z.array(RoleplayCue).min(1).max(15),
+  glossary: z.array(TextGloss).max(10),
+});
+export type Roleplay = z.infer<typeof Roleplay>;
+
+/** A Speaking task (`talk_task`): a monologue card or a role-play; kept as an `llm_verdict` (`task:
+ *  talk_task`) in the lesson run. */
+export const TalkTask = z.discriminatedUnion("kind", [MonologueCard, Roleplay]);
+export type TalkTask = z.infer<typeof TalkTask>;
+
+/** A role-play checked (`talk_check`): each line the learner said — whether it does what its hint
+ *  asks and fits, at most two corrections — and a line of feedback. */
+export const RoleplayCheck = z.object({
+  turns: z
+    .array(
+      z.object({
+        n: z.number().int().nonnegative(),
+        fits: z.boolean(),
+        corrections: z.array(Correction).max(2),
+      }),
+    )
+    .max(15),
+  feedback: z.string(),
+});
+export type RoleplayCheck = z.infer<typeof RoleplayCheck>;
+
+/** What the learner said on a Speaking task (each line as heard, with its take), and its check: a
+ *  monologue's as a writing check is made, a role-play's line by line; kept as an `llm_verdict`
+ *  (`task: talk`) with its task. */
+export const TalkAttempt = z.object({
+  task: TalkTask,
+  said: z
+    .array(
+      z.object({
+        n: z.number().int().nonnegative(),
+        text: z.string().max(3000),
+        recording: z.string().max(40).optional(),
+      }),
+    )
+    .min(1)
+    .max(15),
+  check: z.union([WritingCheck, RoleplayCheck]),
+});
+export type TalkAttempt = z.infer<typeof TalkAttempt>;

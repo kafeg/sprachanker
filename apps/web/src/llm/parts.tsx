@@ -217,10 +217,13 @@ export function ChatComposer({
   placeholder,
   lang,
   speak,
+  sendLabel,
 }: {
   value: string;
   onChange(value: string): void;
   onSend(): void;
+  /** What sending does, where it is not "Send". */
+  sendLabel?: string;
   /** While a reply streams: the button stops it instead of sending. */
   onStop?: () => void;
   placeholder: string;
@@ -270,7 +273,12 @@ export function ChatComposer({
           <Square className="size-4" />
         </Button>
       ) : (
-        <Button type="submit" size="icon" className="size-11" aria-label={t("tutor.send")}>
+        <Button
+          type="submit"
+          size="icon"
+          className="size-11"
+          aria-label={sendLabel ?? t("tutor.send")}
+        >
           <Send className="rtl:-scale-x-100 size-4" />
         </Button>
       )}

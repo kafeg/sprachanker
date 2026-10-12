@@ -1,5 +1,5 @@
 // The lesson's AI practice made ahead (04, "AI practice in courses"; owner, 2026-10-12): as a lesson
-// starts, its Reading and Listening texts and its writing task are made in the background — one call
+// starts, its Reading and Listening texts, its writing task and its speaking one are made in the background — one call
 // after another for the profile, while the learner does the course's exercises — so each step has
 // its work ready when it comes. Only with a model set up, the setting on (`llm.preparePractice`, on by
 // default) and the step's place on; a step whose latest work is still untouched is left as it is.
@@ -8,16 +8,18 @@ import { type Lang, parseEditionId } from "@sprachanker/schema";
 import type { LessonStart } from "./lessons.ts";
 import type { Llm } from "./llm.ts";
 import type { Settings } from "./settings.ts";
+import type { Talk } from "./talk.ts";
 import type { Understanding } from "./understanding.ts";
 import type { Writing } from "./writing.ts";
 
 export function createPracticePrep(deps: {
   understanding: Understanding;
   writing: Writing;
+  talk: Talk;
   settings: Settings;
   llm: Llm;
 }) {
-  const { understanding, writing, settings, llm } = deps;
+  const { understanding, writing, talk, settings, llm } = deps;
   /** The profile's queue: one lesson's work after another's. */
   let queue: Promise<void> = Promise.resolve();
   /** Lessons queued and not yet done, so a lesson opened twice is made ahead once. */
@@ -39,6 +41,7 @@ export function createPracticePrep(deps: {
           console.warn(`writing task made ahead: ${(error as Error).message}`);
         });
     }
+    if (!off.includes("scene")) await talk.prepare(request);
   }
 
   return {

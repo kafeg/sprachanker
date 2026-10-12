@@ -25,7 +25,13 @@ export interface WritingInput extends RulesInput {
   /** The task the text was written on. */
   task: WritingTask;
   text: string;
+  /** Said aloud (Speaking's monologue) and heard by the recogniser, not written. */
+  spoken?: boolean;
 }
+
+/** How a text said aloud is read (data, with the text). */
+const SPOKEN =
+  "The text was said aloud and heard by a speech recogniser, not written: punctuation, capitals and numbers in digits are the recogniser's, never errors; a word that sounds alike and makes no sense there was misheard, not said wrong — no correction for it; no greeting or closing is needed. Rate it as the speaking part of the exam of that level rates a short talk.";
 
 export const CHECK_WRITING_BUDGETS = {
   grammar: 3000,
@@ -93,10 +99,15 @@ function checkWritingRequest(input: WritingInput): TaskRequest {
     "<text>",
     clip(input.text.trim(), B.text),
     "</text>",
-    writingCriteriaLine(lesson.level),
-    WRITING_EXAM[input.target]?.rating,
-    // Small models follow the last lines best: what they most often get wrong.
-    SPELLING[input.target],
+    // Said aloud: the recogniser's spelling is no error, nor rated as writing.
+    ...(input.spoken
+      ? [SPOKEN]
+      : [
+          writingCriteriaLine(lesson.level),
+          WRITING_EXAM[input.target]?.rating,
+          // Small models follow the last lines best: what they most often get wrong.
+          SPELLING[input.target],
+        ]),
     `Remember: ${input.task.points.length} points in the task's order; every change of "corrected" is a correction, the most important first; comments, explanations and feedback in ${languageName(input.language)}.`,
   ]
     .filter(Boolean)

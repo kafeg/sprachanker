@@ -1,16 +1,16 @@
 // The AI assistant in the lesson player (09, 07): the tutor in the header, "Why is this wrong?" under a
 // wrong item, the check of an answer said aloud under it, and the practice steps of the plan —
-// Reading, Listening, writing, the Dialogue and going over the pass's mistakes — each where its place is on
+// Reading, Listening, Writing, Speaking and going over the pass's mistakes — each where its place is on
 // (Settings → AI assistant). The router passes these slots to the player; nothing in lesson/ imports llm/.
 import { PRACTICE, type PracticeKind } from "@sprachanker/engine";
 import type { AiPlace } from "@sprachanker/schema";
 import { useSetting } from "@/api/settings.ts";
 import type { LessonSlots } from "@/lesson/slots.ts";
-import { DialogueStep } from "./dialogue.tsx";
 import { ExplainMistake } from "./explain.tsx";
 import { GoingOverStep } from "./going-over.tsx";
 import { useAiIn, useLlm } from "./setup-api.ts";
 import { SpokenAnswerCheck } from "./spoken-check.tsx";
+import { TalkStep } from "./talk.tsx";
 import { LessonTutor } from "./tutor.tsx";
 import { UnderstandingStep } from "./understanding.tsx";
 import { WritingTask } from "./writing.tsx";
@@ -25,7 +25,7 @@ const PLACE_OF: Record<PracticeKind, AiPlace> = {
   reading: "understanding",
   listening: "understanding",
   writing: "writing",
-  scene: "scene",
+  speaking: "scene",
   mistakes: "tutor",
 };
 
@@ -65,9 +65,9 @@ export const lessonAssistant: LessonSlots = {
           setPrimary={setPrimary}
         />
       ) : kind === "writing" ? (
-        <WritingTask {...context} onDone={onDone} />
-      ) : kind === "scene" ? (
-        <DialogueStep {...context} onDone={onDone} />
+        <WritingTask {...context} onDone={onDone} setPrimary={setPrimary} />
+      ) : kind === "speaking" ? (
+        <TalkStep {...context} onDone={onDone} setPrimary={setPrimary} />
       ) : (
         <GoingOverStep {...context} runId={runId} onDone={onDone} onNothing={onNothing} />
       ),

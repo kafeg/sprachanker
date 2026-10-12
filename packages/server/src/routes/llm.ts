@@ -64,6 +64,21 @@ const SceneLine = LessonRequest.extend({
   recording: Ulid.optional(),
 });
 
+/** What was said on a Speaking task: each line as heard (or typed), with its take. */
+const TalkBody = LessonRequest.extend({
+  taskId: Ulid,
+  said: z
+    .array(
+      z.object({
+        n: z.number().int().nonnegative(),
+        text: z.string().trim().min(1).max(3000),
+        recording: z.string().max(40).optional(),
+      }),
+    )
+    .min(1)
+    .max(15),
+});
+
 /** A text of Reading or Listening asked for. */
 const TextRequest = LessonRequest.extend({ step: PracticeStep });
 
@@ -323,6 +338,20 @@ export function llmRoutes() {
       )
       .post("/understanding/prompt", zod("json", TextRequest), async (c) =>
         c.json(await c.var.s.understanding.prompt(c.req.valid("json"))),
+      )
+      // Speaking: the lesson's latest task and attempts; a task made (kept in the lesson run), what
+      // was said on it checked and kept, the prompt a card would send.
+      .get("/talk", zod("query", z.object({ lessonKey: LessonKey })), (c) =>
+        c.json(c.var.s.talk.state(c.req.valid("query").lessonKey)),
+      )
+      .post("/talk", zod("json", LessonRequest), async (c) =>
+        c.json(await c.var.s.talk.start(c.req.valid("json"))),
+      )
+      .post("/talk/check", zod("json", TalkBody), async (c) =>
+        c.json(await c.var.s.talk.check(c.req.valid("json"))),
+      )
+      .post("/talk/prompt", zod("json", LessonRequest), async (c) =>
+        c.json(await c.var.s.talk.prompt(c.req.valid("json"))),
       )
       // Going over mistakes: the lesson's reviews with their answers; the pass's mistakes gone over
       // (kept in the lesson run), an answer to a new item checked and kept, the prompt it would send.

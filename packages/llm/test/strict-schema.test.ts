@@ -10,6 +10,9 @@ import { examConversationTask } from "../src/tasks/exam-conversation.ts";
 import { mistakeItemsCheckTask, mistakeItemsTask } from "../src/tasks/mistake-items.ts";
 import { rateExamAnswerTask } from "../src/tasks/rate-exam-answer.ts";
 import { sceneSetupTask, sceneSummaryTask, sceneTurnTask } from "../src/tasks/scene.ts";
+import { talkCardTask, talkCheckTask, talkCuesTask } from "../src/tasks/talk.ts";
+import { TEXT_GENRES } from "../src/tasks/text-genres.ts";
+import { understandingDraftTask, understandingJudgeTask } from "../src/tasks/understanding.ts";
 import { wordExamplesTask } from "../src/tasks/word-examples.ts";
 import { writingTaskTask } from "../src/tasks/writing-task.ts";
 
@@ -36,6 +39,46 @@ const TASKS: StructuredTask<unknown>[] = [
   sceneTurnTask({ ...RU_DE, lesson, setup, history: [], message: "Hallo" }),
   sceneSummaryTask({ ...RU_DE, lesson, setup, turns: [], goalsMet: [] }),
   wordExamplesTask({ ...RU_DE, words: [], known: [] }),
+  talkCardTask({ ...RU_DE, lesson }),
+  talkCuesTask({
+    ...RU_DE,
+    lines: [
+      { speaker: "A", text: "Hallo" },
+      { speaker: "B", text: "Hi" },
+    ],
+    learner: "B",
+  }),
+  talkCheckTask({
+    ...RU_DE,
+    lesson,
+    task: {
+      kind: "roleplay",
+      setting: "S",
+      situation: "S",
+      role: "R",
+      learner: "B",
+      partner: { name: "A", gender: "f", age: "adult" },
+      lines: [
+        { speaker: "A", text: "Hallo" },
+        { speaker: "B", text: "Hi" },
+      ],
+      cues: [{ n: 1, cue: "Greet." }],
+      glossary: [],
+    },
+    said: [{ n: 1, text: "Hi" }],
+  }),
+  understandingDraftTask({
+    ...RU_DE,
+    lesson,
+    genre: TEXT_GENRES[0] as (typeof TEXT_GENRES)[number],
+    areas: [],
+  }),
+  understandingJudgeTask({
+    ...RU_DE,
+    lesson,
+    genre: TEXT_GENRES[0] as (typeof TEXT_GENRES)[number],
+    drafts: [],
+  }),
 ];
 
 /** The keywords strict mode takes. */

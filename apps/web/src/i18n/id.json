@@ -148,12 +148,13 @@
       "wordsCount": "Kosakata pelajaran · {count, number}",
       "grammar": "Tata bahasa",
       "culture": "Budaya",
-      "writing": "Tulis sendiri",
+      "writing": "Menulis",
       "scene": "Dialog",
       "mistakes": "Membahas kesalahan",
       "summary": "Ringkasan",
       "reading": "Membaca",
-      "listening": "Menyimak"
+      "listening": "Menyimak",
+      "speaking": "Berbicara"
     },
     "section": {
       "grammar": "Tata bahasa",
@@ -415,7 +416,10 @@
       "understandingCheck": "Membaca dan menyimak: pembacaan kedua",
       "mistakes": "Membahas kesalahan",
       "understandingJudge": "Membaca dan menyimak: penilaian draf",
-      "understandingQuestions": "Membaca dan menyimak: pertanyaan"
+      "understandingQuestions": "Membaca dan menyimak: pertanyaan",
+      "talkCard": "Berbicara: kartu",
+      "talkCues": "Berbicara: petunjuk bermain peran",
+      "talkCheck": "Berbicara: pemeriksaan bermain peran"
     },
     "contextIntro": "Ditambahkan dari pelajaran:",
     "contextIntroCourses": "Ditambahkan dari kursus-kursusmu (yang mengajarkan bahasa percakapan ini):",
@@ -464,7 +468,10 @@
       "lessonScript": "naskah pelajaran itu sendiri (topik dan situasinya)",
       "genre": "jenis teks yang diundi, bentuknya, panjangnya, dan ide untuk situasinya",
       "drafts": "draf yang ditulis",
-      "textFacts": "fakta yang menjadi rencana teks"
+      "textFacts": "fakta yang menjadi rencana teks",
+      "replyMessage": "pesan yang dijawab tugas (dari pembuat teks)",
+      "roleplay": "percakapan dan peranmu",
+      "roleplaySaid": "percakapan dengan yang kamu ucapkan di tiap giliranmu"
     },
     "upTo": "hingga {chars, plural, other {# karakter}}",
     "debug": "Tampilkan tombol “Prompt”",
@@ -485,12 +492,12 @@
         "where": "tombol di pelajaran, langkah “Membahas kesalahan”, dan bagian “Tutor”"
       },
       "writing": {
-        "name": "“Tulis sendiri”",
+        "name": "Menulis",
         "where": "salah satu langkah pelajaran"
       },
       "scene": {
-        "name": "Dialog",
-        "where": "salah satu langkah pelajaran"
+        "name": "Berbicara",
+        "where": "satu langkah pelajaran: berbicara dari kartu atau bermain peran, dengan suara"
       },
       "speaking": {
         "name": "Jawaban lisan",
@@ -528,12 +535,15 @@
       "understandingCheck": "Menjawab pertanyaan hanya dari teks, lalu sekali lagi tanpa teks: pertanyaan yang dijawabnya berbeda, dianggap tidak jelas, atau bisa dijawab dengan akal sehat dibuang.",
       "mistakes": "Membahas kesalahan sebuah putaran menurut jenis: tiap jenis hanya bagian yang salah (jawabanmu, yang benar, kata di sekitarnya), penjelasan singkat, dan dua atau tiga soal baru jenis itu dari kata yang kamu kenal. Jawabanmu diperiksa aplikasi, bukan model.",
       "understandingJudge": "Menilai draf seperti guru penutur asli — kewajaran, keruntutan, kesesuaian dengan kenyataan, level, kaitan dengan pelajaran, daya tarik — dan mendaftar masalahnya: draf terbaik yang lolos dipakai, jika tidak, yang terbaik ditulis ulang sekali.",
-      "understandingQuestions": "Mengajukan 5–10 pertanyaan tentang teks terpilih seperti dalam ujian (benar/salah, a/b/c, angka) dan mendaftar kata-kata barunya. Jawabanmu diperiksa aplikasi, bukan model."
+      "understandingQuestions": "Mengajukan 5–10 pertanyaan tentang teks terpilih seperti dalam ujian (benar/salah, a/b/c, angka) dan mendaftar kata-kata barunya. Jawabanmu diperiksa aplikasi, bukan model.",
+      "talkCard": "Memberi tugas berbicara singkat seperti bagian awal ujian lisan: satu topik dan tiga poin dalam bahasa yang kamu pelajari, kira-kira berapa lama bicara, dan contoh jawaban.",
+      "talkCues": "Mengubah kalimatmu dalam bermain peran menjadi petunjuk dalam bahasamu: apa yang dikatakan, bukan kata-katanya.",
+      "talkCheck": "Memeriksa bermain peran setelah diucapkan: tiap kalimat apakah sesuai petunjuk, paling banyak dua koreksi dan sedikit umpan balik. Yang kamu ucapkan didengar pengenal suara."
     }
   },
   "writing": {
     "task": "Tugasmu (tulis dalam bahasa {language}):",
-    "intro": "Teks pendek tentang situasi dari pelajaran: tiga poin yang harus dibahas, sepanjang yang diminta ujian di levelmu. AI memeriksanya: poin yang terbahas, paling banyak tiga koreksi, dan teks contoh.",
+    "intro": "Pesan untuk dibalas secara tertulis — e-mail teman, obrolan, iklan: tiga poin, sepanjang yang diminta ujian di levelmu. AI memeriksa: poinnya, paling banyak tiga koreksi, dan contoh teks.",
     "start": "Minta tugas",
     "preparing": "Menulis tugas…",
     "newTask": "Tugas baru",
@@ -541,7 +551,6 @@
     "count": "{count, plural, other {# kata}} dari sekitar {words, number}",
     "placeholder": "Teks kamu…",
     "check": "Periksa",
-    "checking": "Memeriksa…",
     "rewrite": "Perbaiki dan periksa lagi",
     "score": "{name}: {score, number} dari {max, number}",
     "points": "{score, number} dari {max, number}",
@@ -702,7 +711,8 @@
     "scene": "Dialog",
     "mistakes": "Kesalahan",
     "reading": "Membaca",
-    "listening": "Menyimak"
+    "listening": "Menyimak",
+    "speaking": "Berbicara"
   },
   "words": {
     "intro": "Kosakata pelajaran sebagai kartu: ingat, tampilkan jawabannya, beri nilai. Jika untuk saat ini sudah habis, kartunya berlanjut di Pengulangan.",
@@ -1429,7 +1439,8 @@
     "course_bundle_clash": "Komputer ini punya berkas lain dengan nama berkas media kursus ini: unduh saja kursusnya di sini.",
     "course_import_busy": "Berkas kursus lain sedang diimpor. Coba lagi setelah selesai.",
     "series_busy": "Kursus dari sumber ini sedang diunduh atau diimpor. Coba lagi setelah selesai.",
-    "understanding_busy": "Sebuah teks untuk pelajaran ini sedang ditulis. Tunggu sebentar."
+    "understanding_busy": "Sebuah teks untuk pelajaran ini sedang ditulis. Tunggu sebentar.",
+    "talk_busy": "Tugas pelajaran ini sedang disiapkan atau diperiksa. Tunggu."
   },
   "exams": {
     "tabs": {
@@ -1708,5 +1719,27 @@
       "making": "Membuat latihan baru…",
       "checking": "Memeriksa latihan baru…"
     }
+  },
+  "talk": {
+    "intro": "Berbicaralah dalam bahasa yang kamu pelajari: bicara singkat dari kartu atau satu peran dalam percakapan. Semua diperiksa di akhir, tanpa menunggu di antara kalimat.",
+    "start": "Ambil tugas",
+    "preparing": "Menyiapkan tugas…",
+    "new": "Tugas baru",
+    "step": {
+      "writing": "Menulis tugas…",
+      "choosing": "Memilih draf terbaik…",
+      "hinting": "Menulis petunjuk…",
+      "checking": "Memeriksa yang kamu ucapkan…"
+    },
+    "seconds": "Bicaralah sekitar {seconds, number} detik.",
+    "keep": "Simpan",
+    "yourRole": "Peranmu: {role}",
+    "yourTurn": "Giliranmu",
+    "model": "Bisa diucapkan begini",
+    "fits": "Pas",
+    "misses": "Tidak sesuai petunjuk",
+    "result": "{right, number} dari {total, number} kalimat pas",
+    "modelAnswer": "Contoh jawaban",
+    "restart": "Mulai lagi"
   }
 }

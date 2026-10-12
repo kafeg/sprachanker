@@ -148,12 +148,13 @@
       "wordsCount": "Palavras da lição · {count, number}",
       "grammar": "Gramática",
       "culture": "Cultura",
-      "writing": "Escreva você",
+      "writing": "Escrita",
       "scene": "Diálogo",
       "mistakes": "Revisando os erros",
       "summary": "Resumo",
       "reading": "Leitura",
-      "listening": "Compreensão oral"
+      "listening": "Compreensão oral",
+      "speaking": "Expressão oral"
     },
     "section": {
       "grammar": "Gramática",
@@ -415,7 +416,10 @@
       "understandingCheck": "Leitura e compreensão oral: a segunda leitura",
       "mistakes": "Revisando os erros",
       "understandingJudge": "Leitura e compreensão oral: avaliação dos rascunhos",
-      "understandingQuestions": "Leitura e compreensão oral: as perguntas"
+      "understandingQuestions": "Leitura e compreensão oral: as perguntas",
+      "talkCard": "Expressão oral: o cartão",
+      "talkCues": "Expressão oral: as dicas da dramatização",
+      "talkCheck": "Expressão oral: verificação da dramatização"
     },
     "contextIntro": "Adicionado da lição:",
     "contextIntroCourses": "Adicionado dos seus cursos (os do idioma que a conversa pratica):",
@@ -464,7 +468,10 @@
       "lessonScript": "o roteiro da própria lição (seu tema e situações)",
       "genre": "o tipo de texto sorteado, sua forma, seu tamanho e ideias para a situação",
       "drafts": "os rascunhos escritos",
-      "textFacts": "os fatos com que o texto foi planejado"
+      "textFacts": "os fatos com que o texto foi planejado",
+      "replyMessage": "a mensagem que a tarefa responde (do gerador de textos)",
+      "roleplay": "a conversa e o seu papel",
+      "roleplaySaid": "a conversa com o que você disse em cada fala sua"
     },
     "upTo": "até {chars, plural, =0 {# caracteres} one {# caractere} other {# caracteres}}",
     "debug": "Mostrar os botões “Prompt”",
@@ -485,12 +492,12 @@
         "where": "o botão numa lição, a etapa “Revisando os erros” e a seção “Tutor”"
       },
       "writing": {
-        "name": "“Escreva você”",
+        "name": "Escrita",
         "where": "uma etapa da lição"
       },
       "scene": {
-        "name": "Diálogo",
-        "where": "uma etapa da lição"
+        "name": "Expressão oral",
+        "where": "uma etapa da lição: falar a partir de um cartão ou uma dramatização, em voz alta"
       },
       "speaking": {
         "name": "Respostas faladas",
@@ -528,12 +535,15 @@
       "understandingCheck": "Responde às perguntas só a partir do texto e depois mais uma vez sem ele: sai a pergunta que responder de outra forma, achar confusa ou que o bom senso responda.",
       "mistakes": "Revisa os erros de uma rodada por tipo: de cada tipo só as partes erradas (o que você deu, o que é certo, as palavras em volta), uma explicação curta e dois ou três exercícios novos do tipo com palavras que você conhece. Suas respostas são corrigidas pelo app, não pelo modelo.",
       "understandingJudge": "Avalia os rascunhos como um professor nativo faria — naturalidade, coerência, realismo, nível, relação com a lição, interesse — e lista os problemas: fica o melhor que passa; senão, o melhor é reescrito uma vez.",
-      "understandingQuestions": "Faz 5–10 perguntas sobre o texto escolhido, como nos exames (verdadeiro/falso, a/b/c, números), e lista as palavras novas. Suas respostas são corrigidas pelo app, não pelo modelo."
+      "understandingQuestions": "Faz 5–10 perguntas sobre o texto escolhido, como nos exames (verdadeiro/falso, a/b/c, números), e lista as palavras novas. Suas respostas são corrigidas pelo app, não pelo modelo.",
+      "talkCard": "Propõe uma tarefa oral curta como as primeiras partes de um exame oral: um tema e três pontos na língua que você aprende, quanto falar mais ou menos e uma resposta modelo.",
+      "talkCues": "Transforma suas falas na dramatização em dicas na sua língua: o que dizer, nunca as palavras.",
+      "talkCheck": "Verifica a dramatização depois de dita: cada fala, se faz o que a dica pede, até duas correções e um breve comentário. O que você diz é ouvido pelo reconhecimento de fala."
     }
   },
   "writing": {
     "task": "Sua tarefa (escreva em {language}):",
-    "intro": "Um texto curto sobre uma situação da lição: três pontos a abordar, do tamanho que uma prova do seu nível pede. A IA o corrige: os pontos abordados, no máximo três correções e um texto modelo.",
+    "intro": "Uma mensagem para responder por escrito — um e-mail de amigo, um chat, um anúncio: três pontos, do tamanho que um exame do seu nível pede. A IA verifica: os pontos, até três correções e um texto modelo.",
     "start": "Receber uma tarefa",
     "preparing": "Escrevendo a tarefa…",
     "newTask": "Nova tarefa",
@@ -541,7 +551,6 @@
     "count": "{count, plural, one {# palavra} other {# palavras}} de cerca de {words, number}",
     "placeholder": "Seu texto…",
     "check": "Verificar",
-    "checking": "Verificando…",
     "rewrite": "Corrija e verifique de novo",
     "score": "{name}: {score, number} de {max, number}",
     "points": "{score, number} de {max, number}",
@@ -702,7 +711,8 @@
     "scene": "Diálogo",
     "mistakes": "Erros",
     "reading": "Leitura",
-    "listening": "Compreensão oral"
+    "listening": "Compreensão oral",
+    "speaking": "Expressão oral"
   },
   "words": {
     "intro": "As palavras da lição como cartões: lembre, mostre a resposta, avalie. Quando não sobrar nada por agora, elas continuam na Revisão.",
@@ -1429,7 +1439,8 @@
     "course_bundle_clash": "Este computador tem outros arquivos com os nomes das mídias deste curso: baixe o curso aqui.",
     "course_import_busy": "Outro arquivo de curso está sendo importado. Tente de novo quando terminar.",
     "series_busy": "Cursos desta fonte estão sendo baixados ou importados agora. Tente de novo quando terminar.",
-    "understanding_busy": "Um texto para esta lição está sendo escrito. Aguarde."
+    "understanding_busy": "Um texto para esta lição está sendo escrito. Aguarde.",
+    "talk_busy": "Uma tarefa desta lição já está sendo preparada ou verificada. Aguarde."
   },
   "exams": {
     "tabs": {
@@ -1708,5 +1719,27 @@
       "making": "Criando novas tarefas…",
       "checking": "Verificando as novas tarefas…"
     }
+  },
+  "talk": {
+    "intro": "Fale na língua que você aprende: uma fala curta a partir de um cartão ou um papel numa conversa. Tudo é verificado no fim, sem espera entre as falas.",
+    "start": "Receber uma tarefa",
+    "preparing": "Preparando a tarefa…",
+    "new": "Nova tarefa",
+    "step": {
+      "writing": "Escrevendo a tarefa…",
+      "choosing": "Escolhendo o melhor rascunho…",
+      "hinting": "Escrevendo as dicas…",
+      "checking": "Verificando o que você disse…"
+    },
+    "seconds": "Fale cerca de {seconds, number} segundos.",
+    "keep": "Manter",
+    "yourRole": "Seu papel: {role}",
+    "yourTurn": "Sua fala",
+    "model": "Dava para dizer",
+    "fits": "Serve",
+    "misses": "Não segue a dica",
+    "result": "{right, number} de {total, number} falas servem",
+    "modelAnswer": "Resposta modelo",
+    "restart": "Recomeçar"
   }
 }

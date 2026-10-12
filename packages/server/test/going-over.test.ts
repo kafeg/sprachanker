@@ -149,7 +149,7 @@ function model(answer: (name: string, body: Body) => unknown) {
 function teacher() {
   let gapChecks = 0;
   return (name: string, body: Body) => {
-    const user = body.messages.find((m, i) => i > 0)?.content ?? "";
+    const user = body.messages.find((_m, i) => i > 0)?.content ?? "";
     if (name === "understanding_draft") return DRAFT;
     if (name === "understanding_judge") return RATED;
     if (name === "understanding_questions") return ASKED;

@@ -19,26 +19,17 @@ import {
   understandingStage,
 } from "@sprachanker/engine";
 import {
-  chooseDraft,
-  type DraftInput,
-  type DraftRating,
   fewWords,
   LlmError,
-  nameWords,
-  passable,
-  passes,
   pickAreas,
   pickGenre,
   questionsFor,
   settledQuestions,
   structuredRequest,
   type TextGenre,
-  totalRating as total,
   UNDERSTANDING_MIN_QUESTIONS,
-  type UnderstandingDraft,
   understandingCheckTask,
   understandingDraftTask,
-  understandingJudgeTask,
   understandingQuestionsTask,
   understandingText,
 } from "@sprachanker/llm";
@@ -52,9 +43,9 @@ import {
 } from "@sprachanker/schema";
 import { ServiceError } from "../errors.ts";
 import { createInFlight } from "./in-flight.ts";
-import type { LessonContexts } from "./lesson-context.ts";
 import type { Llm, PromptPreview } from "./llm.ts";
 import { HISTORY_LIMIT, type RunStore } from "./run-store.ts";
+import type { Drafted, MakerInputs, TextMaker } from "./text-maker.ts";
 import {
   keepPracticeAnswer,
   keepVerdict,
@@ -69,15 +60,8 @@ import { joinWavs } from "./wav.ts";
  *  chosen, questions asked, read again. */
 export type UnderstandingStep = "writing" | "choosing" | "asking" | "checking";
 
-/** Drafts written for a text (owner, 2026-10-12: always two or three); side by side, but one after
- *  another on this computer's own model (LM Studio answers one at a time). */
-export const DRAFTS = 3;
 /** Pauses in a text's recording: between a speaker's sentences, and before another line. */
 const PAUSE_MS = { piece: 250, line: 650 };
-/** How often a draft is written again when none passes. */
-const REWRITES = 2;
-/** The learner's latest texts whose people's names a new text avoids. */
-const RECENT_TEXTS = 12;
 
 export interface UnderstandingRequest {
   series: string;
@@ -109,17 +93,17 @@ export function createUnderstanding(deps: {
   /** The run the lesson shows (the lessons service). */
   session: (lessonKey: LessonKey) => Promise<{ run: Run } | undefined>;
   llm: Llm;
-  lessonContext: LessonContexts;
+  /** The text generator: drafts rated, the best kept. */
+  maker: TextMaker;
   /** The voices a text's people may be given (none: the server reads nothing aloud). */
   voices?: VoicesFor;
   /** A line read aloud with a voice (the profile's own without one), kept in the readings' cache: read
    *  ahead, and joined into a text's recording. */
   say?: (text: string, lang: string, voice?: string) => Promise<Uint8Array>;
-  random?: () => number;
   now?: () => number;
 }) {
   const { store, llm } = deps;
-  const random = deps.random ?? Math.random;
+  const { random } = deps.maker;
   const now = deps.now ?? Date.now;
   /** A text being made, per lesson and step. */
   const making = createInFlight<UnderstandingStep>("understanding_busy");
@@ -135,23 +119,6 @@ export function createUnderstanding(deps: {
       .map((v) => ({ ...v, answers: answers.get(v.id) ?? [] }));
   }
 
-  async function inputs(request: UnderstandingRequest) {
-    const ctx = await deps.lessonContext.get(request.series, request.lessonKey, request.edition);
-    const base = { language: request.language, target: ctx.target, lesson: ctx.info };
-    const rules = (task: Parameters<Llm["rulesFor"]>[0]) =>
-      llm.rulesFor(task, request.language, ctx.target);
-    return { ctx, base, rules };
-  }
-
-  /** The names the people of the learner's latest texts (any lesson's) had: a new text's are others. */
-  function usedNames(): string[] {
-    const latest = verdicts(store, "understanding", { kind: "lesson" }).slice(0, RECENT_TEXTS);
-    return nameWords(latest.flatMap((t) => (t.result.people ?? []).map((p) => p.name))).slice(
-      0,
-      30,
-    );
-  }
-
   /** The genre of a new text: not one of the step's last three in the lesson. */
   function genreFor(
     request: UnderstandingRequest,
@@ -164,71 +131,14 @@ export function createUnderstanding(deps: {
     return pickGenre(request.step, level, recent, random, few);
   }
 
-  /** Drafts written side by side and rated: the one kept with its rating, or — none passing — the
-   *  best written again with its problems and rated alone; that failing too, the call fails. */
-  async function bestDraft(
-    input: Awaited<ReturnType<typeof inputs>>,
-    genre: TextGenre,
-    step: (now: UnderstandingStep) => void,
-  ) {
-    const { base, rules } = input;
-    const names = usedNames();
-    const draftInput = (extra: Partial<DraftInput> = {}): DraftInput => ({
-      ...base,
-      rules: rules("understandingDraft"),
-      genre,
-      areas: pickAreas(5, random),
-      ...(names.length && { usedNames: names }),
-      ...extra,
-    });
-    const write = (extra?: Partial<DraftInput>) =>
-      llm.structured(understandingDraftTask(draftInput(extra)), { timeoutAgain: true });
-    const judge = (drafts: UnderstandingDraft[]) =>
-      llm.structured(
-        understandingJudgeTask({ ...base, rules: rules("understandingJudge"), genre, drafts }),
-        { timeoutAgain: true },
-      );
-    step("writing");
-    const local = llm.state().provider === "lmstudio";
-    const made: PromiseSettledResult<Awaited<ReturnType<typeof write>>>[] = [];
-    if (local) for (let i = 0; i < DRAFTS; i++) made.push(...(await Promise.allSettled([write()])));
-    else made.push(...(await Promise.allSettled(Array.from({ length: DRAFTS }, () => write()))));
-    const drafts = made.flatMap((m) => (m.status === "fulfilled" ? [m.value.result] : []));
-    const model = made.find((m) => m.status === "fulfilled")?.value.model;
-    if (!drafts.length || !model) throw (made[0] as PromiseRejectedResult).reason;
-    step("choosing");
-    const rated = await judge(drafts);
-    const { index, again } = chooseDraft(rated.result.ratings);
-    const rating = rated.result.ratings.find((r) => r.n === index + 1) as DraftRating;
-    const chosen = drafts[index] as UnderstandingDraft;
-    if (!again) return { draft: chosen, rating, drafts: drafts.length, model };
-    // None passed: the best written again with what the judge found, rated alone — twice at most.
-    let best = { draft: chosen, rating };
-    let count = drafts.length;
-    for (let round = 0; round < REWRITES; round++) {
-      step("writing");
-      const rewritten = await write({
-        again: { draft: best.draft, problems: best.rating.problems },
-      });
-      step("choosing");
-      const r = (await judge([rewritten.result])).result.ratings[0] as DraftRating;
-      count++;
-      if (passes(r)) return { draft: rewritten.result, rating: r, drafts: count, model };
-      if (total(r) >= total(best.rating)) best = { draft: rewritten.result, rating: r };
-    }
-    // Still none passing: the best kept when nothing in it is plainly wrong (a text is better than
-    // none — the first lessons' few words make a perfect one rare), else nothing.
-    if (!passable(best.rating))
-      throw new LlmError("invalid_output", `no draft passed (${best.rating.problems.join(" | ")})`);
-    return { ...best, drafts: count, model };
-  }
+  const inputs = (request: UnderstandingRequest) => deps.maker.inputs(request);
 
   /** Questions asked on a text and read again — with the text and without it —: those settled. */
   async function askedText(
-    input: Awaited<ReturnType<typeof inputs>>,
+    input: MakerInputs,
     request: UnderstandingRequest,
     genre: TextGenre,
-    best: Awaited<ReturnType<typeof bestDraft>>,
+    best: Drafted,
     step: (now: UnderstandingStep) => void,
   ) {
     const { base, rules, ctx } = input;
@@ -321,7 +231,7 @@ export function createUnderstanding(deps: {
     const input = await inputs(request);
     const step = (at: UnderstandingStep) => making.set(key(request.lessonKey, request.step), at);
     const genre = genreFor(request, input.ctx.info.level, fewWords(input.ctx.info));
-    const best = await bestDraft(input, genre, step);
+    const best = await deps.maker.draft(input, genre, step);
     const text = voiced(await askedText(input, request, genre, best, step), input.ctx.target);
     const { verdict } = keepVerdict(store, session.run.id, {
       task: "understanding",

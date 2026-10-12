@@ -103,7 +103,9 @@ gets the types through Hono RPC (`AppType`), no codegen.
   calls run to their end and a page opened meanwhile shows them as waiting) are shared; each task's
   service belongs to the module whose runs it works in — lessons: `explain`, `writing`, `speaking`
   (an answer said aloud), `tutor` (+ `tutor-tools`; `courses-context`: what the Tutor section's
-  chats know of the learner's courses), `scene` (the Dialogue); exams: `exam-rating`,
+  chats know of the learner's courses), `talk` (Speaking), `scene` (the Dialogue);
+  `text-maker` (the text generator Reading, Listening, Writing and Speaking share), `practice-prep`
+  (a lesson's practice made ahead); exams: `exam-rating`,
   `exam-conversation`; review: `examples` (a card's word).
 - **Speech**: `speech` (whisper-server and its models) and `qwen-tts` (Qwen3-TTS's tts-server, its
   models) on `sidecar`, the supervisor of local engines (06, "Sidecars"); `read-aloud` (Piper's voices,

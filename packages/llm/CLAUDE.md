@@ -59,11 +59,13 @@ src/
                        # mistake_items_check: the items answered blind, those not settled left out
     chat-turn.ts       # chat_turn: the lesson tutor (lesson context, known words, exercise, mistakes, history)
     section-chat.ts    # section_chat_turn: the tutor on its own (what the learner met in their courses, history)
-    writing-task.ts    # writing_task: a situation and three content points from the lesson (repeatedPoints:
+    writing-task.ts    # writing_task: answering a message — a situation and three content points (repeatedPoints:
                        # two asking for the same asked again); the length
                        # and what a text needs at a level (data), the exam that sets and rates it (German)
     check-writing.ts   # check_writing: a text on the task → each point rated, at most three corrections,
-                       # the level's criteria, a model text
+                       # the level's criteria, a model text; `spoken`: a monologue said aloud
+    talk.ts            # Speaking: talk_card (a monologue card; its time by level), talk_cues (a role-play's
+                       # hints, one per learner line), talk_check (what was said, line by line)
     check-speaking.ts  # check_speaking: an answer said aloud (what was heard) against the item, its
                        # question and the source's answer as heard → structured verdict
     corrections.ts     # cleanCheck: a check's corrections cleaned (no-ops and words the text lacks
@@ -75,10 +77,12 @@ src/
                        # cleanSceneTurn: remarks in place of corrections dropped), scene_summary
                        # (key corrections, model lines without the error); goal kinds by level (data)
     tutor-tools.ts     # the tutor's tool definitions (progress, mistakes, word, lesson) and prompt lines
-    text-genres.ts     # Reading's and Listening's genres (data: what each is, its shape — people in
-                       # turns, one voice, written —, its length at A1), areas of life as ideas;
-                       # textWords (by level and place), pickGenre / pickAreas (drawn by code)
-    understanding.ts   # Reading and Listening's text generator: understanding_draft (plan — people with
+    text-genres.ts     # the text generator's genres (data: what each is, its shape — people in turns,
+                       # one voice, written —, its length at A1), areas of life as ideas; textWords (by
+                       # level and place), pickGenre / pickAreas / pickPurposeGenre (a message to
+                       # answer, a role-play's conversation; drawn by code)
+    understanding.ts   # the text generator: understanding_draft (a purpose — Reading's or Listening's
+                       # text, a message to answer, a role-play —; plan — people with
                        # gender and age, beats, facts — and text; draftLines: the text's lines by
                        # speaker; draftProblem), understanding_judge (drafts rated; chooseDraft: the
                        # best passing, else written again), understanding_questions (5–10 as exams ask;

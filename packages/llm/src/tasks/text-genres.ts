@@ -271,6 +271,40 @@ export function pickGenre(
   return from[Math.floor(random() * from.length)] as TextGenre;
 }
 
+/** What a text drafted for writing or speaking is for: a message the learner answers in writing
+ *  (`reply`), or a conversation the learner plays a part of (`roleplay`). */
+export type TextPurpose = "reply" | "roleplay";
+
+/** The genres a text for a purpose is drawn from, by id: what one answers in writing (a message, a
+ *  letter, an ad; a post from B1), what one plays a part of by voice (a conversation, a phone call). */
+const PURPOSE_GENRES: Record<TextPurpose, readonly string[]> = {
+  reply: ["chat", "personal_letter", "work_letter", "official_letter", "small_ads", "post"],
+  roleplay: ["conversation", "phone_call"],
+};
+
+/** A genre for a purpose at random (`random` in [0, 1)) at the level, none of `recent` while another
+ *  is there; an official letter from A2 on (a reply to one asks more than a beginner has); `few`:
+ *  the learner knows very few words yet — the genres of a course's start only. */
+export function pickPurposeGenre(
+  purpose: TextPurpose,
+  level: string | undefined,
+  recent: readonly string[],
+  random: () => number,
+  few = false,
+): TextGenre {
+  const at = ORDER.indexOf(cefrOf(level));
+  const all = TEXT_GENRES.filter(
+    (g) =>
+      PURPOSE_GENRES[purpose].includes(g.id) &&
+      ORDER.indexOf(g.from) <= at &&
+      (g.id !== "official_letter" || at >= 1) &&
+      (!few || g.start),
+  );
+  const fresh = all.filter((g) => !recent.includes(g.id));
+  const from = fresh.length ? fresh : all;
+  return from[Math.floor(random() * from.length)] as TextGenre;
+}
+
 /** `n` life areas at random, each once. */
 export function pickAreas(n: number, random: () => number): string[] {
   const left = [...LIFE_AREAS];

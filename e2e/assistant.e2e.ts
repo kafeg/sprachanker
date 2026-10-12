@@ -71,7 +71,7 @@ test("explain a mistake, ask the tutor, check a text", async ({ page, request })
   // With an assistant the plan has the AI practice steps. Writing: a task asked for — a situation,
   // three points, the length of the course's level (the fixture names none: a beginner's) —, a text
   // on it checked: each point rated, the corrections, a model text.
-  await goToStep(page, "Write it yourself");
+  await goToStep(page, "Writing");
   await page.getByRole("button", { name: "Get a task" }).click();
   await expect(page.getByText("FAKE: You are meeting Lena at the café.")).toBeVisible();
   await expect(page.getByText("FAKE: say when you come")).toBeVisible();
@@ -129,7 +129,7 @@ test("explain a mistake, ask the tutor, check a text", async ({ page, request })
   await expect(step.getByText("1 of 2 right")).toBeVisible();
   await expect.poll(steps).toContain("mistakes");
   // Back on the step later, the review is there at once with its answers.
-  await goToStep(page, "Write it yourself");
+  await goToStep(page, "Writing");
   await goToStep(page, "Going over mistakes");
   await expect(step.getByText("1 of 2 right")).toBeVisible();
 });
@@ -148,7 +148,7 @@ test("going over mistakes is in the plan only once the pass has a mistake", asyn
     }
     return there > 0;
   };
-  expect(await planHas("Write it yourself")).toBe(true);
+  expect(await planHas("Writing")).toBe(true);
   expect(await planHas("Going over mistakes")).toBe(false);
   // A wrong answer: the step comes into the plan.
   await page.getByRole("button", { name: "Im Park.", exact: true }).click();

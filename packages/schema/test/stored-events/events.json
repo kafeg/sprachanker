@@ -154,6 +154,18 @@
         "step": "reading",
         "skipped": true
       }
+    },
+    {
+      "since": "2026-10-11",
+      "payload": {
+        "step": "scene"
+      }
+    },
+    {
+      "since": "2026-10-12",
+      "payload": {
+        "step": "speaking"
+      }
     }
   ],
   "llm_verdict": [
@@ -515,6 +527,212 @@
             "lesson": 5,
             "interest": 3,
             "drafts": 3
+          }
+        },
+        "model": "m",
+        "latencyMs": 10
+      }
+    },
+    {
+      "since": "2026-10-12",
+      "payload": {
+        "task": "writing_task",
+        "input": "",
+        "result": {
+          "situation": "Lena writes to you. Answer her.",
+          "points": ["Say yes.", "Say when.", "Ask what to bring."],
+          "words": 30,
+          "message": {
+            "genre": "chat",
+            "setting": "A message from Lena",
+            "lines": [
+              {
+                "speaker": "Lena",
+                "text": "Kommst du am Samstag?"
+              }
+            ],
+            "glossary": []
+          }
+        },
+        "model": "m",
+        "latencyMs": 10
+      }
+    },
+    {
+      "since": "2026-10-12",
+      "payload": {
+        "task": "talk_task",
+        "input": "",
+        "result": {
+          "kind": "monologue",
+          "setting": "About yourself",
+          "instruction": "Introduce yourself.",
+          "topic": "Über mich",
+          "points": ["Name?", "Woher?", "Hobby?"],
+          "seconds": 30,
+          "model": "Ich heiße Mara. Ich komme aus Polen."
+        },
+        "model": "m",
+        "latencyMs": 10
+      }
+    },
+    {
+      "since": "2026-10-12",
+      "payload": {
+        "task": "talk_task",
+        "input": "",
+        "result": {
+          "kind": "roleplay",
+          "genre": "conversation",
+          "setting": "At a café",
+          "situation": "You order a coffee.",
+          "role": "a guest",
+          "learner": "Gast",
+          "partner": {
+            "name": "Herr Brandt",
+            "gender": "m",
+            "age": "adult"
+          },
+          "voice": {
+            "engine": "piper",
+            "id": "de_DE-thorsten-medium"
+          },
+          "lines": [
+            {
+              "speaker": "Herr Brandt",
+              "text": "Guten Tag! Was möchten Sie?"
+            },
+            {
+              "speaker": "Gast",
+              "text": "Einen Kaffee, bitte."
+            }
+          ],
+          "cues": [
+            {
+              "n": 1,
+              "cue": "Order a coffee."
+            }
+          ],
+          "glossary": []
+        },
+        "model": "m",
+        "latencyMs": 10
+      }
+    },
+    {
+      "since": "2026-10-12",
+      "payload": {
+        "task": "talk",
+        "input": "Ich heiße Anna.",
+        "result": {
+          "task": {
+            "kind": "monologue",
+            "setting": "About yourself",
+            "instruction": "Introduce yourself.",
+            "topic": "Über mich",
+            "points": ["Name?", "Woher?", "Hobby?"],
+            "seconds": 30,
+            "model": "Ich heiße Mara. Ich komme aus Polen."
+          },
+          "said": [
+            {
+              "n": 0,
+              "text": "Ich heiße Anna.",
+              "recording": "01HZY0000000000000000000AB"
+            }
+          ],
+          "check": {
+            "verdict": "minor_errors",
+            "corrected": "Ich heiße Lena.",
+            "corrections": [
+              {
+                "wrong": "heisse",
+                "right": "heiße",
+                "explanation": "ß"
+              }
+            ],
+            "criteria": {
+              "task": {
+                "score": 2,
+                "comment": ""
+              },
+              "communication": {
+                "score": 2,
+                "comment": ""
+              },
+              "accuracy": {
+                "score": 1,
+                "comment": ""
+              }
+            },
+            "feedback": "Gut."
+          }
+        },
+        "model": "m",
+        "latencyMs": 10
+      }
+    },
+    {
+      "since": "2026-10-12",
+      "payload": {
+        "task": "talk",
+        "input": "Ein Kaffee, bitte.",
+        "result": {
+          "task": {
+            "kind": "roleplay",
+            "genre": "conversation",
+            "setting": "At a café",
+            "situation": "You order a coffee.",
+            "role": "a guest",
+            "learner": "Gast",
+            "partner": {
+              "name": "Herr Brandt",
+              "gender": "m",
+              "age": "adult"
+            },
+            "voice": {
+              "engine": "piper",
+              "id": "de_DE-thorsten-medium"
+            },
+            "lines": [
+              {
+                "speaker": "Herr Brandt",
+                "text": "Guten Tag! Was möchten Sie?"
+              },
+              {
+                "speaker": "Gast",
+                "text": "Einen Kaffee, bitte."
+              }
+            ],
+            "cues": [
+              {
+                "n": 1,
+                "cue": "Order a coffee."
+              }
+            ],
+            "glossary": []
+          },
+          "said": [
+            {
+              "n": 1,
+              "text": "Ein Kaffee, bitte."
+            }
+          ],
+          "check": {
+            "turns": [
+              {
+                "n": 1,
+                "fits": true,
+                "corrections": [
+                  {
+                    "wrong": "Ein",
+                    "right": "Einen",
+                    "explanation": "Accusative."
+                  }
+                ]
+              }
+            ],
+            "feedback": "Well done."
           }
         },
         "model": "m",

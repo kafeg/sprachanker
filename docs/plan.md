@@ -44,23 +44,23 @@ Specs: 06, 09.
 - The owner and his wife study with it for at least a week — on the Mac, and on phones once item
   "Phones" is done; their findings decide the order of "After the week of use".
 
-### 8. Speaking practice with the AI: the Dialogue (owner, 2026-10-11)
-Specs: 04 ("AI practice in courses"), 07 (Conversations), 08, 09.
-- Built with item 9's first phase: the Dialogue replaces the typed scene — a goal card with an
-  information gap, the partner's lines read aloud in the language learnt, the learner answering by
-  voice (what was heard shown, sent as heard or said again; typed only without a microphone or
-  recognition), each line judged (understood, fits, at most two corrections), a summary at the end
-  (goals met, key corrections with a model line); kept as runs, read back in the Notebook.
+### 8. Speaking practice with the AI (owner, 2026-10-11; 2026-10-12: Speaking replaces the Dialogue)
+Specs: 04 ("AI practice in courses"), 07, 08, 09.
+- Built: the lesson's Speaking step — a monologue card or a role-play from the text generator, said
+  aloud and checked once at the end (no wait for the model between lines). The Dialogue (a live
+  conversation on a goal card) is out of the lesson; its runs read on.
 - Remaining: tried on the owner's Mac and iPhone with Whisper and a real model (the e2e run uses the
-  fake model and a fake microphone); later the base of exams' speaking parts (Goethe Sprechen) held
-  the same way.
-- **Accept**: a Dialogue held by voice end to end in a lesson, its verdicts and summary shown and kept.
+  fake model and a fake microphone); Speaking's attempts in the Notebook's pass (as writing checks
+  are); the live conversation moved to the Tutor section
+  (`apps/web/src/llm/dialogue.tsx` and the `scene` tasks kept for it), the base of exams' speaking
+  parts (Goethe Sprechen) held the same way.
+- **Accept**: a Speaking task of each kind said by voice end to end in a lesson, its check shown and kept.
 
 ### 9. AI practice in courses: seven exercises (owner, 2026-10-11)
 Specs: 04 ("AI practice in courses"), 07, 08, 09.
 - The agreed list (04): inside a lesson "Why is this wrong?", "Check with AI" for spoken answers and
   the lesson tutor (questions and explanations only); at the lesson's end the AI practice step —
-  Reading, Listening, Writing, Dialogue, Going over mistakes —, each skippable. Owner's rules: a text read
+  Reading, Listening, Writing, Speaking, Going over mistakes —, each skippable. Owner's rules: a text read
   aloud only in one language given explicitly; no dictation where the task is writing; tutor replies
   not read aloud; recognised speech taken as a person would understand it.
 - Phase 1 (done): the knowledge snapshot ("what the learner knows by now", 07) under every lesson
@@ -80,8 +80,9 @@ Specs: 04 ("AI practice in courses"), 07, 08, 09.
   **Reading** and **Listening** as two steps on one text generator — genres drawn by code, three
   drafts rated by a judge, 5–10 questions read again with and without the text, each person a voice
   of their gender, made ahead as the lesson starts (04). Built; tuned on `bun run practice:texts`.
-  Remaining: the Writing task and the Dialogue on the same generator (the owner decides the Dialogue's
-  future: a spoken task instead, perhaps); Listening heard with Qwen3-TTS on a phone.
+  Writing answers a message from the generator; Speaking's role-play is one of its conversations.
+  Remaining: Listening heard with Qwen3-TTS on a phone; Writing's and Speaking's tasks tuned on bulk
+  runs as the texts were.
 - **Accept**: each phase's exercises held end to end in a lesson on the fixture course (e2e) and on a
   real course with a real model.
 
@@ -123,7 +124,7 @@ Taken along when an item above touches the area, or on request.
   the mistakes of one lesson) when a summary proves too little.
 - Lesson (09): the lesson's review back, together with going over mistakes — one analysis across the
   exercises (answers, speech verdicts, writing, scenes, mistakes) (owner, 2026-10-08). The microphone
-  beside the "Write it yourself" box, as in free answers, scenes and the tutor.
+  beside the Writing box, as in free answers, scenes and the tutor.
 - Notebook (09): a lesson's page opened without passes (a link) has no title — the server names it by
   the edition of a pass. Time spent outside cards is read from the gaps between a run's events (04),
   a pass's "how long" is still from its start to its end (or last work); words known over time

@@ -114,8 +114,9 @@ off, its model, the engine, voice and speed reading aloud) are applied by `servi
   "speech"`) — in the language learnt only: what was heard goes into the box, joined to what is typed,
   read over and changed before it is sent; a `respond` item keeps the take as its spoken answer. Tap
   to start and stop. Shown only while recognition is on and ready. Never where the task is writing — a
-  free answer, the tutor, "Write it yourself" (owner, 2026-10-11).
-- **A Dialogue held by voice** (04, "AI practice in courses"; 09): the learner's line is a take — the
+  free answer, the tutor, Writing (owner, 2026-10-11).
+- **Speaking and a Dialogue held by voice** (04, "AI practice in courses"; 09): the learner's line is
+  a take (Speaking's: kept until Check — "Keep it" —, a monologue's a minute at most) — the
   microphone tapped, tapped again — kept in `recordings/` and heard in the language learnt; what was
   heard is shown ("Heard: …") and sent as heard ("Send"; kept until it is stored, so a send that
   failed is sent again), or the line said again ("Say it again"),

@@ -3,6 +3,7 @@
 // most three corrections, the criteria and a model text; earlier texts with the task they answered.
 import { expect, test } from "bun:test";
 import { fireEvent, waitFor } from "@testing-library/react";
+import type { PracticePrimary } from "../../src/lesson/slots.ts";
 import type { WritingAttempt, WritingTaskShown } from "../../src/llm/api.ts";
 import { WritingTask } from "../../src/llm/writing.tsx";
 import { TargetLang } from "../../src/ui/target-lang.ts";
@@ -60,10 +61,13 @@ const attempt = (input: string, ts: number, withTask = true): WritingAttempt => 
   ...(withTask && { writingTask: TASK }),
 });
 
-const step = (state: Record<string, unknown>) =>
+const step = (
+  state: Record<string, unknown>,
+  setPrimary: (p: PracticePrimary | null) => void = () => {},
+) =>
   renderApp(
     <TargetLang value="de">
-      <WritingTask {...ids} />
+      <WritingTask {...ids} setPrimary={setPrimary} />
     </TargetLang>,
     {
       path: "/",
@@ -79,7 +83,7 @@ const step = (state: Record<string, unknown>) =>
 
 test("no task yet: what the step is and the way to get one; one being written keeps it waiting", async () => {
   const none = await step({});
-  expect(none.getByText(/A short text on a situation from the lesson/)).toBeTruthy();
+  expect(none.getByText(/A message to answer in writing/)).toBeTruthy();
   expect(none.getByRole("button", { name: "Get a task" })).toBeTruthy();
   expect(none.queryByRole("textbox")).toBeNull();
   none.unmount();
@@ -90,8 +94,21 @@ test("no task yet: what the step is and the way to get one; one being written ke
   waiting.unmount();
 });
 
-test("a task: its situation, three points and length; the words counted as typed; a new task offered", async () => {
-  const view = await step({ task, words: ["der Kaffee, die Kaffees"] });
+test("a task: the message it answers, its situation, three points and length; the words counted as typed; Check in the step bar once a text is there", async () => {
+  const bar: { primary: PracticePrimary | null } = { primary: null };
+  const message = {
+    setting: "A message from Lena",
+    lines: [{ speaker: "Lena", text: "Kommst du heute ins Café?" }],
+    glossary: [],
+  };
+  const view = await step(
+    { task: { ...task, result: { ...TASK, message } }, words: ["der Kaffee, die Kaffees"] },
+    (p) => {
+      bar.primary = p;
+    },
+  );
+  expect(view.getByText("A message from Lena")).toBeTruthy();
+  expect(view.getByText("Kommst du heute ins Café?")).toBeTruthy();
   expect(view.getByText("Your task (write in German):")).toBeTruthy();
   expect(view.getByText(TASK.situation)).toBeTruthy();
   for (const point of TASK.points) expect(view.getByText(point)).toBeTruthy();
@@ -103,7 +120,7 @@ test("a task: its situation, three points and length; the words counted as typed
   });
   expect(view.getByText("6 words of about 30")).toBeTruthy();
   expect(view.getByRole("button", { name: "New task" })).toBeTruthy();
-  expect(view.getByRole("button", { name: "Check" }).hasAttribute("disabled")).toBe(false);
+  await waitFor(() => expect(bar.primary?.label).toBe("Check"));
   view.unmount();
 });
 
@@ -136,11 +153,15 @@ test("a check that failed: said, with Try again asking it again as it was", asyn
     return Response.json({ error: "llm_unreachable" }, { status: 502 });
   }) as typeof fetch;
   try {
-    const view = await step({ task });
+    const bar: { primary: PracticePrimary | null } = { primary: null };
+    const view = await step({ task }, (p) => {
+      bar.primary = p;
+    });
     fireEvent.change(view.getByRole("textbox", { name: "Your text…" }), {
       target: { value: "Hallo Lena." },
     });
-    fireEvent.click(view.getByRole("button", { name: "Check" }));
+    await waitFor(() => expect(bar.primary).not.toBeNull());
+    bar.primary?.run();
     const retry = await view.findByRole("button", { name: "Try again" });
     fireEvent.click(retry);
     await waitFor(() => expect(sent).toHaveLength(2));

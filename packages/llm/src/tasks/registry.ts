@@ -16,6 +16,7 @@ import {
   sceneTurnRules,
 } from "./scene.ts";
 import { SECTION_CHAT_BUDGETS, sectionChatRules } from "./section-chat.ts";
+import { TALK_BUDGETS, talkCardRules, talkCheckRules, talkCuesRules } from "./talk.ts";
 import {
   UNDERSTANDING_BUDGETS,
   understandingCheckRules,
@@ -51,6 +52,9 @@ export const TASK_PROMPTS = {
     },
   },
   understandingCheck: { rules: understandingCheckRules, budgets: {} },
+  talkCard: { rules: talkCardRules, budgets: TALK_BUDGETS },
+  talkCues: { rules: talkCuesRules, budgets: {} },
+  talkCheck: { rules: talkCheckRules, budgets: TALK_BUDGETS },
   mistakes: { rules: mistakeItemsRules, budgets: MISTAKE_ITEMS_BUDGETS },
   sceneSetup: {
     rules: sceneSetupRules,

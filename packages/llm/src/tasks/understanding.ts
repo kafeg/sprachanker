@@ -41,6 +41,7 @@ import {
   FEW_WORDS,
   questionCount,
   type TextGenre,
+  type TextPurpose,
   type TextShape,
   textWords,
 } from "./text-genres.ts";
@@ -136,7 +137,17 @@ export interface DraftInput extends UnderstandingInput {
   usedNames?: string[];
   /** A draft to write again, with what the judge found wrong in it. */
   again?: { draft: UnderstandingDraft; problems: string[] };
+  /** What the text is for beside reading and listening: answered in writing, or played by voice. */
+  purpose?: TextPurpose;
 }
+
+/** What a purpose asks of a draft (data, with the data). */
+const PURPOSE_TEXT: Record<TextPurpose, string> = {
+  reply:
+    'The learner will answer this text in writing: it is written to them (they are its reader, never named, never in "people") and asks, offers or invites something they can answer — a question or two, a request, a choice to make. A chat is a group chat the learner is in: its other members write, the last messages asking the learner.',
+  roleplay:
+    'The learner will play the second person in "people" by voice: that person has no name: their "name" in "people" and before their lines is their role, one word in the language of the text (a customer, a guest, a neighbour), and they say short, simple lines a learner at this level can say; the first person leads, asks and answers. Every line of the second person is one the learner can say from a short hint.',
+};
 
 export function understandingTextRules(
   language: Lang,
@@ -197,6 +208,7 @@ export function understandingDraftTask(input: DraftInput): StructuredTask<Unders
     ...lessonData(lesson),
     `Genre: ${genre.what}.`,
     `Form: ${SHAPE[genre.shape](genre)}`,
+    input.purpose ? PURPOSE_TEXT[input.purpose] : undefined,
     PLACE_TEXT[third],
     fewWords(lesson)
       ? "The learner knows very few words yet: a short, simple text about only what they can say with them (greeting, names, how someone is); no time, price or number they have not met."

@@ -148,12 +148,13 @@
       "wordsCount": "Maneno ya somo · {count, number}",
       "grammar": "Sarufi",
       "culture": "Utamaduni",
-      "writing": "Andika mwenyewe",
+      "writing": "Uandishi",
       "scene": "Mazungumzo",
       "mistakes": "Kupitia makosa",
       "summary": "Muhtasari",
       "reading": "Kusoma",
-      "listening": "Kusikiliza"
+      "listening": "Kusikiliza",
+      "speaking": "Kuzungumza"
     },
     "section": {
       "grammar": "Sarufi",
@@ -415,7 +416,10 @@
       "understandingCheck": "Kusoma na kusikiliza: usomaji wa pili",
       "mistakes": "Kupitia makosa",
       "understandingJudge": "Kusoma na kusikiliza: tathmini ya rasimu",
-      "understandingQuestions": "Kusoma na kusikiliza: maswali"
+      "understandingQuestions": "Kusoma na kusikiliza: maswali",
+      "talkCard": "Kuzungumza: kadi",
+      "talkCues": "Kuzungumza: vidokezo vya igizo dhima",
+      "talkCheck": "Kuzungumza: ukaguzi wa igizo dhima"
     },
     "contextIntro": "Imeongezwa kutoka kwenye somo:",
     "contextIntroCourses": "Imeongezwa kutoka kwenye kozi zako (za lugha inayozoezwa katika mazungumzo):",
@@ -464,7 +468,10 @@
       "lessonScript": "maandishi ya somo lenyewe (mada na hali zake)",
       "genre": "aina ya maandishi iliyochaguliwa, umbo lake, urefu wake na mawazo ya hali",
       "drafts": "rasimu zilizoandikwa",
-      "textFacts": "mambo ambayo maandishi yalipangwa nayo"
+      "textFacts": "mambo ambayo maandishi yalipangwa nayo",
+      "replyMessage": "ujumbe unaojibiwa na kazi (kutoka kizalishaji maandishi)",
+      "roleplay": "mazungumzo na nafasi yako",
+      "roleplaySaid": "mazungumzo pamoja na ulichosema kila zamu yako"
     },
     "upTo": "hadi {chars, plural, one {herufi #} other {herufi #}}",
     "debug": "Onyesha vitufe vya “Maagizo”",
@@ -485,12 +492,12 @@
         "where": "kitufe katika somo, hatua ya “Kupitia makosa” na sehemu ya “Mkufunzi”"
       },
       "writing": {
-        "name": "“Andika mwenyewe”",
+        "name": "Uandishi",
         "where": "hatua ya somo"
       },
       "scene": {
-        "name": "Mazungumzo",
-        "where": "hatua ya somo"
+        "name": "Kuzungumza",
+        "where": "hatua ya somo: kuzungumza kwa kadi au igizo dhima, kwa sauti"
       },
       "speaking": {
         "name": "Majibu ya kutamka",
@@ -528,12 +535,15 @@
       "understandingCheck": "Hujibu maswali kutoka kwenye maandishi pekee, kisha mara nyingine bila maandishi: swali linalojibiwa tofauti, lisilo wazi au linalojibiwa kwa akili ya kawaida huondolewa.",
       "mistakes": "Hupitia makosa ya mzunguko kwa aina: kwa kila aina sehemu zilizokosewa tu (ulichotoa, kilicho sahihi, maneno yanayozunguka), maelezo mafupi, na mazoezi mapya mawili au matatu ya aina hiyo kwa maneno unayoyajua. Majibu yako hukaguliwa na programu, si modeli.",
       "understandingJudge": "Hutathmini rasimu kama mwalimu mzawa wa lugha — uasilia, mfuatano, uhalisia, kiwango, uhusiano na somo, mvuto — na huorodhesha matatizo: bora inayopita hubaki, la sivyo bora huandikwa upya mara moja.",
-      "understandingQuestions": "Huuliza maswali 5–10 kuhusu maandishi yaliyochaguliwa kama katika mitihani (kweli/si kweli, a/b/c, namba) na huorodhesha maneno mapya. Majibu yako hukaguliwa na programu, si na modeli."
+      "understandingQuestions": "Huuliza maswali 5–10 kuhusu maandishi yaliyochaguliwa kama katika mitihani (kweli/si kweli, a/b/c, namba) na huorodhesha maneno mapya. Majibu yako hukaguliwa na programu, si na modeli.",
+      "talkCard": "Hutoa kazi fupi ya kuzungumza kama sehemu za mwanzo za mtihani wa mdomo: mada na hoja tatu kwa lugha unayojifunza, muda wa kuzungumza takriban na jibu la mfano.",
+      "talkCues": "Hugeuza sentensi zako katika igizo dhima kuwa vidokezo kwa lugha yako: cha kusema, si maneno yenyewe.",
+      "talkCheck": "Hukagua igizo dhima baada ya kusemwa: kila sentensi kama inafanya kidokezo kinachoomba, marekebisho mawili zaidi na maoni mafupi. Ulichosema husikika na kitambua sauti."
     }
   },
   "writing": {
     "task": "Kazi yako (andika kwa {language}):",
-    "intro": "Maandishi mafupi kuhusu hali kutoka kwenye somo: mambo matatu ya kueleza, marefu kama mtihani wa kiwango chako unavyotaka. AI huyakagua: mambo yaliyoelezwa, masahihisho matatu kwa juu zaidi, na maandishi ya mfano.",
+    "intro": "Ujumbe wa kujibu kwa maandishi — barua pepe ya rafiki, gumzo, tangazo: hoja tatu, urefu kama mtihani wa kiwango chako. AI hukagua: hoja, marekebisho matatu zaidi na maandishi ya mfano.",
     "start": "Pata kazi",
     "preparing": "Kazi inaandikwa…",
     "newTask": "Kazi mpya",
@@ -541,7 +551,6 @@
     "count": "{count, plural, one {neno #} other {maneno #}} kati ya takriban {words, number}",
     "placeholder": "Maandishi yako…",
     "check": "Kagua",
-    "checking": "Inakagua…",
     "rewrite": "Rekebisha na ukague tena",
     "score": "{name}: {score, number} kati ya {max, number}",
     "points": "{score, number} kati ya {max, number}",
@@ -702,7 +711,8 @@
     "scene": "Mazungumzo",
     "mistakes": "Makosa",
     "reading": "Kusoma",
-    "listening": "Kusikiliza"
+    "listening": "Kusikiliza",
+    "speaking": "Kuzungumza"
   },
   "words": {
     "intro": "Maneno ya somo kama kadi: kumbuka, onyesha jibu, jipe alama. Yakiisha kwa sasa, yanaendelea katika Marudio.",
@@ -1429,7 +1439,8 @@
     "course_bundle_clash": "Kompyuta hii ina faili nyingine kwa majina ya faili za midia za kozi hii: badala yake pakua kozi hapa.",
     "course_import_busy": "Faili nyingine ya kozi inaingizwa sasa. Jaribu tena itakapokamilika.",
     "series_busy": "Kozi kutoka chanzo hiki zinapakuliwa au kuingizwa sasa hivi. Jaribu tena itakapokamilika.",
-    "understanding_busy": "Maandishi ya somo hili yanaandikwa. Subiri."
+    "understanding_busy": "Maandishi ya somo hili yanaandikwa. Subiri.",
+    "talk_busy": "Kazi ya somo hili inaandaliwa au kukaguliwa. Subiri."
   },
   "exams": {
     "tabs": {
@@ -1708,5 +1719,27 @@
       "making": "Mazoezi mapya yanatengenezwa…",
       "checking": "Mazoezi mapya yanakaguliwa…"
     }
+  },
+  "talk": {
+    "intro": "Zungumza kwa lugha unayojifunza: maelezo mafupi kwa kadi au nafasi katika mazungumzo. Yote hukaguliwa mwishoni, bila kusubiri kati ya sentensi.",
+    "start": "Pata kazi",
+    "preparing": "Ninaandaa kazi…",
+    "new": "Kazi mpya",
+    "step": {
+      "writing": "Ninaandika kazi…",
+      "choosing": "Ninachagua rasimu bora…",
+      "hinting": "Ninaandika vidokezo…",
+      "checking": "Ninakagua ulichosema…"
+    },
+    "seconds": "Zungumza kwa takriban sekunde {seconds, number}.",
+    "keep": "Hifadhi",
+    "yourRole": "Nafasi yako: {role}",
+    "yourTurn": "Zamu yako",
+    "model": "Ungeweza kusema",
+    "fits": "Inafaa",
+    "misses": "Haifuati kidokezo",
+    "result": "Sentensi {right, number} kati ya {total, number} zinafaa",
+    "modelAnswer": "Jibu la mfano",
+    "restart": "Anza upya"
   }
 }

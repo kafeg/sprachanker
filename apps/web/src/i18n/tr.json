@@ -148,12 +148,13 @@
       "wordsCount": "Dersin kelimeleri · {count, number}",
       "grammar": "Dil bilgisi",
       "culture": "Kültür",
-      "writing": "Kendin yaz",
+      "writing": "Yazma",
       "scene": "Diyalog",
       "mistakes": "Hataların üzerinden geç",
       "summary": "Özet",
       "reading": "Okuma",
-      "listening": "Dinleme"
+      "listening": "Dinleme",
+      "speaking": "Konuşma"
     },
     "section": {
       "grammar": "Dil bilgisi",
@@ -415,7 +416,10 @@
       "understandingCheck": "Okuma ve dinleme: ikinci okuma",
       "mistakes": "Hataların üzerinden geç",
       "understandingJudge": "Okuma ve dinleme: taslakların değerlendirilmesi",
-      "understandingQuestions": "Okuma ve dinleme: sorular"
+      "understandingQuestions": "Okuma ve dinleme: sorular",
+      "talkCard": "Konuşma: kart",
+      "talkCues": "Konuşma: rol oyununun ipuçları",
+      "talkCheck": "Konuşma: rol oyununun kontrolü"
     },
     "contextIntro": "Dersten eklenenler:",
     "contextIntroCourses": "Kurslarından eklenenler (sohbetin çalıştığı dildeki kurslar):",
@@ -464,7 +468,10 @@
       "lessonScript": "dersin kendi metni (konusu ve durumları)",
       "genre": "seçilen metin türü, biçimi, uzunluğu ve durum için fikirler",
       "drafts": "yazılan taslaklar",
-      "textFacts": "metnin planlandığı bilgiler"
+      "textFacts": "metnin planlandığı bilgiler",
+      "replyMessage": "görevin yanıtladığı mesaj (metin üreticisinden)",
+      "roleplay": "sohbet ve senin rolün",
+      "roleplaySaid": "sohbet ve her replikte söylediklerin"
     },
     "upTo": "en fazla {chars, plural, one {# karakter} other {# karakter}}",
     "debug": "“İstem” düğmelerini göster",
@@ -485,12 +492,12 @@
         "where": "derslerdeki düğme, “Hataların üzerinden geç” adımı ve “Öğretmen” bölümü"
       },
       "writing": {
-        "name": "“Kendin yaz”",
+        "name": "Yazma",
         "where": "dersin bir adımı"
       },
       "scene": {
-        "name": "Diyalog",
-        "where": "dersin bir adımı"
+        "name": "Konuşma",
+        "where": "dersin bir adımı: karta göre konuşma ya da rol oyunu, sesle"
       },
       "speaking": {
         "name": "Sözlü cevaplar",
@@ -528,12 +535,15 @@
       "understandingCheck": "Soruları yalnızca metinden, sonra bir kez de metin olmadan yanıtlar: farklı yanıtladığı, belirsiz bulduğu ya da sağduyunun yanıtladığı soru çıkarılır.",
       "mistakes": "Bir turun hatalarını türüne göre ele alır: her türde yalnızca yanlış kısımlar (verdiğin, doğrusu, çevresindeki kelimeler), kısa bir açıklama ve bildiğin kelimelerle o türden iki üç yeni alıştırma. Cevaplarını model değil uygulama kontrol eder.",
       "understandingJudge": "Taslakları anadili konuşan bir öğretmen gibi değerlendirir — doğallık, tutarlılık, gerçekçilik, seviye, dersle bağ, ilginçlik — ve sorunlarını sıralar: geçen en iyisi kalır, yoksa en iyisi bir kez yeniden yazılır.",
-      "understandingQuestions": "Seçilen metin hakkında sınavlardaki gibi 5–10 soru sorar (doğru/yanlış, a/b/c, sayılar) ve yeni kelimeleri listeler. Yanıtlarını model değil, uygulama denetler."
+      "understandingQuestions": "Seçilen metin hakkında sınavlardaki gibi 5–10 soru sorar (doğru/yanlış, a/b/c, sayılar) ve yeni kelimeleri listeler. Yanıtlarını model değil, uygulama denetler.",
+      "talkCard": "Sözlü sınavın ilk bölümleri gibi kısa bir konuşma görevi verir: öğrendiğin dilde bir konu ve üç madde, yaklaşık ne kadar konuşacağın ve örnek bir cevap.",
+      "talkCues": "Rol oyunundaki repliklerini kendi dilinde ipuçlarına çevirir: ne söyleyeceğini, asla kelimelerin kendisini değil.",
+      "talkCheck": "Rol oyununu söylendikten sonra kontrol eder: her replik ipucunun istediğini yapıyor mu, en fazla iki düzeltme ve kısa bir geri bildirim. Söylediğini konuşma tanıma duyar."
     }
   },
   "writing": {
     "task": "Görevin ({language} yaz):",
-    "intro": "Dersten bir durum üzerine kısa bir metin: ele alman gereken üç nokta, seviyendeki bir sınavın istediği uzunlukta. Yapay zekâ onu kontrol eder: ele alınan noktalar, en fazla üç düzeltme ve örnek bir metin.",
+    "intro": "Yazılı cevap vereceğin bir mesaj — bir arkadaşın e-postası, bir sohbet, bir ilan: üç madde, seviyendeki sınavın istediği uzunlukta. Yapay zekâ kontrol eder: maddeler, en fazla üç düzeltme ve bir örnek metin.",
     "start": "Görev al",
     "preparing": "Görev yazılıyor…",
     "newTask": "Yeni görev",
@@ -541,7 +551,6 @@
     "count": "yaklaşık {words, number} kelimeden {count, plural, one {# kelime} other {# kelime}}",
     "placeholder": "Metnin…",
     "check": "Kontrol et",
-    "checking": "Kontrol ediliyor…",
     "rewrite": "Düzelt ve yeniden kontrol et",
     "score": "{name}: {score, number} / {max, number}",
     "points": "{score, number} / {max, number}",
@@ -702,7 +711,8 @@
     "scene": "Diyalog",
     "mistakes": "Hatalar",
     "reading": "Okuma",
-    "listening": "Dinleme"
+    "listening": "Dinleme",
+    "speaking": "Konuşma"
   },
   "words": {
     "intro": "Dersin kelimeleri kart olarak: hatırla, cevabı göster, değerlendir. Şimdilik bir şey kalmayınca Tekrar bölümünde devam ederler.",
@@ -1429,7 +1439,8 @@
     "course_bundle_clash": "Bu bilgisayarda bu kursun medya dosyalarının adlarını taşıyan başka dosyalar var: kursu bunun yerine burada indir.",
     "course_import_busy": "Şu anda başka bir kurs dosyası içe aktarılıyor. Bittiğinde yeniden dene.",
     "series_busy": "Bu kaynaktan kurslar şu anda indiriliyor ya da içe aktarılıyor. Bittiğinde yeniden dene.",
-    "understanding_busy": "Bu ders için bir metin yazılıyor. Biraz bekle."
+    "understanding_busy": "Bu ders için bir metin yazılıyor. Biraz bekle.",
+    "talk_busy": "Bu ders için bir görev hazırlanıyor ya da kontrol ediliyor. Bekle."
   },
   "exams": {
     "tabs": {
@@ -1708,5 +1719,27 @@
       "making": "Yeni alıştırmalar hazırlanıyor…",
       "checking": "Yeni alıştırmalar kontrol ediliyor…"
     }
+  },
+  "talk": {
+    "intro": "Öğrendiğin dilde konuş: karta göre kısa bir konuşma ya da bir sohbette bir rol. Her şey sonunda kontrol edilir, replikler arasında bekleme yok.",
+    "start": "Görev al",
+    "preparing": "Görev hazırlanıyor…",
+    "new": "Yeni görev",
+    "step": {
+      "writing": "Görev yazılıyor…",
+      "choosing": "En iyi taslak seçiliyor…",
+      "hinting": "İpuçları yazılıyor…",
+      "checking": "Söylediklerin kontrol ediliyor…"
+    },
+    "seconds": "Yaklaşık {seconds, number} saniye konuş.",
+    "keep": "Tut",
+    "yourRole": "Rolün: {role}",
+    "yourTurn": "Senin repliğin",
+    "model": "Şöyle denebilirdi",
+    "fits": "Uygun",
+    "misses": "İpucuna uymuyor",
+    "result": "{total, number} replikten {right, number} tanesi uygun",
+    "modelAnswer": "Örnek cevap",
+    "restart": "Baştan başla"
   }
 }

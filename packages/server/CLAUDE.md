@@ -90,12 +90,12 @@ src/
                      #   keys, structured calls, previews; llm-lmstudio, llm-prompts), lesson-context
                      #   (the knowledge snapshot every lesson task takes: level — `levelOf` —, place,
                      #   words and topics met), in-flight (calls outliving the page, the step each is
-                     #   at) shared; explain,
-                     #   understanding (Reading's and Listening's texts: drafts rated, questions read again,
-                     #   voices given, read ahead, a text's recording joined by wav.ts), practice-prep (a lesson's practice made ahead as it
-                     #   starts), writing (a task set, a text on it checked), going-over (the pass's mistakes by
-                     #   type, new items checked by the engine), speaking, tutor (+ tutor-tools,
-                     #   courses-context), scene (the Dialogue), exam-rating, exam-conversation, examples
+                     #   at) shared; explain, text-maker (the text generator: drafts side by side, rated, written again),
+                     #   understanding (Reading's and Listening's texts: questions read again, voices given, read ahead,
+                     #   a recording joined by wav.ts), writing (a message answered: a task, a text checked), talk (Speaking:
+                     #   a monologue card or a role-play, what was said checked), practice-prep (made ahead as a lesson starts),
+                     #   going-over (the pass's mistakes by type, new items checked by the engine), speaking, tutor (+ tutor-tools,
+                     #   courses-context), scene (the Dialogue: out of the lesson, its runs read), exam-rating, exam-conversation, examples
                      # - speech (08): speech (whisper-server; silence: a take's loudness, what is not speech of
                      #   what Whisper heard — its credits and made-up phrases by language: hallucinations.json), read-aloud (Piper; piper-voices.json from
                      #   scripts/piper-voices.ts), qwen-tts, local-engines (SpeechHost, ReadingCache,

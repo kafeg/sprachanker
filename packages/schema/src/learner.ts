@@ -6,6 +6,8 @@ import {
   ExamRatingProposal,
   MistakesReview,
   SpokenCheck,
+  TalkAttempt,
+  TalkTask,
   UnderstandingText,
   WordExample,
   WritingCheck,
@@ -94,11 +96,12 @@ export const AnsweredPayload = AnsweredInput.extend({ outcome: Outcome });
 export type AnsweredPayload = z.infer<typeof AnsweredPayload>;
 
 /** AI practice in the order of the lesson plan (04; owner, 2026-10-12): Reading, Listening, Writing,
- *  the Dialogue (`scene`), going over the mistakes last, once the exercises are done. */
-export const PRACTICE = ["reading", "listening", "writing", "scene", "mistakes"] as const;
+ *  Speaking, going over the mistakes last, once the exercises are done. */
+export const PRACTICE = ["reading", "listening", "writing", "speaking", "mistakes"] as const;
 export type PracticeKind = (typeof PRACTICE)[number];
-/** Steps recorded before Reading and Listening: Understanding, both in one. */
-const PRACTICE_BEFORE = ["understanding"] as const;
+/** Steps recorded before: Understanding (Reading and Listening in one), the Dialogue (Speaking's
+ *  place before it). */
+const PRACTICE_BEFORE = ["understanding", "scene"] as const;
 
 /**
  * A step of the lesson plan besides its exercises (04, "Lesson composition"): the words, a grammar or
@@ -214,6 +217,8 @@ const LlmVerdictPayload = z.discriminatedUnion("task", [
   verdict("exam", ExamRatingProposal),
   verdict("dialogue", DialogueSummary),
   verdict("understanding", UnderstandingText),
+  verdict("talk_task", TalkTask),
+  verdict("talk", TalkAttempt),
   verdict("mistakes", MistakesReview),
 ]);
 type LlmVerdictPayload = z.infer<typeof LlmVerdictPayload>;

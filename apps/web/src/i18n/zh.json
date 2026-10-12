@@ -148,12 +148,13 @@
       "wordsCount": "本课单词 · {count, number}",
       "grammar": "语法",
       "culture": "文化",
-      "writing": "动笔写一写",
+      "writing": "写作",
       "scene": "对话",
       "mistakes": "回顾错误",
       "summary": "总结",
       "reading": "阅读",
-      "listening": "听力"
+      "listening": "听力",
+      "speaking": "口语"
     },
     "section": {
       "grammar": "语法",
@@ -415,7 +416,10 @@
       "understandingCheck": "阅读与听力：第二遍阅读",
       "mistakes": "回顾错误",
       "understandingJudge": "阅读与听力：草稿评分",
-      "understandingQuestions": "阅读与听力：题目"
+      "understandingQuestions": "阅读与听力：题目",
+      "talkCard": "口语：卡片",
+      "talkCues": "口语：角色扮演提示",
+      "talkCheck": "口语：角色扮演检查"
     },
     "contextIntro": "从本课添加：",
     "contextIntroCourses": "从你的课程中添加（对话所练语言的课程）：",
@@ -464,7 +468,10 @@
       "lessonScript": "本课自己的脚本（主题与情境）",
       "genre": "抽中的文本体裁、形式、长度以及情境的构想",
       "drafts": "写好的草稿",
-      "textFacts": "构思文本时所定的事实"
+      "textFacts": "构思文本时所定的事实",
+      "replyMessage": "任务要回复的消息（由文本生成器生成）",
+      "roleplay": "对话以及你的角色",
+      "roleplaySaid": "对话以及你在每句台词中说的内容"
     },
     "upTo": "最多{chars, plural, other {#个字符}}",
     "debug": "显示“提示词”按钮",
@@ -485,12 +492,12 @@
         "where": "课中的按钮、“回顾错误”步骤和“辅导老师”板块"
       },
       "writing": {
-        "name": "“动笔写一写”",
+        "name": "写作",
         "where": "课中的一个步骤"
       },
       "scene": {
-        "name": "对话",
-        "where": "课中的一个步骤"
+        "name": "口语",
+        "where": "课中的一个步骤：看卡片说一段话或角色扮演，用嗓音"
       },
       "speaking": {
         "name": "口头回答",
@@ -528,12 +535,15 @@
       "understandingCheck": "只凭文本回答这些题目，然后再不看文本答一遍：答得与答案不同、认为不清楚、或凭常识就能答出的题目会被删去。",
       "mistakes": "按类型回顾一轮学习中的错误：每种类型只列出错的部分（你的回答、正确答案、周围的词），附一段简短讲解，以及用你学过的词出的两三道同类新题。你的答案由应用批改，而不是模型。",
       "understandingJudge": "像母语教师一样给草稿打分——是否自然、连贯、贴近生活、符合你的水平、切合本课、有趣——并列出问题：保留通过的最佳草稿，否则把最佳草稿重写一次。",
-      "understandingQuestions": "像考试那样就选定的文本出 5–10 道题（判断正误、a/b/c、数字），并列出生词。你的答案由应用检查，而不是模型。"
+      "understandingQuestions": "像考试那样就选定的文本出 5–10 道题（判断正误、a/b/c、数字），并列出生词。你的答案由应用检查，而不是模型。",
+      "talkCard": "像口语考试的前几部分一样布置简短的口语任务：用你所学语言给出一个话题和三个要点、大约说多久，以及参考答案。",
+      "talkCues": "把你在角色扮演中的台词变成用你的语言写的提示：说什么，而不是具体的词。",
+      "talkCheck": "角色扮演说完后进行检查：每句是否符合提示、最多两处修改和一句反馈。你说的话由语音识别听取。"
     }
   },
   "writing": {
     "task": "你的任务（用{language}写）：",
-    "intro": "就本课中的一个情境写一篇短文：要写到三个要点，长度与你这一级别考试的要求相当。AI 会批改：哪些要点写到了、最多三处修改，以及一篇范文。",
+    "intro": "一条需要书面回复的消息——朋友的邮件、聊天、广告：三个要点，长度与你水平的考试相当。AI 会检查：要点、最多三处修改以及范文。",
     "start": "出个题目",
     "preparing": "正在出题…",
     "newTask": "换个题目",
@@ -541,7 +551,6 @@
     "count": "{count, plural, other {# 个词}}，目标约 {words, number} 个",
     "placeholder": "你的文本…",
     "check": "检查",
-    "checking": "正在检查…",
     "rewrite": "修改后重新检查",
     "score": "{name}：{score, number}/{max, number}",
     "points": "{score, number}/{max, number}",
@@ -702,7 +711,8 @@
     "scene": "对话",
     "mistakes": "错误",
     "reading": "阅读",
-    "listening": "听力"
+    "listening": "听力",
+    "speaking": "口语"
   },
   "words": {
     "intro": "以卡片形式学习本课单词：先回想，再显示答案，然后评分。当前没有卡片时，它们会在“复习”中继续。",
@@ -1429,7 +1439,8 @@
     "course_bundle_clash": "这台电脑上已有与此课程媒体文件同名的其他文件：请改为在这里下载课程。",
     "course_import_busy": "正在导入另一个课程文件。请在其完成后重试。",
     "series_busy": "此来源的课程正在下载或导入。请在完成后重试。",
-    "understanding_busy": "正在为本课写一篇文本。请稍候。"
+    "understanding_busy": "正在为本课写一篇文本。请稍候。",
+    "talk_busy": "本课的任务正在准备或检查中，请稍候。"
   },
   "exams": {
     "tabs": {
@@ -1708,5 +1719,27 @@
       "making": "正在出新题…",
       "checking": "正在检查新题…"
     }
+  },
+  "talk": {
+    "intro": "用你所学的语言说话：看卡片做一段简短发言，或在对话中扮演一个角色。全部在最后检查，句与句之间无需等待。",
+    "start": "获取任务",
+    "preparing": "正在准备任务…",
+    "new": "新任务",
+    "step": {
+      "writing": "正在编写任务…",
+      "choosing": "正在挑选最好的草稿…",
+      "hinting": "正在写提示…",
+      "checking": "正在检查你说的内容…"
+    },
+    "seconds": "说大约 {seconds, number} 秒。",
+    "keep": "保留",
+    "yourRole": "你的角色：{role}",
+    "yourTurn": "你的台词",
+    "model": "可以这样说",
+    "fits": "合适",
+    "misses": "不符合提示",
+    "result": "{total, number} 句中有 {right, number} 句合适",
+    "modelAnswer": "参考答案",
+    "restart": "重新开始"
   }
 }

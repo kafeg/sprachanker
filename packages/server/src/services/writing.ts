@@ -7,19 +7,23 @@
 import {
   checkWritingTask,
   cleanWritingCheck,
+  draftLines,
+  fewWords,
   pickAreas,
+  pickPurposeGenre,
   structuredRequest,
   type WritingInput,
   type WritingTaskInput,
   writingTaskOf,
   writingTaskTask,
 } from "@sprachanker/llm";
-import type { LessonKey, Run } from "@sprachanker/schema";
+import type { LessonKey, Run, TaskMessage } from "@sprachanker/schema";
 import { ServiceError } from "../errors.ts";
 import { createInFlight } from "./in-flight.ts";
 import type { LessonContexts } from "./lesson-context.ts";
 import type { Llm, PromptPreview } from "./llm.ts";
 import { HISTORY_LIMIT, type RunStore } from "./run-store.ts";
+import type { TextMaker } from "./text-maker.ts";
 import { keepVerdict, type Verdict, verdicts } from "./verdicts.ts";
 
 export interface WritingTaskRequest {
@@ -41,10 +45,14 @@ export function createWriting(deps: {
   session: (lessonKey: LessonKey) => Promise<{ run: Run } | undefined>;
   llm: Llm;
   lessonContext: LessonContexts;
+  /** The text generator: the message a task answers. */
+  maker: TextMaker;
   random?: () => number;
+  now?: () => number;
 }) {
   const { store, llm } = deps;
   const random = deps.random ?? Math.random;
+  const now = deps.now ?? Date.now;
   /** What the model does for a lesson now: a text checked (`text`), or a task written. */
   const busy = createInFlight<{ text?: string }>("writing_busy");
 
@@ -72,6 +80,28 @@ export function createWriting(deps: {
       before: tasks(request.lessonKey)
         .slice(0, 3)
         .map((t) => t.result.situation),
+    };
+  }
+
+  /** The message a new task answers: drafted by the text generator in a genre one answers. */
+  async function messageFor(request: WritingTaskRequest): Promise<TaskMessage> {
+    const input = await deps.maker.inputs(request);
+    const recent = tasks(request.lessonKey)
+      .slice(0, 3)
+      .flatMap((t) => (t.result.message?.genre ? [t.result.message.genre] : []));
+    const genre = pickPurposeGenre(
+      "reply",
+      input.ctx.info.level,
+      recent,
+      random,
+      fewWords(input.ctx.info),
+    );
+    const { draft } = await deps.maker.draft(input, genre, () => {}, "reply");
+    return {
+      genre: genre.id,
+      setting: draft.setting,
+      lines: draftLines(draft, genre).lines,
+      glossary: [],
     };
   }
 
@@ -106,19 +136,22 @@ export function createWriting(deps: {
       };
     },
 
-    /** Writes a new task for the lesson (its length the level's) and keeps it in the run the lesson
-     *  shows. Runs to its end even when the page that asked is gone. */
+    /** Writes a new task for the lesson and keeps it in the run the lesson shows: a message from the
+     *  text generator (a genre to answer, not the lesson's last ones), then the task of answering it
+     *  (its length the level's). Runs to its end even when the page that asked is gone. */
     task(request: WritingTaskRequest): Promise<Verdict<"writing_task">> {
       return busy.run(request.lessonKey, {}, async () => {
         const run = await session(request.lessonKey);
-        const input = await taskInput(request);
-        const { result, model, latencyMs } = await llm.structured(writingTaskTask(input));
+        const started = now();
+        const message = await messageFor(request);
+        const input = { ...(await taskInput(request)), message };
+        const { result, model } = await llm.structured(writingTaskTask(input));
         return keepVerdict(store, run.id, {
           task: "writing_task",
           input: "",
-          result: writingTaskOf(result, input.lesson.level),
+          result: { ...writingTaskOf(result, input.lesson.level), message },
           model,
-          latencyMs,
+          latencyMs: Math.max(0, Math.round(now() - started)),
         }).verdict;
       });
     },
@@ -148,7 +181,12 @@ export function createWriting(deps: {
       request: WritingTaskRequest & { taskId?: string; text: string },
     ): Promise<PromptPreview> {
       const { taskId, text } = request;
-      if (!taskId) return llm.preview(structuredRequest(writingTaskTask(await taskInput(request))));
+      if (!taskId) {
+        // The message the latest task answered stands for the one the text generator writes anew.
+        const message = tasks(request.lessonKey)[0]?.result.message;
+        const input = { ...(await taskInput(request)), ...(message && { message }) };
+        return llm.preview(structuredRequest(writingTaskTask(input)));
+      }
       const input = await writingInput({ ...request, taskId, text: text || "…" });
       return llm.preview(structuredRequest(checkWritingTask(input)));
     },

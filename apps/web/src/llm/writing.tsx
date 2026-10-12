@@ -7,9 +7,11 @@
 import { wordCount } from "@sprachanker/engine";
 import { type LessonKey, type WritingTask as Task, WRITING_MAX } from "@sprachanker/schema";
 import { NotebookPen, PenLine, RefreshCw } from "lucide-react";
-import { useRef, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { languageName } from "@/i18n/index.ts";
+import type { PracticePrimary } from "@/lesson/slots.ts";
+import { UnderstandingLines } from "@/library/understanding-text.tsx";
 import { CorrectedText, Corrections, VerdictBadge as Verdict } from "@/ui/checked-text.tsx";
 import { Badge } from "@/ui/components/badge.tsx";
 import { Button } from "@/ui/components/button.tsx";
@@ -78,11 +80,19 @@ function CriteriaDots({ criteria }: { criteria: Check["criteria"] }) {
   );
 }
 
-/** A task as set: the situation, its numbered points, the length. */
+/** A task as set: the message it answers (what it is, then the text in the language learnt), the
+ *  situation, its numbered points, the length. */
 function TaskText({ task }: { task: Task }) {
   const { t } = useTranslation();
+  const lang = useRequiredTargetLang();
   return (
     <div className="space-y-2">
+      {task.message && (
+        <div className="space-y-2 rounded-xl border bg-card px-4 py-3">
+          <p className="text-sm font-semibold text-muted-foreground">{task.message.setting}</p>
+          <UnderstandingLines text={task.message} lang={lang} />
+        </div>
+      )}
       <p>{task.situation}</p>
       <ol className="list-decimal space-y-0.5 ps-6">
         {task.points.map((point) => (
@@ -95,35 +105,48 @@ function TaskText({ task }: { task: Task }) {
 }
 
 /** A check in full: the verdict, feedback, the text with its corrections, the task's points as
- *  covered, the criteria, the model text. */
-function Result({ attempt, onRewrite }: { attempt: WritingAttempt; onRewrite(): void }) {
+ *  covered, the criteria, the model text — a text written, or a monologue said (Speaking's). */
+export function CheckResult({
+  result: r,
+  text,
+  points,
+  ts,
+  model,
+  children,
+}: {
+  result: Check;
+  text: string;
+  points?: readonly string[];
+  ts: number;
+  model: string;
+  /** What comes under it (fix it and check again). */
+  children?: React.ReactNode;
+}) {
   const lang = useRequiredTargetLang();
   const { t } = useTranslation();
   const when = useDateFormat("dayTime");
-  const r = attempt.result;
-  const task = attempt.writingTask;
   return (
     <div className="space-y-3">
       <div className="flex flex-wrap items-center gap-2">
         <Verdict verdict={r.verdict} />
         <span className="text-sm text-muted-foreground">
-          {when.format(attempt.ts)} · {modelName(attempt.model)}
+          {when.format(ts)} · {modelName(model)}
         </span>
       </div>
       <p>{r.feedback}</p>
       {r.corrections.length > 0 ? (
-        <CorrectedText text={attempt.input} corrected={r.corrected} />
+        <CorrectedText text={text} corrected={r.corrected} />
       ) : (
         <p {...inLang(lang)} className="text-lg leading-relaxed">
-          {attempt.input}
+          {text}
         </p>
       )}
       <Corrections corrections={r.corrections} />
-      {task && r.points && (
+      {points && r.points && (
         <div>
           <h3 className="mb-1 font-semibold">{t("writing.pointsTitle")}</h3>
           <ol className="space-y-1.5 text-sm">
-            {task.points.map((point, i) => {
+            {points.map((point, i) => {
               const rated = r.points?.[i];
               return (
                 <li key={point} className="rounded-lg bg-muted px-3 py-2">
@@ -161,10 +184,26 @@ function Result({ attempt, onRewrite }: { attempt: WritingAttempt; onRewrite(): 
           </p>
         </div>
       )}
+      {children}
+    </div>
+  );
+}
+
+/** A writing check with the way to fix the text and check it again. */
+function Result({ attempt, onRewrite }: { attempt: WritingAttempt; onRewrite(): void }) {
+  const { t } = useTranslation();
+  return (
+    <CheckResult
+      result={attempt.result}
+      text={attempt.input}
+      points={attempt.writingTask?.points}
+      ts={attempt.ts}
+      model={attempt.model}
+    >
       <Button variant="outline" onClick={onRewrite}>
         <PenLine className="size-4" /> {t("writing.rewrite")}
       </Button>
-    </div>
+    </CheckResult>
   );
 }
 
@@ -220,12 +259,15 @@ export function WritingTask({
   lessonKey,
   edition,
   onDone,
+  setPrimary,
 }: {
   series: string;
   lessonKey: LessonKey;
   edition: string;
   /** A text was checked. */
   onDone?(): void;
+  /** The step bar's main button while a text waits for Check (as an exercise's). */
+  setPrimary?(primary: PracticePrimary | null): void;
 }) {
   const lang = useRequiredTargetLang();
   const { t, i18n } = useTranslation();
@@ -235,6 +277,16 @@ export function WritingTask({
   const check = useCheckWriting(onDone);
   const [text, setText] = useState("");
   const editor = useRef<HTMLTextAreaElement>(null);
+  const submit = useRef<() => void>(() => {});
+  // Check in the step bar while a text is written (waiting while it is checked); Next otherwise.
+  const ready = !!text.trim() && !!state.data?.task && !state.data.preparing;
+  const busy = check.isPending || !!state.data?.checking;
+  useEffect(() => {
+    setPrimary?.(
+      ready ? { label: t("writing.check"), disabled: busy, run: () => submit.current() } : null,
+    );
+  }, [setPrimary, ready, busy, t]);
+  useEffect(() => () => setPrimary?.(null), [setPrimary]);
   if (!llm.data?.model || !state.data) return null;
   const { task, words, attempts } = state.data;
   const [latest, ...past] = attempts;
@@ -252,6 +304,11 @@ export function WritingTask({
     editor.current?.scrollIntoView({ block: "center" });
   };
   const count = wordCount(text);
+  submit.current = () => {
+    if (!task || !text.trim()) return;
+    // The text is in the result now; "Fix it and check again" brings it back.
+    check.mutate({ ...ids, taskId: task.id, text: text.trim() }, { onSuccess: () => setText("") });
+  };
 
   return (
     <div className="space-y-4">
@@ -293,20 +350,6 @@ export function WritingTask({
             onChange={(e) => setText(e.target.value)}
           />
           <div className="flex flex-wrap items-center gap-2">
-            <Button
-              size="lg"
-              loading={!!checking}
-              disabled={!text.trim() || preparing}
-              onClick={() =>
-                // The text is in the result now; "Fix it and check again" brings it back.
-                check.mutate(
-                  { ...ids, taskId: task.id, text: text.trim() },
-                  { onSuccess: () => setText("") },
-                )
-              }
-            >
-              {checking ? t("writing.checking") : t("writing.check")}
-            </Button>
             <span className="text-sm text-muted-foreground tabular-nums" aria-live="polite">
               {t("writing.count", { count, words: task.result.words })}
             </span>

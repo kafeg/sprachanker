@@ -50,6 +50,8 @@ import { createSettings } from "./settings.ts";
 import { createSpeaking } from "./speaking.ts";
 import { createSpeech, type Speech } from "./speech.ts";
 import { createStudy } from "./study.ts";
+import { createTalk } from "./talk.ts";
+import { createTextMaker } from "./text-maker.ts";
 import { createTutor } from "./tutor.ts";
 import { createTutorTools } from "./tutor-tools.ts";
 import { createUnderstanding } from "./understanding.ts";
@@ -173,14 +175,14 @@ function profileServices(
     placeOn: () => !settings.value("llm.offIn").includes("tutor"),
     now,
   });
+  const maker = createTextMaker({ store, llm, lessonContext, random: config.random });
   const understanding = createUnderstanding({
     store,
     session: lessons.shown,
     llm,
-    lessonContext,
+    maker,
     voices: speechOfProfile.textVoices,
     say: (text, lang, voice) => speechOfProfile.say({ text, lang, ...(voice && { voice }) }),
-    random: config.random,
     now,
   });
   const writing = createWriting({
@@ -188,9 +190,19 @@ function profileServices(
     session: lessons.shown,
     llm,
     lessonContext,
+    maker,
     random: config.random,
+    now,
   });
-  const practicePrep = createPracticePrep({ understanding, writing, settings, llm });
+  const talk = createTalk({
+    store,
+    session: lessons.shown,
+    llm,
+    maker,
+    voices: speechOfProfile.textVoices,
+    now,
+  });
+  const practicePrep = createPracticePrep({ understanding, writing, talk, settings, llm });
   lessonStarted = practicePrep.lessonStarted;
   const goingOver = createGoingOver({ store, session: lessons.shown, llm, lessonContext });
   const scenes = createScenes({ store, llm, lessonContext });
@@ -270,6 +282,7 @@ function profileServices(
     understanding,
     writing,
     practicePrep,
+    talk,
     goingOver,
     scenes,
   };

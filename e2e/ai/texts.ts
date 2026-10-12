@@ -1,11 +1,12 @@
-// Reading and Listening's texts made in bulk with a real model (10, "Run-throughs"; owner, 2026-10-12:
+// The text generator's work made in bulk with a real model (10, "Run-throughs"; owner, 2026-10-12:
 // generate many and read them — coherent, natural, worth a lesson, the keys right, harder as the
-// course goes on). The server from sources on a throwaway data root (the library an APFS clone, a new
+// course goes on): Reading's and Listening's texts, Writing's tasks with the message they answer,
+// Speaking's tasks (`speaking` twice: a monologue card and a role-play, the kinds taking turns). The server from sources on a throwaway data root (the library an APFS clone, a new
 // profile), the model of `TEXTS_PROVIDER` / `TEXTS_MODEL` (claude-code · sonnet by default), a text
 // of each step for each lesson of `TEXTS_LESSONS` (series/course/lesson@edition, comma-separated; the
 // default: Nicos Weg A1 and A2 from the start, the middle and the end) `TEXTS_EACH` times, three
-// lessons at a time. Writes `report.md` (every text as the learner gets it, with its rating, its
-// questions keyed and what was left out) and `texts.json` into `TEXTS_OUT` (default: a folder in
+// lessons at a time; `TEXTS_STEPS` the steps (default reading,listening). Writes `report.md` (every
+// text as the learner gets it, with its rating, its questions keyed; every task as set) and `texts.json` into `TEXTS_OUT` (default: a folder in
 // the system's temp). The Mac only, not in CI: `bun run practice:texts`.
 import { execFileSync, spawn } from "node:child_process";
 import { existsSync, mkdirSync, rmSync, writeFileSync } from "node:fs";
@@ -64,8 +65,67 @@ interface Made {
       rating?: Record<string, number>;
     };
   };
+  /** Writing's or Speaking's task as set. */
+  task?: { model: string; result: Record<string, unknown> };
   error?: string;
 }
+
+type Line = { speaker?: string; text: string };
+const quoted = (lines: Line[]) =>
+  lines.map((l) => `> ${l.speaker ? `**${l.speaker}:** ` : ""}${l.text}`);
+
+/** A writing or speaking task as the learner gets it. */
+function taskLines(r: Record<string, unknown>): string[] {
+  const out: string[] = [];
+  const message = r.message as { genre?: string; setting: string; lines: Line[] } | undefined;
+  if (message)
+    out.push(
+      `message: ${message.setting} (${message.genre}, ${words(message.lines)} words)`,
+      "",
+      ...quoted(message.lines),
+      "",
+    );
+  if (r.kind === "roleplay") {
+    const cue = new Map((r.cues as Array<{ n: number; cue: string }>).map((c) => [c.n, c.cue]));
+    const lines = r.lines as Line[];
+    const partner = r.partner as { name: string; gender: string; age: string };
+    out.push(
+      `**${r.setting}** (${r.genre}) — ${r.situation} You are: ${r.role} (${r.learner}); partner ${partner.name} (${partner.gender}, ${partner.age})`,
+      "",
+      ...lines.map((l, n) =>
+        l.speaker === r.learner
+          ? `> *[${cue.get(n) ?? "NO HINT"}]* ${l.text}`
+          : `> **${l.speaker}:** ${l.text}`,
+      ),
+      "",
+    );
+    return out;
+  }
+  if (r.kind === "monologue")
+    return [
+      `**${r.setting}** — ${r.instruction} (${r.seconds} s)`,
+      "",
+      `${r.topic}: ${(r.points as string[]).join(" · ")}`,
+      "",
+      `model: ${r.model}`,
+      "",
+    ];
+  out.push(
+    `**${r.situation}** (${r.words} words)`,
+    "",
+    ...(r.points as string[]).map((p, i) => `${i + 1}. ${p}`),
+    "",
+  );
+  return out;
+}
+
+/** The request that makes a step's text or task. */
+const MAKE: Record<string, string> = {
+  reading: "/api/llm/understanding",
+  listening: "/api/llm/understanding",
+  writing: "/api/llm/writing/task",
+  speaking: "/api/llm/talk",
+};
 
 async function start() {
   rmSync(ROOT, { recursive: true, force: true });
@@ -119,13 +179,17 @@ const words = (lines: Array<{ text: string }>) =>
 
 function report(all: Made[]) {
   const out: string[] = [`# Texts made (${PROVIDER} · ${MODEL}), ${new Date().toISOString()}`, ""];
-  const ok = all.filter((m) => m.text);
+  const ok = all.filter((m) => m.text || m.task);
   out.push(
     `${ok.length} of ${all.length} made; average ${Math.round(ok.reduce((n, m) => n + m.ms, 0) / Math.max(1, ok.length) / 1000)} s each.`,
     "",
   );
   for (const m of all) {
-    out.push(`## ${m.lesson} · ${m.step}${m.text ? "" : " — FAILED"}`, "");
+    out.push(`## ${m.lesson} · ${m.step}${m.text || m.task ? "" : " — FAILED"}`, "");
+    if (m.task) {
+      out.push(`${Math.round(m.ms / 1000)} s`, "", ...taskLines(m.task.result));
+      continue;
+    }
     if (!m.text) {
       out.push(`> ${m.error}`, "");
       continue;
@@ -143,7 +207,7 @@ function report(all: Made[]) {
       "",
       `people: ${(r.people ?? []).map((p) => `${p.name} (${p.gender}, ${p.age})`).join(", ")}${r.voices ? ` · voices ${JSON.stringify(r.voices.by)}` : ""}`,
       "",
-      ...r.lines.map((l) => `> ${l.speaker ? `**${l.speaker}:** ` : ""}${l.text}`),
+      ...quoted(r.lines),
       "",
       ...r.questions.map((q, i) =>
         q.options
@@ -185,15 +249,16 @@ if (import.meta.main) {
         for (const step of STEPS) {
           const started = Date.now();
           try {
-            const text = await send("POST", "/api/llm/understanding", {
+            const made = await send("POST", MAKE[step] ?? "/api/llm/understanding", {
               ...lesson,
               language: edition.split("-")[0],
               step,
             });
-            all.push({ lesson: key, step, ms: Date.now() - started, text });
-            console.log(
-              `${key} ${step}: ${text.result.title} (${Math.round((Date.now() - started) / 1000)} s)`,
-            );
+            const ms = Date.now() - started;
+            const kind = step === "writing" || step === "speaking" ? "task" : "text";
+            all.push({ lesson: key, step, ms, [kind]: made });
+            const name = made.result.title ?? made.result.setting ?? made.result.situation;
+            console.log(`${key} ${step}: ${name} (${Math.round(ms / 1000)} s)`);
           } catch (error) {
             all.push({ lesson: key, step, ms: Date.now() - started, error: String(error) });
             console.log(`${key} ${step}: FAILED ${String(error).slice(0, 200)}`);

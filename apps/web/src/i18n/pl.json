@@ -148,12 +148,13 @@
       "wordsCount": "Słówka lekcji · {count, number}",
       "grammar": "Gramatyka",
       "culture": "Kultura",
-      "writing": "Napisz własny tekst",
+      "writing": "Pisanie",
       "scene": "Dialog",
       "mistakes": "Omówienie błędów",
       "summary": "Podsumowanie",
       "reading": "Czytanie",
-      "listening": "Słuchanie"
+      "listening": "Słuchanie",
+      "speaking": "Mówienie"
     },
     "section": {
       "grammar": "Gramatyka",
@@ -415,7 +416,10 @@
       "understandingCheck": "Czytanie i słuchanie: drugie czytanie",
       "mistakes": "Omówienie błędów",
       "understandingJudge": "Czytanie i słuchanie: ocena wersji",
-      "understandingQuestions": "Czytanie i słuchanie: pytania"
+      "understandingQuestions": "Czytanie i słuchanie: pytania",
+      "talkCard": "Mówienie: karta",
+      "talkCues": "Mówienie: podpowiedzi do rozmowy w rolach",
+      "talkCheck": "Mówienie: sprawdzenie rozmowy w rolach"
     },
     "contextIntro": "Dodane z lekcji:",
     "contextIntroCourses": "Dodane z twoich kursów (tych w języku, który ćwiczy rozmowa):",
@@ -464,7 +468,10 @@
       "lessonScript": "scenariusz samej lekcji (jej temat i sytuacje)",
       "genre": "wylosowany rodzaj tekstu, jego forma, długość i pomysły na sytuację",
       "drafts": "napisane wersje robocze",
-      "textFacts": "fakty, z którymi tekst zaplanowano"
+      "textFacts": "fakty, z którymi tekst zaplanowano",
+      "replyMessage": "wiadomość, na którą odpowiada zadanie (z generatora tekstów)",
+      "roleplay": "rozmowa i twoja rola w niej",
+      "roleplaySaid": "rozmowa z tym, co powiedziano w każdej twojej kwestii"
     },
     "upTo": "do {chars, plural, one {# znaku} few {# znaków} many {# znaków} other {# znaku}}",
     "debug": "Pokazuj przyciski „Prompt”",
@@ -485,12 +492,12 @@
         "where": "przycisk w lekcji, krok „Omówienie błędów” i sekcja „Tutor”"
       },
       "writing": {
-        "name": "„Napisz własny tekst”",
+        "name": "Pisanie",
         "where": "krok lekcji"
       },
       "scene": {
-        "name": "Dialog",
-        "where": "krok lekcji"
+        "name": "Mówienie",
+        "where": "krok lekcji: wypowiedź według karty lub rozmowa w rolach, głosem"
       },
       "speaking": {
         "name": "Odpowiedzi ustne",
@@ -528,12 +535,15 @@
       "understandingCheck": "Odpowiada na pytania tylko na podstawie tekstu, a potem jeszcze raz bez tekstu: pytanie, na które odpowie inaczej, które uzna za niejasne lub na które odpowiada zdrowy rozsądek, jest usuwane.",
       "mistakes": "Omawia błędy podejścia według rodzaju: dla każdego rodzaju tylko błędne części (co podano, co jest dobrze, słowa wokół), krótkie wyjaśnienie i dwa–trzy nowe zadania tego rodzaju ze znanych słów. Odpowiedzi sprawdza aplikacja, nie model.",
       "understandingJudge": "Ocenia wersje jak nauczyciel — rodzimy użytkownik języka: naturalność, spójność, realizm, poziom, związek z lekcją, ciekawość — i wymienia problemy. Zostaje najlepsza, która przeszła, inaczej najlepsza jest raz przepisywana.",
-      "understandingQuestions": "Zadaje 5–10 pytań do wybranego tekstu, jak na egzaminach (prawda/fałsz, a/b/c, liczby), i wypisuje nowe słowa. Twoje odpowiedzi sprawdza aplikacja, nie model."
+      "understandingQuestions": "Zadaje 5–10 pytań do wybranego tekstu, jak na egzaminach (prawda/fałsz, a/b/c, liczby), i wypisuje nowe słowa. Twoje odpowiedzi sprawdza aplikacja, nie model.",
+      "talkCard": "Daje krótkie zadanie ustne jak w pierwszych częściach egzaminu ustnego: temat i trzy punkty w języku, którego się uczysz, ile mniej więcej mówić i wzorcową odpowiedź.",
+      "talkCues": "Zamienia twoje kwestie w rozmowie w rolach na podpowiedzi w twoim języku: co powiedzieć, nigdy same słowa.",
+      "talkCheck": "Sprawdza rozmowę w rolach po jej wypowiedzeniu: każda kwestia — czy robi to, o co prosi podpowiedź, najwyżej dwie poprawki i krótka uwaga. To, co powiedziano, słyszy rozpoznawanie mowy."
     }
   },
   "writing": {
     "task": "Twoje zadanie (język tekstu: {language}):",
-    "intro": "Krótki tekst o sytuacji z lekcji: trzy punkty do omówienia, tak długi, jak wymaga egzamin na twoim poziomie. AI go sprawdza: omówione punkty, najwyżej trzy poprawki i tekst wzorcowy.",
+    "intro": "Wiadomość, na którą odpowiadasz pisemnie — e-mail od przyjaciela, czat, ogłoszenie: trzy punkty, długość jak na egzaminie twojego poziomu. AI sprawdzi: punkty, najwyżej trzy poprawki i tekst wzorcowy.",
     "start": "Daj mi zadanie",
     "preparing": "Piszę zadanie…",
     "newTask": "Nowe zadanie",
@@ -541,7 +551,6 @@
     "count": "{count, plural, one {# słowo} few {# słowa} many {# słów} other {# słowa}} z około {words, number}",
     "placeholder": "Twój tekst…",
     "check": "Sprawdź",
-    "checking": "Sprawdzanie…",
     "rewrite": "Popraw i sprawdź ponownie",
     "score": "{name}: {score, number} z {max, number}",
     "points": "{score, number} z {max, number}",
@@ -702,7 +711,8 @@
     "scene": "Dialog",
     "mistakes": "Błędy",
     "reading": "Czytanie",
-    "listening": "Słuchanie"
+    "listening": "Słuchanie",
+    "speaking": "Mówienie"
   },
   "words": {
     "intro": "Słowa lekcji jako fiszki: przypomnij sobie, pokaż odpowiedź, oceń się. Gdy na razie nic nie zostanie, nauka trwa dalej w Powtórkach.",
@@ -1429,7 +1439,8 @@
     "course_bundle_clash": "Na tym komputerze pod nazwami plików multimedialnych tego kursu są inne pliki: pobierz kurs tutaj.",
     "course_import_busy": "Trwa import innego pliku kursu. Spróbuj ponownie, gdy się skończy.",
     "series_busy": "Kursy z tego źródła są właśnie pobierane lub importowane. Spróbuj ponownie, gdy to się skończy.",
-    "understanding_busy": "Tekst do tej lekcji jest właśnie pisany. Poczekaj."
+    "understanding_busy": "Tekst do tej lekcji jest właśnie pisany. Poczekaj.",
+    "talk_busy": "Dla tej lekcji trwa przygotowanie zadania lub sprawdzanie. Poczekaj."
   },
   "exams": {
     "tabs": {
@@ -1708,5 +1719,27 @@
       "making": "Układam nowe zadania…",
       "checking": "Sprawdzam nowe zadania…"
     }
+  },
+  "talk": {
+    "intro": "Mów w języku, którego się uczysz: krótka wypowiedź według karty albo rola w rozmowie. Sprawdzenie na końcu, bez czekania między kwestiami.",
+    "start": "Pobierz zadanie",
+    "preparing": "Przygotowuję zadanie…",
+    "new": "Nowe zadanie",
+    "step": {
+      "writing": "Piszę zadanie…",
+      "choosing": "Wybieram najlepszą wersję…",
+      "hinting": "Piszę podpowiedzi…",
+      "checking": "Sprawdzam, co powiedziano…"
+    },
+    "seconds": "Mów około {seconds, number} sekund.",
+    "keep": "Zostaw",
+    "yourRole": "Twoja rola: {role}",
+    "yourTurn": "Twoja kwestia",
+    "model": "Można było powiedzieć",
+    "fits": "Pasuje",
+    "misses": "Nie według podpowiedzi",
+    "result": "{right, number} z {total, number} kwestii pasuje",
+    "modelAnswer": "Wzorcowa odpowiedź",
+    "restart": "Zacznij od nowa"
   }
 }

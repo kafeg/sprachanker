@@ -15,7 +15,7 @@ The lesson flow (the plan's steps, `lessonSteps` in `packages/engine/src/compose
 2026-10-06): overview (synopsis, goals, the video or recording with its transcript under it) → "Words
 of the lesson" (cards; when it has words) → one "Grammar" step per grammar page (a page is one topic) → the exercises →
 one "Culture" step per culture page → AI practice when an assistant is set up and its place is on (07;
-"AI practice in courses" below): Reading, Listening, "Write it yourself", Dialogue, "Going over mistakes" (owner 2026-10-07: the run's status counted by the app — exercises
+"AI practice in courses" below): Reading, Listening, Writing, Speaking, "Going over mistakes" (owner 2026-10-07: the run's status counted by the app — exercises
 worked, scored items right at the first attempt, mistakes by exercise — then the mistakes by type
 with new items; in the plan only while the run has mistakes to go over, `practiceInPlan`) → summary
 of all of it. The steps
@@ -23,7 +23,7 @@ come from what the provider's normaliser put into the canonical and locale files
 every course. Every step has a mark in the plan and "Next" goes through all of them; any step can be
 skipped (and shows it). The lesson is completed when every step is done or skipped: an exercise
 answered, a reading step opened, an AI step done once (Reading, Listening: every question of a text
-answered; the mistakes step: every new item of a review answered). AI steps are in the plan only while an assistant
+answered; Writing and Speaking: a task checked; the mistakes step: every new item of a review answered). AI steps are in the plan only while an assistant
 is set up, so a lesson never depends on one. The reference tabs (vocabulary, grammar, culture, script,
 homework, downloads) stay available at any time for looking things up.
 
@@ -383,18 +383,17 @@ label and each skippable as any step:
    the language learnt only (08), each person by a server voice of their gender, every question
    answered by ear; then the text opens with its glossed words. Questions: true/false, a/b/c, numbers
    (prices, times) — items of the existing closed types, checked by the engine, never by the model.
-5. **Writing** ("Write it yourself"; below): a task with three content points, as Goethe's Schreiben
-   sets one, its length and criteria by the course's level; the check rates each point and gives at
-   most three corrections and a model text. Typed only: no dictation where the task is writing (08).
-6. **Dialogue** (built; plan, item 8): a conversation held by voice on a goal card with an
-   information gap — the partner holds facts the learner must ask for. The partner's lines are read
-   aloud in the language learnt; the learner answers by voice, sees what was heard and sends it as
-   heard (or says it again); each line judged — understood, fitting, at most two corrections of that
-   line —; done when the goals are met; then a summary: the goals met and one or two key corrections,
-   each with a model line. Typing only as a fallback where there is no microphone or no recognition
-   (09, the step says why). The step is done once a Dialogue ends (its goals met or ended by the
-   learner), not as one starts; skipping it stays the step bar's. Replaces the typed scene (its runs
-   read on as Dialogues).
+5. **Writing** (below): an answer to a message the text generator wrote — a friend's chat, an
+   e-mail, an ad —, with three content points, as Goethe's Schreiben sets one, its length and
+   criteria by the course's level; the check rates each point and gives at most three corrections and
+   a model text. Typed only: no dictation where the task is writing (08).
+6. **Speaking** (below; owner, 2026-10-12: no conversation waiting for the model after every line):
+   said aloud and checked once, at the end. Its tasks take turns: a monologue from a card (a topic,
+   three things to say, about how long) as a speaking exam's first parts set one, or a role-play — a
+   conversation from the text generator in which the learner plays one part from a hint per line,
+   the partner read aloud by a voice of their gender. Typing only as a fallback where there is no
+   microphone or no recognition (09, the step says why). Replaces the Dialogue (its runs read on;
+   a live conversation is planned for the Tutor section, plan).
 7. **Going over mistakes** (below): the pass's mistakes by type, a short explanation per type and
    two or three new items of the same type (`mistake_items`, items of the existing closed types),
    checked by the engine.
@@ -432,8 +431,8 @@ done — is the engine's too (`understandingStage`). The text is an `llm_verdict
 understanding`, its `step`) in the lesson run the lesson shows; each answer a `practice_answered`
 event on it, checked by the server (05). Answers are not in the lesson's score nor its mistakes;
 Going over mistakes takes the wrong ones in (owner, 2026-10-12). **Made ahead** (owner,
-2026-10-12): as a lesson's run starts or resumes, its Reading and Listening texts and its writing
-task are made in the background, one call after another for the profile, unless the step's latest
+2026-10-12): as a lesson's run starts or resumes, its Reading and Listening texts, its writing
+task and its speaking one are made in the background, one call after another for the profile, unless the step's latest
 is untouched (`llm.preparePractice`, on by default; Settings → AI assistant).
 
 **Going over mistakes** (`mistake_items`; 07; owner, 2026-10-12, from the walkthrough: a chat dumped
@@ -485,8 +484,11 @@ through — also when it is read again after a lost reply —, and skips itself 
 go over; "Go over again" makes a new review of the run's mistakes as they are then.
 
 **Writing** (`writing_task`, `check_writing`; 07; owner, 2026-10-12, from the walkthrough): the
-model sets the task from the lesson's goals and the snapshot — a situation (who the learner writes to
-and why) and three content points, three different things, in the learner's language; a goal of learning about something is
+text generator (Reading's: drafts rated, the best kept) writes a message to the learner, its genre
+drawn from those one answers (a chat, a personal, work or — from A2 — official letter, small ads, a
+post; not the lesson's last three), that asks, offers or invites; the model then sets the task of
+answering it from the message, the lesson's goals and the snapshot — a situation (who the learner
+writes to and why) and three content points, three different things, in the learner's language; a goal of learning about something is
 no task, it becomes a situation where the learner tells, asks for or arranges something; a lesson
 without goals takes its situation from its title and grammar. Its length is the level's, set by the
 app (A1 about 30 words, A2 40, B1 80; with the data), and what a text at the level needs (the CEFR
@@ -500,8 +502,26 @@ text at the level from the words known, a line of feedback. Both are `llm_verdic
 run the lesson shows (`writing_task`, `writing` with the task it answered; 05); a check counts in no
 score.
 
-**Dialogue** (`scene_setup`, `scene_turn`, `scene_summary`; 07): a `scene` run as scenes were (05)
-— the step and its place keep the id `scene`. Setup from the lesson's goals and the snapshot: a
+**Speaking** (`talk_card`, `talk_cues`, `talk_check`, `check_writing` said aloud; 07): a lesson's
+first task drawn, then the kinds take turns. A monologue card (`talk_card`): what to talk about and
+the instruction in the learner's language, the topic and three points in the language learnt as an
+exam card writes them, a model answer; its time the app's (A1 30 seconds, A2 45, B1 on 60; one take,
+a minute at most). It is checked as a text on a writing task (each point, the criteria, corrections,
+a model text) told it was said aloud: the recogniser's punctuation, capitals and digits and a word it
+misheard are no errors, no greeting is needed. A role-play: a conversation (a talk, a phone call) from
+the text generator, its second person the learner — a role, no name, short lines —; `talk_cues` gives
+each of the learner's lines a hint in the learner's language (the intent and facts, never the words);
+the partner is given a server voice of their gender (`castVoices`). The partner's lines show up to the
+learner's next line, each new one read aloud as it comes after a line said (the opening a tap away); the learner says it from its hint (or says it again) and
+keeps it; once every line is said, Check sends them all: `talk_check` rates each — whether it does what
+the hint asks and fits, in the learner's own words; at most two corrections — with feedback, the
+conversation's own line shown as a good way to say it. The task is an `llm_verdict` (`talk_task`) in
+the lesson run the lesson shows, what was said with its check and the task a `talk` one (05); the
+step is done once a task is checked; a check counts in no score. The step keeps the place `scene`'s
+on and off (07).
+
+**Dialogue** (`scene_setup`, `scene_turn`, `scene_summary`; 07; out of the lesson since Speaking,
+its runs read on): a `scene` run as scenes were (05). Setup from the lesson's goals and the snapshot: a
 title, the situation, the partner, the learner's goal card (1–3 goals, at least one asking for
 what the partner holds) and the partner's hidden information, shown only once the Dialogue is over,
 and the opening line with its translation. Each learner line goes with whether it was said

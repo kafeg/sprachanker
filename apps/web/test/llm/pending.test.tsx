@@ -25,7 +25,7 @@ test("a Dialogue still being prepared on the server shows as preparing on a page
   view.unmount();
 });
 
-test("a text still being checked on the server keeps Check waiting on a page opened again", async () => {
+test("a text still being checked on the server says so on a page opened again", async () => {
   const view = await renderApp(
     <TargetLang value="de">
       <WritingTask {...ids} />
@@ -62,8 +62,7 @@ test("a text still being checked on the server keeps Check waiting on a page ope
       ],
     },
   );
-  const button = view.getByRole("button", { name: /Checking…/ });
-  expect(button.hasAttribute("disabled")).toBe(true);
+  expect(view.getByText(/Checking your text…/)).toBeTruthy();
   view.unmount();
 });
 

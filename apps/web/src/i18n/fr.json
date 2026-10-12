@@ -148,12 +148,13 @@
       "wordsCount": "Mots de la leçon · {count, number}",
       "grammar": "Grammaire",
       "culture": "Culture",
-      "writing": "À toi d’écrire",
+      "writing": "Écriture",
       "scene": "Dialogue",
       "mistakes": "Revoir ses erreurs",
       "summary": "Bilan",
       "reading": "Lecture",
-      "listening": "Écoute"
+      "listening": "Écoute",
+      "speaking": "Expression orale"
     },
     "section": {
       "grammar": "Grammaire",
@@ -415,7 +416,10 @@
       "understandingCheck": "Lecture et écoute : la deuxième lecture",
       "mistakes": "Revoir ses erreurs",
       "understandingJudge": "Lecture et écoute : évaluation des brouillons",
-      "understandingQuestions": "Lecture et écoute : les questions"
+      "understandingQuestions": "Lecture et écoute : les questions",
+      "talkCard": "Expression orale : la carte",
+      "talkCues": "Expression orale : les indices du jeu de rôle",
+      "talkCheck": "Expression orale : vérification du jeu de rôle"
     },
     "contextIntro": "Ajouté depuis la leçon :",
     "contextIntroCourses": "Ajouté depuis tes cours (ceux de la langue que pratique la discussion) :",
@@ -464,7 +468,10 @@
       "lessonScript": "le script de la leçon elle-même (son thème et ses situations)",
       "genre": "le genre de texte tiré, sa forme, sa longueur et des idées de situation",
       "drafts": "les brouillons écrits",
-      "textFacts": "les faits avec lesquels le texte a été conçu"
+      "textFacts": "les faits avec lesquels le texte a été conçu",
+      "replyMessage": "le message auquel répond la tâche (du générateur de textes)",
+      "roleplay": "la conversation et ton rôle",
+      "roleplaySaid": "la conversation avec ce que tu as dit à chaque réplique"
     },
     "upTo": "jusqu’à {chars, plural, one {# caractère} many {# de caractères} other {# caractères}}",
     "debug": "Afficher les boutons « Prompt »",
@@ -485,12 +492,12 @@
         "where": "le bouton dans une leçon, l’étape « Revoir ses erreurs » et la section « Tuteur »"
       },
       "writing": {
-        "name": "« À toi d’écrire »",
+        "name": "Écriture",
         "where": "une étape de la leçon"
       },
       "scene": {
-        "name": "Dialogue",
-        "where": "une étape de la leçon"
+        "name": "Expression orale",
+        "where": "une étape de la leçon : parler à partir d'une carte ou jouer un rôle, à voix haute"
       },
       "speaking": {
         "name": "Réponses orales",
@@ -528,12 +535,15 @@
       "understandingCheck": "Répond aux questions à partir du texte seul, puis une fois encore sans le texte : une question à laquelle il répond autrement, qu'il trouve floue ou à laquelle le bon sens répond est retirée.",
       "mistakes": "Revoit les erreurs d’un passage par type : pour chaque type, seules les parties fausses (ce que tu as donné, ce qui est juste, les mots autour), une courte explication et deux ou trois nouveaux exercices du type avec des mots que tu connais. Tes réponses sont corrigées par l’app, pas par le modèle.",
       "understandingJudge": "Évalue les brouillons comme le ferait un enseignant natif — naturel, cohérent, réaliste, à ton niveau, lié à la leçon, intéressant — et liste leurs problèmes : le meilleur qui passe est gardé, sinon le meilleur est réécrit une fois.",
-      "understandingQuestions": "Pose 5 à 10 questions sur le texte retenu, comme aux examens (vrai/faux, a/b/c, nombres), et relève ses mots nouveaux. Tes réponses sont vérifiées par l'appli, pas par le modèle."
+      "understandingQuestions": "Pose 5 à 10 questions sur le texte retenu, comme aux examens (vrai/faux, a/b/c, nombres), et relève ses mots nouveaux. Tes réponses sont vérifiées par l'appli, pas par le modèle.",
+      "talkCard": "Donne une courte tâche orale comme les premières parties d'un examen oral : un thème et trois points dans la langue que tu apprends, la durée environ et une réponse modèle.",
+      "talkCues": "Transforme tes répliques du jeu de rôle en indices dans ta langue : quoi dire, jamais les mots eux-mêmes.",
+      "talkCheck": "Vérifie le jeu de rôle une fois dit : chaque réplique, si elle fait ce que l'indice demande, deux corrections au plus et un mot de retour. Ce que tu dis est entendu par la reconnaissance vocale."
     }
   },
   "writing": {
     "task": "Ta tâche (écris en {language}) :",
-    "intro": "Un court texte sur une situation de la leçon : trois points à traiter, aussi long que le demande un examen de ton niveau. L’IA le corrige : les points traités, trois corrections au plus et un texte modèle.",
+    "intro": "Un message auquel répondre par écrit — un e-mail d'ami, un chat, une annonce : trois points, aussi long qu'à l'examen de ton niveau. L'IA vérifie : les points, trois corrections au plus et un texte modèle.",
     "start": "Recevoir une tâche",
     "preparing": "Écriture de la tâche…",
     "newTask": "Nouvelle tâche",
@@ -541,7 +551,6 @@
     "count": "{count, plural, one {# mot} other {# mots}} sur environ {words, number}",
     "placeholder": "Ton texte…",
     "check": "Vérifier",
-    "checking": "Vérification…",
     "rewrite": "Corrige et vérifie à nouveau",
     "score": "{name} : {score, number} sur {max, number}",
     "points": "{score, number} sur {max, number}",
@@ -702,7 +711,8 @@
     "scene": "Dialogue",
     "mistakes": "Erreurs",
     "reading": "Lecture",
-    "listening": "Écoute"
+    "listening": "Écoute",
+    "speaking": "Expression orale"
   },
   "words": {
     "intro": "Les mots de la leçon en cartes : souviens-toi, affiche la réponse, évalue-toi. Quand il ne reste rien pour l’instant, ils continuent dans Révision.",
@@ -1429,7 +1439,8 @@
     "course_bundle_clash": "Cet ordinateur a d’autres fichiers sous les noms des médias de ce cours : télécharge plutôt le cours ici.",
     "course_import_busy": "Un autre fichier de cours est en cours d’import. Réessaie quand il sera terminé.",
     "series_busy": "Des cours de cette source sont en cours de téléchargement ou d'import. Réessaie quand ce sera fini.",
-    "understanding_busy": "Un texte pour cette leçon est en cours d’écriture. Patiente."
+    "understanding_busy": "Un texte pour cette leçon est en cours d’écriture. Patiente.",
+    "talk_busy": "Une tâche de cette leçon est en préparation ou en vérification. Patiente."
   },
   "exams": {
     "tabs": {
@@ -1708,5 +1719,27 @@
       "making": "Création de nouveaux exercices…",
       "checking": "Vérification des nouveaux exercices…"
     }
+  },
+  "talk": {
+    "intro": "Parle dans la langue que tu apprends : un court exposé à partir d'une carte ou un rôle dans une conversation. Tout est vérifié à la fin, sans attente entre les répliques.",
+    "start": "Obtenir une tâche",
+    "preparing": "Préparation de la tâche…",
+    "new": "Nouvelle tâche",
+    "step": {
+      "writing": "Rédaction de la tâche…",
+      "choosing": "Choix du meilleur brouillon…",
+      "hinting": "Rédaction des indices…",
+      "checking": "Vérification de ce que tu as dit…"
+    },
+    "seconds": "Parle environ {seconds, number} secondes.",
+    "keep": "Garder",
+    "yourRole": "Ton rôle : {role}",
+    "yourTurn": "Ta réplique",
+    "model": "On pouvait dire",
+    "fits": "Ça convient",
+    "misses": "Ne suit pas l'indice",
+    "result": "{right, number} répliques sur {total, number} conviennent",
+    "modelAnswer": "Réponse modèle",
+    "restart": "Recommencer"
   }
 }

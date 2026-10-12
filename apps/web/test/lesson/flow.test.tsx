@@ -89,11 +89,11 @@ test("an active run resumes on the exercise last shown while it is not worked", 
 test("the AI practice still unknown: the run resumes only once every step is known", () => {
   const run = fakeRun("active", [], 1).run;
   const { result, rerender } = renderHook(
-    ({ practice }: { practice?: readonly ("writing" | "scene" | "mistakes")[] }) =>
+    ({ practice }: { practice?: readonly ("writing" | "speaking" | "mistakes")[] }) =>
       useLessonFlow({ lesson, locale, practice, run: run as never }),
     {
       initialProps: { practice: undefined } as {
-        practice?: readonly ("writing" | "scene" | "mistakes")[];
+        practice?: readonly ("writing" | "speaking" | "mistakes")[];
       },
     },
   );
@@ -122,11 +122,11 @@ test("every exercise worked and AI practice left: the run resumes on the practic
   ];
   const run = fakeRun("active", events, 1).run;
   const { result, rerender } = renderHook(
-    ({ practice }: { practice?: readonly ("writing" | "scene" | "mistakes")[] }) =>
+    ({ practice }: { practice?: readonly ("writing" | "speaking" | "mistakes")[] }) =>
       useLessonFlow({ lesson, locale, practice, run: run as never }),
     {
       initialProps: { practice: undefined } as {
-        practice?: readonly ("writing" | "scene" | "mistakes")[];
+        practice?: readonly ("writing" | "speaking" | "mistakes")[];
       },
     },
   );

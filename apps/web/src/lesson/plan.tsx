@@ -15,7 +15,7 @@ import {
   Globe,
   Headphones,
   Layers,
-  MessagesSquare,
+  Mic,
   PenLine,
   Play,
   SearchCheck,
@@ -81,7 +81,7 @@ const ICON: Partial<Record<LessonStep["kind"], React.ComponentType<{ className?:
   reading: BookOpenText,
   listening: Headphones,
   writing: PenLine,
-  scene: MessagesSquare,
+  speaking: Mic,
   mistakes: SearchCheck,
   summary: Star,
 };
@@ -94,7 +94,7 @@ const SECTION: Partial<Record<LessonStep["kind"], string>> = {
   reading: "lesson.section.practice",
   listening: "lesson.section.practice",
   writing: "lesson.section.practice",
-  scene: "lesson.section.practice",
+  speaking: "lesson.section.practice",
   mistakes: "lesson.section.practice",
 };
 

@@ -148,12 +148,13 @@
       "wordsCount": "Words of the lesson · {count, number}",
       "grammar": "Grammar",
       "culture": "Culture",
-      "writing": "Write it yourself",
+      "writing": "Writing",
       "scene": "Dialogue",
       "mistakes": "Going over mistakes",
       "summary": "Summary",
       "reading": "Reading",
-      "listening": "Listening"
+      "listening": "Listening",
+      "speaking": "Speaking"
     },
     "section": {
       "grammar": "Grammar",
@@ -415,7 +416,10 @@
       "understandingCheck": "Reading and listening: the second reading",
       "mistakes": "Going over mistakes",
       "understandingJudge": "Reading and listening: the drafts rated",
-      "understandingQuestions": "Reading and listening: the questions"
+      "understandingQuestions": "Reading and listening: the questions",
+      "talkCard": "Speaking: the card",
+      "talkCues": "Speaking: the role-play's hints",
+      "talkCheck": "Speaking: the role-play checked"
     },
     "contextIntro": "Added from the lesson:",
     "contextIntroCourses": "Added from your courses (those in the language the chat practises):",
@@ -464,7 +468,10 @@
       "lessonScript": "the lesson's own script (its topic and situations)",
       "genre": "the kind of text drawn, its form, its length and ideas for the situation",
       "drafts": "the drafts written",
-      "textFacts": "the facts the text was planned with"
+      "textFacts": "the facts the text was planned with",
+      "replyMessage": "the message the task answers (made by the text generator)",
+      "roleplay": "the conversation and the part you play",
+      "roleplaySaid": "the conversation with what you said for each of your lines"
     },
     "upTo": "up to {chars, plural, one {# character} other {# characters}}",
     "debug": "Show “Prompt” buttons",
@@ -485,12 +492,12 @@
         "where": "the button in a lesson, the “Going over mistakes” step and the Tutor section"
       },
       "writing": {
-        "name": "“Write it yourself”",
+        "name": "Writing",
         "where": "a step of the lesson"
       },
       "scene": {
-        "name": "Dialogue",
-        "where": "a step of the lesson"
+        "name": "Speaking",
+        "where": "a step of the lesson: a talk from a card or a role-play, by voice"
       },
       "speaking": {
         "name": "Spoken answers",
@@ -528,12 +535,15 @@
       "understandingCheck": "Answers the questions from the text alone, then once more without the text: a question it answers otherwise, finds unclear, or one common sense answers is left out.",
       "mistakes": "Goes over a pass's mistakes by type: each type's wrong parts only (what you gave, what is right, the words around it), a short explanation, and two or three new items of the type from words you know. Your answers are checked by the app, not by the model.",
       "understandingJudge": "Rates the drafts as a native teacher would — natural, coherent, true to life, at your level, on the lesson, interesting — and lists their problems: the best that passes is kept, else the best is written again once.",
-      "understandingQuestions": "Asks 5–10 questions on the text kept, as exams ask them (true/false, a/b/c, numbers), and lists its new words. Your answers are checked by the app, not by the model."
+      "understandingQuestions": "Asks 5–10 questions on the text kept, as exams ask them (true/false, a/b/c, numbers), and lists its new words. Your answers are checked by the app, not by the model.",
+      "talkCard": "Sets a short speaking task as a speaking exam's first parts do: a topic and three things to say in the language you learn, about how long to speak, and a model answer.",
+      "talkCues": "Turns your lines in a role-play into hints in your language: what to say there, never the words.",
+      "talkCheck": "Checks a role-play once it is said: each line whether it does what its hint asks, at most two corrections, and a word of feedback. What you said is heard by the recogniser."
     }
   },
   "writing": {
     "task": "Your task (write in {language}):",
-    "intro": "A short text on a situation from the lesson: three points to cover, about as long as an exam at your level asks. The AI checks it: the points covered, at most three corrections, and a model text.",
+    "intro": "A message to answer in writing — a friend's e-mail, a chat, an ad: three points to cover, about as long as an exam at your level asks. The AI checks it: the points covered, at most three corrections, and a model text.",
     "start": "Get a task",
     "preparing": "Writing a task…",
     "newTask": "New task",
@@ -541,7 +551,6 @@
     "count": "{count, plural, one {# word} other {# words}} of about {words, number}",
     "placeholder": "Your text…",
     "check": "Check",
-    "checking": "Checking…",
     "rewrite": "Fix it and check again",
     "score": "{name}: {score, number} of {max, number}",
     "points": "{score, number} of {max, number}",
@@ -702,7 +711,8 @@
     "scene": "Dialogue",
     "mistakes": "Mistakes",
     "reading": "Reading",
-    "listening": "Listening"
+    "listening": "Listening",
+    "speaking": "Speaking"
   },
   "words": {
     "intro": "The lesson's words as cards: recall, show the answer, rate. When nothing is left for now, they go on in Review.",
@@ -1429,7 +1439,8 @@
     "course_bundle_clash": "This computer has other files under the names of this course's media: download the course here instead.",
     "course_import_busy": "Another course file is being imported. Try again when it is done.",
     "series_busy": "Courses from this source are being downloaded or imported right now. Try again when that is done.",
-    "understanding_busy": "A text for this lesson is being written. Wait for it."
+    "understanding_busy": "A text for this lesson is being written. Wait for it.",
+    "talk_busy": "A task for this lesson is being made or checked. Wait for it."
   },
   "exams": {
     "tabs": {
@@ -1708,5 +1719,27 @@
       "making": "Making new tasks…",
       "checking": "Checking the new tasks…"
     }
+  },
+  "talk": {
+    "intro": "Speak in the language you learn: a short talk from a card, or a part in a conversation. Everything is checked at the end, no waiting between lines.",
+    "start": "Get a task",
+    "preparing": "Making a task…",
+    "new": "New task",
+    "step": {
+      "writing": "Writing the task…",
+      "choosing": "Choosing the best draft…",
+      "hinting": "Writing the hints…",
+      "checking": "Checking what you said…"
+    },
+    "seconds": "Speak for about {seconds, number} seconds.",
+    "keep": "Keep it",
+    "yourRole": "You are: {role}",
+    "yourTurn": "Your line",
+    "model": "A good way to say it",
+    "fits": "Fits",
+    "misses": "Misses the hint",
+    "result": "{right, number} of {total, number} lines fit",
+    "modelAnswer": "A model answer",
+    "restart": "Start again"
   }
 }

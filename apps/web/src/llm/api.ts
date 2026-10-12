@@ -269,7 +269,8 @@ export type PromptRequest =
   | { scene: SceneLineRequest }
   | { deckExamples: { scope: string; edition: string } }
   | { exam: ExamRatingRequest }
-  | { conversation: ConversationRequest };
+  | { conversation: ConversationRequest }
+  | { talk: Parameters<typeof api.llm.talk.prompt.$post>[0]["json"] };
 
 /** The exact request a task would send now (nothing is sent). */
 export function fetchPrompt(kind: PromptRequest): Promise<PromptPreview> {
@@ -286,6 +287,7 @@ export function fetchPrompt(kind: PromptRequest): Promise<PromptPreview> {
   if ("exam" in kind) return json(api.llm["exam-rating"].prompt.$post({ json: kind.exam }));
   if ("conversation" in kind)
     return json(api.llm["exam-conversation"].prompt.$post({ json: kind.conversation }));
+  if ("talk" in kind) return json(api.llm.talk.prompt.$post({ json: kind.talk }));
   return json(api.llm.scene.prompt.$post({ json: kind.scene }));
 }
 
@@ -335,7 +337,7 @@ export const useWriting = (series: string, lessonKey: string, edition: string) =
  *  shows it being made, no error. */
 export const busyMaking = (error: unknown) =>
   error instanceof ApiError &&
-  (error.message === "understanding_busy" || error.message === "writing_busy");
+  ["understanding_busy", "writing_busy", "talk_busy"].includes(error.message);
 
 /** Writes a new task for the lesson (shown at once, also when the page that asked is gone); one
  *  being made already (ahead): its state read again, so the page waits for it. */
@@ -443,6 +445,53 @@ export function useAnswerUnderstanding(lessonKey: LessonKey, step: PracticeStep)
     mutationFn: (answer: UnderstandingAnswer) =>
       json(api.llm.understanding.answer.$post({ json: answer })),
     onSuccess: shown,
+  });
+}
+
+type TalkRequest = Parameters<typeof api.llm.talk.$post>[0]["json"];
+type TalkCheckRequest = Parameters<typeof api.llm.talk.check.$post>[0]["json"];
+type TalkState = Awaited<ReturnType<typeof fetchTalk>>;
+export type TalkTaskVerdict = NonNullable<TalkState["task"]>;
+export type TalkAttemptVerdict = TalkState["attempts"][number];
+const fetchTalk = (lessonKey: LessonKey) => json(api.llm.talk.$get({ query: { lessonKey } }));
+
+/** Speaking's latest task of the lesson and its attempts, newest first; asked again while one is
+ *  being made or checked — asked from here (`asked`) or before (made ahead) —, so its step shows. */
+export const useTalk = (lessonKey: LessonKey, asked = false) =>
+  useQuery({
+    queryKey: ["talk", lessonKey],
+    queryFn: () => fetchTalk(lessonKey),
+    refetchInterval: (query) =>
+      asked || query.state.data?.preparing || query.state.data?.checking ? WHILE_BUSY : false,
+  });
+
+/** Makes a Speaking task (shown at once, also when the page that asked is gone); one being made
+ *  already (ahead): the state read again, so the page waits for it. */
+export function useStartTalk(lessonKey: LessonKey) {
+  const client = useQueryClient();
+  return useMutation({
+    mutationFn: (request: TalkRequest) => json(api.llm.talk.$post({ json: request })),
+    onSuccess: (task) =>
+      client.setQueryData(["talk", lessonKey], (old: TalkState | undefined) =>
+        old ? { ...old, task, preparing: false } : old,
+      ),
+    onError: (error) => {
+      if (busyMaking(error)) void client.invalidateQueries({ queryKey: ["talk", lessonKey] });
+    },
+  });
+}
+
+/** Checks what was said on a Speaking task; the attempt shown on top once kept. */
+export function useCheckTalk(lessonKey: LessonKey, onChecked?: () => void) {
+  const client = useQueryClient();
+  return useMutation({
+    mutationFn: (request: TalkCheckRequest) => json(api.llm.talk.check.$post({ json: request })),
+    onSuccess: (attempt) => {
+      client.setQueryData(["talk", lessonKey], (old: TalkState | undefined) =>
+        old ? { ...old, attempts: [attempt, ...old.attempts], checking: false } : old,
+      );
+      onChecked?.();
+    },
   });
 }
 

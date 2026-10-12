@@ -148,12 +148,13 @@
       "wordsCount": "A lecke szavai · {count, number}",
       "grammar": "Nyelvtan",
       "culture": "Kultúra",
-      "writing": "Írj saját szöveget",
+      "writing": "Írás",
       "scene": "Párbeszéd",
       "mistakes": "Hibák átnézése",
       "summary": "Összegzés",
       "reading": "Olvasás",
-      "listening": "Hallás utáni értés"
+      "listening": "Hallás utáni értés",
+      "speaking": "Beszéd"
     },
     "section": {
       "grammar": "Nyelvtan",
@@ -415,7 +416,10 @@
       "understandingCheck": "Olvasás és hallás: a második olvasás",
       "mistakes": "Hibák átnézése",
       "understandingJudge": "Olvasás és hallás: a vázlatok értékelése",
-      "understandingQuestions": "Olvasás és hallás: a kérdések"
+      "understandingQuestions": "Olvasás és hallás: a kérdések",
+      "talkCard": "Beszéd: a kártya",
+      "talkCues": "Beszéd: a szerepjáték súgásai",
+      "talkCheck": "Beszéd: a szerepjáték ellenőrzése"
     },
     "contextIntro": "A leckéből hozzáadva:",
     "contextIntroCourses": "A kurzusaidból hozzáadva (azokból, amelyek a beszélgetés nyelvét tanítják):",
@@ -464,7 +468,10 @@
       "lessonScript": "maga a lecke szövegkönyve (a témája és a helyzetei)",
       "genre": "a kisorsolt szövegfajta, a formája, a hossza és ötletek a helyzethez",
       "drafts": "a megírt vázlatok",
-      "textFacts": "a tények, amelyekkel a szöveget megtervezte"
+      "textFacts": "a tények, amelyekkel a szöveget megtervezte",
+      "replyMessage": "az üzenet, amelyre a feladat válaszol (a szöveggenerátortól)",
+      "roleplay": "a beszélgetés és a szereped",
+      "roleplaySaid": "a beszélgetés azzal, amit minden mondatodnál mondtál"
     },
     "upTo": "legfeljebb {chars, plural, one {# karakter} other {# karakter}}",
     "debug": "„Prompt” gombok megjelenítése",
@@ -485,12 +492,12 @@
         "where": "a gomb a leckében, a „Hibák átnézése” lépés és a „Tutor” szakasz"
       },
       "writing": {
-        "name": "„Írj saját szöveget”",
+        "name": "Írás",
         "where": "a lecke egy lépése"
       },
       "scene": {
-        "name": "Párbeszéd",
-        "where": "a lecke egy lépése"
+        "name": "Beszéd",
+        "where": "a lecke egy lépése: beszéd kártya alapján vagy szerepjáték, élőszóban"
       },
       "speaking": {
         "name": "Szóbeli válaszok",
@@ -528,12 +535,15 @@
       "understandingCheck": "Csak a szöveg alapján válaszol a kérdésekre, majd még egyszer szöveg nélkül: kimarad a kérdés, amelyre másképp válaszol, amelyet homályosnak talál, vagy amelyre a józan ész is felel.",
       "mistakes": "Fajtánként átnézi egy kör hibáit: minden fajtánál csak a hibás részeket (mit adtál meg, mi a helyes, a körülötte lévő szavakat), egy rövid magyarázatot és két-három új, ilyen fajtájú feladatot ismert szavakból. A válaszaidat az app ellenőrzi, nem a modell.",
       "understandingJudge": "Anyanyelvi tanárként értékeli a vázlatokat — természetesség, összefüggés, életszerűség, szint, kapcsolat a leckével, érdekesség — és felsorolja a hibáikat: a legjobb megfelelő marad, különben a legjobbat egyszer újraírja.",
-      "understandingQuestions": "5–10 kérdést tesz fel a kiválasztott szövegről, ahogy a vizsgákon (igaz/hamis, a/b/c, számok), és kiírja az új szavakat. A válaszaidat az alkalmazás ellenőrzi, nem a modell."
+      "understandingQuestions": "5–10 kérdést tesz fel a kiválasztott szövegről, ahogy a vizsgákon (igaz/hamis, a/b/c, számok), és kiírja az új szavakat. A válaszaidat az alkalmazás ellenőrzi, nem a modell.",
+      "talkCard": "Rövid szóbeli feladatot ad, mint a szóbeli vizsga első részei: témát és három pontot a tanult nyelven, nagyjából mennyi ideig beszélj, és mintaválaszt.",
+      "talkCues": "A szerepjátékban a mondataidat súgásokká alakítja a nyelveden: mit mondj, sosem magukat a szavakat.",
+      "talkCheck": "Ellenőrzi a szerepjátékot, ha elhangzott: minden mondatnál, hogy azt teszi-e, amit a súgás kér, legfeljebb két javítás és rövid visszajelzés. Amit mondasz, a beszédfelismerő hallja."
     }
   },
   "writing": {
     "task": "A feladatod (a szöveg nyelve: {language}):",
-    "intro": "Rövid szöveg egy, a leckéből vett helyzetről: három pont, amelyre ki kell térned, olyan hosszan, amennyit egy vizsga a szinteden kér. A MI ellenőrzi: a kifejtett pontokat, legfeljebb három javítást és egy mintaszöveget ad.",
+    "intro": "Egy üzenet, amelyre írásban válaszolsz — egy barát e-mailje, chat, hirdetés: három pont, olyan hosszú, mint a szinted vizsgáján. Az MI ellenőrzi: a pontokat, legfeljebb három javítást és egy mintaszöveget.",
     "start": "Feladatot kérek",
     "preparing": "Készül a feladat…",
     "newTask": "Új feladat",
@@ -541,7 +551,6 @@
     "count": "{count, plural, one {# szó} other {# szó}} a nagyjából {words, number}-ból",
     "placeholder": "A szöveged…",
     "check": "Ellenőrzés",
-    "checking": "Ellenőrzés…",
     "rewrite": "Javítsd és ellenőrizd újra",
     "score": "{name}: {score, number}/{max, number}",
     "points": "{score, number}/{max, number}",
@@ -702,7 +711,8 @@
     "scene": "Párbeszéd",
     "mistakes": "Hibák",
     "reading": "Olvasás",
-    "listening": "Hallás utáni értés"
+    "listening": "Hallás utáni értés",
+    "speaking": "Beszéd"
   },
   "words": {
     "intro": "A lecke szavai kártyákon: idézd fel, nézd meg a választ, értékeld. Ha egyelőre nem marad semmi, az Ismétlésben folytatódnak.",
@@ -1429,7 +1439,8 @@
     "course_bundle_clash": "Ezen a számítógépen a kurzus médiafájljainak nevén más fájlok vannak: töltsd le inkább itt a kurzust.",
     "course_import_busy": "Épp egy másik kurzusfájl importálása folyik. Próbáld újra, ha végzett.",
     "series_busy": "Ebből a forrásból éppen kurzusok letöltése vagy importálása folyik. Próbáld újra, ha végzett.",
-    "understanding_busy": "Épp készül egy szöveg ehhez a leckéhez. Várj egy kicsit."
+    "understanding_busy": "Épp készül egy szöveg ehhez a leckéhez. Várj egy kicsit.",
+    "talk_busy": "Ehhez a leckéhez már készül vagy ellenőrzés alatt van egy feladat. Várj."
   },
   "exams": {
     "tabs": {
@@ -1708,5 +1719,27 @@
       "making": "Új feladatok készülnek…",
       "checking": "Az új feladatok ellenőrzése…"
     }
+  },
+  "talk": {
+    "intro": "Beszélj a tanult nyelven: rövid beszéd kártya alapján vagy szerep egy beszélgetésben. A végén ellenőrizzük, a mondatok között nincs várakozás.",
+    "start": "Feladat kérése",
+    "preparing": "A feladat készül…",
+    "new": "Új feladat",
+    "step": {
+      "writing": "A feladat írása…",
+      "choosing": "A legjobb vázlat kiválasztása…",
+      "hinting": "A súgások írása…",
+      "checking": "Az elmondottak ellenőrzése…"
+    },
+    "seconds": "Beszélj körülbelül {seconds, number} másodpercig.",
+    "keep": "Megtartom",
+    "yourRole": "A szereped: {role}",
+    "yourTurn": "A te mondatod",
+    "model": "Így is mondhattad",
+    "fits": "Megfelel",
+    "misses": "Nem a súgás szerint",
+    "result": "{total, number} mondatból {right, number} megfelel",
+    "modelAnswer": "Mintaválasz",
+    "restart": "Újrakezdés"
   }
 }

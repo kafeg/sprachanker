@@ -148,12 +148,13 @@
       "wordsCount": "Wörter der Lektion · {count, number}",
       "grammar": "Grammatik",
       "culture": "Landeskunde",
-      "writing": "Schreib selbst",
+      "writing": "Schreiben",
       "scene": "Dialog",
       "mistakes": "Fehler durchgehen",
       "summary": "Fazit",
       "reading": "Lesen",
-      "listening": "Hören"
+      "listening": "Hören",
+      "speaking": "Sprechen"
     },
     "section": {
       "grammar": "Grammatik",
@@ -415,7 +416,10 @@
       "understandingCheck": "Lesen und Hören: das zweite Lesen",
       "mistakes": "Fehler durchgehen",
       "understandingJudge": "Lesen und Hören: die Entwürfe bewertet",
-      "understandingQuestions": "Lesen und Hören: die Fragen"
+      "understandingQuestions": "Lesen und Hören: die Fragen",
+      "talkCard": "Sprechen: die Karte",
+      "talkCues": "Sprechen: die Hinweise des Rollenspiels",
+      "talkCheck": "Sprechen: das Rollenspiel geprüft"
     },
     "contextIntro": "Aus der Lektion kommt dazu:",
     "contextIntroCourses": "Aus deinen Kursen kommt dazu (denen in der Sprache, die das Gespräch übt):",
@@ -464,7 +468,10 @@
       "lessonScript": "das Skript der Lektion (ihr Thema und ihre Situationen)",
       "genre": "die ausgeloste Textsorte, ihre Form, ihre Länge und Ideen für die Situation",
       "drafts": "die geschriebenen Entwürfe",
-      "textFacts": "die Fakten, mit denen der Text geplant wurde"
+      "textFacts": "die Fakten, mit denen der Text geplant wurde",
+      "replyMessage": "die Nachricht, auf die die Aufgabe antwortet (vom Textgenerator)",
+      "roleplay": "das Gespräch und deine Rolle darin",
+      "roleplaySaid": "das Gespräch mit dem, was du bei jedem deiner Sätze gesagt hast"
     },
     "upTo": "bis {chars, number} Zeichen",
     "debug": "Schaltflächen „Prompt“ anzeigen",
@@ -485,12 +492,12 @@
         "where": "die Schaltfläche in der Lektion, der Schritt „Fehler durchgehen“ und der Bereich „Tutor“"
       },
       "writing": {
-        "name": "„Schreib selbst“",
+        "name": "Schreiben",
         "where": "ein Schritt der Lektion"
       },
       "scene": {
-        "name": "Dialog",
-        "where": "ein Schritt der Lektion"
+        "name": "Sprechen",
+        "where": "ein Schritt der Lektion: ein Vortrag nach einer Karte oder ein Rollenspiel, mit der Stimme"
       },
       "speaking": {
         "name": "Gesprochene Antworten",
@@ -528,12 +535,15 @@
       "understandingCheck": "Beantwortet die Fragen nur aus dem Text und dann noch einmal ohne den Text: Eine Frage, die es anders beantwortet, unklar findet oder die der gesunde Menschenverstand beantwortet, fällt weg.",
       "mistakes": "Geht die Fehler eines Durchgangs nach Art durch: je Art nur die falschen Teile (was du gegeben hast, was richtig ist, die Wörter darum), eine kurze Erklärung und zwei, drei neue Aufgaben dieser Art aus Wörtern, die du kennst. Deine Antworten prüft die App, nicht das Modell.",
       "understandingJudge": "Bewertet die Entwürfe wie eine muttersprachliche Lehrkraft — natürlich, stimmig, lebensnah, auf deinem Niveau, zur Lektion passend, interessant — und nennt ihre Probleme: Der beste, der besteht, bleibt; sonst wird der beste einmal neu geschrieben.",
-      "understandingQuestions": "Stellt 5–10 Fragen zum gewählten Text wie in Prüfungen (richtig/falsch, a/b/c, Zahlen) und listet seine neuen Wörter auf. Deine Antworten prüft die App, nicht das Modell."
+      "understandingQuestions": "Stellt 5–10 Fragen zum gewählten Text wie in Prüfungen (richtig/falsch, a/b/c, Zahlen) und listet seine neuen Wörter auf. Deine Antworten prüft die App, nicht das Modell.",
+      "talkCard": "Stellt eine kurze Sprechaufgabe wie die ersten Teile einer mündlichen Prüfung: ein Thema und drei Punkte in der Sprache, die du lernst, wie lange etwa, und eine Musterantwort.",
+      "talkCues": "Macht aus deinen Sätzen im Rollenspiel Hinweise in deiner Sprache: was du dort sagst, nie die Wörter selbst.",
+      "talkCheck": "Prüft ein Rollenspiel, wenn es gesprochen ist: jeder Satz, ob er tut, was der Hinweis verlangt, höchstens zwei Korrekturen und ein kurzes Feedback. Das Gesagte hört die Spracherkennung."
     }
   },
   "writing": {
     "task": "Deine Aufgabe (schreib auf {language}):",
-    "intro": "Ein kurzer Text zu einer Situation aus der Lektion: drei Punkte, die du behandelst, so lang, wie eine Prüfung auf deinem Niveau verlangt. Die KI prüft ihn: die behandelten Punkte, höchstens drei Korrekturen und ein Mustertext.",
+    "intro": "Eine Nachricht, auf die du schriftlich antwortest — eine E-Mail von einem Freund, ein Chat, eine Anzeige: drei Punkte, etwa so lang wie in einer Prüfung deines Niveaus. Die KI prüft: die Punkte, höchstens drei Korrekturen und ein Mustertext.",
     "start": "Aufgabe stellen lassen",
     "preparing": "Aufgabe wird geschrieben…",
     "newTask": "Neue Aufgabe",
@@ -541,7 +551,6 @@
     "count": "{count, plural, one {# Wort} other {# Wörter}} von etwa {words, number}",
     "placeholder": "Dein Text…",
     "check": "Prüfen",
-    "checking": "Wird geprüft…",
     "rewrite": "Verbessern und neu prüfen",
     "score": "{name}: {score, number} von {max, number}",
     "points": "{score, number} von {max, number}",
@@ -702,7 +711,8 @@
     "scene": "Dialog",
     "mistakes": "Fehler",
     "reading": "Lesen",
-    "listening": "Hören"
+    "listening": "Hören",
+    "speaking": "Sprechen"
   },
   "words": {
     "intro": "Die Wörter der Lektion als Karten: erinnern, Antwort zeigen, bewerten. Wenn gerade nichts mehr übrig ist, geht es in der Wiederholung weiter.",
@@ -1429,7 +1439,8 @@
     "course_bundle_clash": "Auf diesem Computer liegen unter den Namen der Mediendateien dieses Kurses andere Dateien: Lade den Kurs hier herunter.",
     "course_import_busy": "Gerade wird eine andere Kursdatei importiert. Versuch es noch einmal, wenn sie fertig ist.",
     "series_busy": "Kurse aus dieser Quelle werden gerade heruntergeladen oder importiert. Versuch es noch einmal, wenn das fertig ist.",
-    "understanding_busy": "Ein Text für diese Lektion wird gerade geschrieben. Warte darauf."
+    "understanding_busy": "Ein Text für diese Lektion wird gerade geschrieben. Warte darauf.",
+    "talk_busy": "Für diese Lektion wird gerade eine Aufgabe erstellt oder geprüft. Warte darauf."
   },
   "exams": {
     "tabs": {
@@ -1708,5 +1719,27 @@
       "making": "Neue Aufgaben werden erstellt…",
       "checking": "Neue Aufgaben werden geprüft…"
     }
+  },
+  "talk": {
+    "intro": "Sprich in der Sprache, die du lernst: ein kurzer Vortrag nach einer Karte oder eine Rolle in einem Gespräch. Geprüft wird am Ende, ohne Warten zwischen den Sätzen.",
+    "start": "Aufgabe holen",
+    "preparing": "Aufgabe wird erstellt…",
+    "new": "Neue Aufgabe",
+    "step": {
+      "writing": "Die Aufgabe wird geschrieben…",
+      "choosing": "Der beste Entwurf wird gewählt…",
+      "hinting": "Hinweise werden geschrieben…",
+      "checking": "Das Gesagte wird geprüft…"
+    },
+    "seconds": "Sprich etwa {seconds, number} Sekunden.",
+    "keep": "Behalten",
+    "yourRole": "Deine Rolle: {role}",
+    "yourTurn": "Dein Satz",
+    "model": "So geht es gut",
+    "fits": "Passt",
+    "misses": "Passt nicht zum Hinweis",
+    "result": "{right, number} von {total, number} Sätzen passen",
+    "modelAnswer": "Musterantwort",
+    "restart": "Von vorn"
   }
 }

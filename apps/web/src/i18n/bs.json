@@ -148,12 +148,13 @@
       "wordsCount": "Riječi lekcije · {count, number}",
       "grammar": "Gramatika",
       "culture": "Kultura",
-      "writing": "Napiši svoj tekst",
+      "writing": "Pisanje",
       "scene": "Dijalog",
       "mistakes": "Pregled grešaka",
       "summary": "Sažetak",
       "reading": "Čitanje",
-      "listening": "Slušanje"
+      "listening": "Slušanje",
+      "speaking": "Govor"
     },
     "section": {
       "grammar": "Gramatika",
@@ -415,7 +416,10 @@
       "understandingCheck": "Čitanje i slušanje: drugo čitanje",
       "mistakes": "Pregled grešaka",
       "understandingJudge": "Čitanje i slušanje: ocjena nacrta",
-      "understandingQuestions": "Čitanje i slušanje: pitanja"
+      "understandingQuestions": "Čitanje i slušanje: pitanja",
+      "talkCard": "Govor: kartica",
+      "talkCues": "Govor: nagovještaji igre uloga",
+      "talkCheck": "Govor: provjera igre uloga"
     },
     "contextIntro": "Dodano iz lekcije:",
     "contextIntroCourses": "Dodano iz tvojih kurseva (onih za jezik koji razgovor vježba):",
@@ -464,7 +468,10 @@
       "lessonScript": "scenarij same lekcije (njena tema i situacije)",
       "genre": "izvučena vrsta teksta, njen oblik, dužina i ideje za situaciju",
       "drafts": "napisani nacrti",
-      "textFacts": "činjenice s kojima je tekst osmišljen"
+      "textFacts": "činjenice s kojima je tekst osmišljen",
+      "replyMessage": "poruka na koju zadatak odgovara (iz generatora tekstova)",
+      "roleplay": "razgovor i tvoja uloga u njemu",
+      "roleplaySaid": "razgovor s onim što si rekao/la u svakoj replici"
     },
     "upTo": "do {chars, plural, one {# znaka} few {# znaka} other {# znakova}}",
     "debug": "Prikaži dugmad „Prompt“",
@@ -485,12 +492,12 @@
         "where": "dugme u lekciji, korak „Pregled grešaka“ i odjeljak „Tutor“"
       },
       "writing": {
-        "name": "„Napiši svoj tekst“",
+        "name": "Pisanje",
         "where": "korak lekcije"
       },
       "scene": {
-        "name": "Dijalog",
-        "where": "korak lekcije"
+        "name": "Govor",
+        "where": "korak lekcije: govor po kartici ili igra uloga, glasom"
       },
       "speaking": {
         "name": "Izgovoreni odgovori",
@@ -528,12 +535,15 @@
       "understandingCheck": "Odgovara na pitanja samo iz teksta, pa još jednom bez teksta: pitanje na koje odgovori drugačije, koje smatra nejasnim ili na koje odgovara zdrav razum, izbacuje se.",
       "mistakes": "Pregleda greške prolaza po vrstama: za svaku vrstu samo pogrešne dijelove (šta si dao, šta je tačno, riječi oko toga), kratko objašnjenje i dva-tri nova zadatka te vrste od riječi koje znaš. Tvoje odgovore provjerava aplikacija, ne model.",
       "understandingJudge": "Ocjenjuje nacrte kao nastavnik izvorni govornik — prirodnost, povezanost, životnost, nivo, vezu s lekcijom, zanimljivost — i navodi probleme: zadržava se najbolji koji prođe, inače se najbolji jednom piše iznova.",
-      "understandingQuestions": "Postavlja 5–10 pitanja o odabranom tekstu, kao na ispitima (tačno/netačno, a/b/c, brojevi), i navodi nove riječi. Tvoje odgovore provjerava aplikacija, ne model."
+      "understandingQuestions": "Postavlja 5–10 pitanja o odabranom tekstu, kao na ispitima (tačno/netačno, a/b/c, brojevi), i navodi nove riječi. Tvoje odgovore provjerava aplikacija, ne model.",
+      "talkCard": "Zadaje kratak usmeni zadatak kao prvi dijelovi usmenog ispita: tema i tri tačke na jeziku koji učiš, koliko otprilike govoriti i uzorak odgovora.",
+      "talkCues": "Pretvara tvoje replike u igri uloga u nagovještaje na tvom jeziku: šta reći, nikad same riječi.",
+      "talkCheck": "Provjerava igru uloga kad je izgovorena: svaka replika — radi li ono što nagovještaj traži, najviše dvije ispravke i kratak komentar. Izgovoreno čuje prepoznavanje govora."
     }
   },
   "writing": {
     "task": "Tvoj zadatak (jezik teksta: {language}):",
-    "intro": "Kratak tekst o situaciji iz lekcije: tri tačke koje trebaš obuhvatiti, dug koliko traži ispit na tvom nivou. AI ga provjerava: obuhvaćene tačke, najviše tri ispravke i uzorni tekst.",
+    "intro": "Poruka na koju odgovaraš pismeno — e-mail prijatelja, chat, oglas: tri tačke, dužina kao na ispitu tvog nivoa. AI provjerava: tačke, najviše tri ispravke i uzorak teksta.",
     "start": "Daj mi zadatak",
     "preparing": "Piše se zadatak…",
     "newTask": "Novi zadatak",
@@ -541,7 +551,6 @@
     "count": "{count, plural, one {# riječ} few {# riječi} other {# riječi}} od oko {words, number}",
     "placeholder": "Tvoj tekst…",
     "check": "Provjeri",
-    "checking": "Provjeravam…",
     "rewrite": "Ispravi i provjeri ponovo",
     "score": "{name}: {score, number} od {max, number}",
     "points": "{score, number} od {max, number}",
@@ -702,7 +711,8 @@
     "scene": "Dijalog",
     "mistakes": "Greške",
     "reading": "Čitanje",
-    "listening": "Slušanje"
+    "listening": "Slušanje",
+    "speaking": "Govor"
   },
   "words": {
     "intro": "Riječi lekcije kao kartice: prisjeti se, prikaži odgovor, ocijeni. Kad za sada ništa ne ostane, nastavljaju u Ponavljanju.",
@@ -1429,7 +1439,8 @@
     "course_bundle_clash": "Na ovom računaru pod imenima medijskih datoteka ovog kursa postoje druge datoteke: umjesto toga preuzmi kurs ovdje.",
     "course_import_busy": "Upravo se uvozi druga datoteka kursa. Pokušaj ponovo kad se završi.",
     "series_busy": "Kursevi iz ovog izvora se upravo preuzimaju ili uvoze. Pokušaj ponovo kad se to završi.",
-    "understanding_busy": "Tekst za ovu lekciju se upravo piše. Sačekaj."
+    "understanding_busy": "Tekst za ovu lekciju se upravo piše. Sačekaj.",
+    "talk_busy": "Za ovu lekciju se već priprema zadatak ili provjera. Sačekaj."
   },
   "exams": {
     "tabs": {
@@ -1708,5 +1719,27 @@
       "making": "Prave se novi zadaci…",
       "checking": "Provjeravaju se novi zadaci…"
     }
+  },
+  "talk": {
+    "intro": "Govori na jeziku koji učiš: kratak govor po kartici ili uloga u razgovoru. Provjera je na kraju, bez čekanja između replika.",
+    "start": "Dobij zadatak",
+    "preparing": "Pripremam zadatak…",
+    "new": "Novi zadatak",
+    "step": {
+      "writing": "Pišem zadatak…",
+      "choosing": "Biram najbolji nacrt…",
+      "hinting": "Pišem nagovještaje…",
+      "checking": "Provjeravam rečeno…"
+    },
+    "seconds": "Govori oko {seconds, number} sekundi.",
+    "keep": "Zadrži",
+    "yourRole": "Tvoja uloga: {role}",
+    "yourTurn": "Tvoja replika",
+    "model": "Moglo se reći",
+    "fits": "Odgovara",
+    "misses": "Ne odgovara nagovještaju",
+    "result": "{right, number} od {total, number} replika odgovara",
+    "modelAnswer": "Uzorak odgovora",
+    "restart": "Počni ponovo"
   }
 }

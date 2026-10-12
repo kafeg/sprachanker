@@ -148,12 +148,13 @@
       "wordsCount": "Palabras de la lección · {count, number}",
       "grammar": "Gramática",
       "culture": "Cultura",
-      "writing": "Escribe tú",
+      "writing": "Escritura",
       "scene": "Diálogo",
       "mistakes": "Repaso de errores",
       "summary": "Resumen",
       "reading": "Lectura",
-      "listening": "Comprensión auditiva"
+      "listening": "Comprensión auditiva",
+      "speaking": "Expresión oral"
     },
     "section": {
       "grammar": "Gramática",
@@ -415,7 +416,10 @@
       "understandingCheck": "Lectura y comprensión auditiva: la segunda lectura",
       "mistakes": "Repaso de errores",
       "understandingJudge": "Lectura y comprensión auditiva: valoración de borradores",
-      "understandingQuestions": "Lectura y comprensión auditiva: las preguntas"
+      "understandingQuestions": "Lectura y comprensión auditiva: las preguntas",
+      "talkCard": "Expresión oral: la tarjeta",
+      "talkCues": "Expresión oral: las pistas del juego de roles",
+      "talkCheck": "Expresión oral: revisión del juego de roles"
     },
     "contextIntro": "Se añade de la lección:",
     "contextIntroCourses": "Se añade de tus cursos (los del idioma que practica la conversación):",
@@ -464,7 +468,10 @@
       "lessonScript": "el guion de la propia lección (su tema y situaciones)",
       "genre": "el tipo de texto elegido, su forma, su extensión e ideas para la situación",
       "drafts": "los borradores escritos",
-      "textFacts": "los datos con los que se planeó el texto"
+      "textFacts": "los datos con los que se planeó el texto",
+      "replyMessage": "el mensaje que responde la tarea (del generador de textos)",
+      "roleplay": "la conversación y tu papel",
+      "roleplaySaid": "la conversación con lo que dijiste en cada frase tuya"
     },
     "upTo": "hasta {chars, plural, one {# carácter} other {# caracteres}}",
     "debug": "Mostrar los botones «Prompt»",
@@ -485,12 +492,12 @@
         "where": "el botón en una lección, el paso «Repaso de errores» y la sección «Tutor»"
       },
       "writing": {
-        "name": "«Escribe tú»",
+        "name": "Escritura",
         "where": "un paso de la lección"
       },
       "scene": {
-        "name": "Diálogo",
-        "where": "un paso de la lección"
+        "name": "Expresión oral",
+        "where": "un paso de la lección: hablar a partir de una tarjeta o un juego de roles, de viva voz"
       },
       "speaking": {
         "name": "Respuestas habladas",
@@ -528,12 +535,15 @@
       "understandingCheck": "Responde a las preguntas solo a partir del texto y luego otra vez sin él: se quita la pregunta que responda de otro modo, que vea confusa o que se pueda responder con sentido común.",
       "mistakes": "Repasa los errores de una vuelta por tipo: de cada tipo solo las partes erróneas (lo que diste, lo correcto, las palabras alrededor), una explicación breve y dos o tres ejercicios nuevos del tipo con palabras que conoces. Tus respuestas las corrige la app, no el modelo.",
       "understandingJudge": "Valora los borradores como lo haría un profesor nativo —naturalidad, coherencia, realismo, nivel, relación con la lección, interés— y enumera sus problemas: se queda el mejor que aprueba; si no, el mejor se reescribe una vez.",
-      "understandingQuestions": "Hace 5–10 preguntas sobre el texto elegido, como en los exámenes (verdadero/falso, a/b/c, números), y recoge sus palabras nuevas. Tus respuestas las corrige la app, no el modelo."
+      "understandingQuestions": "Hace 5–10 preguntas sobre el texto elegido, como en los exámenes (verdadero/falso, a/b/c, números), y recoge sus palabras nuevas. Tus respuestas las corrige la app, no el modelo.",
+      "talkCard": "Propone una breve tarea oral como las primeras partes de un examen oral: un tema y tres puntos en el idioma que aprendes, cuánto hablar más o menos y una respuesta modelo.",
+      "talkCues": "Convierte tus frases del juego de roles en pistas en tu idioma: qué decir, nunca las palabras.",
+      "talkCheck": "Revisa el juego de roles una vez dicho: cada frase, si hace lo que pide su pista, hasta dos correcciones y un breve comentario. Lo que dices lo oye el reconocimiento de voz."
     }
   },
   "writing": {
     "task": "Tu tarea (escribe en {language}):",
-    "intro": "Un texto corto sobre una situación de la lección: tres puntos que tratar, tan largo como lo pide un examen de tu nivel. La IA lo corrige: los puntos tratados, como mucho tres correcciones y un texto modelo.",
+    "intro": "Un mensaje que responder por escrito — un e-mail de un amigo, un chat, un anuncio: tres puntos, tan largo como pide un examen de tu nivel. La IA lo revisa: los puntos, hasta tres correcciones y un texto modelo.",
     "start": "Recibir una tarea",
     "preparing": "Escribiendo la tarea…",
     "newTask": "Nueva tarea",
@@ -541,7 +551,6 @@
     "count": "{count, plural, one {# palabra} other {# palabras}} de unas {words, number}",
     "placeholder": "Tu texto…",
     "check": "Comprobar",
-    "checking": "Comprobando…",
     "rewrite": "Corrígelo y vuelve a comprobar",
     "score": "{name}: {score, number} de {max, number}",
     "points": "{score, number} de {max, number}",
@@ -702,7 +711,8 @@
     "scene": "Diálogo",
     "mistakes": "Errores",
     "reading": "Lectura",
-    "listening": "Comprensión auditiva"
+    "listening": "Comprensión auditiva",
+    "speaking": "Expresión oral"
   },
   "words": {
     "intro": "Las palabras de la lección como tarjetas: recuerda, muestra la respuesta, valora. Cuando no quede nada por ahora, siguen en Repaso.",
@@ -1429,7 +1439,8 @@
     "course_bundle_clash": "Este ordenador tiene otros archivos con los nombres de los archivos multimedia de este curso: descarga el curso aquí.",
     "course_import_busy": "Se está importando otro archivo de curso. Inténtalo de nuevo cuando termine.",
     "series_busy": "Se están descargando o importando cursos de esta fuente ahora mismo. Inténtalo de nuevo cuando termine.",
-    "understanding_busy": "Se está escribiendo un texto para esta lección. Espera un momento."
+    "understanding_busy": "Se está escribiendo un texto para esta lección. Espera un momento.",
+    "talk_busy": "Ya se está preparando o revisando una tarea de esta lección. Espera."
   },
   "exams": {
     "tabs": {
@@ -1708,5 +1719,27 @@
       "making": "Creando nuevas tareas…",
       "checking": "Comprobando las nuevas tareas…"
     }
+  },
+  "talk": {
+    "intro": "Habla en el idioma que aprendes: una charla breve a partir de una tarjeta o un papel en una conversación. Todo se revisa al final, sin esperas entre frases.",
+    "start": "Recibir una tarea",
+    "preparing": "Preparando la tarea…",
+    "new": "Nueva tarea",
+    "step": {
+      "writing": "Escribiendo la tarea…",
+      "choosing": "Eligiendo el mejor borrador…",
+      "hinting": "Escribiendo las pistas…",
+      "checking": "Revisando lo que dijiste…"
+    },
+    "seconds": "Habla unos {seconds, number} segundos.",
+    "keep": "Quedármelo",
+    "yourRole": "Tu papel: {role}",
+    "yourTurn": "Tu frase",
+    "model": "Se podía decir",
+    "fits": "Encaja",
+    "misses": "No sigue la pista",
+    "result": "{right, number} de {total, number} frases encajan",
+    "modelAnswer": "Respuesta modelo",
+    "restart": "Empezar de nuevo"
   }
 }
