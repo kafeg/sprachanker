@@ -118,15 +118,15 @@ function teacher() {
     if (user.includes("Wo ist Tom?"))
       return {
         answers: [
-          { n: 1, choice: "a", gaps: null, ambiguous: false },
-          { n: 2, choice: "a", gaps: null, ambiguous: false },
+          { n: 1, choice: "a", gaps: null, order: null, ambiguous: false },
+          { n: 2, choice: "a", gaps: null, order: null, ambiguous: false },
         ],
       };
     gapChecks++;
     return {
       answers: [
-        { n: 1, choice: null, gaps: [gapChecks === 1 ? "b" : "a"], ambiguous: false },
-        { n: 2, choice: null, gaps: ["b"], ambiguous: gapChecks === 1 },
+        { n: 1, choice: null, gaps: [gapChecks === 1 ? "b" : "a"], order: null, ambiguous: false },
+        { n: 2, choice: null, gaps: ["b"], order: null, ambiguous: gapChecks === 1 },
       ],
     };
   };

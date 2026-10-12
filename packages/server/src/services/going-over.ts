@@ -148,6 +148,7 @@ export function createGoingOver(deps: {
           items,
           tried.result,
           (item, answer) => checkMistakeItem(type, item, answer, input.target).result === "correct",
+          group.what,
         );
       }
       made = { explanation: one?.explanation ?? "", items: kept, model: reply.model };
