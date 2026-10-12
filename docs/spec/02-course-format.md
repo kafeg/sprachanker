@@ -325,8 +325,12 @@ and locale folders, its exams' source copies, the media its files name that no o
 series names (one that does not read keeps them all), its download's marker; `media.json` forgets the
 media removed (a download fetches them again); `keys.json` stays, so the course downloaded again has
 its keys and the learner's runs, cards and Notebook meet it. The rest of `raw/` stays (a source's
-pages, possibly another course's). Learner data is untouched: runs keep what they showed (an exam run
-its snapshot), cards their words — a card's recording from the course plays again once it is back.
+pages, possibly another course's); then a `media.json` naming nothing and the folders left empty go.
+Learner data is untouched: runs keep what they showed (an exam run its snapshot), cards their words —
+a card's recording from the course plays again once it is back. Refused while a profile has a lesson
+or exam of the course under way (its run active: resumed, it would have nothing to show; 409
+`course_in_use`, 06). Removed from the command line while a server runs on the data root, the CLI says
+to restart it: the server keeps the course's words its review cards read until then.
 
 ## Course bundle
 

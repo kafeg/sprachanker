@@ -1316,6 +1316,7 @@
     "card_changed": "Kartu ini diubah di perangkat lain. Kartu ditampilkan lagi.",
     "downloads_unavailable": "Kursus tidak bisa diunduh di sini.",
     "course_busy": "Kursus ini sedang diunduh. Hapus setelah unduhan selesai.",
+    "course_in_use": "Pelajaran atau ujian dari kursus ini belum selesai: selesaikan dulu (atau atur ulang kemajuan kursus) sebelum menghapus kursus.",
     "empty_recording": "Rekamannya kosong. Coba lagi.",
     "event_id_taken": "Jawaban ini sudah tercatat secara berbeda. Muat ulang halaman.",
     "event_of_another_run": "Catatan ini milik putaran lain. Muat ulang pelajaran.",

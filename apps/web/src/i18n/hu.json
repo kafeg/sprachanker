@@ -1316,6 +1316,7 @@
     "card_changed": "Ez a kártya egy másik eszközön megváltozott. Újra megjelenik.",
     "downloads_unavailable": "Itt nem lehet kurzusokat letölteni.",
     "course_busy": "Ez a kurzus éppen letöltődik. Távolítsd el, ha a letöltés befejeződött.",
+    "course_in_use": "A kurzus egyik leckéje vagy vizsgája még folyamatban van: fejezd be (vagy állítsd vissza a kurzus haladását), mielőtt eltávolítod a kurzust.",
     "empty_recording": "A felvétel üres. Próbáld újra.",
     "event_id_taken": "Ezt a választ már másként rögzítettük. Töltsd be újra az oldalt.",
     "event_of_another_run": "Ez a bejegyzés egy másik körhöz tartozik. Töltsd be újra a leckét.",

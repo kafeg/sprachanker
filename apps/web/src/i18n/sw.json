@@ -1316,6 +1316,7 @@
     "card_changed": "Kadi hii ilibadilishwa kwenye kifaa kingine. Inaonyeshwa tena.",
     "downloads_unavailable": "Kozi haziwezi kupakuliwa hapa.",
     "course_busy": "Kozi hii inapakuliwa sasa. Iondoe upakuaji ukimalizika.",
+    "course_in_use": "Somo au mtihani wa kozi hii bado haujakamilika: umalize (au weka upya maendeleo ya kozi) kabla ya kuiondoa kozi.",
     "empty_recording": "Rekodi ni tupu. Jaribu tena.",
     "event_id_taken": "Jibu hili tayari limerekodiwa kwa namna nyingine. Pakia ukurasa upya.",
     "event_of_another_run": "Kumbukumbu hii ni ya mzunguko mwingine. Pakia somo upya.",

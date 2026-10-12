@@ -176,7 +176,12 @@ export function courseAdmin(dataRoot: string, appVersion = "") {
     list: () => library.courses(),
     exportTo: transfer.exportTo,
     importFile: transfer.importFile,
-    remove: (series: string, course: string) => removeInstalledCourse(dataRoot, series, course),
+    /** A course removed; `server`: the pid of a server running on the data root (it keeps what it
+     *  read of the course until restarted). */
+    remove: async (series: string, course: string) => ({
+      ...(await removeInstalledCourse(dataRoot, series, course)),
+      server: serverOn(dataRoot),
+    }),
   };
 }
 

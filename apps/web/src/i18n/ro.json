@@ -1316,6 +1316,7 @@
     "card_changed": "Acest card s-a schimbat pe alt dispozitiv. E afișat din nou.",
     "downloads_unavailable": "Cursurile nu pot fi descărcate aici.",
     "course_busy": "Acest curs se descarcă acum. Elimină-l după ce se termină descărcarea.",
+    "course_in_use": "O lecție sau un examen din acest curs este încă în desfășurare: termină-l (sau resetează progresul cursului) înainte de a elimina cursul.",
     "empty_recording": "Înregistrarea e goală. Încearcă din nou.",
     "event_id_taken": "Acest răspuns a fost deja înregistrat altfel. Reîncarcă pagina.",
     "event_of_another_run": "Această înregistrare aparține altei parcurgeri. Reîncarcă lecția.",

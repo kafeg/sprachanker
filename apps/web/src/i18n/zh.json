@@ -1316,6 +1316,7 @@
     "card_changed": "此卡片已在另一台设备上更改，现重新显示。",
     "downloads_unavailable": "此处无法下载课程。",
     "course_busy": "这门课程正在下载。下载结束后再删除。",
+    "course_in_use": "这门课程还有一节课或一场考试没有完成：先完成它（或重置这门课程的进度），再删除课程。",
     "empty_recording": "录音为空。请重试。",
     "event_id_taken": "此答案已以不同方式记录。请重新加载页面。",
     "event_of_another_run": "此记录属于另一轮学习。请重新加载本课。",

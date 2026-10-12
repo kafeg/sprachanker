@@ -1316,6 +1316,7 @@
     "card_changed": "Bu kart başka bir cihazda değişti. Yeniden gösteriliyor.",
     "downloads_unavailable": "Burada kurs indirilemez.",
     "course_busy": "Bu kurs şu anda indiriliyor. İndirme bittiğinde kaldır.",
+    "course_in_use": "Bu kursun bir dersi ya da sınavı hâlâ sürüyor: kursu kaldırmadan önce onu bitir (ya da kursun ilerlemesini sıfırla).",
     "empty_recording": "Kayıt boş. Tekrar dene.",
     "event_id_taken": "Bu cevap zaten farklı şekilde kaydedilmiş. Sayfayı yeniden yükle.",
     "event_of_another_run": "Bu kayıt başka bir tura ait. Dersi yeniden yükle.",

@@ -30,6 +30,7 @@ export const ERROR_CODES = [
   "not_offered",
   "downloads_unavailable",
   "course_busy",
+  "course_in_use",
   "lesson_not_in_series",
   // A course bundle: exported, imported (02, "Course bundle").
   "course_export_gone",

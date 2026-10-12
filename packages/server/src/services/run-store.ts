@@ -267,6 +267,21 @@ export function createRunStore(deps: { db: ProfileDb; now: () => number; appVers
         .map((r) => r.id);
     },
 
+    /** A lesson or exam of the course is under way (its run active): the course is not to go. */
+    underWay(course: CourseKey) {
+      return !!db
+        .select({ id: runs.id })
+        .from(runs)
+        .where(
+          and(
+            eq(runs.courseKey, course),
+            eq(runs.status, "active"),
+            inArray(runs.kind, ["lesson", "exam"]),
+          ),
+        )
+        .get();
+    },
+
     /** The latest run of this kind about a context, any status. */
     latest(kind: RunKind, about: Context) {
       return self.list(kind, about)[0];
