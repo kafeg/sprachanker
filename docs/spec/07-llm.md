@@ -234,8 +234,9 @@ lesson run the lesson shows, its answers `practice_answered` events checked by t
   `understanding_busy`, 409). A streamed reply (the tutor, explanations) still ends with its connection.
 - **Structured outputs** (`packages/llm/src/structured.ts`): the JSON Schema of the task's zod schema is
   sent with the request (sent strict, without the keywords strict mode refuses — string lengths and
-  the like —, which zod still checks; a test holds every task's schema to what strict mode takes); the
-  reply is validated with zod; an invalid reply gets one repair attempt with
+  the like —, which zod still checks; a test holds every task's schema to what strict mode takes); a
+  quote escaped twice in a string (`\"`, as Claude Code's structured output sometimes gives it) reads
+  as a plain one (walkthrough, 2026-10-12); the reply is validated with zod; an invalid reply gets one repair attempt with
   the problems listed, then the task fails with `invalid_output` and nothing is stored. A stored result
   is read back with its task's schema; one in a shape that no longer reads is left out.
 - Corrections are `{ wrong, right, explanation }` (schema `Correction`); they carry no rule id (rule

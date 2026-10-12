@@ -25,7 +25,18 @@ function jsonSchemaOf(schema: z.ZodType): Record<string, unknown> {
 function parseJson(text: string): unknown {
   const fenced = /```(?:json)?\s*([\s\S]*?)```/.exec(text)?.[1];
   const candidate = fenced ?? text.slice(text.indexOf("{"), text.lastIndexOf("}") + 1);
-  return JSON.parse(candidate);
+  return unescapedQuotes(JSON.parse(candidate));
+}
+
+/** A value with every string's escaped quote (`\"`) made a plain one: a model writing through a tool
+ *  call (Claude Code's structured output) sometimes escapes quotes twice, and the learner would see
+ *  the backslash. */
+export function unescapedQuotes(value: unknown): unknown {
+  if (typeof value === "string") return value.replaceAll('\\"', '"');
+  if (Array.isArray(value)) return value.map(unescapedQuotes);
+  if (value && typeof value === "object")
+    return Object.fromEntries(Object.entries(value).map(([k, v]) => [k, unescapedQuotes(v)]));
+  return value;
 }
 
 /** The task's request with its schema attached (also what the prompt viewer shows). */

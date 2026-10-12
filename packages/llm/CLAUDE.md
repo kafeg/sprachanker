@@ -28,8 +28,8 @@ src/
                    # (the viewer)
   lmstudio.ts      # LM Studio's own API: its models, load with 8k context, downloads; suggested models
   openrouter.ts    # OpenRouter's own API: the key's state (free tier, usage, limit, rate limit)
-  structured.ts    # JSON outputs: schema in the request (Anthropic: its system prompt), zod validation and
-                   # the task's check, one repair
+  structured.ts    # JSON outputs: schema in the request (Anthropic: its system prompt), quotes escaped
+                   # twice made plain, zod validation and the task's check, one repair
   thinking.ts      # strips inline <think>…</think> from streamed text (client.ts also drops control tokens)
   text.ts          # course HTML → plain text for prompts (a table: a row a line, cells joined by " · ")
   tasks/
