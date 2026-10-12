@@ -10,8 +10,9 @@ courses/*, llm, anki-export.
 src/
   index.ts           # startServer(config), importCourse(): called by `apps/cli` (`serve`, `import`)
   config.ts          # app-data folder, data root (--data, $SPRACHANKER_DATA, <app-data>/data)
-  providers.ts       # content providers: offers, import, the installer behind downloads (marks on disk),
-                     # the series' import lock (withSeriesLock: an import, a course bundle installed)
+  providers.ts       # content providers: offers, import, the installer behind downloads (marks on disk;
+                     # a course removed: removeInstalledCourse), the series' import lock (withSeriesLock:
+                     # an import, a course bundle installed, a course removed)
   app.ts             # createApp + AppType (runtime-agnostic; apps/web type-checks it via `@sprachanker/server/app`)
   web.ts             # serving the built web app: SPA fallback, cache headers
   runtime/           # Bun/Node adapters: listen, web assets, sqlite, secret key, data-root.ts (one server per
@@ -48,7 +49,8 @@ src/
   routes/            # one file per API area, mounted by app.ts: profiles (who is studying, signing in and
                      # out, a profile file imported — before the session check; the profile itself, its
                      # export — after it), courses
-                     # (courses, catalog, downloads, lesson content), lessons (lesson runs: /api/runs),
+                     # (courses, catalog, downloads, a course removed, lesson content), lessons (lesson
+                     # runs: /api/runs),
                      # progress (reset), exams, cards (a card's examples too), decks (imported: list,
                      # preview, import, an upload let go, delete; any deck's words read aloud or given
                      # examples), settings, notebook, recordings, speech, llm (removable as a whole),

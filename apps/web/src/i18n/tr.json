@@ -653,7 +653,14 @@
     "done": "İndirildi. {failed, plural, =0 {Tüm medya dosyaları yerinde.} one {# dosya indirilemedi.} other {# dosya indirilemedi.}}",
     "hint": "İndirme, eksik olanları kaynaktan getirir (kaydedilmiş sayfalar ve medya korunur) ve kursu yeniden hazırlar; ilerlemen kalır.",
     "log": "İndirme günlüğü",
-    "syncShort": "Eşitle"
+    "syncShort": "Eşitle",
+    "remove": {
+      "button": "Bu bilgisayardan kaldır…",
+      "title": "“{title}” bu bilgisayardan kaldırılsın mı?",
+      "body": "Dersleri ve medyası diskten silinir (başka bir kursun kullandığı medya kalır). İlerlemen, defterin ve kelimelerin kalır; devam etmek için yeniden indir.",
+      "bodyExam": "Soruları ve medyası diskten silinir (başka bir kursun kullandığı medya kalır). Deneme sınavların, alıştırmaların ve defterin kalır; devam etmek için yeniden indir.",
+      "confirm": "Kaldır"
+    }
   },
   "storage": {
     "title": "Depolama",
@@ -1306,6 +1313,7 @@
     "answer_does_not_fit": "Cevap bu alıştırmaya uymuyor. Dersi yeniden yükle.",
     "card_changed": "Bu kart başka bir cihazda değişti. Yeniden gösteriliyor.",
     "downloads_unavailable": "Burada kurs indirilemez.",
+    "course_busy": "Bu kurs şu anda indiriliyor. İndirme bittiğinde kaldır.",
     "empty_recording": "Kayıt boş. Tekrar dene.",
     "event_id_taken": "Bu cevap zaten farklı şekilde kaydedilmiş. Sayfayı yeniden yükle.",
     "event_of_another_run": "Bu kayıt başka bir tura ait. Dersi yeniden yükle.",
@@ -1592,6 +1600,7 @@
     "export": {
       "button": "Dosyaya aktar",
       "hint": "Bu kurs tek bir dosya olarak; diğer bilgisayarında “İndirilenler” altında içe aktarmak için.",
+      "hintExam": "Bu sınav tek dosya olarak; diğer bilgisayarında “İndirilenler” altında içe aktarmak için.",
       "started": "“{file}” indiriliyor ({size})."
     },
     "import": {
@@ -1603,7 +1612,9 @@
       "same": "“{title}” zaten burada, aynısı: hiçbir şey değişmedi.",
       "replaced": "“{title}” artık dosyadaki sürüm; ilerlemen korunuyor.",
       "verified": "Denetlendi: bütün dosyalar burada.",
-      "problems": "Denetlendi: {count, plural, one {# sorun bulundu} other {# sorun bulundu}} — kartındaki “Kontrol et” onları listeler."
+      "problems": "Denetlendi: {count, plural, one {# sorun bulundu} other {# sorun bulundu}} — kartındaki “Kontrol et” onları listeler.",
+      "experimental": "Bu bir deneme; kaynağı açılana kadar listelenmez.",
+      "turnOn": "Ayarlar → Genel → Denemeler"
     }
   },
   "understanding": {

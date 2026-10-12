@@ -653,7 +653,14 @@
     "done": "Downloaded. {failed, plural, =0 {All media are in place.} one {# file could not be downloaded.} other {# files could not be downloaded.}}",
     "hint": "Downloading fetches what is missing from the source (stored pages and media are kept) and prepares the course again; your progress stays.",
     "log": "Download log",
-    "syncShort": "Sync"
+    "syncShort": "Sync",
+    "remove": {
+      "button": "Remove from this computer…",
+      "title": "Remove “{title}” from this computer?",
+      "body": "Its lessons and media are deleted from the disk (media another course uses stay). Your progress, Notebook and words stay; download it again to go on.",
+      "bodyExam": "Its questions and media are deleted from the disk (media another course uses stay). Your mock exams, practice and Notebook stay; download it again to go on.",
+      "confirm": "Remove"
+    }
   },
   "storage": {
     "title": "Storage",
@@ -1306,6 +1313,7 @@
     "answer_does_not_fit": "The answer does not fit this exercise. Reload the lesson.",
     "card_changed": "This card changed on another device. It is shown again.",
     "downloads_unavailable": "Courses cannot be downloaded here.",
+    "course_busy": "This course is downloading. Remove it once the download has ended.",
     "empty_recording": "The recording is empty. Try again.",
     "event_id_taken": "This answer was already recorded differently. Reload the page.",
     "event_of_another_run": "This record belongs to another pass. Reload the lesson.",
@@ -1592,6 +1600,7 @@
     "export": {
       "button": "Export to a file",
       "hint": "This course as one file, to import on your other computer under Downloaded.",
+      "hintExam": "This exam as one file, to import on your other computer under Downloaded.",
       "started": "Downloading “{file}” ({size})."
     },
     "import": {
@@ -1603,7 +1612,9 @@
       "same": "“{title}” is here already, the same: nothing changed.",
       "replaced": "“{title}” is now the file's version; your progress is kept.",
       "verified": "Checked: every file is there.",
-      "problems": "Checked: {count, plural, one {# problem found} other {# problems found}} — “Check” on its card lists them."
+      "problems": "Checked: {count, plural, one {# problem found} other {# problems found}} — “Check” on its card lists them.",
+      "experimental": "It is an experiment, so it is not listed until its source is turned on.",
+      "turnOn": "Settings → General → Experimental"
     }
   },
   "understanding": {

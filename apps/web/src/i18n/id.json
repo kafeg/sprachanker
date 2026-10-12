@@ -653,7 +653,14 @@
     "done": "Sudah diunduh. {failed, plural, =0 {Semua media lengkap.} other {# berkas tidak bisa diunduh.}}",
     "hint": "Mengunduh akan mengambil yang belum ada dari sumber (halaman dan media yang tersimpan tetap dipakai) lalu menyiapkan kursus lagi; progres kamu tetap ada.",
     "log": "Log unduhan",
-    "syncShort": "Sinkronkan"
+    "syncShort": "Sinkronkan",
+    "remove": {
+      "button": "Hapus dari komputer ini…",
+      "title": "Hapus “{title}” dari komputer ini?",
+      "body": "Pelajaran dan medianya dihapus dari disk (media yang dipakai kursus lain tetap ada). Kemajuan, buku catatan, dan kata-katamu tetap ada; unduh lagi untuk melanjutkan.",
+      "bodyExam": "Soal dan medianya dihapus dari disk (media yang dipakai kursus lain tetap ada). Ujian percobaan, latihan, dan buku catatanmu tetap ada; unduh lagi untuk melanjutkan.",
+      "confirm": "Hapus"
+    }
   },
   "storage": {
     "title": "Penyimpanan",
@@ -1306,6 +1313,7 @@
     "answer_does_not_fit": "Jawaban ini tidak cocok dengan latihan ini. Muat ulang pelajaran.",
     "card_changed": "Kartu ini diubah di perangkat lain. Kartu ditampilkan lagi.",
     "downloads_unavailable": "Kursus tidak bisa diunduh di sini.",
+    "course_busy": "Kursus ini sedang diunduh. Hapus setelah unduhan selesai.",
     "empty_recording": "Rekamannya kosong. Coba lagi.",
     "event_id_taken": "Jawaban ini sudah tercatat secara berbeda. Muat ulang halaman.",
     "event_of_another_run": "Catatan ini milik putaran lain. Muat ulang pelajaran.",
@@ -1592,6 +1600,7 @@
     "export": {
       "button": "Ekspor ke berkas",
       "hint": "Kursus ini dalam satu berkas, untuk diimpor di komputermu yang lain di “Diunduh”.",
+      "hintExam": "Ujian ini sebagai satu berkas, untuk diimpor di komputermu yang lain di “Diunduh”.",
       "started": "Mengunduh “{file}” ({size})."
     },
     "import": {
@@ -1603,7 +1612,9 @@
       "same": "“{title}” sudah ada di sini, sama persis: tidak ada yang berubah.",
       "replaced": "“{title}” sekarang versi dari berkas; kemajuanmu tetap tersimpan.",
       "verified": "Diperiksa: semua berkas ada.",
-      "problems": "Diperiksa: {count, plural, other {# masalah ditemukan}} — “Periksa” di kartunya menampilkannya."
+      "problems": "Diperiksa: {count, plural, other {# masalah ditemukan}} — “Periksa” di kartunya menampilkannya.",
+      "experimental": "Ini eksperimen: tidak ditampilkan sampai sumbernya dinyalakan.",
+      "turnOn": "Pengaturan → Umum → Eksperimen"
     }
   },
   "understanding": {

@@ -653,7 +653,14 @@
     "done": "Téléchargé. {failed, plural, =0 {Tous les médias sont là.} one {# fichier n’a pas pu être téléchargé.} many {# de fichiers n’ont pas pu être téléchargés.} other {# fichiers n’ont pas pu être téléchargés.}}",
     "hint": "Le téléchargement récupère ce qui manque depuis la source (les pages et médias déjà stockés sont conservés) et prépare à nouveau le cours ; ta progression reste.",
     "log": "Journal du téléchargement",
-    "syncShort": "Synchroniser"
+    "syncShort": "Synchroniser",
+    "remove": {
+      "button": "Retirer de cet ordinateur…",
+      "title": "Retirer « {title} » de cet ordinateur ?",
+      "body": "Ses leçons et ses médias sont supprimés du disque (les médias qu’un autre cours utilise restent). Ta progression, ton carnet et tes mots restent ; télécharge-le à nouveau pour continuer.",
+      "bodyExam": "Ses questions et ses médias sont supprimés du disque (les médias qu’un autre cours utilise restent). Tes examens blancs, ton entraînement et ton carnet restent ; télécharge-le à nouveau pour continuer.",
+      "confirm": "Retirer"
+    }
   },
   "storage": {
     "title": "Stockage",
@@ -1306,6 +1313,7 @@
     "answer_does_not_fit": "La réponse ne correspond pas à cet exercice. Recharge la leçon.",
     "card_changed": "Cette carte a changé sur un autre appareil. Elle est affichée à nouveau.",
     "downloads_unavailable": "Les cours ne peuvent pas être téléchargés ici.",
+    "course_busy": "Ce cours est en cours de téléchargement. Retire-le une fois le téléchargement terminé.",
     "empty_recording": "L’enregistrement est vide. Réessaie.",
     "event_id_taken": "Cette réponse a déjà été enregistrée autrement. Recharge la page.",
     "event_of_another_run": "Cet enregistrement appartient à un autre passage. Recharge la leçon.",
@@ -1592,6 +1600,7 @@
     "export": {
       "button": "Exporter dans un fichier",
       "hint": "Ce cours en un seul fichier, à importer sur ton autre ordinateur dans « Téléchargés ».",
+      "hintExam": "Cet examen en un seul fichier, à importer sur ton autre ordinateur sous « Téléchargés ».",
       "started": "Téléchargement de « {file} » ({size})."
     },
     "import": {
@@ -1603,7 +1612,9 @@
       "same": "« {title} » est déjà là, identique : rien n’a changé.",
       "replaced": "« {title} » est maintenant la version du fichier ; ta progression est conservée.",
       "verified": "Vérifié : tous les fichiers sont là.",
-      "problems": "Vérifié : {count, plural, one {# problème trouvé} many {# de problèmes trouvés} other {# problèmes trouvés}} — « Vérifier » sur sa carte les liste."
+      "problems": "Vérifié : {count, plural, one {# problème trouvé} many {# de problèmes trouvés} other {# problèmes trouvés}} — « Vérifier » sur sa carte les liste.",
+      "experimental": "C’est une expérience : elle n’apparaît pas tant que sa source n’est pas activée.",
+      "turnOn": "Réglages → Général → Expériences"
     }
   },
   "understanding": {

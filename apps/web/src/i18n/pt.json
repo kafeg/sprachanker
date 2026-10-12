@@ -653,7 +653,14 @@
     "done": "Baixado. {failed, plural, =0 {Todas as mídias estão no lugar.} one {Não foi possível baixar # arquivo.} other {Não foi possível baixar # arquivos.}}",
     "hint": "O download busca na fonte o que falta (as páginas e mídias salvas são mantidas) e prepara o curso de novo; o seu progresso fica.",
     "log": "Registro do download",
-    "syncShort": "Sincronizar"
+    "syncShort": "Sincronizar",
+    "remove": {
+      "button": "Remover deste computador…",
+      "title": "Remover “{title}” deste computador?",
+      "body": "As suas lições e mídias são apagadas do disco (as mídias que outro curso usa ficam). O seu progresso, caderno e palavras ficam; baixe-o de novo para continuar.",
+      "bodyExam": "As suas perguntas e mídias são apagadas do disco (as mídias que outro curso usa ficam). Os seus simulados, a prática e o caderno ficam; baixe-o de novo para continuar.",
+      "confirm": "Remover"
+    }
   },
   "storage": {
     "title": "Armazenamento",
@@ -1306,6 +1313,7 @@
     "answer_does_not_fit": "A resposta não corresponde a este exercício. Recarregue a lição.",
     "card_changed": "Este cartão mudou em outro dispositivo. Ele é mostrado de novo.",
     "downloads_unavailable": "Não é possível baixar cursos aqui.",
+    "course_busy": "Este curso está sendo baixado. Remova-o quando o download terminar.",
     "empty_recording": "A gravação está vazia. Tente de novo.",
     "event_id_taken": "Esta resposta já foi registrada de outra forma. Recarregue a página.",
     "event_of_another_run": "Este registro pertence a outra rodada. Recarregue a lição.",
@@ -1592,6 +1600,7 @@
     "export": {
       "button": "Exportar para um arquivo",
       "hint": "Este curso em um único arquivo, para importar no seu outro computador em “Baixados”.",
+      "hintExam": "Este exame num só arquivo, para importar no seu outro computador em “Baixados”.",
       "started": "Baixando “{file}” ({size})."
     },
     "import": {
@@ -1603,7 +1612,9 @@
       "same": "“{title}” já estava aqui, igual: nada mudou.",
       "replaced": "“{title}” agora é a versão do arquivo; seu progresso continua.",
       "verified": "Verificado: todos os arquivos estão aqui.",
-      "problems": "Verificado: {count, plural, =0 {# problemas encontrados} one {# problema encontrado} other {# problemas encontrados}} — “Verificar” no cartão dele os lista."
+      "problems": "Verificado: {count, plural, =0 {# problemas encontrados} one {# problema encontrado} other {# problemas encontrados}} — “Verificar” no cartão dele os lista.",
+      "experimental": "É um experimento: não aparece até a sua fonte ser ativada.",
+      "turnOn": "Configurações → Geral → Experimentos"
     }
   },
   "understanding": {

@@ -4,7 +4,7 @@ import { openLibrary, verifyLibrary } from "@sprachanker/course-kit";
 import { Deck } from "@sprachanker/schema";
 import { createApp, type WebAssets } from "./app.ts";
 import { appDataDir } from "./config.ts";
-import { courseInstaller } from "./providers.ts";
+import { courseInstaller, removeInstalledCourse } from "./providers.ts";
 import { backUpTo, startDailyBackups } from "./runtime/backup.ts";
 import {
   type Listening,
@@ -159,8 +159,8 @@ export function profileAdmin(
 
 /**
  * The data root's courses for the `sprachanker courses` command (02, "Course bundle"): those
- * installed, one exported to a file, a file imported — also while a server runs on the data root (the
- * series' import lock keeps them apart; the server reads the files anew).
+ * installed, one exported to a file, a file imported, one removed — also while a server runs on the
+ * data root (the series' import lock keeps them apart; the server reads the files anew).
  */
 export function courseAdmin(dataRoot: string, appVersion = "") {
   const library = openLibrary(join(dataRoot, "library"));
@@ -176,6 +176,7 @@ export function courseAdmin(dataRoot: string, appVersion = "") {
     list: () => library.courses(),
     exportTo: transfer.exportTo,
     importFile: transfer.importFile,
+    remove: (series: string, course: string) => removeInstalledCourse(dataRoot, series, course),
   };
 }
 

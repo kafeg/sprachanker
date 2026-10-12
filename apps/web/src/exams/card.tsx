@@ -12,7 +12,7 @@ import type { ExamRow } from "@/api/exams.ts";
 import { CourseExport } from "@/library/bundle.tsx";
 import { LibraryCard } from "@/library/card.tsx";
 import { examParams } from "@/library/exam-address.ts";
-import { CourseUpkeep } from "@/library/upkeep.tsx";
+import { CourseRemove, CourseUpkeep } from "@/library/upkeep.tsx";
 import { Button } from "@/ui/components/button.tsx";
 import { useDateFormat, usePercent } from "@/ui/format.ts";
 import { ProgressRing } from "@/ui/progress-ring.tsx";
@@ -76,7 +76,8 @@ export function ExamCard({
       </Link>
       {upkeep && (
         <CourseUpkeep series={exam.series} course={exam.course}>
-          <CourseExport series={exam.series} course={exam.course} edition={edition} />
+          <CourseExport series={exam.series} course={exam.course} edition={edition} exam />
+          <CourseRemove series={exam.series} course={exam.course} title={title} exam />
         </CourseUpkeep>
       )}
       <p className="mt-3 text-sm text-muted-foreground">

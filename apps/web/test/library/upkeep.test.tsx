@@ -1,6 +1,6 @@
 import { expect, test } from "bun:test";
-import { fireEvent } from "@testing-library/react";
-import { CourseUpkeep } from "../../src/library/upkeep.tsx";
+import { fireEvent, waitFor } from "@testing-library/react";
+import { CourseRemove, CourseUpkeep } from "../../src/library/upkeep.tsx";
 import { renderApp } from "../render.tsx";
 
 const ready: Array<[unknown[], unknown]> = [
@@ -54,4 +54,34 @@ test("a whole course: the check says so and the sync stays quiet", async () => {
   });
   expect(view.getByRole("button", { name: /All downloaded/ }).className).toContain("text-correct");
   expect(view.getByRole("button", { name: /^Sync$/ }).className).toContain("border-dashed");
+});
+
+test("Remove from this computer: asked first — what goes and what stays —, then removed; none while it downloads", async () => {
+  const asked: string[] = [];
+  const real = globalThis.fetch;
+  globalThis.fetch = (async (input: RequestInfo | URL, init?: RequestInit) => {
+    const request = input instanceof Request ? input : new Request(String(input), init);
+    asked.push(`${request.method} ${new URL(request.url).pathname}${new URL(request.url).search}`);
+    return Response.json({ files: 3, bytes: 10 });
+  }) as typeof fetch;
+  try {
+    const view = await renderApp(<CourseRemove series="s" course="c" title="Mini" exam />, {
+      data: ready,
+    });
+    fireEvent.click(view.getByRole("button", { name: "Remove from this computer…" }));
+    expect(view.getByText("Remove “Mini” from this computer?")).toBeTruthy();
+    expect(view.getByText(/Your mock exams, practice and Notebook stay/)).toBeTruthy();
+    expect(asked).toEqual([]);
+    fireEvent.click(view.getByRole("button", { name: "Remove" }));
+    await waitFor(() => expect(asked[0]).toBe("DELETE /api/course?series=s&course=c"));
+    view.unmount();
+  } finally {
+    globalThis.fetch = real;
+  }
+  const busy = await renderApp(<CourseRemove series="s" course="c" title="Mini" />, {
+    data: [
+      [["downloads"], { available: true, jobs: [{ series: "s", course: "c", status: "running" }] }],
+    ],
+  });
+  expect(busy.queryByRole("button", { name: "Remove from this computer…" })).toBeNull();
 });

@@ -653,7 +653,14 @@
     "done": "Letöltve. {failed, plural, =0 {Minden médiafájl a helyén van.} one {# fájlt nem sikerült letölteni.} other {# fájlt nem sikerült letölteni.}}",
     "hint": "A letöltés pótolja a forrásból, ami hiányzik (a tárolt oldalak és médiafájlok megmaradnak), és újra előkészíti a kurzust; a haladásod megmarad.",
     "log": "Letöltési napló",
-    "syncShort": "Szinkronizálás"
+    "syncShort": "Szinkronizálás",
+    "remove": {
+      "button": "Eltávolítás erről a gépről…",
+      "title": "Eltávolítod a(z) „{title}” elemet erről a gépről?",
+      "body": "A leckéi és médiafájljai törlődnek a lemezről (a más kurzus által használt médiafájlok maradnak). Az előrehaladásod, a jegyzetfüzeted és a szavaid megmaradnak; a folytatáshoz töltsd le újra.",
+      "bodyExam": "A kérdései és médiafájljai törlődnek a lemezről (a más kurzus által használt médiafájlok maradnak). A próbavizsgáid, a gyakorlásaid és a jegyzetfüzeted megmaradnak; a folytatáshoz töltsd le újra.",
+      "confirm": "Eltávolítás"
+    }
   },
   "storage": {
     "title": "Tárhely",
@@ -1306,6 +1313,7 @@
     "answer_does_not_fit": "A válasz nem illik ehhez a feladathoz. Töltsd be újra a leckét.",
     "card_changed": "Ez a kártya egy másik eszközön megváltozott. Újra megjelenik.",
     "downloads_unavailable": "Itt nem lehet kurzusokat letölteni.",
+    "course_busy": "Ez a kurzus éppen letöltődik. Távolítsd el, ha a letöltés befejeződött.",
     "empty_recording": "A felvétel üres. Próbáld újra.",
     "event_id_taken": "Ezt a választ már másként rögzítettük. Töltsd be újra az oldalt.",
     "event_of_another_run": "Ez a bejegyzés egy másik körhöz tartozik. Töltsd be újra a leckét.",
@@ -1592,6 +1600,7 @@
     "export": {
       "button": "Exportálás fájlba",
       "hint": "Ez a kurzus egyetlen fájlban, hogy a másik számítógépeden a „Letöltve” alatt importáld.",
+      "hintExam": "Ez a vizsga egyetlen fájlként, hogy a másik gépeden a „Letöltött” lapon importáld.",
       "started": "„{file}” letöltése ({size})."
     },
     "import": {
@@ -1603,7 +1612,9 @@
       "same": "„{title}” már itt van, ugyanígy: semmi sem változott.",
       "replaced": "„{title}” most a fájlban lévő változat; a haladásod megmarad.",
       "verified": "Ellenőrizve: minden fájl megvan.",
-      "problems": "Ellenőrizve: {count, plural, one {# probléma található} other {# probléma található}} – a kártyáján az „Ellenőrzés” felsorolja őket."
+      "problems": "Ellenőrizve: {count, plural, one {# probléma található} other {# probléma található}} – a kártyáján az „Ellenőrzés” felsorolja őket.",
+      "experimental": "Ez kísérlet: addig nem látszik, amíg a forrását be nem kapcsolod.",
+      "turnOn": "Beállítások → Általános → Kísérletek"
     }
   },
   "understanding": {

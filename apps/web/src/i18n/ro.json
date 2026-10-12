@@ -653,7 +653,14 @@
     "done": "Descărcat. {failed, plural, =0 {Toate fișierele media sunt la locul lor.} one {# fișier nu a putut fi descărcat.} few {# fișiere nu au putut fi descărcate.} other {# de fișiere nu au putut fi descărcate.}}",
     "hint": "Descărcarea aduce din sursă ce lipsește (paginile și fișierele media stocate se păstrează) și pregătește din nou cursul; progresul tău rămâne.",
     "log": "Jurnalul descărcării",
-    "syncShort": "Sincronizează"
+    "syncShort": "Sincronizează",
+    "remove": {
+      "button": "Elimină de pe acest calculator…",
+      "title": "Elimini „{title}” de pe acest calculator?",
+      "body": "Lecțiile și fișierele media ale lui sunt șterse de pe disc (media folosite de alt curs rămân). Progresul, caietul și cuvintele tale rămân; descarcă-l din nou ca să continui.",
+      "bodyExam": "Întrebările și fișierele media ale lui sunt șterse de pe disc (media folosite de alt curs rămân). Simulările, exersarea și caietul tău rămân; descarcă-l din nou ca să continui.",
+      "confirm": "Elimină"
+    }
   },
   "storage": {
     "title": "Stocare",
@@ -1306,6 +1313,7 @@
     "answer_does_not_fit": "Răspunsul nu se potrivește cu acest exercițiu. Reîncarcă lecția.",
     "card_changed": "Acest card s-a schimbat pe alt dispozitiv. E afișat din nou.",
     "downloads_unavailable": "Cursurile nu pot fi descărcate aici.",
+    "course_busy": "Acest curs se descarcă acum. Elimină-l după ce se termină descărcarea.",
     "empty_recording": "Înregistrarea e goală. Încearcă din nou.",
     "event_id_taken": "Acest răspuns a fost deja înregistrat altfel. Reîncarcă pagina.",
     "event_of_another_run": "Această înregistrare aparține altei parcurgeri. Reîncarcă lecția.",
@@ -1592,6 +1600,7 @@
     "export": {
       "button": "Exportă într-un fișier",
       "hint": "Acest curs într-un singur fișier, ca să-l imporți pe celălalt calculator al tău, la „Descărcate”.",
+      "hintExam": "Acest examen într-un singur fișier, de importat pe celălalt calculator la „Descărcate”.",
       "started": "Se descarcă „{file}” ({size})."
     },
     "import": {
@@ -1603,7 +1612,9 @@
       "same": "„{title}” era deja aici, la fel: nu s-a schimbat nimic.",
       "replaced": "„{title}” este acum versiunea din fișier; progresul tău rămâne.",
       "verified": "Verificat: toate fișierele sunt aici.",
-      "problems": "Verificat: {count, plural, one {# problemă găsită} few {# probleme găsite} other {# de probleme găsite}} — „Verifică” pe cardul lui le arată."
+      "problems": "Verificat: {count, plural, one {# problemă găsită} few {# probleme găsite} other {# de probleme găsite}} — „Verifică” pe cardul lui le arată.",
+      "experimental": "Este un experiment: nu apare până nu îi activezi sursa.",
+      "turnOn": "Setări → General → Experimente"
     }
   },
   "understanding": {

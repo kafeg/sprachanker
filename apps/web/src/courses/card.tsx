@@ -10,7 +10,7 @@ import { useEdition } from "@/api/edition.ts";
 import { useSetSetting } from "@/api/settings.ts";
 import { CourseExport } from "@/library/bundle.tsx";
 import { LibraryCard, PublisherLink } from "@/library/card.tsx";
-import { CourseUpkeep } from "@/library/upkeep.tsx";
+import { CourseRemove, CourseUpkeep } from "@/library/upkeep.tsx";
 import { Button } from "@/ui/components/button.tsx";
 import { usePercent } from "@/ui/format.ts";
 
@@ -74,6 +74,7 @@ export function CourseCard({
       {upkeep && (
         <CourseUpkeep series={course.series} course={course.course}>
           <CourseExport series={course.series} course={course.course} edition={edition} />
+          <CourseRemove series={course.series} course={course.course} title={title} />
         </CourseUpkeep>
       )}
       {next && nextTitle && (

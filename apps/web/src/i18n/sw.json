@@ -653,7 +653,14 @@
     "done": "Imepakuliwa. {failed, plural, =0 {Midia zote zipo.} one {Faili # haikuweza kupakuliwa.} other {Faili # hazikuweza kupakuliwa.}}",
     "hint": "Kupakua huleta kilichokosekana kutoka kwenye chanzo (kurasa na midia zilizohifadhiwa zinabaki) na huandaa kozi upya; maendeleo yako yanabaki.",
     "log": "Kumbukumbu ya upakuaji",
-    "syncShort": "Sawazisha"
+    "syncShort": "Sawazisha",
+    "remove": {
+      "button": "Ondoa kwenye kompyuta hii…",
+      "title": "Ondoa “{title}” kwenye kompyuta hii?",
+      "body": "Masomo na media yake yanafutwa kwenye diski (media zinazotumiwa na kozi nyingine zinabaki). Maendeleo yako, daftari na maneno yako yanabaki; ipakue tena ili uendelee.",
+      "bodyExam": "Maswali na media yake yanafutwa kwenye diski (media zinazotumiwa na kozi nyingine zinabaki). Mitihani yako ya majaribio, mazoezi na daftari lako vinabaki; ipakue tena ili uendelee.",
+      "confirm": "Ondoa"
+    }
   },
   "storage": {
     "title": "Hifadhi",
@@ -1306,6 +1313,7 @@
     "answer_does_not_fit": "Jibu halilingani na zoezi hili. Pakia somo upya.",
     "card_changed": "Kadi hii ilibadilishwa kwenye kifaa kingine. Inaonyeshwa tena.",
     "downloads_unavailable": "Kozi haziwezi kupakuliwa hapa.",
+    "course_busy": "Kozi hii inapakuliwa sasa. Iondoe upakuaji ukimalizika.",
     "empty_recording": "Rekodi ni tupu. Jaribu tena.",
     "event_id_taken": "Jibu hili tayari limerekodiwa kwa namna nyingine. Pakia ukurasa upya.",
     "event_of_another_run": "Kumbukumbu hii ni ya mzunguko mwingine. Pakia somo upya.",
@@ -1592,6 +1600,7 @@
     "export": {
       "button": "Hamisha kwenye faili",
       "hint": "Kozi hii kama faili moja, uiingize kwenye kompyuta yako nyingine chini ya “Zilizopakuliwa”.",
+      "hintExam": "Mtihani huu kama faili moja, wa kuingiza kwenye kompyuta yako nyingine chini ya “Vilivyopakuliwa”.",
       "started": "Inapakua “{file}” ({size})."
     },
     "import": {
@@ -1603,7 +1612,9 @@
       "same": "“{title}” ilikuwa hapa tayari, sawa kabisa: hakuna kilichobadilika.",
       "replaced": "“{title}” sasa ni toleo la faili; maendeleo yako yamebaki.",
       "verified": "Imekaguliwa: faili zote zipo.",
-      "problems": "Imekaguliwa: {count, plural, one {tatizo # limepatikana} other {matatizo # yamepatikana}} — “Kagua” kwenye kadi yake inayaonyesha."
+      "problems": "Imekaguliwa: {count, plural, one {tatizo # limepatikana} other {matatizo # yamepatikana}} — “Kagua” kwenye kadi yake inayaonyesha.",
+      "experimental": "Hili ni jaribio: halionyeshwi hadi chanzo chake kiwashwe.",
+      "turnOn": "Mipangilio → Jumla → Majaribio"
     }
   },
   "understanding": {

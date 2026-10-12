@@ -653,7 +653,14 @@
     "done": "Geladen. {failed, plural, =0 {Alle Medien sind da.} one {# Datei konnte nicht geladen werden.} other {# Dateien konnten nicht geladen werden.}}",
     "hint": "Der Download lädt Fehlendes von der Quelle nach (vorhandene Seiten und Medien bleiben erhalten) und bereitet den Kurs neu auf; dein Fortschritt bleibt erhalten.",
     "log": "Download-Protokoll",
-    "syncShort": "Abgleichen"
+    "syncShort": "Abgleichen",
+    "remove": {
+      "button": "Von diesem Computer entfernen…",
+      "title": "„{title}“ von diesem Computer entfernen?",
+      "body": "Seine Lektionen und Medien werden von der Festplatte gelöscht (Medien, die ein anderer Kurs nutzt, bleiben). Dein Fortschritt, dein Notizbuch und deine Wörter bleiben; lade ihn wieder herunter, um weiterzumachen.",
+      "bodyExam": "Ihre Fragen und Medien werden von der Festplatte gelöscht (Medien, die ein anderer Kurs nutzt, bleiben). Deine Probeprüfungen, Übungen und dein Notizbuch bleiben; lade sie wieder herunter, um weiterzumachen.",
+      "confirm": "Entfernen"
+    }
   },
   "storage": {
     "title": "Speicher",
@@ -1306,6 +1313,7 @@
     "answer_does_not_fit": "Die Antwort passt nicht zur Übung. Lade die Lektion neu.",
     "card_changed": "Die Karte hat sich auf einem anderen Gerät geändert. Sie wird neu gezeigt.",
     "downloads_unavailable": "Kurse können hier nicht heruntergeladen werden.",
+    "course_busy": "Dieser Kurs wird gerade heruntergeladen. Entferne ihn, wenn der Download fertig ist.",
     "empty_recording": "Die Aufnahme ist leer. Versuch es noch einmal.",
     "event_id_taken": "Diese Antwort ist schon anders gespeichert. Lade die Seite neu.",
     "event_of_another_run": "Dieser Eintrag gehört zu einem anderen Durchgang. Lade die Lektion neu.",
@@ -1592,6 +1600,7 @@
     "export": {
       "button": "In eine Datei exportieren",
       "hint": "Dieser Kurs als eine Datei, um ihn auf deinem anderen Computer unter „Heruntergeladen“ zu importieren.",
+      "hintExam": "Diese Prüfung als eine Datei, zum Importieren auf deinem anderen Computer unter „Heruntergeladen“.",
       "started": "„{file}“ wird heruntergeladen ({size})."
     },
     "import": {
@@ -1603,7 +1612,9 @@
       "same": "„{title}“ ist schon da, genauso: nichts hat sich geändert.",
       "replaced": "„{title}“ ist jetzt die Fassung aus der Datei; dein Fortschritt bleibt.",
       "verified": "Geprüft: Alle Dateien sind da.",
-      "problems": "Geprüft: {count, plural, one {# Problem gefunden} other {# Probleme gefunden}} – „Prüfen“ auf seiner Karte zeigt sie."
+      "problems": "Geprüft: {count, plural, one {# Problem gefunden} other {# Probleme gefunden}} – „Prüfen“ auf seiner Karte zeigt sie.",
+      "experimental": "Es ist ein Experiment und wird erst angezeigt, wenn seine Quelle eingeschaltet ist.",
+      "turnOn": "Einstellungen → Allgemein → Experimente"
     }
   },
   "understanding": {

@@ -3,6 +3,7 @@
 // "Import from a file": the file sent with its progress, the server's check, then the course installed
 // (or found the same, or replaced with the learner's progress kept) and what its check found.
 import { useMutation, useQueryClient } from "@tanstack/react-query";
+import { Link } from "@tanstack/react-router";
 import { Download, Upload } from "lucide-react";
 import { useRef, useState } from "react";
 import { useTranslation } from "react-i18next";
@@ -27,6 +28,7 @@ export function CourseExport({
   series,
   course,
   edition,
+  exam = false,
   prepare = prepareCourseExport,
   check = courseExportReady,
   download = startDownload,
@@ -34,6 +36,8 @@ export function CourseExport({
   series: string;
   course: string;
   edition: string;
+  /** An exam's card: its hint says so. */
+  exam?: boolean;
   /** Tests give their own: the file made ready, still there, and downloaded. */
   prepare?: typeof prepareCourseExport;
   check?: (id: string) => Promise<void>;
@@ -55,7 +59,7 @@ export function CourseExport({
       <Button
         variant="outline"
         className={quietButton}
-        title={t("bundle.export.hint")}
+        title={t(exam ? "bundle.export.hintExam" : "bundle.export.hint")}
         loading={exported.isPending}
         onClick={() => exported.mutate()}
       >
@@ -83,7 +87,14 @@ type Phase =
   | { at: "failed"; error: unknown };
 
 /** "Import from a file" on the Downloaded tabs (Courses', Exams'). */
-export function CourseImport({ upload = uploadCourse }: { upload?: typeof uploadCourse }) {
+export function CourseImport({
+  hidden,
+  upload = uploadCourse,
+}: {
+  /** A series this tab does not list (an experiment not turned on): the result says how to see it. */
+  hidden?(series: string): boolean;
+  upload?: typeof uploadCourse;
+}) {
   const { t } = useTranslation();
   const client = useQueryClient();
   const input = useRef<HTMLInputElement>(null);
@@ -146,16 +157,24 @@ export function CourseImport({ upload = uploadCourse }: { upload?: typeof upload
       {phase?.at === "failed" && (
         <p className="text-center text-sm text-wrong">{errorText(t, phase.error)}</p>
       )}
-      {phase?.at === "done" && <Imported result={phase.result} />}
+      {phase?.at === "done" && <Imported result={phase.result} hidden={hidden} />}
     </div>
   );
 }
 
-/** The course installed: how, and what its check found. */
-function Imported({ result }: { result: ImportedCourse }) {
+/** The course installed: how, what its check found, and — an experiment not turned on — where to
+ *  turn it on to see it. */
+function Imported({
+  result,
+  hidden,
+}: {
+  result: ImportedCourse;
+  hidden?(series: string): boolean;
+}) {
   const { t } = useTranslation();
   const { course, status, check } = result;
   const title = course.editions.map((e) => course.titles[e]).find(Boolean) ?? course.key;
+  const series = course.key.split("/")[0] ?? "";
   return (
     <Panel className="w-full space-y-1" as="div">
       <p className="font-semibold" role="status">
@@ -166,6 +185,14 @@ function Imported({ result }: { result: ImportedCourse }) {
           ? t("bundle.import.problems", { count: check.problems })
           : t("bundle.import.verified")}
       </p>
+      {hidden?.(series) && (
+        <p className="text-sm">
+          {t("bundle.import.experimental")}{" "}
+          <Link to="/settings" hash="experimental" className="underline pointer-coarse:min-h-11">
+            {t("bundle.import.turnOn")}
+          </Link>
+        </p>
+      )}
     </Panel>
   );
 }

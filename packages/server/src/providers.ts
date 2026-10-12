@@ -11,6 +11,8 @@ import {
   type ImportReport,
   openLibrary,
   type ProgressSink,
+  type RemovedCourse,
+  removeCourse,
 } from "@sprachanker/course-kit";
 import { DW_PROVIDERS } from "@sprachanker/dw";
 import { GOETHE_PROVIDER } from "@sprachanker/goethe";
@@ -113,6 +115,17 @@ export async function importCourse(
   return withSeriesLock(libraryRoot, entry.series, () => entry.import({ ...request, libraryRoot }));
 }
 
+/** A course removed from `<dataRoot>/library` under its series' lock: its files no other course of
+ *  the series uses, and its download's marker (course-kit's removeCourse). */
+export const removeInstalledCourse = (
+  dataRoot: string,
+  series: string,
+  course: string,
+): Promise<RemovedCourse> => {
+  const libraryRoot = join(dataRoot, "library");
+  return withSeriesLock(libraryRoot, series, () => removeCourse(libraryRoot, series, course));
+};
+
 /**
  * Takes the lock folder with this process's pid already in it: the folder is made elsewhere and
  * renamed into place, so another process never sees the lock without its owner. A lock whose process
@@ -198,6 +211,8 @@ export function courseInstaller(dataRoot: string, now: () => number = Date.now):
       else await rm(marker, { force: true });
       return report;
     },
+
+    remove: (series, course) => removeInstalledCourse(dataRoot, series, course),
 
     async unfinished() {
       const out: Awaited<ReturnType<CourseInstaller["unfinished"]>> = [];

@@ -129,6 +129,26 @@ test("Import from a file: the same course, a replaced one with its progress kept
   }
 });
 
+test("Import from a file: an experiment not turned on is here but not listed — said, with the way to turn it on", async () => {
+  const series: string[] = [];
+  const view = await renderApp(
+    <CourseImport
+      hidden={(s) => {
+        series.push(s);
+        return true;
+      }}
+      upload={async () => result("added")}
+    />,
+    { path: "/exams/downloaded" },
+  );
+  choose(view);
+  await waitFor(() => expect(view.getByText(/It is an experiment/)).toBeTruthy());
+  expect(series).toContain("dw.nicos-weg");
+  expect(
+    view.getByRole("link", { name: "Settings → General → Experimental" }).getAttribute("href"),
+  ).toBe("/settings#experimental");
+});
+
 test("Import from a file: a refused file said in words", async () => {
   const view = await renderApp(
     <CourseImport upload={() => Promise.reject(new ApiError("course_bundle_clash", 409))} />,

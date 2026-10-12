@@ -1,4 +1,5 @@
-// Course downloads: the server's jobs, polled while one runs, and starting one.
+// Course downloads: the server's jobs, polled while one runs, starting one, and a course downloaded
+// removed from the computer.
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { useEffect } from "react";
 import { api, json } from "./client.ts";
@@ -51,6 +52,19 @@ export function useDownloadsWatch() {
 }
 
 /** Downloads a course, completes it or syncs it with its source (one idempotent job). */
+/** Removes a downloaded course or exam from the computer; every list it was in is read again. */
+export function useRemoveCourse() {
+  const client = useQueryClient();
+  return useMutation({
+    mutationFn: (target: { series: string; course: string }) =>
+      json(api.course.$delete({ query: target })),
+    onSuccess: () => {
+      for (const key of ["courses", "exams", "catalog", "course", "course-check", "storage"])
+        void client.invalidateQueries({ queryKey: [key] });
+    },
+  });
+}
+
 export function useStartDownload() {
   const client = useQueryClient();
   return useMutation({

@@ -653,7 +653,14 @@
     "done": "Pobrano. {failed, plural, =0 {Wszystkie multimedia są na miejscu.} one {Nie udało się pobrać # pliku.} few {Nie udało się pobrać # plików.} many {Nie udało się pobrać # plików.} other {Nie udało się pobrać # pliku.}}",
     "hint": "Pobieranie ściąga ze źródła to, czego brakuje (zapisane strony i multimedia zostają), i ponownie przygotowuje kurs; twoje postępy zostają.",
     "log": "Dziennik pobierania",
-    "syncShort": "Synchronizuj"
+    "syncShort": "Synchronizuj",
+    "remove": {
+      "button": "Usuń z tego komputera…",
+      "title": "Usunąć „{title}” z tego komputera?",
+      "body": "Jego lekcje i multimedia zostaną usunięte z dysku (multimedia używane przez inny kurs zostaną). Twoje postępy, notatnik i słowa zostaną; pobierz go ponownie, aby kontynuować.",
+      "bodyExam": "Jego pytania i multimedia zostaną usunięte z dysku (multimedia używane przez inny kurs zostaną). Twoje egzaminy próbne, ćwiczenia i notatnik zostaną; pobierz go ponownie, aby kontynuować.",
+      "confirm": "Usuń"
+    }
   },
   "storage": {
     "title": "Dane",
@@ -1306,6 +1313,7 @@
     "answer_does_not_fit": "Odpowiedź nie pasuje do tego ćwiczenia. Wczytaj lekcję ponownie.",
     "card_changed": "Ta fiszka zmieniła się na innym urządzeniu. Jest pokazana ponownie.",
     "downloads_unavailable": "Tutaj nie można pobierać kursów.",
+    "course_busy": "Ten kurs właśnie się pobiera. Usuń go, gdy pobieranie się skończy.",
     "empty_recording": "Nagranie jest puste. Spróbuj ponownie.",
     "event_id_taken": "Ta odpowiedź została już zapisana inaczej. Wczytaj stronę ponownie.",
     "event_of_another_run": "Ten wpis należy do innego podejścia. Wczytaj lekcję ponownie.",
@@ -1592,6 +1600,7 @@
     "export": {
       "button": "Eksportuj do pliku",
       "hint": "Ten kurs jako jeden plik, do zaimportowania na twoim drugim komputerze w „Pobrane”.",
+      "hintExam": "Ten egzamin jako jeden plik — do zaimportowania na innym komputerze w zakładce „Pobrane”.",
       "started": "Pobieranie „{file}” ({size})."
     },
     "import": {
@@ -1603,7 +1612,9 @@
       "same": "„{title}” już tu jest, taki sam: nic się nie zmieniło.",
       "replaced": "„{title}” to teraz wersja z pliku; twoje postępy zostają.",
       "verified": "Sprawdzono: wszystkie pliki są na miejscu.",
-      "problems": "Sprawdzono: {count, plural, one {znaleziono # problem} few {znaleziono # problemy} many {znaleziono # problemów} other {znaleziono # problemu}} — „Sprawdź” na jego karcie je pokaże."
+      "problems": "Sprawdzono: {count, plural, one {znaleziono # problem} few {znaleziono # problemy} many {znaleziono # problemów} other {znaleziono # problemu}} — „Sprawdź” na jego karcie je pokaże.",
+      "experimental": "To eksperyment: nie jest widoczny, dopóki jego źródło nie zostanie włączone.",
+      "turnOn": "Ustawienia → Ogólne → Eksperymenty"
     }
   },
   "understanding": {

@@ -26,6 +26,8 @@ packages/course-kit/src/
   library-view.ts      # LibraryView: what the app reads (courses, lessons, exams), NotInstalledError;
                        # no Node APIs: the server's app imports it alone (`@sprachanker/course-kit/view`)
   verify.ts            # a course's integrity and counts (LibraryView.check)
+  remove.ts            # removeCourse: a course's folders and the media no other course of its series
+                       # names; media.json forgets them, keys.json stays
   bundle.ts            # course bundles, the library's side: what a course's bundle holds, content
                        # versions, a bundle unpacked checked (schemas, places, media used) and installed
                        # all or nothing (install.json: undone on an error, or at the next start)

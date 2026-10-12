@@ -653,7 +653,14 @@
     "done": "Preuzeto. {failed, plural, =0 {Svi mediji su na mjestu.} one {# datoteka se nije mogla preuzeti.} few {# datoteke se nisu mogle preuzeti.} other {# datoteka se nije moglo preuzeti.}}",
     "hint": "Preuzimanje dohvata iz izvora ono što nedostaje (sačuvane stranice i mediji ostaju) i ponovo priprema kurs; tvoj napredak ostaje.",
     "log": "Dnevnik preuzimanja",
-    "syncShort": "Sinhronizuj"
+    "syncShort": "Sinhronizuj",
+    "remove": {
+      "button": "Ukloni s ovog računara…",
+      "title": "Ukloniti „{title}“ s ovog računara?",
+      "body": "Njegove lekcije i mediji brišu se s diska (mediji koje koristi drugi kurs ostaju). Tvoj napredak, bilježnica i riječi ostaju; preuzmi ga ponovo da nastaviš.",
+      "bodyExam": "Njegova pitanja i mediji brišu se s diska (mediji koje koristi drugi kurs ostaju). Tvoji probni ispiti, vježbanje i bilježnica ostaju; preuzmi ga ponovo da nastaviš.",
+      "confirm": "Ukloni"
+    }
   },
   "storage": {
     "title": "Pohrana",
@@ -1306,6 +1313,7 @@
     "answer_does_not_fit": "Odgovor ne odgovara ovoj vježbi. Ponovo učitaj lekciju.",
     "card_changed": "Ova kartica je promijenjena na drugom uređaju. Prikazuje se ponovo.",
     "downloads_unavailable": "Kursevi se ovdje ne mogu preuzimati.",
+    "course_busy": "Ovaj kurs se upravo preuzima. Ukloni ga kad preuzimanje završi.",
     "empty_recording": "Snimak je prazan. Pokušaj ponovo.",
     "event_id_taken": "Ovaj odgovor je već drugačije zabilježen. Ponovo učitaj stranicu.",
     "event_of_another_run": "Ovaj zapis pripada drugom prolazu. Ponovo učitaj lekciju.",
@@ -1592,6 +1600,7 @@
     "export": {
       "button": "Izvezi u datoteku",
       "hint": "Ovaj kurs kao jedna datoteka, za uvoz na tvom drugom računaru pod „Preuzeti“.",
+      "hintExam": "Ovaj ispit kao jedna datoteka, za uvoz na drugom računaru pod „Preuzeto“.",
       "started": "Preuzima se „{file}“ ({size})."
     },
     "import": {
@@ -1603,7 +1612,9 @@
       "same": "„{title}“ je već ovdje, isti: ništa se nije promijenilo.",
       "replaced": "„{title}“ je sada verzija iz datoteke; tvoj napredak ostaje.",
       "verified": "Provjereno: sve datoteke su tu.",
-      "problems": "Provjereno: {count, plural, one {pronađen # problem} few {pronađena # problema} other {pronađeno # problema}} — „Provjeri“ na njegovoj kartici ih prikazuje."
+      "problems": "Provjereno: {count, plural, one {pronađen # problem} few {pronađena # problema} other {pronađeno # problema}} — „Provjeri“ na njegovoj kartici ih prikazuje.",
+      "experimental": "Ovo je eksperiment: ne prikazuje se dok se njegov izvor ne uključi.",
+      "turnOn": "Postavke → Opće → Eksperimenti"
     }
   },
   "understanding": {
