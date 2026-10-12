@@ -48,13 +48,29 @@ off, its model, the engine, voice and speed reading aloud) are applied by `servi
   server, `audio/wav.ts`) and sent to `POST /api/speech/transcribe?lang=` while the original is kept in
   `recordings/`; the transcript goes into the answer (05).
 - The reference text is never passed to the recogniser (it biases results).
-- **Silence is nothing heard**: Whisper makes up words for a silent take ("Vielen Dank.", "Amen.",
-  "Untertitel im Auftrag des ZDF"). A take never louder than a quiet room (about -40 dBFS) is neither
-  kept nor sent (the recorder's loudest moment) and the learner is asked to say it again; the server
-  does not ask the engine for a WAV with under 0.12 s that loud, and a near-silent one (under 0.25 s,
-  or never above -30 dBFS) heard as one of the phrases Whisper makes up of silence in its language
-  (`services/hallucinations.json`) is heard as nothing (`services/silence.ts`). The engine's own
-  voice activity detection needs a model of its own to download; not used.
+- **Silence is nothing heard**: Whisper makes up words for silence and noise ("Vielen Dank.",
+  "Amen.", "Untertitelung des ZDF, 2020", "* Musik *"), while it hears a word said quietly (-45 dBFS)
+  right. A take never louder than a quiet room (-50 dBFS; the recorder's loudest moment — 0 is
+  nothing measured, a suspended audio context: sent) is neither kept nor sent; the server does not ask
+  the engine for a WAV with under 40 ms that loud, and of what it hears (`verbose_json`) drops
+  (`services/silence.ts`): the sounds it names (`*…*`, `[…]`, `(…)`) and punctuation alone; credits
+  (`Untertitel…`, `ZDF…`, `Subtitles by…`) at any loudness; a phrase it makes up of silence in that
+  language (`services/hallucinations.json`) when the take is near-silent (never above -36.5 dBFS and
+  under 0.25 s above -40 dBFS), steady (its 20 ms levels varying under 4 dB, the loudest under 10 dB
+  above the middle one: noise, hum — and quiet speech in noise, so only doubt) or Whisper unsure of it
+  (a segment's mean log probability under -0.4: said aloud they measured above -0.2, made up of a tap
+  or noise below -0.55); anything it is unsure of in a steady take ("Spannungsgeladene" of hiss) —
+  unless it is one of the lines the learner was to say (sent with the take as `expect`, never given to
+  the recogniser; a phrase said below about -37 dBFS is dropped without it).
+  Nothing heard is `{ text: "", silent: true }`: the take is not kept nor the item's answer, nor a
+  Dialogue's line, and the learner is asked to say it again ("Nothing was heard"). Whisper's
+  `no_speech_prob` is 0 for silence too (whisper.cpp 1.9.5, large-v3-turbo); its own voice activity
+  detection needs a model of its own to download; neither used. Measured (owner's M2 Pro): human course
+  recordings, Piper and Qwen3-TTS at ×1, ×0.3, ×0.18 kept; silence, room noise, breathing, hum,
+  white and pink noise heard as nothing.
+- **A take is heard first**, then kept: one nothing was heard in leaves no recording. Hearing and
+  keeping it both failing, an earlier answer stays. Moving on while a take is heard ("Listening…"),
+  the take is still the item's answer when heard.
 - Measured on the owner's M2 Pro (large-v3-turbo q5_0, Metal): a 3–4 s phrase in 0.7 s warm, 1.2 s
   the first time.
 

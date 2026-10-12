@@ -30,7 +30,8 @@ export function useSpeechHostValue(): SpeechHost {
       src: recordingUrl,
       kept: (id) => oldest === undefined || (oldest !== null && decodeTime(id) >= oldest),
       recognition,
-      transcribe: async (take, lang) => transcribe(await toWav16k(take.blob), lang),
+      transcribe: async (take, lang, expected) =>
+        transcribe(await toWav16k(take.blob), lang, expected),
       warm() {
         if (!recognition) return;
         if (warmed.model === model && Date.now() - warmed.at < WARM_AGAIN_MS) return;

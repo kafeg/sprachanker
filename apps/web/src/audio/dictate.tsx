@@ -33,7 +33,7 @@ export function DictateButton({
       setFailed(undefined);
       host
         .transcribe(take, lang)
-        .then((text) => (text.trim() ? onText(text, take) : setFailed("unclear")))
+        .then((text) => (text.trim() ? onText(text, take) : setFailed("silent")))
         .catch(() => setFailed("unclear"))
         .finally(() => setBusy(false));
     },

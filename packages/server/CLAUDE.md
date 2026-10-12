@@ -94,8 +94,8 @@ src/
                      #   writing (a task set, a text on it checked), going-over (the pass's mistakes by
                      #   type, new items checked by the engine), speaking, tutor (+ tutor-tools,
                      #   courses-context), scene (the Dialogue), exam-rating, exam-conversation, examples
-                     # - speech (08): speech (whisper-server; silence: a take's loudness, the phrases
-                     #   Whisper makes up of silence by language — hallucinations.json), read-aloud (Piper; piper-voices.json from
+                     # - speech (08): speech (whisper-server; silence: a take's loudness, what is not speech of
+                     #   what Whisper heard — its credits and made-up phrases by language: hallucinations.json), read-aloud (Piper; piper-voices.json from
                      #   scripts/piper-voices.ts), qwen-tts, local-engines (SpeechHost, ReadingCache,
                      #   engineSidecar), model-downloads, sidecar (the supervisor), profile-speech,
                      #   recordings (the learner's audio)
@@ -150,6 +150,6 @@ test/                # bun test; integration tests call createApp().request() �
   course-kit only `@sprachanker/course-kit/view`, no course (dependency-cruiser; those live
   in `src/runtime/`, `config.ts`, `providers.ts` and `index.ts`): the web client type-checks that graph
   without Bun or Node types.
-- Speech: always pass an explicit language; never pass the reference text to the recogniser.
+- Speech: an explicit language always; the reference text never to the recogniser (only to `said`, after it).
 - Exports a programmatic API used by `apps/cli` (serve, import, verify, profiles — `profileAdmin` with
   export and import —, courses — `courseAdmin`: list, export, import —, backup).

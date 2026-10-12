@@ -40,7 +40,8 @@ export const micDevice = {
 };
 
 /** One recording: the audio as encoded, its type, its length, and its loudest moment (the root mean
- *  square of the loudest stretch measured, 0–1; none when nothing was measured: a hidden page). */
+ *  square of the loudest stretch measured, 0–1; none or 0 when nothing was measured: a hidden page,
+ *  a suspended audio context). */
 export interface Take {
   blob: Blob;
   type: string;
@@ -48,11 +49,14 @@ export interface Take {
   peak?: number;
 }
 
-/** Speech is louder than this (about -40 dBFS) somewhere in a take; a quiet room is not. */
-const SPEECH_RMS = 0.01;
+/** Speech is louder than this (-50 dBFS) somewhere in a take, even a word said quietly; a quiet room
+ *  is not (the server's gate too, 08). */
+const SPEECH_RMS = 0.00316;
 
-/** Nothing in the take was loud enough to be speech: it is not kept nor sent to be heard (08). */
-export const heardNothing = (take: Take) => take.peak !== undefined && take.peak < SPEECH_RMS;
+/** Nothing in the take was loud enough to be speech: it is not kept nor sent to be heard (08). A
+ *  loudest moment of exactly 0 is nothing measured (an audio context the browser kept suspended):
+ *  the server decides. */
+export const heardNothing = (take: Take) => !!take.peak && take.peak < SPEECH_RMS;
 
 /** The browser's processing of the microphone off: noise suppression and automatic gain change the
  *  voice the recogniser hears, and nothing plays while a take records (08). */
@@ -121,6 +125,9 @@ export function useRecorder({
       const type = TYPES.find((t) => MediaRecorder.isTypeSupported(t));
       const recorder = new MediaRecorder(stream, type ? { mimeType: type } : undefined);
       const context = new AudioContext();
+      // Made after an await, it may start suspended (iOS Safari): measured once it runs — not waited
+      // for, as it may never run without a tap; until then the take's loudest moment stays 0.
+      void context.resume?.().catch(() => {});
       const analyser = context.createAnalyser();
       analyser.fftSize = 512;
       context.createMediaStreamSource(stream).connect(analyser);

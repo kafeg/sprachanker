@@ -43,12 +43,13 @@ export function createProfileSpeech(deps: {
       const model = recogniser();
       if (model) speech.warm(model);
     },
-    /** What was said in a 16 kHz mono WAV, in a language given, with the profile's model. */
-    async transcribe(wav: Uint8Array<ArrayBuffer>, lang: string) {
+    /** What was said in a 16 kHz mono WAV, in a language given, with the profile's model; `expected`:
+     *  the lines to say, for telling a line said from a phrase made up of silence (never heard with). */
+    async transcribe(wav: Uint8Array<ArrayBuffer>, lang: string, expected?: string[]) {
       const model = recogniser();
       if (!model) throw new ServiceError("speech_unavailable", 409);
       if (!wav.length) throw new ServiceError("empty_recording");
-      return speech.take(wav, lang, model);
+      return speech.take(wav, lang, model, expected);
     },
     /** What a course recording says, heard with the profile's recogniser; undefined without one,
      *  or when hearing fails (what asks goes on without it). */

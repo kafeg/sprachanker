@@ -6,7 +6,7 @@ import { ServiceError } from "../errors.ts";
 import { createOnce } from "../once.ts";
 import { engineSidecar, type ModelFile, offered, type SpeechHost } from "./local-engines.ts";
 import { createModelDownloads } from "./model-downloads.ts";
-import { loudness, madeUp, silent } from "./silence.ts";
+import { loudness, said, silent } from "./silence.ts";
 
 /** The models offered, best first: the large turbo model (quantised), and a small one for slower
  *  machines. From ggerganov/whisper.cpp on Hugging Face at a fixed commit. */
@@ -61,15 +61,16 @@ export function createSpeech(deps: { host?: SpeechHost; fetch: typeof fetch }) {
   });
 
   /** What was said in a recording (a 16 kHz mono WAV, or a course's MP3), in a language given
-   *  (never detected, 08). */
+   *  (never detected, 08); `logprob`: how sure Whisper was of its least sure segment (verbose_json's
+   *  `avg_logprob`; its `no_speech_prob` is 0 even for silence, so not used). */
   async function transcribe(audio: Blob, lang: string, model: string) {
     const started = Date.now();
     fileOf(model);
-    const text = await engine.use(model, async (url) => {
+    const heard = await engine.use(model, async (url) => {
       const form = new FormData();
       form.set("file", audio, "speech");
       form.set("language", lang);
-      form.set("response_format", "json");
+      form.set("response_format", "verbose_json");
       form.set("temperature", "0");
       const res = await deps
         .fetch(`${url}/inference`, {
@@ -80,9 +81,15 @@ export function createSpeech(deps: { host?: SpeechHost; fetch: typeof fetch }) {
         .catch(() => undefined);
       const body = res?.ok ? await res.json().catch(() => undefined) : undefined;
       if (!body) throw new ServiceError("speech_engine_failed", 502);
-      return String((body as { text?: unknown }).text ?? "");
+      const { text, segments } = body as { text?: unknown; segments?: unknown };
+      const sure = (Array.isArray(segments) ? segments : []).flatMap((s) =>
+        typeof s?.avg_logprob === "number" && Number.isFinite(s.avg_logprob)
+          ? [s.avg_logprob as number]
+          : [],
+      );
+      return { text: String(text ?? ""), ...(sure.length && { logprob: Math.min(...sure) }) };
     });
-    return { text: text.trim(), ms: Date.now() - started };
+    return { ...heard, text: heard.text.trim(), ms: Date.now() - started };
   }
 
   return {
@@ -130,14 +137,16 @@ export function createSpeech(deps: { host?: SpeechHost; fetch: typeof fetch }) {
 
     transcribe,
 
-    /** What the learner said in a take (a 16 kHz WAV): nothing when nothing in it was loud enough to
-     *  be speech (the engine not asked), nor when a near-silent take comes back as a phrase the
-     *  recogniser makes up of silence ("Vielen Dank.", "Untertitel …"). */
-    async take(wav: Uint8Array<ArrayBuffer>, lang: string, model: string) {
+    /** What the learner said in a take (a 16 kHz WAV) — `silent` when nothing: nothing in it loud
+     *  enough to be speech (the engine not asked), or only what Whisper makes of silence and noise
+     *  (silence.ts). `expected`: the lines the learner was to say, never given to the recogniser — one
+     *  of them heard is kept, even a phrase Whisper makes up ("Danke."). */
+    async take(wav: Uint8Array<ArrayBuffer>, lang: string, model: string, expected?: string[]) {
       const sound = loudness(wav);
-      if (sound && silent(sound)) return { text: "", ms: 0 };
+      if (sound && silent(sound)) return { text: "", ms: 0, silent: true as const };
       const heard = await transcribe(new Blob([wav], { type: "audio/wav" }), lang, model);
-      return sound && madeUp(sound, heard.text, lang) ? { ...heard, text: "" } : heard;
+      const text = said(heard, sound, lang, expected);
+      return { text, ms: heard.ms, ...(!text && { silent: true as const }) };
     },
 
     /** What a course's recording says (a question asked, an answer spoken), heard once per model and
