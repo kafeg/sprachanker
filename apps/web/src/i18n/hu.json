@@ -1196,6 +1196,7 @@
     "answerFree": "Mondd ki hangosan, ahogy a feladat kéri.",
     "answerLine": "A válaszod",
     "mine": "Az enyém",
+    "takeDeleted": "A felvételed törölve lett",
     "mineFor": "Az enyém · {time}",
     "recordedNotKept": "Felvéve (nincs megőrizve)",
     "listenFirst": "Előbb hallgasd meg a felvételt.",

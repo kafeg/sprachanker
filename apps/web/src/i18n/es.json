@@ -1196,6 +1196,7 @@
     "answerFree": "Dilo en voz alta como pide la tarea.",
     "answerLine": "Tu respuesta",
     "mine": "Mía",
+    "takeDeleted": "Tu grabación se eliminó",
     "mineFor": "Mía · {time}",
     "recordedNotKept": "Grabado (no guardado)",
     "listenFirst": "Primero escucha la grabación.",

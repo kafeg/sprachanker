@@ -1196,6 +1196,7 @@
     "answerFree": "按题目要求大声说出来。",
     "answerLine": "你的答案",
     "mine": "我的",
+    "takeDeleted": "你的录音已删除",
     "mineFor": "我的 · {time}",
     "recordedNotKept": "已录音（未保存）",
     "listenFirst": "请先听录音。",

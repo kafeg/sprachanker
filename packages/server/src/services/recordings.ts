@@ -39,10 +39,16 @@ export function createRecordings(files: RecordingFiles, now: () => number) {
       return { blob, name };
     },
 
-    /** How many recordings are kept, and their size. */
+    /** How many recordings are kept, their size, and when the oldest was made (ids are ULIDs: one
+     *  made before it is gone — all of them deleted —, so a page names it deleted without asking). */
     stats() {
       const list = files.list().filter((f) => NAME.test(f.name));
-      return { count: list.length, bytes: list.reduce((n, f) => n + f.size, 0) };
+      const times = list.map((f) => decodeTime(f.name.slice(0, 26)));
+      return {
+        count: list.length,
+        bytes: list.reduce((n, f) => n + f.size, 0),
+        oldest: times.length ? Math.min(...times) : null,
+      };
     },
 
     /**

@@ -1196,6 +1196,7 @@
     "answerFree": "همان‌طور که تمرین می‌خواهد، آن را بلند بگو.",
     "answerLine": "پاسخ تو",
     "mine": "ضبط من",
+    "takeDeleted": "ضبط تو حذف شد",
     "mineFor": "ضبط من · {time}",
     "recordedNotKept": "ضبط شد (نگه داشته نشد)",
     "listenFirst": "اول به فایل صوتی گوش کن.",

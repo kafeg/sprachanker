@@ -1196,6 +1196,7 @@
     "answerFree": "Izgovori naglas kako zadatak traži.",
     "answerLine": "Tvoj odgovor",
     "mine": "Moj",
+    "takeDeleted": "Tvoj snimak je izbrisan",
     "mineFor": "Moj · {time}",
     "recordedNotKept": "Snimljeno (nije sačuvano)",
     "listenFirst": "Prvo poslušaj snimak.",

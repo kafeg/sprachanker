@@ -1196,6 +1196,7 @@
     "answerFree": "Dis-le à voix haute comme le demande la consigne.",
     "answerLine": "Ta réponse",
     "mine": "Moi",
+    "takeDeleted": "Ton enregistrement a été supprimé",
     "mineFor": "Moi · {time}",
     "recordedNotKept": "Enregistré (non conservé)",
     "listenFirst": "Écoute d’abord l’enregistrement.",

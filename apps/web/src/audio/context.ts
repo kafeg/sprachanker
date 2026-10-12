@@ -8,6 +8,8 @@ export interface SpeechHost {
   save(take: Take): Promise<string>;
   /** Where a kept recording plays from. */
   src(id: string): string;
+  /** A recording an answer names is still kept (not deleted with all of them); unknown: kept. */
+  kept?(id: string): boolean;
   /** Speech recognition is on and ready (the engine and a model, 08). */
   recognition: boolean;
   /** What was said in a take, in a language given. */

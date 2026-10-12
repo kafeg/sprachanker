@@ -1196,6 +1196,7 @@
     "answerFree": "Görevin istediği gibi sesli söyle.",
     "answerLine": "Cevabın",
     "mine": "Kaydım",
+    "takeDeleted": "Kaydın silindi",
     "mineFor": "Kaydım · {time}",
     "recordedNotKept": "Kaydedildi (saklanmadı)",
     "listenFirst": "Önce kaydı dinle.",

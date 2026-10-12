@@ -7,7 +7,7 @@ import { useTranslation } from "react-i18next";
 import { useSpeechHost } from "@/audio/context.ts";
 import { MicButton } from "@/audio/mic-button.tsx";
 import { heardNothing, type Take, useRecorder } from "@/audio/recorder.ts";
-import { TakeButton } from "@/audio/take-button.tsx";
+import { KeptTake, TakeButton } from "@/audio/take-button.tsx";
 import { CourseHtml } from "@/ui/course-html.tsx";
 import { inLang } from "@/ui/direction.tsx";
 import { clock } from "@/ui/format.ts";
@@ -206,7 +206,6 @@ export function SpeechSelfrate({
 
   const attempted = answer !== undefined || !!take;
   const textShown = readOnly || !listen || attempted || reveal;
-  const own = take?.url ?? (answer?.recording && host ? host.src(answer.recording) : undefined);
   // The source's own answer, once the learner has tried (their answer first, then the model one).
   const sample =
     item.answerAudio && (readOnly || attempted) ? (
@@ -261,8 +260,8 @@ export function SpeechSelfrate({
       )}
       {readOnly ? (
         <p className="flex flex-wrap items-center gap-2 text-sm text-muted-foreground">
-          {own ? (
-            <TakeButton src={own} label={t("speech.mine")} />
+          {answer?.recording && host ? (
+            <KeptTake id={answer.recording} label={t("speech.mine")} />
           ) : answer?.rating ? (
             t(`ex.rate.${answer.rating}`)
           ) : answer ? (
@@ -279,16 +278,16 @@ export function SpeechSelfrate({
             onStart={() => void recorder.start()}
             onStop={recorder.stop}
           />
-          {own && (
+          {take ? (
             <TakeButton
-              src={own}
-              label={
-                take
-                  ? t("speech.mineFor", { time: clock(Math.max(1, take.ms / 1000)) })
-                  : t("speech.mine")
-              }
+              src={take.url}
+              label={t("speech.mineFor", { time: clock(Math.max(1, take.ms / 1000)) })}
               className="mt-1.5"
             />
+          ) : (
+            answer?.recording && (
+              <KeptTake id={answer.recording} label={t("speech.mine")} className="mt-1.5" />
+            )
           )}
           {sample && <span className="mt-1.5">{sample}</span>}
         </div>
@@ -334,8 +333,6 @@ export function SpeechRepeat({
       ? "speech.languageUnknown"
       : undefined;
   const attempted = answer !== undefined || !!take;
-  const own =
-    take?.url ?? (answer?.speech.recording && host ? host.src(answer.speech.recording) : undefined);
   return (
     <div className="space-y-3">
       <p
@@ -354,7 +351,13 @@ export function SpeechRepeat({
             onStart={() => void recorder.start()}
             onStop={recorder.stop}
           />
-          {own && <TakeButton src={own} label={t("speech.mine")} className="mt-1.5" />}
+          {take ? (
+            <TakeButton src={take.url} label={t("speech.mine")} className="mt-1.5" />
+          ) : (
+            answer?.speech.recording && (
+              <KeptTake id={answer.speech.recording} label={t("speech.mine")} className="mt-1.5" />
+            )
+          )}
         </div>
       )}
       {answer && !saving && (

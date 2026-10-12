@@ -86,6 +86,22 @@ test("the phrase hidden until the first try, shown on request; a kept take plays
   );
   expect(notebook.getByRole("button", { name: "Mine" })).toBeTruthy();
   expect(notebook.queryByRole("button", { name: "Record yourself" })).toBeNull();
+  notebook.unmount();
+
+  // All recordings deleted (the answers kept): the take is said to be gone, nothing to play.
+  const deleted = await renderApp(
+    <SpeechProvider value={{ ...host(), kept: () => false }}>
+      <SpeechSelfrate
+        item={item}
+        answer={{ recording: "01K00000000000000000000000" }}
+        onAnswer={() => {}}
+        url={(p) => p}
+        readOnly
+      />
+    </SpeechProvider>,
+  );
+  expect(deleted.getByText("Your recording was deleted")).toBeTruthy();
+  expect(deleted.queryByRole("button", { name: "Mine" })).toBeNull();
 });
 
 test("what was heard: the verdict and the words missed against the phrase; a free answer just heard", async () => {

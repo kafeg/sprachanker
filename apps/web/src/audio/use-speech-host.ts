@@ -2,7 +2,8 @@
 // recognition.
 import { useQueryClient } from "@tanstack/react-query";
 import { useMemo } from "react";
-import { recordingUrl, uploadRecording } from "@/api/recordings.ts";
+import { decodeTime } from "ulid";
+import { recordingUrl, uploadRecording, useRecordingStats } from "@/api/recordings.ts";
 import { useSetting } from "@/api/settings.ts";
 import { transcribe, useSpeechState, warmSpeech } from "@/api/speech.ts";
 import type { SpeechHost } from "./context.ts";
@@ -17,6 +18,8 @@ export function useSpeechHostValue(): SpeechHost {
   const client = useQueryClient();
   const recognition = !!useSpeechState().data?.recognition;
   const model = useSetting("speech.model") ?? "";
+  // Recordings are made in time order: one older than the oldest kept is gone.
+  const oldest = useRecordingStats().data?.oldest;
   return useMemo(
     () => ({
       async save(take) {
@@ -25,6 +28,7 @@ export function useSpeechHostValue(): SpeechHost {
         return id;
       },
       src: recordingUrl,
+      kept: (id) => oldest === undefined || (oldest !== null && decodeTime(id) >= oldest),
       recognition,
       transcribe: async (take, lang) => transcribe(await toWav16k(take.blob), lang),
       warm() {
@@ -34,6 +38,6 @@ export function useSpeechHostValue(): SpeechHost {
         void warmSpeech();
       },
     }),
-    [client, recognition, model],
+    [client, recognition, model, oldest],
   );
 }

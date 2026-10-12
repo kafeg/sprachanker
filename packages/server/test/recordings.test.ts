@@ -3,7 +3,7 @@ import { existsSync, readdirSync } from "node:fs";
 import { join } from "node:path";
 import { FIXTURE_SERIES } from "@sprachanker/course-fixture";
 import { CLIENT_HEADERS } from "@sprachanker/schema";
-import { ulid } from "ulid";
+import { decodeTime, ulid } from "ulid";
 import type { RecordingFiles } from "../src/services/profiles.ts";
 import { createRecordings } from "../src/services/recordings.ts";
 import { setup } from "./setup.ts";
@@ -33,7 +33,12 @@ test("recordings: saved as recorded, played with ranges, counted, removed; bad o
   expect([...new Uint8Array(await part.arrayBuffer())]).toEqual([
     10, 11, 12, 13, 14, 15, 16, 17, 18, 19,
   ]);
-  expect(await getJson("/api/recordings")).toEqual({ count: 1, bytes: 1000 });
+  // The oldest kept: a recording made before it is gone.
+  expect(await getJson("/api/recordings")).toEqual({
+    count: 1,
+    bytes: 1000,
+    oldest: decodeTime(id),
+  });
 
   // Not audio, empty, too large, without the client header: refused; an unknown id is 404.
   expect((await upload(audio, "text/plain")).status).toBe(415);
@@ -60,7 +65,7 @@ test("recordings: saved as recorded, played with ranges, counted, removed; bad o
   expect((await get(`/api/recordings/${ulid()}`)).status).toBe(404);
 
   expect(await (await send("DELETE", "/api/recordings", {})).json()).toEqual({ removed: 1 });
-  expect(await getJson("/api/recordings")).toEqual({ count: 0, bytes: 0 });
+  expect(await getJson("/api/recordings")).toEqual({ count: 0, bytes: 0, oldest: null });
 });
 
 test("a speaking item answered with a recording; resetting the lesson removes the recording", async () => {
@@ -105,7 +110,7 @@ test("a speaking item answered with a recording; resetting the lesson removes th
     lesson: SPEAKING,
   });
   expect(existsSync(join(root, "profiles/local/recordings", `${id}.m4a`))).toBe(false);
-  expect(await getJson("/api/recordings")).toEqual({ count: 0, bytes: 0 });
+  expect(await getJson("/api/recordings")).toEqual({ count: 0, bytes: 0, oldest: null });
 });
 
 test("takes no answer holds go once a day old; those answers hold, and newer ones, stay", () => {

@@ -1196,6 +1196,7 @@
     "answerFree": "Say it out loud as the task asks.",
     "answerLine": "Your answer",
     "mine": "Mine",
+    "takeDeleted": "Your recording was deleted",
     "mineFor": "Mine · {time}",
     "recordedNotKept": "Recorded (not kept)",
     "listenFirst": "Listen to the recording first.",

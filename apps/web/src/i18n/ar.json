@@ -1196,6 +1196,7 @@
     "answerFree": "قلها بصوت عالٍ كما تطلب المهمة.",
     "answerLine": "إجابتك",
     "mine": "تسجيلي",
+    "takeDeleted": "حُذف تسجيلك",
     "mineFor": "تسجيلي · {time}",
     "recordedNotKept": "سُجّل (لم يُحفظ)",
     "listenFirst": "استمع إلى التسجيل أولًا.",
