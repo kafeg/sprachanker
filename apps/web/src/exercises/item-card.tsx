@@ -108,6 +108,9 @@ function SharedLines({
   );
 }
 
+/** Options chosen: a wrong one is wrong, not "not quite" (a text or an order partly right is). */
+const CHOICES = new Set<Exercise["type"]>(["single_choice", "multi_choice"]);
+
 export function ItemCard({
   exercise,
   locale,
@@ -176,7 +179,11 @@ export function ItemCard({
               ? "lesson.correct"
               : outcome.result === "partial"
                 ? "lesson.partial"
-                : "lesson.wrong",
+                : answer === undefined
+                  ? "lesson.unanswered"
+                  : CHOICES.has(exercise.type)
+                    ? "lesson.incorrect"
+                    : "lesson.wrong",
           )}
         </span>
       )}

@@ -103,6 +103,10 @@ test("Decks to take: an imported deck not taken whole, taken or deleted; a deck 
   await waitFor(() => expect(view.getByText("A1 words")).toBeTruthy());
   expect(view.getByText(/5 words · 1 yours already/)).toBeTruthy();
   expect(view.getByRole("button", { name: "Add the other 4" })).toBeTruthy();
+  // The name and count keep their room (14rem) beside the button, which wraps under them on a phone.
+  expect(view.getByText("A1 words").closest("[data-deck-name]")?.className.split(" ")).toContain(
+    "flex-[1_1_14rem]",
+  );
   // Taken whole: no more to take, still there to delete — and a course's, to make what its words lack.
   expect(view.getAllByText("Mein Deck")).toHaveLength(2);
   expect(view.getAllByText("Demo course")).toHaveLength(2);

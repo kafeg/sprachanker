@@ -104,6 +104,8 @@
     "correct": "Sahihi",
     "partial": "Sahihi kwa sehemu",
     "wrong": "Si sahihi kabisa",
+    "incorrect": "Si sahihi",
+    "unanswered": "Hakuna jibu",
     "summary": "Muhtasari",
     "score": "Sahihi kwa jaribio la kwanza: {correct, number} kati ya {scored, number}. Asilimia inahesabu pia majibu yaliyo sahihi kwa sehemu.",
     "skipped": "limerukwa",
@@ -651,7 +653,14 @@
     "done": "Imepakuliwa. {failed, plural, =0 {Midia zote zipo.} one {Faili # haikuweza kupakuliwa.} other {Faili # hazikuweza kupakuliwa.}}",
     "hint": "Kupakua huleta kilichokosekana kutoka kwenye chanzo (kurasa na midia zilizohifadhiwa zinabaki) na huandaa kozi upya; maendeleo yako yanabaki.",
     "log": "Kumbukumbu ya upakuaji",
-    "syncShort": "Sawazisha"
+    "syncShort": "Sawazisha",
+    "remove": {
+      "button": "Ondoa kwenye kompyuta hii…",
+      "title": "Ondoa “{title}” kwenye kompyuta hii?",
+      "body": "Masomo na media yake yanafutwa kwenye diski (media zinazotumiwa na kozi nyingine zinabaki). Maendeleo yako, daftari na maneno yako yanabaki; ipakue tena ili uendelee.",
+      "bodyExam": "Maswali na media yake yanafutwa kwenye diski (media zinazotumiwa na kozi nyingine zinabaki). Mitihani yako ya majaribio, mazoezi na daftari lako vinabaki; ipakue tena ili uendelee.",
+      "confirm": "Ondoa"
+    }
   },
   "storage": {
     "title": "Hifadhi",
@@ -1044,6 +1053,7 @@
       "updates": "Faili hili linasasisha seti {deck} iliyopo hapa: maneno yake yanakuwa ya faili hili, na kadi zilizotengenezwa kutoka kwayo zinayafuata. Katika lugha nyingine ni seti yake yenyewe.",
       "left": "{count, plural, one {Ingizo # lisilo na neno limeachwa.} other {Maingizo # yasiyo na neno yameachwa.}}",
       "unusable": "{count, plural, one {Ingizo # ambalo neno lake halisomeki limeachwa.} other {Maingizo # ambayo maneno yake hayasomeki yameachwa.}}",
+      "joined": "{count, plural, one {Dokezo # la neno lililopo tayari limeunganishwa nalo, tafsiri yake imeongezwa.} other {Madokezo # ya maneno yaliyopo tayari yameunganishwa nayo, tafsiri zake zimeongezwa.}}",
       "done": "Imeingizwa {deck}: {words, plural, one {neno #} other {maneno #}}."
     },
     "remove": "Futa seti",
@@ -1194,6 +1204,7 @@
     "answerFree": "Itamke kwa sauti kama kazi inavyoomba.",
     "answerLine": "Jibu lako",
     "mine": "Yangu",
+    "takeDeleted": "Rekodi yako imefutwa",
     "mineFor": "Yangu · {time}",
     "recordedNotKept": "Imerekodiwa (haikuhifadhiwa)",
     "listenFirst": "Sikiliza rekodi kwanza.",
@@ -1284,6 +1295,8 @@
     },
     "sayIn": "Itamke kwa {language}",
     "notHeardShort": "Haikuweza kutambuliwa. Jaribu tena.",
+    "nothingHeard": "Hakuna kilichosikika. Sema tena, kwa sauti kubwa kidogo.",
+    "starting": "Sauti inaanzishwa… usomaji wa kwanza unaweza kuchukua nusu dakika.",
     "answerSample": "Mfano",
     "aiChecking": "AI inakagua jibu lako…",
     "needsRecognition": "Kutamka sentensi kunahitaji utambuzi wa sauti: uwashe katika Mipangilio → Sauti.",
@@ -1302,6 +1315,7 @@
     "answer_does_not_fit": "Jibu halilingani na zoezi hili. Pakia somo upya.",
     "card_changed": "Kadi hii ilibadilishwa kwenye kifaa kingine. Inaonyeshwa tena.",
     "downloads_unavailable": "Kozi haziwezi kupakuliwa hapa.",
+    "course_busy": "Kozi hii inapakuliwa sasa. Iondoe upakuaji ukimalizika.",
     "empty_recording": "Rekodi ni tupu. Jaribu tena.",
     "event_id_taken": "Jibu hili tayari limerekodiwa kwa namna nyingine. Pakia ukurasa upya.",
     "event_of_another_run": "Kumbukumbu hii ni ya mzunguko mwingine. Pakia somo upya.",
@@ -1470,6 +1484,7 @@
     "answered": "Yamejibiwa: {done, number} kati ya {total, number}",
     "question": "Swali {n, number} kati ya {total, number}",
     "practiceScore": "{count, plural, one {{points, number} sahihi kati ya jibu #} other {{points, number} sahihi kati ya majibu #}}",
+    "practicePoints": "Pamoja na majibu ya wazi: alama {points, number} kati ya {max, number}",
     "timeUp": "Muda ulikwisha: majibu yaliyotolewa hadi wakati huo yanahesabiwa.",
     "needed": "{points, number} kati ya {max, number} zinahitajika",
     "practiseMistakes": "Jizoeze makosa",
@@ -1520,12 +1535,14 @@
       "pending": "{count, plural, one {Jibu # bado halijatathminiwa: linahesabiwa 0 hadi ulitathmini.} other {Majibu # bado hayajatathminiwa: yanahesabiwa 0 hadi uyatathmini.}}",
       "hint": "Tathmini kama watahini wa mtihani wanavyofanya; badilisha tathmini wakati wowote unapotaka.",
       "voided": "kazi haikufanywa: 0 kwa jibu zima",
-      "unrated": "0 hadi “{criterion}” itathminiwe: inaamua kama jibu linahesabiwa",
+      "unrated": "hadi “{criterion}” itathminiwe: inaamua kama jibu linahesabiwa",
       "save": "Hifadhi tathmini",
       "change": "Badilisha tathmini",
       "propose": "Pendekeza tathmini (AI)",
       "proposing": "Msaidizi anatathmini…",
       "proposed": "Imependekezwa na msaidizi wa AI ({model}): ikubali kama ilivyo au uibadilishe.",
+      "proposalTaken": "Imependekezwa na msaidizi wa AI ({model}) na imekubaliwa.",
+      "proposalSetAside": "Imependekezwa na msaidizi wa AI ({model}); tathmini yako mwenyewe ndiyo inahesabiwa.",
       "accept": "Kubali pendekezo",
       "keepMine": "Baki na yangu",
       "notTaken": "Bado haijakubaliwa: matokeo yanahesabu {points, number} kati ya {max, number}."
@@ -1585,6 +1602,7 @@
     "export": {
       "button": "Hamisha kwenye faili",
       "hint": "Kozi hii kama faili moja, uiingize kwenye kompyuta yako nyingine chini ya “Zilizopakuliwa”.",
+      "hintExam": "Mtihani huu kama faili moja, wa kuingiza kwenye kompyuta yako nyingine chini ya “Vilivyopakuliwa”.",
       "started": "Inapakua “{file}” ({size})."
     },
     "import": {
@@ -1596,7 +1614,9 @@
       "same": "“{title}” ilikuwa hapa tayari, sawa kabisa: hakuna kilichobadilika.",
       "replaced": "“{title}” sasa ni toleo la faili; maendeleo yako yamebaki.",
       "verified": "Imekaguliwa: faili zote zipo.",
-      "problems": "Imekaguliwa: {count, plural, one {tatizo # limepatikana} other {matatizo # yamepatikana}} — “Kagua” kwenye kadi yake inayaonyesha."
+      "problems": "Imekaguliwa: {count, plural, one {tatizo # limepatikana} other {matatizo # yamepatikana}} — “Kagua” kwenye kadi yake inayaonyesha.",
+      "experimental": "Hili ni jaribio: halionyeshwi hadi chanzo chake kiwashwe.",
+      "turnOn": "Mipangilio → Jumla → Majaribio"
     }
   },
   "understanding": {
@@ -1610,7 +1630,7 @@
       "reading": "maandishi ya kusoma"
     },
     "listen": "Sikiliza",
-    "resume": "Endelea",
+    "resume": "Endelea kusikiliza",
     "replay": "Tangu mwanzo",
     "line": "Sentensi {n, number} kati ya {total, number}",
     "heard": "{count, plural, one {Imesikilizwa mara moja} other {Imesikilizwa mara #}}",

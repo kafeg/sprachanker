@@ -140,7 +140,7 @@ test("practice: a question at a time, each checked at once; ended early, scored 
   if (wrong) await main.getByRole("button", { name: wrong }).click();
   else await main.locator("button:has(img[src*='kuchen'])").click();
   // Checked at once: marked, the tally and the question wrong in the list.
-  await expect(main.getByRole("status").filter({ hasText: /^Not quite$/ })).toBeAttached();
+  await expect(main.getByRole("status").filter({ hasText: /^Wrong$/ })).toBeAttached();
   await withQuestions(page, (_, column) =>
     expect(column.getByText(/0 right · 1 wrong/)).toBeVisible(),
   );

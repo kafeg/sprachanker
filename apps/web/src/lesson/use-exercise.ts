@@ -1,6 +1,7 @@
 // An exercise being answered (09, 04): the answers given, the outcomes of the items checked (locally, with
 // the engine the server checks with too), the recordings that must be played first, the item the number
-// keys choose in, and what checking, answering an item again, retrying, skipping and leaving record.
+// keys choose in, and what checking, answering an item again, retrying, skipping and leaving record
+// (a take, the answer of a speaking item, at once: a reload or a tab a phone discarded keeps it).
 // The screen (exercise-step.tsx) draws it; this hook holds the rules, tested on their own.
 import { answerComplete, checkItem } from "@sprachanker/engine";
 import type { Exercise, Outcome } from "@sprachanker/schema";
@@ -52,6 +53,8 @@ export function useExercise({
     return scored && restored.length ? Object.fromEntries(restored) : undefined;
   });
   const shownAt = useRef(Date.now());
+  /** The answers recorded as they were given (takes), by item: leaving records them no more. */
+  const recorded = useRef<Record<number, unknown>>({});
   /** How often the exercise, and each item, was begun again: a card begun again is made anew — its
    *  renderer's own state (a chip picked, a take), its players back at the start. */
   const [rounds, setRounds] = useState<{ all: number; item: Record<number, number> }>({
@@ -131,6 +134,17 @@ export function useExercise({
       setAnswers((prev) => ({ ...prev, [i]: value }));
       // One choice answers the item: the number keys go on to the next one.
       setTouched(exercise.type === "single_choice" ? undefined : i);
+      // A take is kept with the run as it is made, with what was heard (08; the AI's check of it is
+      // kept on its own): not only when the learner moves on.
+      const itemKey = exercise.items[i]?.key;
+      if (exercise.type === "speech_selfrate" && !scored && !readOnly && itemKey) {
+        recorded.current[i] = value;
+        onAnswered(
+          [{ itemKey, answer: value, outcome: checkItem(exercise, i, value, lang) }],
+          [],
+          ms(),
+        );
+      }
     },
     check,
     /** Answers one checked item again: its answer, mark and explanation are cleared. */
@@ -176,7 +190,10 @@ export function useExercise({
       exercise.items.forEach((item, i) => {
         if (answers[i] === undefined) {
           if (!stored?.skipped.includes(item.key)) skipped.push(item.key);
-        } else if (answers[i] !== stored?.last[item.key]?.answer) {
+        } else if (
+          answers[i] !== stored?.last[item.key]?.answer &&
+          answers[i] !== recorded.current[i]
+        ) {
           rated.push({
             itemKey: item.key,
             answer: answers[i],

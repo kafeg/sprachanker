@@ -599,8 +599,13 @@ describe("course check and downloads", () => {
       approxBytes: 1e6,
     });
     const calls: string[] = [];
+    const removed: string[] = [];
     const release: Array<() => void> = [];
     const installer: CourseInstaller = {
+      async remove(series, course) {
+        removed.push(`${series}/${course}`);
+        return { files: 3, bytes: 10 };
+      },
       offers: () => [offer("one"), offer("two"), offer("three")],
       async run(series, course, { log, progress }) {
         calls.push(`${series}/${course}`);
@@ -659,6 +664,12 @@ describe("course check and downloads", () => {
     await Bun.sleep(1);
     expect(await states()).toMatchObject({ three: "incomplete", one: "downloading" });
     expect(calls).toEqual(["x.demo/three", "x.demo/one"]);
+    // Removed from this computer: not while it downloads; one done is.
+    const remove = (course: string) =>
+      send("DELETE", `/api/course?series=x.demo&course=${course}`, {});
+    expect((await remove("one")).status).toBe(409);
+    expect(await (await remove("three")).json()).toEqual({ files: 3, bytes: 10 });
+    expect(removed).toEqual(["x.demo/three"]);
     expect(await getJson("/api/storage")).toEqual({
       dataRoot: "/data",
       series: [{ series: "x.demo", bytes: 42 }],

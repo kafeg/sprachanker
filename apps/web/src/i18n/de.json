@@ -104,6 +104,8 @@
     "correct": "Richtig",
     "partial": "Teilweise richtig",
     "wrong": "Nicht ganz",
+    "incorrect": "Falsch",
+    "unanswered": "Keine Antwort",
     "summary": "Zusammenfassung",
     "score": "Beim ersten Versuch richtig: {correct, number} von {scored, number}. Der Prozentwert zählt auch teilweise richtige Antworten.",
     "skipped": "übersprungen",
@@ -651,7 +653,14 @@
     "done": "Geladen. {failed, plural, =0 {Alle Medien sind da.} one {# Datei konnte nicht geladen werden.} other {# Dateien konnten nicht geladen werden.}}",
     "hint": "Der Download lädt Fehlendes von der Quelle nach (vorhandene Seiten und Medien bleiben erhalten) und bereitet den Kurs neu auf; dein Fortschritt bleibt erhalten.",
     "log": "Download-Protokoll",
-    "syncShort": "Abgleichen"
+    "syncShort": "Abgleichen",
+    "remove": {
+      "button": "Von diesem Computer entfernen…",
+      "title": "„{title}“ von diesem Computer entfernen?",
+      "body": "Seine Lektionen und Medien werden von der Festplatte gelöscht (Medien, die ein anderer Kurs nutzt, bleiben). Dein Fortschritt, dein Notizbuch und deine Wörter bleiben; lade ihn wieder herunter, um weiterzumachen.",
+      "bodyExam": "Ihre Fragen und Medien werden von der Festplatte gelöscht (Medien, die ein anderer Kurs nutzt, bleiben). Deine Probeprüfungen, Übungen und dein Notizbuch bleiben; lade sie wieder herunter, um weiterzumachen.",
+      "confirm": "Entfernen"
+    }
   },
   "storage": {
     "title": "Speicher",
@@ -1044,6 +1053,7 @@
       "updates": "Diese Datei aktualisiert den Stapel {deck}: seine Wörter werden die der Datei, die Karten daraus folgen ihnen. Mit anderen Sprachen wird sie ein eigener Stapel.",
       "left": "{count, plural, one {# Notiz ohne Wort wird ausgelassen.} other {# Notizen ohne Wort werden ausgelassen.}}",
       "unusable": "{count, plural, one {# Notiz, deren Wort sich nicht lesen lässt, wird ausgelassen.} other {# Notizen, deren Wort sich nicht lesen lässt, werden ausgelassen.}}",
+      "joined": "{count, plural, one {# Notiz eines Worts, das schon darin ist, wird mit ihm zusammengeführt, ihre Übersetzung ergänzt.} other {# Notizen von Wörtern, die schon darin sind, werden mit ihnen zusammengeführt, ihre Übersetzungen ergänzt.}}",
       "done": "{deck} importiert: {words, plural, one {# Wort} other {# Wörter}}."
     },
     "remove": "Stapel löschen",
@@ -1194,6 +1204,7 @@
     "answerFree": "Sprich laut, wie die Aufgabe es verlangt.",
     "answerLine": "Deine Antwort",
     "mine": "Meine",
+    "takeDeleted": "Deine Aufnahme wurde gelöscht",
     "mineFor": "Meine · {time}",
     "recordedNotKept": "Aufgenommen (nicht gespeichert)",
     "listenFirst": "Hör dir zuerst die Aufnahme an.",
@@ -1284,6 +1295,8 @@
     },
     "sayIn": "Auf {language} sagen",
     "notHeardShort": "Das ließ sich nicht erkennen. Versuch es noch einmal.",
+    "nothingHeard": "Es war nichts zu hören. Sag es noch einmal, etwas lauter.",
+    "starting": "Die Stimme startet… das erste Vorlesen kann eine halbe Minute dauern.",
     "answerSample": "Muster",
     "aiChecking": "Die KI prüft deine Antwort …",
     "needsRecognition": "Für das Nachsprechen braucht es die Spracherkennung: Schalte sie unter Einstellungen → Sprechen ein.",
@@ -1302,6 +1315,7 @@
     "answer_does_not_fit": "Die Antwort passt nicht zur Übung. Lade die Lektion neu.",
     "card_changed": "Die Karte hat sich auf einem anderen Gerät geändert. Sie wird neu gezeigt.",
     "downloads_unavailable": "Kurse können hier nicht heruntergeladen werden.",
+    "course_busy": "Dieser Kurs wird gerade heruntergeladen. Entferne ihn, wenn der Download fertig ist.",
     "empty_recording": "Die Aufnahme ist leer. Versuch es noch einmal.",
     "event_id_taken": "Diese Antwort ist schon anders gespeichert. Lade die Seite neu.",
     "event_of_another_run": "Dieser Eintrag gehört zu einem anderen Durchgang. Lade die Lektion neu.",
@@ -1470,6 +1484,7 @@
     "answered": "Beantwortet: {done, number} von {total, number}",
     "question": "Frage {n, number} von {total, number}",
     "practiceScore": "{count, plural, one {{points, number} von # Antwort richtig} other {{points, number} von # Antworten richtig}}",
+    "practicePoints": "Mit den offenen Antworten: {points, number} von {max, number} Punkten",
     "timeUp": "Die Zeit war um: es zählen die Antworten bis dahin.",
     "needed": "{points, number} von {max, number} nötig",
     "practiseMistakes": "Fehler trainieren",
@@ -1520,12 +1535,14 @@
       "pending": "{count, plural, one {# Antwort ist noch nicht bewertet: bis dahin 0 Punkte.} other {# Antworten sind noch nicht bewertet: bis dahin 0 Punkte.}}",
       "hint": "Bewerte wie die Prüfenden; du kannst die Bewertung jederzeit ändern.",
       "voided": "Aufgabe nicht erfüllt: 0 für die ganze Antwort",
-      "unrated": "0, bis „{criterion}“ bewertet ist: davon hängt ab, ob die Antwort zählt",
+      "unrated": "bis „{criterion}“ bewertet ist: davon hängt ab, ob die Antwort zählt",
       "save": "Bewertung speichern",
       "change": "Bewertung ändern",
       "propose": "Bewertung vorschlagen (KI)",
       "proposing": "Die KI bewertet…",
       "proposed": "Vorgeschlagen vom KI-Assistenten ({model}): übernimm sie oder ändere sie.",
+      "proposalTaken": "Vom KI-Assistenten vorgeschlagen ({model}) und übernommen.",
+      "proposalSetAside": "Vom KI-Assistenten vorgeschlagen ({model}); es zählt deine eigene Bewertung.",
       "accept": "Vorschlag übernehmen",
       "keepMine": "Meine behalten",
       "notTaken": "Noch nicht übernommen: das Ergebnis zählt {points, number} von {max, number}."
@@ -1585,6 +1602,7 @@
     "export": {
       "button": "In eine Datei exportieren",
       "hint": "Dieser Kurs als eine Datei, um ihn auf deinem anderen Computer unter „Heruntergeladen“ zu importieren.",
+      "hintExam": "Diese Prüfung als eine Datei, zum Importieren auf deinem anderen Computer unter „Heruntergeladen“.",
       "started": "„{file}“ wird heruntergeladen ({size})."
     },
     "import": {
@@ -1596,7 +1614,9 @@
       "same": "„{title}“ ist schon da, genauso: nichts hat sich geändert.",
       "replaced": "„{title}“ ist jetzt die Fassung aus der Datei; dein Fortschritt bleibt.",
       "verified": "Geprüft: Alle Dateien sind da.",
-      "problems": "Geprüft: {count, plural, one {# Problem gefunden} other {# Probleme gefunden}} – „Prüfen“ auf seiner Karte zeigt sie."
+      "problems": "Geprüft: {count, plural, one {# Problem gefunden} other {# Probleme gefunden}} – „Prüfen“ auf seiner Karte zeigt sie.",
+      "experimental": "Es ist ein Experiment und wird erst angezeigt, wenn seine Quelle eingeschaltet ist.",
+      "turnOn": "Einstellungen → Allgemein → Experimente"
     }
   },
   "understanding": {
@@ -1610,7 +1630,7 @@
       "reading": "ein Text zum Lesen"
     },
     "listen": "Anhören",
-    "resume": "Weiter",
+    "resume": "Weiterhören",
     "replay": "Von vorn",
     "line": "Satz {n, number} von {total, number}",
     "heard": "{count, plural, one {Einmal gehört} other {# Mal gehört}}",

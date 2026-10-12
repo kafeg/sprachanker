@@ -168,7 +168,12 @@ export function StudyCard({
         className="absolute top-3 end-3 flex max-w-[60%] flex-row-reverse items-center gap-2 text-end"
       >
         {src && wordShown && (
-          <AudioButton ref={sound} src={src} label={display.target} className="size-11" />
+          <AudioButton
+            ref={sound}
+            src={src}
+            label={t("myWords.play", { word: display.target })}
+            className="size-11"
+          />
         )}
         {side === "answer" && examples.length > 0 && (
           // One example, again the next: which of how many once shown.

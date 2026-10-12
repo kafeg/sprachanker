@@ -166,15 +166,18 @@ rules.
 `rate_exam_answer`, asked on request — in practice once answered, in a mock exam only once handed in:
 an `llm_verdict` (`task: exam`) on the question in the exam run, for that answer (asked once for the
 same answer); the page shows it chosen with its reasons, and nothing scores until the learner takes it
-(`exam_rated` `by: assistant` with the model) or changes it (`by: self`).
+(`exam_rated` `by: assistant` with the model) or changes it (`by: self`); rated before, "Keep mine"
+stores nothing anew (the rating counting is stored) and sets the proposal aside on the device.
 A speaking part of an exam (09, Exams; owner's choice B, 2026-10-10) → `exam_conversation`: the
 model plays the examiner and the other candidate, the learner (candidate A) answers aloud — "Begin the
 part" opens it, each line said (heard by the recogniser) or typed gets the next lines, read aloud;
 never a hint or a correction. Every line is an `llm_turn` on the question in the exam run (in a mock
 exam too, while it runs); "End the part" keeps the learner's ending (an empty line of theirs, `done`:
 once — the part shows ended, nothing more is said). Ended with nothing said, a mock exam's part stays
-unanswered and practice's may be begun again — the examiner opens it anew; the part is its latest
-conversation (engine `latestConversation`). The learner's own lines are the part's answer —
+unanswered and practice's may be begun again — the examiner's opening as before (the same card and
+topic: the model is not asked anew); the part is its latest conversation (engine
+`latestConversation`). Ending the part stops a line being read aloud; who reads the lines is named
+above them, as the model is (08). The learner's own lines are the part's answer —
 only once they have said something, and again only when they changed (a mock exam keeps it as it
 goes, practice once the part is over or the learner ends it) —, never the speakers' labels in the
 interface's language; it is rated by the part's criteria like any open answer, the rater given the

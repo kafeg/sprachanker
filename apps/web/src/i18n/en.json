@@ -104,6 +104,8 @@
     "correct": "Correct",
     "partial": "Partly correct",
     "wrong": "Not quite",
+    "incorrect": "Wrong",
+    "unanswered": "No answer",
     "summary": "Summary",
     "score": "Correct on the first try: {correct, number} of {scored, number}. The percentage counts partly right answers too.",
     "skipped": "skipped",
@@ -651,7 +653,14 @@
     "done": "Downloaded. {failed, plural, =0 {All media are in place.} one {# file could not be downloaded.} other {# files could not be downloaded.}}",
     "hint": "Downloading fetches what is missing from the source (stored pages and media are kept) and prepares the course again; your progress stays.",
     "log": "Download log",
-    "syncShort": "Sync"
+    "syncShort": "Sync",
+    "remove": {
+      "button": "Remove from this computer…",
+      "title": "Remove “{title}” from this computer?",
+      "body": "Its lessons and media are deleted from the disk (media another course uses stay). Your progress, Notebook and words stay; download it again to go on.",
+      "bodyExam": "Its questions and media are deleted from the disk (media another course uses stay). Your mock exams, practice and Notebook stay; download it again to go on.",
+      "confirm": "Remove"
+    }
   },
   "storage": {
     "title": "Storage",
@@ -1044,6 +1053,7 @@
       "updates": "This file updates the deck {deck} here: its words become this file's, and the cards made from it follow them. In other languages it is a deck of its own.",
       "left": "{count, plural, one {# note without a word is left out.} other {# notes without a word are left out.}}",
       "unusable": "{count, plural, one {# note whose word cannot be read is left out.} other {# notes whose words cannot be read are left out.}}",
+      "joined": "{count, plural, one {# note of a word already in it is joined to that word, its translation added.} other {# notes of words already in it are joined to those words, their translations added.}}",
       "done": "Imported {deck}: {words, plural, one {# word} other {# words}}."
     },
     "remove": "Delete deck",
@@ -1194,6 +1204,7 @@
     "answerFree": "Say it out loud as the task asks.",
     "answerLine": "Your answer",
     "mine": "Mine",
+    "takeDeleted": "Your recording was deleted",
     "mineFor": "Mine · {time}",
     "recordedNotKept": "Recorded (not kept)",
     "listenFirst": "Listen to the recording first.",
@@ -1284,6 +1295,8 @@
     },
     "sayIn": "Say it in {language}",
     "notHeardShort": "It couldn't be recognised. Try again.",
+    "nothingHeard": "Nothing was heard. Say it again, a little louder.",
+    "starting": "Starting the voice… the first reading can take half a minute.",
     "answerSample": "Sample",
     "aiChecking": "The AI is checking your answer…",
     "needsRecognition": "Saying a phrase needs speech recognition: turn it on in Settings → Speech.",
@@ -1302,6 +1315,7 @@
     "answer_does_not_fit": "The answer does not fit this exercise. Reload the lesson.",
     "card_changed": "This card changed on another device. It is shown again.",
     "downloads_unavailable": "Courses cannot be downloaded here.",
+    "course_busy": "This course is downloading. Remove it once the download has ended.",
     "empty_recording": "The recording is empty. Try again.",
     "event_id_taken": "This answer was already recorded differently. Reload the page.",
     "event_of_another_run": "This record belongs to another pass. Reload the lesson.",
@@ -1470,6 +1484,7 @@
     "answered": "Answered: {done, number} of {total, number}",
     "question": "Question {n, number} of {total, number}",
     "practiceScore": "{count, plural, one {{points, number} of # answer right} other {{points, number} of # answers right}}",
+    "practicePoints": "With the open answers: {points, number} of {max, number} points",
     "timeUp": "The time was up: the answers given until then count.",
     "needed": "{points, number} of {max, number} needed",
     "practiseMistakes": "Practise the mistakes",
@@ -1520,12 +1535,14 @@
       "pending": "{count, plural, one {# answer is not rated yet: counted as 0 until you rate it.} other {# answers are not rated yet: counted as 0 until you rate them.}}",
       "hint": "Rated as the exam's raters do; change a rating whenever you like.",
       "voided": "the task not done: 0 for the whole answer",
-      "unrated": "0 until “{criterion}” is rated: it decides whether the answer counts",
+      "unrated": "until “{criterion}” is rated: it decides whether the answer counts",
       "save": "Save rating",
       "change": "Change rating",
       "propose": "Propose a rating (AI)",
       "proposing": "The assistant is rating…",
       "proposed": "Proposed by the AI assistant ({model}): take it as it is or change it.",
+      "proposalTaken": "Proposed by the AI assistant ({model}) and accepted.",
+      "proposalSetAside": "Proposed by the AI assistant ({model}); your own rating counts.",
       "accept": "Accept the proposal",
       "keepMine": "Keep mine",
       "notTaken": "Not accepted yet: the result counts {points, number} of {max, number}."
@@ -1585,6 +1602,7 @@
     "export": {
       "button": "Export to a file",
       "hint": "This course as one file, to import on your other computer under Downloaded.",
+      "hintExam": "This exam as one file, to import on your other computer under Downloaded.",
       "started": "Downloading “{file}” ({size})."
     },
     "import": {
@@ -1596,7 +1614,9 @@
       "same": "“{title}” is here already, the same: nothing changed.",
       "replaced": "“{title}” is now the file's version; your progress is kept.",
       "verified": "Checked: every file is there.",
-      "problems": "Checked: {count, plural, one {# problem found} other {# problems found}} — “Check” on its card lists them."
+      "problems": "Checked: {count, plural, one {# problem found} other {# problems found}} — “Check” on its card lists them.",
+      "experimental": "It is an experiment, so it is not listed until its source is turned on.",
+      "turnOn": "Settings → General → Experimental"
     }
   },
   "understanding": {
@@ -1610,7 +1630,7 @@
       "reading": "a text to read"
     },
     "listen": "Listen",
-    "resume": "Go on",
+    "resume": "Continue listening",
     "replay": "From the start",
     "line": "Line {n, number} of {total, number}",
     "heard": "{count, plural, one {Heard once} other {Heard # times}}",

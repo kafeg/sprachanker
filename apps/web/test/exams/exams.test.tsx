@@ -358,6 +358,58 @@ test("a result: passed or not by each pass mark, the mistakes with their right a
   expect(view.getByRole("button", { name: "Practise the mistakes" })).toBeTruthy();
 });
 
+test("a practice's result: the answers right of those marked, as its tally; the points with the open answers apart", async () => {
+  const open = {
+    key: `${KEY}/q-w1`,
+    type: "respond",
+    criteria: [{ id: "task", levels: [0, 1, 2, 3] }],
+  } as unknown as ExamItem;
+  const asked = [items[0], items[1], open] as ExamItem[];
+  const run = {
+    ...finished(0, []),
+    plan: { mode: "practice", items: asked.map((i) => i.key), snapshot: asked },
+    // The points: one right answer and the open answer's 2.5 of 10.
+    result: { points: 3.5, max: 12, answered: 3, sections: {}, passed: [] },
+  } as unknown as ExamRun;
+  const answered = (itemKey: string, result: string, answer: object) => ({
+    id: itemKey,
+    runId: run.id,
+    ts: 1,
+    type: "answered",
+    itemKey,
+    cardId: null,
+    payload: {
+      answer,
+      attempt: 1,
+      ms: 1,
+      outcome: { result, score: result === "correct" ? 1 : 0, ruleIds: [], lexemes: [] },
+    },
+  });
+  const events = [
+    answered(items[0]?.key as string, "correct", { optionId: "a" }),
+    answered(items[1]?.key as string, "wrong", { optionId: "b" }),
+    answered(open.key, "unscored", { text: "Hallo" }),
+  ];
+  const view = await renderApp(
+    <TargetLang value="de">
+      <ExamResultView
+        title="Leben in Deutschland"
+        params={params}
+        run={run}
+        exam={exam}
+        locale={locale as never}
+        items={asked}
+        events={events as never}
+        onLeave={() => {}}
+      />
+    </TargetLang>,
+    { path: "/exam/run" },
+  );
+  expect(view.getByRole("heading", { name: "1 of 2 answers right" })).toBeTruthy();
+  expect(view.getByRole("img", { name: "50%" })).toBeTruthy();
+  expect(view.getByText("With the open answers: 3.5 of 12 points")).toBeTruthy();
+});
+
 test("an open answer rated: a criterion that voids the answer, not rated yet, is told as what keeps it at 0", async () => {
   const item = {
     key: `${KEY}/q-w1`,
@@ -380,9 +432,12 @@ test("an open answer rated: a criterion that voids the answer, not rated yet, is
   const level = (name: string, points: string) =>
     within(view.getByRole("group", { name })).getByRole("button", { name: points });
   fireEvent.click(level("form", "1"));
-  expect(view.getByText(/0 until “Erfüllung” is rated/)).toBeTruthy();
+  // The points, then why they are 0 — one line, read with the points apart ("0 of 3 · until …").
+  expect(view.getByText(/until “Erfüllung” is rated/).parentElement?.textContent).toBe(
+    "0 of 3 · until “Erfüllung” is rated: it decides whether the answer counts",
+  );
   fireEvent.click(level("Erfüllung", "0"));
-  expect(view.getByText("the task not done: 0 for the whole answer")).toBeTruthy();
+  expect(view.getByText(/the task not done: 0 for the whole answer/)).toBeTruthy();
   fireEvent.click(level("Erfüllung", "2"));
   expect(view.getByText("3 of 3")).toBeTruthy();
   expect(view.queryByText(/is rated|not done/)).toBeNull();
@@ -434,18 +489,34 @@ test("the AI's proposal after one's own rating: not counted until accepted — a
       { path: "/exam/run" },
     );
     expect(view.getByText("Not accepted yet: the result counts 2 of 3.")).toBeTruthy();
-    fireEvent.click(view.getByRole("button", { name: "Keep mine" }));
-    await waitFor(() => expect(sent).toHaveLength(1));
-    expect(sent[0]).toMatchObject({ ratings: { task: 2, form: 0 }, by: "self" });
+    expect(view.getByText(/take it as it is or change it/)).toBeTruthy();
     fireEvent.click(view.getByRole("button", { name: "Accept the proposal" }));
-    await waitFor(() => expect(sent).toHaveLength(2));
-    expect(sent[1]).toMatchObject({ ratings: { task: 1, form: 1 }, by: "assistant", model: "m" });
+    await waitFor(() => expect(sent).toHaveLength(1));
+    expect(sent[0]).toMatchObject({ ratings: { task: 1, form: 1 }, by: "assistant", model: "m" });
+    view.unmount();
+    // Accepted: said so, nothing offered any more.
+    const taken = await renderApp(
+      <OpenAnswerRating
+        runId="R"
+        item={item}
+        events={
+          [
+            ...events,
+            event(3, "exam_rated", { ratings: { task: 1, form: 1 }, by: "assistant", model: "m" }),
+          ] as never
+        }
+        answer="Hallo"
+      />,
+      { path: "/exam/run" },
+    );
+    expect(taken.getByText(/Proposed by the AI assistant \(m\) and accepted/)).toBeTruthy();
+    expect(taken.queryByRole("button", { name: "Keep mine" })).toBeNull();
   } finally {
     globalThis.fetch = real;
   }
 });
 
-test("one's own rating kept after a proposal: the panel shows one's own levels, and a change saves them", async () => {
+test("one's own rating kept after a proposal: the panel shows one's own levels, nothing stored anew, and a change saves them", async () => {
   const item = {
     key: `${KEY}/q-w1`,
     type: "respond",
@@ -502,25 +573,41 @@ test("one's own rating kept after a proposal: the panel shows one's own levels, 
     // The proposal shown chosen.
     expect(pressed("task")).toEqual(["1"]);
     fireEvent.click(view.getByRole("button", { name: "Keep mine" }));
-    await waitFor(() => expect(sent).toHaveLength(1));
-    act(() =>
-      setEvents([...before, event(3, "exam_rated", { ratings: sent[0]?.ratings, by: "self" })]),
-    );
-    // One's own levels, nothing pending, nothing to save until changed.
+    // One's own levels, nothing pending, nothing stored anew (the rating counting is stored), the
+    // card saying whose rating counts; nothing to save until changed.
     expect(pressed("task")).toEqual(["2"]);
     expect(pressed("form")).toEqual(["0"]);
     expect(view.queryByText(/Not accepted yet/)).toBeNull();
-    const change = view.getByRole("button", { name: "Change rating" }) as HTMLButtonElement;
+    expect(view.getByText(/your own rating counts/)).toBeTruthy();
+    expect(view.queryByText(/take it as it is/)).toBeNull();
+    expect(sent).toHaveLength(0);
+    // Set aside on this device: so shown again after a reload.
+    view.unmount();
+    const again = await renderApp(
+      <OpenAnswerRating runId="R" item={item} events={before as never} answer="Hallo" />,
+      { path: "/exam/run" },
+    );
+    expect(
+      within(again.getByRole("group", { name: "task" }))
+        .getAllByRole("button")
+        .filter((b) => b.getAttribute("aria-pressed") === "true")
+        .map((b) => b.textContent),
+    ).toEqual(["2"]);
+    again.unmount();
+    const view2 = await renderApp(<Run />, { path: "/exam/run" });
+    act(() => setEvents(before));
+    const change = view2.getByRole("button", { name: "Change rating" }) as HTMLButtonElement;
     expect(change.disabled).toBe(true);
     fireEvent.click(
-      within(view.getByRole("group", { name: "form" })).getByRole("button", { name: "1" }),
+      within(view2.getByRole("group", { name: "form" })).getByRole("button", { name: "1" }),
     );
     expect(change.disabled).toBe(false);
     fireEvent.click(change);
-    await waitFor(() => expect(sent).toHaveLength(2));
-    expect(sent[1]).toMatchObject({ ratings: { task: 2, form: 1 }, by: "self" });
+    await waitFor(() => expect(sent).toHaveLength(1));
+    expect(sent[0]).toMatchObject({ ratings: { task: 2, form: 1 }, by: "self" });
   } finally {
     globalThis.fetch = real;
+    localStorage.removeItem("sprachanker.exam-kept:E2");
   }
 });
 

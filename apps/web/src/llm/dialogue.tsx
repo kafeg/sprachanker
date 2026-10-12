@@ -6,12 +6,11 @@
 import { Check, Circle, CircleCheck, Languages, Mic, X } from "lucide-react";
 import { useRef, useState } from "react";
 import { useTranslation } from "react-i18next";
-import { useSpeechHost } from "@/audio/context.ts";
 import { ReadByLabel } from "@/audio/read-by.tsx";
 import { said } from "@/audio/speak.ts";
 import { SpeakButton } from "@/audio/speak-button.tsx";
 import { readingId, useSpeaker } from "@/audio/speaker.ts";
-import { TakeButton } from "@/audio/take-button.tsx";
+import { KeptTake } from "@/audio/take-button.tsx";
 import type { LessonSlotContext } from "@/lesson/slots.ts";
 import { Corrections } from "@/ui/checked-text.tsx";
 import { Button } from "@/ui/components/button.tsx";
@@ -79,7 +78,6 @@ function Judged({ ok, yes, no }: { ok: boolean | undefined; yes: string; no: str
 function LearnerLine({ turn }: { turn: Turn }) {
   const lang = useTargetLang();
   const { t } = useTranslation();
-  const host = useSpeechHost();
   return (
     <div className="ms-auto max-w-[92%] space-y-1">
       <ChatBubble from="learner" lang={lang} className="max-w-none text-lg">
@@ -92,9 +90,7 @@ function LearnerLine({ turn }: { turn: Turn }) {
         {turn.text}
       </ChatBubble>
       <div className="flex flex-wrap items-center justify-end gap-x-3 gap-y-1 text-sm">
-        {turn.recording && host && (
-          <TakeButton src={host.src(turn.recording)} label={t("speech.mine")} />
-        )}
+        {turn.recording && <KeptTake id={turn.recording} label={t("speech.mine")} />}
         <Judged ok={turn.understood} yes={t("scene.understood")} no={t("scene.notUnderstood")} />
         <Judged ok={turn.fits} yes={t("scene.fits")} no={t("scene.offTrack")} />
       </div>
@@ -325,7 +321,7 @@ function PastDialogues({ scenes }: { scenes: SceneState[] }) {
 }
 
 /** The lesson's Dialogue step: the latest Dialogue (or a start), then the earlier ones; `onDone`
- *  once one was started. */
+ *  once one has ended — not as it starts (skipping it stays the step bar's). */
 export function DialogueStep({ onDone, ...ids }: LessonSlotContext & { onDone?(): void }) {
   const { t, i18n } = useTranslation();
   const llm = useLlm();

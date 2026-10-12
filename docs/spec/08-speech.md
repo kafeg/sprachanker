@@ -9,7 +9,9 @@ off, its model, the engine, voice and speed reading aloud) are applied by `servi
 
 - **Capture** in the browser (`apps/web/src/audio/recorder.ts`): MediaRecorder in the browser's own
   format (Safari MP4/AAC, Chrome WebM/Opus), at most 30 s a take, the loudness shown while it records;
-  the microphone chosen per device (Settings → Speech). A take starting stops whatever plays — a line
+  the microphone chosen per device (Settings → Speech). The browser's processing of the microphone is
+  off (automatic gain, noise suppression, echo cancellation): it boosted and reshaped the voice the
+  recogniser heard ("Hallo, Nico!" heard as "Title, Nicole."), and nothing plays during a take. A take starting stops whatever plays — a line
   read aloud (a Dialogue's partner, an exam conversation's examiner), a recording, a video —, so the
   microphone never hears it. Only in a secure context (HTTPS or this
   computer, 06): elsewhere the microphone button is disabled and says why (a tooltip; on a phone a line
@@ -21,6 +23,9 @@ off, its model, the engine, voice and speed reading aloud) are applied by `servi
   its runs. Always kept (owner, 2026-10-11).
 - **Saying it oneself** (`speech_selfrate`, the courses' speaking exercises; 09): the original first,
   then a take, played beside it; the item counts once recorded, without a score (owner, 2026-10-08);
+  each take is the item's answer as soon as it is made and heard (an `answered`, an attempt each; 05),
+  so a reload or a tab the phone discarded keeps it and the AI's check of it, kept on its own, shows
+  again with it — never only when the learner moves on;
   the phrase to repeat hidden until the first try unless shown ("Show the text") or there is nothing to hear
   first (no recording of the item or its exercise); the source's own answer,
   spoken (`answerAudio`, DW's "Lösungsaudio"), playable after it.
@@ -43,6 +48,13 @@ off, its model, the engine, voice and speed reading aloud) are applied by `servi
   server, `audio/wav.ts`) and sent to `POST /api/speech/transcribe?lang=` while the original is kept in
   `recordings/`; the transcript goes into the answer (05).
 - The reference text is never passed to the recogniser (it biases results).
+- **Silence is nothing heard**: Whisper makes up words for a silent take ("Vielen Dank.", "Amen.",
+  "Untertitel im Auftrag des ZDF"). A take never louder than a quiet room (about -40 dBFS) is neither
+  kept nor sent (the recorder's loudest moment) and the learner is asked to say it again; the server
+  does not ask the engine for a WAV with under 0.12 s that loud, and a near-silent one (under 0.25 s,
+  or never above -30 dBFS) heard as one of the phrases Whisper makes up of silence in its language
+  (`services/hallucinations.json`) is heard as nothing (`services/silence.ts`). The engine's own
+  voice activity detection needs a model of its own to download; not used.
 - Measured on the owner's M2 Pro (large-v3-turbo q5_0, Metal): a 3–4 s phrase in 0.7 s warm, 1.2 s
   the first time.
 
@@ -94,9 +106,15 @@ writes (owner, 2026-10-08).
   listening is what reading aloud is mostly for): its lines one after another on request ("Listen"),
   paused and played on from the line it was at, from the start again, as often as wanted
   (`audio/listening.ts`); a dialogue's second speaker by another voice of the language where there
-  is one — Piper's next installed voice of it, Qwen3-TTS's next speaker, the device's next best voice
-  —, else by the same one; a line the server reads is kept in its reading cache, so hearing it again
-  makes nothing anew. Nothing here reading the language, the text is shown to read instead and the
+  is one — of the other gender where the server's voices say theirs (Qwen3-TTS's speakers, Piper's
+  voices by name: `audio/voice-genders.ts`), else Piper's next installed voice of it, Qwen3-TTS's next
+  speaker, the device's next best voice —, else by the same one; which speaker that is, by their names
+  only where obvious ("Frau Weber", "Nina": the one the main voice does not suit), else the second to
+  speak; every line from where it plays asked of the server at once, one after another, so the next
+  is ready when one ends; a line the server reads is kept in its reading cache, so hearing it again
+  makes nothing anew. A reading that waits for the server's voice longer than a moment (Qwen3-TTS
+  loading its model: half a minute the first time) says so ("Starting the voice…"), on "Listen" in
+  Settings too. Nothing here reading the language, the text is shown to read instead and the
   step says what listening needs. Where a line is to be listened to, the engine and voice reading it are named, as
   the model is ("Read by Piper · thorsten", "Read by this device · Anna"; a dialogue read by two
   voices, both: "Read by Piper · thorsten and eva k"; 09). A card's

@@ -312,10 +312,13 @@ Built (`apps/cli/src/main.ts`): `serve [--data] [--host] [--port] [--allow-host]
 `profiles` (above) · `courses [--data]` (the installed courses and exams with their editions),
 `courses export <series/course> [--editions] --to <file|folder>` and `courses import <file>` (02,
 "Course bundle"; also while a server runs on the data root: the series' import lock keeps them apart,
-and the server reads the files anew; an import whose verify finds problems exits 1) ·
+and the server reads the files anew; an import whose verify finds problems exits 1), `courses remove
+<series/course>` (02, "Removing a course"; the API's `DELETE /api/course`, refused 409 `course_busy`
+while it downloads) ·
 `backup [--data] --to <folder>` (05, "Backups": `server.sqlite` and each
 `profile.sqlite` copied with `VACUUM INTO`, consistent while a server runs; the recordings, the
-imported decks and `<app-data>/secret.key`; into a new `sprachanker-backup-<date>-<time>` folder,
+imported decks and `<app-data>/secret.key`; into a new `sprachanker-backup-<date>-<time>` folder (the
+computer's local time),
 its owner's only (0700: it holds the key, the command says to keep it private), never inside the
 data root, written as `….part` and renamed when whole — half-made ones an earlier run left there go
 —, the disk's free space checked first. Each file is copied consistent, but one after another: a

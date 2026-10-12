@@ -21,8 +21,13 @@ const AT_ONCE: Record<DeckReader["engine"], number> = { piper: 2, qwen: 1 };
 /** extras.json is written after every so many words read, and when the job ends. */
 const SAVE_EVERY = 20;
 
-/** The text read for a word as its card shows it: variants ("der Großvater / der Opa") as a list. */
-export const spokenText = (target: string) => target.replace(/\s*\/\s*/g, ", ").trim();
+/** The text read for a word as its card shows it: variants ("der Großvater / der Opa") as a list, a
+ *  separable verb's bar left out ("her|kommen" is read "herkommen", not "her kommen"). */
+export const spokenText = (target: string) =>
+  target
+    .replace(/\|/g, "")
+    .replace(/\s*\/\s*/g, ", ")
+    .trim();
 
 /** A word's readings, one per headword: the first, then the others. */
 export const readingsOf = (word: DeckExtrasWord | undefined): DeckReadAudio[] =>

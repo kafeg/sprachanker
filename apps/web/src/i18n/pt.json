@@ -104,6 +104,8 @@
     "correct": "Correto",
     "partial": "Parcialmente correto",
     "wrong": "Não exatamente",
+    "incorrect": "Errado",
+    "unanswered": "Sem resposta",
     "summary": "Resumo",
     "score": "Corretas na primeira tentativa: {correct, number} de {scored, number}. A porcentagem também conta as respostas parcialmente corretas.",
     "skipped": "pulado",
@@ -651,7 +653,14 @@
     "done": "Baixado. {failed, plural, =0 {Todas as mídias estão no lugar.} one {Não foi possível baixar # arquivo.} other {Não foi possível baixar # arquivos.}}",
     "hint": "O download busca na fonte o que falta (as páginas e mídias salvas são mantidas) e prepara o curso de novo; o seu progresso fica.",
     "log": "Registro do download",
-    "syncShort": "Sincronizar"
+    "syncShort": "Sincronizar",
+    "remove": {
+      "button": "Remover deste computador…",
+      "title": "Remover “{title}” deste computador?",
+      "body": "As suas lições e mídias são apagadas do disco (as mídias que outro curso usa ficam). O seu progresso, caderno e palavras ficam; baixe-o de novo para continuar.",
+      "bodyExam": "As suas perguntas e mídias são apagadas do disco (as mídias que outro curso usa ficam). Os seus simulados, a prática e o caderno ficam; baixe-o de novo para continuar.",
+      "confirm": "Remover"
+    }
   },
   "storage": {
     "title": "Armazenamento",
@@ -1044,6 +1053,7 @@
       "updates": "Este arquivo atualiza o baralho {deck} daqui: as palavras dele passam a ser as deste arquivo, e os cartões criados a partir dele as acompanham. Em outros idiomas, é um baralho à parte.",
       "left": "{count, plural, =0 {# notas sem palavra foram deixadas de fora.} one {# nota sem palavra foi deixada de fora.} other {# notas sem palavra foram deixadas de fora.}}",
       "unusable": "{count, plural, =0 {# notas cujas palavras não podem ser lidas foram deixadas de fora.} one {# nota cuja palavra não pode ser lida foi deixada de fora.} other {# notas cujas palavras não podem ser lidas foram deixadas de fora.}}",
+      "joined": "{count, plural, one {# nota de uma palavra que já está nele é juntada a ela, com a tradução acrescentada.} other {# notas de palavras que já estão nele são juntadas a elas, com as traduções acrescentadas.}}",
       "done": "{deck} importado: {words, plural, =0 {# palavras} one {# palavra} other {# palavras}}."
     },
     "remove": "Excluir baralho",
@@ -1194,6 +1204,7 @@
     "answerFree": "Diga em voz alta como a tarefa pede.",
     "answerLine": "Sua resposta",
     "mine": "Minha",
+    "takeDeleted": "A sua gravação foi apagada",
     "mineFor": "Minha · {time}",
     "recordedNotKept": "Gravado (não guardado)",
     "listenFirst": "Primeiro ouça a gravação.",
@@ -1284,6 +1295,8 @@
     },
     "sayIn": "Diga em {language}",
     "notHeardShort": "Não foi possível reconhecer. Tente de novo.",
+    "nothingHeard": "Nada foi ouvido. Diga de novo, um pouco mais alto.",
+    "starting": "Iniciando a voz… a primeira leitura pode levar meio minuto.",
     "answerSample": "Exemplo",
     "aiChecking": "A IA está verificando a sua resposta…",
     "needsRecognition": "Para dizer uma frase é preciso o reconhecimento de fala: ative-o em Configurações → Fala.",
@@ -1302,6 +1315,7 @@
     "answer_does_not_fit": "A resposta não corresponde a este exercício. Recarregue a lição.",
     "card_changed": "Este cartão mudou em outro dispositivo. Ele é mostrado de novo.",
     "downloads_unavailable": "Não é possível baixar cursos aqui.",
+    "course_busy": "Este curso está sendo baixado. Remova-o quando o download terminar.",
     "empty_recording": "A gravação está vazia. Tente de novo.",
     "event_id_taken": "Esta resposta já foi registrada de outra forma. Recarregue a página.",
     "event_of_another_run": "Este registro pertence a outra rodada. Recarregue a lição.",
@@ -1470,6 +1484,7 @@
     "answered": "Respondidas: {done, number} de {total, number}",
     "question": "Pergunta {n, number} de {total, number}",
     "practiceScore": "{count, plural, =0 {{points, number} de # respostas certas} one {{points, number} de # resposta certa} other {{points, number} de # respostas certas}}",
+    "practicePoints": "Com as respostas abertas: {points, number} de {max, number} pontos",
     "timeUp": "O tempo acabou: contam as respostas dadas até então.",
     "needed": "{points, number} de {max, number} necessários",
     "practiseMistakes": "Praticar os erros",
@@ -1520,12 +1535,14 @@
       "pending": "{count, plural, =0 {# respostas ainda não foram avaliadas: contam como 0 até você avaliá-las.} one {# resposta ainda não foi avaliada: conta como 0 até você avaliá-la.} other {# respostas ainda não foram avaliadas: contam como 0 até você avaliá-las.}}",
       "hint": "Avaliado como fazem os avaliadores do exame; mude uma avaliação quando quiser.",
       "voided": "a tarefa não foi cumprida: 0 para a resposta inteira",
-      "unrated": "0 até “{criterion}” ser avaliado: ele decide se a resposta conta",
+      "unrated": "até “{criterion}” ser avaliado: ele decide se a resposta conta",
       "save": "Salvar avaliação",
       "change": "Mudar avaliação",
       "propose": "Sugerir uma avaliação (IA)",
       "proposing": "O assistente está avaliando…",
       "proposed": "Sugerida pelo assistente de IA ({model}): aceite como está ou altere.",
+      "proposalTaken": "Sugerida pelo assistente de IA ({model}) e aceita.",
+      "proposalSetAside": "Sugerida pelo assistente de IA ({model}); conta a sua própria avaliação.",
       "accept": "Aceitar a sugestão",
       "keepMine": "Manter a minha",
       "notTaken": "Ainda não aceita: o resultado conta {points, number} de {max, number}."
@@ -1585,6 +1602,7 @@
     "export": {
       "button": "Exportar para um arquivo",
       "hint": "Este curso em um único arquivo, para importar no seu outro computador em “Baixados”.",
+      "hintExam": "Este exame num só arquivo, para importar no seu outro computador em “Baixados”.",
       "started": "Baixando “{file}” ({size})."
     },
     "import": {
@@ -1596,7 +1614,9 @@
       "same": "“{title}” já estava aqui, igual: nada mudou.",
       "replaced": "“{title}” agora é a versão do arquivo; seu progresso continua.",
       "verified": "Verificado: todos os arquivos estão aqui.",
-      "problems": "Verificado: {count, plural, =0 {# problemas encontrados} one {# problema encontrado} other {# problemas encontrados}} — “Verificar” no cartão dele os lista."
+      "problems": "Verificado: {count, plural, =0 {# problemas encontrados} one {# problema encontrado} other {# problemas encontrados}} — “Verificar” no cartão dele os lista.",
+      "experimental": "É um experimento: não aparece até a sua fonte ser ativada.",
+      "turnOn": "Configurações → Geral → Experimentos"
     }
   },
   "understanding": {
@@ -1610,7 +1630,7 @@
       "reading": "um texto para ler"
     },
     "listen": "Ouvir",
-    "resume": "Continuar",
+    "resume": "Continuar a ouvir",
     "replay": "Do início",
     "line": "Frase {n, number} de {total, number}",
     "heard": "{count, plural, one {Ouvido uma vez} other {Ouvido # vezes}}",

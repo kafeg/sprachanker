@@ -8,7 +8,7 @@ import { languageName } from "@/i18n/index.ts";
 import { Tooltip, TooltipContent, TooltipTrigger } from "@/ui/components/tooltip.tsx";
 import { cn } from "@/ui/utils.ts";
 import { useSpeechHost } from "./context.ts";
-import { micState, type Take, useRecorder } from "./recorder.ts";
+import { heardNothing, micState, type Take, useRecorder } from "./recorder.ts";
 
 export function DictateButton({
   lang,
@@ -24,16 +24,17 @@ export function DictateButton({
   const { t, i18n } = useTranslation();
   const host = useSpeechHost();
   const [busy, setBusy] = useState(false);
-  const [failed, setFailed] = useState(false);
+  const [failed, setFailed] = useState<"silent" | "unclear">();
   const recorder = useRecorder({
     onTake: (take) => {
       if (!host) return;
+      if (heardNothing(take)) return setFailed("silent");
       setBusy(true);
-      setFailed(false);
+      setFailed(undefined);
       host
         .transcribe(take, lang)
-        .then((text) => text && onText(text, take))
-        .catch(() => setFailed(true))
+        .then((text) => (text.trim() ? onText(text, take) : setFailed("unclear")))
+        .catch(() => setFailed("unclear"))
         .finally(() => setBusy(false));
     },
   });
@@ -66,7 +67,13 @@ export function DictateButton({
           )}
         </button>
       </TooltipTrigger>
-      <TooltipContent>{failed ? t("speech.notHeardShort") : label}</TooltipContent>
+      <TooltipContent>
+        {failed === "silent"
+          ? t("speech.nothingHeard")
+          : failed
+            ? t("speech.notHeardShort")
+            : label}
+      </TooltipContent>
     </Tooltip>
   );
 }

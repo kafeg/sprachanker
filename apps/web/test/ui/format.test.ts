@@ -3,7 +3,14 @@
 import { expect, test } from "bun:test";
 import { IntlMessageFormat } from "intl-messageformat";
 import ru from "../../src/i18n/ru.json";
-import { durationParts } from "../../src/ui/format.ts";
+import { durationParts, formatBytes } from "../../src/ui/format.ts";
+
+test("sizes: kB under a megabyte (never 0 for a few bytes), MB, GB with a decimal", () => {
+  expect(
+    [0, 300, 404_000, 999_400, 13_400_000, 2_345_000_000].map((b) => formatBytes(b, "en")),
+  ).toEqual(["0 kB", "1 kB", "404 kB", "999 kB", "13 MB", "2.3 GB"]);
+  expect(formatBytes(404_000, "ru")).toBe("404 кБ");
+});
 
 test("a time left: its unit and count, then the message's plural", () => {
   expect([30_000, 60_000, 89 * 60_000, 90 * 60_000, 150 * 60_000].map(durationParts)).toEqual([

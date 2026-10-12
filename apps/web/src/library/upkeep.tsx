@@ -1,11 +1,22 @@
 // Keeping a downloaded course whole (09): its check — every file on disk and consistent — and syncing
-// it with its source. The course page's head and the Downloaded cards show them the same way.
-import { CircleCheck, CircleX, Download, LoaderCircle, RefreshCw, ShieldCheck } from "lucide-react";
+// it with its source. The course page's head and the Downloaded cards show them the same way. A
+// Downloaded card's "Remove from this computer…" (asked first) deletes it from the disk.
+import {
+  CircleCheck,
+  CircleX,
+  Download,
+  LoaderCircle,
+  RefreshCw,
+  ShieldCheck,
+  Trash2,
+} from "lucide-react";
 import { useState } from "react";
 import { useTranslation } from "react-i18next";
 import { useCatalog, useCourseCheck } from "@/api/courses.ts";
-import { useCourseDownload, useStartDownload } from "@/api/downloads.ts";
+import { useCourseDownload, useRemoveCourse, useStartDownload } from "@/api/downloads.ts";
 import { Button } from "@/ui/components/button.tsx";
+import { ConfirmDialog } from "@/ui/confirm.tsx";
+import { errorText } from "@/ui/error-text.ts";
 import { cn } from "@/ui/utils.ts";
 import { downloading } from "./download.tsx";
 
@@ -104,6 +115,51 @@ export function SyncButton({
       {!start.isPending && (missing ? <Download /> : <RefreshCw />)}
       {missing ? t("download.continue") : short ? t("download.syncShort") : t("download.sync")}
     </Button>
+  );
+}
+
+/** "Remove from this computer…" of a downloaded course or exam (a Downloaded card's): asked first —
+ *  the learner's progress, Notebook and words stay, media other courses use too —; none while it
+ *  downloads. */
+export function CourseRemove({
+  series,
+  course,
+  title,
+  exam = false,
+}: {
+  series: string;
+  course: string;
+  title: string;
+  exam?: boolean;
+}) {
+  const { t } = useTranslation();
+  const [open, setOpen] = useState(false);
+  const { job } = useCourseDownload(series, course);
+  const remove = useRemoveCourse();
+  if (downloading(job)) return null;
+  return (
+    <>
+      <Button variant="outline" className={quietButton} onClick={() => setOpen(true)}>
+        <Trash2 /> {t("download.remove.button")}
+      </Button>
+      <ConfirmDialog
+        open={open}
+        onOpenChange={(o) => {
+          setOpen(o);
+          if (!o) remove.reset();
+        }}
+        title={t("download.remove.title", { title })}
+        description={
+          remove.isError
+            ? errorText(t, remove.error)
+            : t(exam ? "download.remove.bodyExam" : "download.remove.body")
+        }
+        confirm={t("download.remove.confirm")}
+        cancel={t("common.cancel")}
+        busy={remove.isPending}
+        onConfirm={() => remove.mutate({ series, course }, { onSuccess: () => setOpen(false) })}
+      />
+    </>
   );
 }
 

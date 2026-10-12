@@ -120,9 +120,11 @@ export function createExams(deps: {
       const course = (await content.courses()).find((c) => c.exams.includes(key));
       const edition = done[0]?.edition ?? course?.editions[0] ?? null;
       const locale = await localeOf(key, edition);
+      const sectionOf = (itemKey: string) =>
+        exam?.sections.find((s) => s.pool.includes(itemKey as ExamItemKey));
       /** A question's Teil with its module, named ("Hören · Teil 1"), in an exam of several. */
       const groupOf = (itemKey: string) => {
-        const section = exam?.sections.find((s) => s.pool.includes(itemKey as ExamItemKey));
+        const section = sectionOf(itemKey);
         if (!section || (exam?.sections.length ?? 0) < 2) return undefined;
         const module =
           section.module && (locale?.modules?.[section.module]?.title ?? section.module);
@@ -134,7 +136,7 @@ export function createExams(deps: {
         return {
           key: item.key,
           state: stats.get(item.key)?.last ?? ("unseen" as const),
-          line: questionLine(item),
+          line: questionLine(item, sectionOf(item.key)),
           ...(group && { group }),
         };
       });

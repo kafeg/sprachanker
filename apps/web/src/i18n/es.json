@@ -104,6 +104,8 @@
     "correct": "Correcto",
     "partial": "Correcto en parte",
     "wrong": "No del todo",
+    "incorrect": "Incorrecto",
+    "unanswered": "Sin respuesta",
     "summary": "Resumen",
     "score": "Correctas al primer intento: {correct, number} de {scored, number}. El porcentaje también cuenta las respuestas correctas en parte.",
     "skipped": "saltado",
@@ -651,7 +653,14 @@
     "done": "Descargado. {failed, plural, =0 {Todos los archivos multimedia están en su sitio.} one {No se pudo descargar # archivo.} other {No se pudieron descargar # archivos.}}",
     "hint": "La descarga trae de la fuente lo que falta (las páginas y los archivos multimedia guardados se conservan) y vuelve a preparar el curso; tu progreso se mantiene.",
     "log": "Registro de descarga",
-    "syncShort": "Sincronizar"
+    "syncShort": "Sincronizar",
+    "remove": {
+      "button": "Quitar de este ordenador…",
+      "title": "¿Quitar «{title}» de este ordenador?",
+      "body": "Sus lecciones y medios se borran del disco (los medios que usa otro curso se quedan). Tu progreso, tu cuaderno y tus palabras se quedan; descárgalo de nuevo para seguir.",
+      "bodyExam": "Sus preguntas y medios se borran del disco (los medios que usa otro curso se quedan). Tus simulacros, tu práctica y tu cuaderno se quedan; descárgalo de nuevo para seguir.",
+      "confirm": "Quitar"
+    }
   },
   "storage": {
     "title": "Almacenamiento",
@@ -1044,6 +1053,7 @@
       "updates": "Este archivo actualiza el mazo {deck} de aquí: sus palabras pasan a ser las de este archivo y las tarjetas creadas a partir de él las siguen. En otros idiomas es un mazo aparte.",
       "left": "{count, plural, one {Se omite # nota sin palabra.} other {Se omiten # notas sin palabra.}}",
       "unusable": "{count, plural, one {Se omite # nota cuya palabra no se puede leer.} other {Se omiten # notas cuyas palabras no se pueden leer.}}",
+      "joined": "{count, plural, one {# nota de una palabra que ya está se une a ella, con su traducción añadida.} other {# notas de palabras que ya están se unen a ellas, con sus traducciones añadidas.}}",
       "done": "Importado {deck}: {words, plural, one {# palabra} other {# palabras}}."
     },
     "remove": "Eliminar mazo",
@@ -1194,6 +1204,7 @@
     "answerFree": "Dilo en voz alta como pide la tarea.",
     "answerLine": "Tu respuesta",
     "mine": "Mía",
+    "takeDeleted": "Tu grabación se eliminó",
     "mineFor": "Mía · {time}",
     "recordedNotKept": "Grabado (no guardado)",
     "listenFirst": "Primero escucha la grabación.",
@@ -1284,6 +1295,8 @@
     },
     "sayIn": "Dilo en {language}",
     "notHeardShort": "No se pudo reconocer. Inténtalo otra vez.",
+    "nothingHeard": "No se oyó nada. Dilo otra vez, un poco más alto.",
+    "starting": "Iniciando la voz… la primera lectura puede tardar medio minuto.",
     "answerSample": "Muestra",
     "aiChecking": "La IA está comprobando tu respuesta…",
     "needsRecognition": "Para decir una frase hace falta el reconocimiento de voz: actívalo en Ajustes → Voz.",
@@ -1302,6 +1315,7 @@
     "answer_does_not_fit": "La respuesta no corresponde a este ejercicio. Vuelve a cargar la lección.",
     "card_changed": "Esta tarjeta cambió en otro dispositivo. Se muestra de nuevo.",
     "downloads_unavailable": "Aquí no se pueden descargar cursos.",
+    "course_busy": "Este curso se está descargando. Quítalo cuando termine la descarga.",
     "empty_recording": "La grabación está vacía. Inténtalo otra vez.",
     "event_id_taken": "Esta respuesta ya se registró de otra forma. Vuelve a cargar la página.",
     "event_of_another_run": "Este registro pertenece a otra vuelta. Vuelve a cargar la lección.",
@@ -1470,6 +1484,7 @@
     "answered": "Respondidas: {done, number} de {total, number}",
     "question": "Pregunta {n, number} de {total, number}",
     "practiceScore": "{count, plural, one {{points, number} de # respuesta correcta} other {{points, number} de # respuestas correctas}}",
+    "practicePoints": "Con las respuestas abiertas: {points, number} de {max, number} puntos",
     "timeUp": "Se acabó el tiempo: cuentan las respuestas dadas hasta entonces.",
     "needed": "Se necesitan {points, number} de {max, number}",
     "practiseMistakes": "Practicar los errores",
@@ -1520,12 +1535,14 @@
       "pending": "{count, plural, one {# respuesta aún no está valorada: cuenta como 0 hasta que la valores.} other {# respuestas aún no están valoradas: cuentan como 0 hasta que las valores.}}",
       "hint": "Se valora como lo hacen los evaluadores del examen; cambia una valoración cuando quieras.",
       "voided": "tarea no realizada: 0 para toda la respuesta",
-      "unrated": "0 hasta que se valore «{criterion}»: decide si la respuesta cuenta",
+      "unrated": "hasta que se valore «{criterion}»: decide si la respuesta cuenta",
       "save": "Guardar valoración",
       "change": "Cambiar valoración",
       "propose": "Proponer una valoración (IA)",
       "proposing": "El asistente está valorando…",
       "proposed": "Propuesta del asistente de IA ({model}): acéptala tal cual o cámbiala.",
+      "proposalTaken": "Propuesta del asistente de IA ({model}), aceptada.",
+      "proposalSetAside": "Propuesta del asistente de IA ({model}); cuenta tu propia valoración.",
       "accept": "Aceptar la propuesta",
       "keepMine": "Mantener la mía",
       "notTaken": "Aún sin aceptar: el resultado cuenta {points, number} de {max, number}."
@@ -1585,6 +1602,7 @@
     "export": {
       "button": "Exportar a un archivo",
       "hint": "Este curso en un solo archivo, para importarlo en tu otro ordenador en «Descargados».",
+      "hintExam": "Este examen en un solo archivo, para importarlo en tu otro ordenador en «Descargados».",
       "started": "Descargando «{file}» ({size})."
     },
     "import": {
@@ -1596,7 +1614,9 @@
       "same": "«{title}» ya estaba aquí, igual: no cambió nada.",
       "replaced": "«{title}» es ahora la versión del archivo; tu progreso se conserva.",
       "verified": "Comprobado: están todos los archivos.",
-      "problems": "Comprobado: {count, plural, one {se encontró # problema} other {se encontraron # problemas}} — «Comprobar» en su tarjeta los muestra."
+      "problems": "Comprobado: {count, plural, one {se encontró # problema} other {se encontraron # problemas}} — «Comprobar» en su tarjeta los muestra.",
+      "experimental": "Es un experimento: no aparece hasta que se activa su fuente.",
+      "turnOn": "Ajustes → General → Experimentos"
     }
   },
   "understanding": {
@@ -1610,7 +1630,7 @@
       "reading": "un texto para leer"
     },
     "listen": "Escuchar",
-    "resume": "Seguir",
+    "resume": "Seguir escuchando",
     "replay": "Desde el principio",
     "line": "Frase {n, number} de {total, number}",
     "heard": "{count, plural, one {Escuchado una vez} other {Escuchado # veces}}",

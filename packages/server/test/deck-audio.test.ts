@@ -4,6 +4,7 @@ import { join } from "node:path";
 import { buildApkg } from "@sprachanker/anki-export/testing";
 import { FIXTURE_SERIES } from "@sprachanker/course-fixture";
 import { ulid } from "ulid";
+import { spokenText } from "../src/services/deck-audio.ts";
 import { COURSE, deck, study, withDecks } from "./deck-setup.ts";
 import { piper, qwen } from "./speech-fakes.ts";
 import { until } from "./until.ts";
@@ -647,4 +648,10 @@ test("cards first made in a later lesson: the course's recording of the same hea
     await sendJson("POST", `/api/cards/${current.cardId}/bury`, {});
   }
   throw new Error("Kaffee not studied in the course's deck");
+});
+
+test("a word as read: variants as a list, a separable verb's bar left out", () => {
+  expect(spokenText("her|kommen")).toBe("herkommen");
+  expect(spokenText("der Großvater / der Opa")).toBe("der Großvater, der Opa");
+  expect(spokenText("an|rufen / zurück|rufen")).toBe("anrufen, zurückrufen");
 });

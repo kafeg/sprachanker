@@ -119,6 +119,7 @@ function MyCourses() {
 function Downloaded() {
   const { t } = useTranslation();
   const list = useCourseList();
+  const { shown } = useShown();
   if (!list.all) return list.state;
   // Each edition of an installed course is a card of its own.
   const cards = downloadedCards(list.all);
@@ -138,7 +139,7 @@ function Downloaded() {
         />
       )}
       {/* A course exported on another computer. */}
-      <CourseImport />
+      <CourseImport hidden={(series) => !shown("courses", series)} />
     </>
   );
 }

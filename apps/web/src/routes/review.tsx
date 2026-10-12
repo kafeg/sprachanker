@@ -235,7 +235,9 @@ function DeckOffers() {
             className="scroll-mt-20 space-y-2 rounded-xl border p-3"
           >
             <div className="flex flex-wrap items-center gap-3">
-              <span className="min-w-0 flex-1">
+              {/* Room for the title and its count first: on a phone the button goes under them
+                  rather than squeezing them into a narrow column. */}
+              <span data-deck-name className="min-w-0 flex-[1_1_14rem]">
                 <span className="block font-semibold">{o.title}</span>
                 <span className="text-sm text-muted-foreground">
                   {pairName(o.edition)} · {t("decks.words", { words: o.words, mine: o.mine })}

@@ -104,6 +104,8 @@
     "correct": "Helyes",
     "partial": "Részben helyes",
     "wrong": "Nem egészen",
+    "incorrect": "Rossz",
+    "unanswered": "Nincs válasz",
     "summary": "Összegzés",
     "score": "Elsőre helyes: {correct, number}/{scored, number}. A százalék a részben helyes válaszokat is beszámítja.",
     "skipped": "kihagyva",
@@ -651,7 +653,14 @@
     "done": "Letöltve. {failed, plural, =0 {Minden médiafájl a helyén van.} one {# fájlt nem sikerült letölteni.} other {# fájlt nem sikerült letölteni.}}",
     "hint": "A letöltés pótolja a forrásból, ami hiányzik (a tárolt oldalak és médiafájlok megmaradnak), és újra előkészíti a kurzust; a haladásod megmarad.",
     "log": "Letöltési napló",
-    "syncShort": "Szinkronizálás"
+    "syncShort": "Szinkronizálás",
+    "remove": {
+      "button": "Eltávolítás erről a gépről…",
+      "title": "Eltávolítod a(z) „{title}” elemet erről a gépről?",
+      "body": "A leckéi és médiafájljai törlődnek a lemezről (a más kurzus által használt médiafájlok maradnak). Az előrehaladásod, a jegyzetfüzeted és a szavaid megmaradnak; a folytatáshoz töltsd le újra.",
+      "bodyExam": "A kérdései és médiafájljai törlődnek a lemezről (a más kurzus által használt médiafájlok maradnak). A próbavizsgáid, a gyakorlásaid és a jegyzetfüzeted megmaradnak; a folytatáshoz töltsd le újra.",
+      "confirm": "Eltávolítás"
+    }
   },
   "storage": {
     "title": "Tárhely",
@@ -1044,6 +1053,7 @@
       "updates": "Ez a fájl frissíti az itt lévő paklit ({deck}): a szavai e fájl szavai lesznek, és a belőlük készült kártyák követik őket. Más nyelveken ez önálló pakli.",
       "left": "{count, plural, one {# szó nélküli jegyzet kimarad.} other {# szó nélküli jegyzet kimarad.}}",
       "unusable": "{count, plural, one {# jegyzet kimarad, mert a szava nem olvasható.} other {# jegyzet kimarad, mert a szava nem olvasható.}}",
+      "joined": "{count, plural, one {Egy már meglévő szó # jegyzete hozzá van vonva, a fordítása hozzáadva.} other {Már meglévő szavak # jegyzete hozzájuk van vonva, a fordításaik hozzáadva.}}",
       "done": "Importálva: {deck}, {words, plural, one {# szó} other {# szó}}."
     },
     "remove": "Pakli törlése",
@@ -1194,6 +1204,7 @@
     "answerFree": "Mondd ki hangosan, ahogy a feladat kéri.",
     "answerLine": "A válaszod",
     "mine": "Az enyém",
+    "takeDeleted": "A felvételed törölve lett",
     "mineFor": "Az enyém · {time}",
     "recordedNotKept": "Felvéve (nincs megőrizve)",
     "listenFirst": "Előbb hallgasd meg a felvételt.",
@@ -1284,6 +1295,8 @@
     },
     "sayIn": "Mondd ki ezen a nyelven: {language}",
     "notHeardShort": "Nem sikerült felismerni. Próbáld újra.",
+    "nothingHeard": "Semmi sem hallatszott. Mondd el újra, kicsit hangosabban.",
+    "starting": "Indul a hang… az első felolvasás fél percig is tarthat.",
     "answerSample": "Minta",
     "aiChecking": "Az MI ellenőrzi a válaszodat…",
     "needsRecognition": "Egy mondat kimondásához beszédfelismerés kell: kapcsold be itt: Beállítások → Beszéd.",
@@ -1302,6 +1315,7 @@
     "answer_does_not_fit": "A válasz nem illik ehhez a feladathoz. Töltsd be újra a leckét.",
     "card_changed": "Ez a kártya egy másik eszközön megváltozott. Újra megjelenik.",
     "downloads_unavailable": "Itt nem lehet kurzusokat letölteni.",
+    "course_busy": "Ez a kurzus éppen letöltődik. Távolítsd el, ha a letöltés befejeződött.",
     "empty_recording": "A felvétel üres. Próbáld újra.",
     "event_id_taken": "Ezt a választ már másként rögzítettük. Töltsd be újra az oldalt.",
     "event_of_another_run": "Ez a bejegyzés egy másik körhöz tartozik. Töltsd be újra a leckét.",
@@ -1470,6 +1484,7 @@
     "answered": "Megválaszolva: {done, number}/{total, number}",
     "question": "Kérdés: {n, number}/{total, number}",
     "practiceScore": "{count, plural, one {Helyes: {points, number} / # válasz} other {Helyes: {points, number} / # válasz}}",
+    "practicePoints": "A nyílt válaszokkal: {points, number} / {max, number} pont",
     "timeUp": "Lejárt az idő: az addig adott válaszok számítanak.",
     "needed": "Szükséges: {points, number}/{max, number}",
     "practiseMistakes": "Hibák gyakorlása",
@@ -1520,12 +1535,14 @@
       "pending": "{count, plural, one {# válasz még nincs értékelve: 0 pontnak számít, amíg nem értékeled.} other {# válasz még nincs értékelve: 0 pontnak számítanak, amíg nem értékeled őket.}}",
       "hint": "Úgy értékelj, ahogy a vizsga értékelői; az értékelést bármikor módosíthatod.",
       "voided": "a feladat nincs teljesítve: 0 pont az egész válaszra",
-      "unrated": "0, amíg ez nincs értékelve: „{criterion}”; ez dönti el, hogy a válasz beszámít-e",
+      "unrated": "amíg ez nincs értékelve: „{criterion}”; ez dönti el, hogy a válasz beszámít-e",
       "save": "Értékelés mentése",
       "change": "Értékelés módosítása",
       "propose": "Értékelés javaslata (MI)",
       "proposing": "Az asszisztens értékel…",
       "proposed": "Az MI-asszisztens javaslata ({model}): fogadd el, vagy módosítsd.",
+      "proposalTaken": "Az MI-asszisztens javaslata ({model}), elfogadva.",
+      "proposalSetAside": "Az MI-asszisztens javaslata ({model}); a saját értékelésed számít.",
       "accept": "Javaslat elfogadása",
       "keepMine": "A sajátomat tartom meg",
       "notTaken": "Még nincs elfogadva: az eredmény {points, number}/{max, number} pontot számol."
@@ -1585,6 +1602,7 @@
     "export": {
       "button": "Exportálás fájlba",
       "hint": "Ez a kurzus egyetlen fájlban, hogy a másik számítógépeden a „Letöltve” alatt importáld.",
+      "hintExam": "Ez a vizsga egyetlen fájlként, hogy a másik gépeden a „Letöltött” lapon importáld.",
       "started": "„{file}” letöltése ({size})."
     },
     "import": {
@@ -1596,7 +1614,9 @@
       "same": "„{title}” már itt van, ugyanígy: semmi sem változott.",
       "replaced": "„{title}” most a fájlban lévő változat; a haladásod megmarad.",
       "verified": "Ellenőrizve: minden fájl megvan.",
-      "problems": "Ellenőrizve: {count, plural, one {# probléma található} other {# probléma található}} – a kártyáján az „Ellenőrzés” felsorolja őket."
+      "problems": "Ellenőrizve: {count, plural, one {# probléma található} other {# probléma található}} – a kártyáján az „Ellenőrzés” felsorolja őket.",
+      "experimental": "Ez kísérlet: addig nem látszik, amíg a forrását be nem kapcsolod.",
+      "turnOn": "Beállítások → Általános → Kísérletek"
     }
   },
   "understanding": {
@@ -1610,7 +1630,7 @@
       "reading": "elolvasandó szöveg"
     },
     "listen": "Meghallgatás",
-    "resume": "Tovább",
+    "resume": "Hallgatás folytatása",
     "replay": "Elölről",
     "line": "{n, number}. mondat / {total, number}",
     "heard": "{count, plural, one {Egyszer meghallgatva} other {# alkalommal meghallgatva}}",

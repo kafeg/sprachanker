@@ -99,7 +99,7 @@ test("skipping records every item as skipped; leaving a scored exercise records 
   expect(sent[0]?.[1]).toEqual([`${KEY}#1`, `${KEY}#2`]);
 });
 
-test("an unscored exercise is recorded on leaving: the items recorded, the rest skipped", () => {
+test("a speaking exercise: each take recorded as it is made, the rest skipped on leaving", () => {
   const selfrate = {
     ...exercise,
     type: "speech_selfrate",
@@ -108,9 +108,17 @@ test("an unscored exercise is recorded on leaving: the items recorded, the rest 
   const { result, sent } = exerciseHook(selfrate);
   expect(result.current.checking).toBe(false);
   act(() => result.current.answer(0, { recording: "01K00000000000000000000000" }));
+  // A take is recorded as it is made (a reload keeps it), each take again as the item's answer.
+  expect(sent).toHaveLength(1);
+  expect(sent[0]?.[0]).toMatchObject([
+    { itemKey: `${KEY}#1`, answer: { recording: "01K00000000000000000000000" } },
+  ]);
+  act(() => result.current.answer(0, { recording: "01K00000000000000000000001" }));
+  expect(sent).toHaveLength(2);
+  // Leaving records only what is left: the item not said, skipped.
   act(() => result.current.leave());
-  expect(sent[0]?.[0].map((a) => a.itemKey)).toEqual([`${KEY}#1`]);
-  expect(sent[0]?.[1]).toEqual([`${KEY}#2`]);
+  expect(sent[2]?.[0]).toEqual([]);
+  expect(sent[2]?.[1]).toEqual([`${KEY}#2`]);
 });
 
 test("a finished run is read-only: nothing to check", () => {

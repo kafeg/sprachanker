@@ -127,7 +127,7 @@ function withCourse() {
   return data;
 }
 
-test("courses export and import: a course moved to another data root as a file", async () => {
+test("courses export, import and remove: a course moved to another data root as a file", async () => {
   const from = withCourse();
   const to = mkdtempSync(join(tmpdir(), "sprachanker-cli-"));
   const files = mkdtempSync(join(tmpdir(), "sprachanker-cli-files-"));
@@ -178,6 +178,14 @@ test("courses export and import: a course moved to another data root as a file",
     ).out,
   ).toBe(
     "sprachanker: sprachanker.cli/mini has no edition fr-de here (sprachanker courses lists them)",
+  );
+  // Removed from the second data root: listed no more; again, no such course.
+  expect((await cli("courses", "remove", "sprachanker.cli/mini", "--data", to)).out).toStartWith(
+    "sprachanker.cli/mini: removed, ",
+  );
+  expect((await cli("courses", "--data", to)).out).toBe(`no courses installed in ${to}`);
+  expect((await cli("courses", "remove", "sprachanker.cli/mini", "--data", to)).out).toBe(
+    "sprachanker: no course sprachanker.cli/mini here (sprachanker courses lists them)",
   );
   const junk = join(files, "junk.sprachanker-course");
   writeFileSync(junk, "not a zip");

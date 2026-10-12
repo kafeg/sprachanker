@@ -104,6 +104,8 @@
     "correct": "Doğru",
     "partial": "Kısmen doğru",
     "wrong": "Tam değil",
+    "incorrect": "Yanlış",
+    "unanswered": "Cevapsız",
     "summary": "Özet",
     "score": "İlk denemede doğru: {correct, number} / {scored, number}. Yüzde, kısmen doğru cevapları da sayar.",
     "skipped": "atlandı",
@@ -651,7 +653,14 @@
     "done": "İndirildi. {failed, plural, =0 {Tüm medya dosyaları yerinde.} one {# dosya indirilemedi.} other {# dosya indirilemedi.}}",
     "hint": "İndirme, eksik olanları kaynaktan getirir (kaydedilmiş sayfalar ve medya korunur) ve kursu yeniden hazırlar; ilerlemen kalır.",
     "log": "İndirme günlüğü",
-    "syncShort": "Eşitle"
+    "syncShort": "Eşitle",
+    "remove": {
+      "button": "Bu bilgisayardan kaldır…",
+      "title": "“{title}” bu bilgisayardan kaldırılsın mı?",
+      "body": "Dersleri ve medyası diskten silinir (başka bir kursun kullandığı medya kalır). İlerlemen, defterin ve kelimelerin kalır; devam etmek için yeniden indir.",
+      "bodyExam": "Soruları ve medyası diskten silinir (başka bir kursun kullandığı medya kalır). Deneme sınavların, alıştırmaların ve defterin kalır; devam etmek için yeniden indir.",
+      "confirm": "Kaldır"
+    }
   },
   "storage": {
     "title": "Depolama",
@@ -1044,6 +1053,7 @@
       "updates": "Bu dosya buradaki {deck} destesini günceller: destenin kelimeleri bu dosyadakiler olur ve ondan oluşturulan kartlar onları izler. Başka dillerde ayrı bir destedir.",
       "left": "{count, plural, one {Kelimesi olmayan # not dışarıda bırakıldı.} other {Kelimesi olmayan # not dışarıda bırakıldı.}}",
       "unusable": "{count, plural, one {Kelimesi okunamayan # not dışarıda bırakıldı.} other {Kelimeleri okunamayan # not dışarıda bırakıldı.}}",
+      "joined": "{count, plural, one {Zaten olan bir kelimenin # notu o kelimeyle birleştirildi, çevirisi eklendi.} other {Zaten olan kelimelerin # notu o kelimelerle birleştirildi, çevirileri eklendi.}}",
       "done": "{deck} içe aktarıldı: {words, plural, one {# kelime} other {# kelime}}."
     },
     "remove": "Desteyi sil",
@@ -1194,6 +1204,7 @@
     "answerFree": "Görevin istediği gibi sesli söyle.",
     "answerLine": "Cevabın",
     "mine": "Kaydım",
+    "takeDeleted": "Kaydın silindi",
     "mineFor": "Kaydım · {time}",
     "recordedNotKept": "Kaydedildi (saklanmadı)",
     "listenFirst": "Önce kaydı dinle.",
@@ -1284,6 +1295,8 @@
     },
     "sayIn": "{language} söyle",
     "notHeardShort": "Tanınamadı. Tekrar dene.",
+    "nothingHeard": "Hiçbir şey duyulmadı. Biraz daha yüksek sesle tekrar söyle.",
+    "starting": "Ses başlatılıyor… ilk okuma yarım dakika sürebilir.",
     "answerSample": "Örnek",
     "aiChecking": "Yapay zekâ cevabını kontrol ediyor…",
     "needsRecognition": "Bir cümleyi söylemek için konuşma tanıma gerekir: Ayarlar → Konuşma bölümünden aç.",
@@ -1302,6 +1315,7 @@
     "answer_does_not_fit": "Cevap bu alıştırmaya uymuyor. Dersi yeniden yükle.",
     "card_changed": "Bu kart başka bir cihazda değişti. Yeniden gösteriliyor.",
     "downloads_unavailable": "Burada kurs indirilemez.",
+    "course_busy": "Bu kurs şu anda indiriliyor. İndirme bittiğinde kaldır.",
     "empty_recording": "Kayıt boş. Tekrar dene.",
     "event_id_taken": "Bu cevap zaten farklı şekilde kaydedilmiş. Sayfayı yeniden yükle.",
     "event_of_another_run": "Bu kayıt başka bir tura ait. Dersi yeniden yükle.",
@@ -1470,6 +1484,7 @@
     "answered": "Cevaplanan: {done, number} / {total, number}",
     "question": "Soru {n, number} / {total, number}",
     "practiceScore": "{count, plural, one {# cevaptan {points, number} tanesi doğru} other {# cevaptan {points, number} tanesi doğru}}",
+    "practicePoints": "Açık cevaplarla birlikte: {max, number} puandan {points, number}",
     "timeUp": "Süre doldu: o ana kadar verilen cevaplar sayılır.",
     "needed": "{max, number} puandan {points, number} puan gerekli",
     "practiseMistakes": "Hatalar üzerinde pratik yap",
@@ -1520,12 +1535,14 @@
       "pending": "{count, plural, one {# cevap henüz puanlanmadı: onu puanlayana kadar 0 sayılır.} other {# cevap henüz puanlanmadı: onları puanlayana kadar 0 sayılır.}}",
       "hint": "Sınavın puanlayıcıları gibi puanla; bir puanı istediğin zaman değiştir.",
       "voided": "görev yapılmadı: cevabın tamamı için 0",
-      "unrated": "“{criterion}” puanlanana kadar 0: cevabın sayılıp sayılmayacağını o belirler",
+      "unrated": "“{criterion}” puanlanana kadar: cevabın sayılıp sayılmayacağını o belirler",
       "save": "Puanı kaydet",
       "change": "Puanı değiştir",
       "propose": "Puan öner (YZ)",
       "proposing": "Asistan puanlıyor…",
       "proposed": "Yapay zekâ asistanının önerisi ({model}): olduğu gibi kabul et ya da değiştir.",
+      "proposalTaken": "Yapay zekâ asistanının önerisi ({model}) kabul edildi.",
+      "proposalSetAside": "Yapay zekâ asistanının önerisi ({model}); senin kendi puanın sayılır.",
       "accept": "Öneriyi kabul et",
       "keepMine": "Benimkini koru",
       "notTaken": "Henüz kabul edilmedi: sonuç {points, number} / {max, number} sayıyor."
@@ -1585,6 +1602,7 @@
     "export": {
       "button": "Dosyaya aktar",
       "hint": "Bu kurs tek bir dosya olarak; diğer bilgisayarında “İndirilenler” altında içe aktarmak için.",
+      "hintExam": "Bu sınav tek dosya olarak; diğer bilgisayarında “İndirilenler” altında içe aktarmak için.",
       "started": "“{file}” indiriliyor ({size})."
     },
     "import": {
@@ -1596,7 +1614,9 @@
       "same": "“{title}” zaten burada, aynısı: hiçbir şey değişmedi.",
       "replaced": "“{title}” artık dosyadaki sürüm; ilerlemen korunuyor.",
       "verified": "Denetlendi: bütün dosyalar burada.",
-      "problems": "Denetlendi: {count, plural, one {# sorun bulundu} other {# sorun bulundu}} — kartındaki “Kontrol et” onları listeler."
+      "problems": "Denetlendi: {count, plural, one {# sorun bulundu} other {# sorun bulundu}} — kartındaki “Kontrol et” onları listeler.",
+      "experimental": "Bu bir deneme; kaynağı açılana kadar listelenmez.",
+      "turnOn": "Ayarlar → Genel → Denemeler"
     }
   },
   "understanding": {
@@ -1610,7 +1630,7 @@
       "reading": "okunacak bir metin"
     },
     "listen": "Dinle",
-    "resume": "Devam",
+    "resume": "Dinlemeye devam et",
     "replay": "Baştan",
     "line": "Cümle {n, number} / {total, number}",
     "heard": "{count, plural, one {Bir kez dinlendi} other {# kez dinlendi}}",

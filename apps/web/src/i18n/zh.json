@@ -104,6 +104,8 @@
     "correct": "正确",
     "partial": "部分正确",
     "wrong": "不太对",
+    "incorrect": "错误",
+    "unanswered": "未作答",
     "summary": "总结",
     "score": "第一次就答对：{correct, number}/{scored, number}。百分比也计入部分正确的答案。",
     "skipped": "已跳过",
@@ -651,7 +653,14 @@
     "done": "已下载。{failed, plural, =0 {所有媒体文件均已就位。} other {有#个文件无法下载。}}",
     "hint": "下载会从来源获取缺少的内容（已保存的页面和媒体会保留），并重新准备课程；你的进度不受影响。",
     "log": "下载日志",
-    "syncShort": "同步"
+    "syncShort": "同步",
+    "remove": {
+      "button": "从这台电脑删除…",
+      "title": "要从这台电脑删除“{title}”吗？",
+      "body": "它的课程和媒体文件将从磁盘删除（其他课程使用的媒体文件会保留）。你的进度、笔记本和单词都会保留；重新下载即可继续。",
+      "bodyExam": "它的题目和媒体文件将从磁盘删除（其他课程使用的媒体文件会保留）。你的模拟考试、练习和笔记本都会保留；重新下载即可继续。",
+      "confirm": "删除"
+    }
   },
   "storage": {
     "title": "存储",
@@ -1044,6 +1053,7 @@
       "updates": "此文件会更新这里的卡组{deck}：其单词将替换为此文件中的单词，由其生成的卡片也会随之更新。在其他语言下，它是一个独立的卡组。",
       "left": "{count, plural, other {#条没有单词的笔记已略过。}}",
       "unusable": "{count, plural, other {#条单词无法读取的笔记已略过。}}",
+      "joined": "{count, plural, other {已有单词的 # 条笔记已合并到该单词，并补上了其释义。}}",
       "done": "已导入{deck}：{words, plural, other {#个单词}}。"
     },
     "remove": "删除卡组",
@@ -1194,6 +1204,7 @@
     "answerFree": "按题目要求大声说出来。",
     "answerLine": "你的答案",
     "mine": "我的",
+    "takeDeleted": "你的录音已删除",
     "mineFor": "我的 · {time}",
     "recordedNotKept": "已录音（未保存）",
     "listenFirst": "请先听录音。",
@@ -1284,6 +1295,8 @@
     },
     "sayIn": "用{language}说",
     "notHeardShort": "无法识别。请再试一次。",
+    "nothingHeard": "什么也没听到。请再说一遍，稍微大声一点。",
+    "starting": "正在启动语音……首次朗读可能需要半分钟。",
     "answerSample": "示例",
     "aiChecking": "AI正在检查你的答案…",
     "needsRecognition": "说句子需要语音识别：请在“设置 → 语音”中开启。",
@@ -1302,6 +1315,7 @@
     "answer_does_not_fit": "答案与此练习不符。请重新加载本课。",
     "card_changed": "此卡片已在另一台设备上更改，现重新显示。",
     "downloads_unavailable": "此处无法下载课程。",
+    "course_busy": "这门课程正在下载。下载结束后再删除。",
     "empty_recording": "录音为空。请重试。",
     "event_id_taken": "此答案已以不同方式记录。请重新加载页面。",
     "event_of_another_run": "此记录属于另一轮学习。请重新加载本课。",
@@ -1470,6 +1484,7 @@
     "answered": "已作答：{done, number}/{total, number}",
     "question": "第{n, number}题，共{total, number}题",
     "practiceScore": "{count, plural, other {#次作答中答对{points, number}次}}",
+    "practicePoints": "含开放式回答：{max, number} 分中得 {points, number} 分",
     "timeUp": "时间已到：在此之前作答的答案计入成绩。",
     "needed": "需要{points, number}/{max, number}",
     "practiseMistakes": "练习错题",
@@ -1520,12 +1535,14 @@
       "pending": "{count, plural, other {#个答案尚未评分：在你评分之前按0分计算。}}",
       "hint": "按考试评分员的方式评分；评分可以随时修改。",
       "voided": "未完成任务：整个答案计0分",
-      "unrated": "在“{criterion}”评分之前计0分：它决定该答案是否有效",
+      "unrated": "在“{criterion}”评分之前：它决定该答案是否有效",
       "save": "保存评分",
       "change": "修改评分",
       "propose": "建议评分（AI）",
       "proposing": "助手正在评分…",
       "proposed": "由AI助手（{model}）建议：可直接采纳或修改。",
+      "proposalTaken": "由AI助手（{model}）建议，已采纳。",
+      "proposalSetAside": "由AI助手（{model}）建议；计入的是你自己的评分。",
       "accept": "采纳建议",
       "keepMine": "保留我的评分",
       "notTaken": "尚未采纳：结果按 {points, number}/{max, number} 计算。"
@@ -1585,6 +1602,7 @@
     "export": {
       "button": "导出为文件",
       "hint": "将此课程存为一个文件，以便在你的另一台电脑的“已下载”中导入。",
+      "hintExam": "将此考试导出为一个文件，以便在另一台电脑的“已下载”中导入。",
       "started": "正在下载“{file}”（{size}）。"
     },
     "import": {
@@ -1596,7 +1614,9 @@
       "same": "“{title}”已经在这里，内容相同：没有任何变化。",
       "replaced": "“{title}”现在是文件中的版本；你的进度保留。",
       "verified": "已检查：所有文件都在。",
-      "problems": "已检查：{count, plural, other {发现#个问题}} — 点其卡片上的“检查”可查看。"
+      "problems": "已检查：{count, plural, other {发现#个问题}} — 点其卡片上的“检查”可查看。",
+      "experimental": "这是实验性内容：在开启其来源之前不会显示。",
+      "turnOn": "设置 → 常规 → 实验"
     }
   },
   "understanding": {
@@ -1610,7 +1630,7 @@
       "reading": "供读的文本"
     },
     "listen": "听",
-    "resume": "继续",
+    "resume": "继续收听",
     "replay": "从头开始",
     "line": "第{n, number}句，共{total, number}句",
     "heard": "{count, plural, other {已听#遍}}",

@@ -1,0 +1,53 @@
+{
+  "de": [
+    "Vielen Dank.",
+    "Vielen Dank fürs Zuschauen.",
+    "Danke fürs Zuschauen.",
+    "Danke.",
+    "Amen.",
+    "Tschüss.",
+    "Bis zum nächsten Mal.",
+    "Bis zum nächsten Mal. Tschüss.",
+    "Das war's für heute.",
+    "Untertitel…",
+    "Untertitelung…",
+    "Copyright WDR…",
+    "SWR…",
+    "ZDF…"
+  ],
+  "en": [
+    "Thank you.",
+    "Thank you for watching.",
+    "Thanks for watching.",
+    "Thank you very much.",
+    "Bye.",
+    "You",
+    "Amen.",
+    "Please subscribe…",
+    "Subtitles by…",
+    "Transcription by…"
+  ],
+  "ru": [
+    "Спасибо.",
+    "Спасибо за внимание.",
+    "Спасибо за просмотр.",
+    "Продолжение следует…",
+    "Субтитры…",
+    "Редактор субтитров…",
+    "Аминь."
+  ],
+  "uk": ["Дякую.", "Дякую за перегляд.", "Субтитри…", "Продовження буде…"],
+  "fr": ["Merci.", "Merci d'avoir regardé.", "Sous-titres…", "Sous-titrage…", "Amen."],
+  "es": [
+    "Gracias.",
+    "Gracias por ver.",
+    "Gracias por ver el video.",
+    "Subtítulos…",
+    "Suscríbete…",
+    "Amén."
+  ],
+  "it": ["Grazie.", "Grazie per la visione.", "Sottotitoli…", "Amen."],
+  "pt": ["Obrigado.", "Obrigada.", "Obrigado por assistir.", "Legendas…", "Amém."],
+  "pl": ["Dziękuję.", "Dzięki za obejrzenie.", "Napisy…", "Amen."],
+  "nl": ["Dank je wel.", "Bedankt voor het kijken.", "Ondertiteling…", "Ondertiteld door…", "Amen."]
+}

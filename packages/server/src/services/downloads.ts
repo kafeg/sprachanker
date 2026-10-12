@@ -1,7 +1,8 @@
 // Downloading courses (06, "Jobs"): a course's provider runs in the background — the first download,
 // completing an interrupted or incomplete one, or syncing with the source are the same idempotent
 // import. One download at a time, the rest queued; the screens poll for progress. The runtime passes
-// the installer (providers use Node APIs); downloads it marked unfinished on disk resume at start.
+// the installer (providers use Node APIs); downloads it marked unfinished on disk resume at start. A
+// course downloaded is removed from the disk through it too.
 
 import type {
   CourseOffer,
@@ -11,6 +12,7 @@ import type {
 } from "@sprachanker/course-kit";
 import { courseKey, type SeriesKey } from "@sprachanker/schema";
 import { ServiceError } from "../errors.ts";
+import { guarded } from "./transfers.ts";
 
 export interface CourseInstaller {
   /** Every course the providers offer, with the series folder it goes to. */
@@ -21,6 +23,8 @@ export interface CourseInstaller {
     course: string,
     hooks: { log: (line: string) => void; progress: ProgressSink },
   ): Promise<ImportReport>;
+  /** Removes an installed course from the library: what no other course of its series uses. */
+  remove(series: string, course: string): Promise<{ files: number; bytes: number }>;
   /** Downloads that did not end (interrupted, or stopped with an `error`), or ended with `failed`
    *  media files of the course missing. */
   unfinished(): Promise<Array<{ series: string; course: string; failed?: number; error?: string }>>;
@@ -160,6 +164,23 @@ export function createDownloads(deps: {
                   : "available";
         return { ...offer, key, installed: installed.has(key), state, missing: left?.failed };
       });
+    },
+
+    /**
+     * Removes a downloaded course or exam from this computer (06): refused while it downloads. The
+     * learner's runs keep what they showed (an exam run its snapshot), their cards their words; the
+     * same course downloaded again meets them by its keys.
+     */
+    async remove(series: string, course: string) {
+      const installer = deps.installer;
+      if (!installer) throw new ServiceError("downloads_unavailable", 409);
+      const job = jobs.get(keyOf(series, course));
+      if (job && (job.status === "queued" || job.status === "running"))
+        throw new ServiceError("course_busy", 409);
+      // Another process importing the series (the CLI): `series_busy`.
+      const removed = await guarded(() => installer.remove(series, course));
+      deps.onEnd?.(series, course);
+      return removed;
     },
 
     /** Queues again the downloads a restart interrupted; those that ended with files missing or

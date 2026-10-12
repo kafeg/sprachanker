@@ -45,6 +45,8 @@ Commands:
                                    machine: its files, the media they use (every edition, or those given)
   courses import <file>            a course file installed here (the course replaced when it differs;
                                    progress kept), then verified
+  courses remove <series/course>   a course or exam removed from this computer: its files and the
+                                   media no other course uses (progress kept; download it again)
   backup [--data <dir>] --to <folder>
          copy what cannot be downloaded again into a new folder there: the databases, recordings,
          imported decks and the key the API keys are sealed with
@@ -345,6 +347,22 @@ async function coursesCommand(args: string[]): Promise<void> {
           : "  verify: ✓",
       );
       if (done.check.problems) process.exitCode = 1;
+      return;
+    }
+    case "remove": {
+      const listed = "(sprachanker courses lists them)";
+      if (!arg) throw new Error(`which course? ${listed}`);
+      const course = courses.list().find((c) => `${c.series}/${c.course}` === arg);
+      if (!course) throw new Error(`no course ${arg} here ${listed}`);
+      const done = await courses.remove(course.series, course.course).catch((error: unknown) => {
+        throw (error as { code?: string }).code === "SERIES_BUSY"
+          ? new Error(COURSE_BUNDLE_ERRORS.series_busy)
+          : error;
+      });
+      console.log(
+        `${arg}: removed, ${done.files} files (${megabytes(done.bytes)})` +
+          (done.shared ? `; ${done.shared} media files other courses use kept` : ""),
+      );
       return;
     }
     default:

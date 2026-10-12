@@ -4,7 +4,7 @@
 import { afterEach, expect, test } from "bun:test";
 import { act, fireEvent, waitFor } from "@testing-library/react";
 import { type SpeechHost, SpeechProvider } from "../../src/audio/context.ts";
-import type { SceneState } from "../../src/llm/api.ts";
+import { type SceneState, useSceneAction } from "../../src/llm/api.ts";
 import { DialogueStep } from "../../src/llm/dialogue.tsx";
 import { DialogueLine, type DialogueLineInput } from "../../src/llm/dialogue-line.tsx";
 import { claimPlayback } from "../../src/ui/playback.tsx";
@@ -28,8 +28,9 @@ afterEach(() => {
   g.AudioContext = saved.context;
 });
 
-/** A page where the microphone records: each take is a little audio, stopped when asked. */
-function microphoneHere() {
+/** A page where the microphone records: each take is a little audio at the level given (a voice, or
+ *  silence), stopped when asked. */
+function microphoneHere(level = 0.2) {
   Object.defineProperty(window, "isSecureContext", { value: true, configurable: true });
   g.MediaRecorder = class {
     static isTypeSupported = () => true;
@@ -47,7 +48,10 @@ function microphoneHere() {
     }
   };
   g.AudioContext = class {
-    createAnalyser = () => ({ fftSize: 0, getByteTimeDomainData() {} });
+    createAnalyser = () => ({
+      fftSize: 0,
+      getFloatTimeDomainData: (a: Float32Array) => a.fill(level),
+    });
     createMediaStreamSource = () => ({ connect() {} });
     close = async () => {};
   };
@@ -175,6 +179,36 @@ test("a line said: what was heard is shown and sent as heard, with its take, kep
   expect(view.getByRole("button", { name: "Send" })).toBeTruthy();
   act(() => stored());
   expect(view.getByRole("button", { name: "Record yourself" })).toBeTruthy();
+});
+
+test("a silent take is not sent to be heard nor kept: nothing was heard, said again", async () => {
+  microphoneHere(0);
+  const asked: string[] = [];
+  const view = await renderApp(
+    <SpeechProvider
+      value={{
+        ...host(true, "Vielen Dank."),
+        save: async () => {
+          asked.push("save");
+          return TAKE;
+        },
+        transcribe: async () => {
+          asked.push("transcribe");
+          return "Vielen Dank.";
+        },
+      }}
+    >
+      <DialogueLine lang="de" busy={false} onSend={() => {}} />
+    </SpeechProvider>,
+  );
+  fireEvent.click(view.getByRole("button", { name: "Record yourself" }));
+  await waitFor(() => view.getByRole("button", { name: "Stop recording" }));
+  await act(async () => {
+    fireEvent.click(view.getByRole("button", { name: "Stop recording" }));
+  });
+  expect(view.getByText(/^Nothing was heard/)).toBeTruthy();
+  expect(view.queryByText("Vielen Dank.")).toBeNull();
+  expect(asked).toEqual([]);
 });
 
 test("recording stops what is read aloud or played: the microphone never hears the partner's line", async () => {
@@ -351,6 +385,45 @@ test("a Dialogue that could not begin: said, with Try again asking it again", as
     fireEvent.click(await view.findByRole("button", { name: "Try again" }));
     await waitFor(() => expect(asked).toEqual(["/api/llm/scene/start", "/api/llm/scene/start"]));
     view.unmount();
+  } finally {
+    globalThis.fetch = real;
+  }
+});
+
+test("the step is done when a Dialogue ends, not as it starts", async () => {
+  const real = globalThis.fetch;
+  let reply = dialogue();
+  globalThis.fetch = (async () => Response.json(reply)) as unknown as typeof fetch;
+  let ended = 0;
+  function Actions() {
+    const action = useSceneAction(lesson.key, () => ended++);
+    const request = { ...ids, language: "en" };
+    return (
+      <>
+        <button type="button" onClick={() => action.mutate({ start: request })}>
+          start
+        </button>
+        <button
+          type="button"
+          onClick={() => action.mutate({ turn: { ...request, text: "Danke", spoken: true } })}
+        >
+          line
+        </button>
+      </>
+    );
+  }
+  try {
+    const view = await renderApp(<Actions />);
+    fireEvent.click(view.getByRole("button", { name: "start" }));
+    await Bun.sleep(10);
+    expect(ended).toBe(0);
+    // A line that does not end it: not done yet; the one that ends it: done.
+    fireEvent.click(view.getByRole("button", { name: "line" }));
+    await Bun.sleep(10);
+    expect(ended).toBe(0);
+    reply = dialogue({ done: true });
+    fireEvent.click(view.getByRole("button", { name: "line" }));
+    await waitFor(() => expect(ended).toBe(1));
   } finally {
     globalThis.fetch = real;
   }

@@ -104,6 +104,8 @@
     "correct": "Corect",
     "partial": "Parțial corect",
     "wrong": "Nu chiar",
+    "incorrect": "Greșit",
+    "unanswered": "Fără răspuns",
     "summary": "Rezumat",
     "score": "Corect din prima încercare: {correct, number} din {scored, number}. Procentul ține cont și de răspunsurile parțial corecte.",
     "skipped": "sărit",
@@ -651,7 +653,14 @@
     "done": "Descărcat. {failed, plural, =0 {Toate fișierele media sunt la locul lor.} one {# fișier nu a putut fi descărcat.} few {# fișiere nu au putut fi descărcate.} other {# de fișiere nu au putut fi descărcate.}}",
     "hint": "Descărcarea aduce din sursă ce lipsește (paginile și fișierele media stocate se păstrează) și pregătește din nou cursul; progresul tău rămâne.",
     "log": "Jurnalul descărcării",
-    "syncShort": "Sincronizează"
+    "syncShort": "Sincronizează",
+    "remove": {
+      "button": "Elimină de pe acest calculator…",
+      "title": "Elimini „{title}” de pe acest calculator?",
+      "body": "Lecțiile și fișierele media ale lui sunt șterse de pe disc (media folosite de alt curs rămân). Progresul, caietul și cuvintele tale rămân; descarcă-l din nou ca să continui.",
+      "bodyExam": "Întrebările și fișierele media ale lui sunt șterse de pe disc (media folosite de alt curs rămân). Simulările, exersarea și caietul tău rămân; descarcă-l din nou ca să continui.",
+      "confirm": "Elimină"
+    }
   },
   "storage": {
     "title": "Stocare",
@@ -1044,6 +1053,7 @@
       "updates": "Acest fișier actualizează pachetul {deck} de aici: cuvintele lui devin cele din fișier, iar cardurile create din ele le urmează. În alte limbi este un pachet separat.",
       "left": "{count, plural, one {# notă fără cuvânt este omisă.} few {# note fără cuvânt sunt omise.} other {# de note fără cuvânt sunt omise.}}",
       "unusable": "{count, plural, one {# notă al cărei cuvânt nu poate fi citit este omisă.} few {# note ale căror cuvinte nu pot fi citite sunt omise.} other {# de note ale căror cuvinte nu pot fi citite sunt omise.}}",
+      "joined": "{count, plural, one {# notă a unui cuvânt deja prezent e unită cu el, traducerea ei adăugată.} few {# note ale unor cuvinte deja prezente sunt unite cu ele, traducerile lor adăugate.} other {# de note ale unor cuvinte deja prezente sunt unite cu ele, traducerile lor adăugate.}}",
       "done": "{deck} importat: {words, plural, one {# cuvânt} few {# cuvinte} other {# de cuvinte}}."
     },
     "remove": "Șterge pachetul",
@@ -1194,6 +1204,7 @@
     "answerFree": "Spune cu voce tare, cum cere sarcina.",
     "answerLine": "Răspunsul tău",
     "mine": "Eu",
+    "takeDeleted": "Înregistrarea ta a fost ștearsă",
     "mineFor": "Eu · {time}",
     "recordedNotKept": "Înregistrat (nepăstrat)",
     "listenFirst": "Ascultă mai întâi înregistrarea.",
@@ -1284,6 +1295,8 @@
     },
     "sayIn": "Spune în {language}",
     "notHeardShort": "Nu s-a putut recunoaște. Încearcă din nou.",
+    "nothingHeard": "Nu s-a auzit nimic. Spune din nou, puțin mai tare.",
+    "starting": "Vocea pornește… prima citire poate dura o jumătate de minut.",
     "answerSample": "Model",
     "aiChecking": "AI-ul îți verifică răspunsul…",
     "needsRecognition": "Ca să spui o frază ai nevoie de recunoașterea vorbirii: activeaz-o în Setări → Vorbire.",
@@ -1302,6 +1315,7 @@
     "answer_does_not_fit": "Răspunsul nu se potrivește cu acest exercițiu. Reîncarcă lecția.",
     "card_changed": "Acest card s-a schimbat pe alt dispozitiv. E afișat din nou.",
     "downloads_unavailable": "Cursurile nu pot fi descărcate aici.",
+    "course_busy": "Acest curs se descarcă acum. Elimină-l după ce se termină descărcarea.",
     "empty_recording": "Înregistrarea e goală. Încearcă din nou.",
     "event_id_taken": "Acest răspuns a fost deja înregistrat altfel. Reîncarcă pagina.",
     "event_of_another_run": "Această înregistrare aparține altei parcurgeri. Reîncarcă lecția.",
@@ -1470,6 +1484,7 @@
     "answered": "Răspunse: {done, number} din {total, number}",
     "question": "Întrebarea {n, number} din {total, number}",
     "practiceScore": "{count, plural, one {{points, number} din # răspuns corect} few {{points, number} din # răspunsuri corecte} other {{points, number} din # de răspunsuri corecte}}",
+    "practicePoints": "Cu răspunsurile deschise: {points, number} din {max, number} puncte",
     "timeUp": "Timpul a expirat: contează răspunsurile date până atunci.",
     "needed": "necesar: {points, number} din {max, number}",
     "practiseMistakes": "Exersează greșelile",
@@ -1520,12 +1535,14 @@
       "pending": "{count, plural, one {# răspuns nu e încă notat: contează 0 până îl notezi.} few {# răspunsuri nu sunt încă notate: contează 0 până le notezi.} other {# de răspunsuri nu sunt încă notate: contează 0 până le notezi.}}",
       "hint": "Notat cum o fac evaluatorii examenului; schimbă o notă oricând vrei.",
       "voided": "sarcina nu a fost îndeplinită: 0 pentru tot răspunsul",
-      "unrated": "0 până când „{criterion}” e notat: el decide dacă răspunsul contează",
+      "unrated": "până când „{criterion}” e notat: el decide dacă răspunsul contează",
       "save": "Salvează nota",
       "change": "Schimbă nota",
       "propose": "Propune o notă (AI)",
       "proposing": "Asistentul notează…",
       "proposed": "Propusă de asistentul AI ({model}): accept-o așa cum e sau schimb-o.",
+      "proposalTaken": "Propusă de asistentul AI ({model}) și acceptată.",
+      "proposalSetAside": "Propusă de asistentul AI ({model}); contează propria ta notare.",
       "accept": "Acceptă propunerea",
       "keepMine": "Păstrează-o pe a mea",
       "notTaken": "Încă neacceptată: rezultatul socotește {points, number} din {max, number}."
@@ -1585,6 +1602,7 @@
     "export": {
       "button": "Exportă într-un fișier",
       "hint": "Acest curs într-un singur fișier, ca să-l imporți pe celălalt calculator al tău, la „Descărcate”.",
+      "hintExam": "Acest examen într-un singur fișier, de importat pe celălalt calculator la „Descărcate”.",
       "started": "Se descarcă „{file}” ({size})."
     },
     "import": {
@@ -1596,7 +1614,9 @@
       "same": "„{title}” era deja aici, la fel: nu s-a schimbat nimic.",
       "replaced": "„{title}” este acum versiunea din fișier; progresul tău rămâne.",
       "verified": "Verificat: toate fișierele sunt aici.",
-      "problems": "Verificat: {count, plural, one {# problemă găsită} few {# probleme găsite} other {# de probleme găsite}} — „Verifică” pe cardul lui le arată."
+      "problems": "Verificat: {count, plural, one {# problemă găsită} few {# probleme găsite} other {# de probleme găsite}} — „Verifică” pe cardul lui le arată.",
+      "experimental": "Este un experiment: nu apare până nu îi activezi sursa.",
+      "turnOn": "Setări → General → Experimente"
     }
   },
   "understanding": {
@@ -1610,7 +1630,7 @@
       "reading": "un text de citit"
     },
     "listen": "Ascultă",
-    "resume": "Continuă",
+    "resume": "Continuă ascultarea",
     "replay": "De la început",
     "line": "Replica {n, number} din {total, number}",
     "heard": "{count, plural, one {Ascultat o dată} few {Ascultat de # ori} other {Ascultat de # de ori}}",

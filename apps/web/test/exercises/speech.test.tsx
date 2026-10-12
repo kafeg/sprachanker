@@ -1,8 +1,9 @@
 import { afterEach, expect, test } from "bun:test";
 import type { ItemKey } from "@sprachanker/schema";
-import { fireEvent } from "@testing-library/react";
+import { act, fireEvent } from "@testing-library/react";
 import { SpeechProvider } from "../../src/audio/context.ts";
 import { SpeechRepeat, SpeechSelfrate } from "../../src/exercises/speech.tsx";
+import { TargetLang } from "../../src/ui/target-lang.ts";
 import { renderApp } from "../render.tsx";
 
 const secure = Object.getOwnPropertyDescriptor(window, "isSecureContext");
@@ -85,6 +86,22 @@ test("the phrase hidden until the first try, shown on request; a kept take plays
   );
   expect(notebook.getByRole("button", { name: "Mine" })).toBeTruthy();
   expect(notebook.queryByRole("button", { name: "Record yourself" })).toBeNull();
+  notebook.unmount();
+
+  // All recordings deleted (the answers kept): the take is said to be gone, nothing to play.
+  const deleted = await renderApp(
+    <SpeechProvider value={{ ...host(), kept: () => false }}>
+      <SpeechSelfrate
+        item={item}
+        answer={{ recording: "01K00000000000000000000000" }}
+        onAnswer={() => {}}
+        url={(p) => p}
+        readOnly
+      />
+    </SpeechProvider>,
+  );
+  expect(deleted.getByText("Your recording was deleted")).toBeTruthy();
+  expect(deleted.queryByRole("button", { name: "Mine" })).toBeNull();
 });
 
 test("what was heard: the verdict and the words missed against the phrase; a free answer just heard", async () => {
@@ -198,4 +215,103 @@ test("saying a phrase: shown at once; without recognition the microphone says wh
   );
   // Three words of four: under the share for "almost".
   expect(said.getByText(/^Try again/)).toBeTruthy();
+});
+
+/** A microphone that hears the level given (a constant waveform), recorded by a MediaRecorder on
+ *  paper; what getUserMedia was asked. */
+function microphone(level: number) {
+  const asked: MediaStreamConstraints[] = [];
+  const g = globalThis as Record<string, unknown>;
+  const saved = { recorder: g.MediaRecorder, context: g.AudioContext };
+  Object.defineProperty(navigator, "mediaDevices", {
+    value: {
+      getUserMedia: async (c: MediaStreamConstraints) => {
+        asked.push(c);
+        return { getTracks: () => [] };
+      },
+    },
+    configurable: true,
+  });
+  g.MediaRecorder = class {
+    static isTypeSupported = () => true;
+    state = "inactive";
+    mimeType = "audio/webm";
+    ondataavailable?: (e: { data: Blob }) => void;
+    onstop?: () => void;
+    start() {
+      this.state = "recording";
+    }
+    stop() {
+      this.state = "inactive";
+      this.ondataavailable?.({ data: new Blob(["take"]) });
+      this.onstop?.();
+    }
+  };
+  g.AudioContext = class {
+    createAnalyser = () => ({
+      fftSize: 512,
+      getFloatTimeDomainData: (a: Float32Array) => a.fill(level),
+    });
+    createMediaStreamSource = () => ({ connect() {} });
+    close = async () => {};
+  };
+  return {
+    asked,
+    restore() {
+      g.MediaRecorder = saved.recorder;
+      g.AudioContext = saved.context;
+    },
+  };
+}
+
+test("a take nothing loud was in: neither kept nor heard, said again; the browser's processing of the microphone off", async () => {
+  setSecure(true);
+  for (const level of [0.001, 0.2]) {
+    const mic = microphone(level);
+    const done = { saved: 0, heard: 0, answers: 0 };
+    const view = await renderApp(
+      <SpeechProvider
+        value={{
+          ...host(),
+          save: async () => {
+            done.saved++;
+            return "01K00000000000000000000000";
+          },
+          transcribe: async () => {
+            done.heard++;
+            return "Guten Tag";
+          },
+        }}
+      >
+        <TargetLang value="de">
+          <SpeechSelfrate
+            item={{ key: item.key, text: "Guten Tag!" }}
+            answer={undefined}
+            onAnswer={() => done.answers++}
+            url={(p) => p}
+          />
+        </TargetLang>
+      </SpeechProvider>,
+    );
+    await act(async () => {
+      fireEvent.click(view.getByRole("button", { name: "Record yourself" }));
+    });
+    await act(async () => {
+      fireEvent.click(view.getByRole("button", { name: "Stop recording" }));
+    });
+    expect(mic.asked[0]?.audio).toMatchObject({
+      autoGainControl: false,
+      noiseSuppression: false,
+      echoCancellation: false,
+    });
+    if (level < 0.01) {
+      expect(view.getByText(/^Nothing was heard/)).toBeTruthy();
+      expect(done).toEqual({ saved: 0, heard: 0, answers: 0 });
+    } else {
+      expect(view.queryByText(/^Nothing was heard/)).toBeNull();
+      expect(done).toEqual({ saved: 1, heard: 1, answers: 1 });
+    }
+    view.unmount();
+    mic.restore();
+  }
 });

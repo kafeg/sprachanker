@@ -164,7 +164,7 @@ function Running({
         return {
           index,
           state: stateOf(item.key),
-          line: questionLine(item),
+          line: questionLine(item, section),
           ...(teile.length > 1 && group && { group }),
         };
       }),

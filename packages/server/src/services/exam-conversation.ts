@@ -4,8 +4,9 @@
 // as `assistant` with its `speaker` — so the run's page shows the conversation; the learner's lines
 // are the answer, rated afterwards by the part's criteria with the conversation around them. The
 // part ends when the examiner closes it or the learner ends it (an empty line of theirs, `done`);
-// ended with nothing said, practice may begin it again (a mock exam's stays unanswered) — the part
-// is its latest conversation (engine `latestConversation`). One line answered at a time per part.
+// ended with nothing said, practice may begin it again (a mock exam's stays unanswered) with the
+// examiner's opening as before — the same card, the same topic; the model is not asked anew — and the
+// part is its latest conversation (engine `latestConversation`). One line answered at a time per part.
 import { conversationAnswer, conversationEnded, latestConversation } from "@sprachanker/engine";
 import {
   conversationOf,
@@ -30,6 +31,13 @@ export interface ConversationRequest {
   language: string;
 }
 
+/** A conversation's opening: the examiner's and the partner's lines before the learner's first one,
+ *  none that closed it. */
+const openingOf = (lines: LlmTurnPayload[]) => {
+  const first = lines.findIndex((l) => l.role === "user" || l.done);
+  return (first < 0 ? lines : lines.slice(0, first)).filter((l) => l.text.trim());
+};
+
 export function createExamConversation(deps: { llm: Llm; store: RunStore; exams: Exams }) {
   const { llm, store } = deps;
   const busy = createInFlight<true>("exam_conversation_busy");
@@ -53,8 +61,10 @@ export function createExamConversation(deps: { llm: Llm; store: RunStore; exams:
         run.plan.mode === "practice" && !request.text?.trim() && !conversationAnswer(all);
       if (!again) throw new ServiceError("exam_part_done", 409);
     }
-    // The conversation going on (none when it is opened again).
+    // The conversation going on (none when it is opened again: the examiner's opening of the one
+    // before, until the learner's first line or the examiner's close).
     const said = conversationEnded(all) ? [] : latestConversation(all);
+    const opening = conversationEnded(all) ? openingOf(latestConversation(all)) : [];
     // The examiner opens the part; after that every call answers a line of the learner's.
     if (!said.length === !!request.text?.trim()) throw new ServiceError("invalid_request");
     const sectionLocale = section ? locale?.sections[section.key] : undefined;
@@ -76,7 +86,7 @@ export function createExamConversation(deps: { llm: Llm; store: RunStore; exams:
       ...(item.partner && { partner: item.partner }),
       history,
     };
-    return { task };
+    return { task, opening };
   }
 
   /** The learner ends the part: an empty line of theirs closing it, kept once (ended already:
@@ -101,7 +111,18 @@ export function createExamConversation(deps: { llm: Llm; store: RunStore; exams:
     turn(request: ConversationRequest): Promise<{ events: TypedEvent[]; done: boolean }> {
       return busy.run(`${request.runId}|${request.itemKey}`, true, async () => {
         if (request.end) return end(request);
-        const { task } = await input(request);
+        const { task, opening } = await input(request);
+        if (opening.length) {
+          const events = store.append(
+            request.runId,
+            opening.map(({ done: _, ...payload }) => ({
+              type: "llm_turn" as const,
+              itemKey: request.itemKey,
+              payload,
+            })),
+          );
+          return { events, done: false };
+        }
         const { result, model, latencyMs } = await llm.structured(examConversationTask(task));
         const lines: LlmTurnPayload[] = [
           ...(request.text ? [{ role: "user" as const, text: request.text.trim() }] : []),

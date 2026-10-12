@@ -482,7 +482,7 @@ export type SceneAction =
 /** Starts a new Dialogue (the open one ends), sends a line of the open one, ends it, or asks for its
  *  summary again; `onStarted` runs once one is stored, also when the page that asked is gone
  *  meanwhile. */
-export function useSceneAction(lessonKey: LessonKey, onStarted?: () => void) {
+export function useSceneAction(lessonKey: LessonKey, onEnded?: () => void) {
   const client = useQueryClient();
   return useMutation({
     mutationFn: (action: SceneAction) =>
@@ -504,10 +504,9 @@ export function useSceneAction(lessonKey: LessonKey, onStarted?: () => void) {
           pending: summing ? { summing: true } : null,
         }),
       );
-      if ("start" in action) {
-        void client.invalidateQueries({ queryKey: ["scenes", lessonKey] });
-        onStarted?.();
-      }
+      if ("start" in action) void client.invalidateQueries({ queryKey: ["scenes", lessonKey] });
+      // A Dialogue ended (its goals met, or ended by the learner): the step is done.
+      else if (scene.done) onEnded?.();
     },
   });
 }

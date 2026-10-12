@@ -20,7 +20,7 @@ test("a package previewed, imported as a deck with its audio; its media served f
     words: 4,
     withAudio: 1,
     withExamples: 0,
-    left: { withoutWord: 0 },
+    left: { withoutWord: 0, unusable: 0, joined: 0 },
     languages: [],
     first: [
       { target: "der Kaffee", translations: { "": "кофе" } },
@@ -172,7 +172,8 @@ test("a preview's first words with their translations, read from the same notes;
       ],
     }),
   );
-  expect(seen).toMatchObject({ words: 7, left: { withoutWord: 2 } });
+  // Counted as the import counts: the note without a lemma ("…") left out here too.
+  expect(seen).toMatchObject({ words: 6, left: { withoutWord: 2, unusable: 1, joined: 0 } });
   const made = await sendJson("POST", "/api/decks/import", {
     upload: seen.upload,
     title: "Lücken",
@@ -187,6 +188,44 @@ test("a preview's first words with their translations, read from the same notes;
       translations: { ru: `перевод ${i}` },
     })),
   );
+});
+
+test("two notes of one word: one word, both senses' translations; the preview counts as the import does, audio only that the package holds", async () => {
+  const { preview, sendJson, wordsOf } = await withDecks();
+  const seen = await preview(
+    buildApkg({
+      deck: "Kern",
+      fields: ["german", "russian"],
+      notes: [
+        { guid: "a1", fields: ["ab [sound:ab.mp3]", "с"] },
+        { guid: "a2", fields: ["ab", "в, от, прочь"] },
+        { guid: "k", fields: ["die Kraft [sound:kraft.mp3]", "сила"] },
+        { guid: "d1", fields: ["damit", "с этим, чтобы"] },
+        { guid: "d2", fields: ["damit", "чтобы"] },
+      ],
+      // The package lacks kraft.mp3, though its note names it.
+      media: { "ab.mp3": new Uint8Array([1, 2, 3]) },
+    }),
+  );
+  expect(seen).toMatchObject({
+    words: 3,
+    withAudio: 1,
+    left: { withoutWord: 0, unusable: 0, joined: 2 },
+  });
+  const made = await sendJson("POST", "/api/decks/import", {
+    upload: seen.upload,
+    title: "Kern",
+    lang: "de",
+    translationLang: "ru",
+    file: "k.apkg",
+  });
+  expect(made).toMatchObject({ words: 3, withAudio: 1, left: { joined: 2 } });
+  const words = wordsOf(made.id) as Record<string, { translation?: string; audio?: string }>;
+  expect(Object.keys(words)).toEqual(["a1", "k", "d1"]);
+  expect(words.a1).toMatchObject({ translation: "с; в, от, прочь" });
+  expect(words.a1?.audio).toBeTruthy();
+  expect(words.d1?.translation).toBe("с этим, чтобы; чтобы");
+  expect(words.k?.audio).toBeUndefined();
 });
 
 test("fields named by language: the translation in the language chosen, the deck's examples with their audio on the card", async () => {
@@ -523,7 +562,7 @@ test("an import asked again — at once or after it ended — answers with the d
   expect(again).toEqual(first);
   // After it ended: the deck it made, what it left out no longer known.
   const { left, ...made } = first;
-  expect(left).toEqual({ withoutWord: 0, unusable: 0 });
+  expect(left).toEqual({ withoutWord: 0, unusable: 0, joined: 0 });
   expect(await sendJson("POST", "/api/decks/import", request)).toEqual(made);
   expect((await getJson("/api/decks")).decks).toHaveLength(1);
 });

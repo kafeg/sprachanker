@@ -104,6 +104,8 @@
     "correct": "Correct",
     "partial": "En partie correct",
     "wrong": "Pas tout à fait",
+    "incorrect": "Faux",
+    "unanswered": "Sans réponse",
     "summary": "Bilan",
     "score": "Juste du premier coup : {correct, number} sur {scored, number}. Le pourcentage compte aussi les réponses en partie justes.",
     "skipped": "passé",
@@ -651,7 +653,14 @@
     "done": "Téléchargé. {failed, plural, =0 {Tous les médias sont là.} one {# fichier n’a pas pu être téléchargé.} many {# de fichiers n’ont pas pu être téléchargés.} other {# fichiers n’ont pas pu être téléchargés.}}",
     "hint": "Le téléchargement récupère ce qui manque depuis la source (les pages et médias déjà stockés sont conservés) et prépare à nouveau le cours ; ta progression reste.",
     "log": "Journal du téléchargement",
-    "syncShort": "Synchroniser"
+    "syncShort": "Synchroniser",
+    "remove": {
+      "button": "Retirer de cet ordinateur…",
+      "title": "Retirer « {title} » de cet ordinateur ?",
+      "body": "Ses leçons et ses médias sont supprimés du disque (les médias qu’un autre cours utilise restent). Ta progression, ton carnet et tes mots restent ; télécharge-le à nouveau pour continuer.",
+      "bodyExam": "Ses questions et ses médias sont supprimés du disque (les médias qu’un autre cours utilise restent). Tes examens blancs, ton entraînement et ton carnet restent ; télécharge-le à nouveau pour continuer.",
+      "confirm": "Retirer"
+    }
   },
   "storage": {
     "title": "Stockage",
@@ -1044,6 +1053,7 @@
       "updates": "Ce fichier met à jour le paquet {deck} déjà présent : ses mots deviennent ceux de ce fichier, et les cartes qui en sont issues les suivent. Dans d’autres langues, c’est un paquet à part.",
       "left": "{count, plural, one {# note sans mot est laissée de côté.} many {# de notes sans mot sont laissées de côté.} other {# notes sans mot sont laissées de côté.}}",
       "unusable": "{count, plural, one {# note dont le mot est illisible est laissée de côté.} many {# de notes dont les mots sont illisibles sont laissées de côté.} other {# notes dont les mots sont illisibles sont laissées de côté.}}",
+      "joined": "{count, plural, one {# note d’un mot déjà présent lui est jointe, sa traduction ajoutée.} other {# notes de mots déjà présents leur sont jointes, leurs traductions ajoutées.}}",
       "done": "{deck} importé : {words, plural, one {# mot} many {# de mots} other {# mots}}."
     },
     "remove": "Supprimer le paquet",
@@ -1194,6 +1204,7 @@
     "answerFree": "Dis-le à voix haute comme le demande la consigne.",
     "answerLine": "Ta réponse",
     "mine": "Moi",
+    "takeDeleted": "Ton enregistrement a été supprimé",
     "mineFor": "Moi · {time}",
     "recordedNotKept": "Enregistré (non conservé)",
     "listenFirst": "Écoute d’abord l’enregistrement.",
@@ -1284,6 +1295,8 @@
     },
     "sayIn": "Dis-le en {language}",
     "notHeardShort": "Rien n’a pu être reconnu. Réessaie.",
+    "nothingHeard": "Rien n’a été entendu. Redis-le, un peu plus fort.",
+    "starting": "La voix démarre… la première lecture peut prendre une demi-minute.",
     "answerSample": "Modèle",
     "aiChecking": "L’IA vérifie ta réponse…",
     "needsRecognition": "Dire une phrase nécessite la reconnaissance vocale : active-la dans Réglages → Parole.",
@@ -1302,6 +1315,7 @@
     "answer_does_not_fit": "La réponse ne correspond pas à cet exercice. Recharge la leçon.",
     "card_changed": "Cette carte a changé sur un autre appareil. Elle est affichée à nouveau.",
     "downloads_unavailable": "Les cours ne peuvent pas être téléchargés ici.",
+    "course_busy": "Ce cours est en cours de téléchargement. Retire-le une fois le téléchargement terminé.",
     "empty_recording": "L’enregistrement est vide. Réessaie.",
     "event_id_taken": "Cette réponse a déjà été enregistrée autrement. Recharge la page.",
     "event_of_another_run": "Cet enregistrement appartient à un autre passage. Recharge la leçon.",
@@ -1470,6 +1484,7 @@
     "answered": "Répondu : {done, number} sur {total, number}",
     "question": "Question {n, number} sur {total, number}",
     "practiceScore": "{count, plural, one {{points, number} sur # réponse juste} many {{points, number} sur # de réponses justes} other {{points, number} sur # réponses justes}}",
+    "practicePoints": "Avec les réponses ouvertes : {points, number} points sur {max, number}",
     "timeUp": "Le temps était écoulé : les réponses données jusque-là comptent.",
     "needed": "{points, number} sur {max, number} requis",
     "practiseMistakes": "Retravailler les erreurs",
@@ -1520,12 +1535,14 @@
       "pending": "{count, plural, one {# réponse n’est pas encore notée : elle compte 0 tant que tu ne la notes pas.} many {# de réponses ne sont pas encore notées : elles comptent 0 tant que tu ne les notes pas.} other {# réponses ne sont pas encore notées : elles comptent 0 tant que tu ne les notes pas.}}",
       "hint": "Noté comme le font les correcteurs de l’examen ; modifie une note quand tu veux.",
       "voided": "tâche non réalisée : 0 pour toute la réponse",
-      "unrated": "0 tant que « {criterion} » n’est pas noté : ce critère décide si la réponse compte",
+      "unrated": "tant que « {criterion} » n’est pas noté : ce critère décide si la réponse compte",
       "save": "Enregistrer la note",
       "change": "Modifier la note",
       "propose": "Proposer une note (IA)",
       "proposing": "L’assistant note…",
       "proposed": "Proposé par l’assistant IA ({model}) : accepte-le tel quel ou modifie-le.",
+      "proposalTaken": "Proposé par l’assistant IA ({model}) et accepté.",
+      "proposalSetAside": "Proposé par l’assistant IA ({model}) ; c’est ta propre note qui compte.",
       "accept": "Accepter la proposition",
       "keepMine": "Garder la mienne",
       "notTaken": "Pas encore acceptée : le résultat compte {points, number} sur {max, number}."
@@ -1585,6 +1602,7 @@
     "export": {
       "button": "Exporter dans un fichier",
       "hint": "Ce cours en un seul fichier, à importer sur ton autre ordinateur dans « Téléchargés ».",
+      "hintExam": "Cet examen en un seul fichier, à importer sur ton autre ordinateur sous « Téléchargés ».",
       "started": "Téléchargement de « {file} » ({size})."
     },
     "import": {
@@ -1596,7 +1614,9 @@
       "same": "« {title} » est déjà là, identique : rien n’a changé.",
       "replaced": "« {title} » est maintenant la version du fichier ; ta progression est conservée.",
       "verified": "Vérifié : tous les fichiers sont là.",
-      "problems": "Vérifié : {count, plural, one {# problème trouvé} many {# de problèmes trouvés} other {# problèmes trouvés}} — « Vérifier » sur sa carte les liste."
+      "problems": "Vérifié : {count, plural, one {# problème trouvé} many {# de problèmes trouvés} other {# problèmes trouvés}} — « Vérifier » sur sa carte les liste.",
+      "experimental": "C’est une expérience : elle n’apparaît pas tant que sa source n’est pas activée.",
+      "turnOn": "Réglages → Général → Expériences"
     }
   },
   "understanding": {
@@ -1610,7 +1630,7 @@
       "reading": "un texte à lire"
     },
     "listen": "Écouter",
-    "resume": "Continuer",
+    "resume": "Continuer l’écoute",
     "replay": "Depuis le début",
     "line": "Ligne {n, number} sur {total, number}",
     "heard": "{count, plural, one {Écouté une fois} many {Écouté # de fois} other {Écouté # fois}}",

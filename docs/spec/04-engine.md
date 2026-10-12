@@ -219,7 +219,12 @@ imported `.apkg` decks fit in. Scheduling and the queue are pure functions in
   is taken where it names one: Nomen, Verb, Adjektiv…, and codes as `nf`/`nm`/`nn` (a noun's gender),
   `die (pl)` (plural only), `der, die` (either gender), only the first of several (`adj; adv`); a
   note without a word, or whose word makes no entry (no lemma, a key too long), is left out — the
-  preview and the import say how many and why. So a word a course has links to its card. A card made from a
+  preview and the import say how many and why. A deck's words are its lexemes, as its cards are: a
+  note of a word already in it ("ab" twice, "с" and "в, от, прочь") joins that word — its first
+  note's word and key, every note's translation ("с; в, от, прочь"), examples and tags, the first
+  audio —, said in the preview and the import; the preview counts words as the import makes them (in
+  the first language its fields are named by), with audio only those whose file the package holds.
+  So a word a course has links to its card. A card made from a
   deck's word has the deck in its source (`deck:<id>/<guid>`): two decks sharing a note never take
   each other's cards. Decks are the
   server's, every profile's to take (05, `decks/`); a package is uploaded once (kept beside the decks
@@ -241,7 +246,7 @@ imported `.apkg` decks fit in. Scheduling and the queue are pure functions in
   Qwen3-TTS and reads the words' language, else Piper with a voice for it, else Qwen3-TTS; neither
   here, the request is refused and Decks says what to install. The text read is the word as the card
   shows it ("der Abend"; variants as a list: "der Großvater / der Opa" read "der Großvater, der
-  Opa"), with the language's voice the profile picked (else the best one; Qwen3-TTS: its speaker, its
+  Opa"; a separable verb's bar left out: "her|kommen" read "herkommen"), with the language's voice the profile picked (else the best one; Qwen3-TTS: its speaker, its
   model) at the speed recorded — the audio is every profile's, kept in the deck's folder alone (never
   in the readings' cache). Kept beside the deck (`decks/<folder>/extras.json`, 05) by lexeme — a deck's
   words count once per lexeme, as its cards do, so two notes of one word are read once; a course's
@@ -383,7 +388,9 @@ label and each skippable as any step:
    heard (or says it again); each line judged — understood, fitting, at most two corrections of that
    line —; done when the goals are met; then a summary: the goals met and one or two key corrections,
    each with a model line. Typing only as a fallback where there is no microphone or no recognition
-   (09, the step says why). Replaces the typed scene (its runs read on as Dialogues).
+   (09, the step says why). The step is done once a Dialogue ends (its goals met or ended by the
+   learner), not as one starts; skipping it stays the step bar's. Replaces the typed scene (its runs
+   read on as Dialogues).
 7. **Going over mistakes** (below): the pass's mistakes by type, a short explanation per type and
    two or three new items of the same type (`mistake_items`, items of the existing closed types),
    checked by the engine.

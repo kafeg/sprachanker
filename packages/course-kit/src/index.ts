@@ -14,6 +14,7 @@ export * from "./media-index.ts";
 export * from "./media-store.ts";
 export * from "./pool.ts";
 export * from "./provider.ts";
+export * from "./remove.ts";
 export * from "./robots.ts";
 export * from "./text.ts";
 export * from "./verify.ts";

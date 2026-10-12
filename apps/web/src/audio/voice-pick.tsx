@@ -17,6 +17,7 @@ import {
 } from "@/ui/components/select.tsx";
 import { Textarea } from "@/ui/components/textarea.tsx";
 import { samplesOf } from "./samples.ts";
+import { useReadingWait } from "./speaker.ts";
 
 /** The select's value for "the best one there". */
 export const AUTO = "auto";
@@ -66,6 +67,8 @@ export function VoicePick({
   const [shown, setShown] = useState(0);
   const phrase = phrases[shown % phrases.length] ?? "";
   const [text, setText] = useState(phrase);
+  // The server's voice taking its time over "Listen" (a model loading): said.
+  const starting = useReadingWait() === `listen:${lang}`;
   const another = () => {
     const next = (shown + 1) % phrases.length;
     setShown(next);
@@ -91,9 +94,19 @@ export function VoicePick({
           ))}
         </SelectContent>
       </Select>
-      <Button variant="outline" size="sm" onClick={() => onListen(text.trim() || phrase)}>
-        <Volume2 className="size-4" /> {t("speech.settings.listen")}
+      <Button
+        variant="outline"
+        size="sm"
+        loading={starting}
+        onClick={() => onListen(text.trim() || phrase)}
+      >
+        {!starting && <Volume2 className="size-4" />} {t("speech.settings.listen")}
       </Button>
+      {starting && (
+        <span className="text-sm text-muted-foreground" role="status">
+          {t("speech.starting")}
+        </span>
+      )}
       <div className="basis-full space-y-1 sm:ps-31">
         <Textarea
           lang={lang}

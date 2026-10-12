@@ -104,6 +104,8 @@
     "correct": "Dobrze",
     "partial": "Częściowo dobrze",
     "wrong": "Nie całkiem",
+    "incorrect": "Źle",
+    "unanswered": "Bez odpowiedzi",
     "summary": "Podsumowanie",
     "score": "Dobrze za pierwszym razem: {correct, number} z {scored, number}. Wynik procentowy uwzględnia też odpowiedzi częściowo dobre.",
     "skipped": "pominięte",
@@ -651,7 +653,14 @@
     "done": "Pobrano. {failed, plural, =0 {Wszystkie multimedia są na miejscu.} one {Nie udało się pobrać # pliku.} few {Nie udało się pobrać # plików.} many {Nie udało się pobrać # plików.} other {Nie udało się pobrać # pliku.}}",
     "hint": "Pobieranie ściąga ze źródła to, czego brakuje (zapisane strony i multimedia zostają), i ponownie przygotowuje kurs; twoje postępy zostają.",
     "log": "Dziennik pobierania",
-    "syncShort": "Synchronizuj"
+    "syncShort": "Synchronizuj",
+    "remove": {
+      "button": "Usuń z tego komputera…",
+      "title": "Usunąć „{title}” z tego komputera?",
+      "body": "Jego lekcje i multimedia zostaną usunięte z dysku (multimedia używane przez inny kurs zostaną). Twoje postępy, notatnik i słowa zostaną; pobierz go ponownie, aby kontynuować.",
+      "bodyExam": "Jego pytania i multimedia zostaną usunięte z dysku (multimedia używane przez inny kurs zostaną). Twoje egzaminy próbne, ćwiczenia i notatnik zostaną; pobierz go ponownie, aby kontynuować.",
+      "confirm": "Usuń"
+    }
   },
   "storage": {
     "title": "Dane",
@@ -1044,6 +1053,7 @@
       "updates": "Ten plik aktualizuje tutejszą talię {deck}: jej słowa stają się słowami z tego pliku, a utworzone z niej fiszki podążają za nimi. W innych językach to osobna talia.",
       "left": "{count, plural, one {Pominięto # notatkę bez słowa.} few {Pominięto # notatki bez słowa.} many {Pominięto # notatek bez słowa.} other {Pominięto # notatki bez słowa.}}",
       "unusable": "{count, plural, one {Pominięto # notatkę, której słowa nie da się odczytać.} few {Pominięto # notatki, których słów nie da się odczytać.} many {Pominięto # notatek, których słów nie da się odczytać.} other {Pominięto # notatki, których słów nie da się odczytać.}}",
+      "joined": "{count, plural, one {# notatka słowa, które już jest, została z nim połączona — jej tłumaczenie dodano.} few {# notatki słów, które już są, połączono z nimi — ich tłumaczenia dodano.} many {# notatek słów, które już są, połączono z nimi — ich tłumaczenia dodano.} other {# notatki słów, które już są, połączono z nimi — ich tłumaczenia dodano.}}",
       "done": "Zaimportowano {deck}: {words, plural, one {# słowo} few {# słowa} many {# słów} other {# słowa}}."
     },
     "remove": "Usuń talię",
@@ -1194,6 +1204,7 @@
     "answerFree": "Powiedz to na głos, jak każe zadanie.",
     "answerLine": "Twoja odpowiedź",
     "mine": "Moje",
+    "takeDeleted": "Twoje nagranie zostało usunięte",
     "mineFor": "Moje · {time}",
     "recordedNotKept": "Nagrane (niezapisane)",
     "listenFirst": "Najpierw posłuchaj nagrania.",
@@ -1284,6 +1295,8 @@
     },
     "sayIn": "Powiedz to w języku: {language}",
     "notHeardShort": "Nie udało się rozpoznać. Spróbuj ponownie.",
+    "nothingHeard": "Nic nie było słychać. Powiedz to jeszcze raz, trochę głośniej.",
+    "starting": "Uruchamianie głosu… pierwsze czytanie może potrwać pół minuty.",
     "answerSample": "Wzór",
     "aiChecking": "AI sprawdza twoją odpowiedź…",
     "needsRecognition": "Do wypowiadania zdań potrzebne jest rozpoznawanie mowy: włącz je w Ustawieniach → Mowa.",
@@ -1302,6 +1315,7 @@
     "answer_does_not_fit": "Odpowiedź nie pasuje do tego ćwiczenia. Wczytaj lekcję ponownie.",
     "card_changed": "Ta fiszka zmieniła się na innym urządzeniu. Jest pokazana ponownie.",
     "downloads_unavailable": "Tutaj nie można pobierać kursów.",
+    "course_busy": "Ten kurs właśnie się pobiera. Usuń go, gdy pobieranie się skończy.",
     "empty_recording": "Nagranie jest puste. Spróbuj ponownie.",
     "event_id_taken": "Ta odpowiedź została już zapisana inaczej. Wczytaj stronę ponownie.",
     "event_of_another_run": "Ten wpis należy do innego podejścia. Wczytaj lekcję ponownie.",
@@ -1470,6 +1484,7 @@
     "answered": "Odpowiedziano: {done, number} z {total, number}",
     "question": "Pytanie {n, number} z {total, number}",
     "practiceScore": "{count, plural, one {{points, number} z # odpowiedzi dobrze} few {{points, number} z # odpowiedzi dobrze} many {{points, number} z # odpowiedzi dobrze} other {{points, number} z # odpowiedzi dobrze}}",
+    "practicePoints": "Z odpowiedziami otwartymi: {points, number} z {max, number} punktów",
     "timeUp": "Czas minął: liczą się odpowiedzi udzielone do tego momentu.",
     "needed": "wymagane {points, number} z {max, number}",
     "practiseMistakes": "Przećwicz błędy",
@@ -1520,12 +1535,14 @@
       "pending": "{count, plural, one {# odpowiedź nie jest jeszcze oceniona: liczy się jako 0, dopóki jej nie ocenisz.} few {# odpowiedzi nie są jeszcze ocenione: liczą się jako 0, dopóki ich nie ocenisz.} many {# odpowiedzi nie jest jeszcze ocenionych: liczą się jako 0, dopóki ich nie ocenisz.} other {# odpowiedzi nie jest jeszcze ocenione: liczą się jako 0, dopóki ich nie ocenisz.}}",
       "hint": "Oceniaj tak, jak robią to egzaminatorzy; ocenę możesz zmienić w każdej chwili.",
       "voided": "zadanie niewykonane: 0 za całą odpowiedź",
-      "unrated": "0, dopóki „{criterion}” nie zostanie ocenione: od tego zależy, czy odpowiedź się liczy",
+      "unrated": "dopóki „{criterion}” nie zostanie ocenione: od tego zależy, czy odpowiedź się liczy",
       "save": "Zapisz ocenę",
       "change": "Zmień ocenę",
       "propose": "Zaproponuj ocenę (AI)",
       "proposing": "Asystent ocenia…",
       "proposed": "Zaproponowane przez asystenta AI ({model}): przyjmij bez zmian albo zmień.",
+      "proposalTaken": "Zaproponowane przez asystenta AI ({model}) i przyjęte.",
+      "proposalSetAside": "Zaproponowane przez asystenta AI ({model}); liczy się twoja ocena.",
       "accept": "Przyjmij propozycję",
       "keepMine": "Zostaw moją",
       "notTaken": "Jeszcze nie przyjęte: wynik liczy {points, number} z {max, number}."
@@ -1585,6 +1602,7 @@
     "export": {
       "button": "Eksportuj do pliku",
       "hint": "Ten kurs jako jeden plik, do zaimportowania na twoim drugim komputerze w „Pobrane”.",
+      "hintExam": "Ten egzamin jako jeden plik — do zaimportowania na innym komputerze w zakładce „Pobrane”.",
       "started": "Pobieranie „{file}” ({size})."
     },
     "import": {
@@ -1596,7 +1614,9 @@
       "same": "„{title}” już tu jest, taki sam: nic się nie zmieniło.",
       "replaced": "„{title}” to teraz wersja z pliku; twoje postępy zostają.",
       "verified": "Sprawdzono: wszystkie pliki są na miejscu.",
-      "problems": "Sprawdzono: {count, plural, one {znaleziono # problem} few {znaleziono # problemy} many {znaleziono # problemów} other {znaleziono # problemu}} — „Sprawdź” na jego karcie je pokaże."
+      "problems": "Sprawdzono: {count, plural, one {znaleziono # problem} few {znaleziono # problemy} many {znaleziono # problemów} other {znaleziono # problemu}} — „Sprawdź” na jego karcie je pokaże.",
+      "experimental": "To eksperyment: nie jest widoczny, dopóki jego źródło nie zostanie włączone.",
+      "turnOn": "Ustawienia → Ogólne → Eksperymenty"
     }
   },
   "understanding": {
@@ -1610,7 +1630,7 @@
       "reading": "tekst do czytania"
     },
     "listen": "Słuchaj",
-    "resume": "Dalej",
+    "resume": "Słuchaj dalej",
     "replay": "Od początku",
     "line": "Kwestia {n, number} z {total, number}",
     "heard": "{count, plural, one {Wysłuchano raz} few {Wysłuchano # razy} many {Wysłuchano # razy} other {Wysłuchano # raza}}",

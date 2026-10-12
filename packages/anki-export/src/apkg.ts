@@ -36,6 +36,8 @@ export interface Apkg {
   /** Media files' bytes by the names notes use (`[sound:<name>]`), read when asked: a batch at a
    *  time, each read of the zip finding them all at once; names it does not hold are left out. */
   media(names: string[]): Map<string, Uint8Array>;
+  /** Whether the package holds a media file of that name (its media list names it, its zip has it). */
+  holds(name: string): boolean;
 }
 
 /** The file is no deck package Anki writes. */
@@ -80,7 +82,16 @@ export function readApkg(
     if (!out) throw new ApkgTooLarge(`a file unpacks to more than ${max} bytes`);
     return out;
   };
-  const files = unzip(bytes, (name) => COLLECTIONS.includes(name) || name === "media", max);
+  // The zip's entries seen as it is read: what the package holds.
+  const entries = new Set<string>();
+  const files = unzip(
+    bytes,
+    (name) => {
+      entries.add(name);
+      return COLLECTIONS.includes(name) || name === "media";
+    },
+    max,
+  );
   const name = COLLECTIONS.find((n) => files[n]);
   if (!name) throw new ApkgError("no collection in the package");
   const latest = name === "collection.anki21b";
@@ -102,6 +113,10 @@ export function readApkg(
   }
   return {
     ...read,
+    holds(name) {
+      const entry = byName.get(name);
+      return entry !== undefined && entries.has(entry);
+    },
     media(names) {
       const wanted = new Map(
         names.flatMap((n) => {
@@ -135,7 +150,7 @@ function rollbackJournal(db: Uint8Array) {
 }
 
 /** Note types, decks and notes: in tables of their own in the newest schema, else in `col`'s JSON. */
-function collection(db: SqliteReader): Omit<Apkg, "media"> {
+function collection(db: SqliteReader): Omit<Apkg, "media" | "holds"> {
   const models = new Map<string, { name: string; fields: string[] }>();
   const decks = new Map<string, string>();
   try {

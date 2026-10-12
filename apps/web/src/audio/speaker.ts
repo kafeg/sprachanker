@@ -1,14 +1,17 @@
 // Reading aloud (08): one text at a time, each part with the profile's engine — Piper on the server
 // when it has a voice for the part's language, else the device's voices (Web Speech API) — the voice
 // chosen for each language in the profile, else the best one there, at the profile's reading speed; a
-// part marked `alt` (a dialogue's second speaker) by another voice of its language where there is one.
-// What starts playing (a recording, a video) stops it, and it stops what plays; which text is being
-// read is shared by every speaker button, so one shows "stop" while the others show "listen".
+// part marked `alt` (a dialogue's second speaker) by another voice of its language where there is one —
+// of the other gender where the server's voices say theirs. What starts playing (a recording, a video)
+// stops it, and it stops what plays; which text is being read is shared by every speaker button, so
+// one shows "stop" while the others show "listen" — and that it waits for the server's voice (a model
+// loading). Lines to come may be asked for ahead (`prepare`): read then, they are there at once.
 import { useEffect, useState, useSyncExternalStore } from "react";
 import { useSetting, useSettings } from "@/api/settings.ts";
 import { sayOnServer, usePiperVoices, useQwenTts, warmQwen } from "@/api/speech.ts";
 import { claimPlayback } from "@/ui/playback.tsx";
 import { bestVoice, type SpokenPart, speaks, type VoiceInfo } from "./speak.ts";
+import { type Gender, voiceGender } from "./voice-genders.ts";
 import { voiceName } from "./voice-names.ts";
 
 const synth = () => (typeof speechSynthesis === "undefined" ? undefined : speechSynthesis);
@@ -35,18 +38,53 @@ const WARM_AGAIN_MS = 5 * 60_000;
 let qwenWarmedAt = 0;
 
 let reading: string | undefined;
+/** The reading that waits for the server's voice (longer than a moment: a model loading). */
+let waiting: string | undefined;
 let run: { cancel(): void } | undefined;
 const listeners = new Set<() => void>();
-const setReading = (id: string | undefined) => {
-  reading = id;
+const notify = () => {
   for (const l of listeners) l();
 };
+const setReading = (id: string | undefined) => {
+  reading = id;
+  notify();
+};
+const setWaiting = (id: string | undefined) => {
+  if (waiting === id) return;
+  waiting = id;
+  notify();
+};
+/** A wait shorter than this is not said (a reading the server has, a short one). */
+const WAIT_SAID_MS = 800;
+
+/** Pieces asked for ahead, by language, voice and text: taken by the reading that reads them. */
+const ahead = new Map<string, Promise<Blob | undefined>>();
+const AHEAD_KEPT = 40;
+const aheadKey = (text: string, lang: string, voice?: string) => `${lang}\n${voice ?? ""}\n${text}`;
+/** The server's pieces of `parts` asked for one after another (the engine says one at a time), so
+ *  each is ready when its turn comes. */
+function prepare(parts: SpokenPart[], options: ReadOptions) {
+  let before: Promise<unknown> = Promise.resolve();
+  for (const { text, lang, alt } of parts) {
+    const way = options.wayFor(lang, alt);
+    if (!way || !("server" in way)) continue;
+    for (const piece of pieces(text)) {
+      const key = aheadKey(piece, lang, way.server.voice);
+      if (ahead.has(key)) continue;
+      const asked = before.then(() => sayOnServer(piece, lang, way.server).catch(() => undefined));
+      ahead.set(key, asked);
+      before = asked;
+      if (ahead.size > AHEAD_KEPT) ahead.delete(ahead.keys().next().value as string);
+    }
+  }
+}
 /** The read-aloud as the one thing playing: another medium starting stops it. */
 const asPlaying = { pause: () => stop() };
 
 export function stop() {
   run?.cancel();
   run = undefined;
+  setWaiting(undefined);
   if (reading !== undefined) setReading(undefined);
 }
 
@@ -114,13 +152,27 @@ export async function read(
   const fetchAt = (i: number) => {
     const piece = queue[i];
     if (!piece || !("server" in piece.way) || fetched.has(i)) return;
+    const key = aheadKey(piece.text, piece.lang, piece.way.server.voice);
+    const prepared = ahead.get(key);
+    ahead.delete(key);
     fetched.set(
       i,
-      sayOnServer(piece.text, piece.lang, {
-        ...piece.way.server,
-        signal: controller.signal,
-      }).catch(() => undefined),
+      prepared ??
+        sayOnServer(piece.text, piece.lang, {
+          ...piece.way.server,
+          signal: controller.signal,
+        }).catch(() => undefined),
     );
+  };
+  /** The server's piece, the wait said when it is long. */
+  const awaited = async (wav: Promise<Blob | undefined> | undefined) => {
+    const said = setTimeout(() => live() && setWaiting(id), WAIT_SAID_MS);
+    try {
+      return await wav;
+    } finally {
+      clearTimeout(said);
+      setWaiting(undefined);
+    }
   };
   try {
     for (const [i, piece] of queue.entries()) {
@@ -129,7 +181,7 @@ export async function read(
       fetchAt(queue.findIndex((p, j) => j > i && "server" in p.way));
       const way = piece.way;
       if ("server" in way) {
-        const wav = await fetched.get(i);
+        const wav = await awaited(fetched.get(i));
         if (!live()) return false;
         if (wav) await play(wav, stopped);
         else if (way.fallback) await sayOnDevice(piece.text, piece.lang, way.fallback, stopped);
@@ -235,17 +287,27 @@ export function useSpeaker() {
   /** The server's voice of a language: the profile's while it is there, else Piper's best or
    *  Qwen3-TTS's default speaker; `alt`: another of the language when there is one. */
   const serverVoice = (lang: string, alt = false): string | undefined => {
+    /** Another voice than `main`: of the other gender where both are known, else the first. */
+    const other = (kind: "piper" | "qwen", main: string, voices: readonly string[]) => {
+      const others = voices.filter((v) => v !== main);
+      const mine = voiceGender(kind, main);
+      const unlike = others.find((v) => {
+        const theirs = voiceGender(kind, v);
+        return mine && theirs && theirs !== mine;
+      });
+      return unlike ?? others[0] ?? main;
+    };
     if (engine === "piper" && piper) {
       const own = chosen?.piper?.[lang];
       const here = piper.voices.filter((v) => v.installed && v.lang === lang).map((v) => v.id);
       const main = own && here.includes(own) ? own : piper.auto[lang];
-      return alt ? (here.find((id) => id !== main) ?? main) : main;
+      return alt && main ? other("piper", main, here) : main;
     }
     if (engine === "qwen" && qwen) {
       const own = chosen?.qwen?.[lang];
       const speakers: readonly string[] = qwen.speakers;
       const main = own && speakers.includes(own) ? own : qwen.defaultSpeaker;
-      return alt ? (speakers.find((s) => s !== main) ?? main) : main;
+      return alt ? other("qwen", main, speakers) : main;
     }
     return undefined;
   };
@@ -263,6 +325,7 @@ export function useSpeaker() {
     };
   };
   const say = (id: string, parts: SpokenPart[]) => read(id, parts, { wayFor });
+  const waitingNow = useReadingWait();
   /** Who reads a language — by its voice, or (`alt`) the other one a dialogue's second speaker has:
    *  the engine and the voice as Settings → Speech names it (the device's voice unnamed when the
    *  browser picks it); undefined when nothing here reads it. */
@@ -289,10 +352,31 @@ export function useSpeaker() {
       (engine === "piper" && piperQuery.isPending) ||
       (engine === "qwen" && qwenQuery.isPending),
     reading: current,
+    /** The reading that waits for the server's voice longer than a moment (a model loading). */
+    waiting: waitingNow,
     say,
+    /** Asks the server for parts to be read soon, so they are there when their turn comes. */
+    prepare: (parts: SpokenPart[]) => prepare(parts, { wayFor }),
+    /** The gender of the voice that reads a language, where the server's voice says it. */
+    gender(lang: string): Gender | undefined {
+      const voice = serverLangs.has(lang) ? serverVoice(lang) : undefined;
+      return voice && (engine === "piper" || engine === "qwen")
+        ? voiceGender(engine, voice)
+        : undefined;
+    },
     stop,
   };
 }
+
+/** The reading that waits for the server's voice longer than a moment, if any. */
+export const useReadingWait = () =>
+  useSyncExternalStore(
+    (l) => {
+      listeners.add(l);
+      return () => listeners.delete(l);
+    },
+    () => waiting,
+  );
 
 /** What a text read aloud is known by: the same parts are the same reading, wherever they are. */
 export const readingId = (parts: SpokenPart[]) => parts.map((p) => `${p.lang}:${p.text}`).join("|");

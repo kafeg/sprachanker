@@ -317,6 +317,17 @@ their schemas as they are written (`writeLibraryFiles`); failures are reported.
   referenced media file on disk. Planned: checks of manifest hashes and rule ids, normalising from
   `raw/` offline (plan, "Open items in built areas", Library).
 
+## Removing a course
+
+A downloaded course or exam removed from the computer (`courses remove`, a Downloaded card's "Remove
+from this computer…", 06; course-kit `removeCourse`, under the series' import lock): its canonical
+and locale folders, its exams' source copies, the media its files name that no other course of the
+series names (one that does not read keeps them all), its download's marker; `media.json` forgets the
+media removed (a download fetches them again); `keys.json` stays, so the course downloaded again has
+its keys and the learner's runs, cards and Notebook meet it. The rest of `raw/` stays (a source's
+pages, possibly another course's). Learner data is untouched: runs keep what they showed (an exam run
+its snapshot), cards their words — a card's recording from the course plays again once it is back.
+
 ## Course bundle
 
 A downloaded course — or exam: a course of exams (Exams list them apart, 09) — moved to another of

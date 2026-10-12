@@ -40,7 +40,7 @@ test("open the course, go through the words, the grammar and an exercise, resume
   await answerPicture(page);
   await page.getByRole("button", { name: "Check", exact: true }).click();
   await expect(page.getByRole("status").first()).toContainText("Correct");
-  await expect(page.getByRole("status").nth(1)).toContainText("Not quite");
+  await expect(page.getByRole("status").nth(1)).toContainText("Wrong");
   await page.getByRole("button", { name: "Next", exact: true }).click();
   await expect(page.getByText("Exercise 2 of 8")).toBeVisible();
   // The item's audio has a player; the fixture's audio is not real sound, so it says so.

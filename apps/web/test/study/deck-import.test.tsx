@@ -9,7 +9,7 @@ const preview = {
   words: 2,
   withAudio: 1,
   withExamples: 0,
-  left: { withoutWord: 0 },
+  left: { withoutWord: 0, unusable: 0, joined: 0 },
   languages: [] as string[],
   first: [
     { target: "der Abend", translations: { "": "evening" } as Record<string, string> },
@@ -62,7 +62,7 @@ test("a deck without a name of its own is named after its file; German words by 
 test("fields named by language: the words' is the first, the translations' one of the others, each shown in it", async () => {
   const named = {
     ...preview,
-    left: { withoutWord: 1 },
+    left: { withoutWord: 1, unusable: 0, joined: 2 },
     withExamples: 2,
     languages: ["de", "en", "ru"],
     first: [{ target: "die Zeit", translations: { en: "time", ru: "время" } }],
@@ -75,7 +75,9 @@ test("fields named by language: the words' is the first, the translations' one o
   expect(view.getByRole("combobox", { name: "Translations in" }).textContent).toBe("English");
   expect(view.getByText("· time")).toBeTruthy();
   expect(view.getByText("2 words · 1 with audio · 2 with examples")).toBeTruthy();
-  expect(view.getByText("1 note without a word is left out.")).toBeTruthy();
+  expect(view.getByText(/^1 note without a word is left out\./).textContent).toBe(
+    "1 note without a word is left out. 2 notes of words already in it are joined to those words, their translations added.",
+  );
 });
 
 test("a file of decks here: the first's name and languages kept, the sheet says which deck the languages chosen update", async () => {

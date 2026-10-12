@@ -21,6 +21,7 @@ import {
   missingSettings,
   openCounts,
   practiceOrder,
+  questionLine,
   questionStats,
   readiness,
   sectionsOf,
@@ -117,6 +118,46 @@ test("a mock exam draws each section's number from its open pool, in section ord
   const other = drawExam(exam, berlin, seq(0.99, 0.99, 0.99, 0));
   expect(other.map(id)).toEqual(["004", "001", "002", "be-01"]);
   expect(new Set(drawExam(exam, berlin, Math.random)).size).toBe(4);
+});
+
+test("a question's line: what it asks; a speaking part without a prompt by its cards, else its Teil's text", () => {
+  expect(questionLine(q("001", null))).toBe("Frage 001?");
+  const part: ExamItem = {
+    key: examItemKey(EXAM, "sprechen-2"),
+    type: "respond",
+    tags: {},
+    input: "speech",
+    reference: [],
+  };
+  const section = (extra: object) =>
+    ({
+      key: examSectionKey(EXAM, "s"),
+      pool: [part.key],
+      draw: 1,
+      filter: null,
+      ...extra,
+    }) as Exam["sections"][number];
+  expect(
+    questionLine(
+      part,
+      section({ letters: [{ letter: "1", text: "Was machen Sie mit Ihrem Geld?\nSparen?" }] }),
+    ),
+  ).toBe("Was machen Sie mit Ihrem Geld?");
+  expect(
+    questionLine(
+      part,
+      section({
+        letters: [
+          { letter: "1", text: "Name?" },
+          { letter: "2", text: "Alter?" },
+        ],
+      }),
+    ),
+  ).toBe("Name? · Alter?");
+  expect(questionLine(part, section({ text: "Sie planen eine Party.\nWer kommt?" }))).toBe(
+    "Sie planen eine Party.",
+  );
+  expect(questionLine(part)).toBe("");
 });
 
 test("a question is checked as a single-choice item", () => {

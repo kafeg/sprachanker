@@ -6,6 +6,7 @@ import { ServiceError } from "../errors.ts";
 import { createOnce } from "../once.ts";
 import { engineSidecar, type ModelFile, offered, type SpeechHost } from "./local-engines.ts";
 import { createModelDownloads } from "./model-downloads.ts";
+import { loudness, madeUp, silent } from "./silence.ts";
 
 /** The models offered, best first: the large turbo model (quantised), and a small one for slower
  *  machines. From ggerganov/whisper.cpp on Hugging Face at a fixed commit. */
@@ -128,6 +129,16 @@ export function createSpeech(deps: { host?: SpeechHost; fetch: typeof fetch }) {
     },
 
     transcribe,
+
+    /** What the learner said in a take (a 16 kHz WAV): nothing when nothing in it was loud enough to
+     *  be speech (the engine not asked), nor when a near-silent take comes back as a phrase the
+     *  recogniser makes up of silence ("Vielen Dank.", "Untertitel …"). */
+    async take(wav: Uint8Array<ArrayBuffer>, lang: string, model: string) {
+      const sound = loudness(wav);
+      if (sound && silent(sound)) return { text: "", ms: 0 };
+      const heard = await transcribe(new Blob([wav], { type: "audio/wav" }), lang, model);
+      return sound && madeUp(sound, heard.text, lang) ? { ...heard, text: "" } : heard;
+    },
 
     /** What a course's recording says (a question asked, an answer spoken), heard once per model and
      *  kept while the server runs; a failed hearing is not kept. */
