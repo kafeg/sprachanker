@@ -700,7 +700,9 @@
     "culture": "Cultura",
     "writing": "Escrita",
     "scene": "Diálogo",
-    "mistakes": "Erros"
+    "mistakes": "Erros",
+    "reading": "Leitura",
+    "listening": "Compreensão oral"
   },
   "words": {
     "intro": "As palavras da lição como cartões: lembre, mostre a resposta, avalie. Quando não sobrar nada por agora, elas continuam na Revisão.",

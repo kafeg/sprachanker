@@ -700,7 +700,9 @@
     "culture": "Budaya",
     "writing": "Menulis",
     "scene": "Dialog",
-    "mistakes": "Kesalahan"
+    "mistakes": "Kesalahan",
+    "reading": "Membaca",
+    "listening": "Menyimak"
   },
   "words": {
     "intro": "Kosakata pelajaran sebagai kartu: ingat, tampilkan jawabannya, beri nilai. Jika untuk saat ini sudah habis, kartunya berlanjut di Pengulangan.",

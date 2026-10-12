@@ -700,7 +700,9 @@
     "culture": "Kultura",
     "writing": "Pisanje",
     "scene": "Dijalog",
-    "mistakes": "Greške"
+    "mistakes": "Greške",
+    "reading": "Čitanje",
+    "listening": "Slušanje"
   },
   "words": {
     "intro": "Riječi lekcije kao kartice: prisjeti se, prikaži odgovor, ocijeni. Kad za sada ništa ne ostane, nastavljaju u Ponavljanju.",

@@ -700,7 +700,9 @@
     "culture": "Kultura",
     "writing": "Pisanie",
     "scene": "Dialog",
-    "mistakes": "Błędy"
+    "mistakes": "Błędy",
+    "reading": "Czytanie",
+    "listening": "Słuchanie"
   },
   "words": {
     "intro": "Słowa lekcji jako fiszki: przypomnij sobie, pokaż odpowiedź, oceń się. Gdy na razie nic nie zostanie, nauka trwa dalej w Powtórkach.",

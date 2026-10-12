@@ -22,6 +22,8 @@ export interface TextGenre {
   words: [number, number];
   /** At most this many people speak or write (a dialogue's or chat's). */
   people?: number;
+  /** Made from the very first words too (greetings, names): the genres of a course's start. */
+  start?: true;
 }
 
 export const TEXT_GENRES: readonly TextGenre[] = [
@@ -33,6 +35,7 @@ export const TEXT_GENRES: readonly TextGenre[] = [
     what: "an everyday conversation of two people who want something from each other: they ask, plan, buy, arrange or agree on something",
     words: [50, 90],
     people: 2,
+    start: true,
   },
   {
     id: "telling",
@@ -51,6 +54,7 @@ export const TEXT_GENRES: readonly TextGenre[] = [
     what: "a phone call: who calls and why, something arranged or asked for (a time, a place, a price), goodbye",
     words: [50, 90],
     people: 2,
+    start: true,
   },
   {
     id: "voice_message",
@@ -59,6 +63,7 @@ export const TEXT_GENRES: readonly TextGenre[] = [
     from: "A1",
     what: "a voice message or a message on an answering machine: who calls, why, what the other should do, how to reach them",
     words: [35, 65],
+    start: true,
   },
   {
     id: "announcement",
@@ -110,6 +115,7 @@ export const TEXT_GENRES: readonly TextGenre[] = [
     what: "a messenger chat of two or three people (friends, a family, colleagues, neighbours): short messages, each with its sender",
     words: [40, 80],
     people: 3,
+    start: true,
   },
   {
     id: "personal_letter",
@@ -142,6 +148,7 @@ export const TEXT_GENRES: readonly TextGenre[] = [
     from: "A1",
     what: "a notice or sign: in a house, on a shop's door, at a library, a pool, a doctor's practice or a school — opening times, rules, a change, an event",
     words: [30, 65],
+    start: true,
   },
   {
     id: "small_ads",
@@ -239,10 +246,16 @@ export const questionCount = ([from, to]: [number, number]) =>
 
 const ORDER = ["A1", "A2", "B1", "B2", "C1", "C2"];
 
-/** The genres of a step at a level (a course of A1 none from A2 on). */
-export function genresFor(step: PracticeStep, level: string | undefined) {
+/** How many words the learner knows below which only a course's start genres are drawn. */
+export const FEW_WORDS = 80;
+
+/** The genres of a step at a level (a course of A1 none from A2 on); `few`: the learner knows very
+ *  few words yet — the genres of a course's start only. */
+export function genresFor(step: PracticeStep, level: string | undefined, few = false) {
   const at = ORDER.indexOf(cefrOf(level));
-  return TEXT_GENRES.filter((g) => g.step === step && ORDER.indexOf(g.from) <= at);
+  return TEXT_GENRES.filter(
+    (g) => g.step === step && ORDER.indexOf(g.from) <= at && (!few || g.start),
+  );
 }
 
 /** A genre of a step at random (`random` in [0, 1)), none of `recent` while another is there. */
@@ -251,8 +264,9 @@ export function pickGenre(
   level: string | undefined,
   recent: readonly string[],
   random: () => number,
+  few = false,
 ): TextGenre {
-  const all = genresFor(step, level);
+  const all = genresFor(step, level, few);
   const fresh = all.filter((g) => !recent.includes(g.id));
   const from = fresh.length ? fresh : all;
   return from[Math.floor(random() * from.length)] as TextGenre;

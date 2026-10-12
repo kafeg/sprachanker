@@ -700,7 +700,9 @@
     "culture": "Kultur",
     "writing": "Schreiben",
     "scene": "Dialog",
-    "mistakes": "Fehler"
+    "mistakes": "Fehler",
+    "reading": "Lesen",
+    "listening": "Hören"
   },
   "words": {
     "intro": "Die Wörter der Lektion als Karten: erinnern, Antwort zeigen, bewerten. Wenn gerade nichts mehr übrig ist, geht es in der Wiederholung weiter.",

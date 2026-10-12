@@ -700,7 +700,9 @@
     "culture": "Culture",
     "writing": "Writing",
     "scene": "Dialogue",
-    "mistakes": "Mistakes"
+    "mistakes": "Mistakes",
+    "reading": "Reading",
+    "listening": "Listening"
   },
   "words": {
     "intro": "The lesson's words as cards: recall, show the answer, rate. When nothing is left for now, they go on in Review.",

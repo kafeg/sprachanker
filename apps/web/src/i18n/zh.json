@@ -700,7 +700,9 @@
     "culture": "文化",
     "writing": "写作",
     "scene": "对话",
-    "mistakes": "错误"
+    "mistakes": "错误",
+    "reading": "阅读",
+    "listening": "听力"
   },
   "words": {
     "intro": "以卡片形式学习本课单词：先回想，再显示答案，然后评分。当前没有卡片时，它们会在“复习”中继续。",

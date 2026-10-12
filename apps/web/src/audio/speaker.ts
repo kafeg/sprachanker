@@ -7,7 +7,7 @@
 // one shows "stop" while the others show "listen" — and that it waits for the server's voice (a model
 // loading). The next few pieces may be asked for ahead (`prepare`): read then, they are there at
 // once; stopping lets them go.
-import { type Gender, readingPieces, voiceGender } from "@sprachanker/engine";
+import { type Gender, nameGender, readingPieces, voiceGender } from "@sprachanker/engine";
 import { useEffect, useState, useSyncExternalStore } from "react";
 import { useSetting, useSettings } from "@/api/settings.ts";
 import { sayOnServer, usePiperVoices, useQwenTts, warmQwen } from "@/api/speech.ts";
@@ -272,14 +272,21 @@ export interface ReadBy {
   voice: string;
 }
 
-/** Another voice of the language than `main`, the best of the others (a dialogue's second speaker);
- *  undefined when there is none. */
+/** A device voice's gender, where its name says it (the systems name their voices as people:
+ *  "Anna", "Markus", "Helena (Enhanced)"). */
+export const deviceVoiceGender = (voice: { name: string }) => nameGender(voice.name);
+
+/** Another voice of the language than `main`, the best of the others (a dialogue's second speaker)
+ *  — of `gender` where one of it is there; undefined when there is none. */
 export function otherVoice(
   voices: SpeechSynthesisVoice[],
   main: SpeechSynthesisVoice | undefined,
   lang: string,
+  gender?: Gender,
 ): SpeechSynthesisVoice | undefined {
-  return bestVoice(voices.filter((v) => v !== main).map(voiceInfo), lang)?.voice;
+  const others = voices.filter((v) => v !== main && speaks(voiceInfo(v), lang));
+  const theirs = gender ? others.filter((v) => deviceVoiceGender(v) === gender) : [];
+  return bestVoice((theirs.length ? theirs : others).map(voiceInfo), lang)?.voice;
 }
 
 /** The voice that reads `lang`: the profile's choice while this device has it, else the best one. */
@@ -360,7 +367,18 @@ export function useSpeaker() {
   const wayFor = (lang: string, alt?: Alt, named?: string): Way | undefined => {
     const main = deviceVoice(voices, chosen?.device, lang);
     const device = voices.some((v) => speaks(voiceInfo(v), lang))
-      ? { device: (alt && otherVoice(voices, main, lang)) || main, rate }
+      ? {
+          device:
+            (alt &&
+              otherVoice(
+                voices,
+                main,
+                lang,
+                typeof alt === "string" ? (alt[0] as Gender) : undefined,
+              )) ||
+            main,
+          rate,
+        }
       : undefined;
     if (!serverLangs.has(lang)) return device;
     if (named)
@@ -423,9 +441,9 @@ export function useSpeaker() {
     /** The gender of the voice that reads a language, where the server's voice says it. */
     gender(lang: string): Gender | undefined {
       const voice = serverLangs.has(lang) ? serverVoice(lang) : undefined;
-      return voice && (engine === "piper" || engine === "qwen")
-        ? voiceGender(engine, voice)
-        : undefined;
+      if (voice && (engine === "piper" || engine === "qwen")) return voiceGender(engine, voice);
+      const device = deviceVoice(voices, chosen?.device, lang);
+      return device && deviceVoiceGender(device);
     },
     stop,
   };

@@ -700,7 +700,9 @@
     "culture": "Utamaduni",
     "writing": "Uandishi",
     "scene": "Mazungumzo",
-    "mistakes": "Makosa"
+    "mistakes": "Makosa",
+    "reading": "Kusoma",
+    "listening": "Kusikiliza"
   },
   "words": {
     "intro": "Maneno ya somo kama kadi: kumbuka, onyesha jibu, jipe alama. Yakiisha kwa sasa, yanaendelea katika Marudio.",

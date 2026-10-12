@@ -700,7 +700,9 @@
     "culture": "Culture",
     "writing": "Écriture",
     "scene": "Dialogue",
-    "mistakes": "Erreurs"
+    "mistakes": "Erreurs",
+    "reading": "Lecture",
+    "listening": "Écoute"
   },
   "words": {
     "intro": "Les mots de la leçon en cartes : souviens-toi, affiche la réponse, évalue-toi. Quand il ne reste rien pour l’instant, ils continuent dans Révision.",

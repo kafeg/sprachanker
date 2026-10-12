@@ -122,6 +122,8 @@ test("genres: a step's at the level, picked at random apart from the lesson's la
   expect(a1).not.toContain("three_people");
   expect(genresFor("listening", "B1").map((g) => g.id)).toContain("three_people");
   expect(genresFor("reading", "A1").every((g) => g.step === "reading")).toBe(true);
+  // A course's start (very few words known): the genres made from the first words only.
+  expect(genresFor("reading", "A1", true).map((g) => g.id)).toEqual(["chat", "notice"]);
   // Never one of the recent while another is there; any when all are recent.
   const reading = genresFor("reading", "A1").map((g) => g.id);
   for (let i = 0; i < 20; i++) {
@@ -166,6 +168,7 @@ test("understanding_draft: the lesson, the grammar met and ahead, its script, th
     'Form: Write it as lines "Name: what they say"',
     "Length of the text: about 40–70 words.",
     "Ideas for the situation: a café; a market.",
+    "The learner knows very few words yet",
     "Names the learner's recent texts used (name the people otherwise, first names and surnames): Herr Keller, Lena.",
   ])
     expect(data).toContain(line);
@@ -219,6 +222,10 @@ test("draftLines: a dialogue's lines by speaker (bold names too), one person's p
   expect(story.map((l) => l.text).join(" ")).toBe(long);
   const turn = draftLines({ ...DRAFT, text: `Anna: ${long}\nHerr Brandt: Aha.` }, CONVERSATION);
   expect(turn.lines.map((l) => l.speaker)).toEqual(["Anna", "Anna", "Herr Brandt"]);
+  // A tag carried over from the prompt is dropped.
+  expect(
+    draftLines({ ...DRAFT, text: "Liebe Anna,\nTschüss!</text>" }, genre("story")).lines,
+  ).toEqual([{ text: "Liebe Anna," }, { text: "Tschüss!" }]);
   expect(draftLines({ ...DRAFT, text: "Liebe Anna,\nwie geht's?" }, genre("story")).lines).toEqual([
     { text: "Liebe Anna," },
     { text: "wie geht's?" },

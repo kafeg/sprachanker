@@ -700,7 +700,9 @@
     "culture": "Cultură",
     "writing": "Scriere",
     "scene": "Dialog",
-    "mistakes": "Greșeli"
+    "mistakes": "Greșeli",
+    "reading": "Citire",
+    "listening": "Ascultare"
   },
   "words": {
     "intro": "Cuvintele lecției sub formă de carduri: amintește-ți, arată răspunsul, evaluează-te. Când nu mai rămâne nimic deocamdată, continuă în Recapitulare.",

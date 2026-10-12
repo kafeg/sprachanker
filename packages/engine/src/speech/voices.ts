@@ -126,10 +126,10 @@ export function voiceGender(engine: "piper" | "qwen", voice: string): Gender | u
 
 /** First names whose gender is obvious, as course dialogues use them (lower case). */
 const NAMES: Record<string, Gender> = Object.fromEntries([
-  ..."anna nina lena maria marie julia laura sarah sara lisa emma mia sophie sofia hannah lea clara eva paula katja petra sabine monika jana olga tanja anja ella lina emily kate mary jane linda susan helen alice lucy johanna greta martina claudia irina elena natalia natascha svetlana ольга анна мария елена наташа ирина"
+  ..."anna nina lena maria marie julia laura sarah sara lisa emma mia sophie sofia hannah lea clara eva paula katja petra sabine monika jana olga tanja anja ella lina emily kate mary jane linda susan helen helena alice lucy johanna greta martina claudia irina elena natalia natascha svetlana milena katya yuna samantha karen moira tessa fiona victoria allison ava zoe amélie amelie audrey aurélie monica paulina ольга анна мария елена наташа ирина милена"
     .split(" ")
     .map((n) => [n, "f"]),
-  ..."jonas tom max paul lukas felix ben leon tim jan peter thomas michael stefan markus nico daniel david martin alexander sebastian jakob moritz erik philipp simon florian tobias john james mark mike bob ivan pavel dmitri sergei hans karl klaus frank otto oliver noah elias finn иван павел дмитрий сергей андрей"
+  ..."jonas tom max paul lukas felix ben leon tim jan peter thomas michael stefan markus nico daniel david martin alexander sebastian jakob moritz erik philipp simon florian tobias john james mark mike bob ivan pavel dmitri sergei hans karl klaus frank otto oliver noah elias finn yannick viktor yuri alex fred aaron arthur thomas jacques diego jorge juan luca иван павел дмитрий сергей андрей юрий"
     .split(" ")
     .map((n) => [n, "m"]),
 ]);

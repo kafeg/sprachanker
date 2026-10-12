@@ -700,7 +700,9 @@
     "culture": "Kültür",
     "writing": "Yazma",
     "scene": "Diyalog",
-    "mistakes": "Hatalar"
+    "mistakes": "Hatalar",
+    "reading": "Okuma",
+    "listening": "Dinleme"
   },
   "words": {
     "intro": "Dersin kelimeleri kart olarak: hatırla, cevabı göster, değerlendir. Şimdilik bir şey kalmayınca Tekrar bölümünde devam ederler.",

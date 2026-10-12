@@ -700,7 +700,9 @@
     "culture": "Kultúra",
     "writing": "Írás",
     "scene": "Párbeszéd",
-    "mistakes": "Hibák"
+    "mistakes": "Hibák",
+    "reading": "Olvasás",
+    "listening": "Hallás utáni értés"
   },
   "words": {
     "intro": "A lecke szavai kártyákon: idézd fel, nézd meg a választ, értékeld. Ha egyelőre nem marad semmi, az Ismétlésben folytatódnak.",

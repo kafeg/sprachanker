@@ -142,7 +142,7 @@ writes (owner, 2026-10-08).
   people were known: a dialogue's second speaker by another voice of the language where there
   is one — of the speaker's gender where their name says it (two women: another woman's voice), else
   of the other gender than the main voice's, where the server's voices say theirs (Qwen3-TTS's
-  speakers, Piper's voices by name: engine `speech/voices.ts`), else Piper's next installed voice of it, Qwen3-TTS's next
+  speakers, Piper's voices by name: engine `speech/voices.ts`; the device's voices by their names, "Anna", "Markus": `deviceVoiceGender`), else Piper's next installed voice of it, Qwen3-TTS's next
   speaker, the device's next best voice —, else by the same one; which speaker that is, by their names
   only where obvious ("Frau Weber", "Nina"): the main voice reads the first speaker of its gender,
   else the first not known (its gender not known: the first to speak), and when both are of the other

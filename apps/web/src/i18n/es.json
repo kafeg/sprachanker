@@ -700,7 +700,9 @@
     "culture": "Cultura",
     "writing": "Escritura",
     "scene": "Diálogo",
-    "mistakes": "Errores"
+    "mistakes": "Errores",
+    "reading": "Lectura",
+    "listening": "Comprensión auditiva"
   },
   "words": {
     "intro": "Las palabras de la lección como tarjetas: recuerda, muestra la respuesta, valora. Cuando no quede nada por ahora, siguen en Repaso.",

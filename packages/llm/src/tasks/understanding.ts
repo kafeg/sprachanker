@@ -37,7 +37,13 @@ import {
   upcomingLine,
 } from "./lesson.ts";
 import { NEUTRAL, type RulesInput, systemPrompt } from "./rules.ts";
-import { questionCount, type TextGenre, type TextShape, textWords } from "./text-genres.ts";
+import {
+  FEW_WORDS,
+  questionCount,
+  type TextGenre,
+  type TextShape,
+  textWords,
+} from "./text-genres.ts";
 
 export const UNDERSTANDING_BUDGETS = {
   lessonVocab: 1200,
@@ -70,6 +76,11 @@ const PLACE_QUESTIONS: Record<CourseThird, string> = {
     "True/false on details; a/b/c whose wrong options the text mentions too (a time changed, another place named).",
   late: "As at the middle, and one or two on the gist or a reason (why someone calls, what is decided, how someone feels).",
 };
+
+/** Whether the learner knows very few words yet (a course's first lessons): its start genres, and
+ *  a text about only what those words say. */
+export const fewWords = (lesson: Pick<LessonInfo, "vocab" | "knownWords">) =>
+  lesson.vocab.length + (lesson.knownWords?.length ?? 0) < FEW_WORDS;
 
 /** The learner's third of the course as practice reads it: from A2 on never "early". */
 export function practiceThird(lesson: Pick<LessonInfo, "place" | "level">): CourseThird {
@@ -135,11 +146,11 @@ export function understandingTextRules(
   return [
     `You write a short text in ${t} for a learner who speaks ${l}: something people really read or hear, in the genre given, on the lesson's topic, at the learner's level. Plan it first, then write it:`,
     `- "title" and "situation" (one sentence: who, where, why) in ${l}; they give away nothing a question could ask.`,
-    `- "people": who speaks or writes — "name" (a first name, or a title and a surname), "gender" ("f" or "m"), "age" ("young": a teenager or a student; "adult"; "senior") and "role" (in ${l}). People made up for this text, never a character of the course (their names are given with the lesson); no child speaks.`,
+    `- "people": who speaks or writes — "name" (a first name, or a title and a surname, written as in the text), "gender" ("f" or "m"), "age" ("young": a teenager or a student; "adult"; "senior") and "role" (in ${l}). People made up for this text, never a character of the course (their names are given with the lesson); no child speaks.`,
     `- "beats": in ${l}, what happens, 3 to 6 short points. A situation people are really in, where they behave as people there do: they say or ask only what it needs, address each other as people there do (a stranger or an official politely), each line answers or follows the one before, and the text has a point — something is asked and answered, arranged, told, decided or changed.`,
     `- "facts": 5 to 10 things a reader or listener can find in the text, short, in ${t}: names, times, prices, places, numbers, what someone wants, decides or does.`,
     `- "text": in ${t}, about as long as given, in the form given.`,
-    `Language: natural, idiomatic ${t}, as a native speaker writes or says it — never a word-for-word translation, never a sentence bent to fit a word in. Words and grammar of about the learner's level and place in the course: mostly words they know (given with the lesson) and the grammar met so far, this lesson's where it comes naturally; grammar the course teaches later only where nothing simpler would sound right (a story is told in the present while no past tense is met). A word above their level is fine where the text would sound wrong without it.`,
+    `Language: natural, idiomatic ${t}, as a native speaker writes or says it — never a word-for-word translation, never a sentence bent to fit a word in. Words and grammar of about the learner's level and place in the course: mostly words they know (given with the lesson) and the grammar met so far, this lesson's two to four times where it comes naturally — never in sentence after sentence, which reads as an exercise; grammar the course teaches later only where nothing simpler would sound right (a story is told in the present while no past tense is met). A word above their level is fine where the text would sound wrong without it.`,
     "Topic: the situation shows the lesson's topic or one of its goals naturally — one goal is enough; never all its goals or all its words in one text. The lesson's title may be an episode of the course's story: take its topic, never its plot or its people.",
     "Variety: an everyday situation from the ideas given when one fits the topic, another one when none does; nobody is questioned by an official (police, a border, a form at an office) unless the lesson is about that.",
     `- ${NEUTRAL}`,
@@ -185,6 +196,9 @@ export function understandingDraftTask(input: DraftInput): StructuredTask<Unders
     `Genre: ${genre.what}.`,
     `Form: ${SHAPE[genre.shape](genre)}`,
     PLACE_TEXT[third],
+    fewWords(lesson)
+      ? "The learner knows very few words yet: a short, simple text about only what they can say with them (greeting, names, how someone is); no time, price or number they have not met."
+      : undefined,
     `Length of the text: about ${from}–${to} words.`,
     `Ideas for the situation: ${input.areas.join("; ")}.`,
     input.usedNames?.length
@@ -256,7 +270,9 @@ export function draftLines(
   draft: UnderstandingDraft,
   genre: TextGenre,
 ): { lines: UnderstandingText["lines"]; problem?: string } {
+  // Tags a model sometimes carries over from the prompt ("</text>") are no part of the text.
   const raw = draft.text
+    .replace(/<\/?[a-z]+(?:\s[^>]*)?>/gi, "")
     .split("\n")
     .map((l) => l.trim())
     .filter(Boolean);
@@ -358,7 +374,7 @@ export function understandingJudgeRules(
   const { language: l, target: t } = names;
   return [
     `You are a native speaker of ${t} and an experienced teacher of it. You rate drafts of a short text for a learner of ${t} who speaks ${l}, before one of them is given to the learner. For each draft first write its "gist" in ${l} — who wants what from whom and why, what happens —, then rate it 1–5 on each point, strictly: 5 only when there is nothing to improve. A gist that does not hold together (someone asks for what they should give, a reply to a question nobody asked) is a coherence problem.`,
-    `- "natural": idiomatic ${t}, as a native speaker writes or says it; no word-for-word translation, no odd or stiff phrase. One odd line: 3 at most.`,
+    `- "natural": idiomatic ${t}, as a native speaker writes or says it; no word-for-word translation, no odd or stiff phrase. One odd line, or one construction in sentence after sentence (it reads as an exercise): 3 at most.`,
     `- "coherent": every line follows from the one before; people answer what they are asked; nothing comes out of the blue. One line that does not follow: 2 at most.`,
     `- "realistic": a situation people are really in, and they behave as people there do: they ask only what it needs (an office asking one's age for no reason: 2 at most) and address each other as people there do (a stranger or an official politely). A line that makes no sense there: 2 at most.`,
     `- "level": the learner at this level and place in the course can follow it — mostly words and grammar they know, a few new words aside. Grammar the course teaches later (given with the lesson) where a simpler form would do: 3 at most.`,

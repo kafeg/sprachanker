@@ -21,6 +21,7 @@ import {
   chooseDraft,
   type DraftInput,
   type DraftRating,
+  fewWords,
   LlmError,
   nameWords,
   passable,
@@ -148,11 +149,15 @@ export function createUnderstanding(deps: {
   }
 
   /** The genre of a new text: not one of the step's last three in the lesson. */
-  function genreFor(request: UnderstandingRequest, level: string | undefined): TextGenre {
+  function genreFor(
+    request: UnderstandingRequest,
+    level: string | undefined,
+    few: boolean,
+  ): TextGenre {
     const recent = texts(request.lessonKey, request.step)
       .slice(0, 3)
       .flatMap((t) => (t.result.genre ? [t.result.genre] : []));
-    return pickGenre(request.step, level, recent, random);
+    return pickGenre(request.step, level, recent, random, few);
   }
 
   /** Drafts written side by side and rated: the one kept with its rating, or — none passing — the
@@ -299,7 +304,7 @@ export function createUnderstanding(deps: {
     const started = now();
     const input = await inputs(request);
     const step = (at: UnderstandingStep) => making.set(key(request.lessonKey, request.step), at);
-    const genre = genreFor(request, input.ctx.info.level);
+    const genre = genreFor(request, input.ctx.info.level, fewWords(input.ctx.info));
     const best = await bestDraft(input, genre, step);
     const text = voiced(await askedText(input, request, genre, best, step), input.ctx.target);
     const { verdict } = keepVerdict(store, session.run.id, {
@@ -368,7 +373,7 @@ export function createUnderstanding(deps: {
     /** The request a draft would send (a genre of the step picked as for a new text). */
     async prompt(request: UnderstandingRequest): Promise<PromptPreview> {
       const input = await inputs(request);
-      const genre = genreFor(request, input.ctx.info.level);
+      const genre = genreFor(request, input.ctx.info.level, fewWords(input.ctx.info));
       return llm.preview(
         structuredRequest(
           understandingDraftTask({
