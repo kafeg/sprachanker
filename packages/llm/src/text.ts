@@ -67,6 +67,56 @@ export const languageName = (code: string) =>
 
 /** The two languages as a task's rules name them: by their English names, or as placeholders for the
  *  learner's own prompt template (Settings → AI assistant → Advanced). */
+/** A writing system and a test for one of its letters. */
+export interface Script {
+  name: string;
+  letter: RegExp;
+}
+
+/** Writing systems told apart in a model's text. */
+const SCRIPTS: Script[] = [
+  "Latin",
+  "Cyrillic",
+  "Greek",
+  "Armenian",
+  "Georgian",
+  "Hebrew",
+  "Arabic",
+  "Devanagari",
+  "Bengali",
+  "Thai",
+  "Hangul",
+  "Hiragana",
+  "Katakana",
+  "Han",
+].map((name) => ({ name, letter: new RegExp(`\\p{Script=${name}}`, "u") }));
+
+/** A language's writing systems, as its own name for itself shows them ("Deutsch", "Русский"). */
+const ownScripts = (lang: string) => {
+  const name = new Intl.DisplayNames([lang], { type: "language" }).of(lang) ?? "";
+  return SCRIPTS.filter((s) => s.letter.test(name)).map((s) => s.name);
+};
+
+/** The scripts `lang` writes in that `other` does not use (Cyrillic for Russian beside German);
+ *  none when the two share theirs. */
+export function scriptsOnlyOf(lang: string, other: string): Script[] {
+  const [own, others] = [ownScripts(lang), ownScripts(other)];
+  return SCRIPTS.filter((s) => own.includes(s.name) && !others.includes(s.name));
+}
+
+/** How many of a text's letters are written in `scripts`. */
+export const lettersIn = (text: string, scripts: Script[]) =>
+  [...text].filter((c) => scripts.some((s) => s.letter.test(c))).length;
+
+/** Whether a text reads as written in `lang` rather than in `other`, by the scripts only one of them
+ *  uses: more of its letters in `lang`'s. Undefined when their scripts do not tell them apart (German
+ *  and English). */
+export function writtenIn(text: string, lang: string, other: string): boolean | undefined {
+  const [own, others] = [scriptsOnlyOf(lang, other), scriptsOnlyOf(other, lang)];
+  if (!own.length || !others.length) return undefined;
+  return lettersIn(text, own) > lettersIn(text, others);
+}
+
 export const languageNames = (language: string, target: string) => ({
   language: languageName(language),
   target: languageName(target),

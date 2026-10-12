@@ -9,6 +9,7 @@ import {
   settledQuestions,
   textLength,
   understandingCheckTask,
+  understandingProblem,
   understandingTextRules,
   understandingTextTask,
 } from "../src/tasks/understanding.ts";
@@ -68,6 +69,8 @@ const LESSON = {
   place: { n: 5, of: 40 },
   knownWords: [{ target: "der Morgen", translation: "утро" }],
   topics: [{ title: "Zahlen", lesson: "1.1" }],
+  grammarHtml: ["<h2>Perfekt</h2><p>Ich habe gekauft.</p>"],
+  characters: ["Nico", "Lisa"],
 };
 
 test("the text's length follows the level: the first of a span, a beginner's without one", () => {
@@ -91,8 +94,26 @@ test("understanding_text: what the learner knows and how long, with the language
   expect(data).toContain("Grammar met so far: Zahlen");
   expect(data).toContain("about 80–120 words");
   expect(data).toContain('"Richtig" and "Falsch"');
+  // The lesson's grammar, used twice from A2 on; the course's people, none of them in the text.
+  expect(data).toContain("This lesson's grammar:\nPerfekt\nIch habe gekauft.");
+  expect(data).toContain("Use this lesson's grammar at least 2 times in the text.");
+  expect(data).toContain("The course's characters: Nico, Lisa");
+  const a1 = understandingTextTask({
+    language: "ru",
+    target: "de",
+    lesson: { ...LESSON, level: "A1" },
+  });
+  expect(String(a1.request.messages[1]?.content)).not.toContain("at least 2 times");
   const template = understandingTextRules("ru", "de", PLACEHOLDER_NAMES);
   expect(template).not.toMatch(/A1|A2|German|Russian|Richtig/);
+  for (const rule of [
+    "never a word a question asks about, never one the learner knows",
+    "never a character of the course",
+    "in {language}, never in {target}",
+    "options in the question's language",
+    "Only a number, a price or a time is typed",
+  ])
+    expect(template).toContain(rule);
   expect(system).toContain('"phase": "listening"');
   expect(system).toContain("Reply with the JSON object only.");
 });
@@ -114,6 +135,32 @@ test("understanding_text: a question without its answer, or a dialogue of three,
   const again = scripted([three, TEXT]);
   await runStructured(again.client, "m", task);
   expect(again.sent[1]).toContain("two speakers at most");
+});
+
+test("understandingProblem: a course character in the text, a title in the learnt language, a question's options in the learner's — asked again once", async () => {
+  const input = { language: "ru", target: "de", lesson: LESSON } as const;
+  expect(understandingProblem(TEXT, input)).toBeUndefined();
+  const nico = { ...TEXT, lines: [{ speaker: "Nico", text: "Hallo!" }, ...TEXT.lines.slice(1)] };
+  expect(understandingProblem(nico, input)).toBe(
+    "the people are new, none of the course's characters (Nico)",
+  );
+  const named = { ...TEXT, lines: [...TEXT.lines, { speaker: "Anna", text: "Und Lisa?" }] };
+  expect(understandingProblem(named, input)).toContain("(Lisa)");
+  const german = { ...TEXT, title: "Beim Bäcker", situation: "Anna kauft Brötchen." };
+  expect(understandingProblem(german, input)).toBe('"title" and "situation" in Russian');
+  const mixed = {
+    ...TEXT,
+    questions: TEXT.questions.map((q, i) =>
+      i === 2 ? { ...q, options: ["утром", "вечером", "ночью"] } : q,
+    ),
+  };
+  expect(understandingProblem(mixed, input)).toBe("a question in German has its options in German");
+  // Languages written alike are not told apart: no check.
+  expect(understandingProblem(german, { ...input, language: "en" })).toBeUndefined();
+  // The task's check: repaired once.
+  const model = scripted([german, TEXT]);
+  await runStructured(model.client, "m", understandingTextTask(input));
+  expect(model.sent[1]).toContain('"title" and "situation" in Russian');
 });
 
 test("understanding_check: the text with its speakers and the questions without their answers", () => {
@@ -157,4 +204,15 @@ test("settledQuestions: one answered otherwise, ambiguous or left out is dropped
     () => true,
   );
   expect(wrong.questions).toEqual([]);
+  // Typed only a number, a price or a time: one typed otherwise is left out, however answered.
+  const word = {
+    ...TEXT,
+    questions: [{ phase: "reading" as const, question: "Wer verkauft?", accepted: ["Verkäufer"] }],
+  };
+  const none = settledQuestions(
+    word,
+    { answers: [{ n: 1, answer: "Verkäufer", ambiguous: false }] },
+    () => true,
+  );
+  expect(none.questions).toEqual([]);
 });

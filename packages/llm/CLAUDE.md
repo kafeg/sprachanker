@@ -31,7 +31,9 @@ src/
   structured.ts    # JSON outputs: schema in the request (Anthropic: its system prompt), quotes escaped
                    # twice made plain, zod validation and the task's check, one repair
   thinking.ts      # strips inline <think>…</think> from streamed text (client.ts also drops control tokens)
-  text.ts          # course HTML → plain text for prompts (a table: a row a line, cells joined by " · ")
+  text.ts          # course HTML → plain text for prompts (a table: a row a line, cells joined by " · ");
+                   # languages' names; scripts (writtenIn: which of two languages a text is in, where
+                   # their scripts differ)
   tasks/
     rules.ts           # systemPrompt: the learner's rules or the standing ones, then the fixed suffix and
                        # the reply's languages (languagesLine); NEUTRAL: the line that no
@@ -68,7 +70,9 @@ src/
                        # (key corrections, model lines without the error); goal kinds by level (data)
     tutor-tools.ts     # the tutor's tool definitions (progress, mistakes, word, lesson) and prompt lines
     understanding.ts   # Understanding: understanding_text (a text to hear or read with its questions, its
-                       # length by the level), understanding_check (read again: settledQuestions)
+                       # length and the lesson's grammar by the level; understandingProblem: no course
+                       # character, the learner's language where asked), understanding_check (read
+                       # again: settledQuestions)
     word-examples.ts   # word_examples: three to five sentences for each of a few words of a deck, in the
                        # words known up to them, at the level when known
 test/              # fake endpoints (no network); fixture course from @sprachanker/course-fixture

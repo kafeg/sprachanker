@@ -6,7 +6,14 @@ import { Correction, DialogueSummary, type Lang, SceneSetup } from "@sprachanker
 import { z } from "zod";
 import type { ChatMessage, TaskRequest } from "../client.ts";
 import type { StructuredTask } from "../structured.ts";
-import { clip, languageName, languageNames, recentTurns } from "../text.ts";
+import {
+  clip,
+  languageName,
+  languageNames,
+  recentTurns,
+  type Script,
+  scriptsOnlyOf,
+} from "../text.ts";
 import {
   charactersLine,
   goalsLine,
@@ -273,40 +280,13 @@ export interface SceneLangs {
   target: Lang;
 }
 
-/** Writing systems a correction is checked against. */
-const SCRIPTS = [
-  "Latin",
-  "Cyrillic",
-  "Greek",
-  "Armenian",
-  "Georgian",
-  "Hebrew",
-  "Arabic",
-  "Devanagari",
-  "Bengali",
-  "Thai",
-  "Hangul",
-  "Hiragana",
-  "Katakana",
-  "Han",
-].map((name) => ({ name, letter: new RegExp(`\\p{Script=${name}}`, "u") }));
-
-const scriptsOf = (text: string) => SCRIPTS.filter((s) => s.letter.test(text)).map((s) => s.name);
-
-/** A language's writing systems, as its own name for itself shows them ("Deutsch", "Русский"). */
-const ownScripts = (lang: string) =>
-  scriptsOf(new Intl.DisplayNames([lang], { type: "language" }).of(lang) ?? "");
-
 /** Scripts of the learner's language that the learnt one does not use: a `right` written in them is
  *  the model's remark ("правильно"), not the line corrected. */
-function foreignScripts({ language, target }: SceneLangs) {
-  const [learner, learnt] = [ownScripts(language), ownScripts(target)];
-  return SCRIPTS.filter((s) => learner.includes(s.name) && !learnt.includes(s.name));
-}
+const foreignScripts = ({ language, target }: SceneLangs) => scriptsOnlyOf(language, target);
 
 /** A `right` that is no corrected wording: a remark in the learner's script, alternatives offered
  *  ("a / b"), or an arrow of the model's own ("x -> y"). */
-const isRemark = (right: string, foreign: typeof SCRIPTS) =>
+const isRemark = (right: string, foreign: Script[]) =>
   foreign.some((s) => s.letter.test(right)) || /->|→|\s\/\s/.test(right);
 
 /** Corrections that quote one of `lines`, change more than case or punctuation and give the right

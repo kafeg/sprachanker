@@ -397,7 +397,9 @@ text to read (a menu, a notice, a note, an ad), the kind chosen by the lesson �
 course's level (A1 about 40–70 words, A2 80–120, B1 150–200; given with the data), a few new words at
 most, each glossed; and 3–5 questions in the target language as exams ask them, each with one key:
 true/false (two options in the language's words — "Richtig", "Falsch" for German, with the data),
-a/b/c, a number, price or time as three options or typed (every right spelling accepted); a text heard
+a/b/c, a number, price or time as three options or typed (every right spelling accepted; nothing
+else is typed); the people in it new, none of the course's characters; from A2 on the lesson's
+grammar in it twice at least; no glossed word one a question asks about; a text heard
 first has 3–4 questions by ear and 1–2 on the text read. A second call reads the text again and
 answers the questions from it alone (`understanding_check`): one it answers otherwise or finds
 ambiguous is left out; fewer than three left, the text is written again once and the better kept;
