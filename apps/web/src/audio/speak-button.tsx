@@ -17,7 +17,7 @@ export function SpeakButton({
   ref,
 }: {
   parts: SpokenPart[];
-  /** What is read, for screen readers ("Read aloud: …" is said around it). */
+  /** What is read, for screen readers ("Read aloud: …" is said around it); by default the text read. */
   label?: string;
   className?: string;
   ref?: React.Ref<AudioControls>;
@@ -33,7 +33,11 @@ export function SpeakButton({
   return (
     <button
       type="button"
-      aria-label={reading ? t("speech.read.stop") : t("speech.read.listen", { what: label ?? "" })}
+      aria-label={
+        reading
+          ? t("speech.read.stop")
+          : t("speech.read.listen", { what: label ?? readable.map((p) => p.text).join(" ") })
+      }
       aria-pressed={reading}
       onClick={() => (reading ? speaker.stop() : void speaker.say(id, readable))}
       className={cn(

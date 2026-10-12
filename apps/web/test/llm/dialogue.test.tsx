@@ -129,6 +129,8 @@ test("an open Dialogue: its goal card, who reads the lines, the learner's line s
   // Who reads the partner's lines, as the model is named.
   expect(view.getByText("Read by Piper · thorsten")).toBeTruthy();
   expect(view.getByText(/· test-model$/)).toBeTruthy();
+  // A partner's line is played by a button named by the line.
+  expect(view.getByRole("button", { name: "Read aloud: Um 14:30." })).toBeTruthy();
   // The learner's line: said, its take to play, understood but not fitting, its correction.
   expect(view.getByLabelText("Said aloud")).toBeTruthy();
   expect(view.getByRole("button", { name: "Mine" })).toBeTruthy();
