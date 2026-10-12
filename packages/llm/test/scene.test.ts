@@ -14,7 +14,45 @@ import {
   sceneTurnRequest,
   sceneTurnRules,
   sceneTurnTask,
+  setupProblem,
 } from "../src/tasks/scene.ts";
+
+test("setupProblem: the card in the learner's language with one address; an opening giving a fact away or asking the goal question", () => {
+  const langs = { language: "ru", target: "de" } as const;
+  const setup = {
+    title: "Бронирование номера",
+    situation: "Вы звоните в отель.",
+    partner: "Администратор",
+    goals: ["Узнайте, сколько стоит номер.", "Спросите про завтрак."],
+    partnerInfo: ["Das Zimmer kostet 95 Euro pro Nacht.", "Das Frühstück beginnt um 7 Uhr."],
+    opening: "Guten Tag, Hotel Sonne. Wie kann ich Ihnen helfen?",
+  };
+  expect(setupProblem(setup, langs)).toBeUndefined();
+  expect(setupProblem({ ...setup, title: "Im Hotel" }, langs)).toBe(
+    "title, situation and goals in Russian",
+  );
+  expect(
+    setupProblem(
+      { ...setup, goals: ["Узнай, сколько стоит номер.", "Спросите про ваш завтрак."] },
+      langs,
+    ),
+  ).toBeUndefined();
+  expect(
+    setupProblem(
+      { ...setup, situation: "Ты звонишь в отель, вы говорите с администратором." },
+      langs,
+    ),
+  ).toContain("one form of address");
+  expect(
+    setupProblem({ ...setup, opening: "Hotel Sonne, unser Zimmer kostet 95 Euro." }, langs),
+  ).toContain("gives away");
+  expect(
+    setupProblem(
+      { ...setup, opening: "Guten Tag! Wann beginnt das Frühstück, möchten Sie wissen?" },
+      langs,
+    ),
+  ).toContain("goal question");
+});
 
 const turn = (extra: Partial<SceneTurn>): SceneTurn => ({
   reply: "Woher kommst du?",

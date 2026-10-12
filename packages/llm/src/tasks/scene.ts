@@ -13,6 +13,7 @@ import {
   recentTurns,
   type Script,
   scriptsOnlyOf,
+  writtenIn,
 } from "../text.ts";
 import { genderProblem } from "./gender.ts";
 import {
@@ -115,12 +116,56 @@ export function sceneSetupRules(
     "Base it on the lesson below: an everyday situation where the learner does what the lesson's goals say, with the words they know.",
     "The partner is a new person made up for this dialogue — never a character of the course, never named as one (their names are given with the lesson) — and the setup states nothing about the course's characters.",
     "Make an information gap: the partner knows 2–4 concrete facts the learner does not (a time, a price, a place, a name, a number) and must ask for.",
-    `Write title, situation, partner and goals in ${l}, whatever language the lesson's texts are in. "goals" are the learner's goal card: 2–3 concrete things to say or find out, of the kinds given for the learner's level; at least one asks for a fact the partner holds, without giving the fact away; at least one needs this lesson's grammar to say.`,
+    `Write title, situation, partner and goals in ${l}, whatever language the lesson's texts are in. "goals" are the learner's goal card: 2–3 concrete things to say or find out, of the kinds given for the learner's level; at least one asks for a fact the partner holds, without giving the fact away; at least one needs this lesson's grammar to say. Each goal is one thing, true to the situation and to the other goals; it never prescribes a word to use, and "A or B" in a goal is a choice of one, never both.`,
     `"partnerInfo": the partner's facts as short sentences in ${t}; the learner does not see them.`,
     `"opening" is the partner's first line in ${t} within the learner's level, using words they know, and true to the situation (who the two are, where they are, what each already knows); it does not give away the facts and asks nothing the learner cannot know (only about themselves, their wishes or the situation). "openingTranslation": the opening in ${l}.`,
     `One form of address for the whole dialogue, the one the situation calls for (where ${t} has a familiar and a polite one): the goals, the opening and the partner's facts all use it, and no goal asks for the other.`,
     NEUTRAL,
   ].join("\n");
+}
+
+/** The familiar and the polite "you" of a learner's language that has both (data): a card that
+ *  uses both addresses the learner two ways. */
+const ADDRESS: Partial<Record<Lang, [RegExp, RegExp]>> = {
+  ru: [
+    /(?<!\p{L})(?:ты|тебя|тебе|тобой|твой|твоя|твоё|твое|твои|твоего|твоей|твоему|твоим)(?!\p{L})/iu,
+    /(?<!\p{L})(?:вы|вас|вам|вами|ваш|ваша|ваше|ваши|вашего|вашей|вашему|вашим)(?!\p{L})/iu,
+  ],
+  uk: [
+    /(?<!\p{L})(?:ти|тебе|тобі|тобою|твій|твоя|твоє|твої|твого|твоєї|твоєму|твоїм)(?!\p{L})/iu,
+    /(?<!\p{L})(?:ви|вас|вам|вами|ваш|ваша|ваше|ваші|вашого|вашої|вашому|вашим)(?!\p{L})/iu,
+  ],
+};
+
+/** A word's main part, as a line and a fact are compared: four letters or more, by its first five. */
+const mainWordsOf = (text: string) =>
+  new Set((text.toLocaleLowerCase().match(/\p{L}{4,}/gu) ?? []).map((w) => w.slice(0, 5)));
+
+/**
+ * What a setup falls short of beyond its form: the card (title, situation, goals) in the learner's
+ * language and one form of address; an opening that gives a fact of the partner's away (its number)
+ * or asks the learner's goal question itself (its question shares two main words with a fact).
+ * Undefined when it holds; else asked again once (the task's quality).
+ */
+export function setupProblem(
+  setup: SceneSetup & { partnerInfo?: string[] },
+  { language, target }: SceneLangs,
+): string | undefined {
+  const card = [setup.title, setup.situation, ...setup.goals];
+  if (card.some((t) => writtenIn(t, language, target) === false))
+    return `title, situation and goals in ${languageName(language)}`;
+  const address = ADDRESS[language];
+  if (address?.every((form) => form.test(card.join(" "))))
+    return "one form of address in the title, situation and goals, the one the situation calls for";
+  const facts = setup.partnerInfo ?? [];
+  const numbers = setup.opening.match(/\d+/g) ?? [];
+  if (numbers.some((n) => facts.some((f) => new RegExp(`(?<!\\d)${n}(?!\\d)`).test(f))))
+    return '"opening" gives away none of the partner\'s facts: the learner asks for them';
+  const question = mainWordsOf(closingQuestion(setup.opening));
+  const asks = facts.some((f) => [...mainWordsOf(f)].filter((w) => question.has(w)).length >= 2);
+  if (asks)
+    return '"opening" never asks the learner\'s goal question itself: it asks only about the learner, their wishes or the situation';
+  return undefined;
 }
 
 /** What stays when the learner writes their own rules (07). */
@@ -148,6 +193,7 @@ export function sceneSetupTask(
     name: "scene_setup",
     schema: DialogueSetup,
     quality: (setup) =>
+      setupProblem(setup, input) ??
       genderProblem([setup.title, setup.situation, ...setup.goals], input.language) ??
       genderProblem([setup.openingTranslation ?? ""], input.language, false),
     request: {
@@ -189,14 +235,14 @@ export function sceneTurnRules(
     `You play a role in a short spoken dialogue with a learner of ${t} who speaks ${l}, at the learner's level given in <scene>. Stay in role: you are the person of "You play", none of the course's characters — never take one of their names.`,
     `- "reply": your next line in ${t} only, within the learner's level — one or two short sentences with words they know, in correct ${t}, in the form of address of your opening.`,
     `- Answer like a person in that situation: react to what the learner just said (a short reaction), then add a word about yourself or the situation, or ask about the learner's plans or wishes. Never end two lines with the same question.`,
-    `- The goals are the learner's to reach: never ask the learner's goal questions yourself, never offer or hint at a fact of "You know" before the learner asks for it. Ask whether there is anything else at most once in the dialogue, and only when the learner has nothing more to say; if the learner drifts, answer briefly and bring the talk back to the situation without naming a goal.`,
+    `- The goals are the learner's to reach: never ask the learner's goal questions yourself, never offer or hint at a fact of "You know" before the learner asks for it. Ask whether there is anything else at most once in the dialogue, only when the learner has nothing more to say, and never naming a goal or a fact; if the learner drifts, answer briefly and bring the talk back to the situation without naming a goal.`,
     `- If the learner speaks ${l} or is stuck, still answer in ${t}, more simply.`,
     `- Never correct the learner inside "reply" (you stay in role); corrections go only in "corrections".`,
     `- "translation": your reply in ${l}.`,
     `- A line inside <line said> was said aloud and written down by a speech recogniser: take it as a listener would have understood it. Its punctuation, capitals and numbers written as digits are the recogniser's, never errors; a word clearly misheard for a right one is not an error.`,
     `- "understood": would a ${t} speaker have understood the learner's new line? "fits": does it answer you or move towards a goal?`,
     `- "corrections": at most two real errors in the learner's new line (the one inside <line>) that matter most — never errors of earlier lines. "wrong": the words as the learner said them; "right": only those words corrected, in ${t}, nothing else; "explanation": short, in ${l}. Check word order (also in subordinate and relative clauses), endings and agreement, and this lesson's grammar. A correction keeps to the goals: where a goal asks for a form (a form of address, a tense, a word), "right" uses it, never another. Never correct what is correct, never style or a word choice that is correct; none if the line is correct.`,
-    '- "goalsMet": 0-based indices of the goals the learner has reached so far in the whole dialogue.',
+    '- "goalsMet": 0-based indices of the goals the learner has reached so far in the whole dialogue. A goal is reached by what the learner said, asked or found out — at the line that does it, the first line too —, even in other words than the goal\'s (a goal prescribes no word); judge the new line against every goal not yet reached.',
     '- "done": true when all goals are reached and the dialogue can end; then say goodbye in role.',
     `- ${NEUTRAL}`,
   ].join("\n");
