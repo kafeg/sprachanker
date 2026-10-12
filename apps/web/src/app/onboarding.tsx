@@ -36,7 +36,7 @@ function TourStep({ onTarget }: { onTarget(to: "/downloaded" | "/catalog"): void
   const { shown, ready } = useShown();
   const courses = useCourses();
   const known = ready && (courses.isSuccess || courses.isError);
-  const downloaded = (courses.data ?? []).some((c) => shown("courses", c.series));
+  const downloaded = (courses.data ?? []).some((c) => shown("courses", c.series, c.course));
   useEffect(() => {
     if (known) onTarget(downloaded ? "/downloaded" : "/catalog");
   }, [known, downloaded, onTarget]);

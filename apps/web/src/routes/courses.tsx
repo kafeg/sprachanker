@@ -31,7 +31,7 @@ function useCourseList() {
   if (courses.isError)
     return { state: <ErrorState error={courses.error} onRetry={() => courses.refetch()} /> };
   return {
-    all: courses.data.filter((c) => shown("courses", c.series)),
+    all: courses.data.filter((c) => shown("courses", c.series, c.course)),
     settings: settings.data ?? {},
   };
 }
@@ -68,7 +68,7 @@ export function CoursesPage({ tab }: { tab: CoursesTab }) {
   const { t, i18n } = useTranslation();
   const { shown, ready } = useShown();
   const settings = useSettings().data ?? {};
-  const all = (useCourses().data ?? []).filter((c) => shown("courses", c.series));
+  const all = (useCourses().data ?? []).filter((c) => shown("courses", c.series, c.course));
   const offers = offersOf(useCatalog().data, "courses", shown);
   // Each tab counts what it shows, its filters applied.
   const counted = <T extends { titles: string[]; editions: string[] }>(

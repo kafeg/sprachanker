@@ -52,7 +52,7 @@ area is built is in its `CLAUDE.md`; work not built yet is in `docs/plan.md`.
 - Lexeme part of speech and gender come from what the source states, never guessed; otherwise every provider uses `shapeHeadword`, so one entry is one lexeme in every course.
 - A card follows its vocab key (lesson + lemma): a lemma corrected at the source is another word, and the old card keeps its progress.
 - A language pair of a source course is a separate course (DW `a1-ru`, `a1-en`): the source publishes them separately and they differ. Editions only for true translations.
-- Only DW Nicos Weg and Leben in Deutschland are ready for learning; every other provider is experimental, shown only when enabled in Settings (owner, 2026-10-10).
+- Ready for learning: DW Nicos Weg, Leben in Deutschland and Goethe A1 (owner, 2026-10-10; A1 2026-10-12); every other course is experimental, shown only when its source is enabled in Settings.
 - Every provider's courses are offered in Courses → Available, unfiltered until the learner narrows them; nothing sets a filter for them (owner, 2026-10-08, 2026-10-10).
 - A medium the source answers 404/410 for is "not at the source": reported, retried next run, but it never leaves the course incomplete.
 - Removing a course is never blocked, even mid-lesson (owner, 2026-10-12): the only alternative would delete learner data; its runs wait (409 `course_gone`) until it returns.

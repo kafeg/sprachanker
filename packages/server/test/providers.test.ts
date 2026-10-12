@@ -101,10 +101,13 @@ test("every provider keeps the contract: its own id and series, courses offered 
   }
 });
 
-test("what is ready for learning is declared by the providers: Nicos Weg in every edition and Leben in Deutschland", () => {
+test("what is ready for learning is declared by the providers: Nicos Weg in every edition, Leben in Deutschland, Goethe A1 alone of its source", () => {
   const offers = courseInstaller("/nowhere").offers();
   const stable = new Set(offers.filter((o) => !o.experimental).map((o) => o.series));
-  expect([...stable].sort()).toEqual(["bamf.lid", "dw.nicos-weg"]);
+  expect([...stable].sort()).toEqual(["bamf.lid", "dw.nicos-weg", "goethe.zertifikat"]);
+  const goethe = offers.filter((o) => o.series === "goethe.zertifikat");
+  expect(goethe.filter((o) => !o.experimental).map((o) => o.course)).toEqual(["a1"]);
+  expect(goethe.filter((o) => o.experimental).length).toBeGreaterThan(0);
 });
 
 test("a download's end: invalid files are an error, media missing leave it incomplete, else done", () => {

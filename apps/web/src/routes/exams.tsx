@@ -23,7 +23,7 @@ export function ExamsPage({ tab }: { tab: ExamsTab }) {
   const { t } = useTranslation();
   const exams = useExams();
   const { shown, ready } = useShown();
-  const all = (exams.data ?? []).filter((e) => shown("exams", e.series));
+  const all = (exams.data ?? []).filter((e) => shown("exams", e.series, e.course));
   const catalog = useCatalog();
   const offers = offersOf(catalog.data, "exams", shown);
   const count: Record<ExamsTab, number> = {

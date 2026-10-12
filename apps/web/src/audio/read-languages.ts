@@ -9,7 +9,7 @@ export function useReadLanguages(): string[] {
   const { i18n } = useTranslation();
   const { shown } = useShown();
   const offered = (useCatalog().data ?? []).filter((o) =>
-    shown(o.kind === "exam" ? "exams" : "courses", o.series),
+    shown(o.kind === "exam" ? "exams" : "courses", o.series, o.course),
   );
   const here = offered.filter((o) => o.installed);
   const editions = (here.length ? here : offered).map((o) => o.edition);

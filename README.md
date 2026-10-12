@@ -54,7 +54,7 @@ SprachAnker keeps the real course and adds what it lacks:
   studied as in Anki, with FSRS scheduling.
 
 **Exams**
-- Goethe-Zertifikat A1–B1 model papers and the *Leben in Deutschland* test: mock exams under exam
+- Goethe-Zertifikat A1–B1 model papers (A2 and B1 experimental) and the *Leben in Deutschland* test: mock exams under exam
   conditions, practice question by question, open answers rated by the official criteria (by you or
   proposed by the AI).
 
@@ -79,7 +79,7 @@ The interface speaks 19 languages, including Arabic and Persian (right to left).
 |---|---|---|
 | Deutsche Welle — *Nicos Weg* | German A1–B1, explained in 19 languages | yes |
 | BAMF — *Leben in Deutschland* | the citizenship test, all states' questions | yes |
-| Goethe-Institut — Goethe-Zertifikat | A1–B1 model papers | experimental |
+| Goethe-Institut — Goethe-Zertifikat | A1 model paper (A2, B1: experimental) | yes |
 | Deutsche Welle — *Deutschtrainer* | German A1–A2 vocabulary | experimental |
 | COERLL — *Deutsch im Blick* (CC BY 4.0) | German, first year at university | experimental |
 | Lingust, VOA | English for Russian speakers; VOA *Let's Learn English* | experimental |

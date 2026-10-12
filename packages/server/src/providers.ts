@@ -182,7 +182,9 @@ export function courseInstaller(dataRoot: string, now: () => number = Date.now):
         p.offers.map((o) => ({
           ...o,
           series: p.series,
-          ...(!p.stable && { experimental: true as const }),
+          ...(!(p.stable === true || p.stable?.includes(o.course)) && {
+            experimental: true as const,
+          }),
         })),
       ),
 

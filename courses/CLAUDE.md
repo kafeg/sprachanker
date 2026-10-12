@@ -112,7 +112,7 @@ courses/
 - Crawling: respect robots.txt, identifiable User-Agent, stop on 403/429; no fixed rate limit. Allowed:
   a `Referer` of the source's own page for its media when it refuses hotlinks (Lingust).
 - A provider's index exports its `CourseProvider` (course-kit: id, series folder, `stable` when ready
-  for learning — without it the provider is experimental —, offers, import; DW one per series); the server lists them (`packages/server/src/providers.ts`) and tests every one
+  for learning, all its courses or those listed — without it a course is experimental —, offers, import; DW one per series); the server lists them (`packages/server/src/providers.ts`) and tests every one
   against the contract.
 - New provider = new folder exporting a `CourseProvider` (experimental until it declares `stable`), listed in the server's providers (the
   contract test covers it) + its own normaliser tests; no engine/UI changes

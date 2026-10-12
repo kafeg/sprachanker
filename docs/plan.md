@@ -24,9 +24,10 @@ and mockups: the owner's page "Goethe в SprachAnker"; background: `docs/researc
 - Open for the owner: whether exams need the practice mode at all; more original sets (Goethe's
   Übungssätze, PDF and MP4) instead of only one Modellsatz per level.
 - Built: practice as a lesson (every exam); Schreiben gone over as an examiner does; Sprechen from a
-  script. Tried on A2 with a real model (Schreiben, Teil 1–3 scripts, Teil 3 said and rated).
-  Remaining: A1 and B1 tried the same way (B1's presentation with its slides); A1 out of the
-  experimental sources.
+  script (a deck of cards drawn a card a round, a follow-up part about the part before it); A1 out of
+  the experimental sources. Tried with a real model on A1, A2 and B1 (Schreiben, every Teil's script,
+  A2 Teil 3 said and rated). Remaining: a part held by voice in the browser, the learner's lines
+  played into the microphone.
 - **Accept**: Goethe A2 Sprechen and Schreiben held end to end by voice with a real model; A1 shown
   without turning on experimental sources.
 

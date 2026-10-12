@@ -55,8 +55,32 @@ export function createExamConversation(deps: {
         ...(section?.letters ?? []).map((l) => `Karte ${l.letter}: ${l.text ?? ""}`),
       ],
       ...(item.partner && { partner: item.partner }),
+      // What the part is rated by: its rounds and turns.
+      rated: (item.criteria ?? []).map((c) => {
+        const title = locale?.items[item.key]?.criteria?.[c.id]?.title;
+        return title && title !== c.id ? `${c.id} (${title})` : c.id;
+      }),
+      // The module's earlier parts: a part following one up is about it.
+      earlier: earlierParts(),
     };
     return { task, target };
+
+    function earlierParts() {
+      const at = exam.sections.findIndex((s) => s.key === section?.key);
+      return exam.sections
+        .slice(0, Math.max(0, at))
+        .filter((s) => s.module === section?.module)
+        .map((s) => {
+          const l = locale?.sections[s.key];
+          return [
+            l?.title ?? s.key,
+            l?.instructions ?? "",
+            ...(s.letters ?? []).map((c) => c.text ?? ""),
+          ]
+            .filter(Boolean)
+            .join("\n");
+        });
+    }
   }
 
   /** The examiner and the partner given server voices of their gender, where the server reads the

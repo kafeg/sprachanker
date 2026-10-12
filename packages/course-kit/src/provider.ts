@@ -57,9 +57,10 @@ export const wanted = (options: ImportOptions, edition: string, ...names: string
 export interface CourseProvider {
   id: string;
   series: string;
-  /** Ready for learning: its courses are shown as they are. A provider without it is
-   *  experimental — shown only when the learner turns it on (Settings → General → Experimental). */
-  stable?: true;
+  /** Ready for learning: its courses are shown as they are — all of them, or those listed (by
+   *  course id). A course not ready is experimental — shown only when the learner turns its source
+   *  on (Settings → General → Experimental). */
+  stable?: true | readonly string[];
   offers: CourseOffer[];
   import(options: ImportOptions): Promise<ImportReport>;
 }
