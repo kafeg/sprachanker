@@ -1418,7 +1418,9 @@
       "practice": "Training",
       "practiceText": "Frage für Frage, jede Antwort sofort geprüft: zuerst die falsch beantworteten, dann die noch nicht gesehenen.",
       "catalog": "Katalog",
-      "catalogText": "{count, plural, one {# Frage mit ihrer Antwort.} other {Alle # Fragen mit ihren Antworten.}}"
+      "catalogText": "{count, plural, one {# Frage mit ihrer Antwort.} other {Alle # Fragen mit ihren Antworten.}}",
+      "catalogSplit": "{general, number} für alle, {chosen, number} zu deinem Bundesland.",
+      "catalogMore": "Wählst du dein Bundesland, kommen seine {more, number} dazu."
     },
     "begin": "Beginnen",
     "practise": "Trainieren",

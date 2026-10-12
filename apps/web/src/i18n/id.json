@@ -1418,7 +1418,9 @@
       "practice": "Latihan",
       "practiceText": "Pertanyaan demi pertanyaan, setiap jawaban langsung diperiksa: yang dulu kamu jawab salah lebih dulu, lalu yang belum pernah kamu lihat.",
       "catalog": "Katalog",
-      "catalogText": "{count, plural, =1 {# pertanyaan beserta jawabannya.} other {Semua # pertanyaan beserta jawabannya.}}"
+      "catalogText": "{count, plural, =1 {# pertanyaan beserta jawabannya.} other {Semua # pertanyaan beserta jawabannya.}}",
+      "catalogSplit": "{general, number} untuk semua, {chosen, number} tentang negara bagianmu.",
+      "catalogMore": "Memilih negara bagianmu menambah {more, number} pertanyaannya."
     },
     "begin": "Mulai",
     "practise": "Berlatih",

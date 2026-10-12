@@ -1418,7 +1418,9 @@
       "practice": "Exersare",
       "practiceText": "Întrebare cu întrebare, fiecare răspuns verificat imediat: întâi cele greșite, apoi cele pe care nu le-ai văzut.",
       "catalog": "Catalog",
-      "catalogText": "{count, plural, one {# întrebare, cu răspunsul ei.} few {Toate cele # întrebări, cu răspunsurile lor.} other {Toate cele # de întrebări, cu răspunsurile lor.}}"
+      "catalogText": "{count, plural, one {# întrebare, cu răspunsul ei.} few {Toate cele # întrebări, cu răspunsurile lor.} other {Toate cele # de întrebări, cu răspunsurile lor.}}",
+      "catalogSplit": "{general, number} pentru toți, {chosen, number} despre landul tău.",
+      "catalogMore": "Alegerea landului tău adaugă cele {more, number} ale lui."
     },
     "begin": "Începe",
     "practise": "Exersează",

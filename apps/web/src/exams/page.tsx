@@ -6,6 +6,7 @@ import {
   examScore,
   examSettings,
   missingSettings,
+  openCounts,
   openQuestions,
   timeOf,
 } from "@sprachanker/engine";
@@ -80,6 +81,7 @@ export function ExamPage({ params, start }: { params: ExamParams; start?: ExamMo
     .reduce((n, s) => n + s.draw, 0);
   const minutes = Math.round(timeOf(exam, module || undefined) / 60);
   const askedOfState = exam.sections.some((s) => s.filter?.setting === "exam.federalState");
+  const counts = openCounts(exam, setting);
   const testRunning = data.active?.plan.mode === "test" ? data.active : undefined;
   const toRun = (run: string) =>
     void navigate({ to: "/exam/$series/$course/$exam/run/$run", params: { ...params, run } });
@@ -171,8 +173,17 @@ export function ExamPage({ params, start }: { params: ExamParams; start?: ExamMo
         <ModeTile
           icon={<BookOpenCheck className="size-5" />}
           title={t("exams.mode.catalog")}
-          // As many as the catalogue lists: those open to the learner (their state's, not others').
-          text={t("exams.mode.catalogText", { count: openQuestions(exam, setting).length })}
+          // As many as the catalogue lists: those open to the learner (their state's, not others'),
+          // told apart where a setting chooses some — so practice's count adds up (300 + 10).
+          text={[
+            t("exams.mode.catalogText", { count: openQuestions(exam, setting).length }),
+            counts.filtered &&
+              (counts.more
+                ? t("exams.mode.catalogMore", { more: counts.more })
+                : t("exams.mode.catalogSplit", counts)),
+          ]
+            .filter(Boolean)
+            .join(" ")}
         >
           <Button asChild variant="outline" className="w-full">
             <Link to="/exam/$series/$course/$exam/catalog" params={params}>

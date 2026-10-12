@@ -181,6 +181,10 @@ test("an exam's page: how ready, the state asked of, the three ways in, the late
   expect(view.getByRole("link", { name: "Open" }).getAttribute("href")).toBe(
     "/exam/bamf.lid/lid/test/catalog",
   );
+  // The catalogue's count told apart, as practice counts them: everyone's and the state's.
+  expect(
+    view.getByText(/with their answers\. \d+ for everyone, \d+ of your federal state\./),
+  ).toBeTruthy();
   // No statistics here: the latest result, the rest in the Notebook.
   expect(view.queryByRole("img", { name: /known/ })).toBeNull();
   expect(

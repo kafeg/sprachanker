@@ -1418,7 +1418,9 @@
       "practice": "Entraînement",
       "practiceText": "Question par question, chaque réponse vérifiée aussitôt : d’abord celles que tu as ratées, puis celles que tu n’as pas encore vues.",
       "catalog": "Catalogue",
-      "catalogText": "{count, plural, one {La # question avec sa réponse.} many {Les # de questions avec leurs réponses.} other {Les # questions avec leurs réponses.}}"
+      "catalogText": "{count, plural, one {La # question avec sa réponse.} many {Les # de questions avec leurs réponses.} other {Les # questions avec leurs réponses.}}",
+      "catalogSplit": "{general, number} pour tous, {chosen, number} sur ton Land.",
+      "catalogMore": "Choisir ton Land ajoute ses {more, number}."
     },
     "begin": "Commencer",
     "practise": "S’entraîner",

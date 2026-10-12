@@ -1418,7 +1418,9 @@
       "practice": "Práctica",
       "practiceText": "Pregunta a pregunta, cada respuesta se comprueba al momento: primero las que fallaste, luego las que no has visto.",
       "catalog": "Catálogo",
-      "catalogText": "{count, plural, one {La # pregunta con su respuesta.} other {Las # preguntas con sus respuestas.}}"
+      "catalogText": "{count, plural, one {La # pregunta con su respuesta.} other {Las # preguntas con sus respuestas.}}",
+      "catalogSplit": "{general, number} para todos, {chosen, number} de tu estado federado.",
+      "catalogMore": "Al elegir tu estado federado se suman sus {more, number}."
     },
     "begin": "Empezar",
     "practise": "Practicar",

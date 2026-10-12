@@ -1418,7 +1418,9 @@
       "practice": "Trening",
       "practiceText": "Pytanie po pytaniu, każda odpowiedź sprawdzana od razu: najpierw te z błędną odpowiedzią, potem jeszcze niewidziane.",
       "catalog": "Katalog",
-      "catalogText": "{count, plural, one {# pytanie z odpowiedzią.} few {Wszystkie # pytania z odpowiedziami.} many {Wszystkie # pytań z odpowiedziami.} other {Wszystkie # pytania z odpowiedziami.}}"
+      "catalogText": "{count, plural, one {# pytanie z odpowiedzią.} few {Wszystkie # pytania z odpowiedziami.} many {Wszystkie # pytań z odpowiedziami.} other {Wszystkie # pytania z odpowiedziami.}}",
+      "catalogSplit": "{general, number} wspólnych, {chosen, number} o twoim kraju związkowym.",
+      "catalogMore": "Wybór kraju związkowego dodaje jego {more, number}."
     },
     "begin": "Zacznij",
     "practise": "Trenuj",

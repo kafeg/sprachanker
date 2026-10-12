@@ -78,6 +78,31 @@ export function eligible(exam: Exam, setting: SettingOf, module?: string) {
 export const openQuestions = (exam: Exam, setting: SettingOf, module?: string): ExamItem[] =>
   eligible(exam, setting, module).flatMap(({ pool }) => pool);
 
+/** The questions open to the learner told apart: `general` of every learner, `chosen` those the
+ *  setting picks (a federal state's), and — the setting unset — how many choosing it adds (`more`:
+ *  the most any value has). Leben in Deutschland: 300 + 10. */
+export function openCounts(exam: Exam, setting: SettingOf) {
+  const out = { general: 0, chosen: 0, more: 0, filtered: false };
+  for (const { section, pool } of eligible(exam, setting)) {
+    if (!section.filter) {
+      out.general += pool.length;
+      continue;
+    }
+    out.filtered = true;
+    if (setting(section.filter.setting) !== undefined) {
+      out.chosen += pool.length;
+      continue;
+    }
+    const tag = section.filter.tag;
+    const byValue = new Map<string, number>();
+    for (const item of exam.items)
+      if (section.pool.includes(item.key) && item.tags[tag])
+        byValue.set(item.tags[tag], (byValue.get(item.tags[tag]) ?? 0) + 1);
+    out.more += Math.max(0, ...byValue.values());
+  }
+  return out;
+}
+
 /** A question's line in a list: what it asks (a gap's text with "…", else its own text's first
  *  line); empty when it has none. */
 export const questionLine = (item: ExamItem) =>

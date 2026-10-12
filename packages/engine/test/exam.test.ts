@@ -18,6 +18,7 @@ import {
   markMax,
   marksOf,
   missingSettings,
+  openCounts,
   practiceOrder,
   questionStats,
   readiness,
@@ -96,6 +97,16 @@ test("a filtered section is open only with its setting: the state's questions, n
     ["be-01", "be-02"],
   ]);
   expect(() => drawExam(exam, () => undefined, Math.random)).toThrow(/exam.federalState/);
+});
+
+test("the questions open told apart: every learner's, the state's chosen, or what choosing one adds", () => {
+  expect(openCounts(exam, berlin)).toEqual({ general: 4, chosen: 2, more: 0, filtered: true });
+  expect(openCounts(exam, () => undefined)).toEqual({
+    general: 4,
+    chosen: 0,
+    more: 2,
+    filtered: true,
+  });
 });
 
 test("a mock exam draws each section's number from its open pool, in section order, at random", () => {

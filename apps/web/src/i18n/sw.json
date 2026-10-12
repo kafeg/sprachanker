@@ -1418,7 +1418,9 @@
       "practice": "Kujizoeza",
       "practiceText": "Swali kwa swali, kila jibu linakaguliwa papo hapo: kwanza yale uliyokosea, kisha yale ambayo hujayaona.",
       "catalog": "Orodha ya maswali",
-      "catalogText": "{count, plural, one {Swali # pamoja na jibu lake.} other {Maswali yote # pamoja na majibu yake.}}"
+      "catalogText": "{count, plural, one {Swali # pamoja na jibu lake.} other {Maswali yote # pamoja na majibu yake.}}",
+      "catalogSplit": "{general, number} kwa wote, {chosen, number} kuhusu jimbo lako.",
+      "catalogMore": "Ukichagua jimbo lako, maswali yake {more, number} yanaongezwa."
     },
     "begin": "Anza",
     "practise": "Jizoeze",

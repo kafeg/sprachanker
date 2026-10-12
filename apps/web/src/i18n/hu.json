@@ -1418,7 +1418,9 @@
       "practice": "Gyakorlás",
       "practiceText": "Kérdésről kérdésre, minden válasz azonnal ellenőrizve: előbb azok, amelyeket elrontottál, aztán amelyeket még nem láttál.",
       "catalog": "Katalógus",
-      "catalogText": "{count, plural, one {# kérdés a válaszával.} other {Mind a # kérdés a válaszokkal.}}"
+      "catalogText": "{count, plural, one {# kérdés a válaszával.} other {Mind a # kérdés a válaszokkal.}}",
+      "catalogSplit": "{general, number} mindenkinek, {chosen, number} a tartományodról.",
+      "catalogMore": "Ha kiválasztod a tartományod, hozzájön annak {more, number} kérdése."
     },
     "begin": "Kezdés",
     "practise": "Gyakorlás",

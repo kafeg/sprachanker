@@ -1418,7 +1418,9 @@
       "practice": "تمرین",
       "practiceText": "پرسش به پرسش، و هر پاسخ بلافاصله بررسی می‌شود: اول پرسش‌هایی که اشتباه جواب دادی، بعد آن‌هایی که هنوز ندیده‌ای.",
       "catalog": "بانک سؤالات",
-      "catalogText": "{count, plural, one {# پرسش با پاسخش.} other {همه‌ی # پرسش با پاسخ‌هایشان.}}"
+      "catalogText": "{count, plural, one {# پرسش با پاسخش.} other {همه‌ی # پرسش با پاسخ‌هایشان.}}",
+      "catalogSplit": "{general, number} برای همه، {chosen, number} دربارهٔ ایالت تو.",
+      "catalogMore": "با انتخاب ایالتت، {more, number} پرسش آن هم اضافه می‌شود."
     },
     "begin": "شروع",
     "practise": "تمرین کن",

@@ -1418,7 +1418,9 @@
       "practice": "Vježbanje",
       "practiceText": "Pitanje po pitanje, svaki odgovor se odmah provjerava: prvo pitanja s greškama, zatim ona koja još nisu prikazana.",
       "catalog": "Katalog",
-      "catalogText": "{count, plural, =1 {# pitanje s odgovorom.} one {# pitanje s odgovorima.} few {Sva # pitanja s odgovorima.} other {Svih # pitanja s odgovorima.}}"
+      "catalogText": "{count, plural, =1 {# pitanje s odgovorom.} one {# pitanje s odgovorima.} few {Sva # pitanja s odgovorima.} other {Svih # pitanja s odgovorima.}}",
+      "catalogSplit": "{general, number} za sve, {chosen, number} o tvojoj saveznoj pokrajini.",
+      "catalogMore": "Kad izabereš saveznu pokrajinu, dodaje se njenih {more, number}."
     },
     "begin": "Počni",
     "practise": "Vježbaj",

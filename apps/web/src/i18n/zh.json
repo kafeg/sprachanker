@@ -1418,7 +1418,9 @@
       "practice": "练习",
       "practiceText": "逐题练习，每题作答后立即检查：先练之前答错的题，再练没见过的题。",
       "catalog": "题库",
-      "catalogText": "{count, plural, =1 {#道题及答案。} other {全部#道题及答案。}}"
+      "catalogText": "{count, plural, =1 {#道题及答案。} other {全部#道题及答案。}}",
+      "catalogSplit": "{general, number} 道通用题，{chosen, number} 道关于你所在联邦州的题。",
+      "catalogMore": "选择你所在的联邦州后，会再加上它的 {more, number} 道题。"
     },
     "begin": "开始",
     "practise": "练习",

@@ -1418,7 +1418,9 @@
       "practice": "Practice",
       "practiceText": "Question by question, each answer checked at once: the ones you got wrong first, then those you haven't seen.",
       "catalog": "Catalogue",
-      "catalogText": "{count, plural, one {# question with its answer.} other {All # questions with their answers.}}"
+      "catalogText": "{count, plural, one {# question with its answer.} other {All # questions with their answers.}}",
+      "catalogSplit": "{general, number} for everyone, {chosen, number} of your federal state.",
+      "catalogMore": "Choosing your federal state adds its {more, number}."
     },
     "begin": "Begin",
     "practise": "Practise",

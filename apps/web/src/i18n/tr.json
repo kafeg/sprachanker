@@ -1418,7 +1418,9 @@
       "practice": "Pratik",
       "practiceText": "Soru soru, her cevap hemen kontrol edilir: önce yanlış cevapladıkların, sonra henüz görmediklerin.",
       "catalog": "Katalog",
-      "catalogText": "{count, plural, one {Cevabıyla birlikte # soru.} other {Cevaplarıyla birlikte # sorunun tamamı.}}"
+      "catalogText": "{count, plural, one {Cevabıyla birlikte # soru.} other {Cevaplarıyla birlikte # sorunun tamamı.}}",
+      "catalogSplit": "{general, number} herkes için, {chosen, number} eyaletine dair.",
+      "catalogMore": "Eyaletini seçince onun {more, number} sorusu da eklenir."
     },
     "begin": "Başla",
     "practise": "Pratik yap",
