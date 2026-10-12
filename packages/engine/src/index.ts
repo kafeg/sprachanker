@@ -8,6 +8,7 @@ export * from "./exam/index.ts";
 export * from "./learner/activity.ts";
 export * from "./learner/going-over.ts";
 export * from "./learner/mistakes.ts";
+export * from "./learner/practice.ts";
 export * from "./learner/progress.ts";
 export * from "./learner/series.ts";
 export * from "./speech/voices.ts";

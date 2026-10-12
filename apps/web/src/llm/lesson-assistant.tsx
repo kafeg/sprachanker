@@ -1,6 +1,6 @@
 // The AI assistant in the lesson player (09, 07): the tutor in the header, "Why is this wrong?" under a
-// wrong item, the check of an answer said aloud under it, and the practice steps of the plan —
-// Reading, Listening, Writing, Speaking and going over the pass's mistakes — each where its place is on
+// wrong item, the check of an answer said aloud under it, the practice steps of the plan — Reading,
+// Listening, Writing, Speaking — and going over the pass's mistakes in the summary, each where its place is on
 // (Settings → AI assistant). The router passes these slots to the player; nothing in lesson/ imports llm/.
 import { PRACTICE, type PracticeKind } from "@sprachanker/engine";
 import type { AiPlace } from "@sprachanker/schema";
@@ -20,13 +20,12 @@ function In({ place, children }: { place: AiPlace; children: React.ReactNode }) 
   return useAiIn(place) ? children : null;
 }
 
-/** The practice steps and the place each belongs to ("Going over mistakes" goes with the tutor's). */
+/** The practice steps and the place each belongs to. */
 const PLACE_OF: Record<PracticeKind, AiPlace> = {
   reading: "understanding",
   listening: "understanding",
   writing: "writing",
   speaking: "scene",
-  mistakes: "tutor",
 };
 
 export const lessonAssistant: LessonSlots = {
@@ -54,7 +53,7 @@ export const lessonAssistant: LessonSlots = {
       if (llm.isPending) return undefined;
       return llm.data?.model ? PRACTICE.filter((kind) => !off.includes(PLACE_OF[kind])) : [];
     },
-    step: (kind, { runId, onDone, onNothing, onStored, setPrimary, ...context }) =>
+    step: (kind, { onDone, onStored, setPrimary, ...context }) =>
       kind === "reading" || kind === "listening" ? (
         <UnderstandingStep
           key={kind}
@@ -66,10 +65,14 @@ export const lessonAssistant: LessonSlots = {
         />
       ) : kind === "writing" ? (
         <WritingTask {...context} onDone={onDone} setPrimary={setPrimary} />
-      ) : kind === "speaking" ? (
-        <TalkStep {...context} onDone={onDone} setPrimary={setPrimary} />
       ) : (
-        <GoingOverStep {...context} runId={runId} onDone={onDone} onNothing={onNothing} />
+        <TalkStep {...context} onDone={onDone} setPrimary={setPrimary} />
       ),
   },
+  // Going over mistakes goes with the tutor's place.
+  mistakes: (context) => (
+    <In place="tutor">
+      <GoingOverStep {...context} />
+    </In>
+  ),
 };

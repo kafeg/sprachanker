@@ -573,16 +573,6 @@
       "checking": "Memeriksa teksmu…"
     }
   },
-  "mistakes": {
-    "exercises": "Latihan yang dikerjakan",
-    "firstTry": "Benar pada percobaan pertama",
-    "ofTotal": "{n, number} dari {total, number}",
-    "list": "Kesalahan per latihan",
-    "items": "{count, plural, other {soal}} {items}",
-    "fixed": "{count, plural, other {# diperbaiki kemudian}}",
-    "none": "Tidak ada kesalahan di putaran ini.",
-    "notYet": "Belum ada yang dijawab: kerjakan latihannya dulu."
-  },
   "scene": {
     "intro": "Dialog singkat secara lisan tentang tujuan pelajaran: kalimat lawan bicara dibacakan dan Anda menjawab dengan mikrofon. Lawan bicara mengetahui hal-hal yang harus Anda tanyakan.",
     "start": "Mulai dialog",

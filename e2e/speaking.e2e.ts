@@ -105,7 +105,8 @@ test("a role-play by voice: the partner's lines read aloud as they come, each li
     await page.waitForTimeout(2500);
     await step.getByRole("button", { name: "Stop recording" }).click();
     await expect(step.getByText("Heard:")).toBeVisible();
-    await expect(check).toHaveCount(0);
+    // Check waits until every line is said.
+    await expect(check).toBeDisabled();
     await step.getByRole("button", { name: "Keep it" }).click();
     if (n === 1) {
       // The partner answers, read aloud at once in German.

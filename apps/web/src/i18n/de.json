@@ -573,16 +573,6 @@
       "checking": "Dein Text wird geprüft…"
     }
   },
-  "mistakes": {
-    "exercises": "Übungen bearbeitet",
-    "firstTry": "Beim ersten Versuch richtig",
-    "ofTotal": "{n, number} von {total, number}",
-    "list": "Fehler nach Übungen",
-    "items": "{count, plural, one {Aufgabe} other {Aufgaben}} {items}",
-    "fixed": "{count, plural, one {# später korrigiert} other {# später korrigiert}}",
-    "none": "In diesem Durchgang keine Fehler.",
-    "notYet": "Noch nichts beantwortet: Mach zuerst die Übungen."
-  },
   "scene": {
     "intro": "Ein kurzer Dialog zu den Zielen der Lektion, gesprochen: Die Sätze deines Gegenübers werden vorgelesen, du antwortest mit dem Mikrofon. Dein Gegenüber weiß Dinge, nach denen du fragen musst.",
     "start": "Dialog beginnen",

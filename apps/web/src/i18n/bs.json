@@ -573,16 +573,6 @@
       "checking": "Provjerava se tvoj tekst…"
     }
   },
-  "mistakes": {
-    "exercises": "Urađene vježbe",
-    "firstTry": "Tačno iz prvog pokušaja",
-    "ofTotal": "{n, number} od {total, number}",
-    "list": "Greške po vježbama",
-    "items": "{count, plural, one {zadatak} few {zadaci} other {zadaci}} {items}",
-    "fixed": "{count, plural, one {# kasnije ispravljen} few {# kasnije ispravljena} other {# kasnije ispravljeno}}",
-    "none": "U ovom prolazu nema grešaka.",
-    "notYet": "Još nema odgovora: prvo uradi vježbe."
-  },
   "scene": {
     "intro": "Kratak dijalog glasom o ciljevima lekcije: replike tvog sagovornika se čitaju naglas, a ti odgovaraš mikrofonom. Sagovornik zna stvari koje moraš pitati.",
     "start": "Započni dijalog",

@@ -5,6 +5,8 @@ import {
   type ExerciseResult,
   exerciseMark,
   type LessonStep,
+  type PracticeKind,
+  type PracticeResult,
   stepId,
   stepState,
 } from "@sprachanker/engine";
@@ -18,7 +20,6 @@ import {
   Mic,
   PenLine,
   Play,
-  SearchCheck,
   Star,
 } from "lucide-react";
 import { useTranslation } from "react-i18next";
@@ -31,18 +32,25 @@ import { pageTitle } from "./reference.tsx";
  *  "sich trauen" and "sich (etwas) trauen", are one). Pure. */
 export const wordCount = (lesson: Lesson) => new Set(lesson.vocab.map((v) => v.lexeme)).size;
 
+/** How the run's AI practice went, by step (the engine's `practiceMarks`). */
+export type PracticeMarks = Map<PracticeKind, PracticeResult>;
+
 /** A step's mark in the plan and the summary alike: an exercise's (partly right included, as
- *  everywhere), a page read or a step done besides the exercises "read". */
+ *  everywhere); an AI practice step's first work marked the same way; a page read or a step done
+ *  besides them "read". */
 export function stepMark(
   step: LessonStep,
   lesson: Lesson,
   results: Record<string, ExerciseResult>,
   done: Map<StepId, "done" | "skipped">,
+  practice: PracticeMarks,
 ) {
   if (step.kind === "exercise") {
     const exercise = lesson.pages[step.index]?.exercise;
     return exercise && exerciseMark(exercise, results[exercise.key]);
   }
+  const worked = practice.get(step.kind as PracticeKind)?.mark;
+  if (worked) return worked;
   const state = stepState(step, lesson, results, done);
   return state === "done" ? ("read" as const) : state;
 }
@@ -82,7 +90,6 @@ const ICON: Partial<Record<LessonStep["kind"], React.ComponentType<{ className?:
   listening: Headphones,
   writing: PenLine,
   speaking: Mic,
-  mistakes: SearchCheck,
   summary: Star,
 };
 
@@ -95,7 +102,6 @@ const SECTION: Partial<Record<LessonStep["kind"], string>> = {
   listening: "lesson.section.practice",
   writing: "lesson.section.practice",
   speaking: "lesson.section.practice",
-  mistakes: "lesson.section.practice",
 };
 
 export function Plan({
@@ -105,6 +111,7 @@ export function Plan({
   current,
   results,
   done,
+  practice,
   go,
 }: {
   lesson: Lesson;
@@ -114,6 +121,7 @@ export function Plan({
   current: string;
   results: Record<string, ExerciseResult>;
   done: Map<StepId, "done" | "skipped">;
+  practice: PracticeMarks;
   go(id: string): void;
 }) {
   const { t } = useTranslation();
@@ -135,7 +143,7 @@ export function Plan({
               mark={
                 <StepDot
                   state={
-                    stepMark(step, lesson, results, done) ??
+                    stepMark(step, lesson, results, done, practice) ??
                     (current === id && step.kind === "exercise" ? "current" : undefined)
                   }
                   label={

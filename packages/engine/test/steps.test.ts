@@ -2,10 +2,10 @@ import { expect, test } from "bun:test";
 import type { Lesson, LocaleLesson, TypedEvent } from "@sprachanker/schema";
 import {
   exerciseResults,
+  hasMistakesToGoOver,
   lessonSteps,
   openingRecord,
   planCoverage,
-  practiceInPlan,
   resumeStep,
   stepId,
   stepState,
@@ -27,7 +27,7 @@ const ev = (n: number, type: TypedEvent["type"], itemKey: string | null, payload
   ({ id: `E${n}`, runId: "R", ts: n, type, itemKey, payload }) as TypedEvent;
 
 test("steps: overview, words, grammar, exercises, culture, AI practice offered, summary", () => {
-  const ids = lessonSteps(lesson, locale, ["mistakes", "writing"]).map(stepId);
+  const ids = lessonSteps(lesson, locale, ["speaking", "writing"]).map(stepId);
   expect(ids).toEqual([
     "overview",
     "words",
@@ -35,7 +35,7 @@ test("steps: overview, words, grammar, exercises, culture, AI practice offered, 
     ...lesson.pages.map((_, i) => `exercise:${i}`),
     "culture:0",
     "writing",
-    "mistakes",
+    "speaking",
     "summary",
   ]);
   // No assistant, no practice; no locale, no reading pages.
@@ -120,12 +120,11 @@ test("opening a step records what it is: a page shown, a page read once", () => 
     stepDone: "grammar:0",
   });
   // Practice is done by its own work, never by being opened.
-  expect(openingRecord({ kind: "mistakes" }, run)).toEqual({});
+  expect(openingRecord({ kind: "speaking" }, run)).toEqual({});
   expect(openingRecord({ kind: "words" }, run)).toEqual({});
 });
 
-test("going over mistakes is in the plan only while the run has some: an item or an Understanding question answered wrong, or the step recorded", () => {
-  const offered = ["listening", "writing", "mistakes"] as const;
+test("a run has mistakes to go over (the summary offers them): an item or an Understanding question answered wrong", () => {
   // A choice, and a free answer the model rates (no item type to go over).
   const choice = {
     key: "s.x/c/01-01/ex-01#1",
@@ -142,42 +141,31 @@ test("going over mistakes is in the plan only while the run has some: an item or
       { exercise: { key: "s.x/c/01-01/ex-02", type: "respond", items: [{}] } },
     ],
   } as unknown as Lesson;
-  const plan = (events: TypedEvent[]) => practiceInPlan(offered, events, graded, null, "de");
+  const has = (events: TypedEvent[]) => hasMistakesToGoOver(events, graded, null, "de");
   const given = (result: string, answer: unknown) => ({
     outcome: { result, score: result === "correct" ? 1 : 0 },
     attempt: 1,
     ms: 1,
     answer,
   });
-  expect(plan([])).toEqual(["listening", "writing"]);
-  expect(
-    plan([ev(1, "answered", "s.x/c/01-01/ex-01#1", given("correct", { optionId: "a" }))]),
-  ).not.toContain("mistakes");
-  expect(
-    plan([ev(1, "answered", "s.x/c/01-01/ex-01#1", given("wrong", { optionId: "b" }))]),
-  ).toContain("mistakes");
+  expect(has([])).toBe(false);
+  expect(has([ev(1, "answered", "s.x/c/01-01/ex-01#1", given("correct", { optionId: "a" }))])).toBe(
+    false,
+  );
+  expect(has([ev(1, "answered", "s.x/c/01-01/ex-01#1", given("wrong", { optionId: "b" }))])).toBe(
+    true,
+  );
   // Nothing the step could go over: a free answer, an exercise no longer in the lesson, an answer
   // that does not read as its type's.
-  expect(plan([ev(1, "answered", "s.x/c/01-01/ex-02#1", given("wrong", { text: "x" }))])).toEqual([
-    "listening",
-    "writing",
-  ]);
-  expect(
-    plan([ev(1, "answered", "s.x/c/01-01/ex-09#1", given("wrong", { optionId: "b" }))]),
-  ).not.toContain("mistakes");
-  expect(
-    plan([ev(1, "answered", "s.x/c/01-01/ex-01#1", given("wrong", { sequence: ["a"] }))]),
-  ).not.toContain("mistakes");
-  // Not offered: never in it.
-  expect(
-    practiceInPlan(
-      ["writing"],
-      [ev(1, "answered", "s.x/c/01-01/ex-01#1", given("wrong", { optionId: "b" }))],
-      graded,
-      null,
-      "de",
-    ),
-  ).toEqual(["writing"]);
+  expect(has([ev(1, "answered", "s.x/c/01-01/ex-02#1", given("wrong", { text: "x" }))])).toBe(
+    false,
+  );
+  expect(has([ev(1, "answered", "s.x/c/01-01/ex-09#1", given("wrong", { optionId: "b" }))])).toBe(
+    false,
+  );
+  expect(has([ev(1, "answered", "s.x/c/01-01/ex-01#1", given("wrong", { sequence: ["a"] }))])).toBe(
+    false,
+  );
   // An Understanding question answered wrong: a mistake to go over too.
   const text = {
     task: "understanding",
@@ -200,16 +188,8 @@ test("going over mistakes is in the plan only while the run has some: an item or
     outcome: { result, score: 0 },
   });
   const read = [ev(1, "llm_verdict", null, text)];
-  expect(plan([...read, ev(2, "practice_answered", null, answered("correct"))])).not.toContain(
-    "mistakes",
-  );
-  expect(plan([...read, ev(2, "practice_answered", null, answered("wrong"))])).toContain(
-    "mistakes",
-  );
-  // Recorded (done or skipped): it stays.
-  expect(plan([ev(1, "step_done", null, { step: "mistakes", skipped: true })])).toContain(
-    "mistakes",
-  );
+  expect(has([...read, ev(2, "practice_answered", null, answered("correct"))])).toBe(false);
+  expect(has([...read, ev(2, "practice_answered", null, answered("wrong"))])).toBe(true);
 });
 
 test("a picture chosen wrong is gone over by the edition's description of it; undescribed, it is not", () => {
@@ -250,8 +230,8 @@ test("a picture chosen wrong is gone over by the edition's description of it; un
       answer: { optionId: "a" },
     }),
   ];
-  expect(practiceInPlan(["mistakes"], wrong, pictures, described, "de")).toEqual(["mistakes"]);
-  expect(practiceInPlan(["mistakes"], wrong, pictures, null, "de")).toEqual([]);
+  expect(hasMistakesToGoOver(wrong, pictures, described, "de")).toBe(true);
+  expect(hasMistakesToGoOver(wrong, pictures, null, "de")).toBe(false);
 });
 
 test("a step recorded as Understanding, before Reading and Listening, counts as both", () => {

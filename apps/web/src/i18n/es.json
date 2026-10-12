@@ -573,16 +573,6 @@
       "checking": "Comprobando tu texto…"
     }
   },
-  "mistakes": {
-    "exercises": "Ejercicios hechos",
-    "firstTry": "Correctos al primer intento",
-    "ofTotal": "{n, number} de {total, number}",
-    "list": "Errores por ejercicio",
-    "items": "{count, plural, one {apartado} other {apartados}} {items}",
-    "fixed": "{count, plural, one {# corregido después} other {# corregidos después}}",
-    "none": "No hay errores en esta vuelta.",
-    "notYet": "Aún no has respondido nada: haz primero los ejercicios."
-  },
   "scene": {
     "intro": "Un diálogo breve y hablado sobre los objetivos de la lección: las frases de tu interlocutor se leen en voz alta y respondes con el micrófono. Tu interlocutor sabe cosas que tendrás que preguntar.",
     "start": "Empezar un diálogo",

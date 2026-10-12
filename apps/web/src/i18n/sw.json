@@ -573,16 +573,6 @@
       "checking": "Maandishi yako yanakaguliwa…"
     }
   },
-  "mistakes": {
-    "exercises": "Mazoezi yaliyofanywa",
-    "firstTry": "Sahihi kwa jaribio la kwanza",
-    "ofTotal": "{n, number} kati ya {total, number}",
-    "list": "Makosa kwa kila zoezi",
-    "items": "{count, plural, one {kipengele} other {vipengele}} {items}",
-    "fixed": "{count, plural, one {# limesahihishwa baadaye} other {# yamesahihishwa baadaye}}",
-    "none": "Hakuna makosa katika mzunguko huu.",
-    "notYet": "Bado hakuna kilichojibiwa: fanya mazoezi kwanza."
-  },
   "scene": {
     "intro": "Mazungumzo mafupi kwa sauti kuhusu malengo ya somo: sentensi za mwenzako husomwa kwa sauti na unajibu kwa maikrofoni. Mwenzako anajua mambo ambayo lazima uyaulize.",
     "start": "Anza mazungumzo",

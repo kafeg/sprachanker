@@ -573,16 +573,6 @@
       "checking": "Metnin kontrol ediliyor…"
     }
   },
-  "mistakes": {
-    "exercises": "Yapılan alıştırmalar",
-    "firstTry": "İlk denemede doğru",
-    "ofTotal": "{n, number} / {total, number}",
-    "list": "Alıştırmalara göre hatalar",
-    "items": "{count, plural, one {madde} other {maddeler}} {items}",
-    "fixed": "{count, plural, one {# tanesi sonra düzeltildi} other {# tanesi sonra düzeltildi}}",
-    "none": "Bu turda hata yok.",
-    "notYet": "Henüz hiçbir şey cevaplanmadı: önce alıştırmaları yap."
-  },
   "scene": {
     "intro": "Dersin hedefleri üzerine sesli, kısa bir diyalog: karşındakinin cümleleri sesli okunur, sen mikrofonla cevap verirsin. Karşındaki, senin sorman gereken şeyleri bilir.",
     "start": "Diyalog başlat",

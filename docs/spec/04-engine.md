@@ -15,15 +15,20 @@ The lesson flow (the plan's steps, `lessonSteps` in `packages/engine/src/compose
 2026-10-06): overview (synopsis, goals, the video or recording with its transcript under it) → "Words
 of the lesson" (cards; when it has words) → one "Grammar" step per grammar page (a page is one topic) → the exercises →
 one "Culture" step per culture page → AI practice when an assistant is set up and its place is on (07;
-"AI practice in courses" below): Reading, Listening, Writing, Speaking, "Going over mistakes" (owner 2026-10-07: the run's status counted by the app — exercises
-worked, scored items right at the first attempt, mistakes by exercise — then the mistakes by type
-with new items; in the plan only while the run has mistakes to go over, `practiceInPlan`) → summary
-of all of it. The steps
+"AI practice in courses" below): Reading, Listening, Writing, Speaking → summary of all of it, with
+"Going over mistakes" under its steps while the run has mistakes to go over (`hasMistakesToGoOver`;
+owner, 2026-10-12: no step of the plan — a lesson's few mistakes, mostly slips, made a long lesson
+longer). The steps
 come from what the provider's normaliser put into the canonical and locale files, the same way for
 every course. Every step has a mark in the plan and "Next" goes through all of them; any step can be
 skipped (and shows it). The lesson is completed when every step is done or skipped: an exercise
 answered, a reading step opened, an AI step done once (Reading, Listening: every question of a text
-answered; Writing and Speaking: a task checked; the mistakes step: every new item of a review answered). AI steps are in the plan only while an assistant
+answered; Writing and Speaking: a task checked). An AI step's mark is its first work in the run, as
+an exercise's first attempt (`practiceMarks`; owner, 2026-10-12: right or with mistakes, not only
+done): a text by its questions right — all, some, none —, a text written or a monologue by its
+check's verdict (no errors, small ones, else), a role-play by its lines that fit (all without a
+correction, some, none); a step not done yet waits on Check in the step bar, never Next — Skip passes
+it by. AI practice stays out of the lesson's score. AI steps are in the plan only while an assistant
 is set up, so a lesson never depends on one. The reference tabs (vocabulary, grammar, culture, script,
 homework, downloads) stay available at any time for looking things up.
 
@@ -394,9 +399,9 @@ label and each skippable as any step:
    the partner read aloud by a voice of their gender. Typing only as a fallback where there is no
    microphone or no recognition (09, the step says why). Replaces the Dialogue (its runs read on;
    a live conversation is planned for the Tutor section, plan).
-7. **Going over mistakes** (below): the pass's mistakes by type, a short explanation per type and
-   two or three new items of the same type (`mistake_items`, items of the existing closed types),
-   checked by the engine.
+7. **Going over mistakes** (below; in the summary): the pass's mistakes by type, a short explanation
+   per type and two or three new items of the same type (`mistake_items`, items of the existing
+   closed types), checked by the engine. Across lessons: planned (plan).
 
 Owner's rules for all of them: a text is read aloud only in one language, given explicitly (never
 detected, never a mix; 08); no dictation where the task is writing; the tutor's replies are not read
@@ -477,11 +482,10 @@ mistakes without items — shown with a line to go over them again, never an emp
 that runs out of time is asked once more first). The engine makes each an item of its type (`mistakeItemExercise`) and checks
 the answers. Only types listed: no call.
 The review is an `llm_verdict` (`task: mistakes`) in the run, its groups with their wrong parts; each
-answer a `practice_answered` on it, the items numbered across its groups (05). The step shows the
+answer a `practice_answered` on it, the items numbered across its groups (05). The summary shows the
 newest review of the run the lesson shows (another run's are past ones), one type at a time ("Type 1 of
-3"), the next once its items are answered (`reviewAt`); the step is done once that review is answered
-through — also when it is read again after a lost reply —, and skips itself when the run has nothing to
-go over; "Go over again" makes a new review of the run's mistakes as they are then.
+3"), the next once its items are answered (`reviewAt`); "Go over again" makes a new review of the
+run's mistakes as they are then. A step recorded as `mistakes` before is no step now.
 
 **Writing** (`writing_task`, `check_writing`; 07; owner, 2026-10-12, from the walkthrough): the
 text generator (Reading's: drafts rated, the best kept) writes a message to the learner, its genre

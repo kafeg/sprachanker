@@ -96,12 +96,12 @@ export const AnsweredPayload = AnsweredInput.extend({ outcome: Outcome });
 export type AnsweredPayload = z.infer<typeof AnsweredPayload>;
 
 /** AI practice in the order of the lesson plan (04; owner, 2026-10-12): Reading, Listening, Writing,
- *  Speaking, going over the mistakes last, once the exercises are done. */
-export const PRACTICE = ["reading", "listening", "writing", "speaking", "mistakes"] as const;
+ *  Speaking. */
+export const PRACTICE = ["reading", "listening", "writing", "speaking"] as const;
 export type PracticeKind = (typeof PRACTICE)[number];
 /** Steps recorded before: Understanding (Reading and Listening in one), the Dialogue (Speaking's
- *  place before it). */
-const PRACTICE_BEFORE = ["understanding", "scene"] as const;
+ *  place before it), going over mistakes (in the summary since). */
+const PRACTICE_BEFORE = ["understanding", "scene", "mistakes"] as const;
 
 /**
  * A step of the lesson plan besides its exercises (04, "Lesson composition"): the words, a grammar or

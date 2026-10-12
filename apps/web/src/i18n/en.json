@@ -573,16 +573,6 @@
       "checking": "Checking your text…"
     }
   },
-  "mistakes": {
-    "exercises": "Exercises worked",
-    "firstTry": "Right at the first try",
-    "ofTotal": "{n, number} of {total, number}",
-    "list": "Mistakes by exercise",
-    "items": "{count, plural, one {item} other {items}} {items}",
-    "fixed": "{count, plural, one {# fixed later} other {# fixed later}}",
-    "none": "No mistakes in this run.",
-    "notYet": "Nothing answered yet: do the exercises first."
-  },
   "scene": {
     "intro": "A short dialogue on the lesson's goals, by voice: your partner's lines are read aloud and you answer with the microphone. Your partner knows things you have to ask for.",
     "start": "Start a dialogue",

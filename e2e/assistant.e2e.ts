@@ -111,14 +111,13 @@ test("explain a mistake, ask the tutor, check a text", async ({ page, request })
   await expect(earlier).toHaveAttribute("aria-expanded", "true");
   await expect(page.getByRole("button", { name: "Fix it and check again" })).toHaveCount(2);
 
-  // "Going over mistakes" (in the plan: the pass has a mistake): the run counted by the app, its
-  // mistakes by exercise (a row opens the exercise); then the mistakes by type, one type at a time —
-  // the wrong part, an explanation, two new items checked at once; all answered, the score, and the
-  // step done.
-  await goToStep(page, "Going over mistakes");
-  const step = page.locator("article");
-  await expect(step.getByText("Mistakes by exercise")).toBeVisible();
-  await expect(step.getByRole("button", { name: /Lena at the café/ })).toContainText("item 2");
+  // "Going over mistakes" in the summary (the pass has a mistake): the mistakes by type, one type at a
+  // time — the wrong part, an explanation, two new items checked at once; all answered, the score.
+  await goToStep(page, "Summary");
+  const step = page
+    .locator("section")
+    .filter({ has: page.getByRole("heading", { name: "Going over mistakes" }) })
+    .last();
   await step.getByRole("button", { name: "Go over my mistakes" }).click();
   await expect(step.getByText("Type 1 of 1")).toBeVisible();
   await expect(step.getByRole("heading", { name: "Choices" })).toBeVisible();
@@ -127,34 +126,28 @@ test("explain a mistake, ask the tutor, check a text", async ({ page, request })
   await expect(step.getByRole("status").filter({ hasText: "Correct" })).toHaveCount(1);
   await step.getByRole("button", { name: "Im Park.", exact: true }).last().click();
   await expect(step.getByText("1 of 2 right")).toBeVisible();
-  await expect.poll(steps).toContain("mistakes");
-  // Back on the step later, the review is there at once with its answers.
+  // Back on the summary later, the review is there at once with its answers.
   await goToStep(page, "Writing");
-  await goToStep(page, "Going over mistakes");
+  await goToStep(page, "Summary");
   await expect(step.getByText("1 of 2 right")).toBeVisible();
 });
 
-test("going over mistakes is in the plan only once the pass has a mistake", async ({ page }) => {
+test("going over mistakes is in the summary only once the pass has a mistake; no step of the plan", async ({
+  page,
+}) => {
   await openStep(page, "Lena at the café");
-  /** Whether the plan (a sheet on a phone, opened and closed) has a step. */
-  const planHas = async (step: string) => {
-    const sheet = page.getByRole("button", { name: "Lesson plan" });
-    const phone = await sheet.isVisible();
-    if (phone) await sheet.click();
-    const there = await page.getByRole("button", { name: step }).filter({ visible: true }).count();
-    if (phone) {
-      await page.keyboard.press("Escape");
-      await expect(page.getByRole("dialog")).toHaveCount(0);
-    }
-    return there > 0;
-  };
-  expect(await planHas("Writing")).toBe(true);
-  expect(await planHas("Going over mistakes")).toBe(false);
-  // A wrong answer: the step comes into the plan.
+  const goingOver = page.getByRole("heading", { name: "Going over mistakes" });
+  await goToStep(page, "Summary");
+  await expect(page.getByText("Lena at the café").filter({ visible: true }).first()).toBeVisible();
+  await expect(goingOver).toHaveCount(0);
+  // A wrong answer: the summary offers going over it.
+  await goToStep(page, "Lena at the café");
   await page.getByRole("button", { name: "Im Park.", exact: true }).click();
   await answerPicture(page);
   await page.getByRole("button", { name: "Check", exact: true }).click();
-  await expect.poll(() => planHas("Going over mistakes")).toBe(true);
+  await goToStep(page, "Summary");
+  await expect(goingOver).toBeVisible();
+  await expect(page.getByRole("button", { name: "Going over mistakes" })).toHaveCount(0);
 });
 
 test("AI settings: providers as cards, the chosen one's model list without non-text models", async ({

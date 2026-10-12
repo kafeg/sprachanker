@@ -573,16 +573,6 @@
       "checking": "Sprawdzam twój tekst…"
     }
   },
-  "mistakes": {
-    "exercises": "Zrobione ćwiczenia",
-    "firstTry": "Dobrze za pierwszym razem",
-    "ofTotal": "{n, number} z {total, number}",
-    "list": "Błędy według ćwiczeń",
-    "items": "{count, plural, one {zadanie} few {zadania} many {zadania} other {zadania}} {items}",
-    "fixed": "{count, plural, one {# poprawione później} few {# poprawione później} many {# poprawionych później} other {# poprawionego później}}",
-    "none": "W tym podejściu nie ma błędów.",
-    "notYet": "Brak odpowiedzi: najpierw zrób ćwiczenia."
-  },
   "scene": {
     "intro": "Krótki dialog na głos na temat celów lekcji: kwestie rozmówcy są czytane na głos, a ty odpowiadasz przez mikrofon. Rozmówca wie rzeczy, o które musisz zapytać.",
     "start": "Zacznij dialog",

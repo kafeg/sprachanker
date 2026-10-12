@@ -573,16 +573,6 @@
       "checking": "Verificando seu texto…"
     }
   },
-  "mistakes": {
-    "exercises": "Exercícios feitos",
-    "firstTry": "Certos na primeira tentativa",
-    "ofTotal": "{n, number} de {total, number}",
-    "list": "Erros por exercício",
-    "items": "{count, plural, =0 {itens} one {item} other {itens}} {items}",
-    "fixed": "{count, plural, =0 {# corrigidos depois} one {# corrigido depois} other {# corrigidos depois}}",
-    "none": "Nenhum erro nesta rodada.",
-    "notYet": "Nada respondido ainda: faça os exercícios primeiro."
-  },
   "scene": {
     "intro": "Um diálogo curto, falado, sobre os objetivos da lição: as falas do seu interlocutor são lidas em voz alta e você responde com o microfone. O seu interlocutor sabe coisas que você precisa perguntar.",
     "start": "Começar um diálogo",

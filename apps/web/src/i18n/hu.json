@@ -573,16 +573,6 @@
       "checking": "A szöveged ellenőrzése…"
     }
   },
-  "mistakes": {
-    "exercises": "Elvégzett feladatok",
-    "firstTry": "Elsőre helyes",
-    "ofTotal": "{n, number}/{total, number}",
-    "list": "Hibák feladatonként",
-    "items": "{count, plural, one {részfeladat:} other {részfeladatok:}} {items}",
-    "fixed": "{count, plural, one {# később javítva} other {# később javítva}}",
-    "none": "Ebben a körben nincs hiba.",
-    "notYet": "Még nincs válasz: előbb oldd meg a feladatokat."
-  },
   "scene": {
     "intro": "Rövid, szóbeli párbeszéd a lecke céljairól: a partnered mondatait felolvassa az app, te mikrofonnal válaszolsz. A partnered tud dolgokat, amelyeket meg kell kérdezned.",
     "start": "Párbeszéd indítása",

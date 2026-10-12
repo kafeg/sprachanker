@@ -5,6 +5,7 @@ import {
   firstAttempts,
   firstTry,
   type LessonStep,
+  type PracticeKind,
   planCoverage,
   stepId,
   stepState,
@@ -20,7 +21,7 @@ import { ListRow } from "@/ui/history.tsx";
 import { panelClass } from "@/ui/panel.tsx";
 import { StepDot } from "@/ui/step-dot.tsx";
 import { cn } from "@/ui/utils.ts";
-import { stepMark, stepTitle } from "./plan.tsx";
+import { type PracticeMarks, stepMark, stepTitle } from "./plan.tsx";
 import { StepHeader } from "./steps.tsx";
 
 export function LessonSummary({
@@ -31,11 +32,13 @@ export function LessonSummary({
   steps,
   results,
   done,
+  practice,
   result,
   mode,
   nextLesson,
   go,
   redo,
+  mistakes,
 }: {
   series: string;
   course: string;
@@ -44,6 +47,9 @@ export function LessonSummary({
   steps: LessonStep[];
   results: Record<string, ExerciseResult>;
   done: Map<StepId, "done" | "skipped">;
+  practice: PracticeMarks;
+  /** Going over the run's mistakes, where it has some and an assistant offers it (a slot). */
+  mistakes?: React.ReactNode;
   /** Score of the run shown, once it is finished. */
   result: LessonResult | null | undefined;
   /** The run shown: still open (what is left is listed), finished (can be done again), or none. */
@@ -96,7 +102,8 @@ export function LessonSummary({
               step.kind === "exercise" ? lesson.pages[step.index]?.exercise : undefined;
             // Right at the first try of the items checked (a skipped one counted), as the Notebook.
             const first = exercise && firstTry(exercise, results[exercise.key]);
-            const mark = stepMark(step, lesson, results, done);
+            const worked = practice.get(step.kind as PracticeKind);
+            const mark = stepMark(step, lesson, results, done, practice);
             return (
               <li key={stepId(step)}>
                 <ListRow chevron={false} flush onClick={() => go(stepId(step))}>
@@ -107,13 +114,21 @@ export function LessonSummary({
                       ? t("lesson.notDone")
                       : first?.scored
                         ? `${first.correct}/${first.scored}`
-                        : t(`lesson.state.${mark}`)}
+                        : worked?.of
+                          ? `${worked.right}/${worked.of}`
+                          : t(`lesson.state.${mark}`)}
                   </span>
                 </ListRow>
               </li>
             );
           })}
         </ul>
+      )}
+      {mistakes && (
+        <section className="space-y-3">
+          <h2 className="font-heading text-xl font-semibold">{t("lesson.step.mistakes")}</h2>
+          {mistakes}
+        </section>
       )}
       <div className="flex flex-wrap gap-2">
         <Button asChild variant="outline" size="lg">

@@ -2,6 +2,7 @@
 // practice, summary. This file loads the lesson and its run and shows the step the flow is on
 // (use-flow.ts) inside the player's frame (frame.tsx); the pages are overview, words-step, steps
 // (reading), exercise-step, practice-step and summary; optional features come in as slots.
+import { hasMistakesToGoOver } from "@sprachanker/engine";
 import { lessonOrder, parseEditionId, parseLessonKey } from "@sprachanker/schema";
 import { useTranslation } from "react-i18next";
 import { mediaUrl } from "@/api/client.ts";
@@ -55,7 +56,6 @@ export function LessonPlayer({
     locale: data.data?.locale,
     // The AI practice offered (none while no assistant is set up); `slots` is fixed for the player.
     practice: slots.practice ? practice : [],
-    lang: edition && parseEditionId(edition).target,
     run,
     opened,
     onShow: onStep,
@@ -117,6 +117,7 @@ export function LessonPlayer({
                 current={flow.current}
                 results={run.results}
                 done={run.done}
+                practice={run.practice}
                 go={(id) => {
                   chosen?.();
                   go(id);
@@ -229,8 +230,7 @@ export function LessonPlayer({
             {(step.kind === "reading" ||
               step.kind === "listening" ||
               step.kind === "writing" ||
-              step.kind === "speaking" ||
-              step.kind === "mistakes") && (
+              step.kind === "speaking") && (
               <PracticeStep
                 kind={step.kind}
                 lesson={lesson}
@@ -238,7 +238,6 @@ export function LessonPlayer({
                 run={run}
                 slots={slots}
                 context={context}
-                go={go}
                 mark={mark}
                 onBack={back}
                 onNext={next}
@@ -253,6 +252,12 @@ export function LessonPlayer({
                 steps={flow.steps}
                 results={run.results}
                 done={run.done}
+                practice={run.practice}
+                mistakes={
+                  slots.mistakes &&
+                  hasMistakesToGoOver(run.events, lesson, locale, parseEditionId(edition).target) &&
+                  slots.mistakes({ ...context, runId: run.run?.id })
+                }
                 result={result}
                 mode={run.mode}
                 nextLesson={nextLesson}

@@ -573,16 +573,6 @@
       "checking": "Se verifică textul tău…"
     }
   },
-  "mistakes": {
-    "exercises": "Exerciții lucrate",
-    "firstTry": "Corecte din prima încercare",
-    "ofTotal": "{n, number} din {total, number}",
-    "list": "Greșeli pe exerciții",
-    "items": "{count, plural, one {itemul} few {itemii} other {itemii}} {items}",
-    "fixed": "{count, plural, one {# corectat ulterior} few {# corectați ulterior} other {# corectați ulterior}}",
-    "none": "Nicio greșeală în această parcurgere.",
-    "notYet": "Încă nu ai răspuns la nimic: fă mai întâi exercițiile."
-  },
   "scene": {
     "intro": "Un dialog scurt, vorbit, despre obiectivele lecției: replicile partenerului sunt citite cu voce tare, iar tu răspunzi la microfon. Partenerul știe lucruri pe care trebuie să le întrebi.",
     "start": "Începe un dialog",

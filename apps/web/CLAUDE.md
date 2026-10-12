@@ -21,7 +21,7 @@ apps/web/src/
                    # header, reference), use-run (the run in the query cache + its events, sent through
                    # api/run-events), plan, overview, words-step, steps (reading pages, the step bar),
                    # exercise-step (its rules in use-exercise, Enter in enter-key), practice-step,
-                   # mistakes-status, summary, reference; slots.ts: what optional features add
+                   # summary (the steps marked, going over mistakes: a slot), reference; slots.ts: what optional features add
   study/           # Anki's reviewer, shared by Review and the lesson's "Words" step: card (the card widget,
                    # its recording and autoplay, "Example"), session (counts, Show answer, ratings, undo; one action
                    # at a time; a rating with the time its card was shown), reviewer-keys (Anki's keys: a
@@ -66,7 +66,7 @@ apps/web/src/
                    # experimental (stable sources always, experimental ones turned on), experimental-settings
   llm/             # AI assistant: settings (AssistantSetup: provider-cards, key-state, model-list over the
                    # pure model-filter; LM Studio), "Why is this wrong?", tutor (the chat view; the lesson's
-                   # header panel — History: tutor-history), going-over (the mistakes step), tutor-section (the Tutor
+                   # header panel — History: tutor-history), going-over (the run's mistakes, in the summary), tutor-section (the Tutor
                    # section: its chats, a chat and its language — a new one's chosen in a SelectField), understanding (Reading and Listening, done as an exercise: what it is, the text or its recording in the course's player, Check in the step bar, then what it was about), writing (a message answered, Check in the step bar), talk (Speaking: a monologue card or a role-play said line by line, Check in the step bar), dialogue (the Dialogue: goal card, lines read aloud, summary — no step since Speaking, kept for the Tutor section, plan); dialogue-line: a line said and heard, or typed, spoken-check (the AI's check under an answer said aloud), word-examples (a deck's: on a card, under a deck — the slots); exam-assistant (an exam run's slots): exam-rating ("Propose a
                    # rating"), exam-conversation (a speaking part held as a conversation);
                    # settings-section (Settings → AI assistant), lmstudio-section, prompts-info (where it

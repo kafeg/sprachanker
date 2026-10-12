@@ -60,7 +60,7 @@ Specs: 04 ("AI practice in courses"), 07, 08, 09.
 Specs: 04 ("AI practice in courses"), 07, 08, 09.
 - The agreed list (04): inside a lesson "Why is this wrong?", "Check with AI" for spoken answers and
   the lesson tutor (questions and explanations only); at the lesson's end the AI practice step —
-  Reading, Listening, Writing, Speaking, Going over mistakes —, each skippable. Owner's rules: a text read
+  Reading, Listening, Writing, Speaking —, each skippable; going over mistakes in the summary. Owner's rules: a text read
   aloud only in one language given explicitly; no dictation where the task is writing; tutor replies
   not read aloud; recognised speech taken as a person would understand it.
 - Phase 1 (done): the knowledge snapshot ("what the learner knows by now", 07) under every lesson
@@ -83,6 +83,10 @@ Specs: 04 ("AI practice in courses"), 07, 08, 09.
   Writing answers a message from the generator; Speaking's role-play is one of its conversations.
   Remaining: Listening heard with Qwen3-TTS on a phone; Writing's and Speaking's tasks tuned on bulk
   runs as the texts were.
+- Going over mistakes across lessons (owner, 2026-10-12: within one lesson it is out of the plan,
+  in the summary): a Notebook section gathering the mistakes that come back — the exercises', and
+  Writing's and Speaking's corrections — over several lessons, by type, with new items of them, offered
+  when enough have gathered (a week's, say).
 - **Accept**: each phase's exercises held end to end in a lesson on the fixture course (e2e) and on a
   real course with a real model.
 

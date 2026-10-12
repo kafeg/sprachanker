@@ -18,19 +18,15 @@ const hook = <T,>(use: () => T, settings: Record<string, unknown>, llm: unknown 
   }).result.current;
 };
 
-test("a place turned off: not there; the tutor off takes the mistakes step with it", () => {
+test("a place turned off: its practice steps not there", () => {
   const kinds = () => lessonAssistant.practice?.useKinds();
-  expect(hook(kinds, {})).toEqual(["reading", "listening", "writing", "speaking", "mistakes"]);
+  expect(hook(kinds, {})).toEqual(["reading", "listening", "writing", "speaking"]);
   expect(hook(kinds, { "llm.offIn": ["scene", "tutor"] })).toEqual([
     "reading",
     "listening",
     "writing",
   ]);
-  expect(hook(kinds, { "llm.offIn": ["understanding"] })).toEqual([
-    "writing",
-    "speaking",
-    "mistakes",
-  ]);
+  expect(hook(kinds, { "llm.offIn": ["understanding"] })).toEqual(["writing", "speaking"]);
   expect(hook(kinds, {}, { provider: null, model: null, providers: [] })).toEqual([]);
   expect(hook(() => useAiIn("explain"), { "llm.offIn": ["explain"] })).toBe(false);
   expect(hook(() => useAiIn("example"), { "llm.offIn": ["explain"] })).toBe(true);

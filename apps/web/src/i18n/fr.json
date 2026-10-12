@@ -573,16 +573,6 @@
       "checking": "Vérification de ton texte…"
     }
   },
-  "mistakes": {
-    "exercises": "Exercices faits",
-    "firstTry": "Justes du premier coup",
-    "ofTotal": "{n, number} sur {total, number}",
-    "list": "Erreurs par exercice",
-    "items": "{count, plural, one {élément} many {éléments} other {éléments}} {items}",
-    "fixed": "{count, plural, one {# corrigée ensuite} many {# corrigées ensuite} other {# corrigées ensuite}}",
-    "none": "Aucune erreur dans ce passage.",
-    "notYet": "Aucune réponse pour l’instant : fais d’abord les exercices."
-  },
   "scene": {
     "intro": "Un court dialogue à l’oral sur les objectifs de la leçon : les répliques de ton interlocuteur sont lues à voix haute et tu réponds au micro. Ton interlocuteur sait des choses que tu dois lui demander.",
     "start": "Commencer un dialogue",

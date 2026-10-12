@@ -4,7 +4,13 @@
 // same state. The run's state is the engine's reading of its events — the stored ones plus those just
 // recorded here — the same reading the server uses for progress. Outcomes are computed locally for
 // instant feedback with the same engine the server uses; the server stores its own (04).
-import { type ExerciseResult, exerciseResults, mistakesOf, stepsDone } from "@sprachanker/engine";
+import {
+  type ExerciseResult,
+  exerciseResults,
+  mistakesOf,
+  practiceMarks,
+  stepsDone,
+} from "@sprachanker/engine";
 import type { LessonKey, LessonResult, Outcome, StepId, TypedEvent } from "@sprachanker/schema";
 import { type QueryClient, useQuery, useQueryClient } from "@tanstack/react-query";
 import { useCallback, useEffect, useMemo, useRef } from "react";
@@ -109,6 +115,8 @@ export function useRun(series: string, lessonKey: string, edition: string | unde
   const results: Record<string, ExerciseResult> = useMemo(() => exerciseResults(events), [events]);
   /** Steps besides exercises done or skipped in the run (words, reading, AI practice). */
   const done = useMemo(() => stepsDone(events), [events]);
+  /** How the AI practice went: each step's first work, marked as an exercise is. */
+  const practice = useMemo(() => practiceMarks(events), [events]);
   /** Items whose first answer in the run was wrong or partly right (as the tutor reads them). */
   const mistakes = useMemo(() => mistakesOf([{ events }]), [events]);
   /** How many answers an item has in the run: the number of its latest attempt. */
@@ -210,6 +218,7 @@ export function useRun(series: string, lessonKey: string, edition: string | unde
     pageShown: (pageIndex: number) =>
       record([{ id: ulid(), type: "page_shown", payload: { pageIndex } }]),
     done,
+    practice,
     /** Records a step besides the exercises as done, or skipped — once: a step already in that state
      *  (by the run's events as of now) records nothing. */
     stepDone: (step: StepId, skipped = false) => {

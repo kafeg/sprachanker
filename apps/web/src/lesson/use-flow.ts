@@ -8,7 +8,6 @@ import {
   openingRecord,
   type PracticeKind,
   planCoverage,
-  practiceInPlan,
   recordedStep,
   resumeStep,
   stepId,
@@ -23,7 +22,6 @@ export function useLessonFlow({
   lesson,
   locale,
   practice,
-  lang,
   run,
   opened,
   onShow,
@@ -32,8 +30,6 @@ export function useLessonFlow({
   locale: LocaleLesson | null | undefined;
   /** The AI practice offered; undefined while not known yet (the flow resumes only once it is). */
   practice: readonly PracticeKind[] | undefined;
-  /** The language learnt (the edition's): how the run's mistakes are read. */
-  lang?: string;
   run: Run;
   /** The step the page was opened on (its address): kept on reload instead of resuming elsewhere. */
   opened?: string;
@@ -49,14 +45,7 @@ export function useLessonFlow({
   const finishTried = useRef<string>(undefined);
   const [finishError, setFinishError] = useState<unknown>();
 
-  // Going over mistakes only while the run has some (practiceInPlan).
-  const steps = lesson
-    ? lessonSteps(
-        lesson,
-        locale,
-        practiceInPlan(practice ?? [], run.events, lesson, locale, lang ?? "und"),
-      )
-    : [];
+  const steps = lesson ? lessonSteps(lesson, locale, practice ?? []) : [];
   const ids = steps.map(stepId);
   const coverage = lesson
     ? planCoverage(steps, lesson, run.results, run.done, ids.indexOf(current))

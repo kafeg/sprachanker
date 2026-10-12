@@ -573,16 +573,6 @@
       "checking": "正在检查你的文本…"
     }
   },
-  "mistakes": {
-    "exercises": "已做练习",
-    "firstTry": "第一次就答对",
-    "ofTotal": "{n, number}/{total, number}",
-    "list": "按练习查看错误",
-    "items": "{count, plural, other {题目}}{items}",
-    "fixed": "{count, plural, other {后来改正了#个}}",
-    "none": "这一轮没有错误。",
-    "notYet": "还没有作答：请先做练习。"
-  },
   "scene": {
     "intro": "围绕本课目标的简短口语对话：对方的话会被朗读出来，你用麦克风回答。对方知道一些信息，需要你去询问。",
     "start": "开始对话",

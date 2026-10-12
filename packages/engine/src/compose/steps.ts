@@ -10,7 +10,6 @@ import {
   type StepId,
   type TypedEvent,
 } from "@sprachanker/schema";
-import { hasMistakesToGoOver } from "../learner/going-over.ts";
 import { type ExerciseResult, exerciseState } from "../learner/progress.ts";
 
 export type LessonStep =
@@ -59,13 +58,16 @@ export function stepsDone(events: TypedEvent[]): Map<StepId, "done" | "skipped">
   for (const e of events) {
     if (e.type !== "step_done") continue;
     const { step, skipped } = e.payload;
-    // Understanding, before Reading and Listening, was both in one; the Dialogue was Speaking.
+    // Understanding, before Reading and Listening, was both in one; the Dialogue was Speaking; going
+    // over mistakes is no step since (the summary offers it).
     const now: StepId[] =
       step === "understanding"
         ? ["reading", "listening"]
         : step === "scene"
           ? ["speaking"]
-          : [step];
+          : step === "mistakes"
+            ? []
+            : [step];
     for (const s of now) out.set(s, skipped ? "skipped" : "done");
   }
   return out;
@@ -147,22 +149,4 @@ export function openingRecord(
   if ((step.kind === "grammar" || step.kind === "culture") && (run.fresh || !run.done.has(id)))
     return { stepDone: id };
   return {};
-}
-
-/**
- * The AI practice a run's plan holds of the kinds offered: going over mistakes only while the run has
- * some to go over in the lesson (`hasMistakesToGoOver`, as the server reads them: in the edition's
- * `locale`, `lang` the language learnt) or has the step recorded already (04, "AI practice in courses").
- */
-export function practiceInPlan(
-  offered: readonly PracticeKind[],
-  events: TypedEvent[],
-  lesson: Lesson,
-  locale: LocaleLesson | null | undefined,
-  lang: string,
-): PracticeKind[] {
-  const goOver =
-    offered.includes("mistakes") &&
-    (stepsDone(events).has("mistakes") || hasMistakesToGoOver(events, lesson, locale, lang));
-  return offered.filter((kind) => kind !== "mistakes" || goOver);
 }
