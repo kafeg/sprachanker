@@ -336,10 +336,17 @@ describe("what a mistake shows and what it is set as", () => {
       mistake(dictation, { text: "Ich heisse Lena und wohnen in Berlin." }),
       "de",
     );
+    // The words without their marks; the sentence around them as written, its full stop too.
     expect(parts.map((p) => [p.what, p.given, p.right, p.context])).toEqual([
-      ["spelling", "heisse", "heiße", "Ich [_] Lena und wohne in Berlin"],
-      ["ending", "wohnen", "wohne", "Ich heiße Lena und [_] in Berlin"],
+      ["spelling", "heisse", "heiße", "Ich [_] Lena und wohne in Berlin."],
+      ["ending", "wohnen", "wohne", "Ich heiße Lena und [_] in Berlin."],
     ]);
+    // The last word wrong: the word, not its full stop, is the mistake.
+    const last = wrongParts(
+      mistake(dictation, { text: "Ich heiße Lena und wohne in Barlin." }),
+      "de",
+    );
+    expect(last.map((p) => [p.what, p.given, p.right])).toEqual([["spelling", "Barlin", "Berlin"]]);
     const { groups } = mistakeGroups(
       [mistake(dictation, { text: "Ich heisse Lena und wohnen in Berlin." })],
       "de",

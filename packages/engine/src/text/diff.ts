@@ -10,14 +10,15 @@ export interface WordDiff {
 
 /** A word without surrounding punctuation and symbols: dictation and speech grade words, not commas
  *  or marks ("≈", "→"). */
-const bare = (word: string) => word.replace(/^[\p{P}\p{S}]+|[\p{P}\p{S}]+$/gu, "");
+export const bareWord = (word: string) => word.replace(/^[\p{P}\p{S}]+|[\p{P}\p{S}]+$/gu, "");
 
 /** Words only, as written (a text shown corrected keeps its final mark): a dash or a lone mark is
  *  no word (a recogniser never writes one). */
-const words = (text: string) => writtenTokens(text).filter((t) => bare(t) !== "");
+const words = (text: string) => writtenTokens(text).filter((t) => bareWord(t) !== "");
 
 /** A word as it sounds: case and hyphens are not heard ("Good-bye", "goodbye"). */
-const heard = (lang: string, word: string) => bare(word).replace(/-/g, "").toLocaleLowerCase(lang);
+const heard = (lang: string, word: string) =>
+  bareWord(word).replace(/-/g, "").toLocaleLowerCase(lang);
 
 /**
  * LCS-based alignment; a missing and an extra word at the same place become one `wrong`. `spoken`:
@@ -36,7 +37,7 @@ export function wordDiff(
   const eq = (i: number, j: number) =>
     spoken
       ? heard(lang, ref[i] as string) === heard(lang, got[j] ?? "")
-      : wordMatches(lang, ref, i, got[j] ?? "", { strip: bare });
+      : wordMatches(lang, ref, i, got[j] ?? "", { strip: bareWord });
   // Words joined differently: two of the reference as one heard (2:1), or one as two (1:2).
   const joined = (a: string[], i: number, b: string[], j: number) =>
     spoken &&

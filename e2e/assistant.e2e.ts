@@ -305,9 +305,11 @@ test("a handed-in mock exam's note: the AI proposes its rating with reasons, the
   await expect(page.getByText(/Proposed by the AI assistant/)).toBeVisible();
   await expect(page.getByText("FAKE: say who the cake is for.")).toBeVisible();
   await expect(page.getByText("FAKE: what, but not for whom.")).toBeVisible();
-  // The proposal chosen: taken as it is.
-  await expect(page.getByText("5.5 of 7")).toBeVisible();
-  await page.getByRole("button", { name: "Save rating" }).click();
+  // The proposal chosen, not counted until accepted: taken as it is.
+  await expect(page.getByText("5.5 of 7", { exact: true })).toBeVisible();
+  await expect(page.getByText(/Not accepted yet: the result counts 0 of 7/)).toBeVisible();
+  await page.getByRole("button", { name: "Accept the proposal" }).click();
+  await expect(page.getByText(/Not accepted yet/)).toBeHidden();
   await expect(page.getByText(/not rated yet/)).toBeHidden();
   const state = await (await request.get(`/api/exams/runs/${run.id}`)).json();
   const rated = state.events.find((e: { type: string }) => e.type === "exam_rated");
@@ -329,9 +331,13 @@ test("a speaking part held as a conversation: the examiner opens, the learner an
   await page.getByPlaceholder("Your answer…").press("Enter");
   await expect(page.getByText("FAKE: Ich gehe schwimmen.")).toBeVisible();
   await expect(page.getByText("The part is over.")).toBeVisible();
-  // The conversation is the part's answer: handed in, it waits to be rated.
+  // The learner's own lines are the part's answer, no speaker's label: handed in, it waits to be
+  // rated.
   await expect(page.getByText("1/1", { exact: true })).toBeVisible();
   await page.getByRole("button", { name: "Hand in" }).filter({ visible: true }).first().click();
   await expect(page.getByText("1 answer is not rated yet", { exact: false })).toBeVisible();
-  await expect(page.getByText("Me: Was machst du am Wochenende?")).toBeVisible();
+  await expect(
+    page.getByText("Was machst du am Wochenende?", { exact: true }).first(),
+  ).toBeVisible();
+  await expect(page.getByText(/Me: Was machst/)).toHaveCount(0);
 });
