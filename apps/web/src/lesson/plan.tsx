@@ -1,7 +1,13 @@
 // The lesson plan (09): its steps in order — overview, words, grammar, exercises, culture, AI practice,
 // summary — each with its state in the run, under the labels of their sections. Shown beside the lesson
 // on wide screens and in a sheet on phones; the reference opens from the lesson's header.
-import { type ExerciseResult, type LessonStep, stepId, stepState } from "@sprachanker/engine";
+import {
+  type ExerciseResult,
+  exerciseMark,
+  type LessonStep,
+  stepId,
+  stepState,
+} from "@sprachanker/engine";
 import type { Lesson, LocaleLesson, StepId } from "@sprachanker/schema";
 import {
   BookOpen,
@@ -23,6 +29,22 @@ import { pageTitle } from "./reference.tsx";
 /** A lesson's words as its Words step makes cards of them: one per word (two entries of one word,
  *  "sich trauen" and "sich (etwas) trauen", are one). Pure. */
 export const wordCount = (lesson: Lesson) => new Set(lesson.vocab.map((v) => v.lexeme)).size;
+
+/** A step's mark in the plan and the summary alike: an exercise's (partly right included, as
+ *  everywhere), a page read or a step done besides the exercises "read". */
+export function stepMark(
+  step: LessonStep,
+  lesson: Lesson,
+  results: Record<string, ExerciseResult>,
+  done: Map<StepId, "done" | "skipped">,
+) {
+  if (step.kind === "exercise") {
+    const exercise = lesson.pages[step.index]?.exercise;
+    return exercise && exerciseMark(exercise, results[exercise.key]);
+  }
+  const state = stepState(step, lesson, results, done);
+  return state === "done" ? ("read" as const) : state;
+}
 
 export function stepTitle(
   step: LessonStep,
@@ -97,7 +119,6 @@ export function Plan({
     <PlanNav current={current}>
       {steps.map((step) => {
         const id = stepId(step);
-        const state = stepState(step, lesson, results, done);
         const Icon = ICON[step.kind];
         const label = SECTION[step.kind];
         const header = label && label !== section ? label : undefined;
@@ -111,10 +132,8 @@ export function Plan({
               mark={
                 <StepDot
                   state={
-                    state === "done" && step.kind !== "exercise"
-                      ? "read"
-                      : (state ??
-                        (current === id && step.kind === "exercise" ? "current" : undefined))
+                    stepMark(step, lesson, results, done) ??
+                    (current === id && step.kind === "exercise" ? "current" : undefined)
                   }
                   label={
                     step.kind === "exercise" ? (

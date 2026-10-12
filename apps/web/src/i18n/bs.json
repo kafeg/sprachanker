@@ -18,7 +18,9 @@
     "loading": "Učitavanje…",
     "retry": "Pokušaj ponovo",
     "close": "Zatvori",
-    "cancel": "Otkaži"
+    "cancel": "Otkaži",
+    "minutesLeft": "{count, plural, one {još oko # minute} few {još oko # minute} other {još oko # minuta}}",
+    "hoursLeft": "{count, plural, one {još oko # sata} few {još oko # sata} other {još oko # sati}}"
   },
   "courses": {
     "lessons": "{count, plural, one {# lekcija} few {# lekcije} other {# lekcija}}",
@@ -105,6 +107,7 @@
     "summary": "Sažetak",
     "score": "Tačno iz prvog pokušaja: {correct, number} od {scored, number}. Postotak računa i djelimično tačne odgovore.",
     "skipped": "preskočeno",
+    "skippedCount": "{count, plural, one {# preskočena} few {# preskočene} other {# preskočenih}}",
     "notDone": "nije urađeno",
     "backToCourse": "Nazad na kurs",
     "nextLesson": "Sljedeća lekcija",
@@ -263,8 +266,8 @@
       "retryIn": "Pokušaj ponovo za {wait}."
     },
     "cliMissing": {
-      "claude-code": "Claude Code nije instaliran ovdje. Instaliraj ga s claude.com/claude-code i jednom se prijavi pokretanjem `claude`.",
-      "codex": "Codex CLI nije instaliran ovdje. Instaliraj ga (npm i -g @openai/codex) i jednom se prijavi s `codex login`."
+      "claude-code": "Claude Code nije instaliran ovdje. Instaliraj ga s claude.com/claude-code i jednom se prijavi pokretanjem claude.",
+      "codex": "Codex CLI nije instaliran ovdje. Instaliraj ga (npm i -g @openai/codex) i jednom se prijavi s codex login."
     },
     "modelTypeHint": "Upiši naziv modela.",
     "otherModel": "Drugi model…",
@@ -279,8 +282,8 @@
       "gemini": "Googleovi Gemini modeli u oblaku, s ključem iz Google AI Studija. Besplatni nivo ne traži karticu i ima ograničenja po minuti i po danu; neki modeli traže plaćanje. Na besplatnom nivou Google može koristiti poslane podatke za poboljšanje svojih proizvoda: sadržaj lekcija i tvoji odgovori idu Googleu.",
       "groq": "Otvoreni modeli (Llama, Qwen, GPT-OSS i drugi) na Groqovom brzom hardveru u oblaku. Besplatni nivo ne traži karticu i ima ograničenja po minuti i po danu za svaki model. Sadržaj lekcija i tvoji odgovori idu Groqu.",
       "custom": "Bilo koji server s API-jem kompatibilnim s OpenAI na drugom računaru: LM Studio, Ollama, llama.cpp, vLLM i drugi. Unesi njegovu adresu (završava na /v1) i ključ ako ga traži.",
-      "claude-code": "Pokreće Claude Code instaliran na ovom računaru (`claude -p`) s tvojom Claude pretplatom. Njegovi alati su isključeni: podaci lekcije idu u prompt. Svaki odgovor pokreće komandu, pa odgovori stižu nekoliko sekundi kasnije.",
-      "codex": "Pokreće Codex CLI instaliran na ovom računaru (`codex exec`) s tvojom ChatGPT pretplatom, samo za čitanje i bez njegovih alata. Svaki odgovor pokreće komandu, pa odgovori stižu nekoliko sekundi kasnije."
+      "claude-code": "Pokreće Claude Code instaliran na ovom računaru (claude -p) s tvojom Claude pretplatom. Njegovi alati su isključeni: podaci lekcije idu u prompt. Svaki odgovor pokreće komandu, pa odgovori stižu nekoliko sekundi kasnije.",
+      "codex": "Pokreće Codex CLI instaliran na ovom računaru (codex exec) s tvojom ChatGPT pretplatom, samo za čitanje i bez njegovih alata. Svaki odgovor pokreće komandu, pa odgovori stižu nekoliko sekundi kasnije."
     },
     "cardState": {
       "off": "bez asistenta",
@@ -442,6 +445,7 @@
       "chatHistory": "posljednje poruke razgovora",
       "place": "gdje je lekcija u kursu: njen broj i cjelina",
       "topics": "gramatičke teme do sada pređene u kursu",
+      "characters": "dosad upoznati likovi kursa, po imenu (sagovornik nije nijedan od njih)",
       "dialogueGoals": "situacija i ciljevi koje si postigao",
       "dialogue": "rečenice dijaloga s ispravkama koje su dobile",
       "length": "koliko je tekst dug na nivou kursa",
@@ -1014,6 +1018,7 @@
     "studying": "Učiš: {deck}",
     "more": "{count, plural, one {Još # nova kartica danas} few {Još # nove kartice danas} other {Još # novih kartica danas}}",
     "leave": "Napusti špil…",
+    "leaveConfirm": "Napusti špil",
     "offers": "Dostupni špilovi",
     "offersHint": "Riječi svakog tvog kursa i svakog ovdje uvezenog špila čine špil: kad ga uzmeš cijelog, dodaje ih kao nove kartice svojim redom — u okviru dnevnog ograničenja ili više uz „više novih danas“. Riječ za koju već imaš karticu zadržava je. Ovdje se prave i audio i primjeri za sve riječi špila, uzete ili ne.",
     "words": "{words, plural, one {# riječ} few {# riječi} other {# riječi}} · {mine, number} već tvojih",
@@ -1058,7 +1063,6 @@
       "voice": "Čita {engine, select, qwen {Qwen3-TTS} other {Piper}} · {voice} ({language})",
       "chooseVoice": "Izaberi glas"
     },
-    "left": "još oko {time}",
     "why": "Razlog: {reason}",
     "examples": {
       "missing": "{count, plural, one {# riječ bez primjera} few {# riječi bez primjera} other {# riječi bez primjera}}",
@@ -1414,7 +1418,9 @@
       "practice": "Vježbanje",
       "practiceText": "Pitanje po pitanje, svaki odgovor se odmah provjerava: prvo pitanja s greškama, zatim ona koja još nisu prikazana.",
       "catalog": "Katalog",
-      "catalogText": "{count, plural, =1 {# pitanje s odgovorom.} one {# pitanje s odgovorima.} few {Sva # pitanja s odgovorima.} other {Svih # pitanja s odgovorima.}}"
+      "catalogText": "{count, plural, =1 {# pitanje s odgovorom.} one {# pitanje s odgovorima.} few {Sva # pitanja s odgovorima.} other {Svih # pitanja s odgovorima.}}",
+      "catalogSplit": "{general, number} za sve, {chosen, number} o tvojoj saveznoj pokrajini.",
+      "catalogMore": "Kad izabereš saveznu pokrajinu, dodaje se njenih {more, number}."
     },
     "begin": "Počni",
     "practise": "Vježbaj",
@@ -1428,6 +1434,7 @@
     "mapUnseen": "neviđeno",
     "mapSummary": "Od {total, number} pitanja: {known, number} poznato, {wrong, number} pogrešno prošli put",
     "points": "{points, number} od {max, number}",
+    "taskPoints": "zadaci: {points, number} od {max, number}",
     "passed": "Položen",
     "failed": "Nije položen",
     "state": "Savezna pokrajina",
@@ -1514,10 +1521,12 @@
       "change": "Promijeni ocjenu",
       "propose": "Predloži ocjenu (AI)",
       "proposing": "Asistent ocjenjuje…",
-      "proposed": "Predložio AI asistent ({model}): prihvati kako jeste ili promijeni."
+      "proposed": "Predložio AI asistent ({model}): prihvati kako jeste ili promijeni.",
+      "accept": "Prihvati prijedlog",
+      "keepMine": "Zadrži moju",
+      "notTaken": "Još nije prihvaćeno: rezultat računa {points, number} od {max, number}."
     },
     "conversation": {
-      "you": "Ja",
       "partner": "Partner",
       "examiner": "Ispitivač",
       "intro": "Asistent igra ispitivača i tvog partnera. Odgovaraj naglas mikrofonom (ili kucaj); razgovor je tvoj odgovor.",

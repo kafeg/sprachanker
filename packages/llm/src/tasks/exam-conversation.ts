@@ -3,16 +3,32 @@
 // slides), the learner is candidate A answering aloud. Each call gives the next lines up to the
 // learner's turn, and says when the part is over. The model never helps or corrects: the part is
 // rated afterwards by its criteria (`rate_exam_answer`).
-import { ExamConversationTurn, type Lang } from "@sprachanker/schema";
+import { ExamConversationTurn, type Lang, type LlmTurnPayload } from "@sprachanker/schema";
 import type { TaskRequest } from "../client.ts";
 import type { StructuredTask } from "../structured.ts";
 import { clip, languageNames, newest } from "../text.ts";
-import { type RulesInput, systemPrompt } from "./rules.ts";
+import { NEUTRAL, type RulesInput, systemPrompt } from "./rules.ts";
 
 export interface ConversationLine {
   speaker: "examiner" | "partner" | "learner";
   text: string;
 }
+
+/** A part's lines as kept (`llm_turn`s on its question) by speaker; the learner's ending — an empty
+ *  line — is none. */
+export const conversationOf = (turns: LlmTurnPayload[]): ConversationLine[] =>
+  turns.flatMap((l): ConversationLine[] =>
+    l.text.trim()
+      ? [{ speaker: l.role === "user" ? "learner" : (l.speaker ?? "examiner"), text: l.text }]
+      : [],
+  );
+
+const speakerName = { examiner: "Examiner", partner: "Partner (B)", learner: "Learner (A)" };
+
+/** A conversation as the prompts give it: a line each, its speaker named in English (as the rules
+ *  are), never in the interface's language. */
+export const conversationText = (lines: ConversationLine[]) =>
+  lines.map((l) => `${speakerName[l.speaker]}: ${l.text}`);
 
 export interface ExamConversationInput extends RulesInput {
   language: Lang;
@@ -44,14 +60,13 @@ export function examConversationRules(
     `Write every line in ${t}. The examiner speaks briefly and formally, as in an exam; the partner speaks naturally at the exam's level, answers the learner's questions and asks theirs, with their own (invented, plausible) details.`,
     "Never speak for the learner, never correct or help them, never comment on their mistakes. If the learner cannot be understood, the examiner asks once to repeat, then goes on.",
     `Give 1–3 lines, then stop where the learner must speak. When the part's task is done, the examiner closes it in one line and "done" is true.`,
+    NEUTRAL,
   ].join("\n");
 }
 
-const speakerName = { examiner: "Examiner", partner: "Partner (B)", learner: "Learner (A)" };
-
 function examConversationRequest(input: ExamConversationInput): TaskRequest {
   const B = EXAM_CONVERSATION_BUDGETS;
-  const said = input.history.map((l) => `${speakerName[l.speaker]}: ${l.text}`);
+  const said = conversationText(input.history);
   const content = [
     `Exam: ${input.exam}. Part: ${input.part}.`,
     "<task>",

@@ -39,7 +39,8 @@ src/
     registry.ts        # TASK_PROMPTS: the tasks whose prompt the learner sees and rewrites, in order —
                        # their rules and budgets (the server's prompt settings read it)
     lesson.ts          # LessonInfo (what tasks know of a lesson, with the knowledge snapshot: level,
-                       # place, earlier words with translations, topics met) and its prompt lines
+                       # place, earlier words with translations, topics met, the course's characters —
+                       # speakersOf: a script's speakers) and its prompt lines
     describe.ts        # an exercise as text: its header (instruction, texts) and items (task, correct,
                        # learner answer); a mistake naming lesson, exercise and item with its wrong
                        # parts only (wrongPartLine)

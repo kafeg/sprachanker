@@ -337,7 +337,10 @@ An installed exam (02) is taken in runs of kind `exam` (05). Pure functions in
   The run is judged by the pass marks over the modules it took (`marksOf`: a module taken alone by its
   own, none when it has none); a mark is reached at its `minPoints` (of the scaled points of its
   modules, or of the points), and the exam is passed when any or all of them are (`passWhen`). A mock exam is scored over all it
-  asked, unanswered ones as wrong; practice over the questions answered.
+  asked, unanswered ones as wrong; practice over the questions answered. With modules the result
+  also keeps its `score` on the exam's own scale — the scaled points of the modules taken, as the
+  pass marks count them (Goethe A1: out of 99.6, the sum rounded) —, which a mock exam is shown by
+  everywhere (`examScore`; practice by its questions' points); the tasks' own points are its detail.
 
 ## AI practice in courses
 

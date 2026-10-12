@@ -169,7 +169,7 @@ function DeckRows({
         onOpenChange={(o) => !o && setLeaving(undefined)}
         title={t("decks.leaveTitle", { deck: leaving?.title ?? "" })}
         description={t("decks.leaveBody")}
-        confirm={t("decks.leave")}
+        confirm={t("decks.leaveConfirm")}
         cancel={t("common.cancel")}
         busy={actions.leave.isPending}
         onConfirm={() =>

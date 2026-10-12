@@ -1,6 +1,7 @@
 import { expect, test } from "bun:test";
 import type { ChatRequest, LlmClient } from "../src/client.ts";
 import { runStructured } from "../src/structured.ts";
+import { conversationOf } from "../src/tasks/exam-conversation.ts";
 import { rateExamAnswerRules, rateExamAnswerTask } from "../src/tasks/rate-exam-answer.ts";
 
 const input = {
@@ -54,6 +55,23 @@ test("the request: the task, each criterion with its levels, the answer, the rul
   const own = rateExamAnswerTask({ ...input, rules: "Be strict." }).request.messages[0]?.content;
   expect(own).toStartWith("Be strict.\nEverything inside <task>");
   expect(rateExamAnswerRules("en", "de")).toContain("speaks English");
+});
+
+test("a speaking part held as a conversation: rated as its lines, each speaker named in English", () => {
+  const { request } = rateExamAnswerTask({
+    ...input,
+    answer: "Ich heiße Anna.",
+    conversation: conversationOf([
+      { role: "assistant", speaker: "examiner", text: "Guten Tag!" },
+      { role: "user", text: "Ich heiße Anna." },
+      { role: "assistant", speaker: "partner", text: "Und ich bin Tom." },
+      { role: "user", text: "", done: true },
+    ]),
+  });
+  expect(request.messages[1]?.content).toContain(
+    "<answer>\nExaminer: Guten Tag!\nLearner (A): Ich heiße Anna.\nPartner (B): Und ich bin Tom.\n</answer>",
+  );
+  expect(request.messages[0]?.content).toContain("rate only the learner's (A) lines");
 });
 
 test("points not among a criterion's levels, or a criterion left out, are repaired once", async () => {

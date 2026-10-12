@@ -18,7 +18,9 @@
     "loading": "Memuat…",
     "retry": "Coba lagi",
     "close": "Tutup",
-    "cancel": "Batal"
+    "cancel": "Batal",
+    "minutesLeft": "{count, plural, other {sekitar # menit lagi}}",
+    "hoursLeft": "{count, plural, other {sekitar # jam lagi}}"
   },
   "courses": {
     "lessons": "{count, plural, other {# pelajaran}}",
@@ -105,6 +107,7 @@
     "summary": "Ringkasan",
     "score": "Benar pada percobaan pertama: {correct, number} dari {scored, number}. Persentasenya juga menghitung jawaban yang sebagian benar.",
     "skipped": "dilewati",
+    "skippedCount": "{count, plural, other {# dilewati}}",
     "notDone": "belum dikerjakan",
     "backToCourse": "Kembali ke kursus",
     "nextLesson": "Pelajaran berikutnya",
@@ -263,8 +266,8 @@
       "retryIn": "Coba lagi dalam {wait}."
     },
     "cliMissing": {
-      "claude-code": "Claude Code belum terpasang di sini. Pasang dari claude.com/claude-code, lalu masuk sekali dengan menjalankan `claude`.",
-      "codex": "Codex CLI belum terpasang di sini. Pasang (npm i -g @openai/codex), lalu masuk sekali dengan `codex login`."
+      "claude-code": "Claude Code belum terpasang di sini. Pasang dari claude.com/claude-code, lalu masuk sekali dengan menjalankan claude.",
+      "codex": "Codex CLI belum terpasang di sini. Pasang (npm i -g @openai/codex), lalu masuk sekali dengan codex login."
     },
     "modelTypeHint": "Ketik nama model.",
     "otherModel": "Model lain…",
@@ -279,8 +282,8 @@
       "gemini": "Model Gemini dari Google di cloud dengan kunci dari Google AI Studio. Paket gratisnya tidak memerlukan kartu dan punya batas per menit dan per hari; beberapa model memerlukan penagihan. Pada paket gratis, Google dapat memakai data yang dikirim untuk meningkatkan produknya: isi pelajaran dan jawaban kamu dikirim ke Google.",
       "groq": "Model terbuka (Llama, Qwen, GPT-OSS, dan lainnya) di perangkat keras Groq yang cepat di cloud. Paket gratisnya tidak memerlukan kartu dan punya batas per menit dan per hari untuk setiap model. Isi pelajaran dan jawaban kamu dikirim ke Groq.",
       "custom": "Server apa pun dengan API yang kompatibel dengan OpenAI di komputer lain: LM Studio, Ollama, llama.cpp, vLLM, dan lainnya. Masukkan alamatnya (berakhiran /v1) dan kunci jika diminta.",
-      "claude-code": "Menjalankan Claude Code yang terpasang di komputer ini (`claude -p`) dengan langganan Claude kamu. Alat bawaannya dimatikan: data pelajaran dikirim di dalam prompt. Setiap jawaban menjalankan perintahnya, jadi balasan butuh beberapa detik lebih lama.",
-      "codex": "Menjalankan Codex CLI yang terpasang di komputer ini (`codex exec`) dengan langganan ChatGPT kamu, hanya-baca dan tanpa alat bawaannya. Setiap jawaban menjalankan perintahnya, jadi balasan butuh beberapa detik lebih lama."
+      "claude-code": "Menjalankan Claude Code yang terpasang di komputer ini (claude -p) dengan langganan Claude kamu. Alat bawaannya dimatikan: data pelajaran dikirim di dalam prompt. Setiap jawaban menjalankan perintahnya, jadi balasan butuh beberapa detik lebih lama.",
+      "codex": "Menjalankan Codex CLI yang terpasang di komputer ini (codex exec) dengan langganan ChatGPT kamu, hanya-baca dan tanpa alat bawaannya. Setiap jawaban menjalankan perintahnya, jadi balasan butuh beberapa detik lebih lama."
     },
     "cardState": {
       "off": "tanpa asisten",
@@ -442,6 +445,7 @@
       "chatHistory": "pesan-pesan terbaru dalam percakapan",
       "place": "letak pelajaran dalam kursus: nomor dan unitnya",
       "topics": "topik tata bahasa yang sudah dipelajari dalam kursus",
+      "characters": "tokoh-tokoh kursus yang sudah muncul, dengan namanya (lawan bicara bukan salah satunya)",
       "dialogueGoals": "situasinya dan tujuan yang sudah Anda capai",
       "dialogue": "kalimat-kalimat dialog dengan koreksi yang diberikan",
       "length": "seberapa panjang teks pada tingkat kursus",
@@ -1014,6 +1018,7 @@
     "studying": "Sedang dipelajari: {deck}",
     "more": "{count, plural, other {# kartu baru lagi hari ini}}",
     "leave": "Tinggalkan dek…",
+    "leaveConfirm": "Tinggalkan dek",
     "offers": "Dek yang bisa diambil",
     "offersHint": "Kosakata dari setiap kursus kamu, dan dari setiap dek yang diimpor ke sini, adalah sebuah dek: jika diambil utuh, kata-katanya ditambahkan sebagai kartu baru sesuai urutannya — dalam batas harian, atau lebih dengan “kartu baru lagi hari ini”. Kata yang sudah punya kartu tetap memakai kartunya. Di sini juga audio dan contoh dibuat untuk semua kata sebuah dek, sudah diambil atau belum.",
     "words": "{words, plural, other {# kata}} · {mine, number} sudah kamu punya",
@@ -1058,7 +1063,6 @@
       "voice": "Dibacakan oleh {engine, select, qwen {Qwen3-TTS} other {Piper}} · {voice} ({language})",
       "chooseVoice": "Pilih suara"
     },
-    "left": "sekitar {time} lagi",
     "why": "Alasan: {reason}",
     "examples": {
       "missing": "{count, plural, other {# kata tanpa contoh}}",
@@ -1414,7 +1418,9 @@
       "practice": "Latihan",
       "practiceText": "Pertanyaan demi pertanyaan, setiap jawaban langsung diperiksa: yang dulu kamu jawab salah lebih dulu, lalu yang belum pernah kamu lihat.",
       "catalog": "Katalog",
-      "catalogText": "{count, plural, =1 {# pertanyaan beserta jawabannya.} other {Semua # pertanyaan beserta jawabannya.}}"
+      "catalogText": "{count, plural, =1 {# pertanyaan beserta jawabannya.} other {Semua # pertanyaan beserta jawabannya.}}",
+      "catalogSplit": "{general, number} untuk semua, {chosen, number} tentang negara bagianmu.",
+      "catalogMore": "Memilih negara bagianmu menambah {more, number} pertanyaannya."
     },
     "begin": "Mulai",
     "practise": "Berlatih",
@@ -1428,6 +1434,7 @@
     "mapUnseen": "belum dilihat",
     "mapSummary": "Dari {total, number} pertanyaan: {known, number} dikuasai, {wrong, number} salah terakhir kali",
     "points": "{points, number} dari {max, number}",
+    "taskPoints": "tugas: {points, number} dari {max, number}",
     "passed": "Lulus",
     "failed": "Tidak lulus",
     "state": "Negara bagian",
@@ -1514,10 +1521,12 @@
       "change": "Ubah penilaian",
       "propose": "Usulkan penilaian (AI)",
       "proposing": "Asisten sedang menilai…",
-      "proposed": "Diusulkan oleh asisten AI ({model}): terima apa adanya atau ubah."
+      "proposed": "Diusulkan oleh asisten AI ({model}): terima apa adanya atau ubah.",
+      "accept": "Terima usulan",
+      "keepMine": "Pakai penilaianku",
+      "notTaken": "Belum diterima: hasil menghitung {points, number} dari {max, number}."
     },
     "conversation": {
-      "you": "Aku",
       "partner": "Pasangan",
       "examiner": "Penguji",
       "intro": "Asisten memerankan penguji dan pasangan bicara kamu. Jawab secara lisan dengan mikrofon (atau ketik); percakapan ini adalah jawaban kamu.",

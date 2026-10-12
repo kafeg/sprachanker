@@ -108,11 +108,13 @@ export const ModuleStanding = z.object({
 export type ModuleStanding = z.infer<typeof ModuleStanding>;
 
 /** One thing an entry asks of the learner (an exam's question) and how it stands: answered right
- *  last time, wrongly, or not seen; `line`: what it asks, in a list. */
+ *  last time, wrongly, or not seen; `line`: what it asks, in a list; `group`: where it is asked,
+ *  named — an exam of several Teile: its Teil with its module ("Hören · Teil 1"). */
 const ItemStanding = z.object({
   key: z.string(),
   state: z.enum(["right", "wrong", "unseen"]),
   line: z.string(),
+  group: z.string().optional(),
 });
 
 /** An entry in full (its page in the Notebook): every run, and its items as they stand, in the

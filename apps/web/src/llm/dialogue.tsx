@@ -4,7 +4,7 @@
 // understood and fits, at most two corrections —, then a summary: goals met, what the partner knew,
 // the key corrections with a model line. The lesson's earlier Dialogues are listed under it.
 import { Check, Circle, CircleCheck, Languages, Mic, X } from "lucide-react";
-import { useState } from "react";
+import { useRef, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { useSpeechHost } from "@/audio/context.ts";
 import { ReadByLabel } from "@/audio/read-by.tsx";
@@ -333,6 +333,8 @@ export function DialogueStep({ onDone, ...ids }: LessonSlotContext & { onDone?()
   const scenes = useScenes(ids.lessonKey);
   const action = useSceneAction(ids.lessonKey, onDone);
   const { say } = useSpeaker();
+  /** The last thing asked (a Dialogue begun, a line sent, the end), asked again after a failure. */
+  const retry = useRef<() => void>(undefined);
   if (!llm.data?.model || !scenes.data) return null;
   const [current, ...past] = scenes.data.scenes;
   const variables = action.isPending ? action.variables : undefined;
@@ -353,10 +355,13 @@ export function DialogueStep({ onDone, ...ids }: LessonSlotContext & { onDone?()
   };
   const request = { ...ids, language: i18n.language };
   const start = () => {
-    if (!busy) action.mutate({ start: request }, { onSuccess: readNewest });
+    if (busy) return;
+    retry.current = start;
+    action.mutate({ start: request }, { onSuccess: readNewest });
   };
   const line = (input: DialogueLineInput, sent: () => void) => {
     if (busy) return;
+    retry.current = () => line(input, sent);
     action.mutate(
       { turn: { ...request, ...input } },
       {
@@ -387,7 +392,20 @@ export function DialogueStep({ onDone, ...ids }: LessonSlotContext & { onDone?()
           onStart={start}
         />
       )}
-      <ErrorLine error={action.error} />
+      <ErrorLine
+        error={action.error}
+        // The Dialogue ended (or summed up) is asked again as it was; a beginning or a line, with
+        // what follows it (the partner read aloud, the line box cleared).
+        onRetry={
+          busy
+            ? undefined
+            : () => {
+                const asked = action.variables;
+                if (asked && ("end" in asked || "summary" in asked)) action.mutate(asked);
+                else retry.current?.();
+              }
+        }
+      />
       <PastDialogues scenes={past} />
     </div>
   );

@@ -18,7 +18,9 @@
     "loading": "Inapakia…",
     "retry": "Jaribu tena",
     "close": "Funga",
-    "cancel": "Ghairi"
+    "cancel": "Ghairi",
+    "minutesLeft": "{count, plural, one {takriban dakika # imebaki} other {takriban dakika # zimebaki}}",
+    "hoursLeft": "{count, plural, one {takriban saa # imebaki} other {takriban saa # zimebaki}}"
   },
   "courses": {
     "lessons": "{count, plural, one {somo #} other {masomo #}}",
@@ -105,6 +107,7 @@
     "summary": "Muhtasari",
     "score": "Sahihi kwa jaribio la kwanza: {correct, number} kati ya {scored, number}. Asilimia inahesabu pia majibu yaliyo sahihi kwa sehemu.",
     "skipped": "limerukwa",
+    "skippedCount": "{count, plural, one {# limerukwa} other {# yamerukwa}}",
     "notDone": "halijafanywa",
     "backToCourse": "Rudi kwenye kozi",
     "nextLesson": "Somo linalofuata",
@@ -263,8 +266,8 @@
       "retryIn": "Jaribu tena baada ya {wait}."
     },
     "cliMissing": {
-      "claude-code": "Claude Code haijasakinishwa hapa. Isakinishe kutoka claude.com/claude-code kisha ingia mara moja kwa kuendesha `claude`.",
-      "codex": "Codex CLI haijasakinishwa hapa. Isakinishe (npm i -g @openai/codex) kisha ingia mara moja kwa `codex login`."
+      "claude-code": "Claude Code haijasakinishwa hapa. Isakinishe kutoka claude.com/claude-code kisha ingia mara moja kwa kuendesha claude.",
+      "codex": "Codex CLI haijasakinishwa hapa. Isakinishe (npm i -g @openai/codex) kisha ingia mara moja kwa codex login."
     },
     "modelTypeHint": "Andika jina la modeli.",
     "otherModel": "Modeli nyingine…",
@@ -279,8 +282,8 @@
       "gemini": "Modeli za Gemini za Google mtandaoni kwa ufunguo kutoka Google AI Studio. Kiwango cha bure hakihitaji kadi na kina vikomo kwa dakika na kwa siku; baadhi ya modeli zinahitaji malipo. Katika kiwango cha bure Google inaweza kutumia kinachotumwa kuboresha bidhaa zake: maudhui ya somo na majibu yako huenda kwa Google.",
       "groq": "Modeli huria (Llama, Qwen, GPT-OSS na nyinginezo) kwenye vifaa vya kasi vya Groq mtandaoni. Kiwango cha bure hakihitaji kadi na kina vikomo kwa dakika na kwa siku kwa kila modeli. Maudhui ya somo na majibu yako huenda kwa Groq.",
       "custom": "Seva yoyote yenye API inayooana na OpenAI kwenye kompyuta nyingine: LM Studio, Ollama, llama.cpp, vLLM na nyinginezo. Weka anwani yake (inayoishia na /v1) na ufunguo ikiwa inauomba.",
-      "claude-code": "Huendesha Claude Code iliyosakinishwa kwenye kompyuta hii (`claude -p`) kwa usajili wako wa Claude. Zana zake zimezimwa: data za somo huwekwa kwenye maagizo. Kila jibu huanzisha amri, kwa hiyo majibu huchelewa sekunde chache zaidi.",
-      "codex": "Huendesha Codex CLI iliyosakinishwa kwenye kompyuta hii (`codex exec`) kwa usajili wako wa ChatGPT, kwa kusoma tu na bila zana zake. Kila jibu huanzisha amri, kwa hiyo majibu huchelewa sekunde chache zaidi."
+      "claude-code": "Huendesha Claude Code iliyosakinishwa kwenye kompyuta hii (claude -p) kwa usajili wako wa Claude. Zana zake zimezimwa: data za somo huwekwa kwenye maagizo. Kila jibu huanzisha amri, kwa hiyo majibu huchelewa sekunde chache zaidi.",
+      "codex": "Huendesha Codex CLI iliyosakinishwa kwenye kompyuta hii (codex exec) kwa usajili wako wa ChatGPT, kwa kusoma tu na bila zana zake. Kila jibu huanzisha amri, kwa hiyo majibu huchelewa sekunde chache zaidi."
     },
     "cardState": {
       "off": "hakuna msaidizi",
@@ -442,6 +445,7 @@
       "chatHistory": "jumbe za karibuni za mazungumzo",
       "place": "mahali somo lilipo katika kozi: namba yake na kitengo chake",
       "topics": "mada za sarufi zilizokwisha kujitokeza katika kozi",
+      "characters": "wahusika wa kozi waliokwisha kujitokeza, kwa majina (mzungumzaji si mmoja wao)",
       "dialogueGoals": "hali na malengo uliyoyafikia",
       "dialogue": "sentensi za mazungumzo pamoja na marekebisho yaliyotolewa",
       "length": "urefu wa maandishi katika kiwango cha kozi",
@@ -1014,6 +1018,7 @@
     "studying": "Unasoma: {deck}",
     "more": "{count, plural, one {Kadi # mpya zaidi leo} other {Kadi # mpya zaidi leo}}",
     "leave": "Acha seti…",
+    "leaveConfirm": "Acha seti",
     "offers": "Seti za kuchukua",
     "offersHint": "Maneno ya kila kozi yako, na ya kila seti iliyoingizwa hapa, ni seti: ikichukuliwa yote, huyaongeza kama kadi mpya kwa mpangilio wake — ndani ya kikomo cha siku, au zaidi kwa “mpya zaidi leo”. Neno ambalo tayari una kadi yake linaibakiza. Hapa pia sauti na mifano hutengenezwa kwa maneno yote ya seti, yawe yamechukuliwa au la.",
     "words": "{words, plural, one {neno #} other {maneno #}} · {mine, number} tayari ni yako",
@@ -1058,7 +1063,6 @@
       "voice": "Imesomwa na {engine, select, qwen {Qwen3-TTS} other {Piper}} · {voice} ({language})",
       "chooseVoice": "Chagua sauti"
     },
-    "left": "takriban {time} zimebaki",
     "why": "Sababu: {reason}",
     "examples": {
       "missing": "{count, plural, one {Neno # halina mifano} other {Maneno # hayana mifano}}",
@@ -1414,7 +1418,9 @@
       "practice": "Kujizoeza",
       "practiceText": "Swali kwa swali, kila jibu linakaguliwa papo hapo: kwanza yale uliyokosea, kisha yale ambayo hujayaona.",
       "catalog": "Orodha ya maswali",
-      "catalogText": "{count, plural, one {Swali # pamoja na jibu lake.} other {Maswali yote # pamoja na majibu yake.}}"
+      "catalogText": "{count, plural, one {Swali # pamoja na jibu lake.} other {Maswali yote # pamoja na majibu yake.}}",
+      "catalogSplit": "{general, number} kwa wote, {chosen, number} kuhusu jimbo lako.",
+      "catalogMore": "Ukichagua jimbo lako, maswali yake {more, number} yanaongezwa."
     },
     "begin": "Anza",
     "practise": "Jizoeze",
@@ -1428,6 +1434,7 @@
     "mapUnseen": "hujayaona",
     "mapSummary": "Kati ya maswali {total, number}: {known, number} unayajua, {wrong, number} ulikosea mara ya mwisho",
     "points": "{points, number} kati ya {max, number}",
+    "taskPoints": "kazi: {points, number} kati ya {max, number}",
     "passed": "Umefaulu",
     "failed": "Hukufaulu",
     "state": "Jimbo",
@@ -1514,10 +1521,12 @@
       "change": "Badilisha tathmini",
       "propose": "Pendekeza tathmini (AI)",
       "proposing": "Msaidizi anatathmini…",
-      "proposed": "Imependekezwa na msaidizi wa AI ({model}): ikubali kama ilivyo au uibadilishe."
+      "proposed": "Imependekezwa na msaidizi wa AI ({model}): ikubali kama ilivyo au uibadilishe.",
+      "accept": "Kubali pendekezo",
+      "keepMine": "Baki na yangu",
+      "notTaken": "Bado haijakubaliwa: matokeo yanahesabu {points, number} kati ya {max, number}."
     },
     "conversation": {
-      "you": "Mimi",
       "partner": "Mwenzako",
       "examiner": "Mtahini",
       "intro": "Msaidizi anaigiza mtahini na mwenzako. Jibu kwa sauti kwa maikrofoni (au andika); mazungumzo ndiyo jibu lako.",

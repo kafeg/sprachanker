@@ -2,22 +2,29 @@
 
 const DASHES = /[‐‑‒–—―]/g;
 
-/** NFC; one form for quotes, apostrophes and dashes; collapsed whitespace; no final punctuation. */
-export function normalise(text: string): string {
-  return text
+/** NFC; one form for quotes, apostrophes and dashes; collapsed whitespace. */
+const tidy = (text: string) =>
+  text
     .normalize("NFC")
     .replace(/[’‘`´ʼ‚‛]/g, "'")
     .replace(/[“”„«»‹›]/g, '"')
     .replace(DASHES, "-")
     .replace(/[​-‍﻿]/g, "")
     .replace(/\s+/g, " ")
-    .trim()
+    .trim();
+
+/** Tidied as `tidy`, and no final punctuation. */
+export function normalise(text: string): string {
+  return tidy(text)
     .replace(/\s*[.!?…]+$/, "")
     .trim();
 }
 
 /** Words of a normalised text; punctuation stays attached so "Ihnen?" ≠ "Ihnen". */
 export const tokens = (text: string) => normalise(text).split(" ").filter(Boolean);
+
+/** Words of a text as written, its final mark too: for showing a diff word by word. */
+export const writtenTokens = (text: string) => tidy(text).split(" ").filter(Boolean);
 
 /** Whether a gap_text answer leaves a gap empty: blank, or a dash for "nothing here". */
 export const isEmptyGap = (text: string) => /^[\s-]*$/.test(text.replace(DASHES, "-"));

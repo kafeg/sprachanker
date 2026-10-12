@@ -4,6 +4,7 @@
 // exams left past their time first (`settleOverdue`).
 import {
   examPassed,
+  examScore,
   missingSettings,
   openQuestions,
   questionLine,
@@ -12,6 +13,7 @@ import {
 } from "@sprachanker/engine";
 import {
   type EntryDetail,
+  type ExamItemKey,
   type ExamKey,
   type ExamRun,
   examLang,
@@ -26,9 +28,12 @@ import { createExamRuns } from "./exam-runs.ts";
 import type { RunStore } from "./run-store.ts";
 import type { Settings } from "./settings.ts";
 
-/** A run as a standing lists it: its points, a mock exam or practice, the module taken (by its title
- *  in `locale`, when given); passed or not for a mock exam only (practice is judged over the questions
- *  answered, which no pass mark is for). */
+/** A mock exam's points on the exam's own scale (engine `examScore`). */
+const score = (run: ExamRun) => (run.result ? examScore(run.result, "test").points : 0);
+
+/** A run as a standing lists it: its points (a mock exam's on the exam's own scale), a mock exam or
+ *  practice, the module taken (by its title in `locale`, when given); passed or not for a mock exam
+ *  only (practice is judged over the questions answered, which no pass mark is for). */
 const summaryOf = (run: ExamRun, locale?: LocaleExam): RunSummary => {
   const { exam: _, plan, result, ...header } = run;
   const passed = plan.mode === "test" ? examPassed(result) : undefined;
@@ -36,7 +41,7 @@ const summaryOf = (run: ExamRun, locale?: LocaleExam): RunSummary => {
     ...header,
     mode: plan.mode,
     ...(plan.module && { part: locale?.modules?.[plan.module]?.title ?? plan.module }),
-    ...(result && { points: result.points, max: result.max }),
+    ...(result && examScore(result, plan.mode)),
     ...(passed !== undefined && { passed }),
   };
 };
@@ -58,7 +63,7 @@ export function createExams(deps: {
     const all = runsOf(key);
     const tests = all.filter((r) => r.plan.mode === "test" && r.status === "finished");
     const best = tests.reduce<ExamRun | undefined>(
-      (a, r) => (!a || (r.result?.points ?? 0) > (a.result?.points ?? 0) ? r : a),
+      (a, r) => (!a || score(r) > score(a) ? r : a),
       undefined,
     );
     return {
@@ -113,11 +118,24 @@ export function createExams(deps: {
       const course = (await content.courses()).find((c) => c.exams.includes(key));
       const edition = done[0]?.edition ?? course?.editions[0] ?? null;
       const locale = await localeOf(key, edition);
-      const items = (exam ? openQuestions(exam, setting) : []).map((item) => ({
-        key: item.key,
-        state: stats.get(item.key)?.last ?? ("unseen" as const),
-        line: questionLine(item),
-      }));
+      /** A question's Teil with its module, named ("Hören · Teil 1"), in an exam of several. */
+      const groupOf = (itemKey: string) => {
+        const section = exam?.sections.find((s) => s.pool.includes(itemKey as ExamItemKey));
+        if (!section || (exam?.sections.length ?? 0) < 2) return undefined;
+        const module =
+          section.module && (locale?.modules?.[section.module]?.title ?? section.module);
+        const teil = locale?.sections[section.key]?.title;
+        return [module, teil].filter(Boolean).join(" · ") || undefined;
+      };
+      const items = (exam ? openQuestions(exam, setting) : []).map((item) => {
+        const group = groupOf(item.key);
+        return {
+          key: item.key,
+          state: stats.get(item.key)?.last ?? ("unseen" as const),
+          line: questionLine(item),
+          ...(group && { group }),
+        };
+      });
       return {
         entry: {
           key,

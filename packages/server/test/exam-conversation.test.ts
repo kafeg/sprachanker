@@ -98,6 +98,34 @@ test("a speaking part: opened by the examiner, the partner answers, closed — k
   expect(ai.bodies).toHaveLength(3);
 });
 
+test("the learner ends a part: kept once as their empty line, nothing more said or kept", async () => {
+  const ai = model();
+  const api = await setup({ fetch: ai.fetch });
+  await api.send("PUT", "/api/llm/providers/custom", { baseUrl: "http://127.0.0.1:9/v1" });
+  await api.send("PUT", "/api/llm/route", { provider: "custom", model: "m" });
+  const { run } = await api.sendJson("POST", "/api/exams/runs", {
+    exam: MODELL,
+    edition: "en-de",
+    mode: "test",
+    module: "sprechen",
+  });
+  const body = { runId: run.id, itemKey: m("p1"), language: "ru" };
+  await api.sendJson("POST", "/api/llm/exam-conversation", body);
+  const ended = await api.sendJson("POST", "/api/llm/exam-conversation", { ...body, end: true });
+  expect(ended.done).toBe(true);
+  expect(ended.events.map((e: { payload: unknown }) => e.payload)).toEqual([
+    { role: "user", text: "", done: true },
+  ]);
+  // Again: nothing more kept; no line after it.
+  const again = await api.sendJson("POST", "/api/llm/exam-conversation", { ...body, end: true });
+  expect(again).toEqual({ events: [], done: true });
+  const after = await api.send("POST", "/api/llm/exam-conversation", { ...body, text: "Hallo" });
+  expect(after.status).toBe(409);
+  const state = await api.getJson(`/api/exams/runs/${run.id}`);
+  expect(state.events.filter((e: { type: string }) => e.type === "llm_turn")).toHaveLength(2);
+  expect(ai.bodies).toHaveLength(1);
+});
+
 test("only a part said aloud is held as a conversation", async () => {
   const api = await setup();
   const { run } = await api.sendJson("POST", "/api/exams/runs", {

@@ -24,6 +24,7 @@ function useDone() {
       p.total !== null
         ? t("notebook.worked", { worked: p.worked, total: p.total })
         : t("notebook.workedSome", { count: p.worked }),
+      p.skipped > 0 && t("lesson.skippedCount", { count: p.skipped }),
       p.explanations > 0 && t("notebook.explanations", { count: p.explanations }),
       p.understanding > 0 && t("notebook.understanding", { count: p.understanding }),
       p.writing > 0 && t("notebook.writing", { count: p.writing }),

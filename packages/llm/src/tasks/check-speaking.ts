@@ -7,7 +7,7 @@ import type { StructuredTask } from "../structured.ts";
 import { clip, languageName, languageNames } from "../text.ts";
 import { describeItem } from "./describe.ts";
 import { grammarNotes, type LessonInfo, lessonWordsLine, levelLine } from "./lesson.ts";
-import { type RulesInput, systemPrompt } from "./rules.ts";
+import { NEUTRAL, type RulesInput, systemPrompt } from "./rules.ts";
 
 export interface SpeakingInput extends RulesInput {
   language: Lang;
@@ -49,6 +49,7 @@ export function checkSpeakingRules(
     `What is correct is never corrected — not in "corrections", not in "corrected", not in "feedback" — even when another form is more usual. No errors: "corrected" is the learner's words as heard.`,
     `Write "corrected", "wrong" and "right" in ${t}. Write every "explanation" and "feedback" in ${l} — not in ${t} — briefly. "feedback" is one or two encouraging, concrete sentences; when the answer is good, it may offer another way to say it as an option, never as a fix.`,
     `verdict: "good" (fits and no errors), "minor_errors", "major_errors", or "off_task" (does not answer the item or is not in ${t}).`,
+    NEUTRAL,
   ].join("\n");
 }
 

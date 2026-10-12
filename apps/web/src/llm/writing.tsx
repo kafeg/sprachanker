@@ -309,7 +309,19 @@ export function WritingTask({
             />
             <AssistantLabel className="ms-auto" />
           </div>
-          <ErrorLine error={check.error ?? newTask.error} />
+          <ErrorLine
+            error={check.error ?? newTask.error}
+            // Asked again as it was: the text checked (still in the editor), or a new task.
+            onRetry={
+              check.error
+                ? () =>
+                    check.variables &&
+                    check.mutate(check.variables, { onSuccess: () => setText("") })
+                : preparing
+                  ? undefined
+                  : write
+            }
+          />
         </Panel>
       ) : (
         <Panel className="space-y-3">

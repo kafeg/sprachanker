@@ -220,8 +220,10 @@ function WordBank({
                   if (values[gap]) onAnswer(rest);
                   setChosen(gap);
                 }}
-                // Every slot of the text one width: the longest word of the bank and its mark.
-                style={{ width: `calc(${room}ch + 3.25rem)` }}
+                // Every slot of the text one width at least: the longest word of the bank and its
+                // mark; a word wider than that in its letters widens its slot rather than breaking
+                // inside it ("Du / kommst"), wrapping only past the line's width.
+                style={{ minWidth: `min(100%, calc(${room}ch + 3.25rem))` }}
                 className="inline-flex max-w-full align-baseline"
               >
                 <span {...inLang(lang)}>{textOf(gap, values[gap]) ?? "\u00a0"}</span>

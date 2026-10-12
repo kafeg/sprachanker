@@ -52,6 +52,8 @@ const ExamRatingBody = z.object({ runId: Ulid, itemKey: ExamItemKey, language: L
 /** A speaking part's next line: the learner's (none to open the part). */
 const ConversationBody = ExamRatingBody.extend({
   text: z.string().trim().max(MESSAGE_MAX).optional(),
+  /** The learner ends the part. */
+  end: z.literal(true).optional(),
 });
 
 /** A Dialogue's line: as the recogniser heard it, with its take, or typed. */

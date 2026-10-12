@@ -55,6 +55,13 @@ test("every message is a valid ICU string", () => {
   }
 });
 
+test("messages are plain text: no Markdown backticks (they show as written)", () => {
+  const marked = Object.entries(catalogs).flatMap(([lang, flat]) =>
+    Object.entries(flat).flatMap(([key, m]) => (String(m).includes("`") ? [`${lang}:${key}`] : [])),
+  );
+  expect(marked).toEqual([]);
+});
+
 // ---- Catalogs against the code: keys used, keys left over, translations missing ----
 
 const SRC = join(import.meta.dir, "../src");

@@ -27,3 +27,10 @@ test("a place turned off: not there; the tutor off takes the mistakes step with 
   expect(hook(() => useAiIn("explain"), { "llm.offIn": ["explain"] })).toBe(false);
   expect(hook(() => useAiIn("example"), { "llm.offIn": ["explain"] })).toBe(true);
 });
+
+test('"Why is this wrong?" offered only while it can answer: a model set up and its place on', () => {
+  const on = () => lessonAssistant.explain?.useOn();
+  expect(hook(on, {})).toBe(true);
+  expect(hook(on, { "llm.offIn": ["explain"] })).toBe(false);
+  expect(hook(on, {}, { provider: null, model: null, providers: [] })).toBe(false);
+});

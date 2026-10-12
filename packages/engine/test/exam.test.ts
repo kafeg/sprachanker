@@ -14,9 +14,11 @@ import {
   eligible,
   examPassed,
   examResult,
+  examScore,
   markMax,
   marksOf,
   missingSettings,
+  openCounts,
   practiceOrder,
   questionStats,
   readiness,
@@ -95,6 +97,16 @@ test("a filtered section is open only with its setting: the state's questions, n
     ["be-01", "be-02"],
   ]);
   expect(() => drawExam(exam, () => undefined, Math.random)).toThrow(/exam.federalState/);
+});
+
+test("the questions open told apart: every learner's, the state's chosen, or what choosing one adds", () => {
+  expect(openCounts(exam, berlin)).toEqual({ general: 4, chosen: 2, more: 0, filtered: true });
+  expect(openCounts(exam, () => undefined)).toEqual({
+    general: 4,
+    chosen: 0,
+    more: 2,
+    filtered: true,
+  });
 });
 
 test("a mock exam draws each section's number from its open pool, in section order, at random", () => {
@@ -256,7 +268,13 @@ test("a language exam's result: points by question, by module scaled, pass marks
     },
     passed: ["overall", "hoeren"],
     pass: true,
+    // On the exam's own scale, as its pass marks count: the modules' scaled points.
+    score: { points: 37.5, max: 50 },
   });
+  // A mock exam shown on that scale; practice (and a result kept before it) by its questions' points.
+  expect(examScore(result, "test")).toEqual({ points: 37.5, max: 50 });
+  expect(examScore(result, "practice")).toEqual({ points: 4, max: 5 });
+  expect(examScore({ points: 4, max: 5 }, "test")).toEqual({ points: 4, max: 5 });
   // Hören alone: judged by its own mark only.
   const alone = examResult(modell, { ...plan, items: items.slice(0, 2), module: "hoeren" }, events);
   expect(marksOf(modell, ["hoeren"]).map((t) => t.id)).toEqual(["hoeren"]);
@@ -292,7 +310,11 @@ test("rounding as the regulations say: each module's result (B1), or the modules
   // 12.5 + 8.33 = 20.83: a mark of 21 is reached only when the sum is rounded.
   const at21 = { ...modell, thresholds: [{ id: "pass", minPoints: 21 }], passWhen: undefined };
   expect(examResult(at21, plan, events).passed).toEqual([]);
-  expect(examResult({ ...at21, roundTotal: true }, plan, events).passed).toEqual(["pass"]);
+  expect(examResult({ ...at21, roundTotal: true }, plan, events)).toMatchObject({
+    passed: ["pass"],
+    score: { points: 21, max: 50 },
+  });
+  expect(examResult(at21, plan, events).score).toEqual({ points: 20.83, max: 50 });
 });
 
 test("a run passes by the exam's rule; a module alone without a mark of its own is not judged", () => {

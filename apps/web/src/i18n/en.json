@@ -18,7 +18,9 @@
     "loading": "Loading…",
     "retry": "Try again",
     "close": "Close",
-    "cancel": "Cancel"
+    "cancel": "Cancel",
+    "minutesLeft": "{count, plural, one {about # minute left} other {about # minutes left}}",
+    "hoursLeft": "{count, plural, one {about # hour left} other {about # hours left}}"
   },
   "courses": {
     "lessons": "{count, plural, one {# lesson} other {# lessons}}",
@@ -105,6 +107,7 @@
     "summary": "Summary",
     "score": "Correct on the first try: {correct, number} of {scored, number}. The percentage counts partly right answers too.",
     "skipped": "skipped",
+    "skippedCount": "{count, plural, one {# skipped} other {# skipped}}",
     "notDone": "not done",
     "backToCourse": "Back to the course",
     "nextLesson": "Next lesson",
@@ -263,8 +266,8 @@
       "retryIn": "Try again in {wait}."
     },
     "cliMissing": {
-      "claude-code": "Claude Code is not installed here. Install it from claude.com/claude-code and sign in once by running `claude`.",
-      "codex": "The Codex CLI is not installed here. Install it (npm i -g @openai/codex) and sign in once with `codex login`."
+      "claude-code": "Claude Code is not installed here. Install it from claude.com/claude-code and sign in once by running claude.",
+      "codex": "The Codex CLI is not installed here. Install it (npm i -g @openai/codex) and sign in once with codex login."
     },
     "modelTypeHint": "Type the model name.",
     "otherModel": "Another model…",
@@ -279,8 +282,8 @@
       "gemini": "Google's Gemini models in the cloud with a key from Google AI Studio. The free tier needs no card and has limits per minute and per day; some models need billing. On the free tier Google may use what is sent to improve its products: lesson content and your answers go to Google.",
       "groq": "Open models (Llama, Qwen, GPT-OSS and others) on Groq's fast hardware in the cloud. The free tier needs no card and has limits per minute and per day for each model. Lesson content and your answers go to Groq.",
       "custom": "Any server with an OpenAI-compatible API on another computer: LM Studio, Ollama, llama.cpp, vLLM and others. Give its address (ending in /v1) and a key if it asks for one.",
-      "claude-code": "Runs Claude Code installed on this computer (`claude -p`) with your Claude subscription. Its own tools are off: lesson data goes in the prompt. Each answer starts the command, so replies take a few seconds longer.",
-      "codex": "Runs the Codex CLI installed on this computer (`codex exec`) with your ChatGPT subscription, read-only and without its tools. Each answer starts the command, so replies take a few seconds longer."
+      "claude-code": "Runs Claude Code installed on this computer (claude -p) with your Claude subscription. Its own tools are off: lesson data goes in the prompt. Each answer starts the command, so replies take a few seconds longer.",
+      "codex": "Runs the Codex CLI installed on this computer (codex exec) with your ChatGPT subscription, read-only and without its tools. Each answer starts the command, so replies take a few seconds longer."
     },
     "cardState": {
       "off": "no assistant",
@@ -442,6 +445,7 @@
       "chatHistory": "the latest messages of the conversation",
       "place": "where the lesson is in the course: its number and unit",
       "topics": "the grammar topics met so far in the course",
+      "characters": "the course's characters met so far, by name (the partner is none of them)",
       "dialogueGoals": "the situation and the goals you reached",
       "dialogue": "the dialogue's lines with the corrections given on them",
       "length": "how long the text is at the course's level",
@@ -1014,6 +1018,7 @@
     "studying": "Studying: {deck}",
     "more": "{count, plural, one {# more new card today} other {# more new cards today}}",
     "leave": "Leave deck…",
+    "leaveConfirm": "Leave deck",
     "offers": "Decks to take",
     "offersHint": "The words of each of your courses, and of each deck imported here, are a deck: taken whole, it adds them as new cards in its order — within the daily limit, or more with “more new today”. A word you have a card of already keeps it. Here, too, audio and examples are made for all of a deck's words, taken or not.",
     "words": "{words, plural, one {# word} other {# words}} · {mine, number} yours already",
@@ -1058,7 +1063,6 @@
       "voice": "Read by {engine, select, qwen {Qwen3-TTS} other {Piper}} · {voice} ({language})",
       "chooseVoice": "Choose a voice"
     },
-    "left": "about {time} left",
     "why": "Reason: {reason}",
     "examples": {
       "missing": "{count, plural, one {# word without examples} other {# words without examples}}",
@@ -1414,7 +1418,9 @@
       "practice": "Practice",
       "practiceText": "Question by question, each answer checked at once: the ones you got wrong first, then those you haven't seen.",
       "catalog": "Catalogue",
-      "catalogText": "{count, plural, one {# question with its answer.} other {All # questions with their answers.}}"
+      "catalogText": "{count, plural, one {# question with its answer.} other {All # questions with their answers.}}",
+      "catalogSplit": "{general, number} for everyone, {chosen, number} of your federal state.",
+      "catalogMore": "Choosing your federal state adds its {more, number}."
     },
     "begin": "Begin",
     "practise": "Practise",
@@ -1428,6 +1434,7 @@
     "mapUnseen": "not seen",
     "mapSummary": "Of {total, number} questions: {known, number} known, {wrong, number} wrong last time",
     "points": "{points, number} of {max, number}",
+    "taskPoints": "tasks: {points, number} of {max, number}",
     "passed": "Passed",
     "failed": "Not passed",
     "state": "Federal state",
@@ -1514,10 +1521,12 @@
       "change": "Change rating",
       "propose": "Propose a rating (AI)",
       "proposing": "The assistant is rating…",
-      "proposed": "Proposed by the AI assistant ({model}): take it as it is or change it."
+      "proposed": "Proposed by the AI assistant ({model}): take it as it is or change it.",
+      "accept": "Accept the proposal",
+      "keepMine": "Keep mine",
+      "notTaken": "Not accepted yet: the result counts {points, number} of {max, number}."
     },
     "conversation": {
-      "you": "Me",
       "partner": "Partner",
       "examiner": "Examiner",
       "intro": "The assistant plays the examiner and your partner. Answer aloud with the microphone (or type); the conversation is your answer.",

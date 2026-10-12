@@ -118,8 +118,13 @@ export const clock = (seconds: number) => {
   return `${Math.floor(s / 60)}:${String(s % 60).padStart(2, "0")}`;
 };
 
-/** About how long something takes: whole minutes (at least one), hours from 90 minutes on ("5
- *  minutes", "2 hours"). */
+/** About how long something takes: whole minutes (at least one), hours from 90 minutes on. */
+export const durationParts = (ms: number): { unit: "minute" | "hour"; count: number } => {
+  const m = Math.max(1, Math.round(ms / 60_000));
+  return m < 90 ? { unit: "minute", count: m } : { unit: "hour", count: Math.round(m / 60) };
+};
+
+/** About how long something takes, as a length on its own ("5 minutes", "2 hours"). */
 export function useDuration() {
   const { i18n } = useTranslation();
   return useMemo(() => {
@@ -128,10 +133,20 @@ export function useDuration() {
     const minutes = unit("minute");
     const hours = unit("hour");
     return (ms: number) => {
-      const m = Math.max(1, Math.round(ms / 60_000));
-      return m < 90 ? minutes.format(m) : hours.format(Math.round(m / 60));
+      const { unit, count } = durationParts(ms);
+      return (unit === "minute" ? minutes : hours).format(count);
     };
   }, [i18n.language]);
+}
+
+/** About how long a job has left, in a sentence of its own: the count told by the language's plural
+ *  ("около 1 минуты", not the length's own "1 минута"). */
+export function useTimeLeft() {
+  const { t } = useTranslation();
+  return (ms: number) => {
+    const { unit, count } = durationParts(ms);
+    return t(unit === "minute" ? "common.minutesLeft" : "common.hoursLeft", { count });
+  };
 }
 
 /** A short time in seconds ("12 s"), as long as a card's answer takes. */

@@ -15,17 +15,21 @@ export interface LessonSlots {
   /** In the header, next to the reference: the exercise on screen, if any. */
   header?(context: LessonSlotContext & { exerciseKey?: ExerciseKey }): ReactNode;
   /** Under a wrong item: help with that mistake — the run and the attempt it is about, if recorded. */
-  explain?(
-    context: LessonSlotContext & {
-      exerciseKey: ExerciseKey;
-      index: number;
-      answer: unknown;
-      runId?: string;
-      attempt?: number;
-      /** Resolves once the run's answers are stored (the attempt explained is looked up there). */
-      stored?: () => Promise<void>;
-    },
-  ): ReactNode;
+  explain?: {
+    /** Whether it can answer now (its button is shown only then); a hook, called on every render. */
+    useOn(): boolean;
+    view(
+      context: LessonSlotContext & {
+        exerciseKey: ExerciseKey;
+        index: number;
+        answer: unknown;
+        runId?: string;
+        attempt?: number;
+        /** Resolves once the run's answers are stored (the attempt explained is looked up there). */
+        stored?: () => Promise<void>;
+      },
+    ): ReactNode;
+  };
   /** Under an answer said aloud without a phrase to say: a check of what was heard, kept in the run. */
   spoken?(
     context: LessonSlotContext & {

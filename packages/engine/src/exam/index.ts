@@ -48,6 +48,15 @@ export const examPassed = (
   return result.modules ? undefined : result.passed.length > 0;
 };
 
+/** A run's points as shown: a mock exam's on the exam's own scale (`score`: with modules, theirs
+ *  scaled — Goethe A1 out of 99.6 —; a result kept before it, its questions' points), practice's
+ *  its questions' points. */
+export const examScore = (
+  result: Pick<ExamResult, "points" | "max" | "score">,
+  mode: "test" | "practice",
+): { points: number; max: number } =>
+  (mode === "test" && result.score) || { points: result.points, max: result.max };
+
 /** Each section's questions open to this learner — of one module when it is given: its pool,
  *  filtered by its tag where it has one. */
 export function eligible(exam: Exam, setting: SettingOf, module?: string) {
@@ -68,6 +77,31 @@ export function eligible(exam: Exam, setting: SettingOf, module?: string) {
 /** The questions open to this learner in the sections' order — of one module when it is given. */
 export const openQuestions = (exam: Exam, setting: SettingOf, module?: string): ExamItem[] =>
   eligible(exam, setting, module).flatMap(({ pool }) => pool);
+
+/** The questions open to the learner told apart: `general` of every learner, `chosen` those the
+ *  setting picks (a federal state's), and — the setting unset — how many choosing it adds (`more`:
+ *  the most any value has). Leben in Deutschland: 300 + 10. */
+export function openCounts(exam: Exam, setting: SettingOf) {
+  const out = { general: 0, chosen: 0, more: 0, filtered: false };
+  for (const { section, pool } of eligible(exam, setting)) {
+    if (!section.filter) {
+      out.general += pool.length;
+      continue;
+    }
+    out.filtered = true;
+    if (setting(section.filter.setting) !== undefined) {
+      out.chosen += pool.length;
+      continue;
+    }
+    const tag = section.filter.tag;
+    const byValue = new Map<string, number>();
+    for (const item of exam.items)
+      if (section.pool.includes(item.key) && item.tags[tag])
+        byValue.set(item.tags[tag], (byValue.get(item.tags[tag]) ?? 0) + 1);
+    out.more += Math.max(0, ...byValue.values());
+  }
+  return out;
+}
 
 /** A question's line in a list: what it asks (a gap's text with "…", else its own text's first
  *  line); empty when it has none. */
@@ -188,18 +222,35 @@ export function marksOf(exam: Exam, modules: string[]) {
   );
 }
 
+/** A pass mark's modules (none: all taken); `{}` is the whole result. */
+type MarkOver = { modules?: readonly string[] };
+
 /** The most a pass mark's points can be in a run's result: its modules' scaled points (a module
  *  not scaled: its points), or the questions' points without modules. */
-export function markMax(
-  exam: Exam,
-  mark: Exam["thresholds"][number],
-  result: Pick<ExamResult, "max" | "modules">,
-) {
+export function markMax(exam: Exam, mark: MarkOver, result: Pick<ExamResult, "max" | "modules">) {
   if (!exam.modules) return result.max;
-  return (mark.modules ?? Object.keys(result.modules ?? {})).reduce(
-    (n, m) => n + (exam.modules?.find((x) => x.id === m)?.scaleTo ?? result.modules?.[m]?.max ?? 0),
+  return round2(
+    (mark.modules ?? Object.keys(result.modules ?? {})).reduce(
+      (n, m) =>
+        n + (exam.modules?.find((x) => x.id === m)?.scaleTo ?? result.modules?.[m]?.max ?? 0),
+      0,
+    ),
+  );
+}
+
+/** A pass mark's points in a run's result: its modules' scaled points together (rounded to whole
+ *  points where the exam rounds the total), or the questions' points without modules. */
+export function markPoints(
+  exam: Exam,
+  mark: MarkOver,
+  result: Pick<ExamResult, "points" | "modules">,
+) {
+  if (!exam.modules) return result.points;
+  const sum = (mark.modules ?? Object.keys(result.modules ?? {})).reduce(
+    (n, m) => n + (result.modules?.[m]?.scaled ?? 0),
     0,
   );
+  return exam.roundTotal ? Math.round(sum) : round2(sum);
 }
 
 const round2 = (n: number) => Math.round(n * 100) / 100;
@@ -291,19 +342,18 @@ export function examResult(exam: Exam, plan: ExamPlan, events: TypedEvent[]): Ex
   }
   const taken = Object.keys(modules);
   const marks = marksOf(exam, taken);
-  const markPoints = (t: Exam["thresholds"][number]) => {
-    if (!exam.modules) return points;
-    const sum = (t.modules ?? taken).reduce((n, m) => n + (modules[m]?.scaled ?? 0), 0);
-    return exam.roundTotal ? Math.round(sum) : sum;
-  };
-  const passed = marks.filter((t) => markPoints(t) >= t.minPoints).map((t) => t.id);
+  const totals = { points, max, modules };
+  const passed = marks.filter((t) => markPoints(exam, t, totals) >= t.minPoints).map((t) => t.id);
   return {
     points,
     max,
     answered: plan.items.filter((k) => latest.has(k)).length,
     ...(pending > 0 && { pending }),
     sections,
-    ...(exam.modules && { modules }),
+    ...(exam.modules && {
+      modules,
+      score: { points: markPoints(exam, {}, totals), max: markMax(exam, {}, totals) },
+    }),
     passed,
     // A module taken alone without a pass mark of its own is not judged.
     ...(marks.length > 0 && {

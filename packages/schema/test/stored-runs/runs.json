@@ -149,6 +149,33 @@
         "passed": ["pass"],
         "pass": true
       }
+    },
+    {
+      "since": "2026-10-12",
+      "value": {
+        "points": 12.5,
+        "max": 15,
+        "answered": 15,
+        "sections": {
+          "s.x/c/exam-m/s-l1": {
+            "points": 12.5,
+            "max": 15
+          }
+        },
+        "modules": {
+          "lesen": {
+            "points": 12.5,
+            "max": 15,
+            "scaled": 20.83
+          }
+        },
+        "score": {
+          "points": 21,
+          "max": 24.9
+        },
+        "passed": ["pass"],
+        "pass": true
+      }
     }
   ]
 }

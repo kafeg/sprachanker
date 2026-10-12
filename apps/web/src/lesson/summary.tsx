@@ -18,9 +18,9 @@ import { Button } from "@/ui/components/button.tsx";
 import { usePercent } from "@/ui/format.ts";
 import { ListRow } from "@/ui/history.tsx";
 import { panelClass } from "@/ui/panel.tsx";
-import { StepDot, withPartial } from "@/ui/step-dot.tsx";
+import { StepDot } from "@/ui/step-dot.tsx";
 import { cn } from "@/ui/utils.ts";
-import { stepTitle } from "./plan.tsx";
+import { stepMark, stepTitle } from "./plan.tsx";
 import { StepHeader } from "./steps.tsx";
 
 export function LessonSummary({
@@ -96,11 +96,7 @@ export function LessonSummary({
               step.kind === "exercise" ? lesson.pages[step.index]?.exercise : undefined;
             // Right at the first try of the items checked (a skipped one counted), as the Notebook.
             const first = exercise && firstTry(exercise, results[exercise.key]);
-            // A page read or a step done besides the exercises is "done", not "answered".
-            const mark =
-              state === "done" && step.kind !== "exercise"
-                ? "read"
-                : withPartial(state, first?.correct);
+            const mark = stepMark(step, lesson, results, done);
             return (
               <li key={stepId(step)}>
                 <ListRow chevron={false} flush onClick={() => go(stepId(step))}>

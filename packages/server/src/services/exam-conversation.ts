@@ -1,10 +1,12 @@
 // An exam's speaking part held with the assistant (07, `exam_conversation`; 09, Exams; owner's choice
 // B, 2026-10-10): the configured model plays the examiner and the partner, the learner answers aloud.
 // Every line is an `llm_turn` on the question in the exam run — the learner's as `user`, the model's
-// as `assistant` with its `speaker` — so the run's page shows the conversation and its transcript
-// becomes the answer, rated afterwards by the part's criteria. One line answered at a time per part.
+// as `assistant` with its `speaker` — so the run's page shows the conversation; the learner's lines
+// are the answer, rated afterwards by the part's criteria with the conversation around them. The
+// part ends when the examiner closes it or the learner ends it (an empty line of theirs, `done`).
+// One line answered at a time per part.
 import {
-  type ConversationLine,
+  conversationOf,
   type ExamConversationInput,
   examConversationTask,
   structuredRequest,
@@ -21,6 +23,8 @@ export interface ConversationRequest {
   itemKey: string;
   /** The learner's line, as heard or typed; none to open the part. */
   text?: string;
+  /** The learner ends the part (once ended, nothing more is kept). */
+  end?: boolean;
   language: string;
 }
 
@@ -28,7 +32,7 @@ export function createExamConversation(deps: { llm: Llm; store: RunStore; exams:
   const { llm, store } = deps;
   const busy = createInFlight<true>("exam_conversation_busy");
 
-  /** The part's lines so far, oldest first. */
+  /** The part's lines so far, oldest first (the learner's ending among them). */
   const linesOf = (runId: string, itemKey: string) =>
     store
       .events(runId, ["llm_turn"])
@@ -46,10 +50,7 @@ export function createExamConversation(deps: { llm: Llm; store: RunStore; exams:
     if (!said.length === !!request.text?.trim()) throw new ServiceError("invalid_request");
     const sectionLocale = section ? locale?.sections[section.key] : undefined;
     const target = examLang(run.edition);
-    const history: ConversationLine[] = said.map((l) => ({
-      speaker: l.role === "user" ? "learner" : (l.speaker ?? "examiner"),
-      text: l.text,
-    }));
+    const history = conversationOf(said);
     if (request.text) history.push({ speaker: "learner", text: request.text.trim() });
     const task: ExamConversationInput = {
       language: request.language,
@@ -69,11 +70,28 @@ export function createExamConversation(deps: { llm: Llm; store: RunStore; exams:
     return { task };
   }
 
+  /** The learner ends the part: an empty line of theirs closing it, kept once (ended already:
+   *  nothing more). */
+  async function end(request: ConversationRequest) {
+    await deps.exams.speakingPart(request.runId, request.itemKey);
+    if (linesOf(request.runId, request.itemKey).some((l) => l.done))
+      return { events: [], done: true };
+    const events = store.append(request.runId, [
+      {
+        type: "llm_turn" as const,
+        itemKey: request.itemKey,
+        payload: { role: "user" as const, text: "", done: true },
+      },
+    ]);
+    return { events, done: true };
+  }
+
   return {
     /** The examiner's and the partner's next lines (after the learner's, if given), kept in the run;
      *  the events kept, for the run's page. */
     turn(request: ConversationRequest): Promise<{ events: TypedEvent[]; done: boolean }> {
       return busy.run(`${request.runId}|${request.itemKey}`, true, async () => {
+        if (request.end) return end(request);
         const { task } = await input(request);
         const { result, model, latencyMs } = await llm.structured(examConversationTask(task));
         const lines: LlmTurnPayload[] = [

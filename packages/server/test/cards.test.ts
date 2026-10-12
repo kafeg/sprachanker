@@ -605,6 +605,10 @@ test("leaving a deck: its cards go, studied too; a word another deck has moves t
   expect(sqlite.query("SELECT count(*) AS n FROM events WHERE card_id IS NOT NULL").get()).toEqual({
     n: 0,
   });
+  // The day's review run held only those answers: it goes with them, none left empty.
+  expect(sqlite.query("SELECT count(*) AS n FROM runs WHERE kind = 'review'").get()).toEqual({
+    n: 0,
+  });
   expect((await getJson(study("lang:de"))).canUndo).toBe(false);
 });
 

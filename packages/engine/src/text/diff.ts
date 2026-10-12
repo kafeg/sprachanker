@@ -1,6 +1,6 @@
 // Word diff between a reference and an answer (dictation, speech).
 import type { TokenDiff } from "@sprachanker/schema";
-import { tokens, wordMatches } from "./normalise.ts";
+import { wordMatches, writtenTokens } from "./normalise.ts";
 
 export interface WordDiff {
   diff: TokenDiff[];
@@ -12,8 +12,9 @@ export interface WordDiff {
  *  or marks ("≈", "→"). */
 const bare = (word: string) => word.replace(/^[\p{P}\p{S}]+|[\p{P}\p{S}]+$/gu, "");
 
-/** Words only: a dash or a lone mark is no word (a recogniser never writes one). */
-const words = (text: string) => tokens(text).filter((t) => bare(t) !== "");
+/** Words only, as written (a text shown corrected keeps its final mark): a dash or a lone mark is
+ *  no word (a recogniser never writes one). */
+const words = (text: string) => writtenTokens(text).filter((t) => bare(t) !== "");
 
 /** A word as it sounds: case and hyphens are not heard ("Good-bye", "goodbye"). */
 const heard = (lang: string, word: string) => bare(word).replace(/-/g, "").toLocaleLowerCase(lang);

@@ -22,6 +22,7 @@ import {
 } from "@/library/upkeep.tsx";
 import { Button } from "@/ui/components/button.tsx";
 import { CourseHtml } from "@/ui/course-html.tsx";
+import { isolate } from "@/ui/direction.tsx";
 import { PairFlags } from "@/ui/flags.tsx";
 import { useBytes } from "@/ui/format.ts";
 import { StatTile } from "@/ui/stat-tile.tsx";
@@ -102,7 +103,11 @@ export function CourseHero(props: CourseHeroProps) {
           {next && nextKey && (
             <>
               {" "}
-              · {t("course.next", { where: t("lesson.unitLesson", nextKey), title: next.title })}
+              ·{" "}
+              {t("course.next", {
+                where: t("lesson.unitLesson", nextKey),
+                title: isolate(next.title),
+              })}
             </>
           )}
         </>

@@ -34,6 +34,26 @@ export interface WritingSection {
   questions: { passed: number; of: number };
 }
 
+/** A box's label that names the box, not the task ("Eingabetextfeld", "Textfeld für E-Mail"). */
+const FIELD_LABEL = /(eingabe|text)feld/i;
+/** A line about the text's length or its points, not what to write ("Schreiben Sie 20–30 Wörter",
+ *  "… zu allen drei Punkten", "… auch eine Anrede"). */
+const NOT_THE_TASK = /\d|\b(zu (jedem|allen)|etwas zu|auch)\b/;
+
+/** What a text to write is, as the task says it: its box's own label ("Ihre Meinung"), else the
+ *  task's first sentence saying what to write ("Schreiben Sie an die Touristeninformation"); none
+ *  when it has neither. */
+export function writingPrompt(teil: Pick<WritingTeil, "box" | "instructions">) {
+  if (teil.box && !FIELD_LABEL.test(teil.box)) return teil.box;
+  const sentences = teil.instructions
+    .filter((line) => !line.startsWith("•"))
+    .flatMap((line) => line.split(/(?<=[.!?:])\s+/))
+    .map((s) => s.replace(/\s*\([^)]*\)/g, "").trim());
+  return sentences
+    .find((s) => /\bschreiben\b/i.test(s) && !NOT_THE_TASK.test(s))
+    ?.replace(/:$/, "");
+}
+
 /** A line of the form as the candidate sees it: "Reisetermin: (5)", "PLZ: 78014". */
 const lineOf = (f: FormField) => {
   const label = /:$/.test(f.label) ? f.label : `${f.label}:`;
@@ -154,13 +174,14 @@ export function writingSection(input: {
     return out;
   }
   const key = examItemKey(exam, `${module}-${teil.number}`);
+  const prompt = writingPrompt(teil);
   out.items.push({
     key,
     type: "respond",
     tags: {},
     input: "text",
     reference: [],
-    ...(teil.box && { prompt: teil.box }),
+    ...(prompt && { prompt }),
     criteria,
   });
   out.locale[key] = { criteria: named };

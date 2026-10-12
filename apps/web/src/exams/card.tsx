@@ -3,7 +3,7 @@
 // the learner is, the title and publisher, the last mock exam, and the ways in — a mock exam (continued
 // while one runs) and practice; on "My exams" its removal (its runs deleted), on "Downloaded" its
 // course's check, sync and export to a file.
-import { examPassed } from "@sprachanker/engine";
+import { examPassed, examScore } from "@sprachanker/engine";
 import type { ExamKey } from "@sprachanker/schema";
 import { Link } from "@tanstack/react-router";
 import { ArrowRight, Dumbbell } from "lucide-react";
@@ -45,7 +45,7 @@ export function ExamCard({
       edition={edition}
       figure={
         last
-          ? t("exams.lastPoints", { points: last.points, max: last.max })
+          ? t("exams.lastPoints", examScore(last, "test"))
           : t("exams.questions", { count: exam.questions })
       }
       remove={
@@ -60,9 +60,16 @@ export function ExamCard({
           text={percent(exam.readiness)}
           className="size-14 sm:size-16"
         />
+        {/* Titles and publishers wrap, whole (an exam's title runs to three lines beside the ring);
+            only a longer one is cut, shown whole on hover. */}
         <span className="min-w-0">
-          <span className="line-clamp-2 text-xl font-bold leading-tight">{title}</span>
-          <span className="block truncate text-sm text-muted-foreground">
+          <span dir="auto" className="line-clamp-4 text-xl font-bold leading-tight" title={title}>
+            {title}
+          </span>
+          <span
+            className="line-clamp-2 text-sm text-muted-foreground"
+            title={exam.source?.publisher}
+          >
             {exam.source?.publisher}
           </span>
         </span>

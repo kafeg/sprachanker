@@ -253,6 +253,10 @@ test("the Notebook lists the mock exams handed in, newest first, with their resu
   expect(detail.entry.runs[0]).toMatchObject({ mode: "practice", points: 1 });
   expect(detail.entry.runs[0].passed).toBeUndefined();
   expect(typeof detail.entry.runs[1].passed).toBe("boolean");
+  // Each question named by where it is asked (an exam of several sections), in the runs' edition.
+  expect(new Set(detail.items.map((i: { group?: string }) => i.group))).toEqual(
+    new Set(["General", "Your state"]),
+  );
 
   // A run opened is open in the Notebook only once something is answered in it (as a lesson).
   const { run: opened } = await api.sendJson("POST", "/api/exams/runs", {

@@ -18,7 +18,9 @@
     "loading": "Betöltés…",
     "retry": "Újra",
     "close": "Bezárás",
-    "cancel": "Mégse"
+    "cancel": "Mégse",
+    "minutesLeft": "{count, plural, one {kb. # perc van hátra} other {kb. # perc van hátra}}",
+    "hoursLeft": "{count, plural, one {kb. # óra van hátra} other {kb. # óra van hátra}}"
   },
   "courses": {
     "lessons": "{count, plural, one {# lecke} other {# lecke}}",
@@ -105,6 +107,7 @@
     "summary": "Összegzés",
     "score": "Elsőre helyes: {correct, number}/{scored, number}. A százalék a részben helyes válaszokat is beszámítja.",
     "skipped": "kihagyva",
+    "skippedCount": "{count, plural, one {# kihagyva} other {# kihagyva}}",
     "notDone": "nincs kész",
     "backToCourse": "Vissza a kurzushoz",
     "nextLesson": "Következő lecke",
@@ -263,8 +266,8 @@
       "retryIn": "Próbáld újra {wait} múlva."
     },
     "cliMissing": {
-      "claude-code": "A Claude Code nincs telepítve itt. Telepítsd a claude.com/claude-code oldalról, és egyszer jelentkezz be a `claude` futtatásával.",
-      "codex": "A Codex CLI nincs telepítve itt. Telepítsd (npm i -g @openai/codex), és egyszer jelentkezz be a `codex login` paranccsal."
+      "claude-code": "A Claude Code nincs telepítve itt. Telepítsd a claude.com/claude-code oldalról, és egyszer jelentkezz be a claude futtatásával.",
+      "codex": "A Codex CLI nincs telepítve itt. Telepítsd (npm i -g @openai/codex), és egyszer jelentkezz be a codex login paranccsal."
     },
     "modelTypeHint": "Írd be a modell nevét.",
     "otherModel": "Másik modell…",
@@ -279,8 +282,8 @@
       "gemini": "A Google Gemini modelljei a felhőben, a Google AI Studióban létrehozott kulccsal. Az ingyenes csomaghoz nem kell bankkártya, és percenkénti és napi korlátai vannak; egyes modellekhez fizetős fiók kell. Az ingyenes csomagban a Google a beküldött adatokat termékei fejlesztésére használhatja: a lecke tartalma és a válaszaid a Google-hoz kerülnek.",
       "groq": "Nyílt modellek (Llama, Qwen, GPT-OSS és mások) a Groq gyors hardverén, a felhőben. Az ingyenes csomaghoz nem kell bankkártya, és minden modellre percenkénti és napi korlátok vonatkoznak. A lecke tartalma és a válaszaid a Groqhoz kerülnek.",
       "custom": "Bármely OpenAI-kompatibilis API-val rendelkező szerver egy másik számítógépen: LM Studio, Ollama, llama.cpp, vLLM és mások. Add meg a címét (/v1-re végződik), és a kulcsot, ha kér.",
-      "claude-code": "Az ezen a számítógépen telepített Claude Code-ot futtatja (`claude -p`) a Claude-előfizetéseddel. A saját eszközei ki vannak kapcsolva: a lecke adatai a promptba kerülnek. Minden válasz elindítja a parancsot, ezért a válaszok néhány másodperccel tovább tartanak.",
-      "codex": "Az ezen a számítógépen telepített Codex CLI-t futtatja (`codex exec`) a ChatGPT-előfizetéseddel, csak olvasási módban és eszközök nélkül. Minden válasz elindítja a parancsot, ezért a válaszok néhány másodperccel tovább tartanak."
+      "claude-code": "Az ezen a számítógépen telepített Claude Code-ot futtatja (claude -p) a Claude-előfizetéseddel. A saját eszközei ki vannak kapcsolva: a lecke adatai a promptba kerülnek. Minden válasz elindítja a parancsot, ezért a válaszok néhány másodperccel tovább tartanak.",
+      "codex": "Az ezen a számítógépen telepített Codex CLI-t futtatja (codex exec) a ChatGPT-előfizetéseddel, csak olvasási módban és eszközök nélkül. Minden válasz elindítja a parancsot, ezért a válaszok néhány másodperccel tovább tartanak."
     },
     "cardState": {
       "off": "nincs asszisztens",
@@ -442,6 +445,7 @@
       "chatHistory": "a beszélgetés legutóbbi üzenetei",
       "place": "hol tart a lecke a kurzusban: a száma és a fejezete",
       "topics": "a kurzusban eddig vett nyelvtani témák",
+      "characters": "a kurzus eddig megismert szereplői név szerint (a beszélgetőtárs egyikük sem)",
       "dialogueGoals": "a helyzet és az elért célok",
       "dialogue": "a párbeszéd mondatai a hozzájuk adott javításokkal",
       "length": "milyen hosszú a szöveg a kurzus szintjén",
@@ -1014,6 +1018,7 @@
     "studying": "Tanulás: {deck}",
     "more": "{count, plural, one {Még # új kártya ma} other {Még # új kártya ma}}",
     "leave": "Pakli elhagyása…",
+    "leaveConfirm": "Pakli elhagyása",
     "offers": "Felvehető paklik",
     "offersHint": "Minden kurzusod szavai és minden ide importált pakli szavai egy-egy paklit alkotnak: ha egészben felveszed, új kártyaként adja hozzá őket a saját sorrendjében — a napi korláton belül, vagy többet a „több új ma” gombbal. Ha egy szóhoz már van kártyád, az megmarad. Itt készül a hang és a példák is a pakli minden szavához, akár felvetted már, akár nem.",
     "words": "{words, plural, one {# szó} other {# szó}} · ebből {mine, number} már a tiéd",
@@ -1058,7 +1063,6 @@
       "voice": "Felolvassa: {engine, select, qwen {Qwen3-TTS} other {Piper}} · {voice} ({language})",
       "chooseVoice": "Hang kiválasztása"
     },
-    "left": "kb. {time} van hátra",
     "why": "Ok: {reason}",
     "examples": {
       "missing": "{count, plural, one {# szó példák nélkül} other {# szó példák nélkül}}",
@@ -1414,7 +1418,9 @@
       "practice": "Gyakorlás",
       "practiceText": "Kérdésről kérdésre, minden válasz azonnal ellenőrizve: előbb azok, amelyeket elrontottál, aztán amelyeket még nem láttál.",
       "catalog": "Katalógus",
-      "catalogText": "{count, plural, one {# kérdés a válaszával.} other {Mind a # kérdés a válaszokkal.}}"
+      "catalogText": "{count, plural, one {# kérdés a válaszával.} other {Mind a # kérdés a válaszokkal.}}",
+      "catalogSplit": "{general, number} mindenkinek, {chosen, number} a tartományodról.",
+      "catalogMore": "Ha kiválasztod a tartományod, hozzájön annak {more, number} kérdése."
     },
     "begin": "Kezdés",
     "practise": "Gyakorlás",
@@ -1428,6 +1434,7 @@
     "mapUnseen": "nem látott",
     "mapSummary": "{total, number} kérdésből: {known, number} tudott, {wrong, number} legutóbb hibás",
     "points": "{points, number}/{max, number}",
+    "taskPoints": "feladatok: {points, number}/{max, number}",
     "passed": "Sikeres",
     "failed": "Sikertelen",
     "state": "Szövetségi tartomány",
@@ -1514,10 +1521,12 @@
       "change": "Értékelés módosítása",
       "propose": "Értékelés javaslata (MI)",
       "proposing": "Az asszisztens értékel…",
-      "proposed": "Az MI-asszisztens javaslata ({model}): fogadd el, vagy módosítsd."
+      "proposed": "Az MI-asszisztens javaslata ({model}): fogadd el, vagy módosítsd.",
+      "accept": "Javaslat elfogadása",
+      "keepMine": "A sajátomat tartom meg",
+      "notTaken": "Még nincs elfogadva: az eredmény {points, number}/{max, number} pontot számol."
     },
     "conversation": {
-      "you": "Én",
       "partner": "Partner",
       "examiner": "Vizsgáztató",
       "intro": "Az asszisztens játssza a vizsgáztatót és a partneredet. Válaszolj hangosan a mikrofonnal (vagy gépelj); a beszélgetés a válaszod.",

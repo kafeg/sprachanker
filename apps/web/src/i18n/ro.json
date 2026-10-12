@@ -18,7 +18,9 @@
     "loading": "Se încarcă…",
     "retry": "Încearcă din nou",
     "close": "Închide",
-    "cancel": "Anulează"
+    "cancel": "Anulează",
+    "minutesLeft": "{count, plural, one {mai durează circa # minut} few {mai durează circa # minute} other {mai durează circa # de minute}}",
+    "hoursLeft": "{count, plural, one {mai durează circa # oră} few {mai durează circa # ore} other {mai durează circa # de ore}}"
   },
   "courses": {
     "lessons": "{count, plural, one {# lecție} few {# lecții} other {# de lecții}}",
@@ -105,6 +107,7 @@
     "summary": "Rezumat",
     "score": "Corect din prima încercare: {correct, number} din {scored, number}. Procentul ține cont și de răspunsurile parțial corecte.",
     "skipped": "sărit",
+    "skippedCount": "{count, plural, one {# sărit} few {# sărite} other {# sărite}}",
     "notDone": "nefăcut",
     "backToCourse": "Înapoi la curs",
     "nextLesson": "Lecția următoare",
@@ -263,8 +266,8 @@
       "retryIn": "Încearcă din nou peste {wait}."
     },
     "cliMissing": {
-      "claude-code": "Claude Code nu este instalat aici. Instalează-l de pe claude.com/claude-code și autentifică-te o dată rulând `claude`.",
-      "codex": "Codex CLI nu este instalat aici. Instalează-l (npm i -g @openai/codex) și autentifică-te o dată cu `codex login`."
+      "claude-code": "Claude Code nu este instalat aici. Instalează-l de pe claude.com/claude-code și autentifică-te o dată rulând claude.",
+      "codex": "Codex CLI nu este instalat aici. Instalează-l (npm i -g @openai/codex) și autentifică-te o dată cu codex login."
     },
     "modelTypeHint": "Scrie numele modelului.",
     "otherModel": "Alt model…",
@@ -279,8 +282,8 @@
       "gemini": "Modelele Gemini de la Google în cloud, cu o cheie din Google AI Studio. Nivelul gratuit nu cere card și are limite pe minut și pe zi; unele modele necesită facturare. Pe nivelul gratuit, Google poate folosi ce se trimite pentru a-și îmbunătăți produsele: conținutul lecțiilor și răspunsurile tale ajung la Google.",
       "groq": "Modele deschise (Llama, Qwen, GPT-OSS și altele) pe hardware-ul rapid al Groq, în cloud. Nivelul gratuit nu cere card și are limite pe minut și pe zi pentru fiecare model. Conținutul lecțiilor și răspunsurile tale ajung la Groq.",
       "custom": "Orice server cu un API compatibil OpenAI pe alt computer: LM Studio, Ollama, llama.cpp, vLLM și altele. Indică adresa lui (care se termină în /v1) și o cheie, dacă cere una.",
-      "claude-code": "Rulează Claude Code instalat pe acest computer (`claude -p`) cu abonamentul tău Claude. Uneltele lui proprii sunt dezactivate: datele lecției merg în prompt. Fiecare răspuns pornește comanda, așa că răspunsurile durează cu câteva secunde mai mult.",
-      "codex": "Rulează Codex CLI instalat pe acest computer (`codex exec`) cu abonamentul tău ChatGPT, doar în citire și fără uneltele sale. Fiecare răspuns pornește comanda, așa că răspunsurile durează cu câteva secunde mai mult."
+      "claude-code": "Rulează Claude Code instalat pe acest computer (claude -p) cu abonamentul tău Claude. Uneltele lui proprii sunt dezactivate: datele lecției merg în prompt. Fiecare răspuns pornește comanda, așa că răspunsurile durează cu câteva secunde mai mult.",
+      "codex": "Rulează Codex CLI instalat pe acest computer (codex exec) cu abonamentul tău ChatGPT, doar în citire și fără uneltele sale. Fiecare răspuns pornește comanda, așa că răspunsurile durează cu câteva secunde mai mult."
     },
     "cardState": {
       "off": "fără asistent",
@@ -442,6 +445,7 @@
       "chatHistory": "cele mai recente mesaje ale conversației",
       "place": "locul lecției în curs: numărul și unitatea ei",
       "topics": "temele de gramatică întâlnite până acum în curs",
+      "characters": "personajele cursului întâlnite până acum, după nume (interlocutorul nu e niciunul dintre ele)",
       "dialogueGoals": "situația și obiectivele atinse",
       "dialogue": "replicile dialogului cu corecturile primite",
       "length": "cât de lung e textul la nivelul cursului",
@@ -1014,6 +1018,7 @@
     "studying": "Studiezi: {deck}",
     "more": "{count, plural, one {încă # card nou azi} few {încă # carduri noi azi} other {încă # de carduri noi azi}}",
     "leave": "Părăsește pachetul…",
+    "leaveConfirm": "Părăsește pachetul",
     "offers": "Pachete de luat",
     "offersHint": "Cuvintele fiecăruia dintre cursurile tale și ale fiecărui pachet importat aici formează un pachet: luat întreg, le adaugă drept carduri noi, în ordinea lui — în limita zilnică sau mai multe cu „încă … azi”. Un cuvânt pentru care ai deja un card îl păstrează. Tot aici se fac audio și exemplele pentru toate cuvintele unui pachet, luate sau nu.",
     "words": "{words, plural, one {# cuvânt} few {# cuvinte} other {# de cuvinte}} · {mine, number} deja ale tale",
@@ -1058,7 +1063,6 @@
       "voice": "Citit de {engine, select, qwen {Qwen3-TTS} other {Piper}} · {voice} ({language})",
       "chooseVoice": "Alege o voce"
     },
-    "left": "mai durează circa {time}",
     "why": "Motiv: {reason}",
     "examples": {
       "missing": "{count, plural, one {# cuvânt fără exemple} few {# cuvinte fără exemple} other {# de cuvinte fără exemple}}",
@@ -1414,7 +1418,9 @@
       "practice": "Exersare",
       "practiceText": "Întrebare cu întrebare, fiecare răspuns verificat imediat: întâi cele greșite, apoi cele pe care nu le-ai văzut.",
       "catalog": "Catalog",
-      "catalogText": "{count, plural, one {# întrebare, cu răspunsul ei.} few {Toate cele # întrebări, cu răspunsurile lor.} other {Toate cele # de întrebări, cu răspunsurile lor.}}"
+      "catalogText": "{count, plural, one {# întrebare, cu răspunsul ei.} few {Toate cele # întrebări, cu răspunsurile lor.} other {Toate cele # de întrebări, cu răspunsurile lor.}}",
+      "catalogSplit": "{general, number} pentru toți, {chosen, number} despre landul tău.",
+      "catalogMore": "Alegerea landului tău adaugă cele {more, number} ale lui."
     },
     "begin": "Începe",
     "practise": "Exersează",
@@ -1428,6 +1434,7 @@
     "mapUnseen": "nevăzute",
     "mapSummary": "Întrebări: {total, number}; știute {known, number}, greșite data trecută {wrong, number}",
     "points": "{points, number} din {max, number}",
+    "taskPoints": "sarcini: {points, number} din {max, number}",
     "passed": "Promovat",
     "failed": "Nepromovat",
     "state": "Land",
@@ -1514,10 +1521,12 @@
       "change": "Schimbă nota",
       "propose": "Propune o notă (AI)",
       "proposing": "Asistentul notează…",
-      "proposed": "Propusă de asistentul AI ({model}): accept-o așa cum e sau schimb-o."
+      "proposed": "Propusă de asistentul AI ({model}): accept-o așa cum e sau schimb-o.",
+      "accept": "Acceptă propunerea",
+      "keepMine": "Păstrează-o pe a mea",
+      "notTaken": "Încă neacceptată: rezultatul socotește {points, number} din {max, number}."
     },
     "conversation": {
-      "you": "Eu",
       "partner": "Partener",
       "examiner": "Examinator",
       "intro": "Asistentul joacă examinatorul și partenerul tău. Răspunde cu voce tare la microfon (sau scrie); conversația este răspunsul tău.",

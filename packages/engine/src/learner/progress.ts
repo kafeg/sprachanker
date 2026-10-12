@@ -97,13 +97,19 @@ export function exerciseState(exercise: Exercise, r: ExerciseResult | undefined)
 }
 export type ExerciseState = NonNullable<ReturnType<typeof exerciseState>>;
 
-/** Exercises of the lesson worked in the run; a run can be completed only when all of them are. */
+/** Exercises of the lesson worked in the run — `skipped` of them moved past without an answer —; a
+ *  run can be completed only when all of them are. */
 export function lessonCoverage(lesson: Lesson, results: Record<string, ExerciseResult>) {
   const total = lesson.pages.length;
-  const left = lesson.pages.flatMap(({ exercise }, i) =>
-    exerciseState(exercise, results[exercise.key]) ? [] : [i],
-  );
-  return { worked: total - left.length, total, complete: !left.length, firstLeft: left[0] };
+  const states = lesson.pages.map(({ exercise }) => exerciseState(exercise, results[exercise.key]));
+  const left = states.flatMap((s, i) => (s ? [] : [i]));
+  return {
+    worked: total - left.length,
+    skipped: states.filter((s) => s === "skipped").length,
+    total,
+    complete: !left.length,
+    firstLeft: left[0],
+  };
 }
 
 /**
@@ -123,6 +129,15 @@ export function firstTry(exercise: Exercise, r: ExerciseResult | undefined) {
   out.scored += missed(exercise, r).length;
   return out;
 }
+
+/** An exercise's mark wherever it is shown — the lesson's plan and summary, going over mistakes,
+ *  the Notebook —: its state, `partial` for one with mistakes where some scored items were right at
+ *  the first try. */
+export function exerciseMark(exercise: Exercise, r: ExerciseResult | undefined) {
+  const state = exerciseState(exercise, r);
+  return state === "wrong" && firstTry(exercise, r).correct > 0 ? ("partial" as const) : state;
+}
+export type ExerciseMark = NonNullable<ReturnType<typeof exerciseMark>>;
 
 /** The same over every exercise of the lesson (the summary, the lesson score). */
 export function firstAttempts(lesson: Lesson, results: Record<string, ExerciseResult>) {

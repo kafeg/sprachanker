@@ -15,6 +15,27 @@ export const FILTERS = {
   available: { course: "catalog.course", pair: "catalog.pair" },
 } as const;
 
+/** A filter's value as the profile keeps it (unset: undefined). */
+export const storedFilter = (settings: Record<string, unknown>, key: string) => {
+  const v = settings[key];
+  return typeof v === "string" ? v : undefined;
+};
+
+/** How many of a tab's items its filters as kept let through: the tab's count is what it shows. */
+export function shownCount<T extends { titles: string[]; editions: string[] }>(
+  items: T[],
+  keys: { course: string; pair: string },
+  settings: Record<string, unknown>,
+  uiLanguage?: string,
+) {
+  return filterCourses(
+    items,
+    storedFilter(settings, keys.course) ?? ALL,
+    storedFilter(settings, keys.pair),
+    uiLanguage,
+  ).shown.length;
+}
+
 /** An edition a pair filter lets through: the pair itself, or any pair from its language. */
 const passes = (pair: string, edition: string) =>
   pair === ALL || pair === edition || FROM.exec(pair)?.[1] === parseEditionId(edition).source;

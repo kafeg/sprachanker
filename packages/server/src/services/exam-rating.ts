@@ -3,13 +3,18 @@
 // the learner takes the proposal or changes it, and only that rating scores (`exam_rated`). A proposal
 // is an `llm_verdict` (`task: exam`) on the question in the exam run, for the answer it rated: asked
 // once per answer, shown again without asking. A mock exam is rated only once handed in.
-import { type ExamAnswerInput, rateExamAnswerTask, structuredRequest } from "@sprachanker/llm";
-import { examLang, type TypedEvent } from "@sprachanker/schema";
+import {
+  conversationOf,
+  type ExamAnswerInput,
+  rateExamAnswerTask,
+  structuredRequest,
+} from "@sprachanker/llm";
+import { examLang, type LlmTurnPayload, type TypedEvent } from "@sprachanker/schema";
 import { ServiceError } from "../errors.ts";
 import type { Exams } from "./exams.ts";
 import { createInFlight } from "./in-flight.ts";
 import type { Llm, PromptPreview } from "./llm.ts";
-import type { RunStore } from "./run-store.ts";
+import { payloadOf, type RunStore } from "./run-store.ts";
 import { keepVerdict, type Verdict, verdicts } from "./verdicts.ts";
 
 export interface ExamRatingRequest {
@@ -59,6 +64,14 @@ export function createExamRating(deps: { llm: Llm; store: RunStore; exams: Exams
       samples: item.type === "respond" ? item.reference : [],
       answer: text,
     };
+    // A speaking part held as a conversation: rated with what the learner answered.
+    const conversation = conversationOf(
+      store
+        .events(request.runId, ["llm_turn"])
+        .filter((e) => e.itemKey === request.itemKey)
+        .map((e) => payloadOf<LlmTurnPayload>(e)),
+    );
+    if (conversation.length) task.conversation = conversation;
     return { task, text };
   }
 

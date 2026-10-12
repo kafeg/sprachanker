@@ -3,6 +3,7 @@
 // opens its exercise; the tutor's walk-through follows on the step page.
 import {
   type ExerciseResult,
+  exerciseMark,
   firstAttempts,
   lessonCoverage,
   type Mistake,
@@ -30,6 +31,11 @@ export function MistakesStatus({
   const { t } = useTranslation();
   const coverage = lessonCoverage(lesson, results);
   const first = firstAttempts(lesson, results);
+  /** An exercise's mark, as the plan and the summary show it (partly right included). */
+  const markOf = (index: number) => {
+    const exercise = lesson.pages[index]?.exercise;
+    return exercise && exerciseMark(exercise, results[exercise.key]);
+  };
   // In the order of the lesson, each item once (mistakes come newest first).
   const byExercise = lesson.pages.flatMap(({ exercise }, index) => {
     const here = mistakes
@@ -43,9 +49,18 @@ export function MistakesStatus({
       <dl className="grid grid-cols-2 gap-4">
         <div>
           <dt className="text-sm text-muted-foreground">{t("mistakes.exercises")}</dt>
+          {/* Done: answered; those moved past without an answer said apart. */}
           <dd className="text-2xl font-bold tabular-nums">
-            {t("mistakes.ofTotal", { n: coverage.worked, total: coverage.total })}
+            {t("mistakes.ofTotal", {
+              n: coverage.worked - coverage.skipped,
+              total: coverage.total,
+            })}
           </dd>
+          {coverage.skipped > 0 && (
+            <dd className="text-sm text-muted-foreground">
+              {t("lesson.skippedCount", { count: coverage.skipped })}
+            </dd>
+          )}
         </div>
         <div>
           <dt className="text-sm text-muted-foreground">{t("mistakes.firstTry")}</dt>
@@ -63,7 +78,7 @@ export function MistakesStatus({
               return (
                 <li key={index}>
                   <ListRow onClick={() => go(`exercise:${index}`)}>
-                    <StepDot state="wrong" label={index + 1} />
+                    <StepDot state={markOf(index) ?? "wrong"} label={index + 1} />
                     <span className="min-w-0 flex-1">
                       <span className="block truncate">
                         {stepTitle({ kind: "exercise", index }, lesson, locale, t)}

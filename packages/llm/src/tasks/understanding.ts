@@ -23,7 +23,7 @@ import {
   placeLine,
   topicsLine,
 } from "./lesson.ts";
-import { type RulesInput, systemPrompt } from "./rules.ts";
+import { NEUTRAL, type RulesInput, systemPrompt } from "./rules.ts";
 
 /** A text needs no grammar pages: the topics met say what it may use. */
 type TextLesson = Omit<LessonInfo, "grammarHtml">;
@@ -78,6 +78,7 @@ export function understandingTextRules(
     `- "title" and "situation" (one sentence: who, where) in ${l}; they give no answer away.`,
     `- "questions": 3 to 5, in ${t}, each answered by the text alone with one unambiguous answer, never by general knowledge: true/false as two options; a/b/c as three options; a number, a price or a time as three options or typed — no options, "accepted": every right way of writing it. "answer": the right option's index (0-based); spread the right answers over the options.`,
     `- A dialogue or an announcement: first 3 or 4 questions with "phase": "listening", answered by ear with the text hidden (the main facts), then 1 or 2 with "phase": "reading", asked once the text is shown (a detail to find, what a word means there). A reading text: every question "phase": "reading".`,
+    `- ${NEUTRAL}`,
   ].join("\n");
 }
 

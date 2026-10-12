@@ -247,7 +247,7 @@ const dash = exercise("gap_choice", {
   answer: { g1: "a" },
 });
 
-test("an option of only a dash says it is no word; every slot of a bank has one width", async () => {
+test("an option of only a dash says it is no word; every slot of a bank has one width at least", async () => {
   const open = await card(dash, {});
   expect(open.getByText("— (nothing)")).toBeTruthy();
   open.unmount();
@@ -259,5 +259,7 @@ test("an option of only a dash says it is no word; every slot of a bank has one 
   // The answer given read as no word; the slot as wide as the longest option and its mark.
   const slot = view.getByRole("button", { name: "Gap 1" });
   expect(slot.textContent).toContain("— (nothing)");
-  expect(slot.style.width).toBe("calc(11ch + 3.25rem)");
+  expect(slot.style.minWidth).toBe("min(100%, calc(11ch + 3.25rem))");
+  // Never narrower than that, never fixed to it: a word wider in its letters widens its slot.
+  expect(slot.style.width).toBe("");
 });

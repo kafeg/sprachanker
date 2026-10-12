@@ -58,7 +58,8 @@ export function CourseCard({
       remove={removable ? { title, label: t("progress.removeCourse") } : undefined}
     >
       {/* Long titles, sources and lesson names are cut to keep cards even; hover shows them whole. */}
-      <h2 className="line-clamp-2 text-xl font-bold leading-tight" title={title}>
+      {/* A title in its own direction: a Latin one starts where it reads from in an Arabic card. */}
+      <h2 dir="auto" className="line-clamp-2 text-xl font-bold leading-tight" title={title}>
         {title}
       </h2>
       <p className="mt-0.5 flex min-w-0 items-center gap-1 text-sm text-muted-foreground">
@@ -78,7 +79,7 @@ export function CourseCard({
       {next && nextTitle && (
         <p className="mt-3 line-clamp-2 text-sm" title={nextTitle}>
           <span className="text-muted-foreground">{t("courses.next")}: </span>
-          {nextTitle}
+          <bdi>{nextTitle}</bdi>
           {course.nextRun?.status === "active" && (
             <span className="text-muted-foreground">
               {" · "}

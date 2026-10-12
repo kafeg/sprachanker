@@ -16,7 +16,7 @@ import {
 import { languageName } from "@/i18n/index.ts";
 import { Button } from "@/ui/components/button.tsx";
 import { Input } from "@/ui/components/input.tsx";
-import { inLang } from "@/ui/direction.tsx";
+import { inLang, isolate } from "@/ui/direction.tsx";
 import { errorText } from "@/ui/error-text.ts";
 import { SelectField } from "@/ui/select-field.tsx";
 import { SideSheet } from "@/ui/side-sheet.tsx";
@@ -61,7 +61,7 @@ export function DeckImport() {
       {error !== undefined && <p className="text-sm text-wrong">{errorText(t, error)}</p>}
       {imported && (
         <p className="text-sm text-muted-foreground" role="status">
-          {t("decks.import.done", { deck: imported.title, words: imported.words })}{" "}
+          {t("decks.import.done", { deck: isolate(imported.title), words: imported.words })}{" "}
           {imported.left && <LeftOut left={imported.left} />}
         </p>
       )}

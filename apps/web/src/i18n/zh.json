@@ -18,7 +18,9 @@
     "loading": "加载中…",
     "retry": "重试",
     "close": "关闭",
-    "cancel": "取消"
+    "cancel": "取消",
+    "minutesLeft": "{count, plural, other {剩余约 # 分钟}}",
+    "hoursLeft": "{count, plural, other {剩余约 # 小时}}"
   },
   "courses": {
     "lessons": "{count, plural, other {#节课}}",
@@ -105,6 +107,7 @@
     "summary": "总结",
     "score": "第一次就答对：{correct, number}/{scored, number}。百分比也计入部分正确的答案。",
     "skipped": "已跳过",
+    "skippedCount": "{count, plural, other {跳过 # 个}}",
     "notDone": "未完成",
     "backToCourse": "返回课程",
     "nextLesson": "下一课",
@@ -263,8 +266,8 @@
       "retryIn": "请在 {wait} 后再试。"
     },
     "cliMissing": {
-      "claude-code": "本机未安装Claude Code。请从claude.com/claude-code安装，并运行`claude`登录一次。",
-      "codex": "本机未安装Codex CLI。请安装（npm i -g @openai/codex），并运行`codex login`登录一次。"
+      "claude-code": "本机未安装Claude Code。请从claude.com/claude-code安装，并运行claude登录一次。",
+      "codex": "本机未安装Codex CLI。请安装（npm i -g @openai/codex），并运行codex login登录一次。"
     },
     "modelTypeHint": "请输入模型名称。",
     "otherModel": "其他模型…",
@@ -279,8 +282,8 @@
       "gemini": "云端的Google Gemini模型，需使用Google AI Studio的密钥。免费层级无需绑定银行卡，但有每分钟和每日限额；部分模型需要开通付费。使用免费层级时，Google可能会用发送的内容改进其产品：各课内容和你的答案会发送给Google。",
       "groq": "在Groq云端高速硬件上运行的开放模型（Llama、Qwen、GPT-OSS等）。免费层级无需绑定银行卡，每个模型都有每分钟和每日限额。各课内容和你的答案会发送给Groq。",
       "custom": "另一台电脑上任何提供OpenAI兼容API的服务器：LM Studio、Ollama、llama.cpp、vLLM等。请填写其地址（以/v1结尾），如有需要再填写密钥。",
-      "claude-code": "运行本机安装的Claude Code（`claude -p`），使用你的Claude订阅。其自带工具处于关闭状态：本课数据直接写入提示词。每次回答都要启动该命令，因此回复会慢几秒。",
-      "codex": "运行本机安装的Codex CLI（`codex exec`），使用你的ChatGPT订阅，只读且不使用其工具。每次回答都要启动该命令，因此回复会慢几秒。"
+      "claude-code": "运行本机安装的Claude Code（claude -p），使用你的Claude订阅。其自带工具处于关闭状态：本课数据直接写入提示词。每次回答都要启动该命令，因此回复会慢几秒。",
+      "codex": "运行本机安装的Codex CLI（codex exec），使用你的ChatGPT订阅，只读且不使用其工具。每次回答都要启动该命令，因此回复会慢几秒。"
     },
     "cardState": {
       "off": "未使用助手",
@@ -442,6 +445,7 @@
       "chatHistory": "对话中最近的消息",
       "place": "这一课在课程中的位置：课号和单元",
       "topics": "到目前为止课程中学过的语法主题",
+      "characters": "到目前为止课程中出现的人物姓名（对话伙伴不是其中任何一位）",
       "dialogueGoals": "情境和你达成的目标",
       "dialogue": "对话中的各句话及其更正",
       "length": "按课程级别的文本长度",
@@ -1014,6 +1018,7 @@
     "studying": "正在学习：{deck}",
     "more": "{count, plural, other {今天再学#张新卡片}}",
     "leave": "退出卡组…",
+    "leaveConfirm": "退出卡组",
     "offers": "可添加的卡组",
     "offersHint": "你的每门课程的单词，以及在这里导入的每个卡组的单词，都构成一个卡组：整体添加后，会按顺序把它们作为新卡片加入——在每日上限之内，或通过“今天多学新卡片”加入更多。已有卡片的单词保留原卡片。 卡组的全部单词（无论是否已添加）的音频和例句也在这里生成。",
     "words": "{words, plural, other {#个单词}} · 其中{mine, number}个已有",
@@ -1058,7 +1063,6 @@
       "voice": "朗读：{engine, select, qwen {Qwen3-TTS} other {Piper}} · {voice}（{language}）",
       "chooseVoice": "选择声音"
     },
-    "left": "剩余约{time}",
     "why": "原因：{reason}",
     "examples": {
       "missing": "{count, plural, other {#个单词没有例句}}",
@@ -1414,7 +1418,9 @@
       "practice": "练习",
       "practiceText": "逐题练习，每题作答后立即检查：先练之前答错的题，再练没见过的题。",
       "catalog": "题库",
-      "catalogText": "{count, plural, =1 {#道题及答案。} other {全部#道题及答案。}}"
+      "catalogText": "{count, plural, =1 {#道题及答案。} other {全部#道题及答案。}}",
+      "catalogSplit": "{general, number} 道通用题，{chosen, number} 道关于你所在联邦州的题。",
+      "catalogMore": "选择你所在的联邦州后，会再加上它的 {more, number} 道题。"
     },
     "begin": "开始",
     "practise": "练习",
@@ -1428,6 +1434,7 @@
     "mapUnseen": "未见过",
     "mapSummary": "共{total, number}道题：已掌握{known, number}道，上次答错{wrong, number}道",
     "points": "{points, number}/{max, number}",
+    "taskPoints": "题目得分：{points, number}/{max, number}",
     "passed": "通过",
     "failed": "未通过",
     "state": "联邦州",
@@ -1514,10 +1521,12 @@
       "change": "修改评分",
       "propose": "建议评分（AI）",
       "proposing": "助手正在评分…",
-      "proposed": "由AI助手（{model}）建议：可直接采纳或修改。"
+      "proposed": "由AI助手（{model}）建议：可直接采纳或修改。",
+      "accept": "采纳建议",
+      "keepMine": "保留我的评分",
+      "notTaken": "尚未采纳：结果按 {points, number}/{max, number} 计算。"
     },
     "conversation": {
-      "you": "我",
       "partner": "搭档",
       "examiner": "考官",
       "intro": "助手扮演考官和你的搭档。用麦克风口头回答（或打字）；整段对话就是你的答案。",

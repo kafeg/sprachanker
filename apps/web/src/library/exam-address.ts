@@ -18,3 +18,10 @@ export const examKeyOf = (p: ExamParams) => `${p.series}/${p.course}/exam-${p.ex
 
 /** A question's id in its exam: `12` of `<exam>/q-12`. */
 export const questionId = (key: string) => key.split("/q-")[1] ?? "";
+
+/** A question's number as the exam gives it: its id, without its module where its Teil is named
+ *  beside it (`2` of `q-hoeren-2`). */
+export const questionNumber = (key: string, modules: boolean) => {
+  const id = questionId(key);
+  return modules ? id.replace(/^[a-z]+-/, "") : id;
+};

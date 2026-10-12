@@ -18,7 +18,9 @@
     "loading": "Ładowanie…",
     "retry": "Spróbuj ponownie",
     "close": "Zamknij",
-    "cancel": "Anuluj"
+    "cancel": "Anuluj",
+    "minutesLeft": "{count, plural, one {zostało ok. # minuty} few {zostało ok. # minut} many {zostało ok. # minut} other {zostało ok. # minuty}}",
+    "hoursLeft": "{count, plural, one {zostało ok. # godziny} few {zostało ok. # godzin} many {zostało ok. # godzin} other {zostało ok. # godziny}}"
   },
   "courses": {
     "lessons": "{count, plural, one {# lekcja} few {# lekcje} many {# lekcji} other {# lekcji}}",
@@ -105,6 +107,7 @@
     "summary": "Podsumowanie",
     "score": "Dobrze za pierwszym razem: {correct, number} z {scored, number}. Wynik procentowy uwzględnia też odpowiedzi częściowo dobre.",
     "skipped": "pominięte",
+    "skippedCount": "{count, plural, one {# pominięte} few {# pominięte} many {# pominiętych} other {# pominiętego}}",
     "notDone": "niezrobione",
     "backToCourse": "Wróć do kursu",
     "nextLesson": "Następna lekcja",
@@ -263,8 +266,8 @@
       "retryIn": "Spróbuj ponownie za {wait}."
     },
     "cliMissing": {
-      "claude-code": "Claude Code nie jest tu zainstalowany. Zainstaluj go ze strony claude.com/claude-code i zaloguj się raz, uruchamiając `claude`.",
-      "codex": "Codex CLI nie jest tu zainstalowany. Zainstaluj go (npm i -g @openai/codex) i zaloguj się raz poleceniem `codex login`."
+      "claude-code": "Claude Code nie jest tu zainstalowany. Zainstaluj go ze strony claude.com/claude-code i zaloguj się raz, uruchamiając claude.",
+      "codex": "Codex CLI nie jest tu zainstalowany. Zainstaluj go (npm i -g @openai/codex) i zaloguj się raz poleceniem codex login."
     },
     "modelTypeHint": "Wpisz nazwę modelu.",
     "otherModel": "Inny model…",
@@ -279,8 +282,8 @@
       "gemini": "Modele Gemini od Google w chmurze, z kluczem z Google AI Studio. Plan darmowy nie wymaga karty i ma limity na minutę i na dzień; niektóre modele wymagają płatności. W planie darmowym Google może wykorzystywać przesłane dane do ulepszania swoich produktów: treść lekcji i twoje odpowiedzi trafiają do Google.",
       "groq": "Otwarte modele (Llama, Qwen, GPT-OSS i inne) na szybkim sprzęcie Groq w chmurze. Plan darmowy nie wymaga karty i ma limity na minutę i na dzień dla każdego modelu. Treść lekcji i twoje odpowiedzi trafiają do Groq.",
       "custom": "Dowolny serwer z API zgodnym z OpenAI na innym komputerze: LM Studio, Ollama, llama.cpp, vLLM i inne. Podaj jego adres (zakończony na /v1) i klucz, jeśli serwer go wymaga.",
-      "claude-code": "Uruchamia Claude Code zainstalowany na tym komputerze (`claude -p`) w ramach twojej subskrypcji Claude. Jego własne narzędzia są wyłączone: dane lekcji trafiają do promptu. Każda odpowiedź uruchamia polecenie, więc trwa o kilka sekund dłużej.",
-      "codex": "Uruchamia Codex CLI zainstalowany na tym komputerze (`codex exec`) w ramach twojej subskrypcji ChatGPT, tylko do odczytu i bez jego narzędzi. Każda odpowiedź uruchamia polecenie, więc trwa o kilka sekund dłużej."
+      "claude-code": "Uruchamia Claude Code zainstalowany na tym komputerze (claude -p) w ramach twojej subskrypcji Claude. Jego własne narzędzia są wyłączone: dane lekcji trafiają do promptu. Każda odpowiedź uruchamia polecenie, więc trwa o kilka sekund dłużej.",
+      "codex": "Uruchamia Codex CLI zainstalowany na tym komputerze (codex exec) w ramach twojej subskrypcji ChatGPT, tylko do odczytu i bez jego narzędzi. Każda odpowiedź uruchamia polecenie, więc trwa o kilka sekund dłużej."
     },
     "cardState": {
       "off": "bez asystenta",
@@ -442,6 +445,7 @@
       "chatHistory": "ostatnie wiadomości rozmowy",
       "place": "miejsce lekcji w kursie: jej numer i rozdział",
       "topics": "tematy gramatyczne poznane dotąd w kursie",
+      "characters": "poznane dotąd postacie kursu, z imienia (rozmówca nie jest żadną z nich)",
       "dialogueGoals": "sytuacja i osiągnięte cele",
       "dialogue": "kwestie dialogu z poprawkami do nich",
       "length": "jak długi jest tekst na poziomie kursu",
@@ -1014,6 +1018,7 @@
     "studying": "Uczysz się: {deck}",
     "more": "{count, plural, one {Jeszcze # nowa fiszka dzisiaj} few {Jeszcze # nowe fiszki dzisiaj} many {Jeszcze # nowych fiszek dzisiaj} other {Jeszcze # nowej fiszki dzisiaj}}",
     "leave": "Opuść talię…",
+    "leaveConfirm": "Opuść talię",
     "offers": "Talie do wzięcia",
     "offersHint": "Słowa każdego z twoich kursów i każdej zaimportowanej tu talii tworzą talię: wzięta w całości, dodaje je jako nowe fiszki w swojej kolejności — w ramach dziennego limitu albo więcej przez „więcej nowych dzisiaj”. Słowo, do którego masz już fiszkę, ją zachowuje. Tu też powstają nagrania i przykłady dla wszystkich słów talii, wziętych czy nie.",
     "words": "{words, plural, one {# słowo} few {# słowa} many {# słów} other {# słowa}} · {mine, number} już twoich",
@@ -1058,7 +1063,6 @@
       "voice": "Czyta {engine, select, qwen {Qwen3-TTS} other {Piper}} · {voice} ({language})",
       "chooseVoice": "Wybierz głos"
     },
-    "left": "zostało ok. {time}",
     "why": "Przyczyna: {reason}",
     "examples": {
       "missing": "{count, plural, one {# słowo bez przykładów} few {# słowa bez przykładów} many {# słów bez przykładów} other {# słowa bez przykładów}}",
@@ -1414,7 +1418,9 @@
       "practice": "Trening",
       "practiceText": "Pytanie po pytaniu, każda odpowiedź sprawdzana od razu: najpierw te z błędną odpowiedzią, potem jeszcze niewidziane.",
       "catalog": "Katalog",
-      "catalogText": "{count, plural, one {# pytanie z odpowiedzią.} few {Wszystkie # pytania z odpowiedziami.} many {Wszystkie # pytań z odpowiedziami.} other {Wszystkie # pytania z odpowiedziami.}}"
+      "catalogText": "{count, plural, one {# pytanie z odpowiedzią.} few {Wszystkie # pytania z odpowiedziami.} many {Wszystkie # pytań z odpowiedziami.} other {Wszystkie # pytania z odpowiedziami.}}",
+      "catalogSplit": "{general, number} wspólnych, {chosen, number} o twoim kraju związkowym.",
+      "catalogMore": "Wybór kraju związkowego dodaje jego {more, number}."
     },
     "begin": "Zacznij",
     "practise": "Trenuj",
@@ -1428,6 +1434,7 @@
     "mapUnseen": "niewidziane",
     "mapSummary": "Z {total, number} pytań: znane {known, number}, ostatnio źle {wrong, number}",
     "points": "{points, number} z {max, number}",
+    "taskPoints": "zadania: {points, number} z {max, number}",
     "passed": "Zdany",
     "failed": "Niezdany",
     "state": "Kraj związkowy",
@@ -1514,10 +1521,12 @@
       "change": "Zmień ocenę",
       "propose": "Zaproponuj ocenę (AI)",
       "proposing": "Asystent ocenia…",
-      "proposed": "Zaproponowane przez asystenta AI ({model}): przyjmij bez zmian albo zmień."
+      "proposed": "Zaproponowane przez asystenta AI ({model}): przyjmij bez zmian albo zmień.",
+      "accept": "Przyjmij propozycję",
+      "keepMine": "Zostaw moją",
+      "notTaken": "Jeszcze nie przyjęte: wynik liczy {points, number} z {max, number}."
     },
     "conversation": {
-      "you": "Ja",
       "partner": "Partner",
       "examiner": "Egzaminator",
       "intro": "Asystent odgrywa egzaminatora i twojego partnera. Odpowiadaj na głos przez mikrofon (albo pisz); rozmowa jest twoją odpowiedzią.",

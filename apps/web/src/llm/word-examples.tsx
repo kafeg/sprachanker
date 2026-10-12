@@ -17,7 +17,7 @@ import type { DeckSlot } from "@/study/slots.ts";
 import { Button } from "@/ui/components/button.tsx";
 import { ConfirmButton } from "@/ui/confirm.tsx";
 import { errorText } from "@/ui/error-text.ts";
-import { useDuration } from "@/ui/format.ts";
+import { useTimeLeft } from "@/ui/format.ts";
 import { JobRow } from "@/ui/job-row.tsx";
 import { useTargetLang } from "@/ui/target-lang.ts";
 import { cn } from "@/ui/utils.ts";
@@ -166,7 +166,7 @@ function DeckExamplesJob({ scope, edition, title = "", status, className }: Deck
   const llm = useLlm();
   const state = useDeckExamples(scope, edition);
   const actions = useDeckExamplesActions(scope, edition);
-  const duration = useDuration();
+  const timeLeft = useTimeLeft();
   const s = state.data;
   if (!s?.words || !llm.data) return null;
   const job = s.job;
@@ -191,7 +191,7 @@ function DeckExamplesJob({ scope, edition, title = "", status, className }: Deck
         running
           ? {
               status: t("decks.examples.writing", { done: running.done, total: running.total }),
-              left: running.leftMs ? t("decks.left", { time: duration(running.leftMs) }) : "",
+              left: running.leftMs ? timeLeft(running.leftMs) : "",
               done: running.done,
               total: running.total,
               stopping: actions.stop.isPending || running.status === "stopping",

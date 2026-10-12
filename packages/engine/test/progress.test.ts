@@ -2,6 +2,7 @@ import { expect, test } from "bun:test";
 import type { Exercise, Lesson, Run, TypedEvent } from "@sprachanker/schema";
 import {
   answerAt,
+  exerciseMark,
   exerciseResults,
   exerciseState,
   firstAttempts,
@@ -150,13 +151,26 @@ test("exercise states and coverage of a run", () => {
   // Skipped: neutral where nothing is scored, wrong where it is.
   expect(exerciseState(e, results.e)).toBe("skipped");
   expect(exerciseState(f, results.f)).toBe("wrong");
-  // Skipped counts as worked: the lesson can be completed without answering everything.
+  // Skipped counts as worked: the lesson can be completed without answering everything; told
+  // apart where what was done is said.
   expect(lessonCoverage(lesson, results)).toEqual({
     worked: 5,
+    skipped: 1,
     total: 6,
     complete: false,
     firstLeft: 3,
   });
+});
+
+test("an exercise's mark: partly right where some scored items were right at the first try", () => {
+  const [g] = lessonOf("g").pages.map((p) => p.exercise) as [Exercise];
+  const mark = (...events: TypedEvent[]) => exerciseMark(g, exerciseResults(events).g);
+  const wrong = ev(1, "answered", "g#1", { attempt: 1, outcome: outcome("wrong", 0) });
+  const right = ev(2, "answered", "g#2", { attempt: 1, outcome: outcome("correct", 1) });
+  expect(mark(wrong, right)).toBe("partial");
+  expect(mark(wrong)).toBe("wrong");
+  expect(mark(right)).toBe("correct");
+  expect(mark()).toBeUndefined();
 });
 
 test("the answer an item got at one attempt", () => {

@@ -27,6 +27,9 @@ export interface LessonInfo {
   /** Grammar topics met so far — the earlier lessons' and this one's —, in course order: a topic
    *  once in each lesson that taught it. */
   topics?: TopicMet[];
+  /** The course's people met so far, by name (its scripts' speakers): a person made up for a task
+   *  is none of them. */
+  characters?: string[];
 }
 
 /** A grammar topic (a grammar page's title) and a lesson that taught it: the lesson as the app names
@@ -115,6 +118,33 @@ export function topicPlacesLine({ topics = [] }: Pick<LessonInfo, "topics">, max
     fits ? full.join("; ") : newest(entries(false), max, "; ")
   }`;
 }
+
+/** A speaker's label in a script: a name (up to three words) and a colon, at a line's start. */
+const SPEAKER = /^(\p{Lu}[\p{L}'’-]*(?: \p{Lu}[\p{L}'’-]*){0,2}):\s*(.*)$/u;
+
+/** The people speaking in a script (course HTML), by name as written in a sentence ("LISA:" →
+ *  "Lisa"): a label in capitals, or one alone on its line — never a word that opens a sentence with a
+ *  colon ("Also: Hallo"). */
+export function speakersOf(html: string): string[] {
+  const names = new Set<string>();
+  for (const line of htmlToText(html).split("\n")) {
+    const [, label = "", rest = ""] = SPEAKER.exec(line.trim()) ?? [];
+    const capitals = label.length > 1 && label === label.toLocaleUpperCase();
+    if (!label || (!capitals && rest)) continue;
+    names.add(
+      capitals
+        ? label
+            .toLocaleLowerCase()
+            .replace(/(^|[\s-])(\p{L})/gu, (_, a, b: string) => a + b.toLocaleUpperCase())
+        : label,
+    );
+  }
+  return [...names];
+}
+
+/** "The course's characters: Nico, Lisa, Emma" — names a made-up person never takes. */
+export const charactersLine = ({ characters = [] }: Pick<LessonInfo, "characters">) =>
+  characters.length ? `The course's characters: ${characters.join(", ")}` : undefined;
 
 /** The lesson's grammar notes as plain text within `max` characters. */
 export const grammarNotes = (lesson: Pick<LessonInfo, "grammarHtml">, max: number) =>

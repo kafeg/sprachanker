@@ -1,12 +1,8 @@
 // An exercise's mark (09): in the lesson's plan and summary, and a pass in the Notebook.
-import type { ExerciseState } from "@sprachanker/engine";
+import type { ExerciseMark } from "@sprachanker/engine";
 import { Check, SkipForward, X } from "lucide-react";
 import { useTranslation } from "react-i18next";
 import { cn } from "./utils.ts";
-
-/** An exercise with mistakes shown as partly right when some of its items were right at once. Pure. */
-export const withPartial = <S extends string | undefined>(state: S, correct = 0) =>
-  state === "wrong" && correct > 0 ? ("partial" as const) : state;
 
 /** An exercise's mark in the plan and the summary: right (green ✓), partly right (✓ in the
  *  mistakes' colour, unfilled), with mistakes (red ✕), answered without a score (grey ✓), skipped
@@ -15,8 +11,9 @@ export function StepDot({
   state,
   label,
 }: {
-  /** An exercise's state, a step besides exercises done ("read"), or the current exercise. */
-  state?: ExerciseState | "partial" | "read" | "current";
+  /** An exercise's mark (the engine's `exerciseMark`: the same everywhere), a step besides
+   *  exercises done ("read"), or the current exercise. */
+  state?: ExerciseMark | "read" | "current";
   label: React.ReactNode;
 }) {
   const { t } = useTranslation();

@@ -13,7 +13,7 @@ import { languageName } from "@/i18n/index.ts";
 import { Button } from "@/ui/components/button.tsx";
 import { ConfirmButton } from "@/ui/confirm.tsx";
 import { errorText } from "@/ui/error-text.ts";
-import { useDuration } from "@/ui/format.ts";
+import { useTimeLeft } from "@/ui/format.ts";
 import { JobRow } from "@/ui/job-row.tsx";
 import { cn } from "@/ui/utils.ts";
 
@@ -63,7 +63,7 @@ function DeckAudioActions({
 }) {
   const { t, i18n } = useTranslation();
   const actions = useDeckAudioActions(scope);
-  const duration = useDuration();
+  const timeLeft = useTimeLeft();
   const job = s.job;
   const running = reading(s) ? job : null;
   const language = languageName(s.lang, i18n.language);
@@ -76,7 +76,7 @@ function DeckAudioActions({
         running
           ? {
               status: t("decks.audio.reading", { done: running.done, total: running.total }),
-              left: running.leftMs ? t("decks.left", { time: duration(running.leftMs) }) : "",
+              left: running.leftMs ? timeLeft(running.leftMs) : "",
               done: running.done,
               total: running.total,
               stopping: actions.stop.isPending || running.status === "stopping",

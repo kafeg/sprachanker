@@ -5,7 +5,7 @@
 import { useNavigate } from "@tanstack/react-router";
 import { useTranslation } from "react-i18next";
 import { useNotebookExam } from "@/api/notebook.ts";
-import { type ExamParams, examKeyOf, questionId } from "@/library/exam-address.ts";
+import { type ExamParams, examKeyOf, questionNumber } from "@/library/exam-address.ts";
 import { inLang } from "@/ui/direction.tsx";
 import { BackLink, EmptyState, ErrorState, Loading, Page } from "@/ui/page.tsx";
 import { Panel } from "@/ui/panel.tsx";
@@ -25,6 +25,9 @@ export function ExamNotebook({ params }: { params: ExamParams }) {
   const { entry, items, lang } = detail.data;
   const known = items.filter((i) => i.state === "right").length;
   const wrong = items.filter((i) => i.state === "wrong");
+  // A question by its number in its Teil (named beside it), never by its key.
+  const number = (i: (typeof items)[number]) => questionNumber(i.key, !!i.group);
+  const nameOf = (i: (typeof items)[number]) => [i.group, number(i)].filter(Boolean).join(" · ");
   const toRun = (run: string) =>
     void navigate({ to: "/exam/$series/$course/$exam/run/$run", params: { ...params, run } });
 
@@ -78,7 +81,7 @@ export function ExamNotebook({ params }: { params: ExamParams }) {
               {items.map((i) => (
                 <span
                   key={i.key}
-                  title={questionId(i.key)}
+                  title={nameOf(i)}
                   className={cn("aspect-square rounded-[3px]", SHADE[i.state])}
                 />
               ))}
@@ -88,14 +91,20 @@ export function ExamNotebook({ params }: { params: ExamParams }) {
 
         {wrong.length > 0 && (
           <Panel title={t("notebook.examWrong", { count: wrong.length })}>
-            <ul className="divide-y">
-              {wrong.map((i) => (
-                <li key={i.key} className="flex gap-3 py-2 text-sm">
-                  <span className="w-14 shrink-0 tabular-nums text-muted-foreground">
-                    {questionId(i.key)}
-                  </span>
-                  <span {...inLang(lang)} className="min-w-0 flex-1">
-                    {i.line || i.key}
+            <ul>
+              {wrong.map((i, n) => (
+                <li key={i.key} className="text-sm">
+                  {/* Its Teil named where the list comes to it (an exam of several). */}
+                  {i.group && i.group !== wrong[n - 1]?.group && (
+                    <p className="pt-3 pb-1 text-xs font-medium text-muted-foreground">{i.group}</p>
+                  )}
+                  <span className="flex gap-3 border-t py-2">
+                    <span className="min-w-8 shrink-0 whitespace-nowrap tabular-nums text-muted-foreground">
+                      {number(i)}
+                    </span>
+                    <span {...inLang(lang)} className="min-w-0 flex-1 break-words">
+                      {i.line || number(i)}
+                    </span>
                   </span>
                 </li>
               ))}

@@ -25,6 +25,10 @@ export function arrowStep(key: string): -1 | 0 | 1 {
   return document.documentElement.dir === "rtl" ? ((-step || 0) as -1 | 0 | 1) : step;
 }
 
+/** A text of its own (a title, a name) set into an interface string: isolated, so its own direction
+ *  keeps its punctuation in place ("التالي: Hallo!", not "!Hallo") — FSI…PDI, `<bdi>` in a string. */
+export const isolate = (text: string) => `\u2068${text}\u2069`;
+
 /** `lang` and `dir` of an element whose text is in `lang` (a course's language): its own direction
  *  inside an interface written the other way (German in an Arabic interface). */
 export const inLang = (lang: string | undefined) =>
