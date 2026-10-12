@@ -177,7 +177,7 @@ test("the pass's mistakes and wrong Understanding answers gone over by type: wro
   expect(data).toContain("Group 1 — what went wrong: the word chosen; new items: gap_choice");
   // The gap of two that was wrong, the other filled right; never the item whole twice.
   expect(data).toContain(
-    '- learner "bestelle", correct "heiße" in "Ich [_] Lena. Ich bestelle einen Kaffee."',
+    '- learner "bestelle", correct "heiße" in "Ich ___ Lena. Ich bestelle einen Kaffee."',
   );
   expect(data).not.toContain('learner "bestelle", correct "bestelle"');
   expect(data).toContain("Remember: 1 group;");

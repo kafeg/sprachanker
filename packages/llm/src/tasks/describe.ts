@@ -207,10 +207,14 @@ const AROUND: Partial<Record<WrongPart["what"], string>> = {
   spoken: "to",
 };
 
+/** A gap as prompts write it ("___", as new items write theirs), for the engine's "[_]": a model
+ *  copies the mark it reads. */
+export const gapsWritten = (text: string) => text.replace(/\[_+\]/g, "___");
+
 /** A wrong part in a line: what the learner gave, what is right, where — never the whole item. */
 export const wrongPartLine = (p: WrongPart) =>
   `learner ${p.given ? `"${p.given}"` : "(no answer)"}, correct "${p.right}"${
-    p.context ? ` ${AROUND[p.what] ?? "in"} "${p.context}"` : ""
+    p.context ? ` ${AROUND[p.what] ?? "in"} "${gapsWritten(p.context)}"` : ""
   }`;
 
 /** A text cut to `max` characters at a word's end. */
