@@ -23,6 +23,9 @@ off, its model, the engine, voice and speed reading aloud) are applied by `servi
   its runs. Always kept (owner, 2026-10-11).
 - **Saying it oneself** (`speech_selfrate`, the courses' speaking exercises; 09): the original first,
   then a take, played beside it; the item counts once recorded, without a score (owner, 2026-10-08);
+  each take is the item's answer as soon as it is made and heard (an `answered`, an attempt each; 05),
+  so a reload or a tab the phone discarded keeps it and the AI's check of it, kept on its own, shows
+  again with it — never only when the learner moves on;
   the phrase to repeat hidden until the first try unless shown ("Show the text") or there is nothing to hear
   first (no recording of the item or its exercise); the source's own answer,
   spoken (`answerAudio`, DW's "Lösungsaudio"), playable after it.
