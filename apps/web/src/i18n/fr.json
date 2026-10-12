@@ -1658,6 +1658,7 @@
       "spoken": "Pas de nouveaux exercices pour ce qui a été dit à voix haute : redites-le dans son exercice.",
       "comprehension": "Réécoutez ou relisez le texte : la réponse s’y trouve."
     },
+    "unmade": "Rien n'a été préparé pour ces erreurs cette fois : revoyez-les encore une fois.",
     "step": {
       "making": "Création de nouveaux exercices…",
       "checking": "Vérification des nouveaux exercices…"

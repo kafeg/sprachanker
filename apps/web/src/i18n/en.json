@@ -1658,6 +1658,7 @@
       "spoken": "No new items for what was said aloud: say it again in its exercise.",
       "comprehension": "Listen to or read the text again: the answer is in it."
     },
+    "unmade": "Nothing was made for these mistakes this time: go over them again to try once more.",
     "step": {
       "making": "Making new tasks…",
       "checking": "Checking the new tasks…"

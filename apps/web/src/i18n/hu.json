@@ -1658,6 +1658,7 @@
       "spoken": "A hangosan mondottakhoz nincs új feladat: mondd el újra a gyakorlatában.",
       "comprehension": "Hallgasd meg vagy olvasd el újra a szöveget: benne van a válasz."
     },
+    "unmade": "Ezúttal semmi sem készült ezekhez a hibákhoz: nézd át őket újra.",
     "step": {
       "making": "Új feladatok készülnek…",
       "checking": "Az új feladatok ellenőrzése…"

@@ -210,6 +210,22 @@ test("a type listed only: its mistakes with the line of the text, what to do ins
   view.unmount();
 });
 
+test("a type its call made nothing for: its mistakes and a line to go over again, never an empty explanation", async () => {
+  const unmade: MistakesReview = {
+    groups: [
+      { ...(REVIEW.groups[0] as MistakesReview["groups"][number]), explanation: "", items: [] },
+    ],
+  };
+  const view = await step([review([], undefined, RUN, unmade)]);
+  expect(view.getByText("musst")).toBeTruthy();
+  expect(
+    view.getByText(
+      "Nothing was made for these mistakes this time: go over them again to try once more.",
+    ),
+  ).toBeTruthy();
+  view.unmount();
+});
+
 test("nothing to go over in the run: the step skips itself", async () => {
   refused = new ApiError("no_mistakes", 409);
   let nothing = 0;
