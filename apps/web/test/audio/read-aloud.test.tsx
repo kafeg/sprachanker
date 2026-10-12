@@ -536,6 +536,15 @@ test("the second speaker by a voice of the other gender where the voices say the
     await waitFor(() => expect(view.getByText("at 0 · heard 1 · still")).toBeTruthy());
     // Asked once each: what was asked ahead is what is read.
     expect(asked).toHaveLength(3);
+    view.unmount();
+    // Both speakers men by their names ("Herr Weber", "Jonas"): the other one by another man's voice.
+    const men = await renderApp(<ReadByLabel lang="de" two="m" />, {
+      data: [
+        [["settings"], { "speech.readEngine": "piper" }],
+        [["piper-voices"], three],
+      ],
+    });
+    expect(men.getByText("Read by Piper · thorsten and karlsson")).toBeTruthy();
   } finally {
     globalThis.fetch = realFetch;
     (globalThis as { Audio: unknown }).Audio = realAudio;

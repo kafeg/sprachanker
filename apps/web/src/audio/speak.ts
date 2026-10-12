@@ -2,12 +2,14 @@
 // mixing languages is never read), and the best voice of a language among those there are. Pure: tested without a browser.
 
 /** A piece of text to read, in its one language; `alt`: by another voice of the language when there
- *  is one (a dialogue's second speaker). */
+ *  is one (a dialogue's second speaker) — a gender: the speaker's, where their name says it. */
 export interface SpokenPart {
   text: string;
   lang: string;
-  alt?: boolean;
+  alt?: Alt;
 }
+/** Another voice than the language's own: `true`, or one of a gender (`"f"`, `"m"`). */
+export type Alt = true | "f" | "m";
 
 /** A text in one language as parts to read: none while the language is not known. */
 export const said = (text: string, lang: string | undefined): SpokenPart[] =>

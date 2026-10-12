@@ -11,7 +11,7 @@ import { useEffect, useState, useSyncExternalStore } from "react";
 import { useSetting, useSettings } from "@/api/settings.ts";
 import { sayOnServer, usePiperVoices, useQwenTts, warmQwen } from "@/api/speech.ts";
 import { claimPlayback } from "@/ui/playback.tsx";
-import { bestVoice, type SpokenPart, speaks, type VoiceInfo } from "./speak.ts";
+import { type Alt, bestVoice, type SpokenPart, speaks, type VoiceInfo } from "./speak.ts";
 import { type Gender, voiceGender } from "./voice-genders.ts";
 import { voiceName } from "./voice-names.ts";
 
@@ -29,7 +29,7 @@ type Device = { device: SpeechSynthesisVoice | undefined; rate: number };
 type Way = Device | { server: { voice?: string }; fallback?: Device };
 interface ReadOptions {
   /** How a language is read, by its voice or (`alt`) another one (undefined: it cannot be). */
-  wayFor(lang: string, alt?: boolean): Way | undefined;
+  wayFor(lang: string, alt?: Alt): Way | undefined;
 }
 
 /** What is being read, for the buttons; and the run reading it — a new run, even of the same text,
@@ -319,16 +319,14 @@ export function useSpeaker() {
   );
   /** The server's voice of a language: the profile's while it is there, else Piper's best or
    *  Qwen3-TTS's default speaker; `alt`: another of the language when there is one. */
-  const serverVoice = (lang: string, alt = false): string | undefined => {
-    /** Another voice than `main`: of the other gender where both are known, else the first. */
+  const serverVoice = (lang: string, alt?: Alt): string | undefined => {
+    /** Another voice than `main`: of the gender asked for (two women speaking: another woman's),
+     *  else of the other gender than main's where it is known, else the first. */
     const other = (kind: "piper" | "qwen", main: string, voices: readonly string[]) => {
       const others = voices.filter((v) => v !== main);
       const mine = voiceGender(kind, main);
-      const unlike = others.find((v) => {
-        const theirs = voiceGender(kind, v);
-        return mine && theirs && theirs !== mine;
-      });
-      return unlike ?? others[0] ?? main;
+      const wanted = alt === "f" || alt === "m" ? alt : mine && (mine === "f" ? "m" : "f");
+      return (wanted && others.find((v) => voiceGender(kind, v) === wanted)) ?? others[0] ?? main;
     };
     if (engine === "piper" && piper) {
       const own = chosen?.piper?.[lang];
@@ -344,14 +342,14 @@ export function useSpeaker() {
     }
     return undefined;
   };
-  const wayFor = (lang: string, alt = false): Way | undefined => {
+  const wayFor = (lang: string, alt?: Alt): Way | undefined => {
     const main = deviceVoice(voices, chosen?.device, lang);
     const device = voices.some((v) => speaks(voiceInfo(v), lang))
       ? { device: (alt && otherVoice(voices, main, lang)) || main, rate }
       : undefined;
     if (!serverLangs.has(lang)) return device;
     // The profile's own voice is the server's to pick; another one is named.
-    const voice = alt ? serverVoice(lang, true) : undefined;
+    const voice = alt ? serverVoice(lang, alt) : undefined;
     return {
       server: voice && voice !== serverVoice(lang) ? { voice } : {},
       fallback: device,
@@ -362,7 +360,7 @@ export function useSpeaker() {
   /** Who reads a language — by its voice, or (`alt`) the other one a dialogue's second speaker has:
    *  the engine and the voice as Settings → Speech names it (the device's voice unnamed when the
    *  browser picks it); undefined when nothing here reads it. */
-  const readBy = (lang: string, alt = false): ReadBy | undefined => {
+  const readBy = (lang: string, alt?: Alt): ReadBy | undefined => {
     const way = wayFor(lang, alt);
     if (!way) return undefined;
     if ("server" in way && (engine === "piper" || engine === "qwen")) {

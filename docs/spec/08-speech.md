@@ -122,8 +122,9 @@ writes (owner, 2026-10-08).
   listening is what reading aloud is mostly for): its lines one after another on request ("Listen"),
   paused and played on from the line it was at, from the start again, as often as wanted
   (`audio/listening.ts`); a dialogue's second speaker by another voice of the language where there
-  is one — of the other gender where the server's voices say theirs (Qwen3-TTS's speakers, Piper's
-  voices by name: `audio/voice-genders.ts`), else Piper's next installed voice of it, Qwen3-TTS's next
+  is one — of the speaker's gender where their name says it (two women: another woman's voice), else
+  of the other gender than the main voice's, where the server's voices say theirs (Qwen3-TTS's
+  speakers, Piper's voices by name: `audio/voice-genders.ts`), else Piper's next installed voice of it, Qwen3-TTS's next
   speaker, the device's next best voice —, else by the same one; which speaker that is, by their names
   only where obvious ("Frau Weber", "Nina": the one the main voice does not suit), else the second to
   speak; the line playing and the next two asked of the server ahead, one after another, so the next
