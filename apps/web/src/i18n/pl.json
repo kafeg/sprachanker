@@ -1053,6 +1053,7 @@
       "updates": "Ten plik aktualizuje tutejszą talię {deck}: jej słowa stają się słowami z tego pliku, a utworzone z niej fiszki podążają za nimi. W innych językach to osobna talia.",
       "left": "{count, plural, one {Pominięto # notatkę bez słowa.} few {Pominięto # notatki bez słowa.} many {Pominięto # notatek bez słowa.} other {Pominięto # notatki bez słowa.}}",
       "unusable": "{count, plural, one {Pominięto # notatkę, której słowa nie da się odczytać.} few {Pominięto # notatki, których słów nie da się odczytać.} many {Pominięto # notatek, których słów nie da się odczytać.} other {Pominięto # notatki, których słów nie da się odczytać.}}",
+      "joined": "{count, plural, one {# notatka słowa, które już jest, została z nim połączona — jej tłumaczenie dodano.} few {# notatki słów, które już są, połączono z nimi — ich tłumaczenia dodano.} many {# notatek słów, które już są, połączono z nimi — ich tłumaczenia dodano.} other {# notatki słów, które już są, połączono z nimi — ich tłumaczenia dodano.}}",
       "done": "Zaimportowano {deck}: {words, plural, one {# słowo} few {# słowa} many {# słów} other {# słowa}}."
     },
     "remove": "Usuń talię",

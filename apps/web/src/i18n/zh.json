@@ -1053,6 +1053,7 @@
       "updates": "此文件会更新这里的卡组{deck}：其单词将替换为此文件中的单词，由其生成的卡片也会随之更新。在其他语言下，它是一个独立的卡组。",
       "left": "{count, plural, other {#条没有单词的笔记已略过。}}",
       "unusable": "{count, plural, other {#条单词无法读取的笔记已略过。}}",
+      "joined": "{count, plural, other {已有单词的 # 条笔记已合并到该单词，并补上了其释义。}}",
       "done": "已导入{deck}：{words, plural, other {#个单词}}。"
     },
     "remove": "删除卡组",

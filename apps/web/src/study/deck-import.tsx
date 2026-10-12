@@ -215,12 +215,14 @@ export function DeckImportSheet({
   );
 }
 
-/** The notes a deck file's import leaves out, and why; nothing when none. */
-function LeftOut({ left }: { left: { withoutWord: number; unusable?: number } }) {
+/** The notes a deck file's import leaves out, and why, and those joined to a word already in it;
+ *  nothing when none. */
+function LeftOut({ left }: { left: { withoutWord: number; unusable?: number; joined?: number } }) {
   const { t } = useTranslation();
   return [
     left.withoutWord > 0 && t("decks.import.left", { count: left.withoutWord }),
     !!left.unusable && t("decks.import.unusable", { count: left.unusable }),
+    !!left.joined && t("decks.import.joined", { count: left.joined }),
   ]
     .filter(Boolean)
     .join(" ");

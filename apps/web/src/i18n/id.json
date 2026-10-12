@@ -1053,6 +1053,7 @@
       "updates": "Berkas ini memperbarui dek {deck} di sini: kata-katanya diganti dengan kata dari berkas ini, dan kartu yang dibuat darinya ikut menyesuaikan. Dalam bahasa lain, berkas ini menjadi dek tersendiri.",
       "left": "{count, plural, other {# catatan tanpa kata tidak disertakan.}}",
       "unusable": "{count, plural, other {# catatan yang katanya tidak bisa dibaca tidak disertakan.}}",
+      "joined": "{count, plural, other {# catatan dari kata yang sudah ada digabung dengan kata itu, terjemahannya ditambahkan.}}",
       "done": "{deck} diimpor: {words, plural, other {# kata}}."
     },
     "remove": "Hapus dek",

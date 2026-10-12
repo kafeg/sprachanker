@@ -1053,6 +1053,7 @@
       "updates": "Este arquivo atualiza o baralho {deck} daqui: as palavras dele passam a ser as deste arquivo, e os cartões criados a partir dele as acompanham. Em outros idiomas, é um baralho à parte.",
       "left": "{count, plural, =0 {# notas sem palavra foram deixadas de fora.} one {# nota sem palavra foi deixada de fora.} other {# notas sem palavra foram deixadas de fora.}}",
       "unusable": "{count, plural, =0 {# notas cujas palavras não podem ser lidas foram deixadas de fora.} one {# nota cuja palavra não pode ser lida foi deixada de fora.} other {# notas cujas palavras não podem ser lidas foram deixadas de fora.}}",
+      "joined": "{count, plural, one {# nota de uma palavra que já está nele é juntada a ela, com a tradução acrescentada.} other {# notas de palavras que já estão nele são juntadas a elas, com as traduções acrescentadas.}}",
       "done": "{deck} importado: {words, plural, =0 {# palavras} one {# palavra} other {# palavras}}."
     },
     "remove": "Excluir baralho",

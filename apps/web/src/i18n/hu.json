@@ -1053,6 +1053,7 @@
       "updates": "Ez a fájl frissíti az itt lévő paklit ({deck}): a szavai e fájl szavai lesznek, és a belőlük készült kártyák követik őket. Más nyelveken ez önálló pakli.",
       "left": "{count, plural, one {# szó nélküli jegyzet kimarad.} other {# szó nélküli jegyzet kimarad.}}",
       "unusable": "{count, plural, one {# jegyzet kimarad, mert a szava nem olvasható.} other {# jegyzet kimarad, mert a szava nem olvasható.}}",
+      "joined": "{count, plural, one {Egy már meglévő szó # jegyzete hozzá van vonva, a fordítása hozzáadva.} other {Már meglévő szavak # jegyzete hozzájuk van vonva, a fordításaik hozzáadva.}}",
       "done": "Importálva: {deck}, {words, plural, one {# szó} other {# szó}}."
     },
     "remove": "Pakli törlése",

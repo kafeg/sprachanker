@@ -1053,6 +1053,7 @@
       "updates": "Diese Datei aktualisiert den Stapel {deck}: seine Wörter werden die der Datei, die Karten daraus folgen ihnen. Mit anderen Sprachen wird sie ein eigener Stapel.",
       "left": "{count, plural, one {# Notiz ohne Wort wird ausgelassen.} other {# Notizen ohne Wort werden ausgelassen.}}",
       "unusable": "{count, plural, one {# Notiz, deren Wort sich nicht lesen lässt, wird ausgelassen.} other {# Notizen, deren Wort sich nicht lesen lässt, werden ausgelassen.}}",
+      "joined": "{count, plural, one {# Notiz eines Worts, das schon darin ist, wird mit ihm zusammengeführt, ihre Übersetzung ergänzt.} other {# Notizen von Wörtern, die schon darin sind, werden mit ihnen zusammengeführt, ihre Übersetzungen ergänzt.}}",
       "done": "{deck} importiert: {words, plural, one {# Wort} other {# Wörter}}."
     },
     "remove": "Stapel löschen",

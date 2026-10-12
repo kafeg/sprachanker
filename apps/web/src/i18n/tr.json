@@ -1053,6 +1053,7 @@
       "updates": "Bu dosya buradaki {deck} destesini günceller: destenin kelimeleri bu dosyadakiler olur ve ondan oluşturulan kartlar onları izler. Başka dillerde ayrı bir destedir.",
       "left": "{count, plural, one {Kelimesi olmayan # not dışarıda bırakıldı.} other {Kelimesi olmayan # not dışarıda bırakıldı.}}",
       "unusable": "{count, plural, one {Kelimesi okunamayan # not dışarıda bırakıldı.} other {Kelimeleri okunamayan # not dışarıda bırakıldı.}}",
+      "joined": "{count, plural, one {Zaten olan bir kelimenin # notu o kelimeyle birleştirildi, çevirisi eklendi.} other {Zaten olan kelimelerin # notu o kelimelerle birleştirildi, çevirileri eklendi.}}",
       "done": "{deck} içe aktarıldı: {words, plural, one {# kelime} other {# kelime}}."
     },
     "remove": "Desteyi sil",

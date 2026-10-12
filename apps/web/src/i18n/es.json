@@ -1053,6 +1053,7 @@
       "updates": "Este archivo actualiza el mazo {deck} de aquí: sus palabras pasan a ser las de este archivo y las tarjetas creadas a partir de él las siguen. En otros idiomas es un mazo aparte.",
       "left": "{count, plural, one {Se omite # nota sin palabra.} other {Se omiten # notas sin palabra.}}",
       "unusable": "{count, plural, one {Se omite # nota cuya palabra no se puede leer.} other {Se omiten # notas cuyas palabras no se pueden leer.}}",
+      "joined": "{count, plural, one {# nota de una palabra que ya está se une a ella, con su traducción añadida.} other {# notas de palabras que ya están se unen a ellas, con sus traducciones añadidas.}}",
       "done": "Importado {deck}: {words, plural, one {# palabra} other {# palabras}}."
     },
     "remove": "Eliminar mazo",

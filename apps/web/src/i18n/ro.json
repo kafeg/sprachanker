@@ -1053,6 +1053,7 @@
       "updates": "Acest fișier actualizează pachetul {deck} de aici: cuvintele lui devin cele din fișier, iar cardurile create din ele le urmează. În alte limbi este un pachet separat.",
       "left": "{count, plural, one {# notă fără cuvânt este omisă.} few {# note fără cuvânt sunt omise.} other {# de note fără cuvânt sunt omise.}}",
       "unusable": "{count, plural, one {# notă al cărei cuvânt nu poate fi citit este omisă.} few {# note ale căror cuvinte nu pot fi citite sunt omise.} other {# de note ale căror cuvinte nu pot fi citite sunt omise.}}",
+      "joined": "{count, plural, one {# notă a unui cuvânt deja prezent e unită cu el, traducerea ei adăugată.} few {# note ale unor cuvinte deja prezente sunt unite cu ele, traducerile lor adăugate.} other {# de note ale unor cuvinte deja prezente sunt unite cu ele, traducerile lor adăugate.}}",
       "done": "{deck} importat: {words, plural, one {# cuvânt} few {# cuvinte} other {# de cuvinte}}."
     },
     "remove": "Șterge pachetul",

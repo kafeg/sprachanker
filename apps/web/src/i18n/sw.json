@@ -1053,6 +1053,7 @@
       "updates": "Faili hili linasasisha seti {deck} iliyopo hapa: maneno yake yanakuwa ya faili hili, na kadi zilizotengenezwa kutoka kwayo zinayafuata. Katika lugha nyingine ni seti yake yenyewe.",
       "left": "{count, plural, one {Ingizo # lisilo na neno limeachwa.} other {Maingizo # yasiyo na neno yameachwa.}}",
       "unusable": "{count, plural, one {Ingizo # ambalo neno lake halisomeki limeachwa.} other {Maingizo # ambayo maneno yake hayasomeki yameachwa.}}",
+      "joined": "{count, plural, one {Dokezo # la neno lililopo tayari limeunganishwa nalo, tafsiri yake imeongezwa.} other {Madokezo # ya maneno yaliyopo tayari yameunganishwa nayo, tafsiri zake zimeongezwa.}}",
       "done": "Imeingizwa {deck}: {words, plural, one {neno #} other {maneno #}}."
     },
     "remove": "Futa seti",

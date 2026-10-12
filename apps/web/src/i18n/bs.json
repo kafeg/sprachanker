@@ -1053,6 +1053,7 @@
       "updates": "Ova datoteka ažurira špil {deck} koji je već ovdje: njegove riječi postaju riječi iz ove datoteke, a kartice napravljene od njih ih prate. Na drugim jezicima to je zaseban špil.",
       "left": "{count, plural, one {# bilješka bez riječi je izostavljena.} few {# bilješke bez riječi su izostavljene.} other {# bilješki bez riječi je izostavljeno.}}",
       "unusable": "{count, plural, one {# bilješka čija se riječ ne može pročitati je izostavljena.} few {# bilješke čije se riječi ne mogu pročitati su izostavljene.} other {# bilješki čije se riječi ne mogu pročitati je izostavljeno.}}",
+      "joined": "{count, plural, one {# bilješka riječi koja već postoji spojena je s njom, njen prijevod dodan.} few {# bilješke riječi koje već postoje spojene su s njima, njihovi prijevodi dodani.} other {# bilješki riječi koje već postoje spojeno je s njima, njihovi prijevodi dodani.}}",
       "done": "Uvezen špil {deck}: {words, plural, one {# riječ} few {# riječi} other {# riječi}}."
     },
     "remove": "Obriši špil",

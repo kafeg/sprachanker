@@ -219,7 +219,12 @@ imported `.apkg` decks fit in. Scheduling and the queue are pure functions in
   is taken where it names one: Nomen, Verb, Adjektiv…, and codes as `nf`/`nm`/`nn` (a noun's gender),
   `die (pl)` (plural only), `der, die` (either gender), only the first of several (`adj; adv`); a
   note without a word, or whose word makes no entry (no lemma, a key too long), is left out — the
-  preview and the import say how many and why. So a word a course has links to its card. A card made from a
+  preview and the import say how many and why. A deck's words are its lexemes, as its cards are: a
+  note of a word already in it ("ab" twice, "с" and "в, от, прочь") joins that word — its first
+  note's word and key, every note's translation ("с; в, от, прочь"), examples and tags, the first
+  audio —, said in the preview and the import; the preview counts words as the import makes them (in
+  the first language its fields are named by), with audio only those whose file the package holds.
+  So a word a course has links to its card. A card made from a
   deck's word has the deck in its source (`deck:<id>/<guid>`): two decks sharing a note never take
   each other's cards. Decks are the
   server's, every profile's to take (05, `decks/`); a package is uploaded once (kept beside the decks
