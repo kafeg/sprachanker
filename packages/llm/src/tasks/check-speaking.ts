@@ -7,7 +7,7 @@ import type { StructuredTask } from "../structured.ts";
 import { clip, languageName, languageNames } from "../text.ts";
 import { unlistedChange } from "./corrections.ts";
 import { describeItem } from "./describe.ts";
-import { genderProblem } from "./gender.ts";
+import { genderFreeReply, genderProblem } from "./gender.ts";
 import { grammarNotes, type LessonInfo, lessonWordsLine, levelLine } from "./lesson.ts";
 import { NEUTRAL, type RulesInput, systemPrompt } from "./rules.ts";
 
@@ -103,6 +103,7 @@ export const checkSpeakingTask = (input: SpeakingInput): StructuredTask<SpokenCh
   name: "speaking_check",
   schema: SpokenCheck,
   request: checkSpeakingRequest(input),
+  fix: (reply) => genderFreeReply(reply, input.language),
   quality: (reply) =>
     unlistedChange(reply, input.transcript) ??
     genderProblem([reply.feedback, ...reply.corrections.map((c) => c.explanation)], input.language),

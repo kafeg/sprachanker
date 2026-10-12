@@ -29,8 +29,8 @@ src/
   lmstudio.ts      # LM Studio's own API: its models, load with 8k context, downloads; suggested models
   openrouter.ts    # OpenRouter's own API: the key's state (free tier, usage, limit, rate limit)
   structured.ts    # JSON outputs: schema in the request (Anthropic: its system prompt), quotes escaped
-                   # twice made plain, zod validation and the task's check, one repair; its quality:
-                   # one repair, then the reply kept
+                   # twice made plain, zod validation, the task's fix (made in code), its check, one
+                   # repair; its quality: one repair, then the reply kept
   thinking.ts      # strips inline <think>…</think> from streamed text (client.ts also drops control tokens)
   text.ts          # course HTML → plain text for prompts (a table: a row a line, cells joined by " · ");
                    # languages' names; scripts (writtenIn: which of two languages a text is in, where
@@ -41,6 +41,7 @@ src/
                        # rule assumes the learner's gender, GENDER_FREE: how a learner's language
                        # avoids it (data, in the suffix of the tasks whose rules say NEUTRAL)
     gender.ts          # genderMarked: words marking the learner's gender (data: ru, uk, pl), a task's quality
+                       # (with how to rewrite them); genderFree: "would like to" made impersonal (a fix)
     registry.ts        # TASK_PROMPTS: the tasks whose prompt the learner sees and rewrites, in order —
                        # their rules and budgets (the server's prompt settings read it)
     lesson.ts          # LessonInfo (what tasks know of a lesson, with the knowledge snapshot: level,

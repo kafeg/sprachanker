@@ -15,7 +15,7 @@ import { z } from "zod";
 import type { StructuredTask } from "../structured.ts";
 import { languageName, languageNames, writtenIn } from "../text.ts";
 import { gapsWritten, wrongPartLine } from "./describe.ts";
-import { genderProblem } from "./gender.ts";
+import { genderFreeReply, genderProblem } from "./gender.ts";
 import {
   grammarNotes,
   knownWordsLine,
@@ -209,6 +209,7 @@ export function mistakeItemsTask(input: MistakeItemsInput): StructuredTask<Mista
     name: "mistake_items",
     schema: MistakeItemsReply,
     check: (reply) => itemsProblem(input.groups, reply),
+    fix: (reply) => genderFreeReply(reply, input.language),
     quality: (reply) =>
       (reply.groups.some((g) => writtenIn(g.explanation, input.language, input.target) === false)
         ? `"explanation" in ${languageName(input.language)}, in its own script (never transliterated)`

@@ -113,6 +113,17 @@ describe("structured outputs", () => {
     expect((error as LlmError).code).toBe("invalid_output");
   });
 
+  test("the task's fix: made in code before the check and the quality, the fixed reply returned", async () => {
+    const fixing = {
+      ...task,
+      fix: (v: z.infer<typeof Verdict>) => ({ ...v, note: v.note.replace("same", "fixed") }),
+      quality: (v: z.infer<typeof Verdict>) => (v.note === "same" ? "a new note" : undefined),
+    };
+    const once = scripted(['{"ok":true,"note":"same"}']);
+    expect(await runStructured(once.client, "m", fixing)).toEqual({ ok: true, note: "fixed" });
+    expect(once.seen).toHaveLength(1);
+  });
+
   test("complete(): non-streamed, with response_format; a server rejecting the schema is asked without it", async () => {
     const bodies: Array<Record<string, unknown>> = [];
     const fetchFn = (async (_: string, init: RequestInit) => {

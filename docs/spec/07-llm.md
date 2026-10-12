@@ -305,8 +305,14 @@ the learner waits for them, and a model under load answers the second time.
   Polish: "ты решил", "ты единственный", "согласен ты", "рад(а)", "должен/должна", and in a sentence
   the learner would say "я хотел бы" — a partner's own line aside), the task's quality: asked again
   once, then kept (writing_task, scene_setup, scene_turn, scene_summary, mistake_items, the writing
-  and speaking checks, rate_exam_answer); a streamed reply (the tutor, explanations) has its rules
-  only. The learner's text is at most `WRITING_MAX` characters
+  and speaking checks, rate_exam_answer). Asked again, the model is told how its language rewrites
+  the mark keeping who is meant and every case ("ты хотел бы X" → "тебе хотелось бы X"; "тебе",
+  "мне" and "ты" stay; the sentence reread) — told only to rebuild it, a model dropped the person
+  ("что хотелось бы мне рассказать?"). The commonest mark with a safe rewrite is made in code first
+  (the task's `fix`, `genderFree`, Russian and Ukrainian): "would like to" followed by an infinitive
+  in the clause said impersonally, the person in the dative, every other word kept ("Что бы ты хотел
+  узнать?" → "Что бы тебе хотелось узнать?"); without an infinitive ("ты хотел бы кофе?") it is left
+  to the model. A streamed reply (the tutor, explanations) has its rules only. The learner's text is at most `WRITING_MAX` characters
   (what the model checks whole), a message `MESSAGE_MAX`.
 - A "{}" button (switched on in Settings → AI assistant → Advanced) shows the exact request of a task —
   endpoint, fields, every message with its size — built by the same function as the real call (`<task>Request`,

@@ -15,7 +15,7 @@ import {
   scriptsOnlyOf,
   writtenIn,
 } from "../text.ts";
-import { genderProblem } from "./gender.ts";
+import { genderFreeReply, genderProblem } from "./gender.ts";
 import {
   charactersLine,
   goalsLine,
@@ -192,6 +192,7 @@ export function sceneSetupTask(
   return {
     name: "scene_setup",
     schema: DialogueSetup,
+    fix: (setup) => genderFreeReply(setup, input.language),
     quality: (setup) =>
       setupProblem(setup, input) ??
       genderProblem([setup.title, setup.situation, ...setup.goals], input.language) ??
@@ -295,6 +296,7 @@ export function sceneTurnRequest(input: SceneTurnInput): TaskRequest {
 export const sceneTurnTask = (input: SceneTurnInput): StructuredTask<SceneTurn> => ({
   name: "scene_turn",
   schema: SceneTurn,
+  fix: (turn) => genderFreeReply(turn, input.language),
   quality: (turn) =>
     repeatedQuestion(
       turn.reply,
@@ -447,6 +449,7 @@ export function sceneSummaryTask(input: SceneSummaryInput): StructuredTask<Dialo
   return {
     name: "scene_summary",
     schema: DialogueSummary,
+    fix: (summary) => genderFreeReply(summary, input.language),
     quality: (summary) =>
       genderProblem(
         [summary.feedback, ...summary.corrections.map((c) => c.explanation)],
