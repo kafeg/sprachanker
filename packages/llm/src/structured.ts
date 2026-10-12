@@ -32,11 +32,14 @@ function parseJson(text: string): unknown {
   return unescapedQuotes(JSON.parse(candidate));
 }
 
-/** A value with every string's escaped quote (`\"`) made a plain one: a model writing through a tool
- *  call (Claude Code's structured output) sometimes escapes quotes twice, and the learner would see
- *  the backslash. */
+/** A value with every string's escaped quote (`\"`) made a plain one, and its escaped line breaks
+ *  (`\n`) real ones where it has no real one: a model writing through a tool call (Claude Code's
+ *  structured output) sometimes escapes them twice, and the learner would see the backslash. */
 export function unescapedQuotes(value: unknown): unknown {
-  if (typeof value === "string") return value.replaceAll('\\"', '"');
+  if (typeof value === "string") {
+    const quotes = value.replaceAll('\\"', '"');
+    return quotes.includes("\n") ? quotes : quotes.replaceAll("\\n", "\n");
+  }
   if (Array.isArray(value)) return value.map(unescapedQuotes);
   if (value && typeof value === "object")
     return Object.fromEntries(Object.entries(value).map(([k, v]) => [k, unescapedQuotes(v)]));

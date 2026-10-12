@@ -261,9 +261,10 @@ const bare = (text: string) =>
     .replace(/\s+/g, " ")
     .trim();
 
-/** The question a line ends with, as compared; none: empty. */
+/** The question a line ends with — its mark any script's, a quote or a bracket after it —, as
+ *  compared; none: empty. */
 const closingQuestion = (line: string) =>
-  bare(/[^.!?。！？]*[?？]\s*$/u.exec(line.trim())?.[0] ?? "");
+  bare(/[^.!?。！？؟]*[?？؟][\s"'»«“”„‘’)\]]*$/u.exec(line.trim())?.[0] ?? "");
 
 /** A partner's reply that ends with the question its last line ended with ("Haben Sie noch eine
  *  Frage?" in line after line): the problem the reply is asked again once for. Undefined when it

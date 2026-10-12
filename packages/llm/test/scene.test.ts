@@ -185,6 +185,9 @@ test("sceneTurnTask: a reply ending with the question the partner's last line en
     repeatedQuestion("Ja! Haben Sie noch eine Frage ?", "Hallo. haben Sie noch eine Frage?"),
   ).toBeString();
   expect(repeatedQuestion("Gern. Und Sie?", "Wohin möchten Sie?")).toBeUndefined();
+  // Arabic's mark; a quote or a bracket after the mark.
+  expect(repeatedQuestion("نعم. هل لديك سؤال؟", "مرحبا! هل لديك سؤال؟")).toBeString();
+  expect(repeatedQuestion('Ja. „Noch eine Frage?"', "Hallo! (Noch eine Frage?)")).toBeString();
   expect(repeatedQuestion("Gern.", "Gern.")).toBeUndefined();
 });
 
