@@ -538,18 +538,35 @@ export function createRunStore(deps: { db: ProfileDb; now: () => number; appVers
     /**
      * Deletes runs with their events, and the answers of some cards wherever they are (cards removed
      * with the lesson that made them), on the learner's confirmed request: resetting progress, deleting
-     * a tutor chat, leaving a deck (the answers to its cards that go). The only deletion of events
-     * besides removing a profile (05). Run it in `atomic` together with what goes with it.
+     * a tutor chat, leaving a deck (the answers to its cards that go). A day's review run left with no
+     * answer goes too: nothing keeps an empty one. The only deletion of events besides removing a
+     * profile (05). Run it in `atomic` together with what goes with it.
      */
     remove(runIds: string[], cardIds: string[] = []) {
       if (!runIds.length && !cardIds.length) return { runs: 0, events: 0 };
+      // The review days these cards were answered on (each may hold other cards' answers).
+      const days = cardIds.length
+        ? db
+            .selectDistinct({ id: events.runId })
+            .from(events)
+            .innerJoin(runs, eq(runs.id, events.runId))
+            .where(and(inArray(events.cardId, cardIds), eq(runs.kind, "review")))
+            .all()
+            .map((r) => r.id)
+        : [];
       const removed = db
         .delete(events)
         .where(or(inArray(events.runId, runIds), inArray(events.cardId, cardIds)))
         .returning({ id: events.id })
         .all();
-      if (runIds.length) db.delete(runs).where(inArray(runs.id, runIds)).run();
-      return { runs: runIds.length, events: removed.length };
+      const emptied = days.filter(
+        (id) =>
+          !runIds.includes(id) &&
+          !db.select({ id: events.id }).from(events).where(eq(events.runId, id)).limit(1).get(),
+      );
+      const gone = [...runIds, ...emptied];
+      if (gone.length) db.delete(runs).where(inArray(runs.id, gone)).run();
+      return { runs: gone.length, events: removed.length };
     },
   };
   return self;

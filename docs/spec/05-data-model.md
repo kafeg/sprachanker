@@ -196,7 +196,8 @@ parsed, and a stored row that no longer parses is left out (and logged), never b
   events and recordings. The course stays installed. Deleting one tutor
   chat from the lesson's chat history or the Tutor section, also confirmed, deletes that `chat` run
   with its events.
-  Leaving a deck (04, "Decks to take"), also confirmed, deletes the answers to the cards it removes.
+  Leaving a deck (04, "Decks to take"), also confirmed, deletes the answers to the cards it removes;
+  a day's review run left without an answer by either goes with them (QA 2026-10-12).
 - Snapshots make old runs readable after content changes or course removal.
 - Indexes: `events(run_id, ts)` (a run's events), `events(type, ts)` (the day's card answers,
   verdicts, activity).
