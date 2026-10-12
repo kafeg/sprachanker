@@ -15,7 +15,7 @@ import {
   scriptsOnlyOf,
   writtenIn,
 } from "../text.ts";
-import { genderFreeReply, genderProblem } from "./gender.ts";
+import { genderFreeReply } from "./gender.ts";
 import {
   charactersLine,
   goalsLine,
@@ -28,7 +28,7 @@ import {
   placeLine,
   topicsLine,
 } from "./lesson.ts";
-import { NEUTRAL, type RulesInput, systemPrompt } from "./rules.ts";
+import { learnerWordsProblem, NEUTRAL, type RulesInput, systemPrompt } from "./rules.ts";
 
 /** A Dialogue takes the lesson's topic, words, grammar and what is known by it. */
 type SceneLesson = LessonInfo;
@@ -240,8 +240,8 @@ export function sceneSetupTask(
     fix: (setup) => genderFreeReply(setup, input.language),
     quality: (setup) =>
       setupProblem(setup, input) ??
-      genderProblem([setup.title, setup.situation, ...setup.goals], input.language) ??
-      genderProblem([setup.openingTranslation ?? ""], input.language, false),
+      learnerWordsProblem([setup.title, setup.situation, ...setup.goals], input.language) ??
+      learnerWordsProblem([setup.openingTranslation ?? ""], input.language, false),
     request: {
       messages: [
         { role: "system", content: system },
@@ -347,8 +347,8 @@ export const sceneTurnTask = (input: SceneTurnInput): StructuredTask<SceneTurn> 
       turn.reply,
       input.history.findLast((t) => t.role === "assistant")?.text ?? input.setup.opening,
     ) ??
-    genderProblem([turn.translation], input.language, false) ??
-    genderProblem(
+    learnerWordsProblem([turn.translation], input.language, false) ??
+    learnerWordsProblem(
       turn.corrections.map((c) => c.explanation),
       input.language,
     ),
@@ -496,7 +496,7 @@ export function sceneSummaryTask(input: SceneSummaryInput): StructuredTask<Dialo
     schema: DialogueSummary,
     fix: (summary) => genderFreeReply(summary, input.language),
     quality: (summary) =>
-      genderProblem(
+      learnerWordsProblem(
         [summary.feedback, ...summary.corrections.map((c) => c.explanation)],
         input.language,
       ),

@@ -6,8 +6,8 @@ import type { TaskRequest } from "../client.ts";
 import type { StructuredTask } from "../structured.ts";
 import { clip, languageName, languageNames, newest } from "../text.ts";
 import { type ConversationLine, conversationText } from "./exam-conversation.ts";
-import { genderFreeReply, genderProblem } from "./gender.ts";
-import { NEUTRAL, type RulesInput, systemPrompt } from "./rules.ts";
+import { genderFreeReply } from "./gender.ts";
+import { learnerWordsProblem, NEUTRAL, type RulesInput, systemPrompt } from "./rules.ts";
 
 interface ExamCriterionInput {
   id: string;
@@ -126,5 +126,8 @@ export const rateExamAnswerTask = (input: ExamAnswerInput): StructuredTask<ExamR
   check: (proposal) => examRatingProblem(input.criteria, proposal),
   fix: (proposal) => genderFreeReply(proposal, input.language),
   quality: (proposal) =>
-    genderProblem([proposal.feedback, ...proposal.criteria.map((c) => c.reason)], input.language),
+    learnerWordsProblem(
+      [proposal.feedback, ...proposal.criteria.map((c) => c.reason)],
+      input.language,
+    ),
 });

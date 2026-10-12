@@ -34,12 +34,13 @@ src/
   thinking.ts      # strips inline <think>…</think> from streamed text (client.ts also drops control tokens)
   text.ts          # course HTML → plain text for prompts (a table: a row a line, cells joined by " · ");
                    # languages' names; scripts (writtenIn: which of two languages a text is in, where
-                   # their scripts differ)
+                   # their scripts differ; mixedWord: a word in two alphabets alike)
   tasks/
     rules.ts           # systemPrompt: the learner's rules or the standing ones, then the fixed suffix and
                        # the reply's languages (languagesLine); NEUTRAL: the line that no
                        # rule assumes the learner's gender, GENDER_FREE: how a learner's language
-                       # avoids it (data, in the suffix of the tasks whose rules say NEUTRAL)
+                       # avoids it (data, in the suffix of the tasks whose rules say NEUTRAL);
+                       # learnerWordsProblem: a reply's words to the learner checked (alphabets, gender)
     gender.ts          # genderMarked: words marking the learner's gender (data: ru, uk, pl), a task's quality
                        # (with how to rewrite them); genderFree: "would like to" made impersonal (a fix)
     registry.ts        # TASK_PROMPTS: the tasks whose prompt the learner sees and rewrites, in order —

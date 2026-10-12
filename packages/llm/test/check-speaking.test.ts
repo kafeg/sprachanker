@@ -43,7 +43,7 @@ test("check_speaking: the item, the question and the source's answer as heard, t
   expect(system).toContain("never write a correction and correct it again");
   expect(system).toContain("nor circumstances of the learner");
   expect(system).toEndWith(
-    `Reply with the JSON object only.\nWrite only in Russian and German: not a word in any other language.\n${GENDER_FREE.ru}`,
+    `Reply with the JSON object only.\nWrite only in Russian and German: not a word in any other language. Each word in its own language's letters: never two alphabets in one word, never a German word spelt in Russian letters.\n${GENDER_FREE.ru}`,
   );
   expect(system).not.toMatch(/A1|beginner/);
   expect(user).toContain("Learner's level: B1");
@@ -197,8 +197,12 @@ test("a good answer's corrected text is the learner's words: a right form is nev
 });
 
 test("every task's reply stays in its two languages (one when they are the same)", () => {
+  // Two alphabets: never mixed in a word, a learnt word never spelt in the learner's ("мит").
   expect(languagesLine("ru", "de")).toBe(
-    "Write only in Russian and German: not a word in any other language.",
+    "Write only in Russian and German: not a word in any other language. Each word in its own language's letters: never two alphabets in one word, never a German word spelt in Russian letters.",
+  );
+  expect(languagesLine("en", "de")).toBe(
+    "Write only in English and German: not a word in any other language.",
   );
   expect(languagesLine("de", "de")).toBe("Write only in German: not a word in any other language.");
   const own = checkSpeakingTask({ ...input, rules: "Be strict." }).request.messages[0]?.content;

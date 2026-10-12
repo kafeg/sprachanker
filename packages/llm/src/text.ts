@@ -131,6 +131,17 @@ export function writtenIn(text: string, lang: string, other: string): boolean | 
   return mine > 0 && mine >= OWN_SHARE * (mine + theirs);
 }
 
+/** Alphabets with letters alike, which a model mixes inside a word ("Вопрos"). */
+const ALIKE = SCRIPTS.filter((s) => ["Latin", "Cyrillic", "Greek"].includes(s.name));
+
+/** The first word of `texts` written in two alphabets ("Вопрos"); undefined when none. */
+export function mixedWord(texts: string[]): string | undefined {
+  for (const text of texts)
+    for (const word of text.match(/\p{L}+/gu) ?? [])
+      if (ALIKE.filter((s) => s.letter.test(word)).length > 1) return word;
+  return undefined;
+}
+
 /** The two languages as a task's rules name them: by their English names, or as placeholders for the
  *  learner's own prompt template (Settings → AI assistant → Advanced). */
 export const languageNames = (language: string, target: string) => ({

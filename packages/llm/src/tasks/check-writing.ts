@@ -7,7 +7,7 @@ import type { TaskRequest } from "../client.ts";
 import type { StructuredTask } from "../structured.ts";
 import { clip, languageName, languageNames } from "../text.ts";
 import { cleanCheck, unlistedChange } from "./corrections.ts";
-import { genderFreeReply, genderProblem } from "./gender.ts";
+import { genderFreeReply } from "./gender.ts";
 import {
   grammarNotes,
   knownWordsLine,
@@ -15,7 +15,7 @@ import {
   lessonWordsLine,
   levelLine,
 } from "./lesson.ts";
-import { NEUTRAL, type RulesInput, systemPrompt } from "./rules.ts";
+import { learnerWordsProblem, NEUTRAL, type RulesInput, systemPrompt } from "./rules.ts";
 import { WRITING_EXAM, writingCriteriaLine, writingTaskLines } from "./writing-task.ts";
 
 export interface WritingInput extends RulesInput {
@@ -122,7 +122,7 @@ export const checkWritingTask = (input: WritingInput): StructuredTask<WritingChe
   fix: (reply) => genderFreeReply(reply, input.language),
   quality: (reply) =>
     unlistedChange(reply, input.text, true) ??
-    genderProblem(
+    learnerWordsProblem(
       [
         reply.feedback,
         ...reply.corrections.map((c) => c.explanation),

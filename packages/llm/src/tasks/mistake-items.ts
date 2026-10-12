@@ -15,7 +15,7 @@ import { z } from "zod";
 import type { StructuredTask } from "../structured.ts";
 import { languageName, languageNames, writtenIn } from "../text.ts";
 import { gapsWritten, wrongPartLine } from "./describe.ts";
-import { genderFreeReply, genderProblem } from "./gender.ts";
+import { genderFreeReply } from "./gender.ts";
 import {
   grammarNotes,
   knownWordsLine,
@@ -24,7 +24,7 @@ import {
   levelLine,
   topicsLine,
 } from "./lesson.ts";
-import { NEUTRAL, type RulesInput, systemPrompt } from "./rules.ts";
+import { learnerWordsProblem, NEUTRAL, type RulesInput, systemPrompt } from "./rules.ts";
 
 export const MISTAKE_ITEMS_BUDGETS = {
   lessonVocab: 1000,
@@ -214,7 +214,7 @@ export function mistakeItemsTask(input: MistakeItemsInput): StructuredTask<Mista
       (reply.groups.some((g) => writtenIn(g.explanation, input.language, input.target) === false)
         ? `"explanation" in ${languageName(input.language)}, in its own script (never transliterated)`
         : undefined) ??
-      genderProblem(
+      learnerWordsProblem(
         reply.groups.map((g) => g.explanation),
         input.language,
       ),

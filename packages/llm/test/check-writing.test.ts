@@ -170,7 +170,7 @@ test("check_writing: the task's points as data, each rated; at most three correc
     expect(system).toContain(part);
   expect(system).not.toContain("A1");
   expect(system).toEndWith(
-    `Reply with the JSON object only.\nWrite only in Russian and German: not a word in any other language.\n${GENDER_FREE.ru}`,
+    `Reply with the JSON object only.\nWrite only in Russian and German: not a word in any other language. Each word in its own language's letters: never two alphabets in one word, never a German word spelt in Russian letters.\n${GENDER_FREE.ru}`,
   );
   expect(user).toContain(
     "<task>\nSituation: Вы договорились встретиться с Леной в кафе. Напишите ей сообщение.\nContent points:\n1. Скажите, что опоздаете.\n2. Объясните почему.\n3. Напишите, когда придёте.\nLength: about 30 words.\n</task>",

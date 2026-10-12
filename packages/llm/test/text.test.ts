@@ -1,5 +1,27 @@
 import { expect, test } from "bun:test";
-import { htmlToText, writtenIn } from "../src/text.ts";
+import { writingTaskTask } from "../src/tasks/writing-task.ts";
+import { htmlToText, mixedWord, writtenIn } from "../src/text.ts";
+
+test("mixedWord: a word of two alphabets alike (a real explanation's «Вопрos»); names and words apart are no mix", () => {
+  expect(
+    mixedWord(["Правильный ответ — «Nicht alle». Вопрos спрашивает, что именно Лиза критикует."]),
+  ).toBe("Вопрos");
+  expect(
+    mixedWord(["После mit — дательный падеж: mit der Kamerafrau.", "Lisa и Tom в Берлине."]),
+  ).toBeUndefined();
+  expect(mixedWord(["柏林的Lisa", "Felixʼ Hund"])).toBeUndefined();
+  // A task's words to the learner: asked again once, before their gender.
+  const lesson = { title: "Schule", goals: [], grammarHtml: [], vocab: [] };
+  const task = writingTaskTask({ language: "ru", target: "de", lesson });
+  const reply = {
+    situation: "Друг пишет тебе.",
+    points: ["Напиши, что ты решил.", "Объясни почему.", "Предложи встречу."],
+  };
+  expect(task.quality?.({ ...reply, situation: "Друг пиshет тебе." })).toContain(
+    '"пиshет" mixes two alphabets',
+  );
+  expect(task.quality?.(reply)).toContain("ты решил");
+});
 
 test("writtenIn: a fifth of the words in the language's script make a text its, a Chinese character a word", () => {
   // Names in the other script beside the text do not make it the other's.

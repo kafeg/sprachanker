@@ -69,7 +69,7 @@ test("the groups as data: what went wrong, the new items' type and fields, the w
     expect(system).toContain(part);
   expect(system).not.toContain("A1");
   expect(system).toEndWith(
-    `Reply with the JSON object only.\nWrite only in Russian and German: not a word in any other language.\n${GENDER_FREE.ru}`,
+    `Reply with the JSON object only.\nWrite only in Russian and German: not a word in any other language. Each word in its own language's letters: never two alphabets in one word, never a German word spelt in Russian letters.\n${GENDER_FREE.ru}`,
   );
   expect(user).toContain(
     'Group 1 — what went wrong: the ending or form of a word; new items: gap_text, with "text" (a sentence with each gap written ___',
