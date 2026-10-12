@@ -3,7 +3,7 @@ import { fixture } from "@sprachanker/course-fixture";
 import { checkSpeakingTask } from "../src/tasks/check-speaking.ts";
 import { cleanCheck } from "../src/tasks/corrections.ts";
 import { mistakeLine } from "../src/tasks/describe.ts";
-import { languagesLine } from "../src/tasks/rules.ts";
+import { GENDER_FREE, languagesLine, NEUTRAL } from "../src/tasks/rules.ts";
 
 const lesson = fixture.lessons.find((l) => l.key.endsWith("/00-02"));
 const exercise = lesson?.pages
@@ -39,7 +39,7 @@ test("check_speaking: the item, the question and the source's answer as heard, t
   expect(system).toContain("speech recogniser");
   expect(system).toContain("in Russian");
   expect(system).toEndWith(
-    "Reply with the JSON object only.\nWrite only in Russian and German: not a word in any other language.",
+    `Reply with the JSON object only.\nWrite only in Russian and German: not a word in any other language.\n${GENDER_FREE.ru}`,
   );
   expect(system).not.toMatch(/A1|beginner/);
   expect(user).toContain("Learner's level: B1");
@@ -146,5 +146,19 @@ test("every task's reply stays in its two languages (one when they are the same)
   );
   expect(languagesLine("de", "de")).toBe("Write only in German: not a word in any other language.");
   const own = checkSpeakingTask({ ...input, rules: "Be strict." }).request.messages[0]?.content;
-  expect(own).toEndWith(languagesLine("ru", "de"));
+  // How the learner's language keeps their gender unmarked holds under their own rules too.
+  expect(own).toEndWith(`${languagesLine("ru", "de")}\n${GENDER_FREE.ru}`);
+  const english = checkSpeakingTask({ ...input, language: "en" }).request.messages[0]?.content;
+  expect(english).toEndWith(languagesLine("en", "de"));
+});
+
+test("a learner's language that marks gender gets its own line on how to avoid it: Russian's past forms, no forms side by side", () => {
+  expect(GENDER_FREE.ru).toContain("ты нашёл");
+  expect(GENDER_FREE.ru).toContain("у тебя получилось");
+  expect(GENDER_FREE.ru).toContain("смог(ла)");
+  for (const lang of ["uk", "pl", "bs", "fr", "es", "pt", "ro", "el", "ar", "hi"] as const)
+    expect(GENDER_FREE[lang]).toBeString();
+  expect(GENDER_FREE.en).toBeUndefined();
+  expect(GENDER_FREE.de).toBeUndefined();
+  expect(NEUTRAL).toContain('never both forms side by side ("a(b)", "a/b")');
 });

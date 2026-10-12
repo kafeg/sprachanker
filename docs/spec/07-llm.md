@@ -270,8 +270,12 @@ lesson run the lesson shows, its answers `practice_answered` events checked by t
   language-neutral (`{target}` aside); what one language needs (German's ß in a writing check) goes
   with the data, so it holds under the learner's own rules too. Every task whose words reach the
   learner says in its standing rules that their gender is unknown (`NEUTRAL`: wording that does not
-  mark it — "Ты пришёл" never; QA 2026-10-12); only a check the app reads alone and a deck's
-  example sentences, which address no one, go without. The learner's text is at most
+  mark it — "Ты пришёл" never, nor both forms side by side, "смог(ла)"; QA 2026-10-12); only a check
+  the app reads alone and a deck's example sentences, which address no one, go without. Such a task's
+  fixed suffix ends with how the learner's language avoids it where it marks gender (`GENDER_FREE`,
+  data: Russian's and Ukrainian's past forms and short adjectives — "у тебя получилось", never "ты
+  нашёл" —, Polish's and Bosnian's, Romance and Greek adjectives and participles, Arabic's and
+  Hindi's gendered forms; walkthrough, 2026-10-12), so it holds under the learner's own rules too. The learner's text is at most
   `WRITING_MAX` characters (what the model checks whole), a message `MESSAGE_MAX`.
 - A "{}" button (switched on in Settings → AI assistant → Advanced) shows the exact request of a task —
   endpoint, fields, every message with its size — built by the same function as the real call (`<task>Request`,

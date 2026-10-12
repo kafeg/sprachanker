@@ -35,7 +35,8 @@ src/
   tasks/
     rules.ts           # systemPrompt: the learner's rules or the standing ones, then the fixed suffix and
                        # the reply's languages (languagesLine); NEUTRAL: the line that no
-                       # rule assumes the learner's gender
+                       # rule assumes the learner's gender, GENDER_FREE: how a learner's language
+                       # avoids it (data, in the suffix of the tasks whose rules say NEUTRAL)
     registry.ts        # TASK_PROMPTS: the tasks whose prompt the learner sees and rewrites, in order —
                        # their rules and budgets (the server's prompt settings read it)
     lesson.ts          # LessonInfo (what tasks know of a lesson, with the knowledge snapshot: level,
