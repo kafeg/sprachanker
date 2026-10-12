@@ -80,6 +80,18 @@ Specs: 04 ("AI practice in courses"), 07, 08, 09.
 - **Accept**: each phase's exercises held end to end in a lesson on the fixture course (e2e) and on a
   real course with a real model.
 
+### 10. Goethe mock exams on the AI practice's machinery (owner, 2026-10-12: planned, not begun)
+Specs: 01, 04, 07, 08, 09. Proposal and options: `docs/research/goethe-exams-redesign.md`.
+- Sprechen by voice per Teil as the real exam runs it: the examiner's fixed lines from a turn script,
+  the partner played by the model with the Dialogue's information-gap rules, two voices, the part's
+  clock; rated by the official criteria as a proposal the learner confirms, pronunciation rated by
+  the learner from their recordings; a marked transcript and model phrases after each part.
+- Generated extra Hören, Lesen and Schreiben in the real Teile's formats on Understanding's and
+  Writing's machinery, counted apart from the Modellsatz; Prüfungstraining from the weakest Teile.
+- The owner chooses the option (minimal, recommended, full) before it is begun; start with A2
+  Sprechen by voice to try a live conversation with the model's pauses.
+- **Accept**: the chosen option's parts held end to end on Goethe A1–B1 with a real model.
+
 ## Open items in built areas
 Taken along when an item above touches the area, or on request.
 - Library (02, 03): a key map for providers other than DW (keys stay when the source reorders),
