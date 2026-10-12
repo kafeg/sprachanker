@@ -1,4 +1,4 @@
-// Learner-language texts of one edition, at the same key paths as the canonical files (02).
+// Learner-language texts of one edition, at the same key paths as the canonical files.
 import { z } from "zod";
 import { format, MediaPath } from "./common.ts";
 import { OptionId } from "./exercise/index.ts";
@@ -17,7 +17,7 @@ import { EditionId } from "./lang.ts";
 
 export const LOCALE_FORMAT = 1;
 
-/** Source id of the localised object in this edition; editions differ (02, "Keys and identity"). */
+/** Source id of the localised object in this edition; editions differ. */
 const SourceId = z.string().min(1);
 
 /** Item reference inside an exercise: `#1`, `#2`… */

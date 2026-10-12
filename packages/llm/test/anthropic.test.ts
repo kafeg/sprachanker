@@ -1,4 +1,4 @@
-// Anthropic's Messages API (07, "Providers") against a fake server: no request leaves the test.
+// Anthropic's Messages API against a fake server: no request leaves the test.
 import { describe, expect, spyOn, test } from "bun:test";
 import { z } from "zod";
 import { anthropicMessages } from "../src/anthropic.ts";

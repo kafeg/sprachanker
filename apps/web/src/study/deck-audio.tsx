@@ -1,4 +1,4 @@
-// A deck's words read aloud (09, Review → Decks; 04). Under a deck to take, all its words, taken or
+// A deck's words read aloud. Under a deck to take, all its words, taken or
 // not: how many have audio, "Generate audio" — read by the server's engine and kept, so its cards play
 // it on any device —, the audio generated removed or generated again (asked first), the engine and
 // voice that read (and where to choose another), its progress with Stop while it reads, why it failed,

@@ -1,5 +1,5 @@
-// A local engine run on demand (06, "Sidecars"): a process serving HTTP on a free 127.0.0.1 port —
-// whisper-server and Qwen3-TTS's tts-server (08), each with its own supervisor. One process at a time,
+// A local engine run on demand: a process serving HTTP on a free 127.0.0.1 port —
+// whisper-server and Qwen3-TTS's tts-server, each with its own supervisor. One process at a time,
 // for one setup (a model): started once however many requests ask at the same moment, ready when its
 // health check answers, stopped after a while without requests, started again after it exits. A
 // request for another setup waits for the requests in flight before the process is replaced.

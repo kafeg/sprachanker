@@ -1,7 +1,7 @@
 # packages/engine
 
-Pure learning logic. Spec: `docs/spec/04-engine.md`. Depends on `packages/schema` only.
-No network, no filesystem, no `Date.now()` — time and randomness are parameters. Runs in Bun and browser.
+Pure learning logic. Depends on `packages/schema` only.
+No network, no filesystem, no `Date.now` — time and randomness are parameters. Runs in Bun and browser.
 
 ## Layout
 
@@ -38,7 +38,7 @@ src/
 
 ## Planned
 
-- `compose/`: canonical + locale + enrichment → a composed lesson, stale detection (04).
+- `compose/`: canonical + locale + enrichment → a composed lesson, stale detection.
 
 ## Rules
 

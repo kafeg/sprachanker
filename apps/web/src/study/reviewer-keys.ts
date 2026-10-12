@@ -1,4 +1,4 @@
-// Anki's reviewer keys (09): Space or Enter shows the answer and then answers Good, 1–4 rate, R or F5
+// Anki's reviewer keys: Space or Enter shows the answer and then answers Good, 1–4 rate, R or F5
 // replays, U or Ctrl+Z undoes, - and = bury the card or the note, @ and ! suspend them, * marks,
 // Ctrl+1…7 flag (⌘ on a Mac). Which key does what is a pure function (tested); the hook listens.
 import { useEffect, useRef } from "react";

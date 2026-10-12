@@ -1,5 +1,4 @@
-// Other devices (09, Settings → General; plan, "Phones"): the addresses the app is reached at (06,
-// `GET /api/addresses`) — this computer, the local network, Tailscale —, each to copy or to scan as a
+// Other devices: the addresses the app is reached at (`GET /api/addresses`) — this computer, the local network, Tailscale —, each to copy or to scan as a
 // QR code; what one lacks said in a line (the microphone without HTTPS, a server listening only here,
 // a tailnet not served, Funnel on). The same block opens beside from the side panel ("On a phone").
 import type { ServerAddress, ServerAddresses } from "@sprachanker/schema";

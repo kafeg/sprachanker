@@ -1,4 +1,4 @@
-// What reading aloud says and with which voice (08): a text in one language, given explicitly (a text
+// What reading aloud says and with which voice: a text in one language, given explicitly (a text
 // mixing languages is never read), and the best voice of a language among those there are. Pure: tested without a browser.
 import type { Alt } from "@sprachanker/engine";
 

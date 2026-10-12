@@ -1,9 +1,9 @@
-// "Write it yourself" (04, "AI practice in courses"; 07): the lesson's writing task — a situation with
+// Writing: the lesson's writing task — a situation with
 // three content points, written by the model at the course's level (`writing_task`) — and texts
 // written on it, checked by the model. A task and a check are `llm_verdict` events (`task:
 // writing_task`, `writing`, the check with the task it answered) of the lesson run the lesson shows —
 // like an explanation, a one-off verdict on the learner's work belongs to the run it was given in
-// (05); the lesson's tasks and earlier checks are read across its runs.
+//; the lesson's tasks and earlier checks are read across its runs.
 import {
   checkWritingTask,
   cleanWritingCheck,

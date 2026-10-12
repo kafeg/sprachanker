@@ -179,7 +179,7 @@ function buildLesson(
     }
     return result;
   };
-  // Keys follow the source, never what the mapping made of it (02): a numbered task is ex-<its
+  // Keys follow the source, never what the mapping made of it: a numbered task is ex-<its
   // number>, a section's examples ex-1<section>, the closing lines ex-300 — so a normaliser fix that
   // maps one more task never moves the others' keys (and the learner's answers with them). A section
   // and a task without a number keep theirs by their title through the series' key map (by place the
@@ -316,7 +316,7 @@ function buildLesson(
 const paragraph = (html: string): El => ({ ...parseHtml(html), tag: "p" });
 
 /** The course's files; lessons, example sections and tasks without a number keep their numbers by
- *  source id in `keys`, the series' key map (02, "Keys"). */
+ *  source id in `keys`, the series' key map. */
 export function normaliseLingust(units: UnitSource[], index: MediaIndex, keys: KeyMap): Normalised {
   const bases = verbBases(units);
   const course = courseKey(SERIES, COURSE);

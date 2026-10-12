@@ -1,4 +1,4 @@
-// The text generator (04, "AI practice in courses"; 07; owner, 2026-10-12: every practice text from
+// The text generator (owner, 2026-10-12: every practice text from
 // one place). A text of a genre drawn by code is drafted three times side by side
 // (`understanding_draft`: the plan — situation, people with gender and age, beats, facts — then the
 // text), the drafts rated (`understanding_judge`) and the best that passes kept; none passing, the

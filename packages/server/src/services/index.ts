@@ -298,7 +298,7 @@ export function createServices(config: ServicesConfig) {
   const content = createContent(config.library);
   const profiles = createProfiles({ db: config.server, files: config.profiles, now });
   profiles.adoptFirst();
-  // Every profile's database migrated now: one that cannot be stops the server here (05), not every
+  // Every profile's database migrated now: one that cannot be stops the server here, not every
   // request of that profile later.
   for (const p of profiles.list()) config.profiles.open(p.id);
   const open = new Map<string, ProfileServices>();

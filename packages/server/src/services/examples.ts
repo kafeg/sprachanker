@@ -1,4 +1,4 @@
-// AI examples of a deck's words (04, "A deck's words given examples"; 07, `word_examples`): a
+// AI examples of a deck's words: a
 // deck's job (deck-examples.ts, the server's) started with this profile's model — the deck's words in
 // an edition, taken or not, what they can be assumed to know (a course's words up to their lesson, an imported
 // deck's up to them), the level when the course or deck names one, the learner's own prompt —; the

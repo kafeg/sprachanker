@@ -1,4 +1,4 @@
-// Reading's Check (09): the questions answered, Check in the step bar sends them; the run is read
+// Reading's Check: the questions answered, Check in the step bar sends them; the run is read
 // again first (a wrong answer puts going over mistakes in the plan), and only then is the step done —
 // never the other way round.
 import { expect, mock, test } from "bun:test";

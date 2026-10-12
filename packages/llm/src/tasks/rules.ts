@@ -1,4 +1,4 @@
-// A task's system prompt (07, "Prompts"): the learner's own rules for it (filled in) or its standing
+// A task's system prompt: the learner's own rules for it (filled in) or its standing
 // ones, then the fixed suffix that stays whatever the learner wrote — how the data is delimited, the
 // reply's form and its languages.
 import type { Lang } from "@sprachanker/schema";

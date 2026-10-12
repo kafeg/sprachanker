@@ -1,4 +1,4 @@
-// What a course's and an exam's cards share (09): the card itself — a band with the language pair, a
+// What a course's and an exam's cards share: the card itself — a band with the language pair, a
 // figure and, on "My …", the way to remove it (its progress reset), an optional bar under it, then its
 // download when one runs or files are missing, and the card's own body —; an offer not downloaded
 // yet, with its size and "Download"; the publisher linked to its site.

@@ -1,4 +1,4 @@
-// Study as in Anki (04, "Spaced repetition"): decks are the courses the words were met in and the decks
+// Study as in Anki: decks are the courses the words were met in and the decks
 // imported, under the language they teach; the queue is the engine's `studyQueue` with Anki's limits
 // and day; each rating is a `card_review` event in the day's `review` run, written together with the
 // face's state; undo, bury, suspend, flag and mark as in Anki's reviewer.
@@ -356,7 +356,7 @@ export function createStudy(deps: {
                 cardId: entry.cardId,
                 face: entry.face,
                 kind: entry.kind,
-                /** As the scope shows it: a deck's own entry of the word (04). */
+                /** As the scope shows it: a deck's own entry of the word. */
                 display: await deps.shown(note, scope, q.notes),
                 /** The language the word is in (its lexeme's). */
                 lang: note.lang,

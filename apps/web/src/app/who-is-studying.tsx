@@ -1,4 +1,4 @@
-// "Who is studying?" (06, "Profiles and access"; 09): the interface language first, then the profiles
+// "Who is studying?": the interface language first, then the profiles
 // on this server as tiles, centred, five to a page (← / → and the arrow keys page them), and "New
 // profile" after them while registration is open — it starts the onboarding, whose first step names
 // the profile —, with "Import a profile" under them (a profile file from another computer). A profile

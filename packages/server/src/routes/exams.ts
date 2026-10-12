@@ -1,5 +1,5 @@
 // /api/exams: the installed exams with the learner's standing, an exam's page, and its runs — started
-// (a mock exam or practice), opened, answered, handed in (09, Exams).
+// (a mock exam or practice), opened, answered, handed in.
 import {
   EditionId,
   ExamItemKey,

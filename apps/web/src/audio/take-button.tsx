@@ -1,4 +1,4 @@
-// One's own recording played back (08): a pill with its length; one medium plays at a time. A kept
+// One's own recording played back: a pill with its length; one medium plays at a time. A kept
 // one an answer names: played, or said to be deleted (all recordings deleted, the answers kept).
 import { Pause, Play } from "lucide-react";
 import { useTranslation } from "react-i18next";

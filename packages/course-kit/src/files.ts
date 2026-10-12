@@ -1,4 +1,4 @@
-// Writing library files safely (02, 03): a file is replaced whole or not at all, so a crash or a quit
+// Writing library files safely: a file is replaced whole or not at all, so a crash or a quit
 // midway never leaves a half-written page, lesson or index that later runs would take as stored.
 import { createHash, randomUUID } from "node:crypto";
 import { constants, copyFileSync, createReadStream, linkSync } from "node:fs";

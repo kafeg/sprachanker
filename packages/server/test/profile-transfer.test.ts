@@ -1,4 +1,4 @@
-// A profile moved as a file (05, "Profile file"): exported from one data root and imported into
+// A profile moved as a file: exported from one data root and imported into
 // another — its runs, events, cards, settings and recordings as they were, its API keys left out —,
 // and every file that is not one refused with nothing left behind.
 import { Database } from "bun:sqlite";

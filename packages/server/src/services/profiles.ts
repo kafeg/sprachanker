@@ -1,4 +1,4 @@
-// The profiles on this server (06, "Profiles and access"): every one equal, each with its own database
+// The profiles on this server: every one equal, each with its own database
 // file; a name and colour for "Who is studying?" and whether the onboarding was finished. A profile is
 // chosen, not unlocked: profiles keep people's learning apart, they are no security boundary (owner,
 // 2026-10-08). Registration (open by default) is the server's own setting,

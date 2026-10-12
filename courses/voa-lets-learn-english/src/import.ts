@@ -1,5 +1,5 @@
 // `sprachanker import voa-lets-learn-english`: fetch the landing pages, lesson articles, their document
-// pages and quiz result pages (idempotent), then the media, then normalise (03). GET only: a quiz's
+// pages and quiz result pages (idempotent), then the media, then normalise. GET only: a quiz's
 // result page (`page=2k`) shows question k with its answer, no answer is submitted.
 import { join } from "node:path";
 import {
@@ -56,7 +56,7 @@ export async function importLetsLearnEnglish(options: ImportOptions): Promise<Im
   });
   const report = importReport(index);
 
-  // Keys stay by source id across normalisations (02): the series' key map, saved once written.
+  // Keys stay by source id across normalisations: the series' key map, saved once written.
   const keys = await openKeyMap(seriesDir);
   for (const course of courses) {
     options.progress?.({ phase: "normalise" });

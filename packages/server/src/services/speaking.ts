@@ -1,4 +1,4 @@
-// An answer said aloud without a line to say (08, "Checking speech"; 07): what the recogniser heard,
+// An answer said aloud without a line to say: what the recogniser heard,
 // checked by the configured model against the item, its question and the source's answer — both heard
 // from the course's recordings. A check is an `llm_verdict` (`task: speaking`) on the item in the lesson
 // run, for what was heard: asked once per answer, shown again without asking.
@@ -55,7 +55,7 @@ export function createSpeaking(deps: {
     const ctx = await deps.lessonContext.get(request.series, request.lessonKey, request.edition);
     const exercise = findExercise(ctx.lesson, request.exerciseKey);
     const item = exercise?.items[request.index];
-    // Only an answer of one's own: a line to say is checked by the word diff (08).
+    // Only an answer of one's own: a line to say is checked by the word diff.
     if (
       exercise?.type !== "speech_selfrate" ||
       !item ||

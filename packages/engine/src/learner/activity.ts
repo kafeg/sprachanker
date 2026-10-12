@@ -1,4 +1,4 @@
-// A learner's study days (04, "Learner model"; 09, Notebook): what each day held, read from the event
+// A learner's study days: what each day held, read from the event
 // log and counted by module (schema `stats.ts`) — lesson work (answers, skips, steps), exam answers,
 // card reviews (an answer taken back does not count), new cards learnt, how many reviewed cards were
 // remembered, and AI practice (the learner's messages, the model's checks and the answers to its

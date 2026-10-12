@@ -1,4 +1,4 @@
-// A recording in a mock exam (09, Exams): played as the real test plays it — from the start to the end,
+// A recording in a mock exam: played as the real test plays it — from the start to the end,
 // no going back, only as often as the Teil allows ("You hear each text twice"); the plays used are
 // kept on this device per run, so a reload does not give them back. Practice plays it as any other.
 import { Play, Volume2 } from "lucide-react";

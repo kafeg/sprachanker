@@ -1,4 +1,4 @@
-// A line of an Understanding text with its glossed words marked (04; 09): the words its glossary
+// A line of an Understanding text with its glossed words marked: the words its glossary
 // translates, found whole in the line in any case, each with its translation. Pure.
 
 export interface Gloss {

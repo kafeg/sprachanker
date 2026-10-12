@@ -1,4 +1,4 @@
-// The tutor's tools (07, "Tools"): data the model may ask for while answering, instead of getting all
+// The tutor's tools: data the model may ask for while answering, instead of getting all
 // of it in the context. The server runs them; lessons are named "unit.lesson" as the app shows them.
 import type { ToolDef } from "../client.ts";
 

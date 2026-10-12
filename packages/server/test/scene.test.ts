@@ -1,4 +1,4 @@
-// The Dialogue (04, "AI practice in courses"; 07): a setup with what the partner knows (hidden until
+// The Dialogue: a setup with what the partner knows (hidden until
 // it is over), lines said and heard or typed, each judged, a summary once it ends — all kept in the
 // scene run.
 import { expect, test } from "bun:test";

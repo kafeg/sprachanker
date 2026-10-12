@@ -1,4 +1,4 @@
-// Speaking (09): a monologue's card — what to talk about, the topic and three points in the language
+// Speaking: a monologue's card — what to talk about, the topic and three points in the language
 // learnt, how long —, said (typed here: nothing hears in the test), kept, then Check in the step bar;
 // checked, the writing check's view with a model answer. A role-play: the situation and the learner's
 // role, the partner's first line, the learner's hint; each line said and kept, the partner's next

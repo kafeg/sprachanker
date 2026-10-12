@@ -1,4 +1,4 @@
-// An exam's open answer rated by the assistant (07, `rate_exam_answer`; 09, Exams; owner's choice K,
+// An exam's open answer rated by the assistant (owner's choice K,
 // 2026-10-10): the configured model proposes a level of each of the exam's criteria with its reason;
 // the learner takes the proposal or changes it, and only that rating scores (`exam_rated`). A proposal
 // is an `llm_verdict` (`task: exam`) on the question in the exam run, for the answer it rated: asked

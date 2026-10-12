@@ -1,4 +1,4 @@
-// The app's frame (09, "Layouts"): sidebar on desktop, bottom tab bar on phones, the cards due on the
+// The app's frame: sidebar on desktop, bottom tab bar on phones, the cards due on the
 // Review entry, background downloads in the window title, "On a phone" beside the profile (the
 // sidebar's: a phone has it in Settings); an optional feature's section (the Tutor) after the
 // learning modules while it is there.
@@ -113,7 +113,7 @@ export function AppShell({ extra }: { extra?: ExtraSection }) {
               to={to}
               aria-current={active(to) ? "page" : undefined}
               aria-label={short !== label ? label : undefined}
-              // Each label fits its sixth of a 375 px phone (09): the short one there where the full
+              // Each label fits its sixth of a 375 px phone: the short one there where the full
               // one does not; on a narrower screen it wraps, hyphenated where the language allows.
               className={cn(
                 "flex min-h-14 min-w-0 flex-1 flex-col items-center justify-center gap-0.5 px-px text-center text-xs leading-tight text-muted-foreground hyphens-auto [overflow-wrap:anywhere]",

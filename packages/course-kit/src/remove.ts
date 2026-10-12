@@ -1,4 +1,4 @@
-// A course removed from the library (02, "Library layout"): its canonical and locale folders, its
+// A course removed from the library: its canonical and locale folders, its
 // exams' source copies, and the media its files name that no other course of its series names (media
 // are one file per content in a series, shared — a course's videos may be its other editions' too).
 // The media index forgets the files removed (a download fetches them again); the key map stays, so a

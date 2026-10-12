@@ -1,4 +1,4 @@
-// Importing a deck file (.apkg) in Review → Decks (09): the file chosen and uploaded once, the server's
+// Importing a deck file (.apkg) in Review → Decks: the file chosen and uploaded once, the server's
 // preview of it, then a side panel to name the deck and say its languages — the words' (the first its
 // fields are named by, else the learner's decks', else German) and the translations' (of those the deck
 // has, the interface's when it is one) — with its first words, and Import by the upload's id.

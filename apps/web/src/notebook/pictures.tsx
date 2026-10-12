@@ -1,4 +1,4 @@
-// The Notebook's pictures (09): the span chosen (all time, 30 or 7 days) cut into bars by the server
+// The Notebook's pictures: the span chosen (all time, 30 or 7 days) cut into bars by the server
 // (engine `spanBars`, the study days' starts where the days are told apart) — the cards answered (new
 // ones apart) and the share remembered in Review's section, the time spent beside the study days, the
 // lessons done in the Lessons' — and a deck's words by state.

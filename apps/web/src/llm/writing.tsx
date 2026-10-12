@@ -1,4 +1,4 @@
-// "Write it yourself", a practice step of the lesson (04, "AI practice in courses"; 09): a task the model
+// Writing, a practice step of the lesson: a task the model
 // sets from the lesson — a situation and three content points, about as many words as the level asks —
 // and a text written on it, checked by the model (verdict, the points covered, at most three
 // corrections, the level's criteria, a model text). The latest check is shown under the task; earlier

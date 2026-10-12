@@ -1,5 +1,5 @@
 // Course order → keys: units are the course's lesson groups in order; the final test (no group)
-// becomes its own unit after the last one (03). A lesson keeps its number in its unit by its source id
+// becomes its own unit after the last one. A lesson keeps its number in its unit by its source id
 // (the key map), so one DW inserts shifts no other.
 import type { KeyMap } from "@sprachanker/course-kit";
 import {

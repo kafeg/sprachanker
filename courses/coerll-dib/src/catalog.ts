@@ -1,4 +1,4 @@
-// COERLL — Deutsch im Blick, 2nd edition (03, research coerll-dib.md): CC BY 4.0. One course,
+// COERLL — Deutsch im Blick, 2nd edition: CC BY 4.0. One course,
 // ten chapters; the site has vocabulary with audio, interviews and the textbook PDF per chapter.
 import type { CourseOffer } from "@sprachanker/course-kit";
 import { type CourseSource, seriesKey } from "@sprachanker/schema";
@@ -9,7 +9,7 @@ export const COURSE = "dib";
 export const EDITION = "en-de";
 export const CHAPTERS = 10;
 
-/** Attribution required by CC BY 4.0, shown with the course (course HTML has no links, 02). */
+/** Attribution required by CC BY 4.0, shown with the course (course HTML has no links). */
 export const ATTRIBUTION_HTML =
   "<p>Deutsch im Blick, 2nd edition (2017), COERLL, The University of Texas at Austin " +
   "(coerll.utexas.edu/dib) — licensed CC BY 4.0 (creativecommons.org/licenses/by/4.0). " +
@@ -21,7 +21,7 @@ export const SOURCE: CourseSource = {
   licence: "cc-by-4.0",
 };
 
-/** For the catalogue (03); the size was measured on a full download. */
+/** For the catalogue; the size was measured on a full download. */
 export const OFFERS: CourseOffer[] = [
   {
     course: COURSE,

@@ -1,4 +1,4 @@
-// Playback shared by every medium (09): one plays at a time — whatever starts pauses the one playing —
+// Playback shared by every medium: one plays at a time — whatever starts pauses the one playing —
 // and the profile's speed (provided by the app through PlaybackRate) with the button that steps it.
 import { createContext, useContext, useEffect, useRef, useState } from "react";
 import { useTranslation } from "react-i18next";
@@ -16,7 +16,7 @@ export function claimPlayback(media: Playing) {
   playing = media;
 }
 
-/** Pauses whatever plays: the learner records themselves (08), and the microphone would hear it. */
+/** Pauses whatever plays: the learner records themselves, and the microphone would hear it. */
 export function stopPlayback() {
   playing?.pause();
   playing = undefined;
@@ -56,7 +56,7 @@ export function SpeedButton({ className }: { className?: string }) {
 
 /**
  * A short clip played from the start on demand (a word, one's take): playing or not, and whether it
- * cannot load (09: a file that cannot load says so). Made on first play; another `src` in the same
+ * cannot load (a file that cannot load says so). Made on first play; another `src` in the same
  * place stops the old one and lets it go. `rate`: the speed it plays at.
  */
 export function useClip(src: string, rate = 1) {

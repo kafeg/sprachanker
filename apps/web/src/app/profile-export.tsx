@@ -1,4 +1,4 @@
-// Settings → Profile → moving the profile to another computer (05, "Profile file"; 09): the server
+// Settings → Profile → moving the profile to another computer: the server
 // makes its file ready, the browser downloads it; what it holds and leaves out said in a line.
 import { useMutation } from "@tanstack/react-query";
 import { Download } from "lucide-react";

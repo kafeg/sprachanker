@@ -1,4 +1,4 @@
-// A profile moved between one's own machines as one file (05, "Profile file"): exported — a
+// A profile moved between one's own machines as one file: exported — a
 // consistent copy of its database without its secrets, its recordings and a manifest, streamed as a
 // zip — and imported, always as a new profile: every file checked against the manifest, a database
 // from a newer app refused, an older one migrated forward, all or nothing. The files themselves are

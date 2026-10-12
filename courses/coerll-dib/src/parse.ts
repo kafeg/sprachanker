@@ -20,7 +20,7 @@ export interface VocabSection {
 export function parseVocabulary(html: string): VocabSection[] {
   const blocks = html.split(/<!-- Vokabular: Kap \d+, section (\d+): vs_\d+ -->/);
   const sections: VocabSection[] = [];
-  // split() with a capture group: [before, n1, block1, n2, block2, …]
+  // split with a capture group: [before, n1, block1, n2, block2, …]
   for (let i = 1; i < blocks.length; i += 2) {
     const n = Number(blocks[i]);
     const block = blocks[i + 1] ?? "";

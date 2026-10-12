@@ -1,6 +1,6 @@
-// The texts of the speech round-trip (10, "Speech round-trip"): asked once of the app's own tutor, in
+// The texts of the speech round-trip: asked once of the app's own tutor, in
 // real lessons of several language pairs, and kept in corpus.json — sentences in the language learnt
-// (a text mixing languages is never read aloud, 08). Written by the model, not taken from the courses. Run against a server whose profile has an AI assistant set up:
+// (a text mixing languages is never read aloud). Written by the model, not taken from the courses. Run against a server whose profile has an AI assistant set up:
 // `bun speech/corpus.ts <server url> <cookie>`.
 import { writeFileSync } from "node:fs";
 

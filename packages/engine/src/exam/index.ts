@@ -1,4 +1,4 @@
-// Exams (04, "Exams"; 02): which questions a learner is asked — drawn from each section's pool as the
+// Exams: which questions a learner is asked — drawn from each section's pool as the
 // real test draws them, a filtered section only from the questions of the learner's setting (their
 // federal state) — how a mock exam is scored (each question's latest answer), and what the learner's
 // answers across runs say of each question (known, answered wrongly, not seen). Pure: the caller
@@ -211,7 +211,7 @@ export function readiness(exam: Exam, setting: SettingOf, stats: Map<string, Que
   return open.filter((i) => stats.get(i.key)?.last === "right").length / open.length;
 }
 
-/** An exam question checked as the item of its kind it is (04), in the language the exam is in. */
+/** An exam question checked as the item of its kind it is, in the language the exam is in. */
 export function checkQuestion(item: ExamItem, answer: unknown, lang: string): Outcome {
   return checkItem(questionExercise(item), 0, answer, lang);
 }

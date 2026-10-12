@@ -1,4 +1,4 @@
-// What the AI assistant's answers are, as they are kept (05, "Events"; 07): each task's structured
+// What the AI assistant's answers are, as they are kept: each task's structured
 // result stored in an `llm_verdict` or a scene run's plan. Read back with these schemas; the tasks in
 // packages/llm ask the models for them.
 import { z } from "zod";
@@ -17,7 +17,7 @@ const WritingCriterion = z.object({
   comment: z.string(),
 });
 
-/** "Write it yourself" checked (`check_writing`). */
+/** Writing checked (`check_writing`). */
 export const WritingCheck = z.object({
   verdict: z.enum(["good", "minor_errors", "major_errors", "off_task"]),
   /** The learner's text with the errors corrected, changed as little as possible. */
@@ -63,7 +63,7 @@ export const TaskMessage = z.object({
 });
 export type TaskMessage = z.infer<typeof TaskMessage>;
 
-/** A writing task (`writing_task`; 04, "AI practice in courses"): a situation from the lesson and
+/** A writing task (`writing_task`): a situation from the lesson and
  *  three content points to cover, as a language exam's writing part sets one (Goethe's Schreiben),
  *  in the learner's language — an answer to a message the text generator wrote (a friend's e-mail,
  *  a chat, an ad), or a situation alone (tasks before the message); kept as an `llm_verdict` (`task:
@@ -80,7 +80,7 @@ export const WritingTask = z.object({
 });
 export type WritingTask = z.infer<typeof WritingTask>;
 
-/** A model's check of an answer said aloud without a phrase to say (08, "Checking speech"), from what
+/** A model's check of an answer said aloud without a phrase to say, from what
  *  the recogniser heard; kept as an `llm_verdict` (`task: speaking`) on the item. */
 export const SpokenCheck = z.object({
   verdict: z.enum(["good", "minor_errors", "major_errors", "off_task"]),
@@ -93,7 +93,7 @@ export const SpokenCheck = z.object({
 export type SpokenCheck = z.infer<typeof SpokenCheck>;
 
 /** The assistant's rating of an exam's open answer by the exam's criteria (`rate_exam_answer`), kept
- *  as an `llm_verdict` (`task: exam`) on the question; the learner takes it or changes it (09). */
+ *  as an `llm_verdict` (`task: exam`) on the question; the learner takes it or changes it. */
 export const ExamRatingProposal = z.object({
   /** Each criterion once: the points of the level chosen (one of its levels) and why. */
   criteria: z
@@ -140,8 +140,7 @@ export const WordExamples = z.object({
 });
 export type WordExamples = z.infer<typeof WordExamples>;
 
-/** A Dialogue (a scene) as drafted (`scene_setup`), kept as its run's plan (04, "AI practice in
- *  courses"). */
+/** A Dialogue (a scene) as drafted (`scene_setup`), kept as its run's plan. */
 export const SceneSetup = z.object({
   /** Short title in the learner's language. */
   title: z.string(),
@@ -183,7 +182,7 @@ export const ExamConversationTurn = z.object({
 });
 export type ExamConversationTurn = z.infer<typeof ExamConversationTurn>;
 
-/** A question on an Understanding text (04, "AI practice in courses"), in the target language: a
+/** A question on an Understanding text, in the target language: a
  *  choice — true/false as two options in the target language, a/b/c, a number, price or time among
  *  three — or a short answer typed (a number, a price, a time, a name; the ways of writing it
  *  accepted). Shown and checked as the item of the closed type it is (`single_choice`, `gap_text`:
@@ -210,7 +209,7 @@ export function questionProblem(q: UnderstandingQuestion): string | undefined {
   return q.accepted?.length ? undefined : "a question without options needs its accepted answers";
 }
 
-/** The AI practice steps an Understanding text is made for (04, "AI practice in courses"): read, or
+/** The AI practice steps an Understanding text is made for: read, or
  *  heard first with the text shown once its questions are answered. */
 export const PracticeStep = z.enum(["reading", "listening"]);
 export type PracticeStep = z.infer<typeof PracticeStep>;
@@ -235,7 +234,7 @@ export const TextRating = z.object({
 });
 export type TextRating = z.infer<typeof TextRating>;
 
-/** An Understanding text (04): a dialogue or a text one person says to listen to, or a text to
+/** An Understanding text: a dialogue or a text one person says to listen to, or a text to
  *  read (a letter, a chat, a notice, a story), in the target language, with its questions; kept as
  *  an `llm_verdict` (`task: understanding`) in the lesson run, the learner's answers as
  *  `practice_answered` events on it. Texts before Reading and Listening have no `step` (a text to
@@ -275,7 +274,7 @@ export const UnderstandingText = z.object({
 });
 export type UnderstandingText = z.infer<typeof UnderstandingText>;
 
-/** The closed types Going over mistakes sets new items of (04, "AI practice in courses"): an
+/** The closed types Going over mistakes sets new items of: an
  *  exercise's own type, or the nearest of these (a multiple choice → one answer; dictation and
  *  speech → a gap typed). */
 export const MistakeItemType = z.enum([
@@ -289,7 +288,7 @@ export type MistakeItemType = z.infer<typeof MistakeItemType>;
 
 /** What went wrong in a part of an item: a word's ending, another word, the option chosen, the
  *  order of words, the order of sentences, a pair, a word's spelling; listed only, without new items
- *  (04): an answer said aloud, an Understanding question on a text heard or read (their group:
+ * : an answer said aloud, an Understanding question on a text heard or read (their group:
  *  comprehension). */
 export const MistakeKind = z.enum([
   "ending",
@@ -445,7 +444,7 @@ export const MistakeGroup = z.object({
 });
 export type MistakeGroup = z.infer<typeof MistakeGroup>;
 
-/** Going over a pass's mistakes (`mistake_items`; 04): its mistakes by type — at most three with new
+/** Going over a pass's mistakes (`mistake_items`): its mistakes by type — at most three with new
  *  items, then those listed only —, kept as an `llm_verdict` (`task: mistakes`) in the lesson run.
  *  `more`: the wrong parts left out, beyond the types and parts shown. */
 export const MistakesReview = z.object({
@@ -454,7 +453,7 @@ export const MistakesReview = z.object({
 });
 export type MistakesReview = z.infer<typeof MistakesReview>;
 
-/** Speaking's monologue (04, "AI practice in courses"; owner, 2026-10-12): a card as a speaking
+/** Speaking's monologue (owner, 2026-10-12): a card as a speaking
  *  exam's first parts set one — what it is and what to do in the learner's language, the topic and
  *  three things to say in the target language —, about how long to speak, and a model answer. */
 export const MonologueCard = z.object({
@@ -476,7 +475,7 @@ export const RoleplayCue = z.object({
   cue: z.string().max(300),
 });
 
-/** Speaking's role-play (04): a conversation the text generator wrote, the learner playing one part
+/** Speaking's role-play: a conversation the text generator wrote, the learner playing one part
  *  (`learner`: their lines' speaker, a role) — each of their lines a hint to say it from, its words a
  *  model —, the partner read aloud by their voice. */
 export const Roleplay = z.object({

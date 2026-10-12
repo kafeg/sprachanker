@@ -1,4 +1,4 @@
-// An imported deck (04, "Decks"; 05, "Locations"): `<data-root>/decks/<id>/deck.json`, its words in
+// An imported deck: `<data-root>/decks/<id>/deck.json`, its words in
 // deck order with the audio it brought in `media/` beside it. Server-wide, as the library: every
 // profile takes it as a course's deck. Beside it, and in a course's deck folder, `extras.json`: what
 // the server made for the words (audio read aloud, examples).
@@ -87,7 +87,7 @@ export const DeckReadAudio = z.strictObject({
 });
 export type DeckReadAudio = z.infer<typeof DeckReadAudio>;
 
-/** Example sentences the AI wrote for a word (04, "A deck's words given examples"), with their
+/** Example sentences the AI wrote for a word, with their
  *  translations in one language: the model that wrote them and when. */
 export const DeckMadeExamples = z.strictObject({
   items: z

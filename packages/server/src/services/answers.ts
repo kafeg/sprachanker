@@ -1,4 +1,4 @@
-// A lesson's or an exam's answers stored over the run store, numbered by the server (05): each new
+// A lesson's or an exam's answers stored over the run store, numbered by the server: each new
 // answer after the answers its item has in the run, so two devices answering in one run never give
 // two answers the same number.
 import type { AnsweredPayload, Outcome } from "@sprachanker/schema";

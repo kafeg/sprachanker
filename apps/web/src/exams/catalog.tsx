@@ -1,4 +1,4 @@
-// An exam's catalogue (09, Exams; owner's choice F, 2026-10-10): every question open to the learner
+// An exam's catalogue (owner's choice F, 2026-10-10): every question open to the learner
 // (the general ones and their state's) as a compact list by Teil, found by its words; a question
 // opened shows its Teil's material and its right answer.
 import { examSettings, missingSettings, openQuestions, questionLine } from "@sprachanker/engine";

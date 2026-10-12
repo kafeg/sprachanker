@@ -1,4 +1,4 @@
-// What of what Whisper heard is the learner's (08), on takes as measured with the real engines
+// What of what Whisper heard is the learner's, on takes as measured with the real engines
 // (whisper-server, large-v3-turbo): each case is a take's loudness and what Whisper returned for it.
 import { expect, test } from "bun:test";
 import { type Loudness, said } from "../src/services/silence.ts";

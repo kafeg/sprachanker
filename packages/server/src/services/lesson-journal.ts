@@ -1,4 +1,4 @@
-// A lesson's journal in the Notebook (09; owner's choice A, 2026-10-07), a part of the lessons module:
+// A lesson's journal in the Notebook (owner's choice A, 2026-10-07), a part of the lessons module:
 // its passes, a pass in full (its events, the exercises as shown, explanations, writing checks,
 // Understanding's texts, words added, chats and scenes held meanwhile), and one item across passes.
 // Read only, through the run store; the cards a pass made through the card store; the chats and

@@ -1,4 +1,4 @@
-// The Notebook's pictures (09): bars over time — days, weeks or months, oldest first along the reading
+// The Notebook's pictures: bars over time — days, weeks or months, oldest first along the reading
 // direction (right to left mirrors them, as the calendar) — each of one or more parts stacked in their
 // tones; the highest value marked at the top, the first and last bar's dates under them. Each bar is a
 // button named by what it holds: pointed at, tapped or focused (one tab stop, the arrow keys along the

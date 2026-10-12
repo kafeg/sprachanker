@@ -1,4 +1,4 @@
-// A practice step's mark from the run (04, "AI practice in courses"): its first work, as an exercise's
+// A practice step's mark from the run: its first work, as an exercise's
 // first attempt — a text answered through by its questions right, a text checked or a task said by
 // the check's verdict, a role-play by its lines that fit.
 import { expect, test } from "bun:test";

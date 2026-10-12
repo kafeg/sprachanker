@@ -1,4 +1,4 @@
-// What the learner knows by now (07, the knowledge snapshot): the course's level from its id, the
+// What the learner knows by now: the course's level from its id, the
 // lesson's place, the earlier lessons' words with translations and the grammar topics met so far.
 import { describe, expect, test } from "bun:test";
 import type { LessonKey } from "@sprachanker/schema";

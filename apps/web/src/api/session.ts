@@ -1,6 +1,6 @@
-// Profiles and signing in (06, "Profiles and access"): who is studying, the session of this device, a
+// Profiles and signing in: who is studying, the session of this device, a
 // new profile, signing in by choosing, signing out; the signed-in profile's name, colour, onboarding and
-// devices; a profile as a file — the signed-in one exported, one imported (05, "Profile file").
+// devices; a profile as a file — the signed-in one exported, one imported.
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import type { InferResponseType } from "hono/client";
 import { api, json } from "./client.ts";

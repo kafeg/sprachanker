@@ -77,7 +77,7 @@ export function SingleChoice({
       locked={!!outcome}
       selected={(id) => answer?.optionId === id}
       // The chosen option takes the outcome (an option with the same text as the right one is
-      // right too, 04); the right one is shown, as missed, when the choice was wrong.
+      // right too); the right one is shown, as missed, when the choice was wrong.
       mark={(id) => {
         if (!outcome) return undefined;
         if (id === answer?.optionId) return outcome.result === "correct" ? "correct" : "wrong";

@@ -1,4 +1,4 @@
-// Fetch phase, media: every media URL referenced by the raw pages → media/<kind>/<name> + media.json (03).
+// Fetch phase, media: every media URL referenced by the raw pages → media/<kind>/<name> + media.json.
 import { readdir, readFile } from "node:fs/promises";
 import { join } from "node:path";
 import {

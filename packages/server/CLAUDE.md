@@ -1,14 +1,13 @@
 # packages/server
 
-HTTP API, storage, course downloads, sidecars, speech. Spec: `docs/spec/05-data-model.md`,
-`docs/spec/06-server.md`, `docs/spec/08-speech.md`. May depend on: schema, engine, course-kit,
+HTTP API, storage, course downloads, sidecars, speech. May depend on: schema, engine, course-kit,
 courses/*, llm, anki-export.
 
 ## Layout
 
 ```
 src/
-  index.ts           # startServer(config), importCourse(): called by `apps/cli` (`serve`, `import`)
+  index.ts           # startServer(config), importCourse: called by `apps/cli` (`serve`, `import`)
   config.ts          # app-data folder, data root (--data, $SPRACHANKER_DATA, <app-data>/data)
   providers.ts       # content providers: offers, import, the installer behind downloads (marks on disk;
                      # a course removed: removeInstalledCourse), the series' import lock (withSeriesLock:
@@ -86,7 +85,7 @@ src/
                      #   course-transfer (a course exported to a file, a file imported: the manifest and
                      #   its checks, the course installed; the files: CourseTransferFiles), transfers
                      #   (what both share: exports made ready once, one import at a time, a full disk)
-                     # - AI (07), each task in the module whose run keeps its answers: llm (providers,
+                     # - AI, each task in the module whose run keeps its answers: llm (providers,
                      #   keys, structured calls, previews; llm-lmstudio, llm-prompts), lesson-context
                      #   (the knowledge snapshot every lesson task takes: level — `levelOf` —, place,
                      #   words and topics met), in-flight (calls outliving the page, the step each is
@@ -96,7 +95,7 @@ src/
                      #   a monologue card or a role-play, what was said checked), practice-prep (made ahead as a lesson starts),
                      #   going-over (the pass's mistakes by type, new items checked by the engine), speaking, tutor (+ tutor-tools,
                      #   courses-context), scene (the Dialogue: out of the lesson, its runs read), exam-rating, exam-conversation, examples
-                     # - speech (08): speech (whisper-server; silence: a take's loudness, what is not speech of
+                     # - speech: speech (whisper-server; silence: a take's loudness, what is not speech of
                      #   what Whisper heard — its credits and made-up phrases by language: hallucinations.json), read-aloud (Piper; piper-voices.json from
                      #   scripts/piper-voices.ts), qwen-tts, local-engines (SpeechHost, ReadingCache,
                      #   engineSidecar), model-downloads, sidecar (the supervisor), profile-speech,
@@ -107,7 +106,7 @@ src/
   media.ts           # Range responses for library and deck folders' media and profile recordings (a type fixed
                      # by extension, sandboxed: mediaType); body limits (JSON 1 MB — every route but those
                      # taking a file —, audio); a large file's length as announced (none: no file)
-test/                # bun test; integration tests call createApp().request() — setup.ts signs a profile in
+test/                # bun test; integration tests call createApp.request — setup.ts signs a profile in
                      # and sends its cookie (`anonymous` sends none)
 ```
 

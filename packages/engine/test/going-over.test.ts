@@ -1,4 +1,4 @@
-// Going over mistakes (04, "AI practice in courses"): a mistake's wrong parts only — a gap of many
+// Going over mistakes: a mistake's wrong parts only — a gap of many
 // with the words around it, never cut mid-word; a pair; a choice; an order; words written or said —,
 // grouped by type, the commonest first; the new items set as items of their closed types and checked
 // by the engine; where the learner is in a review.

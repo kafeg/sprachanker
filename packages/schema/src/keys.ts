@@ -1,4 +1,4 @@
-// Stable content keys (02, "Keys and identity"). Keys are built and parsed only here.
+// Stable content keys. Keys are built and parsed only here.
 import { z } from "zod";
 import type { Lang } from "./lang.ts";
 
@@ -125,7 +125,7 @@ export const germanGender = (article: string | undefined): Gender | undefined =>
   article ? GERMAN_ARTICLES[article.toLowerCase()] : undefined;
 
 /**
- * A headword nothing more is known about, by its shape (02): a sentence or three words or more is a
+ * A headword nothing more is known about, by its shape: a sentence or three words or more is a
  * phrase; English "to X" is a verb with lemma X; anything else is a word. Every provider and imported
  * deck uses this, so the same entry gets the same lexeme everywhere.
  */

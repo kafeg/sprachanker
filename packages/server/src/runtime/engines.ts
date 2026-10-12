@@ -1,4 +1,4 @@
-// The speech engines built in native/ (08): which they are, where each one is — named by its
+// The speech engines built in native/: which they are, where each one is — named by its
 // environment variable, beside the app's binary (the desktop app bundles them there), else built in the
 // repository — and the processes of those run on a local port, which go with the server.
 // native/scripts/build.ts and apps/cli/scripts/build.ts take the engines and the triple from here.

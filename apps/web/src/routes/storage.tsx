@@ -1,4 +1,4 @@
-// Settings → Storage (05, 09): where the data lives — chosen when the server starts (`--data`,
+// Settings → Storage: where the data lives — chosen when the server starts (`--data`,
 // SPRACHANKER_DATA, else the app-data folder) — the space each source takes (courses of one source
 // share their media, so space is shown per source) and the profile's recordings, all deleted after
 // asking.

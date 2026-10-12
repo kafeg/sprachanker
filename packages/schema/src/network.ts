@@ -1,9 +1,9 @@
-// Where the app is reached (06, "Network and HTTPS"): the addresses another device opens it at, as
+// Where the app is reached: the addresses another device opens it at, as
 // data — the UI words them in the learner's language.
 import { z } from "zod";
 
 /** An address to open the app at. `secure`: the browser gives it a secure context (HTTPS, or
- *  localhost) — the microphone needs one (08). */
+ *  localhost) — the microphone needs one. */
 export const ServerAddress = z.object({ url: z.string(), secure: z.boolean() });
 export type ServerAddress = z.infer<typeof ServerAddress>;
 

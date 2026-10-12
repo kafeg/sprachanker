@@ -1,4 +1,4 @@
-// Reading and Listening (04, "AI practice in courses"; 07): a short text in the language learnt on the
+// Reading and Listening: a short text in the language learnt on the
 // lesson's topic, made by the text generator — a genre picked by code, drafts written side by side
 // (`understanding_draft`), rated (`understanding_judge`) and the best that passes kept (none passing:
 // the best written again with its problems, once; still none, nothing is shown), questions asked on
@@ -57,7 +57,7 @@ import {
 } from "./verdicts.ts";
 import { joinWavs } from "./wav.ts";
 
-/** What a text being made is at (09: said beside the time it takes): drafts written, the best
+/** What a text being made is at (said beside the time it takes): drafts written, the best
  *  chosen, questions asked, read again. */
 export type UnderstandingStep = "writing" | "choosing" | "asking" | "checking";
 

@@ -1,4 +1,4 @@
-// The Tutor section (09, 07): the tutor on its own — the chats about no lesson, the one written in last
+// The Tutor section: the tutor on its own — the chats about no lesson, the one written in last
 // first, each continued with a tap and deleted after asking; a new chat with a few ways to start and,
 // when the courses begun teach several, the language to practise. A chat is shown by the lesson
 // tutor's view with the language it practises. Without a model or with the tutor's place off it says how

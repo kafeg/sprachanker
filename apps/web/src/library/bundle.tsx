@@ -1,4 +1,4 @@
-// A downloaded course or exam moved as a file (02, "Course bundle"; 09): a Downloaded card's "Export
+// A downloaded course or exam moved as a file: a Downloaded card's "Export
 // to a file" — the server makes the file ready, the browser downloads it — and the Downloaded tabs'
 // "Import from a file": the file sent with its progress, the server's check, then the course installed
 // (or found the same, or replaced with the learner's progress kept) and what its check found.

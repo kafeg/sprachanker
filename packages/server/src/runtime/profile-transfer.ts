@@ -1,4 +1,4 @@
-// Profile files on disk (05, "Profile file"): each export or import in a transfer folder of its own,
+// Profile files on disk: each export or import in a transfer folder of its own,
 // `profiles/.transfers/<id>/` (transfers.ts). An export's snapshot — the database copied with
 // `VACUUM INTO` and its secrets emptied, the recordings linked — streamed as a zip of stored entries
 // (course-kit's zip); a received file read by its zip directory, unpacked streaming and hashed, its

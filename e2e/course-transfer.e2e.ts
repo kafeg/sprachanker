@@ -1,4 +1,4 @@
-// A course moved as a file (02, "Course bundle"): exported from its Downloaded card, gone from this
+// A course moved as a file: exported from its Downloaded card, gone from this
 // computer, imported back from Courses → Downloaded and studied; the fixture course put back whole
 // after (the export carries the card's pair only, other tests study the other).
 import { existsSync, renameSync, rmSync } from "node:fs";

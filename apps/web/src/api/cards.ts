@@ -1,4 +1,4 @@
-// Review cards (04): a lesson's words made cards, the decks, My words, a word, the queue and what the
+// Review cards: a lesson's words made cards, the decks, My words, a word, the queue and what the
 // reviewer does to cards.
 import type { CardFace, CardRating, LessonKey } from "@sprachanker/schema";
 import { type QueryClient, useMutation, useQuery, useQueryClient } from "@tanstack/react-query";

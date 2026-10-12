@@ -1,4 +1,4 @@
-// How each AI practice step of a run went (04, "AI practice in courses"; owner, 2026-10-12: marked as
+// How each AI practice step of a run went (owner, 2026-10-12: marked as
 // exercises are, right or with mistakes, not only done): its first work in the run, as an exercise's
 // first attempt — Reading's and Listening's first text answered through (its questions right, some,
 // none), Writing's first text checked and Speaking's first task checked (by the check's verdict; a

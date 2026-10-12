@@ -1,7 +1,7 @@
-// The learner's mistakes (04, "Learner model"; 05, "Derived state"): items whose first attempt in the
+// The learner's mistakes: items whose first attempt in the
 // latest run that answered them was wrong or partly right, with whether a later answer got them right.
 // "First attempt" is the run's first answer to the item — the same reading as the lesson score. An
-// answer said aloud without a phrase is read by the model's check of what was heard (08): minor errors
+// answer said aloud without a phrase is read by the model's check of what was heard: minor errors
 // partly right, major errors or off the task wrong, good right; unchecked, it is no mistake.
 import {
   type ItemKey,

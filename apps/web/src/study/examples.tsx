@@ -1,4 +1,4 @@
-// Example sentences of a word (04; 09): those it brings — a course's example, an imported deck's
+// Example sentences of a word: those it brings — a course's example, an imported deck's
 // sentences with their translations and recordings — and, from a slot, the AI's. Each in the word's
 // language with its translation and a button playing it (its recording, else read aloud on request; the
 // sentence only, never the translation). On a card one at a time (card.tsx); in the word sheet the

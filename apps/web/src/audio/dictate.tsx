@@ -1,4 +1,4 @@
-// Saying instead of typing (08): a small microphone beside a text box — a tap records, another stops
+// Saying instead of typing: a small microphone beside a text box — a tap records, another stops
 // and what was heard in the language given goes into the box to be
 // read over and changed before it is sent. Shown only while recognition is on and ready.
 import { LoaderCircle, Mic, Square } from "lucide-react";
@@ -15,7 +15,7 @@ export function DictateButton({
   onText,
   className,
 }: {
-  /** The language spoken (never detected, 08). */
+  /** The language spoken (never detected). */
   lang: string;
   /** What was heard, with the take (kept as a spoken answer's recording where there is one). */
   onText(text: string, take: Take): void;

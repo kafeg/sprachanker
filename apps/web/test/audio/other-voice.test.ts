@@ -1,4 +1,4 @@
-// A dialogue's other speaker read on the device (08): another voice of the language, of the speaker's
+// A dialogue's other speaker read on the device: another voice of the language, of the speaker's
 // gender where the voices' names say theirs.
 import { expect, test } from "bun:test";
 import { deviceVoiceGender, otherVoice } from "../../src/audio/speaker.ts";

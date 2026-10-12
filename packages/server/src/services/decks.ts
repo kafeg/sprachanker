@@ -1,4 +1,4 @@
-// Imported decks (04, "Decks"; 05, "Locations"): an `.apkg` read into `<data-root>/decks/<id>/` —
+// Imported decks: an `.apkg` read into `<data-root>/decks/<id>/` —
 // deck.json with the words, their translations and the deck's own examples, and the audio they use in
 // media/ — server-wide as the library; each profile takes one as a course's deck (cards.ts). A package
 // is uploaded once: previewed (kept beside the decks), then imported by its upload's id. Importing a

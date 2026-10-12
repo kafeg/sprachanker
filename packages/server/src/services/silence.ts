@@ -1,4 +1,4 @@
-// Silence in a take (08): how much of a 16-bit PCM WAV is loud enough to be speech, and what of what
+// Silence in a take: how much of a 16-bit PCM WAV is loud enough to be speech, and what of what
 // Whisper heard is not speech — sounds it names ("* Musik *"), credits it adds at any loudness
 // ("Untertitelung des ZDF, 2020") and phrases it makes up of silence and noise ("Vielen Dank.") —
 // by language, as data (hallucinations.json). Measured with whisper-server's large-v3-turbo on human

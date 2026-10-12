@@ -1,4 +1,4 @@
-// The Notebook (09): progress first — every module's headline figures (words known, lessons and courses
+// The Notebook: progress first — every module's headline figures (words known, lessons and courses
 // done); the study days of the last year as a calendar, with the totals of all time, 30 or 7 days
 // (lesson work, exam answers, cards answered, new cards, the share remembered, AI practice, time
 // spent) and the time spent over the span; then each module's standing the same way (schema

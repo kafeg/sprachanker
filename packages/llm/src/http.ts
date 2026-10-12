@@ -1,4 +1,4 @@
-// Requests to a provider's HTTP API (07, "Providers"), whichever API it speaks: time limits, errors
+// Requests to a provider's HTTP API, whichever API it speaks: time limits, errors
 // mapped to LlmError, and asking again without an option the provider refused.
 import { LlmError } from "./errors.ts";
 

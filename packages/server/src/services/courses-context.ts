@@ -1,4 +1,4 @@
-// What the Tutor section's chats know of the learner's courses (07): the courses begun in the language
+// What the Tutor section's chats know of the learner's courses: the courses begun in the language
 // a chat practises, the lessons worked on in them with their words and grammar topics, the latest
 // mistakes there. Bounded here by count — only the latest lessons are read, and only their runs for
 // mistakes —; the task cuts each part to its budget.

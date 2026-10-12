@@ -1,4 +1,4 @@
-// `sprachanker import dw-<series>`: fetch pages and media (idempotent), then normalise (03).
+// `sprachanker import dw-<series>`: fetch pages and media (idempotent), then normalise.
 import { join } from "node:path";
 import {
   createPoliteFetcher,

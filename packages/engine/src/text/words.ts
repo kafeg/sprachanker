@@ -1,4 +1,4 @@
-// Words of a sentence against a vocabulary (04, "AI examples"; 07): which words the learner has met —
+// Words of a sentence against a vocabulary: which words the learner has met —
 // a headword's forms (its plural and the forms the course gives, "studiert, studierte, hat studiert")
 // or a form that differs only by an ending ("wohne" — "wohnen") — and which are new, with a translation where
 // a vocabulary has one. Rough by design: it marks words to look at, it checks no answer.

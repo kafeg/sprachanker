@@ -1,4 +1,4 @@
-// How every module reports its statistics (05, "Derived state"; 09, Notebook): the learner's work is
+// How every module reports its statistics: the learner's work is
 // counted per module — lessons, exams, review, and the AI practice — and each learning module gives
 // its standing in one shape the Notebook shows without knowing the module.
 import { z } from "zod";
@@ -24,7 +24,7 @@ export const MODULE_OF_KIND: Record<RunKind, ModuleId> = {
 
 const Count = z.number().int().nonnegative();
 
-/** What a study day held (04, "Learner model"): each module's work counted — lesson work (answers,
+/** What a study day held: each module's work counted — lesson work (answers,
  *  skips, steps), exam answers, card answers not taken back, the learner's messages and the checks
  *  asked of the model —, of the cards, the new ones learnt and those in review remembered, and the
  *  time each module took. */

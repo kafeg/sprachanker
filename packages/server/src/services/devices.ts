@@ -1,4 +1,4 @@
-// Devices signed in to a profile (06, "Profiles and access"): a long random token lives only in the
+// Devices signed in to a profile: a long random token lives only in the
 // device's HttpOnly cookie, its SHA-256 here — so a device can be signed out alone, and a copied
 // database signs nothing in. Not a JWT: one server and one database decide, and revoking is a row.
 import { and, eq } from "drizzle-orm";

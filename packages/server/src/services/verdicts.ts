@@ -1,4 +1,4 @@
-// A model's verdicts (05: `llm_verdict` events), kept and read one way over the run store: explain,
+// A model's verdicts (`llm_verdict` events), kept and read one way over the run store: explain,
 // writing and spoken checks, an exam answer's proposed rating (and word examples of earlier versions);
 // and the answers to the questions a verdict set (`practice_answered`: an Understanding text's, a
 // mistakes review's new items), each kept once.

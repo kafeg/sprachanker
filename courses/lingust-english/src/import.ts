@@ -1,5 +1,5 @@
 // `sprachanker import lingust-english`: fetch the index, the lesson pages and their recordings
-// (idempotent), then normalise (03).
+// (idempotent), then normalise.
 import { join } from "node:path";
 import {
   createPoliteFetcher,
@@ -85,7 +85,7 @@ export async function importLingust(options: ImportOptions): Promise<ImportRepor
   });
 
   options.progress?.({ phase: "normalise" });
-  // Keys stay by source id across normalisations (02): the series' key map, saved once written.
+  // Keys stay by source id across normalisations: the series' key map, saved once written.
   const keys = await openKeyMap(seriesDir);
   const { files, lessons, unknown } = normaliseLingust(units, index, keys);
   const problems = await writeLibraryFiles(seriesDir, files, log);

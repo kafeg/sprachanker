@@ -432,7 +432,7 @@ test("normalisation: valid files, keys, exercises with answers, vocabulary, tabs
   expect(reviewLocale.tabs.grammar[0]?.bodyHtml).toContain(
     "<strong>Grammar focus: </strong>Simple present",
   );
-  // A sub-heading titles a section of the page, as in every course (02).
+  // A sub-heading titles a section of the page, as in every course.
   expect(reviewLocale.tabs.grammar[0]?.bodyHtml).toContain("<h3>Questions</h3>");
 });
 

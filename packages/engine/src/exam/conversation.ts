@@ -1,4 +1,4 @@
-// A speaking part held as a conversation (04, Exams; 07, `exam_conversation`): its lines are the
+// A speaking part held as a conversation: its lines are the
 // `llm_turn`s on its question, a conversation ending on a line marked `done` (the examiner's closing
 // line, or the learner's empty one). One ended with nothing said may be begun again in practice, so
 // the part is the latest conversation; the learner's own lines in it are the part's answer.

@@ -6,7 +6,7 @@ description: Full QA of one installed course (e.g. DW Nicos Weg A1 ru-de) — re
 # Course check
 
 Checks one course as a learner meets it. Never writes to `~/SprachAnker`: everything runs on an APFS
-clone. Spec: `docs/spec/10-quality.md` ("Run-throughs"). Takes hours for a whole course: the walk is
+clone. Takes hours for a whole course: the walk is
 long, the screenshot review is the long part.
 
 Inputs: the course key (`<series>/<course>`, e.g. `dw.nicos-weg/a1-ru`), its edition (`ru-de`), the

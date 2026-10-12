@@ -1,4 +1,4 @@
-// A Teil of an exam and its questions (09, Exams; 3B): the module where it begins, the Teil's title
+// A Teil of an exam and its questions (3B): the module where it begins, the Teil's title
 // and instructions, the text its questions share, its picture or recording, its example shown
 // answered; then each question as an item card, its own text above it and its recording played as
 // the Teil allows.

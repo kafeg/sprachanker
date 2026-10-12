@@ -1,4 +1,4 @@
-// Speech on the server (08): recognition and its models, Piper's voices, Qwen3-TTS, a text said, a
+// Speech on the server: recognition and its models, Piper's voices, Qwen3-TTS, a text said, a
 // recording heard.
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { api, apiError, json, sendBinary } from "./client.ts";
@@ -86,7 +86,7 @@ export async function sayOnServer(
 
 /** What was said in a 16 kHz WAV, in a language given (a binary body, not through the RPC client);
  *  empty when nothing was heard. `expected`: the lines to say, telling one said from what the
- *  recogniser makes of silence (never heard with, 08) — short ones only: what it makes up is short. */
+ *  recogniser makes of silence (never heard with) — short ones only: what it makes up is short. */
 export async function transcribe(
   wav: Uint8Array<ArrayBuffer>,
   lang: string,

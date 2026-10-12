@@ -1,4 +1,4 @@
-// Which lessons a run-through goes through (10, "Run-throughs"), read from the cloned library: `REAL`
+// Which lessons a run-through goes through, read from the cloned library: `REAL`
 // names them by key prefix (comma-separated: a series, a course, a lesson), else the first course of
 // every series; `REAL_PER_COURSE` is how many lessons of each course, spread over it (1 by default: the
 // first; "all" for every one).

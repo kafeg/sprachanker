@@ -1,4 +1,4 @@
-// The player's frame (09): the plan beside the step on desktop (a sheet on a phone; ui/side-layout),
+// The player's frame: the plan beside the step on desktop (a sheet on a phone; ui/side-layout),
 // the header with the steps reached, what optional features add there and the reference, and the
 // reference panel.
 import type { Lesson, LocaleLesson } from "@sprachanker/schema";

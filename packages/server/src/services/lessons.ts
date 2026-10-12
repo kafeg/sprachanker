@@ -1,5 +1,5 @@
 // Lesson runs: start or resume, append events (outcomes computed here, never trusted from the client),
-// finish with the lesson score (04, 05). Storage goes through the run store.
+// finish with the lesson score. Storage goes through the run store.
 import {
   checkItem,
   courseProgress,
@@ -144,7 +144,7 @@ export function createLessons({
 
   /** Lesson progress of every lesson with runs, over active and completed runs. An active run counts
    *  as "in progress" only once something was answered, skipped or a step done in it (`activity`:
-   *  `lessonWork()` when the caller has it already). */
+   *  `lessonWork` when the caller has it already). */
   const progress = async (activity = lessonWork()) => {
     const counted: Run[] = [];
     for (const row of store.all("lesson"))
@@ -227,7 +227,7 @@ export function createLessons({
   }
 
   /** Each lesson's state for the course map, read like the player reads it. `byLesson` is
-   *  `progress()` when the caller has it already. */
+   *  `progress` when the caller has it already. */
   const lessonStates = async (
     lessons: LessonKey[],
     byLesson?: Awaited<ReturnType<typeof progress>>,
@@ -261,7 +261,7 @@ export function createLessons({
   /**
    * The courses begun — a lesson in progress or done —, the one worked in last first: each with the
    * edition of its latest work and its lessons worked on (the latest first), done or not. What the
-   * Tutor section talks about (07).
+   * Tutor section talks about.
    */
   async function studied(): Promise<StudiedCourse[]> {
     const worked = lessonWork();
@@ -399,7 +399,7 @@ export function createLessons({
         content.lesson(series, row.contextKey as LessonKey),
       );
       const locale = await content.localeLesson(series, lesson.key, row.edition);
-      // Answers are checked in the language the edition teaches (case rules differ, 04).
+      // Answers are checked in the language the edition teaches (case rules differ).
       const target = parseEditionId(row.edition).target;
       // An exercise's snapshot is kept with the first time it was shown in the run.
       const snapshotted = new Set(

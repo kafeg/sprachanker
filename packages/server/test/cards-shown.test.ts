@@ -1,4 +1,4 @@
-// What a card shows where it is studied (04, "Decks"; cards.ts `shown`), over the service itself: a
+// What a card shows where it is studied (cards.ts `shown`), over the service itself: a
 // list of many cards reads the courses once; which course's entry a language's queue shows.
 import { expect, test } from "bun:test";
 import { mkdirSync, readFileSync, writeFileSync } from "node:fs";

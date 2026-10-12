@@ -1,4 +1,4 @@
-// An exam's page (09, Exams; owner's choice 2A, 2026-10-10): how ready the learner is (a ring), the
+// An exam's page (owner's choice 2A, 2026-10-10): how ready the learner is (a ring), the
 // federal state its questions are asked of, the whole exam or one module, the three ways in as tiles —
 // a mock exam as the real test runs it, practice with each answer checked at once, the catalogue of
 // every question with its answer — and the latest mock exam, the way to the rest in the Notebook.

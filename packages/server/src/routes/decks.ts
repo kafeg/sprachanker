@@ -1,4 +1,4 @@
-// /api/decks: imported decks (04, "Decks"), the server's as the library is — the list, a package
+// /api/decks: imported decks, the server's as the library is — the list, a package
 // uploaded and previewed (the .apkg as the request body, kept until imported or let go), its import,
 // a deck deleted — and any deck's words, taken or not, read aloud or given examples by the AI (what was
 // made removed, or made again). Taking and leaving one is a profile's: /api/cards/decks.

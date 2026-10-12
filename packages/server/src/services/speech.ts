@@ -1,4 +1,4 @@
-// Speech recognition on this machine (08; 06, "Sidecars"): whisper.cpp's `whisper-server`, run by the
+// Speech recognition on this machine: whisper.cpp's `whisper-server`, run by the
 // sidecar supervisor with the chosen model; the models it can use, downloaded from a pinned commit and
 // checked against their sha256. One server-wide engine: each profile chooses whether to use it and
 // which installed model (settings, profile-speech.ts); a transcription has a time limit.
@@ -61,7 +61,7 @@ export function createSpeech(deps: { host?: SpeechHost; fetch: typeof fetch }) {
   });
 
   /** What was said in a recording (a 16 kHz mono WAV, or a course's MP3), in a language given
-   *  (never detected, 08); `logprob`: how sure Whisper was of its least sure segment (verbose_json's
+   *  (never detected); `logprob`: how sure Whisper was of its least sure segment (verbose_json's
    *  `avg_logprob`; its `no_speech_prob` is 0 even for silence, so not used). */
   async function transcribe(audio: Blob, lang: string, model: string) {
     const started = Date.now();

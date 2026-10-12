@@ -1,4 +1,4 @@
-// Notes → a deck's words (04, "Decks"): the word, its translation (the field of the translation
+// Notes → a deck's words: the word, its translation (the field of the translation
 // language when the fields are named by language), plural, part of speech and the deck's example
 // sentences with their translations and audio, by the fields' names (fields.ts) — else the first field
 // is the word and the second its translation; then the word's lexeme by the rules every course uses

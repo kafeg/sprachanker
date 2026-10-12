@@ -1,4 +1,4 @@
-// A lesson in the Notebook (09): its passes, newest first — when, how long, the score, what was done —
+// A lesson in the Notebook: its passes, newest first — when, how long, the score, what was done —
 // each opening in full; two chosen are compared side by side.
 import { type LessonKey, parseLessonKey } from "@sprachanker/schema";
 import { useState } from "react";

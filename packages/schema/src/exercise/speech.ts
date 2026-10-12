@@ -3,7 +3,7 @@ import { z } from "zod";
 import { MediaPath } from "../common.ts";
 import { exerciseOf, ItemBase } from "./base.ts";
 
-/** A spoken answer: what the recogniser heard (08), and the profile recording when recordings are
+/** A spoken answer: what the recogniser heard, and the profile recording when recordings are
  *  kept. */
 export const SpokenAnswer = z.strictObject({
   recording: z.string().min(1).optional(),
@@ -27,7 +27,7 @@ export const SpeechRepeatExercise = exerciseOf("speech_repeat", SpeechRepeatItem
  *  Its `prompt` is what the item asks (a question, a situation, words to use), `text` a phrase to
  *  repeat after its recording (said as written), `reference` the source's answer to say. What was
  *  heard gets a word diff against the line to say (engine `linesToSay`); without one, the AI checks
- *  it (08). Its `answerAudio` is played after the learner's first try. */
+ *  it. Its `answerAudio` is played after the learner's first try. */
 const SpeechSelfrateItem = ItemBase.extend({
   text: z.string().min(1).optional(),
   /** The source's answer, written (as respond's model answers): a line to say ("Ja, ich war schon in
@@ -35,7 +35,7 @@ const SpeechSelfrateItem = ItemBase.extend({
   reference: z.array(z.string().min(1)).min(1).optional(),
 });
 /** Answered once the learner recorded themselves: the profile recording when they are kept (none when
- *  the learner keeps no recordings), and what the recogniser heard when it is on (08). `rating`: the
+ *  the learner keeps no recordings), and what the recogniser heard when it is on. `rating`: the
  *  self-rating of answers given before 2026-10-08. */
 export const SpeechSelfrateAnswer = z.strictObject({
   recording: z.string().min(1).optional(),

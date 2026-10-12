@@ -1,4 +1,4 @@
-// What is experimental: every source its provider does not declare ready for learning (03), as the
+// What is experimental: every source its provider does not declare ready for learning, as the
 // catalogue marks it — shown only when its section (courses, exams) and itself are turned on in
 // Settings → General → Experimental. A source the catalogue does not know is shown; nothing is, until the
 // catalogue has loaded or failed (no experimental source shows for a moment).

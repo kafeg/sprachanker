@@ -1,4 +1,4 @@
-// Where this server is reached (06, "Network and HTTPS"): this machine's tailnet name, which the Host
+// Where this server is reached: this machine's tailnet name, which the Host
 // check accepts besides the fixed names, and the addresses another device opens the app at. What
 // Tailscale says is read through the runtime (`NetworkHost`) and parsed here.
 import type { ServerAddress, ServerAddresses } from "@sprachanker/schema";

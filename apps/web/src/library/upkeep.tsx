@@ -1,4 +1,4 @@
-// Keeping a downloaded course whole (09): its check — every file on disk and consistent — and syncing
+// Keeping a downloaded course whole: its check — every file on disk and consistent — and syncing
 // it with its source. The course page's head and the Downloaded cards show them the same way. A
 // Downloaded card's "Remove from this computer…" (asked first) deletes it from the disk.
 import {

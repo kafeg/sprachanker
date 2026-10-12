@@ -1,4 +1,4 @@
-// The learner's day of card answers as Anki keeps it (04, "Spaced repetition"): the answers not taken
+// The learner's day of card answers as Anki keeps it: the answers not taken
 // back (Undo takes back a deck's latest), what each deck has used of its daily limits, and the face just
 // taken back (shown next). Pure: the caller passes the day's card events.
 import type { CardFace, CardReviewPayload, TypedEvent } from "@sprachanker/schema";

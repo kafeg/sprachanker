@@ -1,4 +1,4 @@
-// Reading aloud (08): one text at a time, each part with the profile's engine — Piper on the server
+// Reading aloud: one text at a time, each part with the profile's engine — Piper on the server
 // when it has a voice for the part's language, else the device's voices (Web Speech API) — the voice
 // chosen for each language in the profile, else the best one there, at the profile's reading speed; a
 // part marked `alt` (a dialogue's second speaker) by another voice of its language where there is one —
@@ -265,7 +265,7 @@ export const voiceInfo = (
   voice: v,
 });
 
-/** Who reads a language aloud (09: named where a line is listened to, as the model is). */
+/** Who reads a language aloud (named where a line is listened to, as the model is). */
 export interface ReadBy {
   engine: "device" | "piper" | "qwen";
   /** The voice's name; empty when the browser picks the device's voice itself. */

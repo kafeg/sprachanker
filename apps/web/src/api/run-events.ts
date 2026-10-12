@@ -1,4 +1,4 @@
-// A run's events on their way to the server (05, "Sending"), the same for every module's runs (a
+// A run's events on their way to the server, the same for every module's runs (a
 // lesson's, an exam's): one outbox per profile and run state for the page's life — the events of a
 // profile signed out wait until it is back, a page opened again sends on after what it queued
 // before —, the server's outcome and attempt of each answer put in place of the local ones, and what

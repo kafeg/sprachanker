@@ -1,5 +1,5 @@
 // The tutor's chat view, and the lesson tutor: the chat of this lesson in a side panel opened from the
-// header — questions and explanations; practice is the lesson's AI steps (04). The Tutor section's
+// header — questions and explanations; practice is the lesson's AI steps. The Tutor section's
 // chats (tutor-section.tsx) are shown by the same view.
 import { Link } from "@tanstack/react-router";
 import { MessageCircle, RotateCcw, Search } from "lucide-react";
@@ -147,7 +147,7 @@ export function useChat(source: ChatSource, onReply?: () => void) {
 }
 type Chat = ReturnType<typeof useChat>;
 
-/** The lesson's chat as the tutor's panel and the mistakes step show it. */
+/** The lesson's chat as the tutor's panel and the summary's going over show it. */
 function useLessonSource(context: Context): ChatSource {
   const { i18n } = useTranslation();
   const history = useTutorHistory(context.lessonKey);
@@ -192,7 +192,7 @@ export function Suggestions({
   );
 }
 
-/** An empty chat's ways into the lesson — explanations only (practice is the lesson's AI steps, 04) —,
+/** An empty chat's ways into the lesson — explanations only (practice is the lesson's AI steps) —,
  *  offered where the lesson has the material for them. */
 function LessonSuggestions({ context, onAsk }: { context: Context; onAsk(text: string): void }) {
   const { t } = useTranslation();

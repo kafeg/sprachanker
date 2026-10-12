@@ -1,7 +1,6 @@
 # packages/anki-export
 
-Anki's deck packages (`.apkg`). Spec: `docs/spec/04-engine.md` ("Decks"). Depends on `packages/schema`
-and `fflate` only; runtime-free — SQLite and zstd come from the caller (`ApkgRuntime`: the server's
+Anki's deck packages (`.apkg`). Depends on `packages/schema` and `fflate` only; runtime-free — SQLite and zstd come from the caller (`ApkgRuntime`: the server's
 `src/runtime/decks.ts`).
 
 ## Layout

@@ -1,4 +1,4 @@
-// Dictation (09): the recording heard, its text typed; once checked, the words as the engine's diff
+// Dictation: the recording heard, its text typed; once checked, the words as the engine's diff
 // marks them — right, missing, extra, wrong with the right one.
 import { useRef } from "react";
 import { useTranslation } from "react-i18next";

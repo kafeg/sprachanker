@@ -1,4 +1,4 @@
-// My words (09), under Decks: every word with cards as a table, like Anki's browser — search by word or
+// My words, under Decks: every word with cards as a table, like Anki's browser — search by word or
 // translation, filters by deck (a language, a course, an imported deck) and by state with their counts,
 // columns sortable; a row opens the word sheet, its button before it plays the word's audio (as a
 // language's queue shows the word: the server's display) — never by itself. On a phone a row takes two

@@ -31,7 +31,7 @@ export async function remuxStream(
   const variant = variantUrl(master, source.resolution);
   if (!variant) throw new FetchFailedError(source.master, "network");
   await mkdir(dirname(target), { recursive: true });
-  // The importer's identity, as every request of it (03).
+  // The importer's identity, as every request of it.
   const args = ["-loglevel", "error", "-y", "-user_agent", IMPORTER_USER_AGENT, "-i", variant];
   args.push("-c", "copy", "-bsf:a", "aac_adtstoasc");
   // The target has no .mp4 extension (a temporary name): say the format.

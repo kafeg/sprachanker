@@ -27,7 +27,7 @@ function node(n: Node, out: Out): string {
     out.pending.push(tip);
     return inner;
   }
-  // The source's sub-headings title the parts of a section (02: `<h3>`, a card each).
+  // The source's sub-headings title the parts of a section (`<h3>`, a card each).
   if (/^h[3-6]$/.test(n.tag)) return `<h3>${inner}</h3>`;
   if (/\bcol-/.test(n.attrs.class ?? "")) return `<p>${inner}</p>`;
   return `<${n.tag}>${inner}</${n.tag}>`;

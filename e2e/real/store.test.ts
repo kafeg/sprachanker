@@ -1,4 +1,4 @@
-// The run-throughs' store checks catch a store broken on purpose (10, "Run-throughs"): a lesson walked
+// The run-throughs' store checks catch a store broken on purpose: a lesson walked
 // through and stored as it should be passes; each thing taken away or changed is named.
 import { expect, test } from "bun:test";
 import { checkQuestion, examResult, sectionsOf } from "@sprachanker/engine";

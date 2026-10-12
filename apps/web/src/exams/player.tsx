@@ -1,4 +1,4 @@
-// An exam run (09, Exams; owner's choice B, 2026-10-10): a question at a time as an online test shows
+// An exam run (owner's choice B, 2026-10-10): a question at a time as an online test shows
 // it, the grid of the run's numbers above (by Teil) to go to any, the Teil's material — its text,
 // recording, picture, example — with its every question (beside it on a wide screen). A mock exam runs
 // as the real test does — the time left above, answers that can be changed until it is handed in,

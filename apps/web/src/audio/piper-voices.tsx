@@ -1,4 +1,4 @@
-// Reading aloud with Piper on this computer (08; Settings → Speech → Read aloud): each language with
+// Reading aloud with Piper on this computer (Settings → Speech → Read aloud): each language with
 // the voice it is read with — automatic: the one the server picks — and "Listen", and its voices to
 // download or remove, the language's best first (the server's order).
 import { useState } from "react";

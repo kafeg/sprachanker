@@ -1,4 +1,4 @@
-// A running exam's state on this device (09, Exam run): each question's state and the tally, the
+// A running exam's state on this device: each question's state and the tally, the
 // question on screen (kept per run across a reload; ← and → move), and the time left.
 import type { ExamItem } from "@sprachanker/schema";
 import { useEffect, useRef, useState } from "react";

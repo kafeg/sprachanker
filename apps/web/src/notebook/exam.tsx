@@ -1,4 +1,4 @@
-// An exam in the Notebook (09; owner, 2026-10-10: an exam's statistics belong here, as a course's do),
+// An exam in the Notebook (owner, 2026-10-10: an exam's statistics belong here, as a course's do),
 // as the exams module gives it (schema `EntryDetail`): its mock exams and practice runs, newest first —
 // when, the points, passed or not — each opening its result; the map of the questions open to the
 // learner (known, answered wrongly last time, not seen); and the questions answered wrongly last time.

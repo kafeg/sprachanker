@@ -1,4 +1,4 @@
-// WAV readings joined into one (08): Listening's text as one recording — its lines read by their
+// WAV readings joined into one: Listening's text as one recording — its lines read by their
 // people's voices, a pause between them — so the page plays it in the course's own player, with its
 // timeline and speed. 16-bit PCM only (what Piper and Qwen3-TTS give); readings at another rate are
 // brought to the first's, several channels to one.

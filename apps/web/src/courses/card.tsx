@@ -1,4 +1,4 @@
-// A course on "My courses" and "Downloaded" (09): the library's card (library/card) with the lessons
+// A course on "My courses" and "Downloaded": the library's card (library/card) with the lessons
 // done in its band, the title and publisher, on "Downloaded" its check and sync, the lesson to go on
 // with, and the way in.
 import { editionSetting, parseLessonKey } from "@sprachanker/schema";

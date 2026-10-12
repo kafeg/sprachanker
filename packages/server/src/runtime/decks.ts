@@ -1,4 +1,4 @@
-// Imported decks on disk (05, "Locations"): `<data-root>/decks/<id>/` with deck.json and media/; a
+// Imported decks on disk: `<data-root>/decks/<id>/` with deck.json and media/; a
 // folder replaced whole (written beside, then renamed into place); a deck folder's extras.json and the
 // audio read aloud for its words (an imported deck's, a course's `course~…`); packages uploaded to be imported,
 // streamed to `decks/.uploads/`; and what reading an .apkg needs of the runtime: SQLite from bytes, zstd.

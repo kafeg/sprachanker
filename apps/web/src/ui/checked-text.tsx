@@ -1,4 +1,4 @@
-// The learner's text as a model checked it (07): the verdict as a badge, the text with the words that
+// The learner's text as a model checked it: the verdict as a badge, the text with the words that
 // changed struck through and their fixes, the corrections with why. Presentational: the writing check,
 // a spoken answer's check and the Notebook show checks the same way.
 import { wordDiff } from "@sprachanker/engine";

@@ -1,4 +1,4 @@
-// The word sheet (09): a word with cards in full — its forms and translation, an example, its audio,
+// The word sheet: a word with cards in full — its forms and translation, an example, its audio,
 // where it was met, each card type's state and the answers given to it — with suspend, mark and the way
 // to its lesson. A side panel; full width on a phone.
 import { type CardFace, parseLessonKey } from "@sprachanker/schema";

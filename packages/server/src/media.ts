@@ -6,7 +6,7 @@ import { bodyLimit } from "hono/body-limit";
 /** A Blob that can be sliced (Bun.file, Node's Blob, the web Blob). */
 export type MediaBlob = Blob & { slice(start: number, end?: number): Blob };
 
-/** The type a media file is served as, by its extension only (06, "Security"): what browsers play or
+/** The type a media file is served as, by its extension only: what browsers play or
  *  show, never a document that runs scripts (HTML, SVG, XML, JavaScript) — anything else is bytes to
  *  save. Library media, a deck's (an .apkg's names are anyone's), recordings. */
 const MEDIA_TYPES: Record<string, string> = {

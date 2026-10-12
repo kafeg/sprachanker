@@ -1,4 +1,4 @@
-// What the importers and the server keep beside a series' content (02, "Library layout"): the media
+// What the importers and the server keep beside a series' content: the media
 // index (`media.json`), the key map (`keys.json`) and a download's marker (`.downloads/<course>.json`).
 // Their own state, not content: checked when read, no `format` (one that does not read stops the import,
 // a marker cut short reads as an interrupted download).
@@ -8,7 +8,7 @@ import { MediaPath, Sha256 } from "./common.ts";
 export const MediaKind = z.enum(["audio", "image", "video", "subtitles", "pdf"]);
 export type MediaKind = z.infer<typeof MediaKind>;
 
-/** The extensions a media file of each kind may have, lower case (02, "Media references"): what
+/** The extensions a media file of each kind may have, lower case: what
  *  browsers play or show — never a document that runs scripts (HTML, SVG, XML). Goethe's recordings
  *  are MP4 audio. */
 export const MEDIA_EXTENSIONS: Record<MediaKind, readonly string[]> = {
@@ -32,7 +32,7 @@ const utf8Bytes = (text: string) => {
   return bytes;
 };
 
-/** A file or folder name every disk takes as it is (02): no separator, control character or
+/** A file or folder name every disk takes as it is: no separator, control character or
  *  character Windows refuses (`<>:"|?*`), not `.` or `..`, no trailing dot or space, no device name
  *  (CON, NUL, …), at most 255 bytes (UTF-8). */
 export function portableName(name: string) {
@@ -73,7 +73,7 @@ const MediaIndexEntry = z.union([
 export const MediaIndex = z.record(z.string(), MediaIndexEntry);
 export type MediaIndex = z.infer<typeof MediaIndex>;
 
-/** `keys.json`: by scope (a course's unit, a lesson), each source id's number (02, "Keys"). */
+/** `keys.json`: by scope (a course's unit, a lesson), each source id's number. */
 export const KeyMapFile = z.record(z.string(), z.record(z.string(), z.number().int().positive()));
 export type KeyMapFile = z.infer<typeof KeyMapFile>;
 

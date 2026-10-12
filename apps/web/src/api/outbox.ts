@@ -1,4 +1,4 @@
-// Events on their way to the server (05; 09): sent in order, in batches of one run, retried until
+// Events on their way to the server: sent in order, in batches of one run, retried until
 // stored — sooner at first, then less often (doubling up to a minute) while the server cannot be
 // reached or fails; asked to send meanwhile, it tries again at once. A batch the server refuses is
 // sent again event by event, and an event it refuses alone is dropped — sending it again cannot

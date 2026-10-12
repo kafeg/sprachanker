@@ -1,4 +1,4 @@
-// Reading and Listening (04, "AI practice in courses"; 07): a text made by the generator — drafts
+// Reading and Listening: a text made by the generator — drafts
 // written side by side, rated, the best kept (none passing: written again once, then nothing), its
 // questions asked and read again with the text and without it (those not settled, or given away by
 // common sense, left out; asked again once when too few are left) —, its people given the server's

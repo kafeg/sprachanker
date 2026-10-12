@@ -1,4 +1,4 @@
-// A level's model test normalised (03): each module page read into Teile (page.ts, teile.ts) and
+// A level's model test normalised: each module page read into Teile (page.ts, teile.ts) and
 // written as the exam's module of sections — a Teil each, with its instructions, its text, picture or
 // recording, how often it plays, its examples — and its questions as single-choice items whose right
 // option comes from the Teil's solution page. Pure: the pages, the pictures' texts and the media files

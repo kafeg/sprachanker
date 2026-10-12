@@ -1,4 +1,4 @@
-// Reading an .apkg, Anki's deck package (04, "Decks"): a zip holding the collection — SQLite;
+// Reading an .apkg, Anki's deck package: a zip holding the collection — SQLite;
 // `collection.anki21b` zstd-compressed in the newest format, else `collection.anki21` or
 // `collection.anki2` — and the media, numbered files named by the `media` map (JSON, or in the newest
 // format a zstd-compressed protobuf list, the files zstd-compressed too), unpacked at most

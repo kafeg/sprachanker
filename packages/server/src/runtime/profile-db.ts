@@ -1,4 +1,4 @@
-// A profile file's database made ready (05, "Profile file", import step 3), run in a Worker
+// A profile file's database made ready, run in a Worker
 // (profile-db-worker.ts). The file is untrusted: its views, triggers, CHECK constraints and indexed
 // expressions are SQL of its own that runs when it is read or written. So before anything but reading
 // `sqlite_master`, its schema must be exactly what this app's migrations make — after some of them —:
@@ -96,7 +96,7 @@ function check(file: string): string[] | "newer" | undefined {
 
 /** The database checked, then migrated forward (the usual copy beside it first, 05 "Migrations"), its
  *  secrets emptied and only the endpoints of the providers in `endpoints` kept (the others' would
- *  not count, 07). */
+ *  not count). */
 export function settleProfileDb(file: string, endpoints: readonly string[]): Settled {
   let checked: ReturnType<typeof check>;
   try {

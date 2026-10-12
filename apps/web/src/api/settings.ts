@@ -13,7 +13,7 @@ export const useAppInfo = () =>
     queryFn: () => json(api.health.$get()),
   });
 
-/** The addresses the app is reached at: this machine, the local network, the tailnet (06). */
+/** The addresses the app is reached at: this machine, the local network, the tailnet. */
 export const useAddresses = () =>
   useQuery({ queryKey: ["addresses"], meta: STATIC, queryFn: () => json(api.addresses.$get()) });
 

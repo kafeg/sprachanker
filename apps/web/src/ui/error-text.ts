@@ -1,4 +1,4 @@
-// The API's errors in words (06, "Errors"): every code of schema's ERROR_CODES has `error.<code>` in
+// The API's errors in words: every code of schema's ERROR_CODES has `error.<code>` in
 // the catalogs (test/catalogs.test.ts); anything else — a network failure, an older server's text —
 // is "something went wrong" with what it said.
 import { isErrorCode } from "@sprachanker/schema";

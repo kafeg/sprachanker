@@ -1,4 +1,4 @@
-// The Dialogue, a practice step of the lesson (04, "AI practice in courses"; 09): a conversation on
+// The Dialogue, a practice step of the lesson: a conversation on
 // the lesson's goals held by voice. The goal card, the partner's lines read aloud as they come (who
 // reads them named, as the model is), the learner's lines said — each with its take, whether it was
 // understood and fits, at most two corrections —, then a summary: goals met, what the partner knew,
@@ -343,7 +343,7 @@ export function DialogueStep({ onDone, ...ids }: LessonSlotContext & { onDone?()
         : { summing: true }
     : scenes.data.pending;
   const preparing = !!busy && "preparing" in busy;
-  /** The partner's newest line, read aloud as it comes: the Dialogue is held by voice (08). */
+  /** The partner's newest line, read aloud as it comes: the Dialogue is held by voice. */
   const readNewest = (scene: SceneState) => {
     const last = scene.turns.at(-1);
     const parts = last?.role === "assistant" ? said(last.text, lang) : [];

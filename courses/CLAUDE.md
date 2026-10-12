@@ -1,6 +1,6 @@
 # courses/ (+ packages/course-kit, apps/cli authoring)
 
-Content providers and our enrichment. Spec: `docs/spec/03-providers.md`, `docs/spec/02-course-format.md`.
+Content providers and our enrichment.
 Research about sources: `docs/research/`.
 
 ## Layout
@@ -45,7 +45,7 @@ packages/course-kit/src/
   dom.ts               # a tolerant HTML tree for broken pages (findAll, innerHtml)
   language.ts          # which of a course's two languages a text is in
 courses/
-  _shared/rules/       # grammar rules registry (<lang>.yaml) — the only place rules are defined (spec 02);
+  _shared/rules/       # grammar rules registry (<lang>.yaml) — the only place rules are defined;
                        # checked by the fixture's test, read by the app: planned
   _fixture/            # invented course covering every exercise type, two editions (tests, e2e); src/:
                        # course, locales, media (synthetic), library (written as an import would)
@@ -89,11 +89,11 @@ courses/
 ## Rules
 
 - Providers depend only on their own folder, `schema` and `course-kit` (never another provider) and
-  MUST satisfy the normalisation contract (spec 02).
+  MUST satisfy the normalisation contract.
 - `course-kit` never imports a provider, its tests included: they write their own synthetic library
   (`packages/course-kit/test/mini-library.ts`).
 - Import and normalisation are deterministic code over the source: no LLM, no generated content. A
-  language pair of a source course is a course of its own (spec 01).
+  language pair of a source course is a course of its own.
 - **Never commit third-party content**: no texts, media, raw page JSON, PDFs — also not in fixtures.
   Fixtures are hand-written and only shaped like the source.
 - `fetch` writes raw + media; `normalise` is offline and deterministic. Fixing a normaliser must not

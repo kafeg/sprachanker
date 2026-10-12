@@ -35,13 +35,13 @@ export function listen(
     fetch(request, bun) {
       // A deck file's preview and import, a profile file's import and download read or write for
       // minutes: they wait as long as they take; every other request up to `idleTimeout` (a model's
-      // first words, 07).
+      // first words).
       if (UNTIMED.test(new URL(request.url).pathname)) bun.timeout(request, 0);
       return fetch(request);
     },
     hostname: options.hostname,
     port: options.port,
-    // Bun's most: a local model may take minutes to its first token (07: 180 s), a speech engine to
+    // Bun's most: a local model may take minutes to its first token (180 s), a speech engine to
     // load; Bun's default 10 s would cut them.
     idleTimeout: 255,
     // A course bundle is the largest body taken (Bun's own limit is 128 MB); each route keeps its own
@@ -149,7 +149,7 @@ export const BUSY_MS = 5000;
 export const vacuumInto = (sqlite: Database, target: string) =>
   sqlite.exec(`VACUUM INTO '${target.replace(/'/g, "''")}'`);
 
-/** A SQLite file in WAL mode with its migrations applied (backed up first, 05). */
+/** A SQLite file in WAL mode with its migrations applied (backed up first). */
 function openSqlite(file: string, list: Migration[], now: number) {
   mkdirSync(dirname(file), { recursive: true });
   const sqlite = new Database(file, { create: true, strict: true });

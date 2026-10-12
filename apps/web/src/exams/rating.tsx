@@ -1,4 +1,4 @@
-// An open answer rated by its criteria (09, Exams; owner's choice K, 2026-10-10): each criterion with
+// An open answer rated by its criteria (owner's choice K, 2026-10-10): each criterion with
 // its levels as the exam's raters give them (points; what a level means on hover or long press), the
 // points they make, saved — by the learner, or as the assistant proposed them (a proposal kept in the
 // run for this answer, asked through the page's slot: chosen until changed, its reasons under each;

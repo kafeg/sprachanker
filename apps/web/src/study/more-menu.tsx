@@ -1,4 +1,4 @@
-// The reviewer's More menu (09): replay, bury and suspend the card or its note, mark, Anki's seven
+// The reviewer's More menu: replay, bury and suspend the card or its note, mark, Anki's seven
 // flags — each with its key (study/reviewer-keys.ts), and the deck's buried cards back.
 import { Flag, MoreHorizontal } from "lucide-react";
 import { useTranslation } from "react-i18next";

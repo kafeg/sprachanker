@@ -1,4 +1,4 @@
-// The speaker button (08; 09): reads a text aloud with the profile's voices, a second tap stops it. In
+// The speaker button: reads a text aloud with the profile's voices, a second tap stops it. In
 // the corner of an AI message, beside an AI example, and in a card's corner for a word without a
 // recording (there, `ref` lets the reviewer replay and autoplay it like a recording). Not shown where
 // the device cannot read the text's language.

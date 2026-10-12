@@ -1,4 +1,4 @@
-// Course bundles on disk (02, "Course bundle"): each export or import in a transfer folder of its own,
+// Course bundles on disk: each export or import in a transfer folder of its own,
 // `library/.transfers/<id>/` (transfers.ts) — on the library's disk, so files link and move into
 // place. An export's files linked there (a course normalised again meanwhile keeps the bundle whole),
 // each hashed, streamed as a zip (course-kit); a received bundle read by its zip directory, what the

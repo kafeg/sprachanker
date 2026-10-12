@@ -1,4 +1,4 @@
-// Profile settings: small JSON values by key (05), each key with its schema (schema `settings.ts`).
+// Profile settings: small JSON values by key, each key with its schema (schema `settings.ts`).
 // Values are checked when written and parsed when read: one that no longer fits — or is no JSON at
 // all — reads as unset.
 import {

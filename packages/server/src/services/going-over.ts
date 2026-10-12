@@ -1,4 +1,4 @@
-// Going over mistakes (04, "AI practice in courses"; 07): the mistakes of the pass the lesson shows —
+// Going over mistakes: the mistakes of the pass the lesson shows —
 // its items answered wrong at first and its Understanding questions answered wrong — as their wrong
 // parts only, grouped by type by the engine (`mistakesToGoOver`, `mistakeGroups`); the model gives
 // each type gone over, in a call of its own, a short explanation and two or three new items of it
@@ -48,7 +48,7 @@ import {
   verdicts,
 } from "./verdicts.ts";
 
-/** What a review being made is at (09: said beside the time it takes): new items made, or tried
+/** What a review being made is at (said beside the time it takes): new items made, or tried
  *  blind. */
 export type GoingOverStep = "making" | "checking";
 

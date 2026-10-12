@@ -1,4 +1,4 @@
-// BAMF — the "Leben in Deutschland" test and the naturalisation test (03, research exams.md): one
+// BAMF — the "Leben in Deutschland" test and the naturalisation test: one
 // exam course in German. The questions, options, state sections and pictures come from BAMF's
 // catalogue PDF; the right answers from BAMF's online test centre (the PDF marks none).
 import type { CourseOffer } from "@sprachanker/course-kit";
@@ -63,7 +63,7 @@ export const SOURCE: CourseSource = {
   licence: "free-access",
 };
 
-/** For the catalogue (03); the size was measured on a full download. */
+/** For the catalogue; the size was measured on a full download. */
 export const OFFERS: CourseOffer[] = [
   {
     course: COURSE,

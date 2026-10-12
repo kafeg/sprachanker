@@ -1,4 +1,4 @@
-// Steps of the lesson besides its exercises (09): a reading page (grammar, culture) and the action bar
+// Steps of the lesson besides its exercises: a reading page (grammar, culture) and the action bar
 // they share — back, skip where a step can be left undone, next.
 import { useTranslation } from "react-i18next";
 import { Button } from "@/ui/components/button.tsx";

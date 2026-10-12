@@ -1,4 +1,4 @@
-// An AI practice step's bar (09): until the step is worked its main button is Check, waiting for the
+// An AI practice step's bar: until the step is worked its main button is Check, waiting for the
 // page (a text to answer, a task to say) — never Next; Skip passes it by. Done, Next; worked but not
 // recorded, recorded now.
 import { expect, test } from "bun:test";

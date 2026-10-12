@@ -1,4 +1,4 @@
-// Exercises as a normaliser drafts them (02, 03): built from a source's data as the mapping goes,
+// Exercises as a normaliser drafts them: built from a source's data as the mapping goes,
 // checked against their type's schema where they are made, and fingerprinted. What cannot be mapped
 // becomes an `unknown` exercise with the reason, so the lesson still shows where it was.
 import {
@@ -36,7 +36,7 @@ type LooseDraft = ExerciseCommon & MappedDraft;
 /**
  * An exercise checked against its type's schema; one that does not fit throws `Unmapped` with what
  * did not (the mapping's mistake, reported where it is made). The fingerprint is the draft's own
- * (02), not of a reading of it.
+ *, not of a reading of it.
  */
 export function draftExercise(loose: LooseDraft): Exercise {
   const draft = { newWords: [], ruleIds: [], ...loose };

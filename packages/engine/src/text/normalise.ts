@@ -1,4 +1,4 @@
-// Text normalisation for checking typed and spoken answers (04, "Checking").
+// Text normalisation for checking typed and spoken answers.
 
 const DASHES = /[‐‑‒–—―]/g;
 
@@ -36,7 +36,7 @@ export const endsSentence = (text: string) => SENTENCE_END.test(text.trimEnd());
 
 /**
  * Whether the reference word at `index` keeps its case when compared: German capitalises nouns and
- * the formal "Sie", so a capitalised word that does not start a sentence must match exactly (04).
+ * the formal "Sie", so a capitalised word that does not start a sentence must match exactly.
  * `startsSentence`: whether the first word starts a sentence (a gap in mid-sentence does not).
  */
 function caseMatters(lang: string, words: string[], index: number, startsSentence = true): boolean {

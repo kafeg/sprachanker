@@ -1,4 +1,4 @@
-// The interface language (09): a list of every language there is a catalog for, each named in its own
+// The interface language: a list of every language there is a catalog for, each named in its own
 // language, on "Who is studying?" — the only place to choose it before a profile exists, kept on this
 // device — and in Settings → General, where the profile keeps it too (`keep`; preferences.ts applies it).
 import { useTranslation } from "react-i18next";

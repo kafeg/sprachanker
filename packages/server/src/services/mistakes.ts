@@ -1,4 +1,4 @@
-// The learner's mistakes, derived from lesson runs by the engine (05, "Derived state"): items whose
+// The learner's mistakes, derived from lesson runs by the engine: items whose
 // first attempt in the latest run that answered them was wrong or partly right, newest first.
 import { type Mistake, mistakesOf } from "@sprachanker/engine";
 import type { LessonKey } from "@sprachanker/schema";

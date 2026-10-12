@@ -1,4 +1,4 @@
-// An exercise being answered (09, 04): the answers given, the outcomes of the items checked (locally, with
+// An exercise being answered: the answers given, the outcomes of the items checked (locally, with
 // the engine the server checks with too), the recordings that must be played first, the item the number
 // keys choose in, and what checking, answering an item again, retrying, skipping and leaving record
 // (a take, the answer of a speaking item, at once: a reload or a tab a phone discarded keeps it).
@@ -32,7 +32,7 @@ export function useExercise({
   /** What the run already has for this exercise: shown again when it is reopened. */
   stored?: ExerciseResult;
   readOnly: boolean;
-  /** The language answers are checked in (case rules differ, 04). */
+  /** The language answers are checked in (case rules differ). */
   lang: string;
   onAnswered: Answered;
 }) {
@@ -134,7 +134,7 @@ export function useExercise({
       setAnswers((prev) => ({ ...prev, [i]: value }));
       // One choice answers the item: the number keys go on to the next one.
       setTouched(exercise.type === "single_choice" ? undefined : i);
-      // A take is kept with the run as it is made, with what was heard (08; the AI's check of it is
+      // A take is kept with the run as it is made, with what was heard (the AI's check of it is
       // kept on its own): not only when the learner moves on.
       const itemKey = exercise.items[i]?.key;
       if (exercise.type === "speech_selfrate" && !scored && !readOnly && itemKey) {

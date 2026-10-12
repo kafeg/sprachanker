@@ -42,7 +42,7 @@ const AssistantSetup = page(() =>
 );
 const TutorSection = page(() => import("@/llm/tutor-section.tsx").then((m) => m.TutorSection));
 const SectionChat = page(() => import("@/llm/tutor-section.tsx").then((m) => m.SectionChatPage));
-/** The Tutor section in the navigation, while the assistant works there (09). */
+/** The Tutor section in the navigation, while the assistant works there. */
 const tutorSection: ExtraSection = {
   to: "/tutor",
   key: "nav.tutor",

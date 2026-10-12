@@ -1,4 +1,4 @@
-// Every task whose words reach the learner assumes no gender of theirs (07): its standing rules carry
+// Every task whose words reach the learner assumes no gender of theirs: its standing rules carry
 // the NEUTRAL line, in English as every rule is.
 import { expect, test } from "bun:test";
 import { PROMPT_TASKS, type PromptTask, TASK_PROMPTS } from "../src/tasks/registry.ts";

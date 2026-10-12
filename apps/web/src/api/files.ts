@@ -1,4 +1,4 @@
-// Files moved between one's machines — a profile file (05), a course bundle (02): one sent with its
+// Files moved between one's machines — a profile file, a course bundle: one sent with its
 // progress, one made ready on the server asked after before its download, a download started under
 // the file's own name.
 import { CLIENT_HEADERS, type ErrorCode } from "@sprachanker/schema";

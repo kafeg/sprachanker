@@ -57,7 +57,7 @@ export function useResetProgress() {
   });
 }
 
-// A course moved as a file (02, "Course bundle"): its file made ready (an edition's), downloaded once;
+// A course moved as a file: its file made ready (an edition's), downloaded once;
 // a course file sent and installed.
 export type ExportedCourse = InferResponseType<typeof api.courses.export.$post, 200>;
 export type ImportedCourse = InferResponseType<typeof api.courses.import.$post, 200>;

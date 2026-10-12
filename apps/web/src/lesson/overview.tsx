@@ -1,4 +1,4 @@
-// The lesson's first page (09): where it sits in the course, its synopsis and goals, the episode video
+// The lesson's first page: where it sits in the course, its synopsis and goals, the episode video
 // (when no exercise shows it) or its picture, a recording with its transcript, and the way in (start,
 // resume, or the result of a finished run).
 import type { Lesson, LessonKey, LocaleLesson } from "@sprachanker/schema";
@@ -147,7 +147,7 @@ export function WayIn({ flow, mode }: { flow: LessonFlow; mode: RunMode }) {
   );
 }
 
-/** "Reset lesson progress", asked first (05). */
+/** "Reset lesson progress", asked first. */
 export function ResetLesson({
   series,
   course,

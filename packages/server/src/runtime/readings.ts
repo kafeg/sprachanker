@@ -1,4 +1,4 @@
-// What was read aloud, kept in <data-root>/cache/tts (08): a WAV per key — Piper's and Qwen3-TTS's
+// What was read aloud, kept in <data-root>/cache/tts: a WAV per key — Piper's and Qwen3-TTS's
 // alike — so a text read again comes at once; the newest are kept, by use.
 import {
   existsSync,

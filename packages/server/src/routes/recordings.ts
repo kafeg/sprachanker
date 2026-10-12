@@ -1,4 +1,4 @@
-// /api/recordings: the learner's recordings (08) — one saved from the request body as the browser
+// /api/recordings: the learner's recordings — one saved from the request body as the browser
 // recorded it (its type in Content-Type), one played (with ranges, as audio elements ask), how many
 // are kept and their size, one nothing was heard in removed, and all of them removed.
 import { Ulid } from "@sprachanker/schema";
@@ -21,7 +21,7 @@ export function recordingsRoutes() {
         const { blob, name } = c.var.s.recordings.file(c.req.valid("param").id);
         return blobResponse(blob, c.req.header("range"), name);
       })
-      // A take nothing was heard in (kept while it was heard, 08): gone unless an answer holds it.
+      // A take nothing was heard in (kept while it was heard): gone unless an answer holds it.
       .delete("/:id", zod("param", z.object({ id: Ulid })), (c) =>
         c.json({ removed: c.var.s.recordings.forget(c.req.valid("param").id) }),
       )

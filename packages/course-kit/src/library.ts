@@ -1,4 +1,4 @@
-// Reading installed courses from the library folder (02, "Library layout"). Files are validated
+// Reading installed courses from the library folder. Files are validated
 // against the schemas on read; an invalid file is an error, never partially used.
 import { existsSync, readdirSync, statSync } from "node:fs";
 import { readFile } from "node:fs/promises";

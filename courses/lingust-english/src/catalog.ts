@@ -22,7 +22,7 @@ export const MEDIA_REFERER = `${SITE}`;
 
 export const SOURCE: CourseSource = { publisher: "Lingust", url: SITE, licence: "free-access" };
 
-/** For the catalogue (03); the size was measured on a full download. */
+/** For the catalogue; the size was measured on a full download. */
 export const OFFERS: CourseOffer[] = [
   { course: COURSE, edition: EDITION, title: TITLE, source: SOURCE, approxBytes: 0.05e9 },
 ];

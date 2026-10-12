@@ -1,4 +1,4 @@
-// A year of study days as GitHub shows contributions (09, Notebook): a column a week, the language's
+// A year of study days as GitHub shows contributions: a column a week, the language's
 // first day of the week on top (Monday, Sunday or Saturday), each day shaded by how much was done; the months above, the legend below. Wide on a phone: it
 // scrolls sideways and opens on today.
 import { useEffect, useRef } from "react";

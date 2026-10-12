@@ -1,4 +1,4 @@
-// Speaking, a practice step of the lesson (04, "AI practice in courses"; 09; owner, 2026-10-12): said
+// Speaking, a practice step of the lesson (owner, 2026-10-12): said
 // aloud, checked once at the end with Check in the step bar — no waiting for the model between lines.
 // A monologue: a card (what to talk about, the topic and three things to say in the language learnt,
 // about how long), one take, then the check as a writing check shows it, with a model answer read

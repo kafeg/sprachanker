@@ -1,4 +1,4 @@
-// mistake_items (04, "AI practice in courses"; 07): the groups as data — what went wrong, the new
+// mistake_items: the groups as data — what went wrong, the new
 // items' type and fields, each mistake its wrong part only —; the rules (what is wrong, never why; new
 // items of the type, never a sentence again); every group answered once, each item valid for its type.
 import { expect, test } from "bun:test";

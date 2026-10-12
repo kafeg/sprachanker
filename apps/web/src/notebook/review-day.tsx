@@ -1,4 +1,4 @@
-// A review day in the Notebook (09), as a lesson's pass — a language's deck's alone when opened from
+// A review day in the Notebook, as a lesson's pass — a language's deck's alone when opened from
 // its deck: its date (the study day's), what it held (answers, new cards, the share remembered, time
 // spent) and every card answered that day in order — the word and its translation, the side asked,
 // the rating, the interval it gave, how long it took — then the review days before and after it.

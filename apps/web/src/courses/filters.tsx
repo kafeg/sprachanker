@@ -1,4 +1,4 @@
-// The two filters of a list of courses (09), the pair first, kept in the profile per page (unset, the pair
+// The two filters of a list of courses, the pair first, kept in the profile per page (unset, the pair
 // is the interface language's): the hook reads the stored values, chooses with `filterCourses`
 // (filter.ts) and draws the bar.
 import { parseEditionId } from "@sprachanker/schema";

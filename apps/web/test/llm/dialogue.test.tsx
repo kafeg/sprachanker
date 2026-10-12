@@ -1,4 +1,4 @@
-// The Dialogue step (09): the goal card, who reads the partner's lines, a line said and heard (sent as
+// The Dialogue step: the goal card, who reads the partner's lines, a line said and heard (sent as
 // heard, or said again), the learner's lines judged, the summary once it is over; typed only where
 // nothing hears the line, saying why.
 import { afterEach, expect, test } from "bun:test";

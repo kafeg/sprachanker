@@ -1,4 +1,4 @@
-// An exercise's mark (09): in the lesson's plan and summary, and a pass in the Notebook.
+// An exercise's mark: in the lesson's plan and summary, and a pass in the Notebook.
 import type { ExerciseMark } from "@sprachanker/engine";
 import { Check, SkipForward, X } from "lucide-react";
 import { useTranslation } from "react-i18next";

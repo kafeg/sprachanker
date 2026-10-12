@@ -1,4 +1,4 @@
-// Host check and security headers (06, "Security"). The server answers only to the names this machine
+// Host check and security headers. The server answers only to the names this machine
 // is reached by — localhost, an IP address, a `.local` name, its own host name, the names it was
 // given (`--allow-host`, `proxies`), its own name on its tailnet (asked through `known`) — so a web page on
 // another site cannot rebind its DNS name to this server and talk to the API as same-origin. The web

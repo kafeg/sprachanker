@@ -1,4 +1,4 @@
-// The AI assistant's providers as cards (07; 09): each with its icon and what it needs or has —
+// The AI assistant's providers as cards: each with its icon and what it needs or has —
 // "key saved", "not installed", "address not set" — so all of them are seen at once. Also the
 // onboarding's AI step.
 import {

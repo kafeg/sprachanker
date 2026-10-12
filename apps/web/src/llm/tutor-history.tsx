@@ -1,4 +1,4 @@
-// The tutor's history (07, 09): the lesson's chats, newest first — the first question, when, how many
+// The tutor's history: the lesson's chats, newest first — the first question, when, how many
 // messages, the current one marked — each opening to its turns: the learner's with the time and the
 // exercise on screen, the tutor's replies; a chat can be deleted (confirmed: its turns go with it).
 import type { ExerciseKey } from "@sprachanker/schema";

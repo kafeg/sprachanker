@@ -1,4 +1,4 @@
-// /api/speech: recognition (08) — the engine and its models (download, remove), the profile's choice
+// /api/speech: recognition — the engine and its models (download, remove), the profile's choice
 // (on/off and model, in its settings), warming the engine before a recording, and transcribing a
 // 16 kHz mono WAV in a language given (with the lines it was to say, if any: `expect`, one a line —
 // only to tell a line said from what Whisper makes of silence); reading aloud — Piper's voices and Qwen3-TTS's models

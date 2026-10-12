@@ -1,5 +1,5 @@
 /// <reference lib="dom" />
-// Walking a lesson through as a learner does (10, "Run-throughs"), by its screens only: the words
+// Walking a lesson through as a learner does, by its screens only: the words
 // rated, the reading pages read, every exercise answered and checked (any complete answer — what is
 // checked is that it is stored as the engine marks it), speaking items recorded with the browser's fake
 // microphone, and the summary reached. An exercise it could not answer fails the lesson (`unanswered`);
@@ -20,7 +20,7 @@ const en = JSON.parse(
 const labelStart = (message: string) => message.split("{")[0]?.trim() ?? message;
 
 /** Recordings play muted, one after another as the app plays them: playing is what counts as heard
- *  (09). */
+ * . */
 async function playAll(page: Page) {
   await page.evaluate(async () => {
     for (const m of document.querySelectorAll<HTMLMediaElement>("audio, video")) {

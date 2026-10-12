@@ -1,4 +1,4 @@
-// Learner data stored in profile.sqlite: runs and their events (05, "Events").
+// Learner data stored in profile.sqlite: runs and their events.
 import { z } from "zod";
 import {
   Correction,
@@ -37,7 +37,7 @@ export const RunStatus = z.enum(["active", "finished", "abandoned"]);
 export type RunStatus = z.infer<typeof RunStatus>;
 /** What an ended run is: never active again. */
 export type RunEnd = Exclude<RunStatus, "active">;
-/** Why a run ended (05, "Lifecycle"): its work done, its time up (a mock exam), its content changed,
+/** Why a run ended: its work done, its time up (a mock exam), its content changed,
  *  or the learner's choice (started over, replaced). */
 export const RunEndReason = z.enum(["completed", "timeout", "content_updated", "user"]);
 export type RunEndReason = z.infer<typeof RunEndReason>;
@@ -54,7 +54,7 @@ export const RunHeader = z.object({
 export type RunHeader = z.infer<typeof RunHeader>;
 
 export const LessonResult = z.object({
-  /** Mean first-attempt score of scored items, 0..1 (05, "Lifecycle"). */
+  /** Mean first-attempt score of scored items, 0..1. */
   score: z.number().min(0).max(1),
   scored: z.number().int().nonnegative(),
   answered: z.number().int().nonnegative(),
@@ -70,7 +70,7 @@ export const Run = RunHeader.extend({
 });
 export type Run = z.infer<typeof Run>;
 
-/** What the learner saw on a page: the exercise with its learner-language texts (05). */
+/** What the learner saw on a page: the exercise with its learner-language texts. */
 const PageSnapshot = z.object({ exercise: Exercise, locale: LocaleExercise.nullable() });
 
 const PageShownPayload = z.object({
@@ -86,7 +86,7 @@ const PageShownPayload = z.object({
 /** An answer as the client sends it; an `outcome` sent by the client is dropped. */
 const AnsweredInput = z.object({
   answer: z.unknown(),
-  /** 1 for the first attempt; only the first counts for scores (04). */
+  /** 1 for the first attempt; only the first counts for scores. */
   attempt: z.number().int().positive(),
   ms: z.number().int().nonnegative(),
 });
@@ -95,7 +95,7 @@ const AnsweredInput = z.object({
 export const AnsweredPayload = AnsweredInput.extend({ outcome: Outcome });
 export type AnsweredPayload = z.infer<typeof AnsweredPayload>;
 
-/** AI practice in the order of the lesson plan (04; owner, 2026-10-12): Reading, Listening, Writing,
+/** AI practice in the order of the lesson plan (owner, 2026-10-12): Reading, Listening, Writing,
  *  Speaking. */
 export const PRACTICE = ["reading", "listening", "writing", "speaking"] as const;
 export type PracticeKind = (typeof PRACTICE)[number];
@@ -104,7 +104,7 @@ export type PracticeKind = (typeof PRACTICE)[number];
 const PRACTICE_BEFORE = ["understanding", "scene", "mistakes"] as const;
 
 /**
- * A step of the lesson plan besides its exercises (04, "Lesson composition"): the words, a grammar or
+ * A step of the lesson plan besides its exercises: the words, a grammar or
  * culture page by its index, and the AI practice. Exercises are recorded by their answers.
  */
 export const StepId = z
@@ -145,12 +145,12 @@ export const EventInput = z.discriminatedUnion("type", [
 ]);
 export type EventInput = z.infer<typeof EventInput>;
 
-/** Longest text the learner sends: a "Write it yourself" text (what the model checks whole), and a
+/** Longest text the learner sends: a Writing text (what the model checks whole), and a
  *  message to the tutor or a scene. */
 export const WRITING_MAX = 2000;
 export const MESSAGE_MAX = 4000;
 
-/** One message of a tutor chat or a scene (05, "Events"). */
+/** One message of a tutor chat or a scene. */
 export const LlmTurnPayload = z.object({
   role: z.enum(["user", "assistant"]),
   text: z.string(),
@@ -170,7 +170,7 @@ export const LlmTurnPayload = z.object({
   goalsMet: z.array(z.number().int().nonnegative()).optional(),
   /** A Dialogue's learner line: the model's judgement of it — understood as said, fitting the
    *  conversation —, whether it was said aloud (as the recogniser heard it) rather than typed, and
-   *  its take (a profile recording, 08). */
+   *  its take (a profile recording). */
   understood: z.boolean().optional(),
   fits: z.boolean().optional(),
   spoken: z.literal(true).optional(),
@@ -185,7 +185,7 @@ export const LlmTurnPayload = z.object({
 export type LlmTurnPayload = z.infer<typeof LlmTurnPayload>;
 
 /**
- * A model's verdict on the learner's work (05, "Events"): a writing check, a mistake explanation or a
+ * A model's verdict on the learner's work: a writing check, a mistake explanation or a
  * spoken answer's check (on the item it is about), in the lesson run it was given in; an exam's open
  * answer rated by its criteria, on the question in the exam run.
  */
@@ -195,7 +195,7 @@ const verdict = <T extends string, R extends z.ZodType>(task: T, result: R) =>
     /** The learner's text (writing, an exam's open answer); the word (example); what was heard
      *  (speaking); empty for an explanation. */
     input: z.string(),
-    /** The task's result (07, schemas in assistant.ts); an explanation's text. */
+    /** The task's result; an explanation's text. */
     result,
     model: z.string(),
     latencyMs: z.number().int().nonnegative(),
@@ -226,7 +226,7 @@ export type VerdictTask = LlmVerdictPayload["task"];
 /** The verdict of one task, its result typed. */
 export type VerdictOf<T extends VerdictTask> = Extract<LlmVerdictPayload, { task: T }>;
 
-/** A card's sides (04, "Spaced repetition"), in a note's card order: recognition (target → native)
+/** A card's sides, in a note's card order: recognition (target → native)
  *  is card 1, production (native → target) card 2, listening (audio → meaning) card 3. */
 export const CardFace = z.enum(["recognition", "production", "listening"]);
 export type CardFace = z.infer<typeof CardFace>;
@@ -251,7 +251,7 @@ export const FaceState = z.object({
 export type FaceState = z.infer<typeof FaceState>;
 
 /** What a card shows, kept with it so it survives the removal of its course or deck
- *  (`cards.display_cache_json`, 05). */
+ *  (`cards.display_cache_json`). */
 const DisplayFields = {
   target: z.string().min(1),
   gender: Gender.optional(),
@@ -264,7 +264,7 @@ const DisplayFields = {
    *  (served under /decks/). */
   readAudio: z.string().optional(),
   /** Shown in a deck with no audio of its own for the word nor read for it: the card's own recording,
-   *  by its path under the server (`library/<series>/<file>`, `decks/<folder>/<file>`; 04). */
+   *  by its path under the server (`library/<series>/<file>`, `decks/<folder>/<file>`). */
   recordingPath: z.string().optional(),
   /** An imported deck's own example sentences, with their translations and audio (in its folder). */
   examples: z
@@ -285,7 +285,7 @@ export const CardDisplay = z.union([
 ]);
 export type CardDisplay = z.infer<typeof CardDisplay>;
 
-/** One review of one face, in a `review` run (05, "Events"). */
+/** One review of one face, in a `review` run. */
 export const CardReviewPayload = z.object({
   face: CardFace,
   rating: CardRating,
@@ -300,7 +300,7 @@ export type CardReviewPayload = z.infer<typeof CardReviewPayload>;
 /** A review taken back (Anki: undo); the face's state is restored to the review's `stateBefore`. */
 const CardUndoPayload = z.object({ review: Ulid });
 
-/** How an exam is taken (09): a mock exam — drawn as the real test draws, timed, the answers checked
+/** How an exam is taken: a mock exam — drawn as the real test draws, timed, the answers checked
  *  when it is handed in — or practice: question by question, each checked at once, the ones answered
  *  wrongly and not yet seen first. */
 export const ExamMode = z.enum(["test", "practice"]);
@@ -353,7 +353,7 @@ export const ExamRun = RunHeader.extend({
 });
 export type ExamRun = z.infer<typeof ExamRun>;
 
-/** An exam run's event as the client sends it: an answer to one of its questions (05). */
+/** An exam run's event as the client sends it: an answer to one of its questions. */
 export const ExamEventInput = z.object({
   id: Ulid,
   type: z.literal("answered"),
@@ -362,7 +362,7 @@ export const ExamEventInput = z.object({
 });
 export type ExamEventInput = z.infer<typeof ExamEventInput>;
 
-/** Every event type with the schema of its stored payload: written and read through these (05). */
+/** Every event type with the schema of its stored payload: written and read through these. */
 /** An exam's open answer rated by its criteria (exam runs, also handed in): the points of the level
  *  chosen for each, by the learner or as the assistant proposed them and the learner took them. */
 export const ExamRatedPayload = z.object({
@@ -374,7 +374,7 @@ export const ExamRatedPayload = z.object({
 export type ExamRatedPayload = z.infer<typeof ExamRatedPayload>;
 
 /** An answer to a question the assistant set (an Understanding text's, a mistakes review's new items —
- *  counted across its groups —; 04): on the verdict that set it (`verdict`: its event's id) by the
+ *  counted across its groups —): on the verdict that set it (`verdict`: its event's id) by the
  *  question's index, in the verdict's run, its outcome checked by the server with the engine as the
  *  item of its kind (never by a model). One answer a question. */
 export const PracticeAnsweredPayload = z.object({

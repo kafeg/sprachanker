@@ -1,4 +1,4 @@
-// /api: profiles and signing in (06, "Profiles and access"). Without a session: who is studying, a new
+// /api: profiles and signing in. Without a session: who is studying, a new
 // profile or one imported from a file (while registration is open), signing in by choosing a profile,
 // signing out. With one (after the session check): the profile's name, colour and onboarding, its
 // devices, and its export as a file.

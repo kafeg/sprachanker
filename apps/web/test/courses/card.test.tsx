@@ -1,4 +1,4 @@
-// A course's card in a right-to-left interface (09, "Writing direction"): its title in its own
+// A course's card in a right-to-left interface: its title in its own
 // direction, the lesson to go on with isolated in the line naming it.
 import { expect, test } from "bun:test";
 import { CourseCard } from "../../src/courses/card.tsx";

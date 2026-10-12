@@ -33,7 +33,7 @@ export const COURSES: CourseDef[] = [
   },
 ];
 
-/** Course description with the source's attribution (plain text, no links; 02). */
+/** Course description with the source's attribution (plain text, no links). */
 export const ATTRIBUTION_HTML =
   "<p>Let's Learn English, VOA Learning English (Voice of America) — public domain. " +
   "Imported for personal study.</p>";
@@ -45,7 +45,7 @@ export const sourceOf = (def: CourseDef): CourseSource => ({
   licence: "public-domain",
 });
 
-/** For the catalogue (03). */
+/** For the catalogue. */
 export const OFFERS: CourseOffer[] = COURSES.map((def) => ({
   course: def.id,
   edition: EDITION,

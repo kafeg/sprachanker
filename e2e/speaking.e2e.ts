@@ -1,4 +1,4 @@
-// Speaking (spec 04 "AI practice in courses", 08, 09) against the fake model (fake-llm.ts): a role-play
+// Speaking against the fake model (fake-llm.ts): a role-play
 // by voice with the fake microphone and a fixed recognition — the partner's lines read aloud as they
 // come by the device's (stubbed) voice, each of the learner's said from its hint and kept, then Check in
 // the step bar: each line's verdict, a correction, a good way to say it; and a monologue's card typed

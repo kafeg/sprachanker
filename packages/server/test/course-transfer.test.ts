@@ -1,4 +1,4 @@
-// A course moved as a bundle (02, "Course bundle"): exported from one data root and imported into
+// A course moved as a bundle: exported from one data root and imported into
 // another — installed, verified, its lessons played, its media deduped —, a bundle of a course already
 // there found the same or replacing it with the learner's progress kept, and every file that is not a
 // sound bundle refused with nothing left behind.

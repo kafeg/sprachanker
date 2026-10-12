@@ -1,4 +1,4 @@
-// Files the speech engines download into <data-root>/models (08): each checked against its sha256 as
+// Files the speech engines download into <data-root>/models: each checked against its sha256 as
 // it comes, written to a part file and renamed when whole; parts a stopped server left go when one
 // starts (a download starts anew, it does not go on from a part).
 import {

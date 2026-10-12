@@ -1,4 +1,4 @@
-// Studying cards as in Anki's reviewer (09) — Review's decks and a lesson's words use the same session:
+// Studying cards as in Anki's reviewer — Review's decks and a lesson's words use the same session:
 // the card, the counts (new + learning + review, the current queue underlined), "Show answer", then
 // Again / Hard / Good / Easy with when each brings the card back; Undo on the left, More on the right
 // (more-menu.tsx). Keys as in Anki (reviewer-keys.ts); one action at a time. On a phone a tap on the

@@ -1,4 +1,4 @@
-// A right-to-left interface (09, "Writing direction"): the page `dir="rtl"`, nothing past the screen's
+// A right-to-left interface: the page `dir="rtl"`, nothing past the screen's
 // edges at phone and desktop width on the main screens, a course's German left to right. Runs once a
 // right-to-left catalog is there (ar.json, fa.json); skipped before.
 import { expect, type Page, test } from "@playwright/test";

@@ -1,4 +1,4 @@
-// Settings (09): five tabs in one row, as a section's — General (language, theme, other devices,
+// Settings: five tabs in one row, as a section's — General (language, theme, other devices,
 // storage with the recordings kept, about, experimental), Profile (name, sign-in, devices, switching,
 // deleting), Review (daily limits, retention, card types), Speech (microphone, recognition, reading
 // aloud), AI assistant (providers, models, LM Studio, where it works; its prompts under Advanced).

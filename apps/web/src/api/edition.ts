@@ -1,4 +1,4 @@
-// The edition a course is shown in (02, "Editions"): the profile's choice for it, else the one
+// The edition a course is shown in: the profile's choice for it, else the one
 // explaining in the interface language, else the first — what a course's page and its lessons open with.
 import { editionSetting } from "@sprachanker/schema";
 import { useTranslation } from "react-i18next";

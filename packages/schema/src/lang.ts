@@ -7,7 +7,7 @@ export const Lang = z
   .describe("BCP-47 primary language subtag");
 export type Lang = z.infer<typeof Lang>;
 
-/** Edition id `<source>-<target>`: `ru-de`, `en-de`, `de-de` (02). */
+/** Edition id `<source>-<target>`: `ru-de`, `en-de`, `de-de`. */
 export const EditionId = z
   .string()
   .regex(/^[a-z]{2,3}-[a-z]{2,3}$/)

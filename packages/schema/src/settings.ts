@@ -1,4 +1,4 @@
-// Profile settings (05): every key with its schema, and who writes it. The learner's preferences go
+// Profile settings: every key with its schema, and who writes it. The learner's preferences go
 // through the generic settings route; the others only through the service that owns them (the
 // assistant's endpoints and prompts), so the generic route cannot change them. Values are checked
 // when written and parsed when read: a stored value that no longer fits is read as unset.
@@ -22,10 +22,10 @@ export function nextProfileColour(used: readonly ProfileColour[]): ProfileColour
   return ProfileColour.options.reduce((best, c) => (count(c) < count(best) ? c : best));
 }
 
-/** Where the AI assistant works (07), each of which the learner can turn off: "Why is this wrong?",
- *  the tutor (with the lesson's "Going over mistakes"), Understanding (Reading and Listening), "Write it yourself", the
- *  Dialogue (`scene`), the check of an answer said aloud, a word's examples, an exam's open answer
- *  rated by its criteria. */
+/** Where the AI assistant works, each of which the learner can turn off: "Why is this wrong?", the
+ *  tutor (with going over mistakes in the lesson's summary), Understanding (Reading and Listening),
+ *  Writing, Speaking (`scene`, the key of the Dialogue it replaced), the check of an answer said
+ *  aloud, a word's examples, an exam's open answer rated by its criteria. */
 export const AI_PLACES = [
   "explain",
   "tutor",
@@ -69,7 +69,7 @@ export const LEARNER_SETTINGS = {
   /** What is experimental and turned on (Settings → General → Experimental; owner, 2026-10-10): a section
    *  (`courses`, `exams`) and within it each source by its series (`courses:coerll.dib`). */
   "experimental.on": z.array(z.string().min(1).max(120)).max(200),
-  /** The Review settings (04). */
+  /** The Review settings. */
   "srs.newPerDay": z.number().int().min(0).max(9999),
   "srs.reviewsPerDay": z.number().int().min(0).max(9999),
   "srs.retention": z.number().min(0.7).max(0.99),
@@ -77,7 +77,7 @@ export const LEARNER_SETTINGS = {
   /** Speech recognition used when the engine and a model are there (on by default), and the model. */
   "speech.recognition": z.boolean(),
   "speech.model": z.string().min(1).max(100),
-  /** Reading aloud (08): the engine (the device's voices, Piper or Qwen3-TTS on the server), Qwen3-TTS's
+  /** Reading aloud: the engine (the device's voices, Piper or Qwen3-TTS on the server), Qwen3-TTS's
    *  model (none: the large one when it is there), the voice chosen per engine and language (none: the
    *  best one there), the speed. */
   "speech.readEngine": z.enum(["device", "piper", "qwen"]),
@@ -100,7 +100,7 @@ const SERVICE_SETTINGS = {
   }),
 } as const;
 
-/** The server's own settings (`server.sqlite`, `server_settings`), set by the command line (06). */
+/** The server's own settings (`server.sqlite`, `server_settings`), set by the command line. */
 export const SERVER_SETTINGS = {
   /** New profiles may be made from "Who is studying?" (on by default). */
   registration: z.boolean(),

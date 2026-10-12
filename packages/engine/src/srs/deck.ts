@@ -1,4 +1,4 @@
-// A deck's standing for the Notebook (04, "Spaced repetition"; 09): its words by state as My words
+// A deck's standing for the Notebook: its words by state as My words
 // counts them, those whose every face is due no sooner than three weeks ("mature", as Anki says), the
 // faces due today, by tomorrow and within a week, and the answers of the last 30 days with the share
 // of reviewed cards remembered.

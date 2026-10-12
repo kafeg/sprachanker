@@ -1,4 +1,4 @@
-// The learner's own system prompts (07, "Transparency and debugging"): templates per task with
+// The learner's own system prompts: templates per task with
 // {language} and {target}, kept in the profile's settings; the tasks and their standing rules are the
 // llm package's registry (TASK_PROMPTS).
 import {

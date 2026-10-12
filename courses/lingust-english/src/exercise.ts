@@ -1,4 +1,4 @@
-// A source exercise → one of our types (02). Mechanics, by the answer fields of the page:
+// A source exercise → one of our types. Mechanics, by the answer fields of the page:
 //   gaps in English sentences (inputs)      → gap_text   (answers: the key's bold part; "/" = variants)
 //   gaps as drop-down lists (selects)       → gap_choice (dropdown; check boxes for commas: "," / "–")
 //   Russian sentence + answer field         → respond    (reference: the key's English sentence)
@@ -168,7 +168,7 @@ export function mapExercise(key: ExerciseKey, ex: SourceExercise, media: Media):
   const skipped: string[] = [];
   const items: Array<Record<string, unknown>> = [];
   const locale: Record<string, LocaleItem> = {};
-  // Every item keeps its canonical texts English (02, "Text language"): a prompt with Russian in it is
+  // Every item keeps its canonical texts English: a prompt with Russian in it is
   // the locale file's whole, an English answer the key writes with Russian words is its answers.
   const add = (item: Record<string, unknown>, loc: LocaleItem) => {
     const n = items.length + 1;

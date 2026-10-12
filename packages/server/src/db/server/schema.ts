@@ -1,4 +1,4 @@
-// server.sqlite (05): the profiles on this server and how devices sign in to them (device tokens), and
+// server.sqlite: the profiles on this server and how devices sign in to them (device tokens), and
 // the server's own settings (registration). A profile's learning data is its own file.
 import { integer, sqliteTable, text, uniqueIndex } from "drizzle-orm/sqlite-core";
 

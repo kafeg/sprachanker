@@ -1,4 +1,4 @@
-// The window title (09): "SprachAnker · <where you are>", a short place set by the screen ("Lesson 1.1",
+// The window title: "SprachAnker · <where you are>", a short place set by the screen ("Lesson 1.1",
 // "Ex 4/12"); a running course download shows its progress there instead.
 import { useEffect } from "react";
 

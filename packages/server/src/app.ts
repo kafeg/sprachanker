@@ -54,7 +54,7 @@ export interface AppConfig {
   /** Course bundles exported and imported (runtime adapter: `library/.transfers`). */
   courseTransfers: CourseTransferFiles;
   appVersion: string;
-  /** 32-byte key that seals the profiles' API keys (06, "Secrets"). */
+  /** 32-byte key that seals the profiles' API keys. */
   secretKey: Uint8Array;
   /** Outgoing requests to LLM providers (replaced in tests). */
   fetch?: typeof fetch;
@@ -62,9 +62,9 @@ export interface AppConfig {
   lmStudio?: LmStudioHost;
   cli?: CliHost;
   /** The speech engines the sidecar supervisor runs here — whisper-server, Qwen3-TTS — and their
-   *  models (08); without it, no recognition. */
+   *  models; without it, no recognition. */
   speech?: SpeechHost;
-  /** Reading aloud with Piper voices on this machine (08); without it, the device's voices only. */
+  /** Reading aloud with Piper voices on this machine; without it, the device's voices only. */
   piper?: PiperHost;
   /** Readings kept on disk (Piper's and Qwen3-TTS's); without it each is made again. */
   readings?: ReadingCache;
@@ -99,7 +99,7 @@ export function createApp(config: AppConfig) {
   });
 
   const api = new Hono<ProfileEnv>()
-    // Changes need the app's own header (a cross-site form cannot send it; 06, "Security").
+    // Changes need the app's own header (a cross-site form cannot send it).
     .use("*", async (c, next) => {
       if (
         c.req.method !== "GET" &&
@@ -129,7 +129,7 @@ export function createApp(config: AppConfig) {
     .route("/recordings", recordingsRoutes())
     .route("/speech", speechRoutes())
     .route("/llm", llmRoutes())
-    // Input is checked by `zod()` and by the services (ServiceError); anything else, a ZodError on
+    // Input is checked by `zod` and by the services (ServiceError); anything else, a ZodError on
     // stored data included, is a server fault.
     .onError((error, c) => {
       if (error instanceof NotInstalledError) return c.json({ error: "not_installed" }, 404);

@@ -1,4 +1,4 @@
-// What the server makes for a deck's words, kept beside the deck (04; 05): `extras.json` and media/ in
+// What the server makes for a deck's words, kept beside the deck: `extras.json` and media/ in
 // the deck's folder — an imported deck's, or a course's (`course~<series>~<course>`) — by lexeme, as
 // a deck's cards are one per lexeme. Read once and shared by the jobs that write it: one job per deck
 // and kind (audio read aloud, examples — in each translation language) at a time, the server's — one profile starts it, any sees
@@ -45,7 +45,7 @@ export interface DeckJobSpec<T> {
   info?: Record<string, string>;
   /** The step under way, as the job shows it. */
   label(step: T[]): string;
-  /** Does a step, writing what it made into `book` — never once `dropped()` (the folder is gone):
+  /** Does a step, writing what it made into `book` — never once `dropped` (the folder is gone):
    *  how many of its words were done and how many failed, and why. Throws: the whole step failed. */
   work(
     step: T[],
@@ -325,7 +325,7 @@ export function createDeckExtras(deps: {
     forget,
 
     /**
-     * Drops what a deck's jobs of a kind made (04): the audio read aloud, with its files — never a
+     * Drops what a deck's jobs of a kind made: the audio read aloud, with its files — never a
      * file of the deck's own —, or the examples translated into `lang`; the job's latest run goes with
      * it. Refused while that job works. Returns how many words lost theirs.
      */

@@ -1,4 +1,4 @@
-// Every error the API answers with (06, "Errors"): `{ error: <code> }`, the code one of these. The
+// Every error the API answers with: `{ error: <code> }`, the code one of these. The
 // server raises only these; the web shows each in words (`error.<code>` in its catalogs, tested).
 
 export const ERROR_CODES = [
@@ -17,7 +17,7 @@ export const ERROR_CODES = [
   "name_required",
   "registration_closed",
   "no_device",
-  // A profile file: exported, imported (05, "Profile file").
+  // A profile file: exported, imported.
   "profile_export_gone",
   "not_a_profile_file",
   "profile_file_damaged",
@@ -30,10 +30,10 @@ export const ERROR_CODES = [
   "not_offered",
   "downloads_unavailable",
   "course_busy",
-  // A run whose course is not on this computer any more: its events wait for it (05, "Sending").
+  // A run whose course is not on this computer any more: its events wait for it.
   "course_gone",
   "lesson_not_in_series",
-  // A course bundle: exported, imported (02, "Course bundle").
+  // A course bundle: exported, imported.
   "course_export_gone",
   "not_a_course_bundle",
   "course_bundle_damaged",

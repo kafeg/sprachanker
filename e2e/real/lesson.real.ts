@@ -1,4 +1,4 @@
-// Run-throughs on real courses (10, "Run-throughs"): each chosen lesson walked through by its screens
+// Run-throughs on real courses: each chosen lesson walked through by its screens
 // in a profile of its own, then the profile's database read to check that what was done is stored as
 // it should be. `REAL=dw.nicos-weg/a1-ru bun run e2e:real` (scenarios.ts); `REAL_SHOTS=<dir>` keeps
 // each checked exercise, reading page and the words step as a screenshot there. A lesson with an

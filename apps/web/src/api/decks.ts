@@ -1,4 +1,4 @@
-// Imported decks (04, "Decks"): the server's list, a deck file uploaded and previewed, its import by
+// Imported decks: the server's list, a deck file uploaded and previewed, its import by
 // the upload's id, a deck deleted; any deck's words read aloud by the server (polled while it reads).
 // Taking and leaving one is the profile's (cards.ts).
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";

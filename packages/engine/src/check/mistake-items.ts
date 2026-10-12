@@ -1,4 +1,4 @@
-// Going over mistakes (04, "AI practice in courses"): the new items the model sets for each type of
+// Going over mistakes: the new items the model sets for each type of
 // mistake, as the items of the closed types they are — so they are shown and checked as any item,
 // never by a model —, and where the learner is in a review: one type at a time, the next once its
 // items are answered. A review's items are numbered across its groups (its answers' `question`).

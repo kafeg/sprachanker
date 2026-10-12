@@ -1,4 +1,4 @@
-// The grammar topics met so far as the prompts show them (07, the knowledge snapshot): each topic
+// The grammar topics met so far as the prompts show them: each topic
 // once; with its places, all the lessons that taught it, the first first — over the budget the
 // lessons' titles go before a topic or its first lesson does.
 import { expect, test } from "bun:test";

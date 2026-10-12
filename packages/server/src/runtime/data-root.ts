@@ -1,4 +1,4 @@
-// One server per data folder (06): the running server's pid in `<data-root>/server.pid`. A second
+// One server per data folder: the running server's pid in `<data-root>/server.pid`. A second
 // server on the same folder refuses to start, and the command line's profile deletion refuses while
 // a server runs (it holds the profiles' databases open). A pid file whose process is gone — or is no
 // SprachAnker any more: a pid the system gave another program after a restart — is stale.

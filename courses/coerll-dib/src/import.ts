@@ -1,4 +1,4 @@
-// `sprachanker import coerll-dib`: fetch the chapter pages and media (idempotent), then normalise (03).
+// `sprachanker import coerll-dib`: fetch the chapter pages and media (idempotent), then normalise.
 import { join } from "node:path";
 import {
   createPoliteFetcher,

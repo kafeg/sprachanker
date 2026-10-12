@@ -1,4 +1,4 @@
-// JSON Canonicalization Scheme (RFC 8785) for hashing (02, "Conventions").
+// JSON Canonicalization Scheme (RFC 8785) for hashing.
 
 /** Canonical JSON text: object keys sorted by UTF-16 code units, no whitespace. */
 export function canonicalJson(value: unknown): string {
@@ -16,7 +16,7 @@ export function canonicalJson(value: unknown): string {
   return JSON.stringify(value);
 }
 
-/** Library files: sorted keys, two-space indentation, trailing newline (02, "Conventions"). */
+/** Library files: sorted keys, two-space indentation, trailing newline. */
 export function prettyJson(value: unknown): string {
   return `${JSON.stringify(JSON.parse(canonicalJson(value)), null, 2)}\n`;
 }

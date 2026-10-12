@@ -1,4 +1,4 @@
-// A checked text as kept (07): corrections that change nothing or quote words the text does not have
+// A checked text as kept: corrections that change nothing or quote words the text does not have
 // (its pieces apart, a compound, a number in digits allowed for), an empty "corrected" filled with the text itself — models do all three —, and a good
 // text's "corrected" its own words (a model may still rewrite it there). Shared by the checks of
 // writing and speaking.

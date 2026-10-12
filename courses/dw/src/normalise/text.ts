@@ -102,7 +102,7 @@ const headOf = (title: string) =>
  * "<chip>Hin</chip>- und"). A chip on a compound's head ("<chip>Lamm</chip>fleisch") is not told from
  * one whose space was left out ("<chip>Garage</chip>haben wir nicht"): the markup is the same, and DW
  * shows both apart, so both get the space. Other spacing is `tidySpacing`'s.
- * `mark`: each chip's word becomes a `<mark>` (02: DW shows them so, and its tasks point at them —
+ * `mark`: each chip's word becomes a `<mark>` (DW shows them so, and its tasks point at them —
  * "обращая особое внимание на новые слова"): exactly the chip's own letters, inside a word too
  * ("Winter<mark>mäntel</mark>", "<mark>Hin</mark>- und"), the spaces put back outside it.
  */

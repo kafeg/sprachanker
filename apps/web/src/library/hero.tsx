@@ -1,4 +1,4 @@
-// The head of a course's and an exam's page (09), the same frame: a ring of how far the learner is,
+// The head of a course's and an exam's page, the same frame: a ring of how far the learner is,
 // the title, its chips (the pair, the source, …), a line under them, the way in beside, and what the
 // page adds below.
 import { usePercent } from "@/ui/format.ts";

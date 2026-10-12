@@ -1,4 +1,4 @@
-// The assistant's setup in the API (07): the route and providers, a provider's key state and models (the
+// The assistant's setup in the API: the route and providers, a provider's key state and models (the
 // connection test), LM Studio, the tasks' system prompts and where the assistant is turned off.
 import type { AiPlace } from "@sprachanker/schema";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
@@ -86,7 +86,7 @@ type SuggestedModel = LmStudioStatus["suggestions"][number]["key"];
 export function useLmStudioAction() {
   const client = useQueryClient();
   return useMutation({
-    // Error responses (409/502) become an ApiError in json(); success is the new status.
+    // Error responses (409/502) become an ApiError in json; success is the new status.
     mutationFn: (action: { start: true } | { download: SuggestedModel }) =>
       "start" in action
         ? json(api.llm.lmstudio.start.$post())

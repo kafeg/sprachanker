@@ -1,6 +1,6 @@
 // `sprachanker import goethe`: each level's module pages, the solution page of each Teil and the
 // pages holding a picture's or a writing task's text fetched once and kept as they are (raw/), every recording and
-// picture fetched into media, then normalised offline (03).
+// picture fetched into media, then normalised offline.
 import { join } from "node:path";
 import {
   createPoliteFetcher,

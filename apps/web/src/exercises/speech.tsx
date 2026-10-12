@@ -1,4 +1,4 @@
-// Speaking exercises (08, 09): SpeechSelfrate (saying it oneself after the original, one's take beside
+// Speaking exercises: SpeechSelfrate (saying it oneself after the original, one's take beside
 // it) and SpeechRepeat (a phrase said and checked by the words heard); their takes and what was heard.
 import { linesToSay, spokenCheck } from "@sprachanker/engine";
 import { Check, CircleDot, RotateCcw } from "lucide-react";
@@ -16,7 +16,7 @@ import { useTargetLang } from "@/ui/target-lang.ts";
 import { cn } from "@/ui/utils.ts";
 import type { RendererProps } from "./types.ts";
 
-/** What the recogniser heard (08): against the line to say (the closest of its alternatives), its
+/** What the recogniser heard: against the line to say (the closest of its alternatives), its
  *  words matched and missed with a verdict; for a free answer, just the words heard. In no score. */
 function Heard({
   lang,
@@ -79,7 +79,7 @@ const HEARING_MS = 15_000;
 const LATE = Symbol("late");
 
 /**
- * One's takes of an item (08): kept when recordings are and heard when recognition is on, at once and
+ * One's takes of an item: kept when recordings are and heard when recognition is on, at once and
  * side by side; a take nothing was heard in — nothing loud in it, or only what the recogniser makes of
  * silence and noise — is not the item's answer, its recording forgotten, the learner asked to say it
  * again. Hearing failing leaves the take itself, but with `byWords` (a take that counts by its words)
@@ -138,7 +138,7 @@ function useTakes(
           return undefined;
         })
       : Promise.resolve(undefined);
-    // Recognition needs the language spoken (never detected, 08).
+    // Recognition needs the language spoken (never detected).
     const hearing =
       host?.recognition && lang
         ? host.transcribe(recorded, lang, expected).catch(() => {
@@ -226,7 +226,7 @@ function TakeStatus({
 }
 
 /**
- * Saying it oneself (08; 09): listen to the original (the item's recording, above), record oneself,
+ * Saying it oneself: listen to the original (the item's recording, above), record oneself,
  * play one's take beside it. The item counts once recorded — no self-rating. The phrase to repeat is
  * hidden until the first attempt (the ear first) unless the learner shows it or chose it shown, or
  * there is nothing to hear first.
@@ -347,7 +347,7 @@ export function SpeechSelfrate({
 }
 
 /**
- * Saying a phrase (08, our own exercises): the phrase shown, the learner says it, and the words heard
+ * Saying a phrase: the phrase shown, the learner says it, and the words heard
  * are checked against it (scored). It needs recognition: without it the microphone says why, and the
  * item is left to skip.
  */

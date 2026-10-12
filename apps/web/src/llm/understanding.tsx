@@ -1,4 +1,4 @@
-// Reading and Listening, practice steps of the lesson (04, "AI practice in courses"; 09), done as an
+// Reading and Listening, practice steps of the lesson, done as an
 // exercise is: what the text is (a letter, a voice message — nothing of what it says) and the task;
 // Listening's recording in the course's player (made by the server from its lines, each person by the
 // voice they were given: their gender; on the device, voices by gender, where the server reads

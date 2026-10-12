@@ -1,4 +1,4 @@
-// Going over mistakes, in the lesson's summary while the pass has some (04, "AI practice in courses";
+// Going over mistakes, in the lesson's summary while the pass has some (
 // 09): the pass's mistakes by type — at most three types, one at a time ("Type 1 of 3") —, each with
 // the learner's wrong parts only, a short explanation and two or three new items of the type, checked
 // by the server's engine as they are answered; the next type once these are answered, the score at

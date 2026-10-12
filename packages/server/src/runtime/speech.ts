@@ -1,4 +1,4 @@
-// The engines the sidecar supervisor runs on this machine (08): whisper-server (recognition) and
+// The engines the sidecar supervisor runs on this machine: whisper-server (recognition) and
 // Qwen3-TTS's tts-server (reading aloud), with their models in <data-root>/models; their pids in
 // models/engines.pid while they run.
 import { join } from "node:path";

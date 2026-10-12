@@ -1,4 +1,4 @@
-// A note's fields (04, "Decks"): what each holds by its name — the word, its translation, plural, part
+// A note's fields: what each holds by its name — the word, its translation, plural, part
 // of speech; or a language's text, an example sentence in it (`sentence_1_german`), the audio of
 // either (`audio_german`, `audio_sentence_1_german`) — and a field's HTML as plain text.
 

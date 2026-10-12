@@ -1,4 +1,4 @@
-// Lesson progress derived from runs and events (04, "Learner model"; 05, "Derived state"). The server and
+// Lesson progress derived from runs and events. The server and
 // the web player both read a run through these functions, so the course map, the lesson plan and the
 // summary always agree on what is done.
 import {
@@ -63,7 +63,7 @@ export function exerciseResults(events: TypedEvent[]): Record<string, ExerciseRe
       continue;
     }
     const { answer, outcome } = e.payload;
-    // Only the first attempt counts (04); skipping an item first is its first attempt.
+    // Only the first attempt counts; skipping an item first is its first attempt.
     if (outcome && !(e.itemKey in r.first) && !r.skippedFirst.includes(e.itemKey))
       r.first[e.itemKey] = outcome;
     r.last[e.itemKey] = { answer, outcome };
@@ -153,7 +153,7 @@ export function firstAttempts(lesson: Lesson, results: Record<string, ExerciseRe
 }
 
 /**
- * Score of a lesson run (05, "Lifecycle"): mean first-attempt score of its scored items, a scored item
+ * Score of a lesson run: mean first-attempt score of its scored items, a scored item
  * skipped without an answer counting 0. `scored` counts those items, `answered` the items answered.
  */
 export function lessonResult(lesson: Lesson, events: TypedEvent[]): LessonResult {
@@ -175,7 +175,7 @@ export function answerAt(
 }
 
 /**
- * A run's exercises as they were shown (05, "Lifecycle"): each exercise's snapshot from the first time
+ * A run's exercises as they were shown: each exercise's snapshot from the first time
  * it was shown — by its key, so a page the lesson moved since still finds its own —, the lesson's
  * current exercise where none was kept; in the lesson's order (in the order shown when the lesson is
  * no longer installed).

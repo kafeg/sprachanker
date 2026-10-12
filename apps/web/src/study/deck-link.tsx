@@ -1,4 +1,4 @@
-// The way from a card to its deck in Review → Decks (09): what the deck has yet to make for the word —
+// The way from a card to its deck in Review → Decks: what the deck has yet to make for the word —
 // its audio read aloud (a card's word is never read on the fly), its examples — said in one small
 // link, the deck's row in sight there. In a card's corner on a phone it is an icon, its words in its
 // name and tooltip, so the corner stays one row beside the recording and "Example".

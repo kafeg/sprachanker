@@ -1,4 +1,4 @@
-// A part of the library in three tabs (09), Courses' and Exams' alike: My … (begun), Downloaded
+// A part of the library in three tabs, Courses' and Exams' alike: My … (begun), Downloaded
 // (installed) and Available (offered, not here yet), each tab its own address with its count; the
 // cards in a grid; a tab with none says so, with the way to where there are some.
 import { Link } from "@tanstack/react-router";

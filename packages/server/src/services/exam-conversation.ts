@@ -1,4 +1,4 @@
-// An exam's speaking part held with the assistant (07, `exam_conversation`; 09, Exams; owner's choice
+// An exam's speaking part held with the assistant (owner's choice
 // B, 2026-10-10): the configured model plays the examiner and the partner, the learner answers aloud.
 // Every line is an `llm_turn` on the question in the exam run — the learner's as `user`, the model's
 // as `assistant` with its `speaker` — so the run's page shows the conversation; the learner's lines

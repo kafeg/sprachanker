@@ -1,4 +1,4 @@
-// profile.sqlite (05). Events are append-only: no UPDATE or DELETE.
+// profile.sqlite. Events are append-only: no UPDATE or DELETE.
 import type { RunEndReason, RunKind, RunStatus } from "@sprachanker/schema";
 import {
   index,
@@ -52,20 +52,20 @@ export const events = sqliteTable(
   (t) => [index("events_run").on(t.runId, t.ts), index("events_type_ts").on(t.type, t.ts)],
 );
 
-/** The profile's API keys, AES-256-GCM sealed; never returned by the API (06, "Secrets"). */
+/** The profile's API keys, AES-256-GCM sealed; never returned by the API. */
 export const secrets = sqliteTable("secrets", {
   providerId: text("provider_id").primaryKey(),
   valueEncrypted: text("value_encrypted").notNull(),
 });
 
-/** Provider and model per LLM task; `default` serves tasks without their own route (07). */
+/** Provider and model per LLM task; `default` serves tasks without their own route. */
 export const llmRoutes = sqliteTable("llm_routes", {
   task: text("task").primaryKey(),
   providerId: text("provider_id").notNull(),
   model: text("model"),
 });
 
-/** Cards for spaced repetition (04, 05): one per lexeme, with the faces enabled for it. */
+/** Cards for spaced repetition: one per lexeme, with the faces enabled for it. */
 export const cards = sqliteTable(
   "cards",
   {
@@ -93,7 +93,7 @@ export const cards = sqliteTable(
 
 /**
  * One face of a card (an Anki card): its FSRS state, written with each `card_review` event and
- * rebuildable from them (05) — none while the face is new — and what the learner set on it: suspended,
+ * rebuildable from them — none while the face is new — and what the learner set on it: suspended,
  * buried until a day, a flag (1–7).
  */
 export const cardState = sqliteTable(

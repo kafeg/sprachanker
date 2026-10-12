@@ -1,4 +1,4 @@
-// An episode's video (09): HD by default with a switch to SD, the profile's speed, the subtitles on or
+// An episode's video: HD by default with a switch to SD, the profile's speed, the subtitles on or
 // off with one button, and the text of the video under it. The lesson's overview shows it when no
 // exercise does; an exercise whose video is the episode shows it (through `Episode`).
 import { Captions } from "lucide-react";

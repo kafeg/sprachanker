@@ -1,4 +1,4 @@
-// The tutor's tools on the server side (07, "Tools"): the learner's progress, mistakes, the course's
+// The tutor's tools on the server side: the learner's progress, mistakes, the course's
 // words and lessons, looked up when the model asks. Lessons are "unit.lesson" as the app shows them.
 import { headword, type LessonProgress, lessonDone } from "@sprachanker/engine";
 import { grammarNotes, lessonWords, mistakeLine } from "@sprachanker/llm";

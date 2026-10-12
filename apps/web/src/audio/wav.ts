@@ -1,4 +1,4 @@
-// A take as the recogniser wants it (08): 16 kHz, mono, 16-bit PCM WAV, made in the browser (decoded
+// A take as the recogniser wants it: 16 kHz, mono, 16-bit PCM WAV, made in the browser (decoded
 // and resampled with WebAudio) so the server needs no converter.
 
 const RATE = 16_000;

@@ -1,4 +1,4 @@
-// The learner's recordings (08; 05): audio as the browser captured it, kept in the profile's
+// The learner's recordings: audio as the browser captured it, kept in the profile's
 // `recordings/` folder by id and referenced from the answers that hold them. Saved, served, counted,
 // removed — all of them on request (Settings → Speech), or those of the runs a progress reset deletes.
 import { decodeTime, ulid } from "ulid";

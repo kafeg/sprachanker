@@ -1,4 +1,4 @@
-// Understanding (04, "AI practice in courses"): its questions as the items of the closed types they
+// Understanding: its questions as the items of the closed types they
 // are — a choice a `single_choice`, an answer typed a `gap_text` —, so they are shown and checked as
 // any item, never by a model; and where the learner is in a text: listening (the text hidden),
 // reading (the text shown), done.

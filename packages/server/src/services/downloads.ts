@@ -1,4 +1,4 @@
-// Downloading courses (06, "Jobs"): a course's provider runs in the background — the first download,
+// Downloading courses: a course's provider runs in the background — the first download,
 // completing an interrupted or incomplete one, or syncing with the source are the same idempotent
 // import. One download at a time, the rest queued; the screens poll for progress. The runtime passes
 // the installer (providers use Node APIs); downloads it marked unfinished on disk resume at start. A
@@ -167,7 +167,7 @@ export function createDownloads(deps: {
     },
 
     /**
-     * Removes a downloaded course or exam from this computer (06): refused while it downloads. The
+     * Removes a downloaded course or exam from this computer: refused while it downloads. The
      * learner's runs keep what they showed (an exam run its snapshot), their cards their words; a
      * lesson or exam under way waits for it (`course_gone`), and the same course downloaded again
      * meets them by its keys.
@@ -202,7 +202,7 @@ export function createDownloads(deps: {
 export type Downloads = ReturnType<typeof createDownloads>;
 
 /** A course as the server offers it: with its series folder, and `experimental` unless its provider
- *  is ready for learning (03). */
+ *  is ready for learning. */
 type OfferedCourse = CourseOffer & { series: string; experimental?: true };
 
 export interface CatalogEntry extends OfferedCourse {

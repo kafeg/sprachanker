@@ -1,4 +1,4 @@
-// Going over mistakes (04, "AI practice in courses"): a pass's mistakes — its items answered wrong at
+// Going over mistakes: a pass's mistakes — its items answered wrong at
 // the first attempt, and its Understanding questions answered wrong — as their wrong parts only (a
 // gap, a pair, the option chosen, the order, the words written or said wrong: what was given, what is
 // right, the words around it), grouped by type — the item type new items will be set of, and what

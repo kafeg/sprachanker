@@ -1,5 +1,5 @@
-// Course HTML (instructions, hints, grammar, culture, script). It is sanitised to the allow-list of
-// spec 02 at normalisation, so it can be rendered as is. Its pictures and links to course files are
+// Course HTML (instructions, hints, grammar, culture, script). It is sanitised to an allow-list at
+// normalisation, so it can be rendered as is. Its pictures and links to course files are
 // library paths (`media/…`), resolved through CourseMedia, which the course and lesson screens set.
 import { createContext, useContext, useEffect, useRef } from "react";
 import { keptTogetherHtml } from "./line-breaks.ts";
@@ -56,13 +56,13 @@ export function CourseHtml({ html, className }: { html: string; className?: stri
       className={cn("prose-course", className)}
       // The learner's language may run right to left (Arabic, Persian editions).
       dir="auto"
-      // biome-ignore lint/security/noDangerouslySetInnerHtml: sanitised at normalisation (02, "Conventions")
+      // biome-ignore lint/security/noDangerouslySetInnerHtml: sanitised at normalisation
       dangerouslySetInnerHTML={{ __html: resolved }}
     />
   );
 }
 
-/** A grammar or culture page as cards, one per section (its `<h3>` titles; 09). */
+/** A grammar or culture page as cards, one per section (its `<h3>` titles). */
 export function CourseSections({ html, className }: { html: string; className?: string }) {
   return (
     <div className={cn("space-y-4", className)}>

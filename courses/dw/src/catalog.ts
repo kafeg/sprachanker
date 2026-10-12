@@ -1,4 +1,4 @@
-// DW Learn German courses (03, research): one provider for the platform, a series per DW course. Each
+// DW Learn German courses: one provider for the platform, a series per DW course. Each
 // language edition of a DW course is a course of its own (DW publishes them as separate courses that
 // differ in exercises and their order): `a1-ru` and `a1-en` share nothing but the series.
 import type { CourseOffer } from "@sprachanker/course-kit";
@@ -14,7 +14,7 @@ export interface DwCourse {
   id: string;
   /** The DW course it comes from (`a1`): the folder of its raw pages. */
   course: string;
-  /** `<learner's language>-de` (02). */
+  /** `<learner's language>-de`. */
   edition: EditionId;
   /** Language segment of DW URLs (`ru`, `pt-br`, `fa-ir`). */
   lang: string;
@@ -105,7 +105,7 @@ const NAMES: Record<DwSeries, string> = {
   deutschtrainer: "Deutschtrainer",
 };
 
-/** The courses of a DW series, for the catalogue (03). */
+/** The courses of a DW series, for the catalogue. */
 export const offers = (series: DwSeries): CourseOffer[] =>
   COURSES.filter((c) => c.series === series).map((c) => ({
     course: c.id,

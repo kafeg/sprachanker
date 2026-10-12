@@ -1,4 +1,4 @@
-// Lesson reference: vocabulary, grammar, culture, script, PDFs (lesson tabs, 09).
+// Lesson reference: vocabulary, grammar, culture, script, PDFs (lesson tabs).
 import type { Lesson, LocaleLesson } from "@sprachanker/schema";
 import { FileText } from "lucide-react";
 import { useTranslation } from "react-i18next";

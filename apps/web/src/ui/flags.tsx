@@ -1,4 +1,4 @@
-// Language flags (09): a language is shown by the flag we chose for it — a language is not a
+// Language flags: a language is shown by the flag we chose for it — a language is not a
 // country, so this table is ours (English → the British flag, Portuguese → Brazil's as DW teaches it,
 // Arabic → Saudi Arabia's, Swahili → Tanzania's). A language not in it shows its code.
 // Flags come from country-flag-icons, one module per flag, so only these are bundled.

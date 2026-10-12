@@ -1,4 +1,4 @@
-// The lesson plan as steps (04, "Lesson composition"): overview → words → a grammar step per grammar
+// The lesson plan as steps: overview → words → a grammar step per grammar
 // page → the exercises → a culture step per culture page → AI practice (while an assistant is set up)
 // → summary. Built from what the normaliser put into the canonical and locale files, the same way for
 // every course; what is done is read from the run's events.

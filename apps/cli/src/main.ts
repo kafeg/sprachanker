@@ -1,5 +1,5 @@
 #!/usr/bin/env bun
-// The `sprachanker` binary (spec 06, "CLI").
+// The `sprachanker` binary.
 import { existsSync, statSync } from "node:fs";
 import { join, resolve } from "node:path";
 import { parseArgs } from "node:util";

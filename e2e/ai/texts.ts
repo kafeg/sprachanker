@@ -1,4 +1,4 @@
-// The text generator's work made in bulk with a real model (10, "Run-throughs"; owner, 2026-10-12:
+// The text generator's work made in bulk with a real model (owner, 2026-10-12:
 // generate many and read them — coherent, natural, worth a lesson, the keys right, harder as the
 // course goes on): Reading's and Listening's texts, Writing's tasks with the message they answer,
 // Speaking's tasks (`speaking` twice: a monologue card and a role-play, the kinds taking turns). The server from sources on a throwaway data root (the library an APFS clone, a new

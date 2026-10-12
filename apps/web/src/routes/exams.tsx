@@ -1,4 +1,4 @@
-// Exams (09; owner's choices from the mockups, 2026-10-10): one page in three tabs as Courses (the
+// Exams (owner's choices from the mockups, 2026-10-10): one page in three tabs as Courses (the
 // library's tab page) — My exams (begun), Downloaded (installed: exam courses and the exams of courses)
 // and Available (exams a provider offers that are not here yet).
 import { useTranslation } from "react-i18next";

@@ -1,4 +1,4 @@
-// OpenRouter's own API beside the OpenAI-compatible one (07, "Providers"): the state of the learner's
+// OpenRouter's own API beside the OpenAI-compatible one: the state of the learner's
 // key — free tier or credits, what is used and left, the rate limit — as far as OpenRouter tells it.
 import { bearer, endpointCaller } from "./http.ts";
 

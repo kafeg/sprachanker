@@ -1,4 +1,4 @@
-// The learner's gender in a reply (07, "Prompts"): the rules say it is unknown (NEUTRAL, GENDER_FREE),
+// The learner's gender in a reply: the rules say it is unknown (NEUTRAL, GENDER_FREE),
 // but models still write "ты решил" — the words that mark it are found here, for the task's quality
 // (asked again once). Data per learner language; a language without data is never judged.
 import type { Lang } from "@sprachanker/schema";

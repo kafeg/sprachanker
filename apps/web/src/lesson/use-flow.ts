@@ -1,4 +1,4 @@
-// The lesson's flow over its plan (09): which step is shown (kept in the page's address, so a reload stays
+// The lesson's flow over its plan: which step is shown (kept in the page's address, so a reload stays
 // on it), moving between steps and what that records, starting or starting over, resuming an active run
 // where it was left when the lesson is opened without a step, and completing it on the summary.
 // The decisions are the engine's (`resumeStep`, `openingRecord`); this hook keeps the screen's state.
@@ -65,7 +65,7 @@ export function useLessonFlow({
     if (resumeId && !openedOn.current && !startedHere.current) setCurrent(resumeId);
   }
 
-  // Reaching the summary with every step done or skipped completes an active run (05, "Lifecycle").
+  // Reaching the summary with every step done or skipped completes an active run.
   const { finish } = run;
   const complete = !!coverage?.complete;
   const runId = run.run?.id;

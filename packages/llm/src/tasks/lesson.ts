@@ -1,4 +1,4 @@
-// The lesson as the tasks see it — with what the learner knows by now (07, the knowledge snapshot) —
+// The lesson as the tasks see it — with what the learner knows by now —
 // and the lines of it that go into their prompts. One place, so every task shows the lesson the same
 // way.
 import { clip, htmlToText, newest } from "../text.ts";

@@ -1,4 +1,4 @@
-// Exercise fingerprints (02, "Keys and identity").
+// Exercise fingerprints.
 import { createHash } from "node:crypto";
 import type { Exercise } from "@sprachanker/schema";
 import { canonicalJson } from "./canonical-json.ts";

@@ -16,7 +16,7 @@ import { useTargetLang } from "@/ui/target-lang.ts";
 import { cn } from "@/ui/utils.ts";
 
 /**
- * Whether a part of an item — a gap, a match pair — was right, as the engine marked it (04); an
+ * Whether a part of an item — a gap, a match pair — was right, as the engine marked it; an
  * outcome stored before parts were marked counts as a whole.
  */
 export const partRight = (outcome: Outcome | undefined, part: string) =>
@@ -33,7 +33,7 @@ export const ShuffleSeed = createContext("");
  *  each card. */
 export const SeveralSaid = createContext(false);
 
-/** `items` in an order fixed by `seed` (display order is not the canonical order, 02). Pure. */
+/** `items` in an order fixed by `seed` (display order is not the canonical order). Pure. */
 export function shuffled<T>(items: T[], seed: string): T[] {
   let h = 0;
   for (const c of seed) h = (h * 31 + c.charCodeAt(0)) | 0;

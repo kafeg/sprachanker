@@ -1,4 +1,4 @@
-// The learner's gender in a reply (07): the words that mark it found by the learner's language — the
+// The learner's gender in a reply: the words that mark it found by the learner's language — the
 // phrasings models write, and those that only look alike.
 import { expect, test } from "bun:test";
 import { genderFree, genderMarked, genderProblem } from "../src/tasks/gender.ts";

@@ -1,4 +1,4 @@
-// Reading and Listening (spec 04 "AI practice in courses", 08, 09) against the fake model
+// Reading and Listening against the fake model
 // (fake-llm.ts, a draft in whatever form the genre drawn asks for), done as an exercise: what the text
 // is, Listening's text heard by the device's (stubbed) voices with the text hidden, the questions
 // answered and checked with the step bar's Check; then the title and the text with its glossed word

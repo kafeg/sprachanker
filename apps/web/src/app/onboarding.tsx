@@ -1,4 +1,4 @@
-// A profile's onboarding (06, "Profiles and access"; 09): the profile — welcome, where the courses come
+// A profile's onboarding: the profile — welcome, where the courses come
 // from, experimental sources off until turned on, name (never empty) and colour — → the AI assistant
 // (a slot: the llm folder's own settings) → speech (as Settings → Speech: the microphone, recognition,
 // reading aloud) → a tour → choosing a course (among those downloaded, if any). A new profile is made by

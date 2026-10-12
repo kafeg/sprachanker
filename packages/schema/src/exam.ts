@@ -1,4 +1,4 @@
-// Exams with real exam rules: pools, draws, time limits, pass marks (02): one test of drawn questions
+// Exams with real exam rules: pools, draws, time limits, pass marks: one test of drawn questions
 // (Leben in Deutschland), or modules of Teile with their material (Goethe's Hören, Lesen, …).
 import { z } from "zod";
 import { format, Media, Sha256 } from "./common.ts";
@@ -51,7 +51,7 @@ const examQuestion = {
    * An open answer's criteria (writing, speaking), as the exam's raters judge it: each with the points
    * of its levels from best to worst (Goethe A1 Schreiben 2: a content point 3, 1.5 or 0); `voids`: a
    * 0 there makes the whole answer 0 ("Erfüllung" E). The answer scores the levels chosen — by the
-   * learner, or proposed by the assistant and taken (`exam_rated`, 05); their titles in the locale.
+   * learner, or proposed by the assistant and taken (`exam_rated`); their titles in the locale.
    */
   criteria: z
     .array(
@@ -77,7 +77,7 @@ export const ExamItem = z.discriminatedUnion("type", [
 export type ExamItem = z.infer<typeof ExamItem>;
 
 /** A question as an exercise of its one item: how it is checked and shown as the item of its kind
- *  it is (04, "Exams"); the exercise's key is the question's. */
+ *  it is; the exercise's key is the question's. */
 export const questionExercise = (item: ExamItem): Exercise =>
   ({
     key: item.key,
@@ -166,7 +166,7 @@ export const Exam = z.strictObject({
 });
 export type Exam = z.infer<typeof Exam>;
 
-/** The checks an importer runs on an exam's sources (03; the app names each in its language). */
+/** The checks an importer runs on an exam's sources (the app names each in its language). */
 const EXAM_CHECKS = [
   /** Questions read, of those the source has. */
   "questions-complete",
@@ -188,7 +188,7 @@ const EXAM_CHECKS = [
 const ExamCheck = z.enum(EXAM_CHECKS);
 
 /**
- * `canonical/<course>/sources/<slug>.json`: where an exam was read and what was checked (03; owner,
+ * `canonical/<course>/sources/<slug>.json`: where an exam was read and what was checked (owner,
  * 2026-10-10: proof that the data is the source's). Each document the importer read — its address and,
  * for the copy it kept in `raw/`, the copy's path and sha256 (`verify` finds a copy changed since) —,
  * the checks it ran, and where each question and its answer were found.

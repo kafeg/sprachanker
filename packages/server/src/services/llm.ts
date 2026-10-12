@@ -1,6 +1,6 @@
 // LLM setup of the profile (provider endpoints, keys, the default route), the client of that route for
 // the tasks that use it — a structured call, a request previewed —, with LM Studio (llm-lmstudio.ts)
-// and the learner's own prompts (llm-prompts.ts) (07). Everything model-specific lives in
+// and the learner's own prompts (llm-prompts.ts). Everything model-specific lives in
 // @sprachanker/llm.
 import {
   type ChatMessage,
@@ -74,7 +74,7 @@ export interface CliHost {
   run(kind: CliKind): CliRunner;
 }
 
-/** A request as it would be sent: for the prompt viewer (07, "Debugging"). */
+/** A request as it would be sent: for the prompt viewer. */
 export interface PromptPreview {
   provider: ProviderId;
   model: string;
@@ -82,7 +82,7 @@ export interface PromptPreview {
   /** The HTTP body as posted, or a command-line agent's prompt (system file or instructions, and
    *  stdin) with its arguments. */
   body: { messages: ChatMessage[] } & Record<string, unknown>;
-  /** Rough token count of each message (07, "Debugging"). */
+  /** Rough token count of each message. */
   tokens: number[];
 }
 

@@ -1,4 +1,4 @@
-// An AI practice step of the plan (09): Reading, Listening, Writing or Speaking — the page an optional
+// An AI practice step of the plan: Reading, Listening, Writing or Speaking — the page an optional
 // feature fills through the player's slot, with the step bar, whose main button the page may take while
 // it needs it (Check, as an exercise's); a step done can no longer be skipped.
 

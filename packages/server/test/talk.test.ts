@@ -1,4 +1,4 @@
-// Speaking (04, "AI practice in courses"; 07): a monologue card set at the lesson's level, its time the
+// Speaking: a monologue card set at the lesson's level, its time the
 // app's; said and checked as a writing check is, said aloud; the next task a role-play — a
 // conversation the text generator drafted, the learner's lines given hints, the partner a voice of
 // their gender —, said line by line and checked once. Tasks and attempts kept in the lesson run, read

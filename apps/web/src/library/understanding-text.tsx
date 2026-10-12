@@ -1,4 +1,4 @@
-// An Understanding text as the lesson's step and the Notebook show it (04, "AI practice in courses";
+// An Understanding text as the lesson's step and the Notebook show it (
 // 09): its lines — a dialogue's with their speakers —, the glossed words marked with their
 // translations and listed under it; its questions as the items of their closed types, in the order
 // written (Richtig before Falsch), answered here or read as answered.

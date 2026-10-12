@@ -7,7 +7,7 @@ recognition, and practice set by any AI model you connect — a local one or a c
 
 > **Status:** used daily by its authors for German, in the browser on a Mac; phones over
 > Tailscale work and are being tried out; the desktop app is planned. What comes next:
-> [`docs/plan.md`](docs/plan.md). How it works: [`docs/spec/`](docs/spec/README.md).
+> [`docs/plan.md`](docs/plan.md). The decisions behind it: [`docs/decisions.md`](docs/decisions.md).
 
 ## Why
 
@@ -124,8 +124,8 @@ course publishers' sites. API keys are stored encrypted and never put into a pro
 
 TypeScript monorepo on Bun: Hono server with SQLite, React web app, pure engine for checking and
 scheduling, one importer per content source. Start with [`CLAUDE.md`](CLAUDE.md) (layout, rules,
-commands) and [`docs/architecture.md`](docs/architecture.md); the specification is in
-[`docs/spec/`](docs/spec/README.md).
+commands), [`docs/architecture.md`](docs/architecture.md) and
+[`docs/decisions.md`](docs/decisions.md) (the owner's decisions and why).
 
 ```bash
 bun run dev      # server on 127.0.0.1:4580 and Vite

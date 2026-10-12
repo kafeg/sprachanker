@@ -1,4 +1,4 @@
-// An item the assistant set (04, "AI practice in courses") — an Understanding question, a new item
+// An item the assistant set — an Understanding question, a new item
 // going over mistakes — as the item of its closed type: a single choice answered by choosing, the
 // others answered and then sent with "Check"; or answered with the others and checked by the page's own
 // Check, as an exercise's (`onDraft`: Reading's and Listening's questions); read-only once answered, or

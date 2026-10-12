@@ -1,4 +1,4 @@
-// Enter on an exercise's screen (09): in a text field it goes to the next field and from the last one
+// Enter on an exercise's screen: in a text field it goes to the next field and from the last one
 // does the main action (Check, then Next); elsewhere it does the main action — unless a control has
 // the focus (a button, a link, the audio slider, a list), whose Enter is its own.
 import { useEffect } from "react";

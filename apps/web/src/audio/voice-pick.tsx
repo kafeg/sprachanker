@@ -1,4 +1,4 @@
-// A language's voice in Settings → Speech → Read aloud (08; 09): the voices to choose from, automatic
+// A language's voice in Settings → Speech → Read aloud: the voices to choose from, automatic
 // first, "Listen", and below them the text it reads — a phrase in the language (another one on
 // request) or the learner's own; left empty, the phrase. The choice is kept per engine and language.
 import type { SettingValue } from "@sprachanker/schema";

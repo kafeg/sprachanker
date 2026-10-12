@@ -1,4 +1,4 @@
-// The tasks whose system prompt the learner sees and may rewrite (07, "Prompts"), in the order the
+// The tasks whose system prompt the learner sees and may rewrite, in the order the
 // settings show them: each one's standing rules and the characters of each context part it gets.
 import { CHAT_TURN_BUDGETS, chatTurnRules } from "./chat-turn.ts";
 import { CHECK_SPEAKING_BUDGETS, checkSpeakingRules } from "./check-speaking.ts";

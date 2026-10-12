@@ -1,4 +1,4 @@
-// What every import does (03): raw pages kept once and counted, and the report it returns. A provider
+// What every import does: raw pages kept once and counted, and the report it returns. A provider
 // states only what is its own (which pages, which media, how it normalises).
 import { existsSync, statSync } from "node:fs";
 import { readFile } from "node:fs/promises";

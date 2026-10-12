@@ -1,4 +1,4 @@
-// Speech levels (10, "Speech levels"; 08): what the app hears of short answers said at four levels
+// Speech levels: what the app hears of short answers said at four levels
 // and of silence and noise — the measurements behind the server's silence thresholds
 // (packages/server/src/services/silence.ts), taken again whenever whisper.cpp changes
 // (native/whisper/VERSION): its log probabilities are its own computation. German answers read by

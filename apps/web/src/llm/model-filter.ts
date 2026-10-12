@@ -1,4 +1,4 @@
-// A provider's models as the settings list them (07, "Providers"; 09): which filters its metadata allows,
+// A provider's models as the settings list them: which filters its metadata allows,
 // the models a search and the filters let through, grouped by publisher. Pure.
 import type { ListedModel } from "./setup-api.ts";
 

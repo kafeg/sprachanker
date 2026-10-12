@@ -1,4 +1,4 @@
-// Recording oneself (08): whether this page may use the microphone (a secure context with
+// Recording oneself: whether this page may use the microphone (a secure context with
 // MediaRecorder: HTTPS or this computer), the microphone chosen on this device, and a recorder — start,
 // stop with the take as the browser encoded it (Safari MP4/AAC, Chrome WebM/Opus), its loudness while
 // it records and the loudest it got (a take never louder than a quiet room heard nothing). Nothing
@@ -50,16 +50,16 @@ export interface Take {
 }
 
 /** Speech is louder than this (-50 dBFS) somewhere in a take, even a word said quietly; a quiet room
- *  is not (the server's gate too, 08). */
+ *  is not (the server's gate too). */
 const SPEECH_RMS = 0.00316;
 
-/** Nothing in the take was loud enough to be speech: it is not kept nor sent to be heard (08). A
+/** Nothing in the take was loud enough to be speech: it is not kept nor sent to be heard. A
  *  loudest moment of exactly 0 is nothing measured (an audio context the browser kept suspended):
  *  the server decides. */
 export const heardNothing = (take: Take) => !!take.peak && take.peak < SPEECH_RMS;
 
 /** The browser's processing of the microphone off: noise suppression and automatic gain change the
- *  voice the recogniser hears, and nothing plays while a take records (08). */
+ *  voice the recogniser hears, and nothing plays while a take records. */
 const RAW = { autoGainControl: false, noiseSuppression: false, echoCancellation: false };
 
 export type RecorderState = "idle" | "starting" | "recording" | "denied" | "failed";

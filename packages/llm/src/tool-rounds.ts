@@ -1,4 +1,4 @@
-// A streamed answer with the tutor's tools (07, "Tools"), whichever API the provider speaks: the
+// A streamed answer with the tutor's tools, whichever API the provider speaks: the
 // model may call tools, read their results, then answer — a few rounds at most, the last without
 // tools. The API's own message shapes stay in its dialect.
 import { type Limits, readFailure, TimeLimit } from "./http.ts";

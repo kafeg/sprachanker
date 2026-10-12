@@ -60,7 +60,7 @@ test("an imported deck's words without audio read by Piper into its folder by le
   const { importDeck, getJson, get, send, sendJson, root } = api;
   const { id } = await importDeck();
   const scope = `deck:${id}`;
-  // Its words, taken or not (04: what is made is the deck's).
+  // Its words, taken or not (what is made is the deck's).
   expect(await getJson(audio(scope))).toEqual({
     lang: "de",
     words: 4,
@@ -187,7 +187,7 @@ test("a course's deck: all its words, met yet or not, read into its own folder; 
   // the deck's card).
   const { id } = await importDeck();
   await sendJson("POST", "/api/cards/decks/take", { deck: id });
-  // The course's words across its lessons (04: the whole deck, not the cards made yet), two with their
+  // The course's words across its lessons (the whole deck, not the cards made yet), two with their
   // recording; the deck's four, Kaffee with its own.
   expect(await getJson(audio(scope))).toMatchObject({ lang: "de", words: 6, own: 2, missing: 4 });
   expect(await getJson(audio(`deck:${id}`))).toMatchObject({ words: 4, own: 1, missing: 3 });

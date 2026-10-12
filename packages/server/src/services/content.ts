@@ -29,9 +29,9 @@ interface CourseSummary {
   lessons: LessonKey[];
   /** Exam keys, in the course index's order. */
   exams: ExamKey[];
-  /** A course of exams only is shown in the Exams section, not among the courses (01). */
+  /** A course of exams only is shown in the Exams section, not among the courses. */
   kind: "course" | "exam";
-  /** Where the course comes from (02). */
+  /** Where the course comes from. */
   source: CourseSource | null;
 }
 
@@ -102,7 +102,7 @@ export function createContent(library: LibraryView) {
     lesson,
     /** What a run going on reads of its course (`read`): refused `course_gone` (409) when its course
      *  (`course`, the run's) is not on this computer any more — the run's events wait for it to be
-     *  downloaded again (05, "Sending"). */
+     *  downloaded again. */
     async ofRun<T>(course: string | null, read: () => Promise<T>): Promise<T> {
       try {
         return await read();

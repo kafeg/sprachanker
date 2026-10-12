@@ -1,6 +1,6 @@
-// Model output as Markdown (10, "Fixed technical choices"): markdown-it with `html: false`, so raw HTML
+// Model output as Markdown: markdown-it with `html: false`, so raw HTML
 // in the output is escaped, never rendered. Images and links are off too: text from a model (or
-// injected into what it read) cannot make the browser load or open another site (06, "Security").
+// injected into what it read) cannot make the browser load or open another site.
 import MarkdownIt from "markdown-it";
 import { useMemo } from "react";
 

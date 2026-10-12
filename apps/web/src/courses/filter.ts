@@ -1,4 +1,4 @@
-// Choosing courses by language pair and course title (09): each filter offers only what fits the other
+// Choosing courses by language pair and course title: each filter offers only what fits the other
 // one, so the two never combine into an empty page. Unset, the pair filter is the interface language's:
 // every course explained in it (`from:<lang>`), while there is one. Pure; the bar is filters.tsx.
 import { parseEditionId } from "@sprachanker/schema";

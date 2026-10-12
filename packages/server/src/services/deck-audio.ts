@@ -1,4 +1,4 @@
-// Audio read aloud for a deck's words without their own (04, "A deck's words read aloud"; 08): the
+// Audio read aloud for a deck's words without their own: the
 // words of a deck, taken or not — an imported deck's notes, a course's words in every headword its
 // lessons give them as —, read by the server's engine (Piper or Qwen3-TTS) a headword at a time and
 // kept in the deck's folder by lexeme (deck-extras.ts), so cards play it on any device. A headword read

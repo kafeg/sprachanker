@@ -1,4 +1,4 @@
-// A speaking part held with the assistant (09, Exams): the learner's own lines are the answer — none
+// A speaking part held with the assistant: the learner's own lines are the answer — none
 // while only the examiner has spoken, the same lines not stored again —, "End the part" kept once and
 // shown ended.
 import { afterEach, expect, test } from "bun:test";

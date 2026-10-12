@@ -1,8 +1,8 @@
 # Architecture
 
-How SprachAnker fits together. The spec (`docs/spec/`) says what each part must do and why; this file
-shows the parts, their dependencies and the mechanisms that cross them. The remaining work is in
-`docs/plan.md`; how to work in each folder, in its CLAUDE.md.
+How SprachAnker fits together: the parts, their dependencies and the mechanisms that cross them.
+The owner's decisions and why are in `docs/decisions.md`, the remaining work in `docs/plan.md`, how
+to work in each folder in its CLAUDE.md.
 
 ## Runtime
 
@@ -17,12 +17,12 @@ browser ──localhost, a LAN name, the tailnet (tailscale serve)────�
                  │  binary), started on demand by the supervisor, stopped when idle
                  └─ Piper (sherpa-onnx-offline-tts), run once per text read aloud
                         │
-<data root> (~/SprachAnker) ── library/<series>/…         courses (02), written by the importers and
+<data root> (~/SprachAnker) ── library/<series>/…         courses, written by the importers and
                             │                             course bundles installed
                             ├─ library/.transfers/        a course bundle being exported or imported
-                            ├─ decks/<id>/                imported .apkg decks: deck.json, extras.json, media/ (05)
+                            ├─ decks/<id>/                imported .apkg decks: deck.json, extras.json, media/
                             ├─ decks/course~<s>~<c>/      a course deck's words read aloud: extras.json, media/
-                            ├─ models/                    speech models, voices/ Piper's voices, engines.pid (08)
+                            ├─ models/                    speech models, voices/ Piper's voices, engines.pid
                             ├─ cache/tts/                 texts read aloud by Piper and Qwen3-TTS
                             ├─ server.sqlite, server.pid  profiles, devices signed in; one server per root
                             ├─ profiles/<id>/             each learner's profile.sqlite (runs, events,
@@ -33,10 +33,10 @@ browser ──localhost, a LAN name, the tailnet (tailscale serve)────�
 Each database is copied beside itself once a day (a week kept) and before a migration. A profile
 moves between one's machines as one file (`.sprachanker-profile`: its database without its API keys,
 its recordings, a manifest with a hash per file), imported as a new profile; `sprachanker backup`
-copies what cannot be fetched again (05, "Backups"). A downloaded course or exam moves the same way
+copies what cannot be fetched again. A downloaded course or exam moves the same way
 (`.sprachanker-course`: its files of the editions carried, the media they use, a manifest with a hash
 per file and its content versions), installed only once every file is checked, media already there
-not unpacked again (02, "Course bundle").
+not unpacked again.
 
 Model calls go from the server to the provider the learner configured (LM Studio, OpenRouter, any
 OpenAI-compatible server, or a command-line agent); nothing else leaves the machine. The desktop app
@@ -73,7 +73,7 @@ only the router and the settings page import the optional `llm/` folder.
 
 ## Server inside
 
-`createServices()` (`services/index.ts`) wires the shared services once (content, imported decks,
+`createServices` (`services/index.ts`) wires the shared services once (content, imported decks,
 downloads, profiles, devices) and each profile's own services on first use (`of(id)`). `app.ts`
 mounts the route files: the profile list and signing in first, then the session check — the device's cookie names the
 profile and puts its services in the request's context (`c.var.s`) — then every profile route
@@ -108,14 +108,14 @@ gets the types through Hono RPC (`AppType`), no codegen.
   (a lesson's practice made ahead); exams: `exam-rating`,
   `exam-conversation`; review: `examples` (a card's word).
 - **Speech**: `speech` (whisper-server and its models) and `qwen-tts` (Qwen3-TTS's tts-server, its
-  models) on `sidecar`, the supervisor of local engines (06, "Sidecars"); `read-aloud` (Piper's voices,
+  models) on `sidecar`, the supervisor of local engines; `read-aloud` (Piper's voices,
   a text read as a WAV); what they share in `local-engines` (the runtime's SpeechHost, the reading
   cache Piper and Qwen3-TTS both keep their WAVs in) and `model-downloads`; `profile-speech` (a profile's
   choices applied); `recordings` (the learner's audio per profile). The runtime side: `runtime/engines.ts`
   (where each engine is, their processes), `speech.ts`, `piper.ts`, `model-files.ts`, `readings.ts`.
 - **Profiles** (`profiles`, `devices`): every profile equal, never nameless; a device signs in by
   choosing a profile and keeps a revocable token; server matters are the `sprachanker profiles`
-  command's (06).
+  command's.
 - **Security** (`security/`): Host check, CSP and headers, the client header on mutations (CSRF), API
   keys sealed with AES-GCM, tokens hashed (WebCrypto).
 
@@ -123,10 +123,10 @@ gets the types through Hono RPC (`AppType`), no codegen.
 
 - **Content pipeline**: provider fetch → `raw/` → normalise → `canonical/` (language-independent) +
   `locale/<edition>/` (learner-language texts) → validated on write and on read → `content` → web.
-  Keys (02) are stable across editions and kept by source id when a source reorders (DW: the key
+  Keys are stable across editions and kept by source id when a source reorders (DW: the key
   map); course content is never generated by a model. Each provider is a `CourseProvider`, tested
   against the contract together.
-- **One history rule**: everything the learner does is an event in a run (05). Lesson passes, review
+- **One history rule**: everything the learner does is an event in a run. Lesson passes, review
   days, exam runs (a mock exam or practice: its plan, each answer an event, its result), tutor chats
   and Dialogues (scene runs) are runs; one-off model verdicts (explain, writing, speaking, word
   examples) are `llm_verdict` events, typed by task. Events are append-only and only grow; statistics
@@ -157,7 +157,7 @@ gets the types through Hono RPC (`AppType`), no codegen.
   practice, summary; `compose/steps.ts`); the web's `use-flow` moves through them and records
   `page_shown` (with the exercise's key: resume and snapshots follow the exercise) / `step_done`
   through the run's outbox; the server re-checks every answer and stores its own outcome.
-- **Cards and review**: a card is a lexeme in a translation language (04), made from a course's word
+- **Cards and review**: a card is a lexeme in a translation language, made from a course's word
   or an imported deck's — one card for both when they are the same lexeme; its faces carry FSRS state
   written together with each `card_review` event. The engine builds Anki's queue (limits, a day that
   starts at 4 AM, learning steps,
@@ -165,7 +165,7 @@ gets the types through Hono RPC (`AppType`), no codegen.
   step.
 - **Model calls**: every answer records `model` and `latencyMs`; JSON outputs are validated with one
   repair attempt; streamed replies (tutor, explanations) end with their connection, structured ones
-  outlive the page (07).
+  outlive the page.
 - **Optional AI in the web**: `apps/web/src/llm/` plugs into the player through slots
   (`lesson/slots.ts`), into the onboarding as its AI step and into the shell as the Tutor section
   (its pages and navigation entry, from the router); removing the folder and its mount points
@@ -182,7 +182,7 @@ gets the types through Hono RPC (`AppType`), no codegen.
 | Layer | Where | Runs on |
 |---|---|---|
 | Unit | each package's `test/` (`bun test`) | pure functions, checkers, queue, prompts |
-| Server | `packages/server/test` | `createApp().request()` on a temporary data root with the fixture course and a signed-in profile; fake `fetch` for models |
+| Server | `packages/server/test` | `createApp.request` on a temporary data root with the fixture course and a signed-in profile; fake `fetch` for models |
 | Migrations | `packages/server/test/db.test.ts` | each migration upgrades a database of the version before it, with rows |
 | Web | `apps/web/test` | happy-dom on an origin no server listens on; screens rendered with a filled query cache — a request fails the test |
 | End to end | `e2e/` (Playwright) | the compiled binary, the fixture course, a fake OpenAI-compatible server, a profile signed in by a setup project; desktop and phone, Chromium and WebKit |

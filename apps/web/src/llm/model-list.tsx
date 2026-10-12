@@ -1,5 +1,5 @@
 // Settings → AI assistant: a provider's models as a list with search and the filters its metadata allows
-// (07; 09) — free, answers in JSON, context, publisher — instead of a drop-down of hundreds.
+// — free, answers in JSON, context, publisher — instead of a drop-down of hundreds.
 import { Check } from "lucide-react";
 import { useState } from "react";
 import { useTranslation } from "react-i18next";

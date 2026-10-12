@@ -1,4 +1,4 @@
-// A plan's list (09): a lesson's steps, an exam run's questions — headings where a section begins,
+// A plan's list: a lesson's steps, an exam run's questions — headings where a section begins,
 // rows with their mark (ui/step-dot) and title, the one on screen highlighted and kept in sight.
 import { useEffect, useRef } from "react";
 import { cn } from "./utils.ts";

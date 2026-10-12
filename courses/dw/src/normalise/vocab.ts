@@ -1,4 +1,4 @@
-// Part of speech, gender and forms from a DW vocabulary headword (02, research "Vocabulary").
+// Part of speech, gender and forms from a DW vocabulary headword.
 import { germanGender, type Headword, shapeHeadword } from "@sprachanker/course-kit";
 
 const ARTICLE = /^\(?(der|die|das)\)?\s+(.+)$/;

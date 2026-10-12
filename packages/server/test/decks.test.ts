@@ -429,7 +429,7 @@ test("a deck taken as a course's: a word with a card keeps it, the deck studies 
   expect((await sendJson("POST", "/api/cards/decks/take", { deck: id })).created).toBe(3);
   expect((await offer()).mine).toBe(4);
   // The deck studies its four words, Leute's card the course's — shown in the deck as the deck gives
-  // it (04: a deck's own entry of its word).
+  // it (a deck's own entry of its word).
   const first = await getJson(study(scope));
   expect(first.counts).toEqual({ new: 8, learning: 0, review: 0 });
   expect(first.current.display).toEqual({

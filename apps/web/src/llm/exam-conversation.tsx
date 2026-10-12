@@ -1,4 +1,4 @@
-// A speaking part of an exam held with the AI assistant (09, Exams; 07, `exam_conversation`; owner's
+// A speaking part of an exam held with the AI assistant (owner's
 // choice B, 2026-10-10): the examiner opens the part, the examiner's and the partner's lines are read
 // aloud as they come, the learner answers by voice (or typing) — line after line until the examiner
 // closes the part or the learner ends it (kept: the part shows ended, a line being read stops; ended

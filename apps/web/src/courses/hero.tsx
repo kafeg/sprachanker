@@ -1,4 +1,4 @@
-// The head of the course map (09): progress and the way back into the course, where the course comes
+// The head of the course map: progress and the way back into the course, where the course comes
 // from and on what terms, what it holds (lessons, exercises, words, media) and whether all of it is on
 // disk, and syncing it with its source.
 import { type CourseSource, parseLessonKey } from "@sprachanker/schema";

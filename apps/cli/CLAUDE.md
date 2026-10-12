@@ -1,7 +1,6 @@
 # apps/cli
 
-The `sprachanker` binary. Spec: `docs/spec/06-server.md` (CLI, binary build). Depends on
-`packages/server` only; commands call the server's programmatic API.
+The `sprachanker` binary. Depends on `packages/server` only; commands call the server's programmatic API.
 
 ## Layout
 
@@ -19,13 +18,13 @@ scripts/build.ts    # bun run build:bin (build:cli after build:speech): embeds t
 
 ## Planned
 
-- `normalise <series>`, `enrich check` (plan; 06, "CLI").
+- `normalise <series>`, `enrich check` (plan).
 
 ## Rules
 
 - Commands stay thin: parse flags, call `@sprachanker/server`, print the result.
 - Anything the binary needs at runtime is embedded, never read relative to the binary or the working
-  directory (the one exception: the speech engines, separate programs beside it, 08): the web build by importing it `with { type: "file" }` from the generated entry,
+  directory (the one exception: the speech engines, separate programs beside it): the web build by importing it `with { type: "file" }` from the generated entry,
   migrations through the server's own text imports. `bun run e2e` proves this by starting the binary
   from a temp folder.
 - Bun stores embedded files under `/$bunfs/root/` with a hash in the name; pass the import's path

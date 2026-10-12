@@ -1,4 +1,4 @@
-// Page pieces every screen uses (09): the page with its title, loading, errors, empty states, a link back,
+// Page pieces every screen uses: the page with its title, loading, errors, empty states, a link back,
 // a course that is not installed. Presentational: no data of their own.
 import { ArrowLeft } from "lucide-react";
 import { useTranslation } from "react-i18next";

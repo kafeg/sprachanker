@@ -1,4 +1,4 @@
-// Speaking (04, "AI practice in courses"; 07; owner, 2026-10-12: no live conversation waiting for the
+// Speaking (owner, 2026-10-12: no live conversation waiting for the
 // model after every line). Two kinds of task, both said aloud and checked once, at the end:
 // `talk_card` sets a monologue as a speaking exam's first parts do — a topic, three things to say, a
 // model answer (checked as a writing check is, `checkWritingTask` with `spoken`); a role-play is a

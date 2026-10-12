@@ -1,4 +1,4 @@
-// Review (09): tabs — Study (the cards of the deck chosen last, study/session.tsx), Decks (the
+// Review: tabs — Study (the cards of the deck chosen last, study/session.tsx), Decks (the
 // profile's decks as Anki lists them, each language and its courses and imported decks with New,
 // Learning and To review; more new cards today, leaving a deck, how its audio and examples stand; the
 // decks to take — each of My courses' words and each imported deck —, all their words read aloud or

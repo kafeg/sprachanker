@@ -1,4 +1,4 @@
-// The Dialogue (04, "AI practice in courses"; 07): a conversation on the lesson's goals held by voice,
+// The Dialogue: a conversation on the lesson's goals held by voice,
 // one `scene` run each — the setup (with what the partner knows, hidden until it is over) in the run's
 // plan, the lines as `llm_turn` events, its summary an `llm_verdict` (`task: dialogue`). It ends when
 // its goals are reached, the learner ends it or a new one is started; the lesson's Dialogues stay

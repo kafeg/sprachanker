@@ -1,5 +1,5 @@
 // "Why is this wrong?" under a wrong answer: asks the configured model and streams its explanation. In a
-// lesson run the explanation is kept with the attempt it explains (05): shown again without asking, and
+// lesson run the explanation is kept with the attempt it explains: shown again without asking, and
 // "Explain again" asks anew.
 import { type ExerciseKey, itemKey } from "@sprachanker/schema";
 import { Link } from "@tanstack/react-router";

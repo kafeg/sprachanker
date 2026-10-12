@@ -1,4 +1,4 @@
-// The assistant's tasks in the API (07): explanations, the tutor, Understanding, writing, spoken
+// The assistant's tasks in the API: explanations, the tutor, Understanding, writing, spoken
 // answers, scenes, a deck's words given examples (and a card's), exam ratings and conversations, and
 // the request each would send (the prompt viewer). Its setup — providers, models, LM Studio, the
 // prompts — is setup-api.ts.
@@ -44,7 +44,7 @@ export const streamExplain = async (
   signal: AbortSignal,
 ) => readStream(await api.llm.explain.$post({ json: request }, { init: { signal } }), onText);
 
-/** Explanations kept in a lesson run (05): the newest one of an item's attempt is shown. */
+/** Explanations kept in a lesson run: the newest one of an item's attempt is shown. */
 export const useExplanations = (lessonKey: string, runId: string | undefined) =>
   useQuery({
     queryKey: ["explanations", runId],
@@ -64,7 +64,7 @@ type SpokenChecks = Awaited<ReturnType<typeof fetchSpokenChecks>>;
 const fetchSpokenChecks = (lessonKey: string, runId: string) =>
   json(api.llm.speaking.$get({ query: { lessonKey, runId } }));
 
-/** Checks of answers said aloud kept in a lesson run (05). */
+/** Checks of answers said aloud kept in a lesson run. */
 export const useSpokenChecks = (lessonKey: string, runId: string) =>
   useQuery({
     queryKey: ["spoken", runId],

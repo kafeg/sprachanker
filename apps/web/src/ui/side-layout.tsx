@@ -1,4 +1,4 @@
-// A page with a side column (09): the column beside the content on a wide screen, in a sheet from the
+// A page with a side column: the column beside the content on a wide screen, in a sheet from the
 // header's button on a phone; a sticky header over the content. The lesson player and an exam run
 // share it — their plan (steps, questions) is the column.
 import { ListOrdered } from "lucide-react";

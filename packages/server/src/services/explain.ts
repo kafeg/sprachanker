@@ -1,6 +1,6 @@
-// "Why is this wrong?" (07): the item, the answers and the lesson's grammar go to the configured model,
+// "Why is this wrong?": the item, the answers and the lesson's grammar go to the configured model,
 // whose explanation is streamed back. A finished explanation is stored in the lesson run as an
-// `llm_verdict` on the item, with the attempt it explains (05), so it is shown again without asking.
+// `llm_verdict` on the item, with the attempt it explains, so it is shown again without asking.
 
 import { answerAt } from "@sprachanker/engine";
 import { type ExplainMistakeInput, explainMistake, explainMistakeRequest } from "@sprachanker/llm";

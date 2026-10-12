@@ -50,7 +50,7 @@ export function ExerciseItem({
 /** Whether the player checks the exercise (engine's `isChecked`) — and can show it here. */
 export const isCheckedHere = (type: Exercise["type"]) => isChecked(type) && type in RENDERERS;
 
-/** The recordings an item is to be heard with before it is answered (09): the exercise's and its own
+/** The recordings an item is to be heard with before it is answered: the exercise's and its own
  *  (`exercise`, `item-<index>`). */
 export function toHear(exercise: Exercise, index: number): string[] {
   const media = exercise.items[index]?.media;

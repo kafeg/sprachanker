@@ -1,4 +1,4 @@
-// Settings → Review (04; 09): the profile's spaced repetition — daily limits, desired retention and the
+// Settings → Review: the profile's spaced repetition — daily limits, desired retention and the
 // card types a new word gets, each saved when changed; what is not set here (steps, the day's start,
 // new cards within the review limit) in "How it works", the guide Review opens too.
 

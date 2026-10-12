@@ -1,4 +1,4 @@
-// Secrets at rest (06, "Secrets"): AES-256-GCM with a key kept outside the data root. Web Crypto only,
+// Secrets at rest: AES-256-GCM with a key kept outside the data root. Web Crypto only,
 // so this stays runtime-agnostic; the key file itself is read in src/runtime/.
 export interface SecretBox {
   seal(plain: string): Promise<string>;

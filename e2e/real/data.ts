@@ -1,4 +1,4 @@
-// The data root of the run-throughs on real courses (10, "Run-throughs"): a throwaway folder whose
+// The data root of the run-throughs on real courses: a throwaway folder whose
 // library is an APFS clone of the real one (`cp -c`: no space used, the real files never touched) and
 // whose profiles start empty — the owner's profiles are never read or written. Run before Playwright
 // (`bun real/data.ts`); the server the run starts serves this folder.

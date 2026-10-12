@@ -1,6 +1,6 @@
 // Writes src/services/piper-voices.json: the Piper voices sherpa-onnx publishes (its `tts-models`
 // release), each with its size and sha256 as GitHub gives them, so a download is checked like a
-// recognition model (08). Novelty voices (game characters) are left out. Run again to take new voices:
+// recognition model. Novelty voices (game characters) are left out. Run again to take new voices:
 //   bun packages/server/scripts/piper-voices.ts
 import { writeFileSync } from "node:fs";
 import { join } from "node:path";

@@ -1,4 +1,4 @@
-// An answer said aloud without a phrase to say, checked by the model from what was heard (08): asked
+// An answer said aloud without a phrase to say, checked by the model from what was heard: asked
 // with "Check with AI" under it (owner, 2026-10-09), once for the same words; kept in the lesson run
 // and shown again without asking. Nothing is shown while no assistant is set up.
 import { type ExerciseKey, itemKey, type TypedEvent } from "@sprachanker/schema";

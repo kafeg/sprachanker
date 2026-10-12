@@ -1,4 +1,4 @@
-// A card face as Anki shows it (09): the question; with the answer, the question stays and the answer
+// A card face as Anki shows it: the question; with the answer, the question stays and the answer
 // follows under a line. The word's recording sits in the card's corner on the side whose field holds it
 // and plays by itself as in Anki: the question's on the question side, the answer's on the answer side
 // (not the question's again). A word without one is never read on the fly: the answer's corner has the

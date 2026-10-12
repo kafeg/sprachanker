@@ -1,4 +1,4 @@
-// "Import a profile" on who is studying (05, "Profile file"; 09): a profile file chosen and sent with
+// "Import a profile" on who is studying: a profile file chosen and sent with
 // its progress, the server's check, then the new profile — to open — with what the file left out
 // (API keys) and the content it used that is not on this computer.
 import { useQueryClient } from "@tanstack/react-query";

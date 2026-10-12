@@ -1,6 +1,6 @@
 # apps/desktop
 
-Tauri 2 shell (planned). Spec: `docs/spec/06-server.md` (desktop shell section).
+Tauri 2 shell (planned).
 Knows only the `sprachanker` binary (built from `apps/cli`) and its CLI flags; contains no business logic.
 
 ## Planned (plan, "Desktop app")

@@ -40,7 +40,7 @@ export interface ServerConfig {
   hostname: string;
   port: number;
   webAssets: WebAssets;
-  /** Data root (05): library/, decks/ and profiles/. */
+  /** Data root: library/, decks/ and profiles/. */
   dataRoot: string;
   appVersion: string;
   /** More names the Host check accepts (`--allow-host`): a name this machine is reached by that it
@@ -93,9 +93,9 @@ export const verifyData = (dataRoot: string) =>
   verifyLibrary(openLibrary(join(dataRoot, "library")));
 
 /**
- * The server's profile matters for the `sprachanker profiles` command (06, "Profiles and access"):
+ * The server's profile matters for the `sprachanker profiles` command:
  * list them, open or close registration, delete one, export one to a file or import one from a file
- * (05, "Profile file"). Not in the app.
+ *. Not in the app.
  */
 export function profileAdmin(
   dataRoot: string,
@@ -158,7 +158,7 @@ export function profileAdmin(
 }
 
 /**
- * The data root's courses for the `sprachanker courses` command (02, "Course bundle"): those
+ * The data root's courses for the `sprachanker courses` command: those
  * installed, one exported to a file, a file imported, one removed — also while a server runs on the
  * data root (the series' import lock keeps them apart; the server reads the files anew).
  */
@@ -185,6 +185,6 @@ export function courseAdmin(dataRoot: string, appVersion = "") {
   };
 }
 
-/** A backup of the data root's irreplaceable data in a new folder in `to` (05, "Backups"). */
+/** A backup of the data root's irreplaceable data in a new folder in `to`. */
 export const backupData = (dataRoot: string, to: string) =>
   backUpTo(dataRoot, to, join(appDataDir(), "secret.key"));

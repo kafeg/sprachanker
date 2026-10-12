@@ -1,4 +1,4 @@
-// Reading aloud with Qwen3-TTS on this computer (08; Settings → Speech → Read aloud): its models to
+// Reading aloud with Qwen3-TTS on this computer (Settings → Speech → Read aloud): its models to
 // download, the one in use marked and another installed one to use instead (none chosen: the large
 // one when it is there), and for each language its speaker with a phrase and "Listen".
 import { useTranslation } from "react-i18next";

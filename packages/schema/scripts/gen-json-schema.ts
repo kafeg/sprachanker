@@ -1,4 +1,4 @@
-// Generates the committed JSON Schemas of stored file formats (10, "Schema drift").
+// Generates the committed JSON Schemas of stored file formats.
 // Usage: bun run --filter @sprachanker/schema gen   (the drift test fails until you do)
 import { join } from "node:path";
 import { z } from "zod";

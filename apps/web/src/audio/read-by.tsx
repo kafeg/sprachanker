@@ -1,4 +1,4 @@
-// Who reads a language aloud (08; 09), named where a line is to be listened to, as the AI's model is:
+// Who reads a language aloud, named where a line is to be listened to, as the AI's model is:
 // "Read by Piper · thorsten" — a dialogue read by two voices, both: "Read by Piper · thorsten and
 // eva"; a text whose people have their own voices, each of them. Where to change it says a hint (not a link: a lesson is not left by a tap on a label), shown
 // on hover, on focus and on a tap; nothing reading the language says so. Nothing is named while the

@@ -1,4 +1,4 @@
-// A PDF read for its text lines and pictures (pdf.js, 10): each line with its page and place, each
+// A PDF read for its text lines and pictures (pdf.js): each line with its page and place, each
 // picture decoded with its place — what the catalogue parser needs, nothing drawn.
 /// <reference path="./pdfjs-worker.d.ts" />
 

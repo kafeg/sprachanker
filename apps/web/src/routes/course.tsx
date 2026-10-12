@@ -1,4 +1,4 @@
-// Course map (09): the course head (course-info) over a timeline of units, each with its lesson cards
+// Course map: the course head (course-info) over a timeline of units, each with its lesson cards
 // and their status.
 import { lessonOrder, parseLessonKey } from "@sprachanker/schema";
 import { Link } from "@tanstack/react-router";

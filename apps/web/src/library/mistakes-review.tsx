@@ -1,4 +1,4 @@
-// Going over mistakes as the lesson's step and the Notebook show it (04, "AI practice in courses";
+// Going over mistakes as the lesson's step and the Notebook show it (
 // 09): a type of mistakes — what went wrong, the learner's wrong parts only (given → right, the words
 // around it, an Understanding question's line of its text), the explanation — and its new items as the
 // items of their closed types, answered here or read as answered (a type listed only: what to do

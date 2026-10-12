@@ -1,4 +1,4 @@
-// What a Tutor section's chat practises (07): the languages the courses begun teach, the latest
+// What a Tutor section's chat practises: the languages the courses begun teach, the latest
 // course's first; a new chat in the one chosen, read in the latest course of it; another refused.
 import { describe, expect, test } from "bun:test";
 import type { Content } from "../src/services/content.ts";

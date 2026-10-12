@@ -1,4 +1,4 @@
-// Settings → AI assistant (07; 09): the providers as cards, then the chosen one's endpoint, key (with
+// Settings → AI assistant: the providers as cards, then the chosen one's endpoint, key (with
 // what OpenRouter tells of it), connection check and model list. `AssistantSetup` is also the
 // onboarding's AI step.
 import { CircleCheck, CircleX, LoaderCircle } from "lucide-react";

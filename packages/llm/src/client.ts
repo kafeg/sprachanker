@@ -1,4 +1,4 @@
-// OpenAI-compatible chat endpoint (07, "Providers"): LM Studio, OpenRouter and any compatible URL.
+// OpenAI-compatible chat endpoint: LM Studio, OpenRouter and any compatible URL.
 // Uses only web-standard APIs (fetch, streams), so it runs in Bun, Node and tests alike.
 import { LlmError } from "./errors.ts";
 import {
@@ -30,7 +30,7 @@ export interface ChatMessage {
   tool_call_id?: string;
 }
 
-/** A function the model may call (07, "Tools"); `parameters` is a JSON Schema. */
+/** A function the model may call; `parameters` is a JSON Schema. */
 export interface ToolDef {
   name: string;
   description: string;
@@ -47,7 +47,7 @@ export interface ChatRequest {
   /** Command-line agents' effort: "low" for a short check; unset, their default (a reply that
    *  teaches or a turn of a conversation weighs more than its speed). */
   effort?: "low";
-  /** Ask for JSON matching this schema (structured output); used with complete(). */
+  /** Ask for JSON matching this schema (structured output); used with complete. */
   jsonSchema?: { name: string; schema: Record<string, unknown> };
   /** Functions the model may call while answering; `runTool` answers each call. */
   tools?: ToolDef[];
@@ -62,7 +62,7 @@ export interface ChatRequest {
 export type TaskRequest = Omit<ChatRequest, "model" | "signal" | "runTool">;
 
 /**
- * What sets one provider's API apart from the plain OpenAI-compatible one (07, "Providers"): how its
+ * What sets one provider's API apart from the plain OpenAI-compatible one: how its
  * reasoning is turned off, which models reason, what its model list holds that is no chat model.
  */
 export interface ApiQuirks {
@@ -101,8 +101,8 @@ interface BodyOptions {
 }
 
 /**
- * The JSON body of a chat request exactly as it is posted — also shown in the prompt viewer (07,
- * "Debugging"), with every option on.
+ * The JSON body of a chat request exactly as it is posted — also shown in the prompt viewer, with every option
+ * on.
  */
 export function chatBody(
   request: Omit<ChatRequest, "signal" | "runTool">,

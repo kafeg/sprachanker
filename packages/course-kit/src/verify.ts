@@ -1,4 +1,4 @@
-// Verifying the library (02, 03): every installed course is read the way the app reads it — through the
+// Verifying the library: every installed course is read the way the app reads it — through the
 // schemas — and checked beyond them: keys that refer to each other, answers that refer to existing
 // options and gaps, fingerprints, locale texts per edition, and media files on disk. One report per
 // course; `problems` must be empty, `notes` are worth a look (e.g. exercises without locale texts).
@@ -230,7 +230,7 @@ function examProblems(exam: Exam, key: string): CourseProblem[] {
 }
 
 /**
- * An exam's sources that do not hold (03): a question without its place in a document, a place in a
+ * An exam's sources that do not hold: a question without its place in a document, a place in a
  * document not listed, a kept copy missing or changed since it was read (its sha256), a check that did
  * not pass for every question.
  */

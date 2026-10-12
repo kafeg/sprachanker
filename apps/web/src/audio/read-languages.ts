@@ -1,4 +1,4 @@
-// The languages read aloud (08), whose voices Settings → Speech shows: those the courses and exams here
+// The languages read aloud, whose voices Settings → Speech shows: those the courses and exams here
 // teach — none installed yet: those the shown catalogue teaches — and the interface's.
 import { parseEditionId } from "@sprachanker/schema";
 import { useTranslation } from "react-i18next";

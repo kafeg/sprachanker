@@ -11,7 +11,7 @@ async function send(
   path: string,
   data: unknown,
 ) {
-  // Mutations carry the app's client header (CSRF check, 06).
+  // Mutations carry the app's client header (CSRF check).
   const res = await request[method](path, { data, headers: { ...CLIENT_HEADERS } });
   expect(res.ok()).toBe(true);
   return res.json();

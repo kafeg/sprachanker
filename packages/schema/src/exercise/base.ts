@@ -1,4 +1,4 @@
-// Parts shared by all exercise types (02, "Exercise types").
+// Parts shared by all exercise types.
 import { z } from "zod";
 import { Media, MediaPath, Sha256 } from "../common.ts";
 import { ExerciseKey, ItemKey, RuleId, VocabKey } from "../keys.ts";
@@ -53,7 +53,7 @@ export const exerciseOf = <const T extends string, I extends z.ZodType>(type: T,
       ruleIds: z.array(RuleId),
       items: z.array(item).min(1),
     })
-    // Items are addressed by position (`#n`, 02): an item's key says where it is.
+    // Items are addressed by position (`#n`): an item's key says where it is.
     .refine((e) => e.items.every((it, i) => (it as { key?: string }).key === `${e.key}#${i + 1}`), {
       message: "item keys must be <exercise key>#<position>",
       path: ["items"],

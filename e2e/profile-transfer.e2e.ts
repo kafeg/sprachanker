@@ -1,4 +1,4 @@
-// A profile moved as a file (05, "Profile file"): exported from Settings → Profile, imported on who
+// A profile moved as a file: exported from Settings → Profile, imported on who
 // is studying as a new profile, opened there and studied on; deleted again so the server keeps one
 // profile named E2E.
 import { expect, test } from "@playwright/test";

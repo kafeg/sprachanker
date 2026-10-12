@@ -1,4 +1,4 @@
-// The lesson summary (09): the run's score, what is left while it is open, every step of the plan with
+// The lesson summary: the run's score, what is left while it is open, every step of the plan with
 // its state (exercises with their right answers), and the way on.
 import {
   type ExerciseResult,

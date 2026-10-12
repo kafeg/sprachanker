@@ -1,4 +1,4 @@
-// What the player asks of an item's answer before it checks it (04, "Checking"; 09): whether the
+// What the player asks of an item's answer before it checks it: whether the
 // exercise is checked at all, whether an answer is complete enough to check, and what was heard of an
 // answer said aloud with no phrase to say. Pure: the web's player and the Notebook read these.
 import type {
@@ -63,7 +63,7 @@ const SPELLED = /(?<![\p{L}-])\p{L}(?:-\p{L}){2,}(?![\p{L}-])/u;
 const ALTERNATIVES = /\s+\/\s+/;
 
 /**
- * The lines a speaking item is said as (08): the source's answer (`reference`) when it has one, each
+ * The lines a speaking item is said as: the source's answer (`reference`) when it has one, each
  * split into its alternatives (" / "), none when it is a frame; else its phrase to repeat (`text`),
  * said as written — words in brackets too —, split into alternatives only when it is one line (a
  * text of several lines is read whole: its " / " may part words or speakers). None when the item has
@@ -80,7 +80,7 @@ export function linesToSay(item: { text?: string; reference?: string[] }): strin
 }
 
 /** What was heard of an answer said aloud to a speaking item with no line to say (`linesToSay`: the
- *  AI checks it, 08); undefined for anything else, or nothing heard. */
+ *  AI checks it); undefined for anything else, or nothing heard. */
 export function spokenFreely(exercise: Exercise, index: number, answer: unknown) {
   const item = exercise.items[index] as ItemOf<"speech_selfrate"> | undefined;
   if (exercise.type !== "speech_selfrate" || !item || linesToSay(item)) return undefined;

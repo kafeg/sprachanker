@@ -73,7 +73,7 @@ function segments(text: string, gaps: number) {
 
 function mapItem(ctx: Context, state: ApolloState, q: Entity): Mapped {
   const subs = refs(state, q.subInquiries);
-  // A prompt in the learner's language goes to the locale file (02, "Text language").
+  // A prompt in the learner's language goes to the locale file.
   const prompt = german(ctx, state, q.inquiryText);
   const learnerPrompt = prompt && ctx.learnerText(prompt) ? prompt : undefined;
   const { audio, answerAudio } = itemAudioPaths(ctx, state, q);

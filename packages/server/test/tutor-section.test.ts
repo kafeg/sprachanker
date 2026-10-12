@@ -1,4 +1,4 @@
-// The Tutor section (07): chats about no lesson — started, kept, listed, continued, deleted — with
+// The Tutor section: chats about no lesson — started, kept, listed, continued, deleted — with
 // what the learner has met in their courses as context; refused before a course is begun and while
 // the tutor's place is off.
 import { describe, expect, test } from "bun:test";

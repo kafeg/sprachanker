@@ -1,4 +1,4 @@
-// Going over mistakes (04, "AI practice in courses"; 07): the mistakes of the pass the lesson shows —
+// Going over mistakes: the mistakes of the pass the lesson shows —
 // items answered wrong at first and Understanding questions answered wrong — as their wrong parts only,
 // by type; the model's explanation and new items per type (an invalid item repaired), kept in the
 // lesson run; each new item answered, checked by the engine and kept; read back in the Notebook's pass.

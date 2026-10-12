@@ -1,7 +1,7 @@
-// A course bundle (02, "Course bundle"): one downloaded course — or exam: a course of exams — moved to
+// A course bundle: one downloaded course — or exam: a course of exams — moved to
 // another of one's own machines as a zip of stored entries holding `manifest.json`, the course's library
 // files of the editions it carries, the media they use and the copies its exams were read from. The
-// manifest is the course's manifest (02, "Manifest"): what it holds, a hash per file, its content
+// manifest is the course's manifest: what it holds, a hash per file, its content
 // versions, its lines of the series' media index and key map.
 import { z } from "zod";
 import { CourseSource } from "./canonical.ts";
@@ -32,7 +32,7 @@ const PLACES = new RegExp(
 
 /** A file a bundle may hold, as its path in the series folder: a course's canonical files, an
  *  edition's locale files, a media file the media store could keep (its kind's extensions only), a
- *  source copy kept in `raw/<edition>/<course>/` (02, "Library layout"). Nothing else: every name
+ *  source copy kept in `raw/<edition>/<course>/`. Nothing else: every name
  *  portable (no `..`, nothing a disk refuses), no folder of another kind. */
 export const CourseBundlePath = z
   .string()
@@ -64,7 +64,7 @@ export const CourseBundleManifest = z.strictObject({
   editions: z.array(EditionId).min(1).max(100),
   /** The provider that writes its series (`dw-nicos-weg`); null for a series none writes. */
   provider: z.string().max(80).nullable(),
-  /** Where the course comes from, as its index says (02). */
+  /** Where the course comes from, as its index says. */
   source: CourseSource.nullable(),
   /** Its title in each edition. */
   titles: z.record(EditionId, z.string().max(400)),

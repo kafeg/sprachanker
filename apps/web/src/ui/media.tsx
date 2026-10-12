@@ -1,4 +1,4 @@
-// Media (09): the audio player, the word audio button, stimulus video/image/audio. One medium plays
+// Media: the audio player, the word audio button, stimulus video/image/audio. One medium plays
 // at a time at the profile's speed (playback.tsx).
 import type { Media } from "@sprachanker/schema";
 import { Pause, Play, RotateCcw, Volume2, VolumeX } from "lucide-react";

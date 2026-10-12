@@ -200,7 +200,7 @@ describe("gap_text", () => {
   test.each<[unknown, [string, number]]>([
     [{ g1: "Kaffee" }, ["correct", 1]],
     [{ g1: " Tee " }, ["correct", 1]],
-    // A noun in mid-sentence keeps its capital (04).
+    // A noun in mid-sentence keeps its capital.
     [{ g1: "kaffee" }, ["wrong", 0]],
     [{ g1: "Kakao" }, ["wrong", 0]],
   ])("%j", (answer, out) => expect(result(e, answer)).toEqual(out));

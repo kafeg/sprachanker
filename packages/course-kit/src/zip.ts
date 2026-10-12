@@ -1,4 +1,4 @@
-// Zips of stored entries — the files that move a course or a profile between one's machines (02, 05):
+// Zips of stored entries — the files that move a course or a profile between one's machines:
 // written with every size and checksum known before an entry starts (ZIP64 where a size or an offset
 // needs it), and read by their directory only as far as it is checked. Untrusted files are read here,
 // so nothing a zip says is believed beyond what is checked against the rest of it.

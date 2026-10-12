@@ -1,4 +1,4 @@
-// "Words of the lesson" (09): the lesson's words studied as in Anki — the same session as Review
+// "Words of the lesson": the lesson's words studied as in Anki — the same session as Review
 // (study/session.tsx), over the first card of each word, without the day's new limit. Opening the step
 // makes the cards (a word met before keeps its card); once nothing is left to study now, the step is
 // done and the words go on in Review.

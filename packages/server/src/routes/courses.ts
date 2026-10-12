@@ -49,7 +49,7 @@ export function courseRoutes() {
         const { series, course } = c.req.valid("query");
         return c.json(await c.var.s.downloads.remove(series, course));
       })
-      // A course as a file to move to another machine (02, "Course bundle"): made ready (its name and
+      // A course as a file to move to another machine: made ready (its name and
       // size; `edition`: that edition's only), then downloaded once, streamed.
       .post(
         "/courses/export",

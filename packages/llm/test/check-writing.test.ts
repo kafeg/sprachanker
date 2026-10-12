@@ -1,4 +1,4 @@
-// "Write it yourself" (04, "AI practice in courses"; 07): the task — a situation with three content
+// "Write it yourself": the task — a situation with three content
 // points, its length the level's — and the check of a text on it: each point rated, at most three
 // corrections, a model text; the level's criteria and the target language's exam said with the data.
 import { expect, test } from "bun:test";

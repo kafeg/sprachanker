@@ -1,4 +1,4 @@
-// Structured task outputs (07): JSON requested with a schema, parsed and validated with zod, then the
+// Structured task outputs: JSON requested with a schema, parsed and validated with zod, then the
 // task's own check; an invalid reply gets one repair attempt with the problems listed, then the task
 // fails with `invalid_output`. A valid reply short only of the task's quality is asked again once
 // too, then kept.

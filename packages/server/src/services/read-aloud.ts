@@ -1,4 +1,4 @@
-// Reading aloud on this machine (08): Piper voices, run by sherpa-onnx's `sherpa-onnx-offline-tts`
+// Reading aloud on this machine: Piper voices, run by sherpa-onnx's `sherpa-onnx-offline-tts`
 // (built in native/piper), each voice downloaded from sherpa-onnx's release and checked against its
 // sha256 (piper-voices.json); a text read once with a voice at a speed is kept and served again. One
 // engine for the server: each profile picks Piper or its device's voices, and a voice per language.

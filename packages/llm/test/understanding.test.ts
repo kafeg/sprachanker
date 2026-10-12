@@ -1,4 +1,4 @@
-// Reading and Listening's texts (07): the genres and their length by level and place, a draft
+// Reading and Listening's texts: the genres and their length by level and place, a draft
 // planned and written from what the learner knows, its lines read from its text, drafts rated and
 // the best kept, questions asked on the one kept, then answered with the text and without it — the
 // questions not settled as the key does, or given away by common sense, left out.

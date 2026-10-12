@@ -1,4 +1,4 @@
-// The run's questions as a plan (09, Exams; owner, 2026-10-10: as a lesson's steps), under the titles
+// The run's questions as a plan (owner, 2026-10-10: as a lesson's steps), under the titles
 // of their Teile (and modules): each with its number and what it asks, where the learner is, what is
 // answered — in practice right or wrong — and a tap to go to it. Beside the run on a wide screen, in a
 // sheet on a phone (ui/side-layout).

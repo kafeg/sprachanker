@@ -1,4 +1,4 @@
-// Runs and their events (05): the one module that writes and reads the `runs` and `events` tables. A
+// Runs and their events: the one module that writes and reads the `runs` and `events` tables. A
 // run is started, ended once (only while active), and deleted only with its events on the learner's
 // confirmed request. Event payloads are checked against their schema when written (schema
 // `EVENT_PAYLOADS`) and parsed when read; a stored row that no longer parses is left out and logged,
@@ -312,7 +312,7 @@ export function createRunStore(deps: { db: ProfileDb; now: () => number; appVers
       list: NewEvent[],
       options: {
         anyStatus?: boolean;
-        /** The device the learner did it on (05: `events.device_id`). */
+        /** The device the learner did it on (`events.device_id`). */
         deviceId?: string;
       } = {},
     ): ReadEvent[] {
@@ -540,7 +540,7 @@ export function createRunStore(deps: { db: ProfileDb; now: () => number; appVers
      * with the lesson that made them), on the learner's confirmed request: resetting progress, deleting
      * a tutor chat, leaving a deck (the answers to its cards that go). A day's review run left with no
      * answer goes too: nothing keeps an empty one. The only deletion of events besides removing a
-     * profile (05). Run it in `atomic` together with what goes with it.
+     * profile. Run it in `atomic` together with what goes with it.
      */
     remove(runIds: string[], cardIds: string[] = []) {
       if (!runIds.length && !cardIds.length) return { runs: 0, events: 0 };

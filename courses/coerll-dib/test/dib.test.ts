@@ -50,7 +50,7 @@ test.each([
   ["die Nudeln (plural only ?)", { lemma: "Nudeln", pos: "noun", gender: "pl" }],
   ["das Brot, die Semmel (Brote, Semmeln)", { lemma: "Brot", pos: "noun", gender: "n" }],
   ["die Seife / das Gel", { lemma: "Seife", pos: "noun", gender: "f" }],
-  // The source states no part of speech: by shape, as every provider (02) — no guessing from endings.
+  // The source states no part of speech: by shape, as every provider — no guessing from endings.
   ["sich anziehen", { lemma: "sich anziehen", pos: "word" }],
   ["aufstehen", { lemma: "aufstehen", pos: "word" }],
   ["Notizen machen", { lemma: "Notizen machen", pos: "word" }],

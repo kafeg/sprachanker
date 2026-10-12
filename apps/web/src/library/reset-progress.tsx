@@ -1,4 +1,4 @@
-// Resetting progress (05): a course (it leaves "My courses"), a lesson or an exam (it leaves "My
+// Resetting progress: a course (it leaves "My courses"), a lesson or an exam (it leaves "My
 // exams"), after a confirmation that says what is deleted. The caller draws the button; `open` shows the confirmation.
 import type { ExamKey, LessonKey } from "@sprachanker/schema";
 import { useState } from "react";

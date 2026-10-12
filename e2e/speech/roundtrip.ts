@@ -1,7 +1,7 @@
-// Speech round-trip (10, "Speech round-trip"; 08): every text of corpus.json read by Qwen3-TTS and
+// Speech round-trip: every text of corpus.json read by Qwen3-TTS and
 // heard back by Whisper on this Mac, through the app's own endpoints of the compiled binary, against a
 // throwaway data root whose models are an APFS clone of the real ones. Each text is in the language
-// learnt, read in that language (a text mixing languages is never read aloud, 08) and scored as the
+// learnt, read in that language (a text mixing languages is never read aloud) and scored as the
 // share of its words heard (the spoken check's word diff). Seeded synthesis and Whisper make it repeat.
 // `bun run speech:check` (`SPEECH_LIMIT=n` for the first n texts).
 import { readFileSync, writeFileSync } from "node:fs";

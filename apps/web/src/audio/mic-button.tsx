@@ -1,4 +1,4 @@
-// The microphone button (08; 09): a tap starts recording, another stops it; while it records a ring
+// The microphone button: a tap starts recording, another stops it; while it records a ring
 // follows the loudness. When the microphone cannot be used (plain HTTP, no MediaRecorder, access denied)
 // it stays disabled and says why — a tooltip, and on a phone a line under it (no hover there). It is
 // `aria-disabled` rather than `disabled`, so it keeps focus and its tooltip.

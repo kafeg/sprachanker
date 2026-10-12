@@ -1,4 +1,4 @@
-// The interface's writing direction (09, "Writing direction"): Radix's controls told it (sliders, tabs'
+// The interface's writing direction: Radix's controls told it (sliders, tabs'
 // arrow keys, menus), arrow keys stepping along it, and text in a language marked with its own.
 import { Direction } from "radix-ui";
 import { useTranslation } from "react-i18next";

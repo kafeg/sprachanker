@@ -1,5 +1,5 @@
 // Every shape an event payload was ever stored in (test/stored-events/events.json, synthetic) must keep
-// reading: payloads only grow (05, "Events"). A change that breaks one needs an upgrade, not an edit here.
+// reading: payloads only grow. A change that breaks one needs an upgrade, not an edit here.
 import { expect, test } from "bun:test";
 import { EVENT_PAYLOADS, type EventType, readPayload } from "../src/index.ts";
 import stored from "./stored-events/events.json";

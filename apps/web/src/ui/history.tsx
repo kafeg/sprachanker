@@ -1,4 +1,4 @@
-// Lists of earlier items and rows that open something (09): the whole row is the button, a chevron says
+// Lists of earlier items and rows that open something: the whole row is the button, a chevron says
 // whether it opens a page (right) or unfolds in place (down). A history shows one item at a time.
 import { ChevronDown, ChevronRight } from "lucide-react";
 import { useState } from "react";

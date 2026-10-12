@@ -1,4 +1,4 @@
-// The AI assistant in the lesson player (09, 07): the tutor in the header, "Why is this wrong?" under a
+// The AI assistant in the lesson player: the tutor in the header, "Why is this wrong?" under a
 // wrong item, the check of an answer said aloud under it, the practice steps of the plan — Reading,
 // Listening, Writing, Speaking — and going over the pass's mistakes in the summary, each where its place is on
 // (Settings → AI assistant). The router passes these slots to the player; nothing in lesson/ imports llm/.
@@ -15,7 +15,7 @@ import { LessonTutor } from "./tutor.tsx";
 import { UnderstandingStep } from "./understanding.tsx";
 import { WritingTask } from "./writing.tsx";
 
-/** What the assistant shows in a place, while it works there (07). */
+/** What the assistant shows in a place, while it works there. */
 function In({ place, children }: { place: AiPlace; children: React.ReactNode }) {
   return useAiIn(place) ? children : null;
 }

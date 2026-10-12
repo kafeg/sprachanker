@@ -1,4 +1,4 @@
-// Where an exam was read and what was checked (09, Exams; owner, 2026-10-10: proof that the data is the
+// Where an exam was read and what was checked (owner, 2026-10-10: proof that the data is the
 // source's): the documents with their addresses and the copies kept (sha256, when read), the checks
 // the import ran with how many questions passed, what a mock exam here shows and what it does not; and
 // a question's own places in the documents.

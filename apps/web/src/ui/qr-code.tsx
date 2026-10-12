@@ -1,4 +1,4 @@
-// A QR code as SVG, made here (uqr, spec 10): dark on white in either theme — a camera reads it so —,
+// A QR code as SVG, made here (uqr): dark on white in either theme — a camera reads it so —,
 // with its quiet zone; never mirrored right to left.
 import { useMemo } from "react";
 import { encode } from "uqr";

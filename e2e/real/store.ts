@@ -1,4 +1,4 @@
-// What a run-through checks in the profile's database after a lesson (10, "Run-throughs"; 05): the
+// What a run-through checks in the profile's database after a lesson: the
 // rows (read by read-store.ts) checked by a pure function, so a store broken on purpose shows that
 // the checks catch it (store.test.ts).
 import { isDeepStrictEqual } from "node:util";
@@ -60,7 +60,7 @@ export interface Stored {
 }
 
 /**
- * Problems with the profile's store as a whole, whatever was done (05): every event reads by its
+ * Problems with the profile's store as a whole, whatever was done: every event reads by its
  * type's schema and belongs to a run there, in time order within its run; one active run per lesson; a
  * finished run with its end; one active run per lesson and per exam; an item's answers numbered 1, 2, 3… with none twice; a card's faces
  * only reviewed and kept, each face's state the one its latest review (not taken back) left; a spoken answer's recording on disk.
@@ -245,7 +245,7 @@ export interface Taken {
 }
 
 /**
- * Problems with how an exam taken is stored (05; 04, "Exams"): each run's plan reads — a mock exam's
+ * Problems with how an exam taken is stored: each run's plan reads — a mock exam's
  * questions drawn as the real test draws them (each section's number, the state's questions only),
  * kept as shown with their sections and a deadline; practice over every open question with none —;
  * answers only to the run's own questions, each outcome the engine's; a run handed in with the result

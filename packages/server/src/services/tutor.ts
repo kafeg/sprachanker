@@ -1,4 +1,4 @@
-// The tutor's chats, `chat` runs with `llm_turn` events (05, 07), about a lesson or — the Tutor
+// The tutor's chats, `chat` runs with `llm_turn` events, about a lesson or — the Tutor
 // section's — about none. A lesson has one current chat: a new chat ends it, and it stays readable in
 // the lesson's chat history until deleted. The section's chats all stay open, any of them continued.
 import { exerciseResults, mistakesOf } from "@sprachanker/engine";
@@ -305,7 +305,7 @@ export function createTutor(deps: {
       return run ? { edition: run.edition, turns: turns(id) } : undefined;
     },
 
-    /** Deletes one of the chats about a lesson (the section's: `null`) with its turns (05); false
+    /** Deletes one of the chats about a lesson (the section's: `null`) with its turns; false
      *  when there is no such chat. */
     remove(about: LessonKey | null, id: string): boolean {
       if (!store.get(id, "chat", about)) return false;

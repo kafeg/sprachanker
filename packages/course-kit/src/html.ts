@@ -1,4 +1,4 @@
-// HTML sanitiser for course texts (02, "Conventions": allow-list, images as media paths).
+// HTML sanitiser for course texts.
 import type { MediaPath } from "@sprachanker/schema";
 import sanitizeHtml from "sanitize-html";
 import { NO_WIDTH } from "./text.ts";
@@ -150,7 +150,7 @@ function withoutEmpty(html: string): string {
 }
 
 /** An `<h3>` titles a section of the page only outside tables, lists and figures (the app divides a
- *  page at its titles, 09); one inside them is a bold paragraph. */
+ *  page at its titles); one inside them is a bold paragraph. */
 function nestedHeadingsAsBold(html: string): string {
   let depth = 0;
   return html.replace(/<(\/?)(table|ul|ol|figure|h3)>/g, (tag, close: string, name: string) => {

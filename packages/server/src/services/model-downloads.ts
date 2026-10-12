@@ -1,4 +1,4 @@
-// Downloads of speech models and voices (08): one at a time per id, their progress, why one failed,
+// Downloads of speech models and voices: one at a time per id, their progress, why one failed,
 // cancel — what whisper-server's models, Piper's voices and Qwen3-TTS's models share.
 
 interface Download {

@@ -1,5 +1,5 @@
 // `sprachanker import voa-english-usa`: fetch the lesson articles and recordings (idempotent), then
-// normalise (03).
+// normalise.
 import { join } from "node:path";
 import {
   createPoliteFetcher,

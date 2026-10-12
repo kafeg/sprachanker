@@ -1,4 +1,4 @@
-// Whose voice it is (08): a server voice's gender where it is known — Qwen3-TTS's named speakers,
+// Whose voice it is: a server voice's gender where it is known — Qwen3-TTS's named speakers,
 // Piper's voices by name (those whose speaker is known; a voice of several speakers, or one not known,
 // has none) — and its age where it is plain (Qwen3-TTS's "uncle_fu" an older man's). A text's people
 // are given voices by their gender and age (`castVoices`: the server's, when a text is made); a text

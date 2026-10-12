@@ -1,4 +1,4 @@
-// The AI assistant on an exam run's page (09, Exams; 07, `rate_exam_answer`; owner's choice K,
+// The AI assistant on an exam run's page (owner's choice K,
 // 2026-10-10): "Propose a rating" above an open answer's criteria — the model chooses a level of each
 // with its reason, kept in the run, and the page shows it chosen for the learner to take or change.
 // Shown while a model is set up and its place is on (llm/exam-assistant.tsx).

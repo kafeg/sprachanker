@@ -1,4 +1,4 @@
-// Keys that stay when a source reorders (02, "Keys"): a lesson or exercise numbered by its place gets
+// Keys that stay when a source reorders: a lesson or exercise numbered by its place gets
 // that number the first time it is seen, and keeps it by its source id. One inserted, moved or dropped
 // at the source shifts no other key, so answers, mistakes and cards stay on what they were about. A
 // new one takes the number of its place when that is free in its scope, else the next free number.

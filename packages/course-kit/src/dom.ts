@@ -1,4 +1,4 @@
-// A small HTML tree for server-rendered pages (03): enough structure to walk sections, lists, forms
+// A small HTML tree for server-rendered pages: enough structure to walk sections, lists, forms
 // and players in order on hand-edited or broken HTML (Lingust's Joomla articles, Goethe's test pages),
 // where regexes alone lose nesting.
 

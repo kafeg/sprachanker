@@ -103,7 +103,7 @@ export function topicParts(pages: Tab[]): Tab[] {
   );
 }
 
-/** A grammar or culture page; its bold-only lines are its sections' titles (shown as cards, 09). */
+/** A grammar or culture page; its bold-only lines are its sections' titles (shown as cards). */
 function tab(ctx: Context, k: Entity | undefined) {
   return k
     ? {

@@ -1,5 +1,5 @@
 // Every shape a run's JSON columns (`plan_json`, `result_json`) were ever stored in
-// (test/stored-runs/runs.json, synthetic) must keep reading, as event payloads do (05, "Events").
+// (test/stored-runs/runs.json, synthetic) must keep reading, as event payloads do.
 import { expect, test } from "bun:test";
 import type { z } from "zod";
 import { ExamPlan, ExamResult, LessonResult, SceneSetup } from "../src/index.ts";

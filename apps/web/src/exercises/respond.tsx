@@ -1,5 +1,5 @@
 // respond: a free answer (a translation, a sentence of one's own), typed; one to be said (`input:
-// "speech"`, an exam's speaking part) also by voice in the language learnt (08: what was heard goes
+// "speech"`, an exam's speaking part) also by voice in the language learnt (what was heard goes
 // into the box, the take kept with the answer) — never a written one (owner, 2026-10-11). Without a
 // rubric it is not scored:
 // after checking, the model answer(s) of the course are shown to compare with. A translation into the

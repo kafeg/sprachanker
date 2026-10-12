@@ -1,5 +1,4 @@
-// The layout is set in logical terms, so a right-to-left interface mirrors it (spec 09, "Writing
-// direction"): no left/right utility in the code but those kept physical on purpose.
+// The layout is set in logical terms, so a right-to-left interface mirrors it: no left/right utility in the code but those kept physical on purpose.
 import { expect, test } from "bun:test";
 import { readdirSync, readFileSync, statSync } from "node:fs";
 import { join } from "node:path";

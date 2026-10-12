@@ -1,4 +1,4 @@
-// Settings → Speech (08; 09): the microphone of this device (which one, a test with its level and the
+// Settings → Speech: the microphone of this device (which one, a test with its level and the
 // take played back; why it cannot be used, if so), recognition (on or off, its models, how speaking
 // works) and reading aloud (read-aloud-settings.tsx). The recordings kept are in General → Storage.
 import { useEffect, useState } from "react";
@@ -111,7 +111,7 @@ function Microphone() {
   );
 }
 
-/** Recognition (08): on or off for this profile, and the models — size, download with its progress,
+/** Recognition: on or off for this profile, and the models — size, download with its progress,
  *  removal, which one is used. The engine itself is built with the app (native/). */
 function Recognition() {
   const { t } = useTranslation();

@@ -1,5 +1,5 @@
 // `sprachanker import bamf-lid`: the catalogue PDF and the test centre's question pages fetched once and
-// kept as they are (raw/), the pictures taken out of the PDF into media, then normalised offline (03).
+// kept as they are (raw/), the pictures taken out of the PDF into media, then normalised offline.
 import { createHash } from "node:crypto";
 import { existsSync, readFileSync } from "node:fs";
 import { join } from "node:path";

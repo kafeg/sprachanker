@@ -1,4 +1,4 @@
-// A text to listen to (08; Understanding, 09): its parts — a dialogue's lines, each speaker's voice —
+// A text to listen to (Understanding): its parts — a dialogue's lines, each speaker's voice —
 // read one after another by the profile's engine, paused (it goes on from the line it was at) and
 // played again from the start, as often as wanted; the line being read and how often it was heard
 // to its end are known; the next few lines are asked for ahead.

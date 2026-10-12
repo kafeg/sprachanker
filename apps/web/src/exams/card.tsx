@@ -1,4 +1,4 @@
-// An installed exam on "My exams" and "Downloaded" (09, Exams; owner's choice 1A, 2026-10-10), on the
+// An installed exam on "My exams" and "Downloaded" (owner's choice 1A, 2026-10-10), on the
 // library's card: a band with the language pair and the last mock exam's points, a ring with how ready
 // the learner is, the title and publisher, the last mock exam, and the ways in — a mock exam (continued
 // while one runs) and practice; on "My exams" its removal (its runs deleted), on "Downloaded" its

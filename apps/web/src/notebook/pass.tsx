@@ -1,4 +1,4 @@
-// A pass in full (09): every exercise as it was shown, with its first-try count; opened, each item with
+// A pass in full: every exercise as it was shown, with its first-try count; opened, each item with
 // the answer it ended with (marked as checked), how many attempts it took, the explanations kept, and
 // its history across passes. Then what else the pass did: texts checked, scenes, chats, words added.
 import {

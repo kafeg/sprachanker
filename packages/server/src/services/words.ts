@@ -1,4 +1,4 @@
-// My words (09): the learner's words with cards, newest first — what each card shows (as a language's
+// My words: the learner's words with cards, newest first — what each card shows (as a language's
 // queue shows it: a course's entry over an imported deck's, cards.ts), its language, deck and state,
 // when it is next due — and one word for its sheet with each face and its answers.
 import { type CardEvent, cardDay, faceStage, wordState } from "@sprachanker/engine";

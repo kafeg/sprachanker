@@ -1,6 +1,6 @@
 // LM Studio's own REST API (v1, next to its OpenAI-compatible /v1): the models it has, loading one with
 // the context the tasks need, and downloads. LM Studio picks the engine and stores the files; the app
-// only asks (07, "LM Studio").
+// only asks.
 
 import { LlmError } from "./errors.ts";
 import { bearer, endpointCaller } from "./http.ts";

@@ -1,4 +1,4 @@
-// Recordings kept (08): one sent, one nothing was heard in forgotten, where it plays from, how many
+// Recordings kept: one sent, one nothing was heard in forgotten, where it plays from, how many
 // there are, all deleted.
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { api, json, sendBinary } from "./client.ts";

@@ -1,4 +1,4 @@
-// What the speech checks share (10): the compiled binary started on a throwaway data root whose
+// What the speech checks share: the compiled binary started on a throwaway data root whose
 // models are an APFS clone of the real ones (`SPRACHANKER_MODELS`, else ~/SprachAnker/models), a
 // profile signed in, and takes as the recogniser gets them (16 kHz mono WAV).
 import { execFileSync, spawn } from "node:child_process";

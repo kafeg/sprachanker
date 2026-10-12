@@ -1,5 +1,5 @@
-// Compiles the `sprachanker` binary with the built web app embedded (spec 06), and puts the speech
-// engine beside it when it was built (`bun run build:speech`, 08), where the server looks for it.
+// Compiles the `sprachanker` binary with the built web app embedded, and puts the speech
+// engine beside it when it was built (`bun run build:speech`), where the server looks for it.
 // Usage: bun apps/cli/scripts/build.ts   (after `bun run build:web`)
 import { copyFileSync, existsSync, rmSync } from "node:fs";
 import { join, relative, resolve } from "node:path";

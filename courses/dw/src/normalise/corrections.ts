@@ -1,5 +1,5 @@
 // Our corrections of DW's own errors: learner-language texts, German texts and grammar and culture
-// pages (03, research "source errors").
+// pages.
 import { fingerprint } from "@sprachanker/course-kit";
 import {
   type CourseKey,
@@ -93,7 +93,7 @@ function apply(c: Correction, lesson: Lesson, locale: LocaleLesson): boolean {
     if (!ex) return false;
     const owner = c.item ? ex.items.find((it) => it.key === `${c.exercise}${c.item}`) : ex;
     if (!owner || !replaceTexts(owner, c)) return false;
-    // Changed text, changed exercise (02, "Keys and identity").
+    // Changed text, changed exercise.
     ex.fingerprint = fingerprint(ex);
     return true;
   }

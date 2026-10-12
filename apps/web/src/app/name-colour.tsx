@@ -1,4 +1,4 @@
-// A profile's name and colour (06): edited alike in the onboarding's first step and in Settings →
+// A profile's name and colour: edited alike in the onboarding's first step and in Settings →
 // Profile; the screen decides when a change is kept.
 import { PROFILE_NAME_MAX, ProfileColour } from "@sprachanker/schema";
 import { useTranslation } from "react-i18next";

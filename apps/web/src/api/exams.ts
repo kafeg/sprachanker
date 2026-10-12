@@ -1,4 +1,4 @@
-// The exams through the API (09, Exams): the installed exams with the learner's standing, an exam's
+// The exams through the API: the installed exams with the learner's standing, an exam's
 // page, and a run — started, read, answered (through an outbox, as a lesson's answers go), handed in.
 import type { ExamKey, ExamMode, ExamRun, Outcome, TypedEvent } from "@sprachanker/schema";
 import { type QueryClient, useMutation, useQuery, useQueryClient } from "@tanstack/react-query";

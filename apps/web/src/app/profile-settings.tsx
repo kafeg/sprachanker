@@ -1,4 +1,4 @@
-// Settings → Profile (06, "Profiles and access"; 09): the name and colour, the devices signed in to
+// Settings → Profile: the name and colour, the devices signed in to
 // it, its export as a file, switching profile, deleting it (asked to confirm).
 import { LogOut, Trash2 } from "lucide-react";
 import { useState } from "react";

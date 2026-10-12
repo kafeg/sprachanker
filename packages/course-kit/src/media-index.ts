@@ -1,4 +1,4 @@
-// Fetching a series' media (03): every referenced URL → media/<kind>/<name> through the media store,
+// Fetching a series' media: every referenced URL → media/<kind>/<name> through the media store,
 // recorded in media.json with sha256 and size. Idempotent: stored files are skipped, failed ones —
 // and stored ones gone from the disk — are tried again on the next run; one failing file never stops
 // the import, and every file not fetched is in the index with why (a refused host included).
@@ -21,7 +21,7 @@ export interface MediaRef {
 /** Requests in flight per host. */
 const WORKERS_PER_HOST = 8;
 
-/** A series' media index: `media.json` in its folder (02). */
+/** A series' media index: `media.json` in its folder. */
 const indexFileOf = (seriesDir: string) => join(seriesDir, "media.json");
 
 /** A media reference of a URL, stored under its file name unless named otherwise. */

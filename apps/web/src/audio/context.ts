@@ -1,4 +1,4 @@
-// What the app gives recording screens (08): where a take is kept and played from, and recognition
+// What the app gives recording screens: where a take is kept and played from, and recognition
 // (on or not, transcribing, warming). The router provides it from the profile's settings and the API; the exercise renderers read it, so they call no API themselves.
 import { createContext, useContext } from "react";
 import type { Take } from "./recorder.ts";
@@ -10,7 +10,7 @@ export interface SpeechHost {
   src(id: string): string;
   /** A recording an answer names is still kept (not deleted with all of them); unknown: kept. */
   kept?(id: string): boolean;
-  /** Speech recognition is on and ready (the engine and a model, 08). */
+  /** Speech recognition is on and ready (the engine and a model). */
   recognition: boolean;
   /** What was said in a take, in a language given; empty when nothing was heard (silence, noise,
    *  what the recogniser makes of them). `expected`: the lines the learner was to say, if any. */

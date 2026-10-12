@@ -30,7 +30,7 @@ const LETTERS: Record<string, string> = { а: "a", б: "b", в: "c", г: "d" };
 /**
  * The English answers of a key's line: alternatives it joins with Russian words are answers of
  * their own; its list letters ("а.", "б.") and era marks ("н.э.", "до н.э.") the English ones —
- * the source's answer written in the language it is in (02, "Text language").
+ * the source's answer written in the language it is in.
  */
 export function englishAnswers(line: string): string[] {
   const english = line

@@ -1,4 +1,4 @@
-// What the LLM tasks know about a lesson (07): the lesson in the learner's edition, earlier lessons as
+// What the LLM tasks know about a lesson: the lesson in the learner's edition, earlier lessons as
 // words and titles, and mistakes with their exercises; the course's vocabulary. Shared by the tutor
 // (and its tools), writing, scenes, explain, speaking and word examples.
 import { type VocabWord, wrongParts } from "@sprachanker/engine";
@@ -20,7 +20,7 @@ interface LessonContext {
   lesson: Lesson;
   locale?: LocaleLesson;
   target: Lang;
-  /** The `lesson` part of the tasks' inputs, with what the learner knows by now (07). */
+  /** The `lesson` part of the tasks' inputs, with what the learner knows by now. */
   info: LessonInfo;
   /** Titles of the lessons before this one, in course order. */
   earlierLessons: string[];
@@ -64,8 +64,8 @@ const latest = <T>(list: T[], key: (t: T) => string) => once([...list].reverse()
 
 export function createLessonContext(content: Content) {
   return {
-    /** The lesson in the edition with the knowledge snapshot (07, "What the learner knows by
-     *  now"): the course's level, the lesson's place, its goals and words, the earlier lessons'
+    /** The lesson in the edition with the knowledge snapshot (what the learner knows
+     *  by now): the course's level, the lesson's place, its goals and words, the earlier lessons'
      *  words with translations and the grammar topics met so far. */
     async get(series: string, lessonKey: LessonKey, edition: string): Promise<LessonContext> {
       const course = parseLessonKey(lessonKey).courseId;

@@ -1,5 +1,5 @@
 // A course or an exam not on this computer (a course removed, a stale link): said so, with its offer
-// to download it again — the learner's runs and cards meet it by its keys (02) — or, when nothing
+// to download it again — the learner's runs and cards meet it by its keys — or, when nothing
 // offers it, the way to what is available. Pages outside the shell (a lesson, an exam run) keep the
 // screens current while it downloads too.
 import { Link } from "@tanstack/react-router";

@@ -1,8 +1,8 @@
-// Where data lives (05, "Locations"): the OS app-data folder; the data root defaults to <app-data>/data.
+// Where data lives: the OS app-data folder; the data root defaults to <app-data>/data.
 import { homedir, platform } from "node:os";
 import { join } from "node:path";
 
-/** $SPRACHANKER_APP_DATA, else the OS's app-data folder (tests set it: Bun's homedir() ignores $HOME). */
+/** $SPRACHANKER_APP_DATA, else the OS's app-data folder (tests set it: Bun's homedir ignores $HOME). */
 export function appDataDir(): string {
   if (process.env.SPRACHANKER_APP_DATA) return process.env.SPRACHANKER_APP_DATA;
   const home = homedir();

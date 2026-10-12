@@ -1,5 +1,5 @@
-// Content providers the server can import (03): the catalogue of what they offer, the CLI import and the
-// download job (06). Downloads are marked on disk (`<series>/.downloads/<course>.json`) while they run,
+// Content providers the server can import: the catalogue of what they offer, the CLI import and the
+// download job. Downloads are marked on disk (`<series>/.downloads/<course>.json`) while they run,
 // and kept marked when media failed, so the state survives a restart: an interrupted download resumes.
 import { existsSync } from "node:fs";
 import { mkdir, readdir, readFile, rename, rm, stat, statfs, writeFile } from "node:fs/promises";

@@ -1,4 +1,4 @@
-// Course bundles, the library's side (02, "Course bundle"): what a course's bundle holds — its library
+// Course bundles, the library's side: what a course's bundle holds — its library
 // files of the editions asked, the media they use, its exams' source copies, its lines of media.json
 // and keys.json, its content versions —, and a bundle unpacked beside the library checked and
 // installed into it. Zips and transfer folders are the server's; a bundle is untrusted input, so every
@@ -165,7 +165,7 @@ function versionOf(files: ReadonlyArray<{ path: string; sha256: string }>) {
   return hash.digest("hex");
 }
 
-/** A course's content versions from its files (02, "Manifest"): of its canonical files, and of each
+/** A course's content versions from its files: of its canonical files, and of each
  *  edition's locale files. */
 export function contentVersions(
   courseId: string,
@@ -428,7 +428,7 @@ export async function installBundle(options: {
   const courseId = courseIdOf(manifest.course);
   const listed = new Map(manifest.files.map((f) => [f.path, f]));
   // What must hold, checked again before anything changes: the files the plan found still there, of
-  // their size (their content was found then; a stored name keeps its content, 02) — a file linked
+  // their size (their content was found then; a stored name keeps its content) — a file linked
   // to hashed again (`hashed`).
   const still = (path: string, file: string, hashed = false) => {
     const want = listed.get(path) as { sha256: string; size: number };

@@ -1,4 +1,4 @@
-// Small building blocks shared by the file formats (02, "Conventions").
+// Small building blocks shared by the file formats.
 import { z } from "zod";
 import { Lang } from "./lang.ts";
 
@@ -22,7 +22,7 @@ export type MediaPath = z.infer<typeof MediaPath>;
 export const LocalizedText = z.record(Lang, z.string());
 export type LocalizedText = z.infer<typeof LocalizedText>;
 
-/** The integer `format` every stored file carries; bumped on breaking changes (02). */
+/** The integer `format` every stored file carries; bumped on breaking changes. */
 export const format = <const V extends number>(version: V) => z.literal(version);
 
 /** Media attached to a lesson, exercise, item or option. */
@@ -49,13 +49,13 @@ export const issuesText = (error: z.ZodError, max = 3) =>
 
 /**
  * A streamed text that broke off ends with this mark followed by the error as JSON
- * (`{"error": "llm_timeout"}`, 06): what came before it was shown, and is not the whole reply.
+ * (`{"error": "llm_timeout"}`): what came before it was shown, and is not the whole reply.
  */
 export const STREAM_ERROR = "\u0000";
 
-/** The header a Tutor section's streamed reply names its chat in (a new chat's id, 06). */
+/** The header a Tutor section's streamed reply names its chat in (a new chat's id). */
 export const CHAT_ID_HEADER = "X-Chat-Id";
 
-/** What every mutating API request carries (06, "Security": CSRF protection): a header a page on
+/** What every mutating API request carries: a header a page on
  *  another site cannot set without the server's consent. */
 export const CLIENT_HEADERS = { "x-sprachanker": "1" } as const;

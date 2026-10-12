@@ -1,4 +1,4 @@
-// What the speech engines on this machine share (08): what the runtime does for them (SpeechHost:
+// What the speech engines on this machine share: what the runtime does for them (SpeechHost:
 // their programs, model files, readings kept), the supervisor of one run on a local port, a model or
 // voice looked up by id. Their downloads: model-downloads.ts.
 import type { ErrorCode } from "@sprachanker/schema";
@@ -74,7 +74,7 @@ export function offered<T extends { id: string }>(list: readonly T[], id: string
   return found;
 }
 
-/** An engine of the host run by the sidecar supervisor (06): one process for a setup (a model);
+/** An engine of the host run by the sidecar supervisor: one process for a setup (a model);
  *  `speech_unavailable` without a host, `speech_engine_failed` when it does not answer. */
 export function engineSidecar(
   host: SpeechHost | undefined,

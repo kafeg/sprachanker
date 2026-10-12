@@ -227,7 +227,7 @@ export function parseLesson(html: string): LessonPage {
     const end = blockEnd(html, start);
     const body = html.slice(start + '<div class="wsw">'.length, end < 0 ? undefined : end - 6);
     const parts = body.split(/<h2 class="wsw__h2"[^>]*>([\s\S]*?)<\/h2>/);
-    // split() with a capture group: [before, heading1, body1, heading2, body2, …]
+    // split with a capture group: [before, heading1, body1, heading2, body2, …]
     if (plainText(parts[0]) || /wsw__embed/.test(parts[0] ?? "")) {
       sections.push(parseSection("", parts[0] ?? ""));
     }

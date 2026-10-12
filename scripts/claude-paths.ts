@@ -1,4 +1,4 @@
-// Finds paths mentioned in CLAUDE.md files that do not exist (spec 10, "Documentation rules"): backticked
+// Finds paths mentioned in CLAUDE.md files that do not exist: backticked
 // repository paths in the text, and every entry of a "## Layout" tree — read as a tree of folders and
 // files relative to the CLAUDE.md's own folder (a root line naming a repository path starts from the
 // repository's root).

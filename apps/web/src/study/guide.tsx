@@ -1,4 +1,4 @@
-// "How it works" (04; 09), opened from Review and from Settings → Review: the method and where it comes
+// "How it works", opened from Review and from Settings → Review: the method and where it comes
 // from — the forgetting curve, active recall, spacing, FSRS — what the buttons and counts mean, the
 // steps and the day, the card types of a word, the actions under "…" and the keys. A side panel, as the
 // tutor and the reference open.

@@ -18,7 +18,7 @@ export const EDITION = "ru-en";
 /** Lessons per unit: the source has no grouping below its two "years" (1–52а, 53–104а). */
 export const UNIT_SIZE = 10;
 
-/** Course description: attribution and licence (plain text, no links, 02). */
+/** Course description: attribution and licence (plain text, no links). */
 export const ATTRIBUTION_HTML =
   "<p>«Так говорят в Америке» (English USA), Голос Америки / Voice of America. " +
   "Imported for personal study.</p>" +
@@ -168,7 +168,7 @@ export const SOURCE: CourseSource = {
   licence: "public-domain",
 };
 
-/** For the catalogue (03); the size was measured on a full download. */
+/** For the catalogue; the size was measured on a full download. */
 export const OFFERS: CourseOffer[] = [
   {
     course: COURSE,

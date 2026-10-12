@@ -1,4 +1,4 @@
-// Grammar rules registry `courses/_shared/rules/<lang>.yaml` (02).
+// Grammar rules registry `courses/_shared/rules/<lang>.yaml`.
 import { z } from "zod";
 import { LocalizedText } from "./common.ts";
 import { RuleId } from "./keys.ts";

@@ -1,4 +1,4 @@
-// A section's tabs (09), one look for both kinds: as links — Courses (My, Downloaded, Available), Review
+// A section's tabs, one look for both kinds: as links — Courses (My, Downloaded, Available), Review
 // (Study, Decks, My words), each tab its own address, a count where it says something — and as tabs on
 // one page (Settings: SectionTabList inside a Tabs). One row sharing its width; a tab is never narrower
 // than its label (a page's tab may be named short on a phone): tabs that do not fit scroll sideways, the

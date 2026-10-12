@@ -1,5 +1,5 @@
 // Goethe-Institut — the Goethe-Zertifikat model tests (Modellsätze) A1, A2, B1 in their accessible
-// online form (03; research exams.md): a course per level, each one exam in German. Every question,
+// online form (research exams.md): a course per level, each one exam in German. Every question,
 // option, picture, recording and answer comes from the pages: the module pages and a solution page per
 // Teil, plain GET over HTTPS.
 import type { CourseOffer } from "@sprachanker/course-kit";
@@ -17,7 +17,7 @@ export interface Level {
   /** The level's folder on the site. */
   dir: string;
   title: string;
-  /** Its modules in the order the exam takes them (the pages' module codes 01, 02). */
+  /** Its modules in the order the exam takes them (the pages' module codes 01). */
   modules: ModuleId[];
   /** A module's points scaled as the exam scales them (Durchführungsbestimmungen): A1 each part's 15
    *  points × 1.66; A2 20 × 1.25 = 25; B1 30 → 100. */
@@ -157,7 +157,7 @@ export const sourceOf = (level: Level): CourseSource => ({
   licence: "free-access",
 });
 
-/** For the catalogue (03). */
+/** For the catalogue. */
 export const OFFERS: CourseOffer[] = LEVELS.map((level) => ({
   course: level.course,
   edition: EDITION,

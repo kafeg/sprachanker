@@ -1,4 +1,4 @@
-// The provider contract (03): what an importer gets, what it reports, and how normalised files are
+// The provider contract: what an importer gets, what it reports, and how normalised files are
 // written. Shared by every course provider so the server treats them alike.
 import { readdir, rm } from "node:fs/promises";
 import { join } from "node:path";
@@ -29,7 +29,7 @@ export interface ImportOptions {
   /** Fetch pages again to pick up changes at the source; media already stored are kept. */
   refresh?: boolean;
   log: (line: string) => void;
-  /** Where the import is, for a progress display (the download job, 06). */
+  /** Where the import is, for a progress display (the download job). */
   progress?: ProgressSink;
 }
 
@@ -50,14 +50,14 @@ export const wanted = (options: ImportOptions, edition: string, ...names: string
   (!options.editions || options.editions.includes(edition));
 
 /**
- * A content provider as the server sees it (03): its id (the CLI's and the downloads'), the series
+ * A content provider as the server sees it: its id (the CLI's and the downloads'), the series
  * folder it writes, the courses it offers, and its import. Every provider package exports its own
  * (DW one per series); the server lists them and tests them all against this contract.
  */
 export interface CourseProvider {
   id: string;
   series: string;
-  /** Ready for learning (03): its courses are shown as they are. A provider without it is
+  /** Ready for learning: its courses are shown as they are. A provider without it is
    *  experimental — shown only when the learner turns it on (Settings → General → Experimental). */
   stable?: true;
   offers: CourseOffer[];
@@ -65,13 +65,13 @@ export interface CourseProvider {
 }
 
 /**
- * A course a provider offers (03): what the catalogue shows before anything is downloaded. Known
+ * A course a provider offers: what the catalogue shows before anything is downloaded. Known
  * without the network; the size is an estimate measured on a full download.
  */
 export interface CourseOffer {
   course: string;
   edition: string;
-  /** An exam is offered in the Exams section, not among the courses (01: a course of kind exam has
+  /** An exam is offered in the Exams section, not among the courses (a course of kind exam has
    *  exams only). */
   kind?: "exam";
   title: string;
@@ -88,7 +88,7 @@ export interface NormaliseResult {
   leftOut?: number;
   /** Files that failed validation. */
   problems: number;
-  /** Our corrections of the source's own errors (03): how many applied, and those whose text the
+  /** Our corrections of the source's own errors: how many applied, and those whose text the
    *  source no longer has (fixed or changed there: the entry is stale), by `<exercise> <field>`. */
   corrections?: { applied: number; stale: string[] };
 }
@@ -110,7 +110,7 @@ export interface LibraryFile {
   value: unknown;
 }
 
-/** The library's files by kind (02, "Library layout"): each from its value, its path from its keys. */
+/** The library's files by kind: each from its value, its path from its keys. */
 export const libraryFile = {
   lesson: (value: Lesson): LibraryFile => {
     const { courseId, name } = parseLessonKey(value.key);

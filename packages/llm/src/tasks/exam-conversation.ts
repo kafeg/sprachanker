@@ -1,4 +1,4 @@
-// Task `exam_conversation` (07): a speaking part of an exam as it is held — the model plays the
+// Task `exam_conversation`: a speaking part of an exam as it is held — the model plays the
 // examiner who leads it and the other candidate (the partner, with their own card, calendar or
 // slides), the learner is candidate A answering aloud. Each call gives the next lines up to the
 // learner's turn, and says when the part is over. The model never helps or corrects: the part is

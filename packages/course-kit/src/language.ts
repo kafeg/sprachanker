@@ -1,4 +1,4 @@
-// Which of a course's two languages a text from its source is in (02, "Text language"): a source that
+// Which of a course's two languages a text from its source is in: a source that
 // mixes them in one field (an option, a prompt) has its learner-language texts moved to the locale
 // file. Told by script, where the two languages differ in it; two languages of one script are not
 // told apart (the text stays the target's).

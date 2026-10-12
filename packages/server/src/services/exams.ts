@@ -1,4 +1,4 @@
-// The exams (04, "Exams"; 09, Exams and Notebook): the installed exams with the learner's standing in
+// The exams: the installed exams with the learner's standing in
 // each, an exam's page, the exams' standing and an exam's page in the Notebook — read from its runs
 // (exam-runs.ts, whose taking of an exam this service passes on). What reads them hands in the mock
 // exams left past their time first (`settleOverdue`).

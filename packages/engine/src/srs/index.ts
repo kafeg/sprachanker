@@ -1,4 +1,4 @@
-// Spaced repetition as in Anki (04, "Spaced repetition"): FSRS scheduling of each card face via
+// Spaced repetition as in Anki: FSRS scheduling of each card face via
 // ts-fsrs (learning steps 1m 10m, relearning 10m, fuzz), and Anki's study queue — learning cards first,
 // then reviews mixed with new cards within the day's limits, learning cards up to 20 minutes early when
 // nothing else is left. Pure: the caller passes the time and the day's boundaries.
@@ -41,7 +41,7 @@ export const answerMs = (ms: number) =>
 const faceOrder = (face: CardFace) => CardFace.options.indexOf(face);
 
 /** The face a lesson's "Words" step studies a card by: recognition, or the card's first face in
- *  order when the learner's cards have none (04). */
+ *  order when the learner's cards have none. */
 export const lessonFace = (faces: CardFace[]): CardFace | undefined =>
   [...faces].sort((a, b) => faceOrder(a) - faceOrder(b))[0];
 
@@ -321,7 +321,7 @@ export type Stage = "new" | "learning" | "review";
 export const faceStage = (state: FaceState | null | undefined): Stage =>
   isNew(state) ? "new" : inReview(state) ? "review" : "learning";
 
-/** A word as the learner's words show it (04, "Lexeme state"): new until a face is answered, learning
+/** A word as the learner's words show it: new until a face is answered, learning
  *  while a face is (re)learning, else review. */
 export function wordState(states: Partial<Record<CardFace, FaceState>>): Stage {
   const stages = Object.values(states).map(faceStage);

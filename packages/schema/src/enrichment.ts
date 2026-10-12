@@ -1,4 +1,4 @@
-// Our layer over a lesson, keyed by stable keys and fingerprints (02, "Enrichment").
+// Our layer over a lesson, keyed by stable keys and fingerprints.
 import { z } from "zod";
 import { format, LocalizedText, Sha256 } from "./common.ts";
 import { GapId } from "./exercise/base.ts";

@@ -1,4 +1,4 @@
-// A profile's speech (08): the server's engines — recognition, Piper, Qwen3-TTS — with the profile's
+// A profile's speech: the server's engines — recognition, Piper, Qwen3-TTS — with the profile's
 // choices in its settings: recognition on or off and its model, the engine reading aloud, its voices,
 // speed and Qwen3-TTS's model — also the engine and voice a deck's words are read with.
 import { ServiceError } from "../errors.ts";

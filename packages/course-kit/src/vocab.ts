@@ -1,4 +1,4 @@
-// A lesson's vocabulary (02, "Keys and identity"): headwords → canonical entries + locale translations.
+// A lesson's vocabulary: headwords → canonical entries + locale translations.
 import {
   type Lang,
   type LessonKey,
@@ -81,7 +81,7 @@ export function vocabEntries<S extends VocabSource>(
   return { vocab, translations, skipped };
 }
 
-/** Words a lesson lists that did not become entries, as `unmapped` lines of its raw page (02: never
+/** Words a lesson lists that did not become entries, as `unmapped` lines of its raw page (never
  *  drop source content silently). */
 export const skippedWords = (
   path: string,

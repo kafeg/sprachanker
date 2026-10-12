@@ -1,4 +1,4 @@
-// Provider presets (07, "Providers"): servers speaking the OpenAI-compatible chat API, Anthropic's
+// Provider presets: servers speaking the OpenAI-compatible chat API, Anthropic's
 // Messages API (anthropic.ts), and command-line agents run with the user's own subscription (cli.ts).
 import { z } from "zod";
 import { anthropic, anthropicBody } from "./anthropic.ts";

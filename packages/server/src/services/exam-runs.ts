@@ -1,4 +1,4 @@
-// Taking an exam (04, "Exams"; 05; 09, Exams): its runs — a mock exam drawn as the real test draws
+// Taking an exam: its runs — a mock exam drawn as the real test draws
 // (timed, its answers checked only when handed in, so nothing gives them away before) or practice
 // (each answer checked at once) — started, opened, answered, rated, handed in. Storage goes through
 // the run store: a run of kind `exam` about the exam, its plan in `plan_json`, each answer an
@@ -124,7 +124,7 @@ export function createExamRuns({
       throw new ServiceError("not_installed", 404);
     }
   };
-  /** The exam of a run going on: `course_gone` (409) when its course was removed (05, "Sending"). */
+  /** The exam of a run going on: `course_gone` (409) when its course was removed. */
   const examOfRun = (run: ExamRun) =>
     content
       .ofRun(parseLessonKey(run.exam).course, () => content.exam(seriesOf(run.exam), run.exam))
@@ -180,7 +180,7 @@ export function createExamRuns({
   }
 
   /**
-   * Hands in every mock exam left past its time (06): what reads exam runs — the exams' list and
+   * Hands in every mock exam left past its time: what reads exam runs — the exams' list and
    * page, the Notebook — calls it first, so each reads them handed in (a run opened settles itself). The one write a
    * reading request makes; one of an exam no longer installed stays as it is.
    */
@@ -303,7 +303,7 @@ export function createExamRuns({
         throw new ServiceError("exam_time_over", 409);
       }
       const exam = await examOfRun(run);
-      // Answers are checked in the language the exam is in (04).
+      // Answers are checked in the language the exam is in.
       const lang = examLang(row.edition);
       const asked = new Set<string>(run.plan.items);
       const list = input.map((raw): NewEvent => {
@@ -333,7 +333,7 @@ export function createExamRuns({
     },
 
     /**
-     * An open answer rated by its criteria (05): the points of a level of each, by the learner or as the
+     * An open answer rated by its criteria: the points of a level of each, by the learner or as the
      * assistant proposed them. Taken while the run is active and after it is handed in — a finished
      * run's result is computed anew. Only an answer given in the run, rated whole.
      */

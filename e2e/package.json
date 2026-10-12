@@ -9,7 +9,8 @@
     "e2e:real": "bun real/data.ts && playwright test -c real/playwright.config.ts",
     "speech:check": "bun speech/roundtrip.ts",
     "speech:levels": "bun speech/levels.ts",
-    "practice:texts": "bun ai/texts.ts"
+    "practice:texts": "bun ai/texts.ts",
+    "practice:walk": "bun ai/walk.ts"
   },
   "devDependencies": {
     "@playwright/test": "1.63.0",

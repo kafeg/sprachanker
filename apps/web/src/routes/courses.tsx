@@ -1,4 +1,4 @@
-// Courses (09): one page in three tabs — My courses (started, ready to continue), Downloaded (installed,
+// Courses: one page in three tabs — My courses (started, ready to continue), Downloaded (installed,
 // started or not) and Available (every course a provider offers that is not here yet) — each narrowed by
 // the pair and course filters. A course teaches one language to speakers of one language (its edition);
 // another pair of the same source course is a course of its own.

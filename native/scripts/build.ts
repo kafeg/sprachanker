@@ -1,4 +1,4 @@
-// Builds the speech engines for this machine (08; native/CLAUDE.md), each at the version pinned in its
+// Builds the speech engines for this machine (native/CLAUDE.md), each at the version pinned in its
 // folder's VERSION, as one self-contained file written to <engine>/out/<program>-<target triple>, where
 // the server finds it and build:cli copies it beside the binary:
 // - whisper.cpp's `whisper-server` (recognition): static, Metal on macOS with its shaders embedded;

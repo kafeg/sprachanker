@@ -32,7 +32,7 @@ export interface WordRow {
 export interface NotePage {
   kind: "homework" | "grammar" | "culture";
   title: string;
-  /** Sanitised course HTML (02). */
+  /** Sanitised course HTML. */
   html: string;
 }
 

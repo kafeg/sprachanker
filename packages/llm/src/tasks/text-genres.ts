@@ -1,4 +1,4 @@
-// The kinds of text Reading and Listening are made of (04, "AI practice in courses"; owner,
+// The kinds of text Reading and Listening are made of (owner,
 // 2026-10-12: real things one reads and hears, many situations): data, chosen by code — at random
 // among those of the step at the learner's level, not the lesson's last ones — so the model never
 // falls back on one favourite scene. Each says what it is, whether people speak in turns, one

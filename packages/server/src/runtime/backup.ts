@@ -1,7 +1,7 @@
-// A copy of each database a day (05, "Backups"): server.sqlite and every profile's, made with
+// A copy of each database a day: server.sqlite and every profile's, made with
 // `VACUUM INTO` beside the file as `<file>.day-<date>` when the server starts and then every few hours
 // for a day that has none; the last week's kept. A bad migration or a wrong reset loses a day at most.
-// And a backup on request (`sprachanker backup`, 06): what cannot be fetched again, copied whole into
+// And a backup on request (`sprachanker backup`): what cannot be fetched again, copied whole into
 // a folder of its own.
 import { Database } from "bun:sqlite";
 import {
@@ -32,7 +32,7 @@ function realPath(path: string): string {
   return parent === full ? full : join(realPath(parent), basename(full));
 }
 
-/** The profiles' folders (a dot folder is no profile: `.transfers`, 05). */
+/** The profiles' folders (a dot folder is no profile: `.transfers`). */
 const profileIds = (dataRoot: string) => {
   const profiles = join(dataRoot, "profiles");
   return (existsSync(profiles) ? readdirSync(profiles) : []).filter((id) => !id.startsWith("."));
@@ -101,7 +101,7 @@ export function startDailyBackups(dataRoot: string) {
 }
 
 /**
- * A backup of what cannot be fetched again (05, "Backups") in a new folder in `to`
+ * A backup of what cannot be fetched again in a new folder in `to`
  * (`sprachanker-backup-<date>-<time>`, local time, written as `….part` and renamed when whole):
  * server.sqlite and
  * each profile's database (`VACUUM INTO`: consistent while a server runs), the profiles' recordings,

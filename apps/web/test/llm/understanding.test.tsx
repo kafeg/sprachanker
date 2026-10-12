@@ -1,4 +1,4 @@
-// Reading and Listening (09), done as an exercise: what the text is and the task, nothing of what it
+// Reading and Listening, done as an exercise: what the text is and the task, nothing of what it
 // says; Listening's recording in the course's player, who reads it named (its people's own voices),
 // the text hidden; Reading's text shown; the questions answered, Check in the step bar; checked, the
 // title and situation open, Listening's text with its glossed words, the score. Without a voice for

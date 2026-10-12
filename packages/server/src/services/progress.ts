@@ -1,4 +1,4 @@
-// The learner's progress as a whole, over every module's runs (05, "Events"): resetting it for a
+// The learner's progress as a whole, over every module's runs: resetting it for a
 // course, one of its lessons or one of its exams, and the recordings the answers of every run hold.
 // Neutral: it knows runs, cards and recordings, not what a lesson or an exam is.
 import type { CourseKey, ExamKey, LessonKey } from "@sprachanker/schema";
@@ -24,7 +24,7 @@ export function createProgress(deps: {
      * deleted, and so are the cards it made (the words first met there, by the lesson each card names —
      * also when the run that made it is long gone) with their answers, and the recordings its answers
      * hold. A card another lesson made stays. The only deletion of events besides removing a profile;
-     * the screen asks for confirmation (05).
+     * the screen asks for confirmation.
      */
     reset(course: CourseKey, only?: { lesson: LessonKey } | { exam: ExamKey }) {
       const { removed, recordingIds } = store.atomic(() => {

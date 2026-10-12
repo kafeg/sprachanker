@@ -1,10 +1,10 @@
-// The Notebook (09): its overview, an exam's and a lesson's standing, a pass, an item's history, a
+// The Notebook: its overview, an exam's and a lesson's standing, a pass, an item's history, a
 // review day.
 import type { ExamKey, ItemKey, Lang, LessonKey } from "@sprachanker/schema";
 import { useQuery } from "@tanstack/react-query";
 import { api, json } from "./client.ts";
 
-/** The Notebook (09): the study days, each span's bars (a week from `firstDay`, 0 Sunday … 6
+/** The Notebook: the study days, each span's bars (a week from `firstDay`, 0 Sunday … 6
  *  Saturday) and every module's standing. */
 export const useNotebook = (firstDay: number) =>
   useQuery({

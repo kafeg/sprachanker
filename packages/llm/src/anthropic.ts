@@ -1,4 +1,4 @@
-// Anthropic's Messages API (07, "Providers"): Claude models with an API key, through fetch alone. The
+// Anthropic's Messages API: Claude models with an API key, through fetch alone. The
 // app's chat (client.ts's ChatMessage) becomes its shape — the system prompt apart, turns alternating
 // from the learner's, tool calls and results as blocks —, its streamed events the client's text and
 // tool calls, so tasks never know which API answers them.

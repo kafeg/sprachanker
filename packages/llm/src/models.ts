@@ -1,4 +1,4 @@
-// What an OpenAI-compatible `/models` list tells of each model (07, "Providers"): the chat models
+// What an OpenAI-compatible `/models` list tells of each model: the chat models
 // with their name, price, context length, JSON and tool support and publisher.
 
 /** A chat model and what its endpoint tells of it (OpenRouter tells much, most servers only the id). */

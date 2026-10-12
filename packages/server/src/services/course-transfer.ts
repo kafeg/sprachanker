@@ -1,5 +1,5 @@
-// A downloaded course — or exam — moved between one's own machines as one file (02, "Course
-// bundle"): exported — its files of the editions asked, the media they use, a manifest with a hash
+// A downloaded course — or exam — moved between one's own machines as one file (a course
+// bundle): exported — its files of the editions asked, the media they use, a manifest with a hash
 // per file, streamed as a zip — and imported: every file checked against the manifest and by its
 // schema before anything is moved into place, media the library holds not unpacked again, the
 // course replaced where its content differs, all or nothing, then verified. The files themselves are

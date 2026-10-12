@@ -1,4 +1,4 @@
-// Result of checking one answer (04, "Checking").
+// Result of checking one answer.
 import { z } from "zod";
 
 export const TokenDiff = z.object({
@@ -9,7 +9,7 @@ export const TokenDiff = z.object({
 export type TokenDiff = z.infer<typeof TokenDiff>;
 
 /** Stored answers may also carry `ruleIds`, `lexemes` (both written empty) and, for `respond`,
- *  `needsLlm`: nothing reads them, and they are dropped when read (05). */
+ *  `needsLlm`: nothing reads them, and they are dropped when read. */
 export const Outcome = z.object({
   result: z.enum(["correct", "partial", "wrong", "unscored"]),
   /** 0..1; partial = share of matched ids or words. */

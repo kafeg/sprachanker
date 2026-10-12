@@ -1,4 +1,4 @@
-// The lesson's AI practice made ahead (04, "AI practice in courses"; owner, 2026-10-12): as a lesson
+// The lesson's AI practice made ahead (owner, 2026-10-12): as a lesson
 // starts, its Reading and Listening texts, its writing task and its speaking one are made in the background — one call
 // after another for the profile, while the learner does the course's exercises — so each step has
 // its work ready when it comes. Only with a model set up, the setting on (`llm.preparePractice`, on by

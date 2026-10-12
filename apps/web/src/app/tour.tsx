@@ -1,4 +1,4 @@
-// A short tour of the app's sections (09): each with its icon and one line — at the end of the
+// A short tour of the app's sections: each with its icon and one line — at the end of the
 // onboarding.
 import { useTranslation } from "react-i18next";
 import { panelClass } from "@/ui/panel.tsx";

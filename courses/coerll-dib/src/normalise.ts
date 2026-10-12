@@ -63,12 +63,12 @@ export function headword(de: string): Headword {
       ...(plural && !plural.includes(",") ? { plural: `die ${plural}` } : {}),
     };
   }
-  // The source states nothing more: by shape, as every provider (02).
+  // The source states nothing more: by shape, as every provider.
   return shapeHeadword("de", head.replace(/[()]/g, ""));
 }
 
 /** The source's English remarks on a word ("no plural", "fig."): its fields say them (gender, note), so
- *  they leave the German text the learner reads (02, "Text language"). */
+ *  they leave the German text the learner reads. */
 const REMARK = /\s*\((?:typically, )?(?:no plural|plural only|only plural|fig\.)\)/giu;
 
 /** A row's German as the word reads, without the source's English remarks. */

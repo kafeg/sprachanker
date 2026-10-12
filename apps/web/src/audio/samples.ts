@@ -1,4 +1,4 @@
-// What "Listen" in Settings → Speech reads (08; 09): a few everyday sentences per language — a greeting,
+// What "Listen" in Settings → Speech reads: a few everyday sentences per language — a greeting,
 // a statement and a question, so a voice's intonation is heard — our own text, in the language of the
 // voice (not the interface's). Covers every language Piper, Qwen3-TTS and the courses' editions speak.
 // Pure: tested without a browser.

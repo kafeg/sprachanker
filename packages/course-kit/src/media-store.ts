@@ -1,4 +1,4 @@
-// Media files of a series folder under readable names: media/<kind>/<name> (02).
+// Media files of a series folder under readable names: media/<kind>/<name>.
 import { existsSync } from "node:fs";
 import { mkdir, rename, rm, writeFile } from "node:fs/promises";
 import { dirname, extname, join } from "node:path";

@@ -1,9 +1,9 @@
-// A lesson run on the server (05, "Lifecycle"). Opening a lesson starts nothing: it shows the active run
+// A lesson run on the server. Opening a lesson starts nothing: it shows the active run
 // (resume) or the latest finished one (read-only) or nothing. Starting, answering, skipping and finishing
 // are recorded as events (sent in order, retried until stored), so a reload or another device sees the
 // same state. The run's state is the engine's reading of its events — the stored ones plus those just
 // recorded here — the same reading the server uses for progress. Outcomes are computed locally for
-// instant feedback with the same engine the server uses; the server stores its own (04).
+// instant feedback with the same engine the server uses; the server stores its own.
 import {
   type ExerciseResult,
   exerciseResults,

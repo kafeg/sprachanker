@@ -1,4 +1,4 @@
-// Cards and their faces (04, "Spaced repetition"; 05): the one module on the `cards` and `card_state`
+// Cards and their faces: the one module on the `cards` and `card_state`
 // tables, as the run store is on runs and events. A card is a note (one per lexeme) whose faces are
 // Anki's cards; each face keeps its FSRS state, bury, suspension and flag. Stored JSON is read with its
 // schema; a card whose display no longer reads is left out of lists and logged.
@@ -53,7 +53,7 @@ export function createCardStore(db: ProfileDb) {
       readStored(row?.fsrsJson ?? null, FaceState, `state of card ${row?.cardId}:${row?.face}`),
 
     /** A note's faces as they stand: each with its row (suspended, flag) and its FSRS state (none:
-     *  never answered), read from `states` (`states()`). */
+     *  never answered), read from `states` (`states`). */
     facesWithState: (note: CardRow, states: Map<string, StateRow>) =>
       self.facesOf(note).map((face) => {
         const row = states.get(`${note.id}:${face}`);

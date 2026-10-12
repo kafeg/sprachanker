@@ -1,4 +1,4 @@
-// Lesson player (09): the lesson's plan as steps — overview, words, grammar, exercises, culture, AI
+// Lesson player: the lesson's plan as steps — overview, words, grammar, exercises, culture, AI
 // practice, summary. This file loads the lesson and its run and shows the step the flow is on
 // (use-flow.ts) inside the player's frame (frame.tsx); the pages are overview, words-step, steps
 // (reading), exercise-step, practice-step and summary; optional features come in as slots.

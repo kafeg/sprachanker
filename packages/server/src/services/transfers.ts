@@ -1,4 +1,4 @@
-// What moving a file between one's machines shares, for profile files (05) and course bundles (02):
+// What moving a file between one's machines shares, for profile files and course bundles:
 // an export made ready once and downloaded once — let go after an hour —, one import at a time, and a
 // full disk said as the learner's error.
 import type { ErrorCode } from "@sprachanker/schema";

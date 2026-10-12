@@ -1,4 +1,4 @@
-// Going over mistakes (09): no review of the run yet — what the step is and the way to start; a review
+// Going over mistakes: no review of the run yet — what the step is and the way to start; a review
 // — one type at a time ("Type 1 of 2"): its wrong parts only, the explanation, the new items; the next
 // type once they are answered; all answered, the score; the lesson's other reviews listed; a type
 // listed only.

@@ -1,4 +1,4 @@
-// Run-throughs on real courses (10, "Run-throughs"): the compiled binary serving a clone of the real
+// Run-throughs on real courses: the compiled binary serving a clone of the real
 // library (data.ts), Chromium at phone width with a fake microphone; on the Mac only, never in CI.
 // `REAL_DESKTOP=1` adds a desktop run.
 import { tmpdir } from "node:os";

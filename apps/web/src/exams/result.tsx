@@ -1,4 +1,4 @@
-// An exam run handed in (09, Exams; owner's choice 4B, 2026-10-10): the points and each pass mark
+// An exam run handed in (owner's choice 4B, 2026-10-10): the points and each pass mark
 // reached or not, the points by section (practice: the answers right of those marked, as its tally
 // counts them, and the points with the open answers apart), then the questions answered wrongly or not at all with the
 // right answer (all of them on request), and the ways on: practise the mistakes, try again, back.

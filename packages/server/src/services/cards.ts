@@ -1,4 +1,4 @@
-// Cards from a lesson's words (04, "Spaced repetition"): one note per lexeme and translation language,
+// Cards from a lesson's words: one note per lexeme and translation language,
 // reused when the word is met again in that language, made in the run the lesson shows (its origin);
 // a course of the learner's own or an imported deck as a deck to take (all its words at once, in its
 // order) or leave (its cards removed, those of words another of the learner's decks has moving there);
@@ -50,7 +50,7 @@ type Entries = Map<string, Entry[]>;
 
 export function createCards(deps: {
   cards: CardStore;
-  /** The run store: a card that goes takes its answers with it (05, "Events"). */
+  /** The run store: a card that goes takes its answers with it. */
   store: Pick<RunStore, "remove">;
   content: Content;
   decks: Pick<Decks, "deck" | "list">;
@@ -312,7 +312,7 @@ export function createCards(deps: {
       };
     },
 
-    /** A course's words — or an imported deck's — as a deck (04): all made into cards at once, in
+    /** A course's words — or an imported deck's — as a deck: all made into cards at once, in
      *  their order, as new cards (Anki: a deck taken); words with a card already keep it. */
     async takeDeck(
       request: { series: string; course: string; edition: string } | { deck: DeckId },
@@ -397,7 +397,7 @@ export function createCards(deps: {
     },
 
     /**
-     * A deck's words, taken or not, as what is made for them takes them (04: audio read aloud,
+     * A deck's words, taken or not, as what is made for them takes them (audio read aloud,
      * examples): an imported deck's notes, one per lexeme; or a course's words across its lessons in
      * an edition (its first when none is named), each headword of a word where it is first met (the
      * first is the word's: its examples are made for it, every headword is read aloud) — in the deck's
@@ -434,7 +434,7 @@ export function createCards(deps: {
     },
 
     /**
-     * What a card shows where it is studied (04, "Decks"): in a deck — an imported deck's, a course's,
+     * What a card shows where it is studied: in a deck — an imported deck's, a course's,
      * a lesson's Words step — that deck's own entry of its word (its recording, else the audio read
      * aloud for that deck; an imported deck's with neither, the card's own recording), else what the
      * card was made with; in a language's queue, every deck's,

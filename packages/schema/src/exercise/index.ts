@@ -23,7 +23,7 @@ export {
   SpeechSelfrateAnswer,
 } from "./speech.ts";
 
-/** Every exercise type (02); adding one needs a checker, a renderer and a fixture item (root rule 2). */
+/** Every exercise type; adding one needs a checker, a renderer and a fixture item (root rule 2). */
 export const Exercise = z.discriminatedUnion("type", [
   SingleChoiceExercise,
   MultiChoiceExercise,

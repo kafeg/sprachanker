@@ -1,4 +1,4 @@
-// Speaking (04, "AI practice in courses"; 07; owner, 2026-10-12: no live conversation waiting for the
+// Speaking (owner, 2026-10-12: no live conversation waiting for the
 // model after every line): a task said aloud and checked once, at the end — a monologue on a card
 // (`talk_card`; checked as a writing check is, said aloud), or a role-play, the learner playing one
 // part of a conversation the text generator wrote (purpose `roleplay`), each of their lines a hint
@@ -28,7 +28,7 @@ import { HISTORY_LIMIT, type RunStore } from "./run-store.ts";
 import type { MakerInputs, TextMaker, TextRequest } from "./text-maker.ts";
 import { keepVerdict, type Verdict, verdicts } from "./verdicts.ts";
 
-/** Where making a task or checking it is (09: said beside the time it takes). */
+/** Where making a task or checking it is (said beside the time it takes). */
 export type TalkStep = "writing" | "choosing" | "hinting" | "checking";
 
 /** A conversation cut after the learner's 15th line (a hint each, at most `RoleplayCue`'s count). */

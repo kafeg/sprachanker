@@ -1,4 +1,4 @@
-// A stored JSON value read back with its schema (05): one that is no JSON or no longer fits reads as
+// A stored JSON value read back with its schema: one that is no JSON or no longer fits reads as
 // unset, never failing what reads it.
 import type { z } from "zod";
 

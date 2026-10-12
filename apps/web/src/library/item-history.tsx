@@ -1,4 +1,4 @@
-// An item across passes (09): in every pass that answered it, newest first, each answer as it was given
+// An item across passes: in every pass that answered it, newest first, each answer as it was given
 // and marked, with the explanations kept for it.
 import type { Exercise, LocaleExercise } from "@sprachanker/schema";
 import { useTranslation } from "react-i18next";

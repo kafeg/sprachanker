@@ -1,4 +1,4 @@
-// Transfer folders (05, "Profile file"; 02, "Course bundle"): a file being exported or imported works
+// Transfer folders: a file being exported or imported works
 // in a folder of its own — `profiles/.transfers/<id>/`, `library/.transfers/<id>/` — removed when it
 // ends, an hour old at most. What profile files and course bundles share: the folders and their sweep,
 // the room a transfer needs on the disk, a file received or saved, a zip streamed.

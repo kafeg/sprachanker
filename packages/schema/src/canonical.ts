@@ -1,4 +1,4 @@
-// Language-independent course files: course index and lessons (02, "Canonical files").
+// Language-independent course files: course index and lessons.
 import { z } from "zod";
 import { format, LibraryPath, MediaPath } from "./common.ts";
 import { Exercise } from "./exercise/index.ts";
@@ -62,7 +62,7 @@ export const VocabEntry = z.strictObject({
 });
 export type VocabEntry = z.infer<typeof VocabEntry>;
 
-/** Source content the provider could not map; listed in the import report (02). */
+/** Source content the provider could not map; listed in the import report. */
 export const Unmapped = z.strictObject({ path: LibraryPath, reason: z.string().min(1) });
 
 /** `canonical/<course>/lessons/<NN>-<NN>.json` */

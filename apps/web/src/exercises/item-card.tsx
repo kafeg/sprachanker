@@ -1,4 +1,4 @@
-// One item of an exercise as a card (09): its recording, prompt and hint, its picture or video, the
+// One item of an exercise as a card: its recording, prompt and hint, its picture or video, the
 // renderer of its type, the correct answer under a wrong one where the renderer does not show it, and
 // once checked the source's answer, spoken.
 // The lesson player answers in it; the Notebook shows an answer given, read-only.
@@ -49,7 +49,7 @@ export const countStated = (text: string) =>
   text.split(/[.!?\n]/).some((sentence) => STATED.test(sentence));
 
 /**
- * A multiple choice's "several can be right" (09): said once above its items — "show" —, or not at
+ * A multiple choice's "several can be right": said once above its items — "show" —, or not at
  * all when its own texts say how many are — "stated" —; undefined for other types. Pure.
  */
 export function severalNote(exercise: Exercise, locale: LocaleExercise | null | undefined) {
@@ -230,7 +230,7 @@ export function ItemCard({
       >
         <SeveralSaid.Provider value={severalAbove}>
           {/* Laid out in the course language's direction: German's chips, gaps and options run left
-              to right in an Arabic interface too (09, "Writing direction"). */}
+              to right in an Arabic interface too. */}
           <div dir={languageDir(lang)}>
             <ExerciseItem
               type={exercise.type}

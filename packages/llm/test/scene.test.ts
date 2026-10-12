@@ -1,4 +1,4 @@
-// The Dialogue's tasks (07): a setup with an information gap, a line judged (understood, fits, at
+// The Dialogue's tasks: a setup with an information gap, a line judged (understood, fits, at
 // most two corrections of that line), a summary with model lines.
 import { expect, test } from "bun:test";
 import type { LlmClient } from "../src/client.ts";

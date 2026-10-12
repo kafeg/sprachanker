@@ -1,4 +1,4 @@
-// What optional features add to the lesson player (09). The player works without any of them; the
+// What optional features add to the lesson player. The player works without any of them; the
 // router passes the AI assistant's slots (llm/lesson-assistant.tsx), so llm/ can be removed with its
 // mount points.
 import type { PracticeKind } from "@sprachanker/engine";

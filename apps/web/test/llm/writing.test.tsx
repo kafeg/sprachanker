@@ -1,4 +1,4 @@
-// "Write it yourself" (09): no task yet — what the step is and the way to get one; a task — its
+// "Write it yourself": no task yet — what the step is and the way to get one; a task — its
 // situation, three points and length, the words counted as typed; a check — the points covered, at
 // most three corrections, the criteria and a model text; earlier texts with the task they answered.
 import { expect, test } from "bun:test";

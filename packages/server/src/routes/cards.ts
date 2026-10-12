@@ -1,4 +1,4 @@
-// /api/cards: cards and review as in Anki (04) — cards from a lesson's words, decks (taken and left: a
+// /api/cards: cards and review as in Anki — cards from a lesson's words, decks (taken and left: a
 // course's or an imported one), what to study, the reviewer's actions — and My words with the word sheet.
 import {
   CardFace,

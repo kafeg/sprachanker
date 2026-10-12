@@ -1,4 +1,4 @@
-// Piper on this machine (08): sherpa-onnx's `sherpa-onnx-offline-tts` run once per text, its voices in
+// Piper on this machine: sherpa-onnx's `sherpa-onnx-offline-tts` run once per text, its voices in
 // <data-root>/models/voices (each archive checked, unpacked by `tar`, put in place whole), a reading
 // written to a temporary folder of its own and read back.
 import { existsSync, mkdirSync, mkdtempSync, renameSync, rmSync } from "node:fs";

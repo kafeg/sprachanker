@@ -1,4 +1,4 @@
-// The lesson plan (09): its steps in order — overview, words, grammar, exercises, culture, AI practice,
+// The lesson plan: its steps in order — overview, words, grammar, exercises, culture, AI practice,
 // summary — each with its state in the run, under the labels of their sections. Shown beside the lesson
 // on wide screens and in a sheet on phones; the reference opens from the lesson's header.
 import {

@@ -1,4 +1,4 @@
-// The catalogue and the test centre's answers joined into the exam (pure, 02, 03): each question by its
+// The catalogue and the test centre's answers joined into the exam (pure): each question by its
 // section and number; its options as the PDF prints them (a row of pictures: the pictures), the right
 // one as the test centre marks it — taken only where both sources list the same options in the same
 // order, each reading most like its counterpart (`unpaired`).

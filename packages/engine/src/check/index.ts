@@ -1,4 +1,4 @@
-// Checking an answer to one item (04, "Checking"). Matching is by ids; options with identical
+// Checking an answer to one item. Matching is by ids; options with identical
 // content (same text or same picture) are interchangeable.
 import {
   correctOptions,
@@ -33,7 +33,7 @@ const content = (o: Option | undefined) => {
   if (text) return `t:${text}`;
   return o?.media?.image ? `i:${o.media.image}` : `id:${o?.id}`;
 };
-/** Options with identical content are interchangeable (04): ids with equal content compare equal. */
+/** Options with identical content are interchangeable: ids with equal content compare equal. */
 const sameOption = (options: Option[], a: string | undefined, b: string | undefined) =>
   a === b ||
   (a !== undefined &&
@@ -63,7 +63,7 @@ function textOutcome(lang: string, references: string[], actual: string, spoken:
   return { ...(exact ? binary(true) : graded(Math.min(score, 0.99), PARTIAL_WORDS - 0.001)), diff };
 }
 
-/** How a spoken phrase went (08): every word heard ("correct"), most of them — at least 80%,
+/** How a spoken phrase went: every word heard ("correct"), most of them — at least 80%,
  *  "partial" — or too few ("wrong"). Shown on a recorded speaking item, which counts in no score. */
 type SpokenVerdict = "correct" | "partial" | "wrong";
 
@@ -229,7 +229,7 @@ export function checkItem(
     }
     case "speech_selfrate": {
       // Recorded and, with recognition, heard: the words compared with the line to say, still in no
-      // score (08).
+      // score.
       const lines = linesToSay(item as ItemOf<"speech_selfrate">);
       const { transcript } = SpeechSelfrateAnswer.parse(answer);
       const heard =

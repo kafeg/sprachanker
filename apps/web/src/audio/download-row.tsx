@@ -1,4 +1,4 @@
-// A model or voice the server downloads (08; Settings → Speech): its name, size and a failed download
+// A model or voice the server downloads (Settings → Speech): its name, size and a failed download
 // noted, what it offers once there (use it, the mark of the one in use), and its action — download,
 // the download's progress, or remove.
 import { Download, LoaderCircle, Trash2 } from "lucide-react";

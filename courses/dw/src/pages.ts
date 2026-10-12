@@ -1,4 +1,4 @@
-// Fetch phase, pages: course page, lesson pages, download pages and exercise pages → raw JSON (03).
+// Fetch phase, pages: course page, lesson pages, download pages and exercise pages → raw JSON.
 import {
   FetchFailedError,
   type PoliteFetcher,

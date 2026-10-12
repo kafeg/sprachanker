@@ -1,4 +1,4 @@
-// Writing (04, "AI practice in courses"; 07): a task — a message from the text generator (drafts rated,
+// Writing: a task — a message from the text generator (drafts rated,
 // the best kept) and the situation and three content points of answering it, its length the level's —,
 // kept in the lesson run; a text on it checked (each point rated, at most three corrections, a model
 // text) and kept with its task; the lesson's tasks and checks read across its runs.

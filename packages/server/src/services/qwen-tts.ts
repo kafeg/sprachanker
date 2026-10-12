@@ -1,4 +1,4 @@
-// Reading aloud with Qwen3-TTS on this machine (08): qwentts.cpp's `tts-server` (built in
+// Reading aloud with Qwen3-TTS on this machine: qwentts.cpp's `tts-server` (built in
 // native/qwen), run by the sidecar supervisor like whisper-server with a model — a talker and the
 // codec it shares with the others, GGUF from Hugging Face at a fixed commit, checked against their
 // sha256 — and asked for a text in a language with one of its named speakers. A reading is kept with

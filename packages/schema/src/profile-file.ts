@@ -1,4 +1,4 @@
-// A profile file (05, "Profile file"): one learner's data moved between one's own machines — a zip of
+// A profile file: one learner's data moved between one's own machines — a zip of
 // stored entries holding `manifest.json`, the profile's database without its secrets and its
 // recordings. The manifest says what the file holds and what it was made from.
 import { z } from "zod";
@@ -47,10 +47,10 @@ export const ProfileManifest = z.object({
     name: z.string().trim().min(1).max(PROFILE_NAME_MAX),
     colour: ProfileColour.catch("amber"),
   }),
-  /** The migrations its database has, in the order applied (05, "Migrations"). */
+  /** The migrations its database has, in the order applied. */
   migrations: z.array(z.string().min(1).max(200)).max(10_000),
   content: ContentUsed,
-  /** What the file does not hold: the providers whose API keys were stored (06, "Secrets"), and those
+  /** What the file does not hold: the providers whose API keys were stored, and those
    *  whose endpoint's address held a user name or password (taken out of it). */
   leftOut: z.object({
     apiKeys: z.array(z.string().max(40)).max(100),

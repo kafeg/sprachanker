@@ -1,4 +1,4 @@
-// Settings → Speech → Read aloud (08; 09): the engine as cards — the device's voices, Piper or
+// Settings → Speech → Read aloud: the engine as cards — the device's voices, Piper or
 // Qwen3-TTS on this computer — the chosen engine's voices (device-voices, piper-voices, qwen-voices),
 // and the speed (what is read at once: Settings → Speech → Advanced).
 import { Cpu, Laptop, Sparkles } from "lucide-react";

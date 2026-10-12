@@ -1,4 +1,4 @@
-// The commonest irregular German verbs of A1–A2 (04, "A deck's words given examples"): by infinitive,
+// The commonest irregular German verbs of A1–A2: by infinitive,
 // their forms that share fewer than three first letters with it, umlauts aside ("ist" of "sein", "kann"
 // of "können") — what tells a model's form of the word from another word's (words.ts, `hasForm`).
 // Forms that share three letters ("spricht" of "sprechen", "lädt" of "laden") need no entry. Extend it,

@@ -1,4 +1,4 @@
-// The interface catalogs (spec 10, i18n): every `src/i18n/<code>.json` present is checked against the
+// The interface catalogs: every `src/i18n/<code>.json` present is checked against the
 // English one and against the code — a catalog added is covered without touching this file.
 import { expect, test } from "bun:test";
 import { readdirSync, readFileSync, statSync } from "node:fs";

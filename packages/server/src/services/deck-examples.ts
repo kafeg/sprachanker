@@ -1,4 +1,4 @@
-// Examples for a deck's words (04, "A deck's words given examples"; 07, `word_examples`): the words of
+// Examples for a deck's words: the words of
 // a deck in a language pair, taken or not — an imported deck's notes, a course's words in an edition —
 // that bring no example of their own get three to five sentences from a model, five words a call, kept in the deck's folder by
 // lexeme and the language they are translated into (deck-extras.ts), so every profile's cards show

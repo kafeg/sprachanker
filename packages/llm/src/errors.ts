@@ -1,4 +1,4 @@
-// What goes wrong talking to a model (07): a code the server answers with as `llm_<code>`.
+// What goes wrong talking to a model: a code the server answers with as `llm_<code>`.
 
 type LlmErrorCode =
   | "unreachable"

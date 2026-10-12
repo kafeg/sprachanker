@@ -28,7 +28,7 @@ export function languageName(code: string, locale = code, capital = false): stri
     : name;
 }
 
-/** The interface languages: English and every catalog present, in the order of their own names (09). */
+/** The interface languages: English and every catalog present, in the order of their own names. */
 const byName = new Intl.Collator("en");
 export const UI_LANGUAGES: readonly string[] = ["en", ...loaders.keys()].sort((a, b) =>
   byName.compare(languageName(a, a, true), languageName(b, b, true)),

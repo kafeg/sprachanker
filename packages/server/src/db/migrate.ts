@@ -1,4 +1,4 @@
-// Forward-only migrations with a copy before migrating and downgrade protection (05, "Migrations").
+// Forward-only migrations with a copy before migrating and downgrade protection.
 
 export interface Migration {
   tag: string;

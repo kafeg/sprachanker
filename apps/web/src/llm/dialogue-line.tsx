@@ -1,4 +1,4 @@
-// The learner's next line in a Dialogue (08, "A Dialogue held by voice"; 09): the microphone — a tap
+// The learner's next line in a Dialogue: the microphone — a tap
 // records, another stops —, then what was heard, sent as heard or said again (never edited), kept
 // until it is stored (a send that failed is sent again). Where nothing can hear it (no microphone, no
 // recognition) the line is typed, with a line why.
@@ -34,7 +34,7 @@ export function DialogueLine({
   maxMs,
   sendLabel,
 }: {
-  /** The language spoken (never detected, 08). */
+  /** The language spoken (never detected). */
   lang: string;
   /** A line is on its way: nothing more is sent meanwhile. */
   busy: boolean;

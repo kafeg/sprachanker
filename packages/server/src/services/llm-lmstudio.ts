@@ -1,4 +1,4 @@
-// LM Studio for the assistant (07, "LM Studio"): its state as the settings show it — installed here,
+// LM Studio for the assistant: its state as the settings show it — installed here,
 // running, its models, the suggested ones with their downloads —, starting its server on this machine,
 // and loading a model with our context window before a task uses it (one load per model at a time).
 import {

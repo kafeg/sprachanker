@@ -1,4 +1,4 @@
-// Where a course's text may break and where not (09, "Line breaks"): shown so only, the data unchanged.
+// Where a course's text may break and where not: shown so only, the data unchanged.
 
 /**
  * No break where a lone piece would be left — an ellipsis stays with the word before it ("vielleicht,

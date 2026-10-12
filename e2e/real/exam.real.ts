@@ -1,4 +1,4 @@
-// Run-throughs of the installed exams (10, "Run-throughs"; 09, Exams): in a profile of its own, the
+// Run-throughs of the installed exams: in a profile of its own, the
 // federal state chosen on the exam's page, a mock exam drawn, every question answered through the
 // screen — two of three right, an open answer written — and handed in; its result with the open
 // answers rated (each criterion at its best level), then practice of the mistakes (each checked at

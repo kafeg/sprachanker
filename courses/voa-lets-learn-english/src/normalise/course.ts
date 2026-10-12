@@ -42,7 +42,7 @@ export interface CourseResult {
 }
 
 /** A course's files; lessons and exercises keep their numbers by source id in `keys`, the series' key
- *  map (02, "Keys"): one the source inserts or a planning rule adds moves no other. */
+ *  map: one the source inserts or a planning rule adds moves no other. */
 export function normaliseCourse(
   course: FetchedCourse,
   index: MediaIndex,

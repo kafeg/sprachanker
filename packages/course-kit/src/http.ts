@@ -1,4 +1,4 @@
-// HTTP client for importers (03): robots.txt, retries with backoff, identifiable User-Agent, stop on
+// HTTP client for importers: robots.txt, retries with backoff, identifiable User-Agent, stop on
 // 403/429, optional minimum interval between request starts per host (none by default), and a limit on
 // silence (a stalled connection is retried, never waited on forever).
 import { createWriteStream } from "node:fs";
@@ -9,7 +9,7 @@ import { isAllowed, parseRobots, type RobotsRules } from "./robots.ts";
 /** Silence allowed before a response starts and between chunks of its body. */
 const IDLE_MS = 60_000;
 
-/** How every importer introduces itself (03: identifiable User-Agent). */
+/** How every importer introduces itself (identifiable User-Agent). */
 export const IMPORTER_USER_AGENT =
   "SprachAnker/0.1 (personal-use course importer; +https://github.com/kafeg/sprachanker)";
 
@@ -66,7 +66,7 @@ export interface BrowsingSession {
 /** Redirects a session follows for one page. */
 const MAX_REDIRECTS = 5;
 
-/** Aborts after `ms` of silence; `alive()` restarts the count. */
+/** Aborts after `ms` of silence; `alive` restarts the count. */
 function silence(ms: number) {
   const ctl = new AbortController();
   let timer: ReturnType<typeof setTimeout> | undefined;
@@ -78,7 +78,7 @@ function silence(ms: number) {
   return { signal: ctl.signal, alive, stop: () => clearTimeout(timer) };
 }
 
-/** The silence of one attempt: its signal, `alive()` when data arrives. */
+/** The silence of one attempt: its signal, `alive` when data arrives. */
 type Quiet = ReturnType<typeof silence>;
 
 /**

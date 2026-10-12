@@ -1,4 +1,4 @@
-// OpenAI's own API through the OpenAI-compatible client: what sets it apart (07, "Providers").
+// OpenAI's own API through the OpenAI-compatible client: what sets it apart.
 import { describe, expect, spyOn, test } from "bun:test";
 import { chatBody, REASONING_ROOM } from "../src/client.ts";
 import type { LlmError } from "../src/errors.ts";

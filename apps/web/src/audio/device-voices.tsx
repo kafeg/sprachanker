@@ -1,4 +1,4 @@
-// Reading aloud with this device's voices (08; Settings → Speech → Read aloud): each language with its
+// Reading aloud with this device's voices (Settings → Speech → Read aloud): each language with its
 // voice — automatic: the best one the device has — and "Listen".
 import { useTranslation } from "react-i18next";
 import { useSetting } from "@/api/settings.ts";

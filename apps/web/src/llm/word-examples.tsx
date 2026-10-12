@@ -1,4 +1,4 @@
-// A deck's words given examples by the AI (04, "A deck's words given examples"; 07; 09): with a card's
+// A deck's words given examples by the AI: with a card's
 // answer the examples made for the deck whose entry it shows, handed to the card (shown one at a time
 // after its own), and in the word's sheet listed — the words not met yet marked and translated, each
 // sentence read aloud on request —; in its corner, while there are none (and the assistant works
