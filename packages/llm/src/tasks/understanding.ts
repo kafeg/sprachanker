@@ -59,7 +59,7 @@ export const UNDERSTANDING_MIN_QUESTIONS = 4;
 
 /** How a language's exams write true and false: said with the data. */
 const TRUE_FALSE: Partial<Record<Lang, string>> = {
-  de: 'True/false options are "Richtig" and "Falsch", as the Goethe-Zertifikat writes them.',
+  de: 'True/false options are "Richtig" and "Falsch", in that order, as the Goethe-Zertifikat writes them.',
 };
 
 /** What the learner's place in the course asks of a text and its questions (data: the rules name
@@ -476,7 +476,7 @@ export function understandingQuestionsRules(
   return [
     `You write questions on a short text in ${t} as language exams ask them, for a learner who speaks ${l}, at the level given.`,
     `- The number of questions given, in ${t}, in the order of the text, each about a different thing; each answered by the text alone with one unambiguous answer — never by general knowledge, common sense or the title.`,
-    '- A question is a true/false statement (two options), a question with three options, or a number, a price or a time typed (no options; "accepted": every right way of writing it, in digits). Only a number, a price or a time is typed.',
+    '- A question is a true/false statement (two options: true first, then false), a question with three options, or a number, a price or a time typed (no options; "accepted": every right way of writing it, in digits). Only a number, a price or a time is typed.',
     "- Wrong options are plausible — things the text mentions too, or that fit the situation — never absurd, never right as well. About half of the true/false statements are false, each changing one detail. A question's options in its language.",
     "- A text heard: only what a listener catches when hearing it twice — the main facts, things said clearly; never a line's exact wording, never what a word means. A text read: also details a reader finds, and what a word or a sentence means there.",
     '- "answer": the right option\'s index (0-based); spread the right answers over the positions.',
