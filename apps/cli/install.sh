@@ -45,18 +45,20 @@ new="$("$tmp/new/sprachanker" version)"
 old=""
 [[ -x "$BIN/sprachanker" ]] && old="$("$BIN/sprachanker" version 2>/dev/null || true)"
 
-# The server stopped: ours by its LaunchAgent, one started by hand on the port if it is SprachAnker.
-launchctl bootout "$DOMAIN/$LABEL" 2>/dev/null || true
+# The server stopped: ours by its LaunchAgent (it lets the port go a moment later), one started by
+# hand on the port if it is SprachAnker.
+free() { for _ in $(seq 1 40); do lsof -tiTCP:"$PORT" -sTCP:LISTEN >/dev/null || return 0; sleep 0.5; done; return 1; }
+launchctl bootout "$DOMAIN/$LABEL" 2>/dev/null && free || true
 pid="$(lsof -tiTCP:"$PORT" -sTCP:LISTEN || true)"
 if [[ -n "$pid" ]]; then
-  if ps -p "$pid" -o comm= | grep -q sprachanker; then
+  if ps -p "$pid" -o command= | grep -q sprachanker; then
     kill "$pid"
+    free
   else
     echo "Port $PORT is taken by another program: run again with SPRACHANKER_PORT=<another port>." >&2
     exit 1
   fi
 fi
-for _ in $(seq 1 40); do lsof -tiTCP:"$PORT" -sTCP:LISTEN >/dev/null || break; sleep 0.5; done
 
 # An update: what cannot be downloaded again copied first (the version before it can open it).
 if [[ -n "$old" && "$old" != "$new" && -f "$HOME_DIR/server.sqlite" ]]; then
