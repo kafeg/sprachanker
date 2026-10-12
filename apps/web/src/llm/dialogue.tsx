@@ -321,7 +321,7 @@ function PastDialogues({ scenes }: { scenes: SceneState[] }) {
 }
 
 /** The lesson's Dialogue step: the latest Dialogue (or a start), then the earlier ones; `onDone`
- *  once one was started. */
+ *  once one has ended — not as it starts (skipping it stays the step bar's). */
 export function DialogueStep({ onDone, ...ids }: LessonSlotContext & { onDone?(): void }) {
   const { t, i18n } = useTranslation();
   const llm = useLlm();

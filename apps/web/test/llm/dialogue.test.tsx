@@ -4,7 +4,7 @@
 import { afterEach, expect, test } from "bun:test";
 import { act, fireEvent, waitFor } from "@testing-library/react";
 import { type SpeechHost, SpeechProvider } from "../../src/audio/context.ts";
-import type { SceneState } from "../../src/llm/api.ts";
+import { type SceneState, useSceneAction } from "../../src/llm/api.ts";
 import { DialogueStep } from "../../src/llm/dialogue.tsx";
 import { DialogueLine, type DialogueLineInput } from "../../src/llm/dialogue-line.tsx";
 import { claimPlayback } from "../../src/ui/playback.tsx";
@@ -385,6 +385,45 @@ test("a Dialogue that could not begin: said, with Try again asking it again", as
     fireEvent.click(await view.findByRole("button", { name: "Try again" }));
     await waitFor(() => expect(asked).toEqual(["/api/llm/scene/start", "/api/llm/scene/start"]));
     view.unmount();
+  } finally {
+    globalThis.fetch = real;
+  }
+});
+
+test("the step is done when a Dialogue ends, not as it starts", async () => {
+  const real = globalThis.fetch;
+  let reply = dialogue();
+  globalThis.fetch = (async () => Response.json(reply)) as unknown as typeof fetch;
+  let ended = 0;
+  function Actions() {
+    const action = useSceneAction(lesson.key, () => ended++);
+    const request = { ...ids, language: "en" };
+    return (
+      <>
+        <button type="button" onClick={() => action.mutate({ start: request })}>
+          start
+        </button>
+        <button
+          type="button"
+          onClick={() => action.mutate({ turn: { ...request, text: "Danke", spoken: true } })}
+        >
+          line
+        </button>
+      </>
+    );
+  }
+  try {
+    const view = await renderApp(<Actions />);
+    fireEvent.click(view.getByRole("button", { name: "start" }));
+    await Bun.sleep(10);
+    expect(ended).toBe(0);
+    // A line that does not end it: not done yet; the one that ends it: done.
+    fireEvent.click(view.getByRole("button", { name: "line" }));
+    await Bun.sleep(10);
+    expect(ended).toBe(0);
+    reply = dialogue({ done: true });
+    fireEvent.click(view.getByRole("button", { name: "line" }));
+    await waitFor(() => expect(ended).toBe(1));
   } finally {
     globalThis.fetch = real;
   }

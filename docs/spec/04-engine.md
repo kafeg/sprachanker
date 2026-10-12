@@ -388,7 +388,9 @@ label and each skippable as any step:
    heard (or says it again); each line judged — understood, fitting, at most two corrections of that
    line —; done when the goals are met; then a summary: the goals met and one or two key corrections,
    each with a model line. Typing only as a fallback where there is no microphone or no recognition
-   (09, the step says why). Replaces the typed scene (its runs read on as Dialogues).
+   (09, the step says why). The step is done once a Dialogue ends (its goals met or ended by the
+   learner), not as one starts; skipping it stays the step bar's. Replaces the typed scene (its runs
+   read on as Dialogues).
 7. **Going over mistakes** (below): the pass's mistakes by type, a short explanation per type and
    two or three new items of the same type (`mistake_items`, items of the existing closed types),
    checked by the engine.
