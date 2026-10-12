@@ -80,7 +80,9 @@ test("a course that is not installed says so, with the way to the available cour
   page,
 }) => {
   await page.goto("/course/sprachanker.fixture/nope");
-  await expect(page.getByText("This course is not installed (any more).")).toBeVisible();
+  await expect(
+    page.getByText("This course isn't on this computer any more — download it again to go on."),
+  ).toBeVisible();
   await page.getByRole("link", { name: "Available" }).last().click();
   await expect(page).toHaveURL(/\/catalog$/);
 });
