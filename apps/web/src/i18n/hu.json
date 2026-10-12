@@ -266,8 +266,8 @@
       "retryIn": "Próbáld újra {wait} múlva."
     },
     "cliMissing": {
-      "claude-code": "A Claude Code nincs telepítve itt. Telepítsd a claude.com/claude-code oldalról, és egyszer jelentkezz be a `claude` futtatásával.",
-      "codex": "A Codex CLI nincs telepítve itt. Telepítsd (npm i -g @openai/codex), és egyszer jelentkezz be a `codex login` paranccsal."
+      "claude-code": "A Claude Code nincs telepítve itt. Telepítsd a claude.com/claude-code oldalról, és egyszer jelentkezz be a claude futtatásával.",
+      "codex": "A Codex CLI nincs telepítve itt. Telepítsd (npm i -g @openai/codex), és egyszer jelentkezz be a codex login paranccsal."
     },
     "modelTypeHint": "Írd be a modell nevét.",
     "otherModel": "Másik modell…",
@@ -282,8 +282,8 @@
       "gemini": "A Google Gemini modelljei a felhőben, a Google AI Studióban létrehozott kulccsal. Az ingyenes csomaghoz nem kell bankkártya, és percenkénti és napi korlátai vannak; egyes modellekhez fizetős fiók kell. Az ingyenes csomagban a Google a beküldött adatokat termékei fejlesztésére használhatja: a lecke tartalma és a válaszaid a Google-hoz kerülnek.",
       "groq": "Nyílt modellek (Llama, Qwen, GPT-OSS és mások) a Groq gyors hardverén, a felhőben. Az ingyenes csomaghoz nem kell bankkártya, és minden modellre percenkénti és napi korlátok vonatkoznak. A lecke tartalma és a válaszaid a Groqhoz kerülnek.",
       "custom": "Bármely OpenAI-kompatibilis API-val rendelkező szerver egy másik számítógépen: LM Studio, Ollama, llama.cpp, vLLM és mások. Add meg a címét (/v1-re végződik), és a kulcsot, ha kér.",
-      "claude-code": "Az ezen a számítógépen telepített Claude Code-ot futtatja (`claude -p`) a Claude-előfizetéseddel. A saját eszközei ki vannak kapcsolva: a lecke adatai a promptba kerülnek. Minden válasz elindítja a parancsot, ezért a válaszok néhány másodperccel tovább tartanak.",
-      "codex": "Az ezen a számítógépen telepített Codex CLI-t futtatja (`codex exec`) a ChatGPT-előfizetéseddel, csak olvasási módban és eszközök nélkül. Minden válasz elindítja a parancsot, ezért a válaszok néhány másodperccel tovább tartanak."
+      "claude-code": "Az ezen a számítógépen telepített Claude Code-ot futtatja (claude -p) a Claude-előfizetéseddel. A saját eszközei ki vannak kapcsolva: a lecke adatai a promptba kerülnek. Minden válasz elindítja a parancsot, ezért a válaszok néhány másodperccel tovább tartanak.",
+      "codex": "Az ezen a számítógépen telepített Codex CLI-t futtatja (codex exec) a ChatGPT-előfizetéseddel, csak olvasási módban és eszközök nélkül. Minden válasz elindítja a parancsot, ezért a válaszok néhány másodperccel tovább tartanak."
     },
     "cardState": {
       "off": "nincs asszisztens",

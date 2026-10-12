@@ -266,8 +266,8 @@
       "retryIn": "请在 {wait} 后再试。"
     },
     "cliMissing": {
-      "claude-code": "本机未安装Claude Code。请从claude.com/claude-code安装，并运行`claude`登录一次。",
-      "codex": "本机未安装Codex CLI。请安装（npm i -g @openai/codex），并运行`codex login`登录一次。"
+      "claude-code": "本机未安装Claude Code。请从claude.com/claude-code安装，并运行claude登录一次。",
+      "codex": "本机未安装Codex CLI。请安装（npm i -g @openai/codex），并运行codex login登录一次。"
     },
     "modelTypeHint": "请输入模型名称。",
     "otherModel": "其他模型…",
@@ -282,8 +282,8 @@
       "gemini": "云端的Google Gemini模型，需使用Google AI Studio的密钥。免费层级无需绑定银行卡，但有每分钟和每日限额；部分模型需要开通付费。使用免费层级时，Google可能会用发送的内容改进其产品：各课内容和你的答案会发送给Google。",
       "groq": "在Groq云端高速硬件上运行的开放模型（Llama、Qwen、GPT-OSS等）。免费层级无需绑定银行卡，每个模型都有每分钟和每日限额。各课内容和你的答案会发送给Groq。",
       "custom": "另一台电脑上任何提供OpenAI兼容API的服务器：LM Studio、Ollama、llama.cpp、vLLM等。请填写其地址（以/v1结尾），如有需要再填写密钥。",
-      "claude-code": "运行本机安装的Claude Code（`claude -p`），使用你的Claude订阅。其自带工具处于关闭状态：本课数据直接写入提示词。每次回答都要启动该命令，因此回复会慢几秒。",
-      "codex": "运行本机安装的Codex CLI（`codex exec`），使用你的ChatGPT订阅，只读且不使用其工具。每次回答都要启动该命令，因此回复会慢几秒。"
+      "claude-code": "运行本机安装的Claude Code（claude -p），使用你的Claude订阅。其自带工具处于关闭状态：本课数据直接写入提示词。每次回答都要启动该命令，因此回复会慢几秒。",
+      "codex": "运行本机安装的Codex CLI（codex exec），使用你的ChatGPT订阅，只读且不使用其工具。每次回答都要启动该命令，因此回复会慢几秒。"
     },
     "cardState": {
       "off": "未使用助手",

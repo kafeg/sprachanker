@@ -266,8 +266,8 @@
       "retryIn": "Tente de novo daqui a {wait}."
     },
     "cliMissing": {
-      "claude-code": "O Claude Code não está instalado aqui. Instale-o em claude.com/claude-code e faça login uma vez executando `claude`.",
-      "codex": "A CLI do Codex não está instalada aqui. Instale-a (npm i -g @openai/codex) e faça login uma vez com `codex login`."
+      "claude-code": "O Claude Code não está instalado aqui. Instale-o em claude.com/claude-code e faça login uma vez executando claude.",
+      "codex": "A CLI do Codex não está instalada aqui. Instale-a (npm i -g @openai/codex) e faça login uma vez com codex login."
     },
     "modelTypeHint": "Digite o nome do modelo.",
     "otherModel": "Outro modelo…",
@@ -282,8 +282,8 @@
       "gemini": "Os modelos Gemini do Google na nuvem, com uma chave do Google AI Studio. O nível gratuito não pede cartão e tem limites por minuto e por dia; alguns modelos exigem faturamento. No nível gratuito, o Google pode usar o que é enviado para melhorar seus produtos: o conteúdo das lições e as suas respostas vão para o Google.",
       "groq": "Modelos abertos (Llama, Qwen, GPT-OSS e outros) no hardware rápido do Groq, na nuvem. O nível gratuito não pede cartão e tem limites por minuto e por dia para cada modelo. O conteúdo das lições e as suas respostas vão para o Groq.",
       "custom": "Qualquer servidor com uma API compatível com a da OpenAI em outro computador: LM Studio, Ollama, llama.cpp, vLLM e outros. Informe o endereço (terminado em /v1) e uma chave, se ele pedir.",
-      "claude-code": "Usa o Claude Code instalado neste computador (`claude -p`) com a sua assinatura do Claude. As ferramentas dele ficam desligadas: os dados da lição vão no prompt. Cada resposta inicia o comando, então demora alguns segundos a mais.",
-      "codex": "Usa a CLI do Codex instalada neste computador (`codex exec`) com a sua assinatura do ChatGPT, só leitura e sem as ferramentas dela. Cada resposta inicia o comando, então demora alguns segundos a mais."
+      "claude-code": "Usa o Claude Code instalado neste computador (claude -p) com a sua assinatura do Claude. As ferramentas dele ficam desligadas: os dados da lição vão no prompt. Cada resposta inicia o comando, então demora alguns segundos a mais.",
+      "codex": "Usa a CLI do Codex instalada neste computador (codex exec) com a sua assinatura do ChatGPT, só leitura e sem as ferramentas dela. Cada resposta inicia o comando, então demora alguns segundos a mais."
     },
     "cardState": {
       "off": "sem assistente",

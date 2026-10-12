@@ -266,8 +266,8 @@
       "retryIn": "Jaribu tena baada ya {wait}."
     },
     "cliMissing": {
-      "claude-code": "Claude Code haijasakinishwa hapa. Isakinishe kutoka claude.com/claude-code kisha ingia mara moja kwa kuendesha `claude`.",
-      "codex": "Codex CLI haijasakinishwa hapa. Isakinishe (npm i -g @openai/codex) kisha ingia mara moja kwa `codex login`."
+      "claude-code": "Claude Code haijasakinishwa hapa. Isakinishe kutoka claude.com/claude-code kisha ingia mara moja kwa kuendesha claude.",
+      "codex": "Codex CLI haijasakinishwa hapa. Isakinishe (npm i -g @openai/codex) kisha ingia mara moja kwa codex login."
     },
     "modelTypeHint": "Andika jina la modeli.",
     "otherModel": "Modeli nyingine…",
@@ -282,8 +282,8 @@
       "gemini": "Modeli za Gemini za Google mtandaoni kwa ufunguo kutoka Google AI Studio. Kiwango cha bure hakihitaji kadi na kina vikomo kwa dakika na kwa siku; baadhi ya modeli zinahitaji malipo. Katika kiwango cha bure Google inaweza kutumia kinachotumwa kuboresha bidhaa zake: maudhui ya somo na majibu yako huenda kwa Google.",
       "groq": "Modeli huria (Llama, Qwen, GPT-OSS na nyinginezo) kwenye vifaa vya kasi vya Groq mtandaoni. Kiwango cha bure hakihitaji kadi na kina vikomo kwa dakika na kwa siku kwa kila modeli. Maudhui ya somo na majibu yako huenda kwa Groq.",
       "custom": "Seva yoyote yenye API inayooana na OpenAI kwenye kompyuta nyingine: LM Studio, Ollama, llama.cpp, vLLM na nyinginezo. Weka anwani yake (inayoishia na /v1) na ufunguo ikiwa inauomba.",
-      "claude-code": "Huendesha Claude Code iliyosakinishwa kwenye kompyuta hii (`claude -p`) kwa usajili wako wa Claude. Zana zake zimezimwa: data za somo huwekwa kwenye maagizo. Kila jibu huanzisha amri, kwa hiyo majibu huchelewa sekunde chache zaidi.",
-      "codex": "Huendesha Codex CLI iliyosakinishwa kwenye kompyuta hii (`codex exec`) kwa usajili wako wa ChatGPT, kwa kusoma tu na bila zana zake. Kila jibu huanzisha amri, kwa hiyo majibu huchelewa sekunde chache zaidi."
+      "claude-code": "Huendesha Claude Code iliyosakinishwa kwenye kompyuta hii (claude -p) kwa usajili wako wa Claude. Zana zake zimezimwa: data za somo huwekwa kwenye maagizo. Kila jibu huanzisha amri, kwa hiyo majibu huchelewa sekunde chache zaidi.",
+      "codex": "Huendesha Codex CLI iliyosakinishwa kwenye kompyuta hii (codex exec) kwa usajili wako wa ChatGPT, kwa kusoma tu na bila zana zake. Kila jibu huanzisha amri, kwa hiyo majibu huchelewa sekunde chache zaidi."
     },
     "cardState": {
       "off": "hakuna msaidizi",

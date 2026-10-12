@@ -266,8 +266,8 @@
       "retryIn": "{wait} sonra tekrar dene."
     },
     "cliMissing": {
-      "claude-code": "Claude Code burada yüklü değil. claude.com/claude-code adresinden yükle ve `claude` komutunu çalıştırarak bir kez oturum aç.",
-      "codex": "Codex CLI burada yüklü değil. Yükle (npm i -g @openai/codex) ve `codex login` ile bir kez oturum aç."
+      "claude-code": "Claude Code burada yüklü değil. claude.com/claude-code adresinden yükle ve claude komutunu çalıştırarak bir kez oturum aç.",
+      "codex": "Codex CLI burada yüklü değil. Yükle (npm i -g @openai/codex) ve codex login ile bir kez oturum aç."
     },
     "modelTypeHint": "Model adını yaz.",
     "otherModel": "Başka bir model…",
@@ -282,8 +282,8 @@
       "gemini": "Google’ın buluttaki Gemini modelleri, Google AI Studio’dan alınan bir anahtarla. Ücretsiz katman kart gerektirmez; dakika ve gün başına sınırları vardır. Bazı modeller faturalandırma ister. Ücretsiz katmanda Google gönderilenleri ürünlerini geliştirmek için kullanabilir: ders içeriği ve cevapların Google’a gider.",
       "groq": "Groq’un buluttaki hızlı donanımında açık modeller (Llama, Qwen, GPT-OSS ve diğerleri). Ücretsiz katman kart gerektirmez; her model için dakika ve gün başına sınırları vardır. Ders içeriği ve cevapların Groq’a gider.",
       "custom": "Başka bir bilgisayarda, OpenAI uyumlu API sunan herhangi bir sunucu: LM Studio, Ollama, llama.cpp, vLLM ve diğerleri. Adresini (/v1 ile biten) ve istiyorsa bir anahtar gir.",
-      "claude-code": "Bu bilgisayarda yüklü Claude Code’u (`claude -p`) Claude aboneliğinle çalıştırır. Kendi araçları kapalıdır: ders verileri isteme eklenir. Her cevapta komut yeniden başlatılır, bu yüzden yanıtlar birkaç saniye daha uzun sürer.",
-      "codex": "Bu bilgisayarda yüklü Codex CLI’ı (`codex exec`) ChatGPT aboneliğinle, salt okunur ve araçları olmadan çalıştırır. Her cevapta komut yeniden başlatılır, bu yüzden yanıtlar birkaç saniye daha uzun sürer."
+      "claude-code": "Bu bilgisayarda yüklü Claude Code’u (claude -p) Claude aboneliğinle çalıştırır. Kendi araçları kapalıdır: ders verileri isteme eklenir. Her cevapta komut yeniden başlatılır, bu yüzden yanıtlar birkaç saniye daha uzun sürer.",
+      "codex": "Bu bilgisayarda yüklü Codex CLI’ı (codex exec) ChatGPT aboneliğinle, salt okunur ve araçları olmadan çalıştırır. Her cevapta komut yeniden başlatılır, bu yüzden yanıtlar birkaç saniye daha uzun sürer."
     },
     "cardState": {
       "off": "asistan yok",

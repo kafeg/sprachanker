@@ -266,8 +266,8 @@
       "retryIn": "Try again in {wait}."
     },
     "cliMissing": {
-      "claude-code": "Claude Code is not installed here. Install it from claude.com/claude-code and sign in once by running `claude`.",
-      "codex": "The Codex CLI is not installed here. Install it (npm i -g @openai/codex) and sign in once with `codex login`."
+      "claude-code": "Claude Code is not installed here. Install it from claude.com/claude-code and sign in once by running claude.",
+      "codex": "The Codex CLI is not installed here. Install it (npm i -g @openai/codex) and sign in once with codex login."
     },
     "modelTypeHint": "Type the model name.",
     "otherModel": "Another model…",
@@ -282,8 +282,8 @@
       "gemini": "Google's Gemini models in the cloud with a key from Google AI Studio. The free tier needs no card and has limits per minute and per day; some models need billing. On the free tier Google may use what is sent to improve its products: lesson content and your answers go to Google.",
       "groq": "Open models (Llama, Qwen, GPT-OSS and others) on Groq's fast hardware in the cloud. The free tier needs no card and has limits per minute and per day for each model. Lesson content and your answers go to Groq.",
       "custom": "Any server with an OpenAI-compatible API on another computer: LM Studio, Ollama, llama.cpp, vLLM and others. Give its address (ending in /v1) and a key if it asks for one.",
-      "claude-code": "Runs Claude Code installed on this computer (`claude -p`) with your Claude subscription. Its own tools are off: lesson data goes in the prompt. Each answer starts the command, so replies take a few seconds longer.",
-      "codex": "Runs the Codex CLI installed on this computer (`codex exec`) with your ChatGPT subscription, read-only and without its tools. Each answer starts the command, so replies take a few seconds longer."
+      "claude-code": "Runs Claude Code installed on this computer (claude -p) with your Claude subscription. Its own tools are off: lesson data goes in the prompt. Each answer starts the command, so replies take a few seconds longer.",
+      "codex": "Runs the Codex CLI installed on this computer (codex exec) with your ChatGPT subscription, read-only and without its tools. Each answer starts the command, so replies take a few seconds longer."
     },
     "cardState": {
       "off": "no assistant",

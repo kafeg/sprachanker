@@ -266,8 +266,8 @@
       "retryIn": "Încearcă din nou peste {wait}."
     },
     "cliMissing": {
-      "claude-code": "Claude Code nu este instalat aici. Instalează-l de pe claude.com/claude-code și autentifică-te o dată rulând `claude`.",
-      "codex": "Codex CLI nu este instalat aici. Instalează-l (npm i -g @openai/codex) și autentifică-te o dată cu `codex login`."
+      "claude-code": "Claude Code nu este instalat aici. Instalează-l de pe claude.com/claude-code și autentifică-te o dată rulând claude.",
+      "codex": "Codex CLI nu este instalat aici. Instalează-l (npm i -g @openai/codex) și autentifică-te o dată cu codex login."
     },
     "modelTypeHint": "Scrie numele modelului.",
     "otherModel": "Alt model…",
@@ -282,8 +282,8 @@
       "gemini": "Modelele Gemini de la Google în cloud, cu o cheie din Google AI Studio. Nivelul gratuit nu cere card și are limite pe minut și pe zi; unele modele necesită facturare. Pe nivelul gratuit, Google poate folosi ce se trimite pentru a-și îmbunătăți produsele: conținutul lecțiilor și răspunsurile tale ajung la Google.",
       "groq": "Modele deschise (Llama, Qwen, GPT-OSS și altele) pe hardware-ul rapid al Groq, în cloud. Nivelul gratuit nu cere card și are limite pe minut și pe zi pentru fiecare model. Conținutul lecțiilor și răspunsurile tale ajung la Groq.",
       "custom": "Orice server cu un API compatibil OpenAI pe alt computer: LM Studio, Ollama, llama.cpp, vLLM și altele. Indică adresa lui (care se termină în /v1) și o cheie, dacă cere una.",
-      "claude-code": "Rulează Claude Code instalat pe acest computer (`claude -p`) cu abonamentul tău Claude. Uneltele lui proprii sunt dezactivate: datele lecției merg în prompt. Fiecare răspuns pornește comanda, așa că răspunsurile durează cu câteva secunde mai mult.",
-      "codex": "Rulează Codex CLI instalat pe acest computer (`codex exec`) cu abonamentul tău ChatGPT, doar în citire și fără uneltele sale. Fiecare răspuns pornește comanda, așa că răspunsurile durează cu câteva secunde mai mult."
+      "claude-code": "Rulează Claude Code instalat pe acest computer (claude -p) cu abonamentul tău Claude. Uneltele lui proprii sunt dezactivate: datele lecției merg în prompt. Fiecare răspuns pornește comanda, așa că răspunsurile durează cu câteva secunde mai mult.",
+      "codex": "Rulează Codex CLI instalat pe acest computer (codex exec) cu abonamentul tău ChatGPT, doar în citire și fără uneltele sale. Fiecare răspuns pornește comanda, așa că răspunsurile durează cu câteva secunde mai mult."
     },
     "cardState": {
       "off": "fără asistent",

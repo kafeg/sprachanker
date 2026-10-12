@@ -266,8 +266,8 @@
       "retryIn": "Pokušaj ponovo za {wait}."
     },
     "cliMissing": {
-      "claude-code": "Claude Code nije instaliran ovdje. Instaliraj ga s claude.com/claude-code i jednom se prijavi pokretanjem `claude`.",
-      "codex": "Codex CLI nije instaliran ovdje. Instaliraj ga (npm i -g @openai/codex) i jednom se prijavi s `codex login`."
+      "claude-code": "Claude Code nije instaliran ovdje. Instaliraj ga s claude.com/claude-code i jednom se prijavi pokretanjem claude.",
+      "codex": "Codex CLI nije instaliran ovdje. Instaliraj ga (npm i -g @openai/codex) i jednom se prijavi s codex login."
     },
     "modelTypeHint": "Upiši naziv modela.",
     "otherModel": "Drugi model…",
@@ -282,8 +282,8 @@
       "gemini": "Googleovi Gemini modeli u oblaku, s ključem iz Google AI Studija. Besplatni nivo ne traži karticu i ima ograničenja po minuti i po danu; neki modeli traže plaćanje. Na besplatnom nivou Google može koristiti poslane podatke za poboljšanje svojih proizvoda: sadržaj lekcija i tvoji odgovori idu Googleu.",
       "groq": "Otvoreni modeli (Llama, Qwen, GPT-OSS i drugi) na Groqovom brzom hardveru u oblaku. Besplatni nivo ne traži karticu i ima ograničenja po minuti i po danu za svaki model. Sadržaj lekcija i tvoji odgovori idu Groqu.",
       "custom": "Bilo koji server s API-jem kompatibilnim s OpenAI na drugom računaru: LM Studio, Ollama, llama.cpp, vLLM i drugi. Unesi njegovu adresu (završava na /v1) i ključ ako ga traži.",
-      "claude-code": "Pokreće Claude Code instaliran na ovom računaru (`claude -p`) s tvojom Claude pretplatom. Njegovi alati su isključeni: podaci lekcije idu u prompt. Svaki odgovor pokreće komandu, pa odgovori stižu nekoliko sekundi kasnije.",
-      "codex": "Pokreće Codex CLI instaliran na ovom računaru (`codex exec`) s tvojom ChatGPT pretplatom, samo za čitanje i bez njegovih alata. Svaki odgovor pokreće komandu, pa odgovori stižu nekoliko sekundi kasnije."
+      "claude-code": "Pokreće Claude Code instaliran na ovom računaru (claude -p) s tvojom Claude pretplatom. Njegovi alati su isključeni: podaci lekcije idu u prompt. Svaki odgovor pokreće komandu, pa odgovori stižu nekoliko sekundi kasnije.",
+      "codex": "Pokreće Codex CLI instaliran na ovom računaru (codex exec) s tvojom ChatGPT pretplatom, samo za čitanje i bez njegovih alata. Svaki odgovor pokreće komandu, pa odgovori stižu nekoliko sekundi kasnije."
     },
     "cardState": {
       "off": "bez asistenta",
