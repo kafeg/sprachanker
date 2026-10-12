@@ -1018,6 +1018,7 @@
     "studying": "Studying: {deck}",
     "more": "{count, plural, one {# more new card today} other {# more new cards today}}",
     "leave": "Leave deck…",
+    "leaveConfirm": "Leave deck",
     "offers": "Decks to take",
     "offersHint": "The words of each of your courses, and of each deck imported here, are a deck: taken whole, it adds them as new cards in its order — within the daily limit, or more with “more new today”. A word you have a card of already keeps it. Here, too, audio and examples are made for all of a deck's words, taken or not.",
     "words": "{words, plural, one {# word} other {# words}} · {mine, number} yours already",

@@ -1018,6 +1018,7 @@
     "studying": "Studiezi: {deck}",
     "more": "{count, plural, one {încă # card nou azi} few {încă # carduri noi azi} other {încă # de carduri noi azi}}",
     "leave": "Părăsește pachetul…",
+    "leaveConfirm": "Părăsește pachetul",
     "offers": "Pachete de luat",
     "offersHint": "Cuvintele fiecăruia dintre cursurile tale și ale fiecărui pachet importat aici formează un pachet: luat întreg, le adaugă drept carduri noi, în ordinea lui — în limita zilnică sau mai multe cu „încă … azi”. Un cuvânt pentru care ai deja un card îl păstrează. Tot aici se fac audio și exemplele pentru toate cuvintele unui pachet, luate sau nu.",
     "words": "{words, plural, one {# cuvânt} few {# cuvinte} other {# de cuvinte}} · {mine, number} deja ale tale",

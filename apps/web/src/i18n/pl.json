@@ -1018,6 +1018,7 @@
     "studying": "Uczysz się: {deck}",
     "more": "{count, plural, one {Jeszcze # nowa fiszka dzisiaj} few {Jeszcze # nowe fiszki dzisiaj} many {Jeszcze # nowych fiszek dzisiaj} other {Jeszcze # nowej fiszki dzisiaj}}",
     "leave": "Opuść talię…",
+    "leaveConfirm": "Opuść talię",
     "offers": "Talie do wzięcia",
     "offersHint": "Słowa każdego z twoich kursów i każdej zaimportowanej tu talii tworzą talię: wzięta w całości, dodaje je jako nowe fiszki w swojej kolejności — w ramach dziennego limitu albo więcej przez „więcej nowych dzisiaj”. Słowo, do którego masz już fiszkę, ją zachowuje. Tu też powstają nagrania i przykłady dla wszystkich słów talii, wziętych czy nie.",
     "words": "{words, plural, one {# słowo} few {# słowa} many {# słów} other {# słowa}} · {mine, number} już twoich",

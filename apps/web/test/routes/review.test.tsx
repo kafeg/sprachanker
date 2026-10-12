@@ -94,6 +94,8 @@ test("Decks: an imported deck taken is under its language beside the course, lef
   expect(view.getAllByRole("button", { name: "Leave deck…" })).toHaveLength(2);
   fireEvent.click(view.getAllByRole("button", { name: "Leave deck…" })[1] as HTMLElement);
   expect(view.getByText(/^Leave the deck Mein Deck/)).toBeTruthy();
+  // The action itself asks nothing more: no ellipsis on it.
+  expect(view.getByRole("button", { name: "Leave deck" })).toBeTruthy();
 });
 
 test("Decks to take: an imported deck not taken whole, taken or deleted; a deck file to import", async () => {

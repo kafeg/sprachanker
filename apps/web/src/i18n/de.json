@@ -1018,6 +1018,7 @@
     "studying": "Stapel: {deck}",
     "more": "{count, plural, one {# neue Karte mehr heute} other {# neue Karten mehr heute}}",
     "leave": "Stapel entfernen…",
+    "leaveConfirm": "Stapel entfernen",
     "offers": "Stapel zum Übernehmen",
     "offersHint": "Die Wörter jedes deiner Kurse und jedes hier importierten Stapels sind ein Stapel: als Ganzes übernommen, fügt er sie als neue Karten in seiner Reihenfolge hinzu — im Tageslimit oder mehr mit „heute mehr neue“. Ein Wort, von dem du schon eine Karte hast, behält sie. Hier werden auch Audio und Beispiele für alle Wörter eines Stapels erstellt, ob genommen oder nicht.",
     "words": "{words, plural, one {# Wort} other {# Wörter}} · schon deine: {mine, number}",

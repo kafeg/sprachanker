@@ -1018,6 +1018,7 @@
     "studying": "Estudando: {deck}",
     "more": "{count, plural, =0 {Mais # cartões novos hoje} one {Mais # cartão novo hoje} other {Mais # cartões novos hoje}}",
     "leave": "Sair do baralho…",
+    "leaveConfirm": "Sair do baralho",
     "offers": "Baralhos disponíveis",
     "offersHint": "As palavras de cada um dos seus cursos, e de cada baralho importado aqui, formam um baralho: ao pegá-lo inteiro, ele as adiciona como cartões novos na ordem dele, dentro do limite diário ou mais com “mais novos hoje”. Uma palavra da qual você já tem cartão fica com ele. Aqui também são criados o áudio e os exemplos de todas as palavras de um baralho, pegas ou não.",
     "words": "{words, plural, =0 {# palavras} one {# palavra} other {# palavras}} · {mine, number} já suas",

@@ -1018,6 +1018,7 @@
     "studying": "Étude : {deck}",
     "more": "{count, plural, one {# nouvelle carte de plus aujourd’hui} many {# de nouvelles cartes de plus aujourd’hui} other {# nouvelles cartes de plus aujourd’hui}}",
     "leave": "Quitter le paquet…",
+    "leaveConfirm": "Quitter le paquet",
     "offers": "Paquets à prendre",
     "offersHint": "Les mots de chacun de tes cours, et de chaque paquet importé ici, forment un paquet : pris en entier, il les ajoute comme nouvelles cartes, dans son ordre — dans la limite quotidienne, ou plus avec « de plus aujourd’hui ». Un mot dont tu as déjà une carte la garde. Ici aussi se créent l’audio et les exemples de tous les mots d’un paquet, pris ou non.",
     "words": "{words, plural, one {# mot} many {# de mots} other {# mots}} · {mine, number} déjà à toi",

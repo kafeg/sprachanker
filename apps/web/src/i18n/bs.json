@@ -1018,6 +1018,7 @@
     "studying": "Učiš: {deck}",
     "more": "{count, plural, one {Još # nova kartica danas} few {Još # nove kartice danas} other {Još # novih kartica danas}}",
     "leave": "Napusti špil…",
+    "leaveConfirm": "Napusti špil",
     "offers": "Dostupni špilovi",
     "offersHint": "Riječi svakog tvog kursa i svakog ovdje uvezenog špila čine špil: kad ga uzmeš cijelog, dodaje ih kao nove kartice svojim redom — u okviru dnevnog ograničenja ili više uz „više novih danas“. Riječ za koju već imaš karticu zadržava je. Ovdje se prave i audio i primjeri za sve riječi špila, uzete ili ne.",
     "words": "{words, plural, one {# riječ} few {# riječi} other {# riječi}} · {mine, number} već tvojih",

@@ -1018,6 +1018,7 @@
     "studying": "Çalışılan: {deck}",
     "more": "{count, plural, one {Bugün # yeni kart daha} other {Bugün # yeni kart daha}}",
     "leave": "Desteden ayrıl…",
+    "leaveConfirm": "Desteden ayrıl",
     "offers": "Alınabilecek desteler",
     "offersHint": "Her kursunun ve buraya içe aktarılan her destenin kelimeleri bir deste oluşturur: desteyi bütün olarak aldığında kelimeler kendi sırasıyla yeni kart olarak eklenir — günlük sınır içinde ya da “bugün daha fazla yeni” ile daha fazlası. Zaten kartı olan bir kelime kartını korur. Destenin alınmış ya da alınmamış tüm kelimeleri için ses ve örnekler de burada oluşturulur.",
     "words": "{words, plural, one {# kelime} other {# kelime}} · {mine, number} tanesi zaten senin",
