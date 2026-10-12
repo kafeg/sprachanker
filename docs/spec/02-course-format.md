@@ -325,7 +325,8 @@ and locale folders, its exams' source copies, the media its files name that no o
 series names (one that does not read keeps them all), its download's marker; `media.json` forgets the
 media removed (a download fetches them again); `keys.json` stays, so the course downloaded again has
 its keys and the learner's runs, cards and Notebook meet it. The rest of `raw/` stays (a source's
-pages, possibly another course's); then a `media.json` naming nothing and the folders left empty go.
+pages, possibly another course's); then a `media.json` naming nothing and the folders left empty go (never the import lock's,
+`.import-lock` and a process's own beside it while it takes it).
 Learner data is untouched: runs keep what they showed (an exam run its snapshot), cards their words —
 a card's recording from the course plays again once it is back. A lesson or exam under way may be
 removed too (owner, 2026-10-12: removal is never blocked, and the only other way out would delete

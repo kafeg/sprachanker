@@ -13,6 +13,7 @@ import {
   type ProgressSink,
   type RemovedCourse,
   removeCourse,
+  SERIES_LOCK,
 } from "@sprachanker/course-kit";
 import { DW_PROVIDERS } from "@sprachanker/dw";
 import { GOETHE_PROVIDER } from "@sprachanker/goethe";
@@ -90,7 +91,7 @@ export async function withSeriesLock<T>(
   heldHere.set(folder, queue);
   await before;
   try {
-    const lock = join(folder, ".import-lock");
+    const lock = join(folder, SERIES_LOCK);
     await mkdir(folder, { recursive: true });
     await takeLock(lock, series);
     try {

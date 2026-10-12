@@ -11,6 +11,11 @@ import { courseBundleContent } from "./bundle.ts";
 import { writeFileAtomic } from "./files.ts";
 import { NotInstalledError, openLibrary } from "./library.ts";
 
+/** The series' import lock: a folder of this name in the series folder, and while it is taken a
+ *  process's own beside it (`<name>.<pid>-<time>`, empty a moment before it holds the pid). The lock
+ *  is the caller's; nothing here touches either. */
+export const SERIES_LOCK = ".import-lock";
+
 export interface RemovedCourse {
   /** Files removed, and their bytes. */
   files: number;
@@ -73,10 +78,11 @@ export async function removeCourse(
   return { files: gone.length, bytes, shared: media.length - removedMedia.size };
 }
 
-/** Removes the empty folders under `dir` (the series folder itself stays: its key map). */
+/** Removes the empty folders under `dir` (the series folder itself stays: its key map), never the
+ *  import lock's. */
 function removeEmpty(dir: string) {
   for (const entry of readdirSync(dir, { withFileTypes: true })) {
-    if (!entry.isDirectory()) continue;
+    if (!entry.isDirectory() || entry.name.startsWith(SERIES_LOCK)) continue;
     const sub = join(dir, entry.name);
     removeEmpty(sub);
     if (!readdirSync(sub).length) rmdirSync(sub);
