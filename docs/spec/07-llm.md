@@ -128,8 +128,11 @@ the course's level and what the learner can be assumed to know at the lesson —
   topic once with all its lessons, the first first — over the budget the lessons' titles go before
   a topic's places do, then the oldest topics;
 - **characters**: the course's people met so far by name — the speakers of the scripts of the
-  earlier lessons and this one (a label in capitals, "LISA:", or one alone on its line: `speakersOf`),
-  the latest 30 — so a person a task makes up (a Dialogue's partner) is none of them (QA 2026-10-12).
+  earlier lessons and this one (`speakersOf`: a label at several lines' start of a script — "LISA:"
+  alone on its line, "Frau: Guten Abend!" before what is said —, in the writing system of what is
+  said; a heading or a sentence's opening word comes once, "Am Bahnhof:", "Also: Hallo"; never a
+  letter alone, "A:"; a speaker of a single line in one lesson is found where they speak more),
+  the latest 30 — so a person a task makes up (a Dialogue's partner) is none of them.
 
 Each task takes the parts it needs within its budgets (`*_BUDGETS`, shown in Settings → AI assistant
 → Advanced). What one target language needs (German's ß, the Goethe exam's name for its writing

@@ -119,27 +119,53 @@ export function topicPlacesLine({ topics = [] }: Pick<LessonInfo, "topics">, max
   }`;
 }
 
-/** A speaker's label in a script: a name (up to three words) and a colon, at a line's start. */
-const SPEAKER = /^(\p{Lu}[\p{L}'’-]*(?: \p{Lu}[\p{L}'’-]*){0,2}):\s*(.*)$/u;
+/** A label at a line's start: a name or role of up to three words, the first and the last
+ *  capitalised ("NICO", "Frau Berg", "MUTTER VON LOTTE"), and a colon. */
+const LABEL = /^(\p{Lu}[\p{L}'’-]*(?: [\p{L}'’-]+)?(?: \p{Lu}[\p{L}'’-]*)?):\s*(.*)$/u;
 
-/** The people speaking in a script (course HTML), by name as written in a sentence ("LISA:" →
- *  "Lisa"): a label in capitals, or one alone on its line — never a word that opens a sentence with a
- *  colon ("Also: Hallo"). */
+/** Characters of no width a source leaves in its text ("​HAUKE:"). */
+const INVISIBLE = /[​-‍⁠﻿]/g;
+
+const SCRIPTS = ["Latin", "Cyrillic", "Greek", "Arabic", "Hebrew", "Devanagari", "Han"].map(
+  (s) => new RegExp(`\\p{Script=${s}}`, "u"),
+);
+/** The writing system of a text's first letter (-1: none of those). */
+const scriptOf = (text: string) => {
+  const letter = /\p{L}/u.exec(text)?.[0] ?? "";
+  return SCRIPTS.findIndex((s) => s.test(letter));
+};
+
+/** "LISA" → "Lisa", "ANNA-LENA" → "Anna-Lena", "MUTTER VON LOTTE" → "Mutter von Lotte". */
+const titleCase = (label: string) =>
+  label
+    .toLocaleLowerCase()
+    .split(" ")
+    .map((word, i, all) =>
+      i > 0 && i < all.length - 1
+        ? word
+        : word.replace(/(^|-)(\p{L})/gu, (_, a, b: string) => a + b.toLocaleUpperCase()),
+    )
+    .join(" ");
+
+/** The people speaking in a script (course HTML), in the order they first speak, by name as written
+ *  in a sentence ("LISA:" → "Lisa"): a label that comes at several lines' start, before what is said
+ *  on its line or the next, in that line's writing system — never a heading or a sentence's opening
+ *  word, which come once ("Am Bahnhof:", "Also: Hallo"), a letter alone ("A:"), or a heading in the
+ *  learner's language ("Пример:"). */
 export function speakersOf(html: string): string[] {
-  const names = new Set<string>();
-  for (const line of htmlToText(html).split("\n")) {
-    const [, label = "", rest = ""] = SPEAKER.exec(line.trim()) ?? [];
-    const capitals = label.length > 1 && label === label.toLocaleUpperCase();
-    if (!label || (!capitals && rest)) continue;
-    names.add(
-      capitals
-        ? label
-            .toLocaleLowerCase()
-            .replace(/(^|[\s-])(\p{L})/gu, (_, a, b: string) => a + b.toLocaleUpperCase())
-        : label,
-    );
-  }
-  return [...names];
+  const lines = htmlToText(html)
+    .split("\n")
+    .map((line) => line.replace(INVISIBLE, "").trim())
+    .filter(Boolean);
+  const times = new Map<string, number>();
+  lines.forEach((line, i) => {
+    const [, label = "", rest = ""] = LABEL.exec(line) ?? [];
+    const said = rest || lines[i + 1] || "";
+    if ([...label].length < 2 || scriptOf(label) !== scriptOf(said)) return;
+    const name = label === label.toLocaleUpperCase() ? titleCase(label) : label;
+    times.set(name, (times.get(name) ?? 0) + 1);
+  });
+  return [...times].flatMap(([name, n]) => (n > 1 ? [name] : []));
 }
 
 /** "The course's characters: Nico, Lisa, Emma" — names a made-up person never takes. */
