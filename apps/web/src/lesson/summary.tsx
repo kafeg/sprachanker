@@ -48,7 +48,7 @@ export function LessonSummary({
   results: Record<string, ExerciseResult>;
   done: Map<StepId, "done" | "skipped">;
   practice: PracticeMarks;
-  /** Going over the run's mistakes, where it has some and an assistant offers it (a slot). */
+  /** Going over the run's mistakes, where it has some (a slot: nothing where no assistant works). */
   mistakes?: React.ReactNode;
   /** Score of the run shown, once it is finished. */
   result: LessonResult | null | undefined;
@@ -124,12 +124,7 @@ export function LessonSummary({
           })}
         </ul>
       )}
-      {mistakes && (
-        <section className="space-y-3">
-          <h2 className="font-heading text-xl font-semibold">{t("lesson.step.mistakes")}</h2>
-          {mistakes}
-        </section>
-      )}
+      {mistakes}
       <div className="flex flex-wrap gap-2">
         <Button asChild variant="outline" size="lg">
           <Link to="/course/$series/$course" params={{ series, course }}>

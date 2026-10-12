@@ -1,15 +1,13 @@
-// Going over mistakes, a practice step of the lesson (04, "AI practice in courses"; 09): the pass's
-// mistakes by type — at most three types, one at a time ("Type 1 of 3") —, each with the learner's
-// wrong parts only, a short explanation and two or three new items of the type, checked by the
-// server's engine as they are answered; the next type once these are answered, the score at the end.
-// The review shown is the newest of the run the lesson shows; the step is done once its items are all
-// answered, and skipped when the run has nothing to go over. The step is in the plan only while the
-// pass has mistakes; the lesson's other reviews are listed under it.
+// Going over mistakes, in the lesson's summary while the pass has some (04, "AI practice in courses";
+// 09): the pass's mistakes by type — at most three types, one at a time ("Type 1 of 3") —, each with
+// the learner's wrong parts only, a short explanation and two or three new items of the type, checked
+// by the server's engine as they are answered; the next type once these are answered, the score at
+// the end. The review shown is the newest of the run the lesson shows; the lesson's other reviews are
+// listed under it.
 import { reviewAt } from "@sprachanker/engine";
 import { ChevronLeft, ChevronRight, ListChecks } from "lucide-react";
-import { useEffect, useRef, useState } from "react";
+import { useState } from "react";
 import { useTranslation } from "react-i18next";
-import { ApiError } from "@/api/client.ts";
 import type { LessonSlotContext } from "@/lesson/slots.ts";
 import {
   groupStart,
@@ -28,11 +26,6 @@ import { AssistantLabel, modelName } from "./assistant-label.tsx";
 import { ErrorLine, StartPrompt, Thinking } from "./parts.tsx";
 import { PromptButton } from "./prompt-view.tsx";
 import { useLlm } from "./setup-api.ts";
-
-/** Whether every new item of a review is answered. */
-const complete = (review: Review) =>
-  reviewAt(review.result, (n) => review.answers.some((a) => a.question === n)) ===
-  review.result.groups.length;
 
 /** The run's latest review: one type at a time, the next once its items are answered. */
 function CurrentReview({
@@ -143,15 +136,9 @@ function PastReviews({ reviews }: { reviews: Review[] }) {
   );
 }
 
-/** The lesson's Going over mistakes step: the latest review of the run the lesson shows (`runId`;
- *  none yet: a start), then the lesson's other ones; `onDone` once its new items are all answered,
- *  `onNothing` when the run has nothing to go over. */
-export function GoingOverStep({
-  runId,
-  onDone,
-  onNothing,
-  ...ids
-}: LessonSlotContext & { runId?: string; onDone?(): void; onNothing?(): void }) {
+/** Going over the pass's mistakes in the summary: the latest review of the run the lesson shows
+ *  (`runId`; none yet: a start), then the lesson's other ones. */
+export function GoingOverSection({ runId, ...ids }: LessonSlotContext & { runId?: string }) {
   const { t, i18n } = useTranslation();
   const llm = useLlm();
   const start = useStartGoingOver(ids.lessonKey);
@@ -159,19 +146,6 @@ export function GoingOverStep({
   const reviews = state.data?.reviews ?? [];
   const current = runId ? reviews.find((r) => r.runId === runId) : undefined;
   const past = reviews.filter((r) => r !== current);
-  // Done once the run's review is answered through: also when the reply to its last answer was lost
-  // and the review is read again.
-  const finished = !!current && complete(current);
-  const nothing = start.error instanceof ApiError && start.error.message === "no_mistakes";
-  // The latest callbacks, so a new one each render records nothing again.
-  const on = useRef({ onDone, onNothing });
-  on.current = { onDone, onNothing };
-  useEffect(() => {
-    if (finished) on.current.onDone?.();
-  }, [finished]);
-  useEffect(() => {
-    if (nothing) on.current.onNothing?.();
-  }, [nothing]);
   if (!llm.data?.model || !state.data) return null;
   // Asked from here, or still being written on the server since before this page was opened.
   const preparing = start.isPending || state.data.preparing;
@@ -179,35 +153,41 @@ export function GoingOverStep({
     if (!preparing) start.mutate({ ...ids, language: i18n.language });
   };
   return (
-    <div className="space-y-4">
-      {current ? (
-        <CurrentReview
-          key={current.id}
-          review={current}
-          ids={ids}
-          preparing={preparing}
-          onAgain={go}
-        />
-      ) : (
-        <Panel className="space-y-3">
-          <StartPrompt
-            intro={t("goingOver.intro")}
-            label={preparing ? t("goingOver.preparing") : t("goingOver.start")}
-            icon={ListChecks}
-            loading={preparing}
-            onStart={go}
+    <section className="space-y-3">
+      <h2 className="font-heading text-xl font-semibold">{t("lesson.step.mistakes")}</h2>
+      <div className="space-y-4">
+        {current ? (
+          <CurrentReview
+            key={current.id}
+            review={current}
+            ids={ids}
+            preparing={preparing}
+            onAgain={go}
           />
-          <div className="flex flex-wrap items-center gap-2">
-            <PromptButton request={() => ({ mistakes: { ...ids, language: i18n.language } })} />
-            <AssistantLabel className="ms-auto" />
-          </div>
-        </Panel>
-      )}
-      {preparing && (
-        <Thinking label={t(`goingOver.step.${state.data.step ?? "making"}`)} className="text-sm" />
-      )}
-      <ErrorLine error={start.error} onRetry={preparing ? undefined : go} />
-      <PastReviews reviews={past} />
-    </div>
+        ) : (
+          <Panel className="space-y-3">
+            <StartPrompt
+              intro={t("goingOver.intro")}
+              label={preparing ? t("goingOver.preparing") : t("goingOver.start")}
+              icon={ListChecks}
+              loading={preparing}
+              onStart={go}
+            />
+            <div className="flex flex-wrap items-center gap-2">
+              <PromptButton request={() => ({ mistakes: { ...ids, language: i18n.language } })} />
+              <AssistantLabel className="ms-auto" />
+            </div>
+          </Panel>
+        )}
+        {preparing && (
+          <Thinking
+            label={t(`goingOver.step.${state.data.step ?? "making"}`)}
+            className="text-sm"
+          />
+        )}
+        <ErrorLine error={start.error} onRetry={preparing ? undefined : go} />
+        <PastReviews reviews={past} />
+      </div>
+    </section>
   );
 }

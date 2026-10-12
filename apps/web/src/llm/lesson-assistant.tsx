@@ -7,7 +7,7 @@ import type { AiPlace } from "@sprachanker/schema";
 import { useSetting } from "@/api/settings.ts";
 import type { LessonSlots } from "@/lesson/slots.ts";
 import { ExplainMistake } from "./explain.tsx";
-import { GoingOverStep } from "./going-over.tsx";
+import { GoingOverSection } from "./going-over.tsx";
 import { useAiIn, useLlm } from "./setup-api.ts";
 import { SpokenAnswerCheck } from "./spoken-check.tsx";
 import { TalkStep } from "./talk.tsx";
@@ -69,10 +69,10 @@ export const lessonAssistant: LessonSlots = {
         <TalkStep {...context} onDone={onDone} setPrimary={setPrimary} />
       ),
   },
-  // Going over mistakes goes with the tutor's place.
+  // Going over mistakes goes with the tutor's place; its heading only where it is there.
   mistakes: (context) => (
     <In place="tutor">
-      <GoingOverStep {...context} />
+      <GoingOverSection {...context} />
     </In>
   ),
 };

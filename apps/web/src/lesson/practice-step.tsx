@@ -4,7 +4,7 @@
 
 import type { LessonStep, PracticeKind } from "@sprachanker/engine";
 import type { Lesson, LocaleLesson } from "@sprachanker/schema";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { stepTitle } from "./plan.tsx";
 import type { LessonSlotContext, LessonSlots, PracticePrimary } from "./slots.ts";
@@ -34,12 +34,18 @@ export function PracticeStep({
 }) {
   const { t } = useTranslation();
   const done = run.done.get(kind) === "done";
+  const worked = run.practice.has(kind);
   /** The page's own main button while it needs one (Check), else Next. */
   const [primary, setPrimary] = useState<PracticePrimary | null>(null);
-  // Not done yet: Check, waiting for the page (a text to answer, a task to say), as an exercise's
-  // before its answers — never Next; Skip passes it by.
+  // Worked in the run but not recorded (the reply to its last answer lost, a reload): done now.
+  useEffect(() => {
+    if (worked && !done) mark(kind);
+  }, [worked, done, kind, mark]);
+  // Nothing worked yet: Check, waiting for the page (a text to answer, a task to say), as an
+  // exercise's before its answers — never Next; Skip passes it by.
   const main =
-    primary ?? (done ? null : { label: t("lesson.check"), disabled: true, run: () => {} });
+    primary ??
+    (done || worked ? null : { label: t("lesson.check"), disabled: true, run: () => {} });
   return (
     <article className="flex min-h-[calc(100dvh-8rem)] flex-col gap-4">
       <StepHeader

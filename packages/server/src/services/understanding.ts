@@ -14,6 +14,7 @@ import {
   checkUnderstanding,
   newGlosses,
   readingPieces,
+  stepOf,
   textVoices,
   unaskedGlosses,
   understandingStage,
@@ -80,10 +81,6 @@ export interface UnderstandingAnswer extends Omit<UnderstandingRequest, "step"> 
 
 /** A text as the steps and the Notebook read it: the verdict with its answers in the order given. */
 export type Understood = Verdict<"understanding"> & { answers: PracticeAnswer[] };
-
-/** The step a text is for: its own, or — made before the two steps — Reading's when it was to read. */
-export const stepOf = (text: UnderstandingText): PracticeStep =>
-  text.step ?? (text.kind === "reading" ? "reading" : "listening");
 
 /** The server's voices for a language now: the profile's engine and those it reads it with. */
 type VoicesFor = (lang: string) => { engine: "piper" | "qwen"; voices: string[] } | undefined;

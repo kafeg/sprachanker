@@ -218,8 +218,7 @@ function CurrentText({
           question: n,
           answer: drafts[n],
         });
-      // The run read again first: an answer wrong puts going over mistakes in the plan before the
-      // step is done (the lesson is not completed without it).
+      // The run read again first: the step's mark follows its answers.
       await Promise.resolve(onStored?.()).catch(() => undefined);
       onDone?.();
     } catch {

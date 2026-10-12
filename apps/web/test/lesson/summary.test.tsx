@@ -65,6 +65,5 @@ test("the AI practice marked as exercises are, with how many were right; the mis
   const writing = view.getByRole("button", { name: /Writing/ });
   expect(writing.textContent).toContain("right");
   expect(view.getByRole("button", { name: /Speaking/ }).textContent).toContain("not done");
-  expect(view.getByRole("heading", { name: "Going over mistakes" })).toBeTruthy();
   expect(view.getByText("Going over: here")).toBeTruthy();
 });

@@ -20,8 +20,8 @@ one "Culture" step per culture page → AI practice when an assistant is set up 
 owner, 2026-10-12: no step of the plan — a lesson's few mistakes, mostly slips, made a long lesson
 longer). The steps
 come from what the provider's normaliser put into the canonical and locale files, the same way for
-every course. Every step has a mark in the plan and "Next" goes through all of them; any step can be
-skipped (and shows it). The lesson is completed when every step is done or skipped: an exercise
+every course. Every step has a mark in the plan and "Next" goes through all of them (an exercise or an AI step
+once worked; Check before); any step can be skipped (and shows it). The lesson is completed when every step is done or skipped: an exercise
 answered, a reading step opened, an AI step done once (Reading, Listening: every question of a text
 answered; Writing and Speaking: a task checked). An AI step's mark is its first work in the run, as
 an exercise's first attempt (`practiceMarks`; owner, 2026-10-12: right or with mistakes, not only

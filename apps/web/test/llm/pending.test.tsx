@@ -1,7 +1,7 @@
 import { expect, setSystemTime, test } from "bun:test";
 import { waitFor } from "@testing-library/react";
 import { DialogueStep } from "../../src/llm/dialogue.tsx";
-import { GoingOverStep } from "../../src/llm/going-over.tsx";
+import { GoingOverSection } from "../../src/llm/going-over.tsx";
 import { PendingExchange } from "../../src/llm/parts.tsx";
 import { UnderstandingStep } from "../../src/llm/understanding.tsx";
 import { WritingTask } from "../../src/llm/writing.tsx";
@@ -98,7 +98,7 @@ test("a long wait says what is being done beside its seconds: the text's questio
   understanding.unmount();
   const goingOver = await renderApp(
     <TargetLang value="de">
-      <GoingOverStep {...ids} />
+      <GoingOverSection {...ids} />
     </TargetLang>,
     {
       data: [

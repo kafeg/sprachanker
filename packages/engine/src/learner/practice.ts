@@ -4,6 +4,7 @@
 // none), Writing's first text checked and Speaking's first task checked (by the check's verdict; a
 // role-play by its lines that fit).
 import type { PracticeKind, TypedEvent, VerdictOf, WritingCheck } from "@sprachanker/schema";
+import { stepOf } from "../check/understanding.ts";
 
 /** A practice step's mark (an exercise's: right, partly right, wrong) and, where it counts them, how
  *  many of how many were right. */
@@ -27,14 +28,14 @@ const byVerdict = (check: WritingCheck): PracticeResult => ({
 });
 
 /** What was said on a Speaking task, marked: a monologue by its check's verdict; a role-play by its
- *  lines that do what their hints ask — all of them and no correction right, some partly. */
+ *  lines that do what their hints ask — all of them and no correction right, some partly (no count:
+ *  a line fitting with a correction is neither). */
 function talkResult(attempt: VerdictOf<"talk">["result"]): PracticeResult {
   const { check } = attempt;
   if ("verdict" in check) return byVerdict(check);
-  const fit = check.turns.filter((t) => t.fits).length;
+  const fit = check.turns.some((t) => t.fits);
   const clean = check.turns.every((t) => t.fits && !t.corrections.length);
-  const of = check.turns.length;
-  return { ...byShare(fit, of), mark: clean ? "correct" : fit ? "partial" : "wrong" };
+  return { mark: clean ? "correct" : fit ? "partial" : "wrong" };
 }
 
 /** The run's practice steps that have a first work done, with its mark. */
@@ -53,8 +54,7 @@ export function practiceMarks(events: TypedEvent[]): Map<PracticeKind, PracticeR
     if (e.type !== "llm_verdict") continue;
     const v = e.payload;
     if (v.task === "understanding") {
-      // Texts before the two steps were heard first: Listening's.
-      const step = v.result.step ?? "listening";
+      const step = stepOf(v.result);
       const given = answers.get(e.id);
       const of = v.result.questions.length;
       if (out.has(step) || !given || given.size < of) continue;

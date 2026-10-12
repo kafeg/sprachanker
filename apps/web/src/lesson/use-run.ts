@@ -197,7 +197,7 @@ export function useRun(series: string, lessonKey: string, edition: string | unde
     resumePage,
     results,
     mistakes,
-    /** Its events as the engine reads them (the plan's AI practice: practiceInPlan). */
+    /** Its events as the engine reads them (the summary's mistakes to go over). */
     events,
     attempts,
     error: query.error,

@@ -53,9 +53,9 @@ test("a text: marked once every question is answered — all right, some, none; 
       "reading",
     ),
   ).toEqual({ mark: "partial", right: 1, of: 2 });
-  // A text before the two steps is Listening's.
+  // A text before the two steps: Reading's when it was to read.
   const old = [text(1, undefined), answered(2, 1, 0, "correct"), answered(3, 1, 1, "correct")];
-  expect(practiceMarks(old).get("listening")).toEqual({ mark: "correct", right: 2, of: 2 });
+  expect(practiceMarks(old).get("reading")).toEqual({ mark: "correct", right: 2, of: 2 });
   const none = [text(1, "listening"), answered(2, 1, 0, "wrong"), answered(3, 1, 1, "wrong")];
   expect(practiceMarks(none).get("listening")?.mark).toBe("wrong");
 });
@@ -93,8 +93,8 @@ test("a role-play: every line fits without a correction right; some fitting part
         },
       }),
     ]).get("speaking");
-  expect(play([{ fits: true }, { fits: true }])).toEqual({ mark: "correct", right: 2, of: 2 });
+  expect(play([{ fits: true }, { fits: true }])).toEqual({ mark: "correct" });
   expect(play([{ fits: true }, { fits: true, corrections: 1 }])?.mark).toBe("partial");
-  expect(play([{ fits: true }, { fits: false }])).toEqual({ mark: "partial", right: 1, of: 2 });
+  expect(play([{ fits: true }, { fits: false }])).toEqual({ mark: "partial" });
   expect(play([{ fits: false }])?.mark).toBe("wrong");
 });

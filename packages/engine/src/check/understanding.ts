@@ -42,6 +42,10 @@ export const checkUnderstanding = (
 ): Outcome => checkItem(understandingExercise(q), 0, answer, lang);
 
 /** When a question is asked: a text to read has only questions on the text shown. */
+/** The step a text is for: its own, or — made before the two steps — Reading's when it was to read. */
+export const stepOf = (text: UnderstandingText): "reading" | "listening" =>
+  text.step ?? (text.kind === "reading" ? "reading" : "listening");
+
 export const questionPhase = (text: UnderstandingText, q: UnderstandingQuestion) =>
   text.kind === "reading" ? "reading" : q.phase;
 
