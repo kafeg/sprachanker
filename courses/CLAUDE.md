@@ -29,9 +29,11 @@ packages/course-kit/src/
   remove.ts            # removeCourse: a course's folders and the media no other course of its series
                        # names; media.json forgets them (gone when it names nothing), empty folders
                        # go, keys.json stays
-  bundle.ts            # course bundles, the library's side: what a course's bundle holds, content
-                       # versions, a bundle unpacked checked (schemas, places, media used) and installed
-                       # all or nothing (install.json: undone on an error, or at the next start)
+  bundle.ts            # course bundles, the library's side: what a bundle of a series' courses holds
+                       # (media once), a series' courses grouped for bundles (bundleGroups: sharing most
+                       # of their media's bytes), content versions, a bundle unpacked checked (schemas,
+                       # places, media used) and installed all or nothing, a status per course
+                       # (install.json: undone on an error, or at the next start)
   canonical-json.ts    # canonical JSON (hashes) and library files' JSON
   fingerprint.ts       # exercise fingerprints
   exercise-draft.ts    # draftExercise, Unmapped, unknownExercise, draftOrUnknown (a mapping run)

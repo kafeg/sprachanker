@@ -32,7 +32,7 @@ export async function removeCourse(
   if (!SeriesKey.safeParse(series).success || !Slug.safeParse(courseId).success)
     throw new NotInstalledError(`${series}/${courseId}`);
   const seriesDir = join(libraryRoot, series);
-  const own = await courseBundleContent(libraryRoot, series, courseId);
+  const own = await courseBundleContent(libraryRoot, series, [courseId]);
   // What the series' other courses name; one that does not read keeps every media file.
   const others = openLibrary(libraryRoot)
     .courses()
@@ -40,7 +40,7 @@ export async function removeCourse(
   const used = new Set<string>();
   let unknown = false;
   for (const other of others) {
-    const content = await courseBundleContent(libraryRoot, series, other.course).catch(
+    const content = await courseBundleContent(libraryRoot, series, [other.course]).catch(
       () => undefined,
     );
     if (!content) unknown = true;
@@ -67,7 +67,7 @@ export async function removeCourse(
   for (const f of gone) rmSync(f.file, { force: true });
   // The course's folders whole (a file a bundle would not hold, too), then the download's marker.
   rmSync(join(seriesDir, "canonical", courseId), { recursive: true, force: true });
-  for (const edition of own.editions)
+  for (const edition of own.courses[0]?.editions ?? [])
     if (EditionId.safeParse(edition).success)
       rmSync(join(seriesDir, "locale", edition, courseId), { recursive: true, force: true });
   rmSync(join(seriesDir, ".downloads", `${courseId}.json`), { force: true });

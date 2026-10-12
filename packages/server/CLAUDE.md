@@ -29,11 +29,11 @@ src/
                      # in profiles/.transfers: a snapshot streamed as a zip, a file read by its zip
                      # directory, unpacked, its database checked in a Worker: profile-db-worker.ts over
                      # profile-db.ts — the exact schema first); course-transfer.ts (course bundles in
-                     # library/.transfers: a course's files linked and streamed as a zip, a bundle read,
-                     # what the library lacks unpacked, checked and installed by course-kit's bundle.ts
-                     # under the series' lock, then verified; one stopped midway undone at the start);
-                     # network.ts (the machine's IPv4 addresses, its `.local` name, `tailscale status`
-                     # and `tailscale serve status` as JSON);
+                     # library/.transfers: courses' files linked and streamed as a zip — one course, or every
+                     # one by bundleGroups (exportAll) —, a bundle read, what the library lacks unpacked,
+                     # checked and installed by course-kit's bundle.ts under the series' lock, then
+                     # verified; one stopped midway undone at the start); network.ts (the machine's IPv4
+                     # addresses, its `.local` name, `tailscale status` and `tailscale serve status` as JSON);
                      # cli.ts (runs `claude` / `codex` for the command-line LLM providers, in the run's environment);
                      # decks.ts (imported decks' folders, written whole; a deck folder's extras.json and
                      # media read aloud — an imported deck's or a course's; packages uploaded, streamed to

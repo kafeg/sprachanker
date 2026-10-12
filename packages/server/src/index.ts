@@ -159,7 +159,8 @@ export function profileAdmin(
 
 /**
  * The data root's courses for the `sprachanker courses` command: those
- * installed, one exported to a file, a file imported, one removed — also while a server runs on the
+ * installed, one exported to a file — or every one, a file a group sharing media —, a file
+ * imported, one removed — also while a server runs on the
  * data root (the series' import lock keeps them apart; the server reads the files anew).
  */
 export function courseAdmin(dataRoot: string, appVersion = "") {
@@ -175,6 +176,7 @@ export function courseAdmin(dataRoot: string, appVersion = "") {
   return {
     list: () => library.courses(),
     exportTo: transfer.exportTo,
+    exportAll: transfer.exportAll,
     importFile: transfer.importFile,
     /** A course removed; `server`: the pid of a server running on the data root (it keeps what it
      *  read of the course until restarted). */

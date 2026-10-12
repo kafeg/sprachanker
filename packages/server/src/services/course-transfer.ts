@@ -1,17 +1,18 @@
-// A downloaded course — or exam — moved between one's own machines as one file (a course
-// bundle): exported — its files of the editions asked, the media they use, a manifest with a hash
-// per file, streamed as a zip — and imported: every file checked against the manifest and by its
-// schema before anything is moved into place, media the library holds not unpacked again, the
-// course replaced where its content differs, all or nothing, then verified. The files themselves are
-// the runtime's (CourseTransferFiles).
+// Downloaded courses — or exams — moved between one's own machines, or kept aside, as files (course
+// bundles): exported — one course (the app's), or a series' courses grouped so no media file is in
+// two bundles (a course in several languages one file, its videos once) —, each its courses' files of
+// the editions asked, the media they use, a manifest with a hash per file, streamed as a zip; and
+// imported: every file checked against the manifest and by its schema before anything is moved into
+// place, media the library holds not unpacked again, each course replaced where its content differs,
+// all or nothing, then verified. The files themselves are the runtime's (CourseTransferFiles).
 import {
   COURSE_BUNDLE_EXTENSION,
   COURSE_BUNDLE_FORMAT,
   COURSE_BUNDLE_MAX_BYTES,
   COURSE_BUNDLE_VERSION,
+  type CourseBundleCourse,
   CourseBundleManifest,
   type CourseKey,
-  type CourseSource,
   type KeyMapFile,
   type MediaIndex,
 } from "@sprachanker/schema";
@@ -26,27 +27,25 @@ export interface BundleFileEntry {
   sha256: string;
 }
 
-/** What a course's export holds, made ready in a transfer (the manifest's parts the runtime knows). */
-export interface StagedCourse {
+/** What an export holds, made ready in a transfer (the manifest's parts the runtime knows). */
+export interface StagedBundle {
   id: string;
-  course: CourseKey;
-  kind: "course" | "exam";
-  editions: string[];
+  courses: CourseBundleCourse[];
   provider: string | null;
-  source: CourseSource | null;
-  titles: Record<string, string>;
-  content: { canonical: string; editions: Record<string, string> };
   media: MediaIndex;
   keys: KeyMapFile;
   files: BundleFileEntry[];
 }
 
-/** A course installed from a bundle: whether it was new, the same or replaced; its media placed and
- *  kept; what `verify` found. */
+/** A bundle installed: each course new, the same or replaced, and what `verify` found of it; the
+ *  media placed and kept. */
 export interface InstalledBundle {
-  status: "added" | "same" | "replaced";
+  courses: Array<{
+    course: CourseKey;
+    status: "added" | "same" | "replaced";
+    check: { problems: number; missing: number };
+  }>;
   media: { added: number; kept: number };
-  check: { problems: number; missing: number };
 }
 
 /**
@@ -59,9 +58,11 @@ export interface CourseTransferFiles {
   /** Installs stopped midway (the process stopped) undone, whatever their age, each under its
    *  series' lock (one another process holds is its install, running). */
   recover(): Promise<void>;
-  /** A course's files (`editions`: those asked, else every one installed) linked into a new
-   *  transfer, each hashed; NotInstalledError when the course or an edition is not here. */
-  stage(series: string, course: string, editions?: string[]): Promise<StagedCourse>;
+  /** Courses' files of one series (`editions`: those asked of each, else every one installed) linked
+   *  into a new transfer, each hashed; NotInstalledError when a course or an edition is not here. */
+  stage(series: string, courses: string[], editions?: string[]): Promise<StagedBundle>;
+  /** Every installed course by series, grouped so courses naming one media file are one group. */
+  groups(): Promise<Array<{ series: string; courses: string[] }>>;
   /** The length of the bundle `stream` makes. */
   bytes(id: string, manifest: string, paths: string[]): number;
   /** A staged course as a bundle: `manifest.json` first, then its files in the order given; the
@@ -150,62 +151,64 @@ export function createCourseTransfer(deps: {
     if (unpacked === "damaged") throw new ServiceError("course_bundle_damaged", 422);
     const problems = await files.check(id, manifest);
     if (problems.length) {
-      console.error(`a course bundle of ${manifest.course} refused:\n  ${problems.join("\n  ")}`);
+      const of = manifest.courses.map((c) => c.course).join(", ");
+      console.error(`a course bundle of ${of} refused:\n  ${problems.join("\n  ")}`);
       throw new ServiceError("course_bundle_damaged", 422);
     }
     const installed = await files.install(id, manifest);
     deps.onInstalled?.();
+    const done = new Map(installed.courses.map((c) => [c.course, c]));
     return {
-      course: {
-        key: manifest.course,
-        kind: manifest.kind,
-        editions: manifest.editions,
-        titles: manifest.titles,
-      },
-      ...installed,
+      courses: manifest.courses.map((c) => ({
+        key: c.course,
+        kind: c.kind,
+        editions: c.editions,
+        titles: c.titles,
+        status: done.get(c.course)?.status ?? ("same" as const),
+        check: done.get(c.course)?.check ?? { problems: 0, missing: 0 },
+      })),
+      media: installed.media,
     };
   }
 
-  /** The export made ready of each course (`<series>/<course>`), as asked (its editions, or "" for
-   *  all): one a course, while it waits to be downloaded. */
+  /** The export made ready of each set of courses (`<series>/<course>,…`), as asked (their editions,
+   *  or "" for all): one a set, while it waits to be downloaded. */
   const byCourse = new Map<string, { asked: string; ready: ReturnType<typeof keep> }>();
   const staging = createOnce<ReturnType<typeof keep>>();
 
-  /** A staged course made a prepared export: its manifest, file name and size. */
-  function keep(staged: StagedCourse) {
+  /** A staged bundle made a prepared export: its manifest, file name and size. */
+  function keep(staged: StagedBundle) {
     const paths = staged.files.map((f) => f.path);
     const manifest = JSON.stringify({
       format: COURSE_BUNDLE_FORMAT,
       version: COURSE_BUNDLE_VERSION,
       appVersion: deps.appVersion,
       exportedAt: now(),
-      course: staged.course,
-      kind: staged.kind,
-      editions: staged.editions,
+      courses: staged.courses,
       provider: staged.provider,
-      source: staged.source,
-      titles: staged.titles,
-      content: staged.content,
       media: staged.media,
       keys: staged.keys,
       files: staged.files,
     } satisfies CourseBundleManifest);
     const bytes = files.bytes(staged.id, manifest, paths);
     if (bytes > COURSE_BUNDLE_MAX_BYTES) throw new ServiceError("course_bundle_too_large", 422);
-    const day = new Date(now()).toISOString().slice(0, 10);
-    // `dw.nicos-weg-a1-ru-ru-de-2026-10-11.sprachanker-course`: keys and dates only, any disk takes it.
-    const fileName = `${staged.course.replace("/", "-")}-${staged.editions.join("+")}-${day}${COURSE_BUNDLE_EXTENSION}`;
+    const fileName = bundleName(staged.courses, new Date(now()).toISOString().slice(0, 10));
     prepared.keep(staged.id, SERVER, { manifest, paths, fileName, bytes });
-    return { id: staged.id, fileName, bytes, course: staged.course, editions: staged.editions };
+    return {
+      id: staged.id,
+      fileName,
+      bytes,
+      courses: staged.courses.map((c) => ({ course: c.course, editions: c.editions })),
+    };
   }
 
   const self = {
-    /** A course's bundle made ready to download (`editions`: those asked, else every one installed):
-     *  its name and size. One not downloaded within an hour goes. */
-    async prepare(series: string, course: string, editions?: string[]) {
+    /** A bundle of courses of one series made ready to download (`editions`: those asked of each,
+     *  else every one installed): its name and size. One not downloaded within an hour goes. */
+    async prepare(series: string, courses: string[], editions?: string[]) {
       files.sweep();
       await recovered;
-      const key = `${series}/${course}`;
+      const key = `${series}/${[...courses].sort().join(",")}`;
       const asked = editions ? [...editions].sort().join("+") : "";
       return staging(`${key} ${asked}`, async () => {
         // One export of a course at a time: the same asked again while it waits is that one.
@@ -213,7 +216,7 @@ export function createCourseTransfer(deps: {
         if (had?.asked === asked && prepared.waiting(SERVER, had.ready.id)) return had.ready;
         if (had) prepared.drop(had.ready.id);
         byCourse.delete(key);
-        const staged = await guarded(() => files.stage(series, course, editions));
+        const staged = await guarded(() => files.stage(series, courses, editions));
         try {
           const ready = keep(staged);
           byCourse.set(key, { asked, ready });
@@ -242,14 +245,15 @@ export function createCourseTransfer(deps: {
       };
     },
 
-    /** A course exported to a file (the command line): where, given the file's own name. */
+    /** Courses of one series exported to a file (the command line): where, given the file's own
+     *  name. */
     async exportTo(
       series: string,
-      course: string,
+      courses: string[],
       editions: string[] | undefined,
       where: (fileName: string) => string,
     ) {
-      const ready = await self.prepare(series, course, editions);
+      const ready = await self.prepare(series, courses, editions);
       const { stream, bytes } = self.download(ready.id);
       try {
         const file = where(ready.fileName);
@@ -260,6 +264,25 @@ export function createCourseTransfer(deps: {
         await stream.cancel().catch(() => undefined);
         throw error;
       }
+    },
+
+    /** Every installed course exported, a file a group of a series (no media file in two), each
+     *  with every edition (the command line): `done` told of each file as it is written. */
+    async exportAll(
+      where: (fileName: string) => string,
+      done?: (file: {
+        file: string;
+        bytes: number;
+        courses: Array<{ course: string; editions: string[] }>;
+      }) => void,
+    ) {
+      const written = [];
+      for (const { series, courses } of await files.groups()) {
+        const file = await self.exportTo(series, courses, undefined, where);
+        done?.(file);
+        written.push(file);
+      }
+      return written;
     },
 
     /** A bundle uploaded and imported. */
@@ -300,3 +323,25 @@ export function createCourseTransfer(deps: {
   return self;
 }
 export type CourseTransfer = ReturnType<typeof createCourseTransfer>;
+
+/** A bundle's file name: keys and dates only, any disk takes it. One course with its editions
+ *  (`dw.nicos-weg-a1-ru-ru-de-2026-10-12`); several by what their ids begin with and how many
+ *  (`dw.nicos-weg-a1-19-courses-2026-10-12`). */
+export function bundleName(
+  courses: ReadonlyArray<{ course: string; editions: string[] }>,
+  day: string,
+) {
+  const [first] = courses;
+  if (!first) throw new Error("a bundle of no course");
+  const series = first.course.slice(0, first.course.indexOf("/"));
+  if (courses.length === 1)
+    return `${first.course.replace("/", "-")}-${first.editions.join("+")}-${day}${COURSE_BUNDLE_EXTENSION}`;
+  const ids = courses.map((c) => c.course.slice(series.length + 1));
+  let common = ids.reduce((a, b) => {
+    let i = 0;
+    while (i < a.length && a[i] === b[i]) i++;
+    return a.slice(0, i);
+  });
+  common = common.slice(0, common.lastIndexOf("-") + 1).replace(/-$/, "");
+  return `${series}-${common ? `${common}-` : ""}${courses.length}-courses-${day}${COURSE_BUNDLE_EXTENSION}`;
+}

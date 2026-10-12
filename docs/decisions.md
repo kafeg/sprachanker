@@ -59,6 +59,7 @@ area is built is in its `CLAUDE.md`; work not built yet is in `docs/plan.md`.
 - Removal keeps `keys.json`, so a course downloaded again gets the same keys and the learner's runs, cards and Notebook meet it.
 - Bundle defaults are the owner's, changeable (owner, 2026-10-11): `raw/` left out except exam source copies; a differing course is replaced, not asked.
 - A bundle is data only, never executed; it replaces nothing but its own course's folders, and a same-named file with other content stops the install.
+- A bundle holds courses of one series; courses sharing most of their media (a course in several languages, its videos the same) go in one bundle, a few shared files may be in two. Version 1 bundles (one course) are no longer read: no release had them.
 
 ## Lessons and scoring
 

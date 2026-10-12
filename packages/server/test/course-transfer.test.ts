@@ -20,8 +20,10 @@ import { FIXTURE_SERIES } from "@sprachanker/course-fixture";
 import { CLIENT_HEADERS } from "@sprachanker/schema";
 import { strFromU8, strToU8, unzipSync, zipSync } from "fflate";
 import { ulid } from "ulid";
+import { courseAdmin } from "../src/index.ts";
 import { withSeriesLock } from "../src/providers.ts";
 import { courseTransferFiles } from "../src/runtime/course-transfer.ts";
+import { bundleName } from "../src/services/course-transfer.ts";
 import { setup } from "./setup.ts";
 import { until } from "./until.ts";
 
@@ -109,7 +111,7 @@ test("a course exported and imported into another data root: installed, verified
   expect(ready.fileName).toMatch(
     /^sprachanker\.fixture-demo-en-de\+ru-de-\d{4}-\d{2}-\d{2}\.sprachanker-course$/,
   );
-  expect(ready.editions).toEqual(["en-de", "ru-de"]);
+  expect(ready.courses).toEqual([{ course: COURSE, editions: ["en-de", "ru-de"] }]);
   expect(Number(res.headers.get("content-length"))).toBe(ready.bytes);
   expect(bytes.length).toBe(ready.bytes);
   expect(res.headers.get("content-disposition")).toContain(ready.fileName);
@@ -120,9 +122,8 @@ test("a course exported and imported into another data root: installed, verified
   const manifest = JSON.parse(strFromU8(files["manifest.json"] as Uint8Array));
   expect(manifest).toMatchObject({
     format: "sprachanker-course",
-    version: 1,
-    course: COURSE,
-    kind: "course",
+    version: 2,
+    courses: [{ course: COURSE, kind: "course", editions: ["en-de", "ru-de"] }],
     provider: null,
   });
   expect(Object.keys(files).filter((p) => p.startsWith("raw/"))).toEqual([]);
@@ -132,9 +133,15 @@ test("a course exported and imported into another data root: installed, verified
   expect(await read(b.get("/api/courses"))).toEqual([]);
   const result = await read(importInto(b, bytes));
   expect(result).toMatchObject({
-    course: { key: COURSE, kind: "course", editions: ["en-de", "ru-de"] },
-    status: "added",
-    check: { problems: 0, missing: 0 },
+    courses: [
+      {
+        key: COURSE,
+        kind: "course",
+        editions: ["en-de", "ru-de"],
+        status: "added",
+        check: { problems: 0, missing: 0 },
+      },
+    ],
   });
   expect(result.media.kept).toBe(0);
   expect((await read(b.get("/api/courses"))).map((c: { key: string }) => c.key)).toEqual([COURSE]);
@@ -156,7 +163,7 @@ test("a course exported and imported into another data root: installed, verified
   // The same again: nothing changed, every media file there already.
   const before = libraryOf(b);
   const again = await read(importInto(b, bytes));
-  expect(again.status).toBe("same");
+  expect(again.courses[0].status).toBe("same");
   expect(again.media).toEqual({ added: 0, kept: result.media.added });
   expect(libraryOf(b)).toEqual(before);
 });
@@ -182,7 +189,9 @@ test("a bundle whose content differs replaces the course; the learner's progress
     ],
   });
   // A's course as the same bundle: the same.
-  expect((await read(importInto(b, (await exported(a, "ru-de")).bytes))).status).toBe("same");
+  expect((await read(importInto(b, (await exported(a, "ru-de")).bytes))).courses[0].status).toBe(
+    "same",
+  );
   // A's ru-de title changed at the source: replaced.
   const title = join(a.root, "library", FIXTURE_SERIES, "locale/ru-de/demo/course.json");
   const text = readFileSync(title, "utf8");
@@ -190,7 +199,9 @@ test("a bundle whose content differs replaces the course; the learner's progress
   changed.title = `${changed.title} 2`;
   writeFileSync(title, JSON.stringify(changed, null, 1));
   const result = await read(importInto(b, (await exported(a, "ru-de")).bytes));
-  expect(result).toMatchObject({ status: "replaced", check: { problems: 0, missing: 0 } });
+  expect(result).toMatchObject({
+    courses: [{ status: "replaced", check: { problems: 0, missing: 0 } }],
+  });
   const courses = await read(b.get("/api/courses"));
   expect(courses[0].titles["ru-de"]).toBe(changed.title);
   // Its other edition stays; the run goes on where it was.
@@ -462,7 +473,7 @@ test("an upload that stalls ends: the next import is let in", async () => {
     bytes.length,
   );
   expect([stalled.status, await read(stalled)]).toEqual([408, { error: "upload_stalled" }]);
-  expect((await read(importInto(b, bytes))).status).toBe("added");
+  expect((await read(importInto(b, bytes))).courses[0].status).toBe("added");
 });
 
 test("one import at a time", async () => {
@@ -491,7 +502,7 @@ test("one import at a time", async () => {
   const busy = await importInto(b, bytes);
   expect([busy.status, await read(busy)]).toEqual([409, { error: "course_import_busy" }]);
   release();
-  expect((await read(slow)).status).toBe("added");
+  expect((await read(slow)).courses[0].status).toBe("added");
 });
 
 test("a course folder an install stopped midway left aside comes back when its transfer is swept", async () => {
@@ -540,4 +551,105 @@ test("an install the process stopped midway is undone at the start, however new:
   await courseTransferFiles(b.root).recover();
   expect(libraryOf(b)).toEqual(before);
   expect(existsSync(join(aside, "install.json"))).toBe(false);
+});
+
+test("a bundle's file name: one course with its editions; several by what their ids begin with and how many", () => {
+  const day = "2026-10-12";
+  expect(bundleName([{ course: "dw.nicos-weg/a1-ru", editions: ["ru-de"] }], day)).toBe(
+    "dw.nicos-weg-a1-ru-ru-de-2026-10-12.sprachanker-course",
+  );
+  const of = (...ids: string[]) =>
+    bundleName(
+      ids.map((id) => ({ course: `dw.nicos-weg/${id}`, editions: ["ru-de"] })),
+      day,
+    );
+  expect(of("a1-en", "a1-ru", "a1-uk")).toBe(
+    "dw.nicos-weg-a1-3-courses-2026-10-12.sprachanker-course",
+  );
+  // Ids that share no whole part: the series and the count only.
+  expect(of("a1-ru", "a2-ru")).toBe("dw.nicos-weg-2-courses-2026-10-12.sprachanker-course");
+  expect(() => bundleName([], day)).toThrow();
+});
+
+/** The fixture library with two more courses: `twin`, the demo course under its own keys (its media
+ *  the same), and `solo`, a course of nothing (no media). */
+function withTwinAndSolo(library: string) {
+  const series = join(library, FIXTURE_SERIES);
+  const copy = (from: string, id: string) => {
+    for (const d of readdirSync(join(series, from), {
+      recursive: true,
+      withFileTypes: true,
+    }) as import("node:fs").Dirent[]) {
+      if (!d.isFile()) continue;
+      const file = join(d.parentPath, d.name);
+      const to = file.replace(`/demo`, `/${id}`);
+      mkdirSync(dirname(to), { recursive: true });
+      writeFileSync(to, readFileSync(file, "utf8").replaceAll(COURSE, `${FIXTURE_SERIES}/${id}`));
+    }
+  };
+  copy("canonical/demo", "twin");
+  for (const e of ["en-de", "ru-de"]) copy(`locale/${e}/demo`, "twin");
+  const index = JSON.parse(readFileSync(join(series, "canonical/demo/course.json"), "utf8"));
+  const solo = join(series, "canonical/solo/course.json");
+  mkdirSync(dirname(solo), { recursive: true });
+  writeFileSync(
+    solo,
+    JSON.stringify({ ...index, key: `${FIXTURE_SERIES}/solo`, units: [], exams: [], goals: [] }),
+  );
+  for (const e of ["en-de", "ru-de"]) {
+    const locale = JSON.parse(readFileSync(join(series, `locale/${e}/demo/course.json`), "utf8"));
+    const to = join(series, `locale/${e}/solo/course.json`);
+    mkdirSync(dirname(to), { recursive: true });
+    writeFileSync(
+      to,
+      JSON.stringify({ ...locale, course: `${FIXTURE_SERIES}/solo`, units: {}, goals: {} }),
+    );
+  }
+}
+
+test("every course exported: a file a group sharing media, each media file in one; each file imported installs its courses", async () => {
+  const a = await setup({ editLibrary: withTwinAndSolo });
+  const to = join(a.root, "exported");
+  mkdirSync(to);
+  const told: string[] = [];
+  const written = await courseAdmin(a.root, "test").exportAll(
+    (fileName) => join(to, fileName),
+    (done) => told.push(done.file),
+  );
+  const both = ["en-de", "ru-de"];
+  expect(
+    written.map((w) => w.courses.map((c): [string, string[]] => [c.course, c.editions])),
+  ).toEqual([
+    [
+      [COURSE, both],
+      [`${FIXTURE_SERIES}/twin`, both],
+    ],
+    [[`${FIXTURE_SERIES}/solo`, both]],
+  ]);
+  expect(told).toEqual(written.map((w) => w.file));
+  expect(readdirSync(to).sort()).toEqual(written.map((w) => w.file.slice(to.length + 1)).sort());
+  expect(written[0]?.file).toMatch(
+    /sprachanker\.fixture-2-courses-\d{4}-\d{2}-\d{2}\.sprachanker-course$/,
+  );
+  // The pair's media once: as many as the demo course's alone.
+  const entries = (file: string) => Object.keys(unzipSync(readFileSync(file)));
+  const media = (paths: string[]) => paths.filter((p) => p.startsWith("media/"));
+  const pair = entries(written[0]?.file as string);
+  expect(media(pair)).toEqual([...new Set(media(pair))]);
+  expect(media(pair).sort()).toEqual(
+    media(Object.keys(unzipSync((await exported(a)).bytes))).sort(),
+  );
+  expect(media(entries(written[1]?.file as string))).toEqual([]);
+
+  const b = await setup({ empty: true });
+  const admin = courseAdmin(b.root, "test");
+  const imported = [];
+  for (const w of written) imported.push(...(await admin.importFile(w.file)).courses);
+  expect(imported.map((c): string[] => [c.key, c.status])).toEqual([
+    [COURSE, "added"],
+    [`${FIXTURE_SERIES}/twin`, "added"],
+    [`${FIXTURE_SERIES}/solo`, "added"],
+  ]);
+  expect(admin.list().map((c) => c.course)).toEqual(["demo", "solo", "twin"]);
+  expect(imported.every((c) => c.check.missing === 0)).toBe(true);
 });

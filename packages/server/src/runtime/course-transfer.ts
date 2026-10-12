@@ -8,6 +8,8 @@ import { dirname, join } from "node:path";
 import {
   aliased,
   type BundlePlan,
+  bundleGroups,
+  bundleSeries,
   bytesEntry,
   checkBundle,
   contentVersions,
@@ -114,9 +116,9 @@ export function courseTransferFiles(
         }
       }
     },
-    async stage(series, course, editions) {
+    async stage(series, courses, editions) {
       if (!SeriesKey.safeParse(series).success || !existsSync(join(libraryRoot, series)))
-        throw new NotInstalledError(`${series}/${course}`);
+        throw new NotInstalledError(`${series}/${courses.join(",")}`);
       const id = t.begin();
       try {
         // Its files as they are while no import changes them (an import replaces a course's files
@@ -127,7 +129,7 @@ export function courseTransferFiles(
           libraryRoot,
           series,
           async () => {
-            const content = await courseBundleContent(libraryRoot, series, course, editions);
+            const content = await courseBundleContent(libraryRoot, series, courses, editions);
             for (const f of content.files) {
               const to = join(filesOf(id), f.path);
               mkdirSync(dirname(to), { recursive: true });
@@ -147,13 +149,11 @@ export function courseTransferFiles(
         sums.set(id, summed);
         return {
           id,
-          course: content.course,
-          kind: content.kind,
-          editions: content.editions,
+          courses: content.courses.map((c) => ({
+            ...c,
+            content: contentVersions(courseIdOf(c.course), c.editions, files),
+          })),
           provider: providerOf(series),
-          source: content.source,
-          titles: content.titles,
-          content: contentVersions(course, content.editions, files),
           media: content.media,
           keys: content.keys,
           files,
@@ -162,6 +162,19 @@ export function courseTransferFiles(
         discard(id);
         throw error;
       }
+    },
+    async groups() {
+      const series = [
+        ...new Set(
+          openLibrary(libraryRoot)
+            .courses()
+            .map((c) => c.series),
+        ),
+      ];
+      const out = [];
+      for (const s of series)
+        for (const courses of await bundleGroups(libraryRoot, s)) out.push({ series: s, courses });
+      return out;
     },
     bytes: (id, manifest, paths) => zipLength(zipOf(id, manifest, paths)),
     stream(id, manifest, paths) {
@@ -213,19 +226,23 @@ export function courseTransferFiles(
     async install(id, manifest) {
       const plan = plans.get(id);
       if (!plan) throw new Error(`transfer ${id} has nothing unpacked`);
-      const series = manifest.course.slice(0, manifest.course.indexOf("/"));
-      const course = courseIdOf(manifest.course);
+      const series = bundleSeries(manifest);
       const done = await withSeriesLock(libraryRoot, series, () =>
         installBundle({ libraryRoot, files: filesOf(id), aside: asideOf(id), manifest, plan }),
       );
-      const report = await openLibrary(libraryRoot).check(series, course);
-      // A download it completes is no longer one to continue.
-      if (!report.media.missing)
-        rmSync(downloadMarker(libraryRoot, series, course), { force: true });
-      return {
-        ...done,
-        check: { problems: report.problems.length, missing: report.media.missing },
-      };
+      const courses = [];
+      for (const c of done.courses) {
+        const course = courseIdOf(c.course);
+        const report = await openLibrary(libraryRoot).check(series, course);
+        // A download it completes is no longer one to continue.
+        if (!report.media.missing)
+          rmSync(downloadMarker(libraryRoot, series, course), { force: true });
+        courses.push({
+          ...c,
+          check: { problems: report.problems.length, missing: report.media.missing },
+        });
+      }
+      return { courses, media: done.media };
     },
     discard,
   };

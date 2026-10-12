@@ -157,6 +157,15 @@ test("courses export, import and remove: a course moved to another data root as 
     "sprachanker.cli/mini [ru-de]: already here, the same: nothing changed",
   );
   expect((await cli("courses", "--data", to)).out).toBe("sprachanker.cli/mini  [ru-de]");
+  // Every course: a file each group, and whether every course went into one.
+  const all = mkdtempSync(join(tmpdir(), "sprachanker-cli-all-"));
+  const everything = await cli("courses", "export", "--all", "--data", from, "--to", all);
+  expect(everything.code).toBe(0);
+  expect(readdirSync(all)).toHaveLength(1);
+  expect(everything.out).toContain("1 files, 1 of 1 courses, ");
+  expect(
+    (await cli("courses", "export", "--all", "--data", from, "--to", join(all, "nope"))).out,
+  ).toBe("sprachanker: where to? --to <folder> (it must exist)");
 
   // Refusals in words.
   expect(

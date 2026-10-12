@@ -57,7 +57,7 @@ export function courseRoutes() {
         async (c) => {
           const { series, course, edition } = c.req.valid("json");
           return c.json(
-            await c.var.s.courseTransfer.prepare(series, course, edition ? [edition] : undefined),
+            await c.var.s.courseTransfer.prepare(series, [course], edition ? [edition] : undefined),
           );
         },
       )

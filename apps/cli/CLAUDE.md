@@ -7,8 +7,9 @@ The `sprachanker` binary. Depends on `packages/server` only; commands call the s
 ```
 src/main.ts         # serve, import, verify, profiles (the server's profile matters: list, registration
                     # on|off, delete; a profile exported to a file, a file imported — the server's
-                    # refusals in words), courses (those installed; one exported to a file, a file
-                    # imported, one removed — the server's refusals in words), backup, version; main(argv, embedded?) — also
+                    # refusals in words), courses (those installed; one exported to a file, or
+                    # every one with --all: a file a group, checked that each course is in one; a file
+                    # imported, each course of it said; one removed — the server's refusals in words), backup, version; main(argv, embedded?) — also
                     # runs from sources
 install.sh          # the installer published with each release (curl … | bash): Apple Silicon only; the
                     # program into ~/SprachAnker/bin, a LaunchAgent, a backup before an update

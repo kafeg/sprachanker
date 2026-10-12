@@ -162,8 +162,8 @@ export function CourseImport({
   );
 }
 
-/** The course installed: how, what its check found, and — an experiment not turned on — where to
- *  turn it on to see it. */
+/** The courses installed: each how, what its check found, and — an experiment not turned on —
+ *  where to turn it on to see it. */
 function Imported({
   result,
   hidden,
@@ -172,27 +172,38 @@ function Imported({
   hidden?(series: string, course: string): boolean;
 }) {
   const { t } = useTranslation();
-  const { course, status, check } = result;
-  const title = course.editions.map((e) => course.titles[e]).find(Boolean) ?? course.key;
-  const [series = "", key = ""] = course.key.split("/");
   return (
-    <Panel className="w-full space-y-1" as="div">
-      <p className="font-semibold" role="status">
-        {t(`bundle.import.${status}`, { title })}
-      </p>
-      <p className={`text-sm ${check.problems ? "text-wrong" : "text-muted-foreground"}`}>
-        {check.problems
-          ? t("bundle.import.problems", { count: check.problems })
-          : t("bundle.import.verified")}
-      </p>
-      {hidden?.(series, key) && (
-        <p className="text-sm">
-          {t("bundle.import.experimental")}{" "}
-          <Link to="/settings" hash="experimental" className="underline pointer-coarse:min-h-11">
-            {t("bundle.import.turnOn")}
-          </Link>
-        </p>
-      )}
+    <Panel className="w-full space-y-3" as="div">
+      {result.courses.map((course, i) => {
+        const title = course.editions.map((e) => course.titles[e]).find(Boolean) ?? course.key;
+        const [series = "", key = ""] = course.key.split("/");
+        return (
+          <div key={course.key} className="space-y-1">
+            <p className="font-semibold" {...(i === 0 && { role: "status" })}>
+              {t(`bundle.import.${course.status}`, { title })}
+            </p>
+            <p
+              className={`text-sm ${course.check.problems ? "text-wrong" : "text-muted-foreground"}`}
+            >
+              {course.check.problems
+                ? t("bundle.import.problems", { count: course.check.problems })
+                : t("bundle.import.verified")}
+            </p>
+            {hidden?.(series, key) && (
+              <p className="text-sm">
+                {t("bundle.import.experimental")}{" "}
+                <Link
+                  to="/settings"
+                  hash="experimental"
+                  className="underline pointer-coarse:min-h-11"
+                >
+                  {t("bundle.import.turnOn")}
+                </Link>
+              </p>
+            )}
+          </div>
+        );
+      })}
     </Panel>
   );
 }

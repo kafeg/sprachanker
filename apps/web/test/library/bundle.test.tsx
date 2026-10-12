@@ -10,8 +10,7 @@ const READY = {
   id: "6f1c2a40-0000-4000-8000-000000000002",
   fileName: "dw.nicos-weg-a1-ru-ru-de-2026-10-11.sprachanker-course",
   bytes: 3_200_000_000,
-  course: "dw.nicos-weg/a1-ru",
-  editions: ["ru-de"],
+  courses: [{ course: "dw.nicos-weg/a1-ru", editions: ["ru-de"] }],
 } as ExportedCourse;
 
 test("Export to a file: the card's edition made ready on the server, then downloaded under its name", async () => {
@@ -69,16 +68,18 @@ function choose(view: Awaited<ReturnType<typeof renderApp>>) {
   fireEvent.change(input);
 }
 
-const result = (status: ImportedCourse["status"], problems = 0): ImportedCourse => ({
-  course: {
-    key: "dw.nicos-weg/a1-ru" as ImportedCourse["course"]["key"],
-    kind: "course",
-    editions: ["ru-de"],
-    titles: { "ru-de": "Nicos Weg A1" },
-  },
+type Course = ImportedCourse["courses"][number];
+const course = (status: Course["status"], problems = 0, id = "a1-ru", title = "Nicos Weg A1") => ({
+  key: `dw.nicos-weg/${id}` as Course["key"],
+  kind: "course" as const,
+  editions: ["ru-de"],
+  titles: { "ru-de": title },
   status,
-  media: { added: 3, kept: 0 },
   check: { problems, missing: 0 },
+});
+const result = (status: Course["status"], problems = 0): ImportedCourse => ({
+  courses: [course(status, problems)],
+  media: { added: 3, kept: 0 },
 });
 
 test("Import from a file: sent with its progress, checked, then the course installed and verified", async () => {
@@ -127,6 +128,22 @@ test("Import from a file: the same course, a replaced one with its progress kept
     expect(view.getByText(check)).toBeTruthy();
     view.unmount();
   }
+});
+
+test("Import from a file: a file of two courses, each said with its check", async () => {
+  const view = await renderApp(
+    <CourseImport
+      upload={async () => ({
+        courses: [course("same"), course("added", 1, "a1-en", "Nico's Weg A1")],
+        media: { added: 0, kept: 3 },
+      })}
+    />,
+  );
+  choose(view);
+  await waitFor(() => expect(view.getByText("“Nico's Weg A1” is here.")).toBeTruthy());
+  expect(view.getByText("“Nicos Weg A1” is here already, the same: nothing changed.")).toBeTruthy();
+  expect(view.getByText("Checked: every file is there.")).toBeTruthy();
+  expect(view.getByText("Checked: 1 problem found — “Check” on its card lists them.")).toBeTruthy();
 });
 
 test("Import from a file: an experiment not turned on is here but not listed — said, with the way to turn it on", async () => {

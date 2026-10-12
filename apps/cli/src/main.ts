@@ -43,8 +43,12 @@ Commands:
   courses export <series/course> [--editions ru-de,en-de] --to <file|folder>
                                    a course or exam as a file (.sprachanker-course) to import on another
                                    machine: its files, the media they use (every edition, or those given)
-  courses import <file>            a course file installed here (the course replaced when it differs;
-                                   progress kept), then verified
+  courses export --all --to <folder>
+                                   every course and exam, every edition: a file a series' courses that
+                                   share media (a course in all its languages, its videos once), and
+                                   whether every course went into one
+  courses import <file>            a course file installed here (each course of it replaced when it
+                                   differs; progress kept), then verified
   courses remove <series/course>   a course or exam removed from this computer: its files and the
                                    media no other course uses (progress kept; download it again)
   version
@@ -293,7 +297,12 @@ async function coursesCommand(args: string[]): Promise<void> {
   const { values, positionals } = parseArgs({
     args,
     allowPositionals: true,
-    options: { data: { type: "string" }, to: { type: "string" }, editions: { type: "string" } },
+    options: {
+      data: { type: "string" },
+      to: { type: "string" },
+      editions: { type: "string" },
+      all: { type: "boolean", default: false },
+    },
   });
   const dataRoot = resolveDataRoot(values.data);
   const courses = courseAdmin(dataRoot, pkg.version);
@@ -310,8 +319,41 @@ async function coursesCommand(args: string[]): Promise<void> {
     }
     case "export": {
       const listed = "(sprachanker courses lists them)";
-      if (!arg) throw new Error(`which course? ${listed}`);
       const to = values.to;
+      if (values.all) {
+        if (!to || !statSync(to, { throwIfNoEntry: false })?.isDirectory())
+          throw new Error("where to? --to <folder> (it must exist)");
+        const installed = courses.list();
+        const written = await courses
+          .exportAll(
+            (fileName) => {
+              const file = join(to, fileName);
+              if (existsSync(file)) throw new Error(`${file} exists: give another --to`);
+              return file;
+            },
+            (done) =>
+              console.log(
+                `${done.file} (${megabytes(done.bytes)}): ${done.courses.map((c) => c.course).join(", ")}`,
+              ),
+          )
+          .catch(refused);
+        // Every course installed, with every edition, in one file.
+        const exported = written.flatMap((w) => w.courses);
+        const missing = installed.filter((c) => {
+          const e = exported.find((x) => x.course === `${c.series}/${c.course}`);
+          return !e || c.editions.some((ed) => !e.editions.includes(ed));
+        });
+        const bytes = written.reduce((n, w) => n + w.bytes, 0);
+        console.log(
+          `${written.length} files, ${exported.length} of ${installed.length} courses, ${megabytes(bytes)}`,
+        );
+        if (missing.length) {
+          console.log(`not exported: ${missing.map((c) => `${c.series}/${c.course}`).join(", ")}`);
+          process.exitCode = 1;
+        }
+        return;
+      }
+      if (!arg) throw new Error(`which course? ${listed}`);
       if (!to) throw new Error("where to? --to <file or folder>");
       const course = courses.list().find((c) => `${c.series}/${c.course}` === arg);
       if (!course) throw new Error(`no course ${arg} here ${listed}`);
@@ -321,14 +363,14 @@ async function coursesCommand(args: string[]): Promise<void> {
         throw new Error(`${arg} has no edition ${absent.join(", ")} here ${listed}`);
       const into = statSync(to, { throwIfNoEntry: false })?.isDirectory();
       const done = await courses
-        .exportTo(course.series, course.course, editions, (fileName) => {
+        .exportTo(course.series, [course.course], editions, (fileName) => {
           const file = into ? join(to, fileName) : to;
           if (existsSync(file)) throw new Error(`${file} exists: give another --to`);
           return file;
         })
         .catch(refused);
       console.log(
-        `${arg} [${done.editions.join(", ")}]: exported to ${done.file} (${megabytes(done.bytes)})`,
+        `${arg} [${done.courses[0]?.editions.join(", ")}]: exported to ${done.file} (${megabytes(done.bytes)})`,
       );
       return;
     }
@@ -336,19 +378,20 @@ async function coursesCommand(args: string[]): Promise<void> {
       if (!arg) throw new Error("which file? sprachanker courses import <file>");
       if (!statSync(arg, { throwIfNoEntry: false })?.isFile()) throw new Error(`no file ${arg}`);
       const done = await courses.importFile(arg).catch(refused);
-      const what = `${done.course.key} [${done.course.editions.join(", ")}]`;
-      const status = {
-        added: "installed",
-        same: "already here, the same: nothing changed",
-        replaced: "replaced by the file's version (progress kept)",
-      }[done.status];
-      console.log(`${what}: ${status}`);
-      console.log(
-        done.check.problems
-          ? `  verify: ${done.check.problems} problems (sprachanker verify lists them)`
-          : "  verify: ✓",
-      );
-      if (done.check.problems) process.exitCode = 1;
+      for (const c of done.courses) {
+        const status = {
+          added: "installed",
+          same: "already here, the same: nothing changed",
+          replaced: "replaced by the file's version (progress kept)",
+        }[c.status];
+        console.log(`${c.key} [${c.editions.join(", ")}]: ${status}`);
+        console.log(
+          c.check.problems
+            ? `  verify: ${c.check.problems} problems (sprachanker verify lists them)`
+            : "  verify: ✓",
+        );
+        if (c.check.problems) process.exitCode = 1;
+      }
       return;
     }
     case "remove": {

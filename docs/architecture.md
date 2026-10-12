@@ -84,7 +84,7 @@ gets the types through Hono RPC (`AppType`), no codegen.
 - **Content**: `content` reads the library through course-kit, each file read once and kept while it
   stays the same (its size and time of change: a download or an import replaces it); `downloads` queues course
   installs (one at a time, progress, resume after restart) through the providers' importers;
-  `course-transfer` moves a course as a bundle (course-kit `bundle.ts` checks and installs it).
+  `course-transfer` moves courses of a series as a bundle (course-kit `bundle.ts` checks and installs it).
 - **Learner data**: one module per table group — `run-store` is the only code on `runs` and `events`,
   `card-store` the only code on `cards` and `card_state`; over the run store, `answers` (numbered by
   the server) and `verdicts` (a model's, kept and read one way). Services build on them — lessons:
