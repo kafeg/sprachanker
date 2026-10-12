@@ -611,3 +611,38 @@ describe("new items", () => {
     expect(reviewAt(review, () => true)).toBe(2);
   });
 });
+
+test("grammar chosen before the options picked, however common those are", () => {
+  const choice = exercise("single_choice", [
+    {
+      prompt: "Was dreht das Team?",
+      options: [
+        { id: "a", text: "eine Serie" },
+        { id: "b", text: "einen Film" },
+      ],
+      answer: { optionIds: ["a"] },
+    },
+  ]);
+  const order = exercise("order", [
+    {
+      parts: ["Ich", "trinke", "gern", "Tee."].map((text, i) => ({ id: "abcd"[i], text })),
+      join: "space",
+      answer: { sequence: ["a", "b", "c", "d"] },
+    },
+  ]);
+  const chose = (n: number) =>
+    Array.from({ length: n }, (_, i) => ({
+      ...mistake(choice, { optionId: "b" }),
+      itemKey: `c#${i}`,
+    }));
+  const { groups, more } = mistakeGroups(
+    [
+      ...chose(4),
+      mistake(order, { sequence: ["b", "a", "c", "d"] }),
+      mistake(WG, { ...RIGHT, g1: "musst", g8: "war" }),
+    ],
+    "de",
+  );
+  expect(groups.map((g) => g.what)).toEqual(["order", "ending", "word"]);
+  expect(more).toBe(4);
+});

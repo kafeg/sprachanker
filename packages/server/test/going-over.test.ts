@@ -168,13 +168,16 @@ test("the pass's mistakes and wrong Understanding answers gone over by type: wro
     answer: { optionId: "a" },
   });
 
-  // What the task is sent for the first type: its mistakes, each its wrong part only.
+  // What the task is sent for the first type — grammar before the options chosen —: its mistakes,
+  // each its wrong part only.
   const prompt = await sendJson("POST", "/api/llm/mistakes/prompt", REQUEST);
   const data = prompt.body.messages[1].content as string;
+  expect(data).toContain("Group 1 — what went wrong: the word chosen; new items: gap_choice");
+  // The gap of two that was wrong, the other filled right; never the item whole twice.
   expect(data).toContain(
-    'Group 1 — what went wrong: the option chosen; new items: single_choice, with "prompt"',
+    '- learner "bestelle", correct "heiße" in "Ich [_] Lena. Ich bestelle einen Kaffee."',
   );
-  expect(data).toContain('- learner "Im Park.", correct "Im Café." to "Wo ist Lena?"');
+  expect(data).not.toContain('learner "bestelle", correct "bestelle"');
   expect(data).toContain("Remember: 1 group;");
   // Understanding's question is listed only: no new items are asked for it.
   expect(data).not.toContain("Was kostet der Kaffee?");
@@ -194,13 +197,11 @@ test("the pass's mistakes and wrong Understanding answers gone over by type: wro
     "mistake_items_check",
   ]);
   const asked = m.bodies.map((b) => b.messages[1]?.content ?? "");
-  const gaps = asked.find((c) => c.includes("the word chosen")) ?? "";
-  expect(gaps).toContain("Group 1 — what went wrong: the word chosen; new items: gap_choice");
-  // The gap of two that was wrong, the other filled right; never the item whole twice.
-  expect(gaps).toContain(
-    '- learner "bestelle", correct "heiße" in "Ich [_] Lena. Ich bestelle einen Kaffee."',
+  const choices = asked.find((c) => c.includes("the option chosen")) ?? "";
+  expect(choices).toContain(
+    'Group 1 — what went wrong: the option chosen; new items: single_choice, with "prompt"',
   );
-  expect(gaps).not.toContain('learner "bestelle", correct "bestelle"');
+  expect(choices).toContain('- learner "Im Park.", correct "Im Café." to "Wo ist Lena?"');
   // Tried blind: the items without their keys.
   const tried = asked.find((c) => c.startsWith("<items>") && c.includes("Wo ist Tom?")) ?? "";
   expect(tried).toContain("1. Wo ist Tom?\n   a) Im Café.\n   b) Im Park.");
@@ -212,12 +213,12 @@ test("the pass's mistakes and wrong Understanding answers gone over by type: wro
       g.mistakes.length,
     ]),
   ).toEqual([
-    ["single_choice", "choice", 1],
     ["gap_choice", "word", 1],
+    ["single_choice", "choice", 1],
     [undefined, "comprehension", 1],
   ]);
   // The choice answered otherwise blind left out; the gaps' second try kept whole.
-  expect(review.result.groups.map((g: { items: unknown[] }) => g.items.length)).toEqual([1, 2, 0]);
+  expect(review.result.groups.map((g: { items: unknown[] }) => g.items.length)).toEqual([2, 1, 0]);
   expect(review.result.groups[2]).toEqual({
     what: "comprehension",
     mistakes: [
@@ -233,7 +234,7 @@ test("the pass's mistakes and wrong Understanding answers gone over by type: wro
     explanation: "",
     items: [],
   });
-  expect(review.result.groups[1].explanation).toBe("heißen — имя, bestellen — заказ.");
+  expect(review.result.groups[0].explanation).toBe("heißen — имя, bestellen — заказ.");
 
   // The new items, numbered across the groups: answered once each, checked by the engine.
   const reply = (question: number, value: unknown) =>
@@ -243,11 +244,11 @@ test("the pass's mistakes and wrong Understanding answers gone over by type: wro
       question,
       answer: value,
     });
-  await reply(0, { optionId: "a" });
-  await reply(1, { g1: "b" });
-  await reply(2, { g1: "b" });
+  await reply(0, { g1: "a" });
+  await reply(1, { g1: "a" });
+  await reply(2, { optionId: "a" });
   // Answered again: the first answer stays; one of the wrong shape, an item not there.
-  const again = (await (await reply(0, { optionId: "b" })).json()) as {
+  const again = (await (await reply(0, { g1: "b" })).json()) as {
     answers: Array<{ question: number; outcome: { result: string } }>;
   };
   expect(again.answers.map((a) => [a.question, a.outcome.result])).toEqual([

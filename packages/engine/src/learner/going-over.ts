@@ -317,9 +317,14 @@ export interface MistakeGroupDraft {
   mistakes: WrongPart[];
 }
 
+/** Grammar before the rest when types are chosen: a form, a word, its spelling, the order of words
+ *  or sentences; then pairs; the options chosen last (in courses mostly what was understood of a
+ *  film or a text, no grammar point). */
+const rank = (what: MistakeKind) => (what === "choice" ? 2 : what === "pair" ? 1 : 0);
+
 /**
- * A pass's mistakes by type: those new items are set of, the commonest first (in the order met where
- * as common), at most `GOING_OVER.groups`; then those listed only — said aloud, then Understanding's
+ * A pass's mistakes by type: those new items are set of — grammar first (`rank`), the commonest first
+ * within it (in the order met where as common) —, at most `GOING_OVER.groups`; then those listed only — said aloud, then Understanding's
  * questions in one group (comprehension), last —; each of at most `GOING_OVER.parts` wrong parts.
  * `more`: the wrong parts left out.
  */
@@ -344,7 +349,7 @@ export function mistakeGroups(
   const kept = [
     ...drafts
       .filter((g) => g.type)
-      .sort((a, b) => b.mistakes.length - a.mistakes.length)
+      .sort((a, b) => rank(a.what) - rank(b.what) || b.mistakes.length - a.mistakes.length)
       .slice(0, GOING_OVER.groups),
     ...drafts.filter((g) => !g.type && g.what !== "comprehension"),
     ...drafts.filter((g) => g.what === "comprehension"),

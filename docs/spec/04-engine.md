@@ -425,7 +425,9 @@ the spelling — only the case, a spelling of the same sound kept per language a
 accents or umlauts is another word, owner 2026-10-12: Mutter/Mütter, wurde/würde, schon/schön, si/sí
 differ in meaning or form, and "word" makes the explanation tell the two apart, never wave it off as a
 slip; a choice, an order, sentences put in order — only the places another sentence took —, a pair,
-spoken), the commonest first, at most three types of at most six parts; the parts left out are
+spoken), grammar first — a form, a word, its spelling, an order —, then pairs, then options chosen
+(in courses mostly what was understood of a film: walkthrough 2 lost a lesson's relative pronouns to
+them), the commonest first within each, at most three types of at most six parts; the parts left out are
 counted ("and 4 more"). Answers said aloud (often the recogniser mishearing) and Understanding's
 questions (one group, "comprehension", last: each "misheard" or "misread" with the line of its text
 the right answer is in) are listed only, after the others: no new items are set of them — a
