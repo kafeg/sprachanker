@@ -208,13 +208,15 @@ function Running({
       (!!section.text && !!section.media?.image) ||
       (section.letters?.length ?? 0) > 0);
 
+  // When this question came: an answer given after it is left (a take heard late) is timed from it.
+  const shown = shownAt.current;
   const send = (value: unknown) => {
     // Nothing more once the exam is being handed in (a draft taken as the page goes).
     if (handedIn.current || finishing) return;
     onAnswer(
       item.key,
       value,
-      Date.now() - shownAt.current,
+      Date.now() - shown,
       mode === "practice" ? checkQuestion(item, value, lang) : undefined,
     );
   };
