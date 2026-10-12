@@ -303,7 +303,10 @@ lesson run the lesson shows, its answers `practice_answered` events checked by t
 - A task's model call and its timing are one path (`llm.structured` in services/llm.ts); a check's
   corrections are cleaned the same way for writing and speaking (`cleanCheck`: a correction changing
   nothing, or quoting words the text does not have — compared without case and punctuation —,
-  dropped; a good text without corrections keeps the learner's words as "corrected" — the
+  dropped; a quote in pieces, "habe … gegangen", has each piece in a row and in order; a compound
+  quotes words written together or apart, "Fahrrad fahren" for "Fahrradfahren"; a number in digits
+  stands for a word, as the recogniser writes "3" for "drei"; an empty `wrong`, a word left out, is
+  kept and shown as added; a good text without corrections keeps the learner's words as "corrected" — the
   model's version only when it differs in case and punctuation alone).
 - The tutor shows how full the next request is (≈ tokens of the window when known, room for the reply)
   and how many turns still fit; when the earliest no longer fit it suggests a new chat.

@@ -77,7 +77,13 @@ export function Corrections({
       {corrections.map((c) => (
         <li key={`${c.wrong}→${c.right}`}>
           <span {...inLang(lang)}>
-            <s className="text-wrong">{c.wrong}</s> →{" "}
+            {c.wrong.trim() ? (
+              <>
+                <s className="text-wrong">{c.wrong}</s> →{" "}
+              </>
+            ) : (
+              "+ "
+            )}
             <strong className="text-correct">{c.right}</strong>
           </span>
           <span className="text-muted-foreground"> — {c.explanation}</span>
