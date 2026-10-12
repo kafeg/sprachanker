@@ -1,28 +1,30 @@
-// Reading and Listening, practice steps of the lesson (04, "AI practice in courses"; 09): a short text
-// the AI made on the lesson's topic, in the language learnt. Listening's text (a conversation, a
-// message, a story told) is heard first — read aloud by the server's voices its people were given (a
-// voice of each one's gender; the device's voices by gender where the server reads nothing), played,
-// paused, played again as often as wanted — and all its questions answered by ear; then the text
-// opens with its glossed words. Reading's text (a letter, a chat, a notice, a story) is shown with its
-// questions. Answers are checked by the server's engine. Without a voice for the language a text to
-// hear is shown to read, the step saying what listening needs. The step's earlier texts are listed
-// under it.
+// Reading and Listening, practice steps of the lesson (04, "AI practice in courses"; 09), done as an
+// exercise is: what the text is (a letter, a voice message — nothing of what it says) and the task;
+// Listening's recording in the course's player (made by the server from its lines, each person by the
+// voice they were given: their gender; on the device, voices by gender, where the server reads
+// nothing), Reading's text; the questions answered, then Check in the step bar. Checked, each question
+// shows its outcome and what the text was about opens — its title and situation in the learner's
+// language, Listening's text with its glossed words —, and the score. Without a voice for the language a
+// text to hear is shown to read, the step saying what listening needs. The step's earlier texts are
+// listed under it.
 import {
-  castVoices,
+  answerComplete,
   type Gender,
   heardFirst,
   speakerVoices,
-  understandingStage,
+  textVoices,
+  understandingExercise,
 } from "@sprachanker/engine";
 import type { UnderstandingText } from "@sprachanker/schema";
 import { BookOpenText, Headphones, Pause, Play, RotateCcw } from "lucide-react";
+import { useEffect, useRef, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { useListening } from "@/audio/listening.ts";
 import { ReadByLabel } from "@/audio/read-by.tsx";
 import type { Alt, SpokenPart } from "@/audio/speak.ts";
 import { useSpeaker } from "@/audio/speaker.ts";
 import { languageName } from "@/i18n/index.ts";
-import type { LessonSlotContext } from "@/lesson/slots.ts";
+import type { LessonSlotContext, PracticePrimary } from "@/lesson/slots.ts";
 import {
   UnderstandingLines,
   UnderstandingQuestionCard,
@@ -32,6 +34,7 @@ import {
 import { Button } from "@/ui/components/button.tsx";
 import { useDateFormat } from "@/ui/format.ts";
 import { HistoryList } from "@/ui/history.tsx";
+import { AudioPlayer } from "@/ui/media.tsx";
 import { Panel, panelClass } from "@/ui/panel.tsx";
 import { useRequiredTargetLang } from "@/ui/target-lang.ts";
 import { cn } from "@/ui/utils.ts";
@@ -42,6 +45,7 @@ import {
   useAnswerUnderstanding,
   useStartUnderstanding,
   useUnderstanding,
+  useUnderstandingAudio,
 } from "./api.ts";
 import { modelName } from "./assistant-label.tsx";
 import { ErrorLine, StartPrompt, Thinking } from "./parts.tsx";
@@ -53,36 +57,12 @@ const speakersOf = (text: UnderstandingText) => [
   ...new Set(text.lines.flatMap((l) => (l.speaker ? [l.speaker] : []))),
 ];
 
-/** A number in [0, 1) drawn again and again from a seed (mulberry32): a text's voices drawn alike on
- *  every reading of it. */
-function seeded(seed: string) {
-  let a = [...seed].reduce((h, c) => Math.imul(h ^ c.charCodeAt(0), 2654435761), 1) >>> 0;
-  return () => {
-    a = (a + 0x6d2b79f5) >>> 0;
-    let t = a;
-    t = Math.imul(t ^ (t >>> 15), t | 1);
-    t ^= t + Math.imul(t ^ (t >>> 7), t | 61);
-    return ((t ^ (t >>> 14)) >>> 0) / 4294967296;
-  };
-}
-
 type Speaker = ReturnType<typeof useSpeaker>;
 
-/** The server's voice of each of a text's people where the server reads the language: those the
- *  text was given when made (with the engine it was made for, the voices still here), the others
- *  drawn now by gender and age. */
-function serverVoicesOf(id: string, text: UnderstandingText, lang: string, speaker: Speaker) {
-  const here = speaker.serverVoices(lang);
-  if (!here?.voices.length || !text.people?.length) return {};
-  const kept = Object.fromEntries(
-    Object.entries(text.voices?.engine === here.engine ? text.voices.by : {}).filter(([, v]) =>
-      here.voices.includes(v),
-    ),
-  );
-  const left = text.people.filter((p) => !kept[p.name]);
-  const cast = castVoices(here.engine, left, here.voices, seeded(id), Object.values(kept));
-  return { ...kept, ...cast };
-}
+/** The server's voice of each of a text's people where the server reads the language (engine
+ *  `textVoices`: the server's recording reads it alike). */
+const serverVoicesOf = (id: string, text: UnderstandingText, lang: string, speaker: Speaker) =>
+  textVoices(id, text.people ?? [], text.voices, speaker.serverVoices(lang));
 
 /** The text as it is read aloud: a line each, by its speaker's server voice — or, read by the
  *  device, another voice of their gender (their own where the text has its people, else where their
@@ -112,19 +92,18 @@ const twoOf = (parts: SpokenPart[]): Alt | [Alt, Alt] | false => {
   return alts.length >= 2 ? [alts[0] as Alt, alts[1] as Alt] : (alts[0] ?? false);
 };
 
-/** The text to listen to: who reads it, play or pause, from the start, which line, how often heard. */
-function Listen({ id, text, lang }: { id: string; text: UnderstandingText; lang: string }) {
+/** The text heard on this device (the server reads nothing of the language): who reads it, play or
+ *  pause, from the start, which line, how often heard. */
+function DeviceListen({ id, text, lang }: { id: string; text: UnderstandingText; lang: string }) {
   const { t } = useTranslation();
   const speaker = useSpeaker();
   const main = speaker.gender(lang);
-  const voices = serverVoicesOf(id, text, lang, speaker);
-  const parts = partsOf(text, lang, main, voices);
+  const parts = partsOf(text, lang, main, serverVoicesOf(id, text, lang, speaker));
   const listening = useListening(parts);
   const going = listening.playing || listening.at > 0;
-  const named = [...new Set(Object.values(voices))];
   return (
     <div className={cn(panelClass, "space-y-3 p-4")}>
-      <ReadByLabel lang={lang} two={twoOf(parts)} named={named.length ? named : undefined} />
+      <ReadByLabel lang={lang} two={twoOf(parts)} />
       <div className="flex flex-wrap items-center gap-2">
         {listening.playing ? (
           <Button onClick={listening.pause}>
@@ -151,7 +130,43 @@ function Listen({ id, text, lang }: { id: string; text: UnderstandingText; lang:
   );
 }
 
-/** The latest text: heard, answered by ear, then read with its reading questions. */
+/** The text to listen to: the server's recording of it (its people's voices) in the course's player —
+ *  its timeline, "back 5 s", the speed —, who reads it named; read on this device where the server
+ *  reads nothing of the language. */
+function Listen({
+  id,
+  text,
+  lessonKey,
+}: {
+  id: string;
+  text: UnderstandingText;
+  lessonKey: LessonSlotContext["lessonKey"];
+}) {
+  const { t } = useTranslation();
+  const lang = useRequiredTargetLang();
+  const speaker = useSpeaker();
+  const onServer = !!speaker.serverVoices(lang);
+  const audio = useUnderstandingAudio(lessonKey, id, onServer);
+  if (!onServer) return <DeviceListen id={id} text={text} lang={lang} />;
+  const named = [...new Set(Object.values(serverVoicesOf(id, text, lang, speaker)))];
+  return (
+    <div className="space-y-2">
+      <ReadByLabel lang={lang} named={named.length ? named : undefined} />
+      {audio.data ? (
+        <AudioPlayer src={audio.data} label={t("understanding.recording")} />
+      ) : audio.error ? (
+        <ErrorLine error={audio.error} onRetry={() => void audio.refetch()} />
+      ) : (
+        <Thinking label={t("understanding.preparingAudio")} className="text-sm" />
+      )}
+    </div>
+  );
+}
+
+/** The latest text, as an exercise is done: what it is and the task, the recording to hear (Listening)
+ *  or the text to read (Reading), its questions answered — then Check, in the step bar. Checked, each
+ *  question shows its outcome, and what the text was about opens: its title and situation, Listening's
+ *  text with its glossed words, the score. */
 function CurrentText({
   step,
   text,
@@ -160,6 +175,7 @@ function CurrentText({
   onNew,
   onDone,
   onStored,
+  setPrimary,
 }: {
   step: PracticeStep;
   text: Understood;
@@ -168,55 +184,82 @@ function CurrentText({
   onNew(): void;
   onDone?(): void;
   onStored?(): Promise<void> | void;
+  setPrimary?(primary: PracticePrimary | null): void;
 }) {
   const { t, i18n } = useTranslation();
   const lang = useRequiredTargetLang();
   const when = useDateFormat("dayTime");
   const speaker = useSpeaker();
   const answer = useAnswerUnderstanding(ids.lessonKey, step);
+  const [drafts, setDrafts] = useState<Record<number, unknown>>({});
+  const [sending, setSending] = useState(false);
+  const r = text.result;
   const given = (n: number) => text.answers.find((a) => a.question === n);
-  const { stage, listening, reading } = understandingStage(text.result, (n) => !!given(n));
-  const heard = heardFirst(text.result);
+  const open = r.questions.flatMap((_, n) => (given(n) ? [] : [n]));
+  const checked = open.length === 0;
+  const done = r.questions.filter(
+    (q, n) => given(n) || answerComplete(understandingExercise(q), 0, drafts[n]),
+  ).length;
+  const heard = heardFirst(r);
   const canHear = speaker.canRead(lang);
-  // Nothing here reads it aloud: the text heard first is read instead, all its questions with it.
+  // Nothing here reads it aloud: the text heard first is read instead.
   const readInstead = heard && !canHear;
-  // Shown once answered by ear; at once to read.
-  const shown = !heard || readInstead || stage !== "listening";
-  const toRead = readInstead ? [...listening, ...reading] : reading;
-  const send = (n: number, value: unknown) =>
-    answer.mutate(
-      { ...ids, language: i18n.language, id: text.id, question: n, answer: value },
-      {
-        onSuccess: async (after) => {
-          const done = understandingStage(after.result, (k) =>
-            after.answers.some((a) => a.question === k),
-          );
-          // The run read again first: a last answer wrong puts going over mistakes in the plan
-          // before the step is done (the lesson is not completed without it).
-          await Promise.resolve(onStored?.()).catch(() => undefined);
-          if (done.stage === "done") onDone?.();
-        },
-      },
-    );
-  const question = (n: number) => {
-    const q = text.result.questions[n];
-    return (
-      q && (
-        <UnderstandingQuestionCard
-          key={n}
-          question={q}
-          id={`${text.id}-${n}`}
-          given={given(n)}
-          onAnswer={(value) => send(n, value)}
-        />
-      )
-    );
+  // The text above the questions: a text to read, or one nothing here reads aloud; a text heard opens
+  // under them once checked.
+  const textAbove = !heard || readInstead;
+  const check = async () => {
+    setSending(true);
+    try {
+      for (const n of open)
+        await answer.mutateAsync({
+          ...ids,
+          language: i18n.language,
+          id: text.id,
+          question: n,
+          answer: drafts[n],
+        });
+      // The run read again first: an answer wrong puts going over mistakes in the plan before the
+      // step is done (the lesson is not completed without it).
+      await Promise.resolve(onStored?.()).catch(() => undefined);
+      onDone?.();
+    } catch {
+      // The error is said under the questions; Check again sends what is left.
+    } finally {
+      setSending(false);
+    }
   };
-  const score = understandingScore(text.result, text.answers);
+  const checkRef = useRef(check);
+  checkRef.current = check;
+  const ready = done === r.questions.length && !sending;
+  useEffect(() => {
+    if (!setPrimary) return;
+    setPrimary(
+      checked
+        ? null
+        : {
+            label: t("lesson.check"),
+            disabled: !ready,
+            note:
+              done < r.questions.length
+                ? t("lesson.answerAll", { done, total: r.questions.length })
+                : undefined,
+            run: () => void checkRef.current(),
+          },
+    );
+  }, [setPrimary, checked, ready, done, r.questions.length, t]);
+  useEffect(() => () => setPrimary?.(null), [setPrimary]);
+  const score = understandingScore(r, text.answers);
   return (
     <>
-      <div className="flex flex-wrap items-center gap-2">
-        <h2 className="me-auto text-xl font-bold">{text.result.title}</h2>
+      <div className="flex flex-wrap items-start gap-2">
+        <div className="me-auto min-w-0 space-y-1">
+          {/* What it is, nothing of what it says: the title and situation come once it is checked
+              (a text before the two steps has no setting: its situation, as it had). */}
+          <p className="text-lg font-semibold">{r.setting ?? (checked ? r.title : r.situation)}</p>
+          <p className="text-muted-foreground">
+            {t(step === "reading" ? "understanding.task.reading" : "understanding.task.listening")}
+          </p>
+        </div>
         <PromptButton
           request={() => ({ understanding: { ...ids, language: i18n.language, step } })}
         />
@@ -224,39 +267,51 @@ function CurrentText({
           {preparing ? t("understanding.writing") : t("understanding.new")}
         </Button>
       </div>
-      <p>
-        {text.result.situation}{" "}
-        <span className="text-sm text-muted-foreground">
-          {/* A text before the two steps says what it was; a step's own needs no word. */}
-          {!text.result.step && <>· {t(`understanding.kind.${text.result.kind}`)} </>}·{" "}
-          {when.format(text.ts)} · {modelName(text.model)}
-        </span>
-      </p>
-      {heard && canHear && <Listen id={text.id} text={text.result} lang={lang} />}
-      {heard && !canHear && (
+      {heard && canHear && <Listen id={text.id} text={r} lessonKey={ids.lessonKey} />}
+      {readInstead && (
         <p className="text-sm text-muted-foreground">
           {t("understanding.noVoice", { language: languageName(lang, i18n.language) })}
         </p>
       )}
-      {!readInstead && listening.length > 0 && (
-        <section className="space-y-3">
-          {!shown && <h3 className="font-semibold">{t("understanding.byEar")}</h3>}
-          {listening.map(question)}
-        </section>
-      )}
-      {shown && (
+      {textAbove && (
         <Panel title={t("understanding.text")}>
-          <UnderstandingLines text={text.result} lang={lang} />
+          <UnderstandingLines text={r} lang={lang} />
         </Panel>
       )}
-      {shown && toRead.length > 0 && (
+      <section className="space-y-3">
+        {r.questions.map((q, n) => (
+          <UnderstandingQuestionCard
+            // biome-ignore lint/suspicious/noArrayIndexKey: a text's questions, fixed order
+            key={n}
+            question={q}
+            id={`${text.id}-${n}`}
+            given={given(n)}
+            draft={drafts[n]}
+            onDraft={sending ? undefined : (a) => setDrafts((d) => ({ ...d, [n]: a }))}
+          />
+        ))}
+      </section>
+      <ErrorLine error={answer.error} />
+      {checked && (
         <section className="space-y-3">
-          <h3 className="font-semibold">{t("understanding.readNow")}</h3>
-          {toRead.map(question)}
+          <p className="font-semibold">{t("understanding.result", score)}</p>
+          <div>
+            <h3 className="text-lg font-bold">{r.title}</h3>
+            <p>
+              {r.situation}{" "}
+              <span className="text-sm text-muted-foreground">
+                {!r.step && <>· {t(`understanding.kind.${r.kind}`)} </>}· {when.format(text.ts)} ·{" "}
+                {modelName(text.model)}
+              </span>
+            </p>
+          </div>
+          {!textAbove && (
+            <Panel title={t("understanding.text")}>
+              <UnderstandingLines text={r} lang={lang} />
+            </Panel>
+          )}
         </section>
       )}
-      {stage === "done" && <p className="font-semibold">{t("understanding.result", score)}</p>}
-      <ErrorLine error={answer.error} />
     </>
   );
 }
@@ -296,11 +351,14 @@ export function UnderstandingStep({
   step,
   onDone,
   onStored,
+  setPrimary,
   ...ids
 }: LessonSlotContext & {
   step: PracticeStep;
   onDone?(): void;
   onStored?(): Promise<void> | void;
+  /** The step bar's main button while the questions wait for Check. */
+  setPrimary?(primary: PracticePrimary | null): void;
 }) {
   const { t, i18n } = useTranslation();
   const llm = useLlm();
@@ -325,6 +383,7 @@ export function UnderstandingStep({
           onNew={write}
           onDone={onDone}
           onStored={onStored}
+          setPrimary={setPrimary}
         />
       ) : (
         <StartPrompt

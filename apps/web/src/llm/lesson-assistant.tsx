@@ -54,9 +54,16 @@ export const lessonAssistant: LessonSlots = {
       if (llm.isPending) return undefined;
       return llm.data?.model ? PRACTICE.filter((kind) => !off.includes(PLACE_OF[kind])) : [];
     },
-    step: (kind, { runId, onDone, onNothing, onStored, ...context }) =>
+    step: (kind, { runId, onDone, onNothing, onStored, setPrimary, ...context }) =>
       kind === "reading" || kind === "listening" ? (
-        <UnderstandingStep {...context} step={kind} onDone={onDone} onStored={onStored} />
+        <UnderstandingStep
+          key={kind}
+          {...context}
+          step={kind}
+          onDone={onDone}
+          onStored={onStored}
+          setPrimary={setPrimary}
+        />
       ) : kind === "writing" ? (
         <WritingTask {...context} onDone={onDone} />
       ) : kind === "scene" ? (

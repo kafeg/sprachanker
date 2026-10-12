@@ -72,6 +72,7 @@ const draft = (prompt: string) => {
   ];
   const anna = { name: "Anna", gender: "f", age: "adult", role: "FAKE: buyer" };
   const base = {
+    setting: "FAKE: at a bakery",
     title: "FAKE: Beim Bäcker",
     situation: "FAKE: Anna buys rolls.",
     beats: ["FAKE: Anna comes in", "FAKE: she pays"],

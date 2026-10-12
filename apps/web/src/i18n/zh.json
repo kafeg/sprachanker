@@ -1651,10 +1651,8 @@
     "line": "第{n, number}句，共{total, number}句",
     "heard": "{count, plural, other {已听#遍}}",
     "noVoice": "这里没有可朗读{language}的声音，所以文本直接显示供阅读。要听，请在“设置 → 语音”中选择一个声音。",
-    "byEar": "凭听力作答——之后会显示文本。",
     "text": "文本",
     "newWords": "生词",
-    "readNow": "阅读文本并作答",
     "result": "{total, number}题中答对{right, number}题",
     "past": "本课以前的文本",
     "step": {
@@ -1664,7 +1662,14 @@
       "asking": "正在出题…"
     },
     "introReading": "一篇与本课主题相关的短文，就像生活中会读到的那样——一封信、一段聊天、一则通知、一个故事。读一读，然后回答问题。",
-    "introListening": "一篇与本课主题相关、朗读出来的短文——一段对话、一条留言、一则广播、一个故事。听一听，凭听到的回答；之后会显示原文。"
+    "introListening": "一篇与本课主题相关、朗读出来的短文——一段对话、一条留言、一则广播、一个故事。听一听，凭听到的回答；之后会显示原文。",
+    "task": {
+      "reading": "阅读文本并回答问题。",
+      "listening": "听录音并回答问题。检查后会显示原文。"
+    },
+    "digits": "用数字",
+    "preparingAudio": "正在生成录音…",
+    "recording": "录音"
   },
   "goingOver": {
     "title": "回顾错误",

@@ -224,6 +224,10 @@ export const UnderstandingText = z.object({
   title: z.string().min(1).max(120),
   /** What it is, one sentence in the learner's language ("Two colleagues plan a meeting."). */
   situation: z.string().max(300),
+  /** What kind of text and where, in a few words of the learner's language, giving nothing of its
+   *  content away ("A voice message", "A letter from a friend"): all a step shows before its
+   *  questions are checked — the title and situation come after. Texts before it have none. */
+  setting: z.string().max(120).optional(),
   /** The people speaking or writing, with what their voices follow. */
   people: z.array(TextPerson).max(4).optional(),
   /** The server's voices of its speakers, chosen when it was made: the engine and each one's voice. */

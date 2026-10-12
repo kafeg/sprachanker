@@ -102,6 +102,7 @@ const SHAPE: Record<TextShape, (genre: TextGenre) => string> = {
 
 /** A draft: the plan, then the text written from it. */
 export const UnderstandingDraft = z.object({
+  setting: z.string().min(1).max(120),
   title: z.string().min(1).max(120),
   situation: z.string().max(300),
   people: z
@@ -145,7 +146,8 @@ export function understandingTextRules(
   const { language: l, target: t } = names;
   return [
     `You write a short text in ${t} for a learner who speaks ${l}: something people really read or hear, in the genre given, on the lesson's topic, at the learner's level. Plan it first, then write it:`,
-    `- "title" and "situation" (one sentence: who, where, why) in ${l}; they give away nothing a question could ask.`,
+    `- "setting": in ${l}, a few words naming what the text is and where, nothing of what it says ("A voice message", "A letter from a friend", "A conversation at a café"): the learner sees it before reading or hearing.`,
+    `- "title" and "situation" (one sentence: who, where, why) in ${l}, shown after the questions are answered.`,
     `- "people": who speaks or writes — "name" (a first name, or a title and a surname, written as in the text), "gender" ("f" or "m"), "age" ("young": a teenager or a student; "adult"; "senior") and "role" (in ${l}). People made up for this text, never a character of the course (their names are given with the lesson); no child speaks.`,
     `- "beats": in ${l}, what happens, 3 to 6 short points. A situation people are really in, where they behave as people there do: they say or ask only what it needs, address each other as people there do (a stranger or an official politely), each line answers or follows the one before, and the text has a point — something is asked and answered, arranged, told, decided or changed.`,
     `- "facts": 5 to 10 things a reader or listener can find in the text, short, in ${t}: names, times, prices, places, numbers, what someone wants, decides or does.`,
@@ -213,7 +215,7 @@ export function understandingDraftTask(input: DraftInput): StructuredTask<Unders
           "Write it again: keep what is good, put every problem right (rewrite a line, or change the situation where it is the problem).",
         ]
       : []),
-    `Remember: title, situation, roles and beats in ${languageName(input.language)}; the facts and the text in ${languageName(input.target)}.`,
+    `Remember: setting, title, situation, roles and beats in ${languageName(input.language)}; the facts and the text in ${languageName(input.target)}.`,
   ]
     .filter(Boolean)
     .join("\n");
@@ -327,8 +329,12 @@ export function draftProblem(
   if (named.length)
     return `the people are new, none of the course's characters (${named.join(", ")})`;
   // Each apart: a title in the learnt language beside a long situation in the learner's is caught.
-  if ([draft.title, draft.situation].some((t) => writtenIn(t, language, target) === false))
-    return `"title" and "situation" in ${languageName(language)}`;
+  if (
+    [draft.setting, draft.title, draft.situation].some(
+      (t) => writtenIn(t, language, target) === false,
+    )
+  )
+    return `"setting", "title" and "situation" in ${languageName(language)}`;
   const [from, to] = textWords(genre, lesson.level, practiceThird(lesson));
   const words = wordCount(draftLines(draft, genre).lines);
   if (words < from * 0.6 || words > to * 1.5)
@@ -476,7 +482,7 @@ export function understandingQuestionsRules(
   return [
     `You write questions on a short text in ${t} as language exams ask them, for a learner who speaks ${l}, at the level given.`,
     `- The number of questions given, in ${t}, in the order of the text, each about a different thing; each answered by the text alone with one unambiguous answer — never by general knowledge, common sense or the title.`,
-    '- A question is a true/false statement (two options: true first, then false), a question with three options, or a number, a price or a time typed (no options; "accepted": every right way of writing it, in digits). Only a number, a price or a time is typed.',
+    '- A question is a true/false statement (two options: true first, then false), a question with three options, or a short number, a price or a time typed (no options; "accepted": every right way of writing it, in digits). Only a short number, a price or a time is typed — a phone number or a long one is asked with options.',
     "- Wrong options are plausible — things the text mentions too, or that fit the situation — never absurd, never right as well. About half of the true/false statements are false, each changing one detail. A question's options in its language.",
     "- A text heard: only what a listener catches when hearing it twice — the main facts, things said clearly; never a line's exact wording, never what a word means. A text read: also details a reader finds, and what a word or a sentence means there.",
     '- "answer": the right option\'s index (0-based); spread the right answers over the positions.',
@@ -562,6 +568,7 @@ export function understandingText(
     kind,
     step,
     genre: genre.id,
+    setting: draft.setting,
     title: draft.title,
     situation: draft.situation,
     people,

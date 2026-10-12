@@ -1,8 +1,8 @@
 // Reading and Listening (spec 04 "AI practice in courses", 08, 09) against the fake model
-// (fake-llm.ts, a draft in whatever form the genre drawn asks for): Listening's text made and heard by
-// the device's (stubbed) voices, every question answered by ear with the text hidden, then the text
-// shown with its glossed word marked; the step done; the text with its answers in the Notebook's
-// pass. Reading's text shown at once with its questions.
+// (fake-llm.ts, a draft in whatever form the genre drawn asks for), done as an exercise: what the text
+// is, Listening's text heard by the device's (stubbed) voices with the text hidden, the questions
+// answered and checked with the step bar's Check; then the title and the text with its glossed word
+// open; the step done; the text with its answers in the Notebook's pass. Reading's text shown at once.
 import { expect, type Page, test } from "@playwright/test";
 import { DEMO_LESSON, freshLessonRun, openStep, post, put } from "./api.ts";
 import { FAKE_LLM_PORT } from "./fake-llm.ts";
@@ -66,7 +66,7 @@ const LINES = [
   "Bitte sehr, schönen Tag noch!",
 ];
 
-test("Listening: a text heard, every question by ear with the text hidden, then the text shown; kept and in the Notebook", async ({
+test("Listening: what it is, heard, the questions answered and checked; then what it was about and the text; kept and in the Notebook", async ({
   page,
   request,
 }) => {
@@ -74,10 +74,10 @@ test("Listening: a text heard, every question by ear with the text hidden, then 
   await openStep(page, "Listening");
   const step = page.locator("article");
   await step.getByRole("button", { name: "Write a text" }).click();
-  await expect(step.getByRole("heading", { name: "FAKE: Beim Bäcker" })).toBeVisible();
-  // Who reads it named; the text hidden while it is answered by ear.
+  // What it is, nothing of what it says; who reads it; the text hidden.
+  await expect(step.getByText("FAKE: at a bakery")).toBeVisible();
+  await expect(step.getByText("FAKE: Beim Bäcker")).toBeHidden();
   await expect(step.getByText(/^Read by this device/)).toBeVisible();
-  await expect(step.getByText(/Answer by ear/)).toBeVisible();
   await expect(step.getByText(/Das macht 1,20 Euro/)).toBeHidden();
 
   // Heard to the end, every line; played again from the start, as often as wanted.
@@ -87,21 +87,25 @@ test("Listening: a text heard, every question by ear with the text hidden, then 
   await step.getByRole("button", { name: "Listen" }).click();
   await expect(step.getByText("Heard 2 times")).toBeVisible();
 
-  // By ear: true/false wrong, the price typed and checked, the time and what she buys chosen.
+  // Answered: true/false wrong, the price typed (in digits), the time and what she buys chosen —
+  // nothing checked until Check.
+  const check = step.getByRole("button", { name: "Check", exact: true });
+  await expect(check).toBeDisabled();
   await step.getByRole("button", { name: "Richtig" }).click();
-  await step.getByRole("textbox").fill("1,20");
-  await step.getByRole("button", { name: "Check", exact: true }).click();
+  await step.getByPlaceholder("in digits").fill("1,20");
   await step.getByRole("button", { name: "am Morgen" }).click();
   await step.getByRole("button", { name: "Brötchen", exact: true }).click();
+  await expect(step.getByRole("status")).toHaveCount(0);
+  await check.click();
 
-  // All answered: the text opens, its new word marked, the score.
-  await expect(step.getByRole("heading", { name: "The text", exact: true })).toBeVisible();
+  // Checked: what it was about, the text with its new word marked, the score.
+  await expect(step.getByText("3 of 4 right")).toBeVisible();
+  await expect(step.getByRole("heading", { name: "FAKE: Beim Bäcker" })).toBeVisible();
   await expect(step.getByText(/Das macht 1,20 Euro/)).toBeVisible();
   await expect(step.locator("mark", { hasText: "Brötchen" }).first()).toHaveAttribute(
     "title",
     "FAKE: rolls",
   );
-  await expect(step.getByText("3 of 4 right")).toBeVisible();
 
   // The step is done in the run (the event goes out from a queue).
   const lessonRun = async () => {
@@ -127,17 +131,22 @@ test("Listening: a text heard, every question by ear with the text hidden, then 
   await expect(page.getByText("Wann gibt es wieder Kaffee?")).toBeVisible();
 });
 
-test("Reading: the text shown at once with its questions, nothing to listen to", async ({
+test("Reading: the text shown at once with its questions, nothing to listen to; checked with Check", async ({
   page,
 }) => {
   await openStep(page, "Reading");
   const step = page.locator("article");
   await step.getByRole("button", { name: "Write a text" }).click();
-  await expect(step.getByRole("heading", { name: "FAKE: Beim Bäcker" })).toBeVisible();
+  await expect(step.getByText("FAKE: at a bakery")).toBeVisible();
   await expect(step.getByText(/Das macht 1,20 Euro/)).toBeVisible();
   await expect(step.getByRole("button", { name: "Listen" })).toBeHidden();
   await step.getByRole("button", { name: "Falsch" }).click();
-  await expect(step.getByText("Anna möchte drei Brötchen.")).toBeVisible();
+  await step.getByPlaceholder("in digits").fill("1,20");
+  await step.getByRole("button", { name: "am Morgen" }).click();
+  await step.getByRole("button", { name: "Brötchen", exact: true }).click();
+  await step.getByRole("button", { name: "Check", exact: true }).click();
+  await expect(step.getByText("4 of 4 right")).toBeVisible();
+  await expect(step.getByRole("heading", { name: "FAKE: Beim Bäcker" })).toBeVisible();
 });
 
 test("a text written again is listed under the new one with its score", async ({ page }) => {
@@ -146,6 +155,11 @@ test("a text written again is listed under the new one with its score", async ({
   const step = page.locator("article");
   await step.getByRole("button", { name: "Write a text" }).click();
   await step.getByRole("button", { name: "Falsch" }).click();
+  await step.getByPlaceholder("in digits").fill("9");
+  await step.getByRole("button", { name: "am Abend" }).click();
+  await step.getByRole("button", { name: "Kuchen", exact: true }).click();
+  await step.getByRole("button", { name: "Check", exact: true }).click();
+  await expect(step.getByText("1 of 4 right")).toBeVisible();
   await step.getByRole("button", { name: "New text" }).click();
   await expect(step.getByText("Earlier texts of this lesson")).toBeVisible();
   const earlier = step.getByRole("button", { name: /1 of 4 right/ });

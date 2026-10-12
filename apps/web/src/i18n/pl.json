@@ -1651,10 +1651,8 @@
     "line": "Kwestia {n, number} z {total, number}",
     "heard": "{count, plural, one {Wysłuchano raz} few {Wysłuchano # razy} many {Wysłuchano # razy} other {Wysłuchano # raza}}",
     "noVoice": "Nic tu nie czyta na głos języka: {language}, więc tekst jest pokazany do czytania. Aby słuchać, wybierz głos w Ustawieniach → Mowa.",
-    "byEar": "Odpowiadaj ze słuchu — tekst otworzy się potem.",
     "text": "Tekst",
     "newWords": "Nowe słowa",
-    "readNow": "Przeczytaj tekst i odpowiedz",
     "result": "{right, number} z {total, number} dobrze",
     "past": "Wcześniejsze teksty tej lekcji",
     "step": {
@@ -1664,7 +1662,14 @@
       "asking": "Układam pytania…"
     },
     "introReading": "Krótki tekst na temat lekcji, jaki czyta się na co dzień — list, czat, ogłoszenie, opowiadanie. Przeczytaj go i odpowiedz na pytania.",
-    "introListening": "Krótki tekst na temat lekcji, czytany na głos — rozmowa, wiadomość, komunikat, opowiadanie. Słuchaj i odpowiadaj ze słuchu; tekst pojawi się potem."
+    "introListening": "Krótki tekst na temat lekcji, czytany na głos — rozmowa, wiadomość, komunikat, opowiadanie. Słuchaj i odpowiadaj ze słuchu; tekst pojawi się potem.",
+    "task": {
+      "reading": "Przeczytaj tekst i odpowiedz na pytania.",
+      "listening": "Posłuchaj i odpowiedz na pytania. Tekst pojawi się po sprawdzeniu."
+    },
+    "digits": "cyframi",
+    "preparingAudio": "Przygotowuję nagranie…",
+    "recording": "Nagranie"
   },
   "goingOver": {
     "title": "Omówienie błędów",

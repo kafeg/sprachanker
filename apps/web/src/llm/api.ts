@@ -420,6 +420,20 @@ export function useStartUnderstanding(lessonKey: LessonKey, step: PracticeStep) 
   });
 }
 
+/** A Listening text's recording, made by the server from its lines (its people's voices), as a URL
+ *  the course's player plays; asked for only while `enabled` (the server reads the language). */
+export const useUnderstandingAudio = (lessonKey: LessonKey, id: string, enabled: boolean) =>
+  useQuery({
+    queryKey: ["understanding-audio", id],
+    enabled,
+    staleTime: Number.POSITIVE_INFINITY,
+    queryFn: async () => {
+      const res = await api.llm.understanding.audio.$get({ query: { lessonKey, id } });
+      if (!res.ok) throw await apiError(res);
+      return URL.createObjectURL(await res.blob());
+    },
+  });
+
 /** Keeps an answer to a text's question, checked by the server; the text shown with it. Answers go
  *  one after another, so each reply holds those before it. */
 export function useAnswerUnderstanding(lessonKey: LessonKey, step: PracticeStep) {

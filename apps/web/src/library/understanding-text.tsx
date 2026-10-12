@@ -10,6 +10,7 @@ import type {
   UnderstandingText,
 } from "@sprachanker/schema";
 import { useTranslation } from "react-i18next";
+import { GapDigits } from "@/exercises/gaps.tsx";
 import { inLang } from "@/ui/direction.tsx";
 import { glossed } from "./glossed.ts";
 import { PracticeItemCard } from "./practice-item.tsx";
@@ -65,26 +66,37 @@ export function UnderstandingLines({ text, lang }: { text: UnderstandingText; la
 }
 
 /** A question as the item of its kind (a choice answered by choosing, an answer typed by "Check"),
- *  its options in the order written; read-only once answered, or without `onAnswer`. `id`: the
- *  question's own (its text's and its number). */
+ *  its options in the order written; read-only once answered, or without `onAnswer`; answered with
+ *  the others and checked by the page's Check with `onDraft`. An answer typed is a number, a price or
+ *  a time: its field says so, without the language's letters under it. `id`: the question's own (its
+ *  text's and its number). */
 export function UnderstandingQuestionCard({
   question,
   id,
   given,
   onAnswer,
+  draft,
+  onDraft,
 }: {
   question: UnderstandingQuestion;
   id: string;
   given?: { answer: unknown; outcome: Outcome };
   onAnswer?(answer: unknown): void;
+  draft?: unknown;
+  onDraft?(answer: unknown): void;
 }) {
+  const { t } = useTranslation();
   return (
-    <PracticeItemCard
-      exercise={understandingExercise(question, id)}
-      given={given}
-      onAnswer={onAnswer}
-      sourceOrder
-    />
+    <GapDigits.Provider value={question.options ? undefined : t("understanding.digits")}>
+      <PracticeItemCard
+        exercise={understandingExercise(question, id)}
+        given={given}
+        onAnswer={onAnswer}
+        draft={draft}
+        onDraft={onDraft}
+        sourceOrder
+      />
+    </GapDigits.Provider>
   );
 }
 

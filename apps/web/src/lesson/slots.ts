@@ -59,7 +59,19 @@ export interface LessonSlots {
         onDone(): void;
         onNothing(): void;
         onStored(): Promise<void>;
+        /** The step bar's main button while the page needs it — its questions' Check, as an
+         *  exercise's —, null to give it back to Next. */
+        setPrimary(primary: PracticePrimary | null): void;
       },
     ): ReactNode;
   };
+}
+
+/** The main button a practice step's page puts in the step bar (Check, as an exercise's): its label,
+ *  whether it waits (and what for, said beside it) and what it does. */
+export interface PracticePrimary {
+  label: string;
+  disabled?: boolean;
+  note?: string;
+  run(): void;
 }

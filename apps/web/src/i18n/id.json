@@ -1651,10 +1651,8 @@
     "line": "Baris {n, number} dari {total, number}",
     "heard": "{count, plural, other {Didengar # kali}}",
     "noVoice": "Tidak ada yang membacakan bahasa {language} di sini, jadi teks ditampilkan untuk dibaca. Untuk mendengarkan, pilih suara di Pengaturan → Ucapan.",
-    "byEar": "Jawab dari pendengaran — teks terbuka sesudahnya.",
     "text": "Teks",
     "newWords": "Kata baru",
-    "readNow": "Baca teks dan jawab",
     "result": "{right, number} dari {total, number} benar",
     "past": "Teks sebelumnya di pelajaran ini",
     "step": {
@@ -1664,7 +1662,14 @@
       "asking": "Menulis pertanyaan…"
     },
     "introReading": "Teks pendek tentang topik pelajaran, seperti yang dibaca orang sehari-hari — surat, obrolan, pengumuman, cerita. Baca dan jawab pertanyaannya.",
-    "introListening": "Teks pendek tentang topik pelajaran yang dibacakan — percakapan, pesan, pengumuman, cerita. Dengarkan dan jawab berdasarkan apa yang didengar; teksnya muncul sesudahnya."
+    "introListening": "Teks pendek tentang topik pelajaran yang dibacakan — percakapan, pesan, pengumuman, cerita. Dengarkan dan jawab berdasarkan apa yang didengar; teksnya muncul sesudahnya.",
+    "task": {
+      "reading": "Baca teksnya dan jawab pertanyaannya.",
+      "listening": "Dengarkan dan jawab pertanyaannya. Teksnya muncul setelah diperiksa."
+    },
+    "digits": "dengan angka",
+    "preparingAudio": "Menyiapkan rekaman…",
+    "recording": "Rekaman"
   },
   "goingOver": {
     "title": "Membahas kesalahan",

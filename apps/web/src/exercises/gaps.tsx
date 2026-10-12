@@ -136,6 +136,10 @@ export const gapRoom = (items: Array<ItemOf<"gap_text">>) => {
  *  `EXAM_GAP_ROOM`); without one, its own item's. */
 export const GapRoom = createContext<number | undefined>(undefined);
 
+/** What a typed gap holds when it is no word (a number, a price, a time, as AI practice asks one):
+ *  said in it ("in digits"), and no row of the language's letters under it. */
+export const GapDigits = createContext<string | undefined>(undefined);
+
 /** A typed gap's width in `ch`: its room, and more as what is typed outgrows it. Pure. */
 export const gapWidth = (room: number, typed = "") => Math.max(room, typed.length + 2);
 
@@ -304,6 +308,7 @@ export function GapText({ item, answer, onAnswer, outcome }: RendererProps<"gap_
   const scope = useRef<HTMLDivElement>(null);
   const exam = useContext(SourceOrder);
   const given = useContext(GapRoom);
+  const digits = useContext(GapDigits);
   const room = exam ? EXAM_GAP_ROOM : (given ?? gapRoom([item]));
   return (
     <div ref={scope} className="space-y-2">
@@ -322,6 +327,7 @@ export function GapText({ item, answer, onAnswer, outcome }: RendererProps<"gap_
                 autoCapitalize="off"
                 autoComplete="off"
                 spellCheck={false}
+                placeholder={digits}
                 onChange={(e) => onAnswer({ ...values, [gap]: e.target.value })}
                 style={{ width: `calc(${gapWidth(room, values[gap])}ch + 1.25rem)` }}
                 className="h-11 max-w-full rounded-lg border-2 border-input bg-card px-2 text-lg"
@@ -332,7 +338,7 @@ export function GapText({ item, answer, onAnswer, outcome }: RendererProps<"gap_
           };
         }}
       />
-      {!outcome && <SpecialLetters scope={scope} />}
+      {!outcome && !digits && <SpecialLetters scope={scope} />}
     </div>
   );
 }

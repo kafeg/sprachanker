@@ -1,8 +1,10 @@
-// The Understanding step's last answer (09): the run is read again first (a wrong answer puts going
-// over mistakes in the plan), and only then is the step done — never the other way round.
+// Reading's Check (09): the questions answered, Check in the step bar sends them; the run is read
+// again first (a wrong answer puts going over mistakes in the plan), and only then is the step done —
+// never the other way round.
 import { expect, mock, test } from "bun:test";
 import type { UnderstandingText } from "@sprachanker/schema";
 import { fireEvent, waitFor } from "@testing-library/react";
+import type { PracticePrimary } from "../../src/lesson/slots.ts";
 import type { Understood } from "../../src/llm/api.ts";
 import * as api from "../../src/llm/api.ts";
 import { TargetLang } from "../../src/ui/target-lang.ts";
@@ -39,24 +41,23 @@ mock.module("../../src/llm/api.ts", () => ({
   useAnswerUnderstanding: () => ({
     isPending: false,
     error: null,
-    mutate: (_: unknown, options: { onSuccess(after: Understood): void }) =>
-      options.onSuccess(
-        text([
-          {
-            verdict: "01K7A0Z8ZQ4J1V2W3X4Y5Z6A70",
-            question: 0,
-            answer: { optionId: "a" },
-            outcome: { result: "wrong", score: 0 },
-            ts: 2,
-          },
-        ]),
-      ),
+    mutateAsync: async () =>
+      text([
+        {
+          verdict: "01K7A0Z8ZQ4J1V2W3X4Y5Z6A70",
+          question: 0,
+          answer: { optionId: "a" },
+          outcome: { result: "wrong", score: 0 },
+          ts: 2,
+        },
+      ]),
   }),
 }));
 const { UnderstandingStep } = await import("../../src/llm/understanding.tsx");
 
-test("the last answer kept: the run read again, then the step done", async () => {
+test("answered, Check in the step bar: the answers sent, the run read again, then the step done", async () => {
   const order: string[] = [];
+  const bar: { primary: PracticePrimary | null } = { primary: null };
   let reread: () => void = () => {};
   const view = await renderApp(
     <TargetLang value="de">
@@ -75,6 +76,9 @@ test("the last answer kept: the run read again, then the step done", async () =>
           })
         }
         onDone={() => order.push("done")}
+        setPrimary={(p) => {
+          bar.primary = p;
+        }}
       />
     </TargetLang>,
     {
@@ -84,9 +88,14 @@ test("the last answer kept: the run read again, then the step done", async () =>
       ],
     },
   );
+  // Not answered yet: Check waits, and says for what.
+  await waitFor(() => expect(bar.primary?.label).toBe("Check"));
+  expect([bar.primary?.disabled, bar.primary?.note]).toEqual([true, "Answer every item · 0 of 1"]);
+  // Choosing answers, checks nothing yet.
   fireEvent.click(view.getByRole("button", { name: /^2\s€$/ }));
-  const check = view.queryByRole("button", { name: "Check" });
-  if (check) fireEvent.click(check);
+  await waitFor(() => expect(bar.primary?.disabled).toBe(false));
+  expect(order).toEqual([]);
+  bar.primary?.run();
   await waitFor(() => expect(order).toEqual(["stored"]));
   reread();
   await waitFor(() => expect(order).toEqual(["stored", "read", "done"]));

@@ -92,7 +92,7 @@ src/
                      #   words and topics met), in-flight (calls outliving the page, the step each is
                      #   at) shared; explain,
                      #   understanding (Reading's and Listening's texts: drafts rated, questions read again,
-                     #   voices given, read ahead), practice-prep (a lesson's practice made ahead as it
+                     #   voices given, read ahead, a text's recording joined by wav.ts), practice-prep (a lesson's practice made ahead as it
                      #   starts), writing (a task set, a text on it checked), going-over (the pass's mistakes by
                      #   type, new items checked by the engine), speaking, tutor (+ tutor-tools,
                      #   courses-context), scene (the Dialogue), exam-rating, exam-conversation, examples

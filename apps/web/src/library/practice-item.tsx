@@ -1,7 +1,8 @@
 // An item the assistant set (04, "AI practice in courses") — an Understanding question, a new item
 // going over mistakes — as the item of its closed type: a single choice answered by choosing, the
-// others answered and then sent with "Check"; read-only once answered, or without `onAnswer`. Checked
-// by the server's engine; shown here with the outcome it gave.
+// others answered and then sent with "Check"; or answered with the others and checked by the page's own
+// Check, as an exercise's (`onDraft`: Reading's and Listening's questions); read-only once answered, or
+// without either. Checked by the server's engine; shown here with the outcome it gave.
 import { answerComplete } from "@sprachanker/engine";
 import type { Exercise, Outcome } from "@sprachanker/schema";
 import { useState } from "react";
@@ -17,6 +18,8 @@ export function PracticeItemCard({
   given,
   onAnswer,
   sourceOrder,
+  draft: held,
+  onDraft,
 }: {
   /** The item as an exercise of its one item. */
   exercise: Exercise;
@@ -24,17 +27,25 @@ export function PracticeItemCard({
   onAnswer?(answer: unknown): void;
   /** Options in the order written (true before false), never shuffled. */
   sourceOrder?: boolean;
+  /** Answered with the others, checked by the page's own Check (an exercise's way): the answer as
+   *  given so far, and each change of it. */
+  draft?: unknown;
+  onDraft?(answer: unknown): void;
 }) {
   const { t } = useTranslation();
-  const [draft, setDraft] = useState<unknown>();
+  const [own, setOwn] = useState<unknown>();
+  const draft = onDraft ? held : own;
   const atOnce = exercise.type === "single_choice";
-  const change =
-    onAnswer && !given
-      ? (a: unknown) => {
-          setDraft(a);
-          if (atOnce) onAnswer(a);
-        }
-      : undefined;
+  const change = given
+    ? undefined
+    : onDraft
+      ? onDraft
+      : onAnswer
+        ? (a: unknown) => {
+            setOwn(a);
+            if (atOnce) onAnswer(a);
+          }
+        : undefined;
   const card = (
     <ItemCard
       exercise={exercise}
@@ -49,7 +60,7 @@ export function PracticeItemCard({
   return (
     <div>
       {sourceOrder ? <SourceOrder.Provider value>{card}</SourceOrder.Provider> : card}
-      {!atOnce && change && (
+      {!atOnce && change && !onDraft && (
         <Button
           variant="outline"
           className="mt-2"

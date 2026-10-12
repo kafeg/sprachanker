@@ -1651,10 +1651,8 @@
     "line": "Ligne {n, number} sur {total, number}",
     "heard": "{count, plural, one {Écouté une fois} many {Écouté # de fois} other {Écouté # fois}}",
     "noVoice": "Rien ici ne lit en {language} à voix haute : le texte est donc affiché à lire. Pour écouter, choisis une voix dans Réglages → Parole.",
-    "byEar": "Réponds à l’oreille : le texte s’ouvre ensuite.",
     "text": "Le texte",
     "newWords": "Mots nouveaux",
-    "readNow": "Lis le texte et réponds",
     "result": "{right, number} sur {total, number} justes",
     "past": "Textes précédents de cette leçon",
     "step": {
@@ -1664,7 +1662,14 @@
       "asking": "Rédaction des questions…"
     },
     "introReading": "Un court texte sur le thème de la leçon, comme on en lit dans la vie — une lettre, un chat, un avis, une histoire. Lis-le et réponds aux questions.",
-    "introListening": "Un court texte sur le thème de la leçon, lu à voix haute — une conversation, un message, une annonce, une histoire. Écoute et réponds à l'oreille ; le texte s'affiche ensuite."
+    "introListening": "Un court texte sur le thème de la leçon, lu à voix haute — une conversation, un message, une annonce, une histoire. Écoute et réponds à l'oreille ; le texte s'affiche ensuite.",
+    "task": {
+      "reading": "Lis le texte et réponds aux questions.",
+      "listening": "Écoute et réponds aux questions. Le texte s'affiche après la vérification."
+    },
+    "digits": "en chiffres",
+    "preparingAudio": "Préparation de l'enregistrement…",
+    "recording": "L'enregistrement"
   },
   "goingOver": {
     "title": "Revoir ses erreurs",

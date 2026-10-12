@@ -232,3 +232,41 @@ const PIECE = 200;
  *  the server for, and so what is read ahead into its cache. */
 export const readingPieces = (text: string) =>
   text.length <= PIECE ? [text] : (text.match(/[^.!?…\n]+[.!?…]*\s*/g) ?? [text]);
+
+/** Numbers in [0, 1) drawn again and again from a seed (mulberry32): the same seed, the same draws
+ *  — a text's voices alike on every reading of it, the page's and the server's. */
+export function seeded(seed: string): () => number {
+  let a = [...seed].reduce((h, c) => Math.imul(h ^ c.charCodeAt(0), 2654435761), 1) >>> 0;
+  return () => {
+    a = (a + 0x6d2b79f5) >>> 0;
+    let t = a;
+    t = Math.imul(t ^ (t >>> 15), t | 1);
+    t ^= t + Math.imul(t ^ (t >>> 7), t | 61);
+    return ((t ^ (t >>> 14)) >>> 0) / 4294967296;
+  };
+}
+
+/**
+ * The server voice each of a text's people is read with, among those `here` (the engine the profile
+ * reads with now and its voices for the language): the voices the text was given when made — for that
+ * engine, still here —, the others drawn by gender and age from the text's id (`seeded`), never one
+ * another of them has while another is free. Nothing when nothing is here.
+ */
+export function textVoices(
+  id: string,
+  people: readonly { name: string; gender: Gender; age: Age }[],
+  given: { engine: "piper" | "qwen"; by: Record<string, string> } | undefined,
+  here: { engine: "piper" | "qwen"; voices: readonly string[] } | undefined,
+): Record<string, string> {
+  if (!here?.voices.length || !people.length) return {};
+  const kept = Object.fromEntries(
+    Object.entries(given?.engine === here.engine ? given.by : {}).filter(([, v]) =>
+      here.voices.includes(v),
+    ),
+  );
+  const left = people.filter((p) => !kept[p.name]);
+  return {
+    ...kept,
+    ...castVoices(here.engine, left, here.voices, seeded(id), Object.values(kept)),
+  };
+}

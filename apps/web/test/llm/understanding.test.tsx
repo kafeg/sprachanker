@@ -1,10 +1,12 @@
-// Reading and Listening (09): a text heard first — who reads it named (its people's own voices), its
-// questions answered by ear with the text hidden —, then shown with its glossed words marked; a text
-// made before the two steps with its reading questions after; a text to read shown at once; without a
-// voice for the language, shown to read with all its questions and the step saying what listening
-// needs; the step's earlier texts listed with their scores.
+// Reading and Listening (09), done as an exercise: what the text is and the task, nothing of what it
+// says; Listening's recording in the course's player, who reads it named (its people's own voices),
+// the text hidden; Reading's text shown; the questions answered, Check in the step bar; checked, the
+// title and situation open, Listening's text with its glossed words, the score. Without a voice for
+// the language a text to hear is shown to read; the step's earlier texts listed with their scores.
 import { expect, test } from "bun:test";
 import type { UnderstandingText } from "@sprachanker/schema";
+import { fireEvent, waitFor } from "@testing-library/react";
+import type { PracticePrimary } from "../../src/lesson/slots.ts";
 import type { Understood } from "../../src/llm/api.ts";
 import { UnderstandingStep } from "../../src/llm/understanding.tsx";
 import { TargetLang } from "../../src/ui/target-lang.ts";
@@ -88,10 +90,11 @@ const step = (
   texts: Understood[],
   voices: unknown = PIPER,
   which: "reading" | "listening" = "listening",
+  setPrimary: (p: PracticePrimary | null) => void = () => {},
 ) =>
   renderApp(
     <TargetLang value="de">
-      <UnderstandingStep {...ids} step={which} />
+      <UnderstandingStep {...ids} step={which} setPrimary={setPrimary} />
     </TargetLang>,
     {
       data: [
@@ -99,15 +102,18 @@ const step = (
         [["settings"], { "speech.readEngine": "piper" }],
         [["piper-voices"], voices],
         [["understanding", ids.lessonKey, which], { texts, preparing: false }],
+        // The recording, made by the server (as a URL for the player).
+        [["understanding-audio", "01K7A0Z8ZQ4J1V2W3X4Y5Z6A70"], "blob:recording"],
       ],
     },
   );
 
-/** A text Listening made: its people with their gender and the voices they were given. */
+/** A text Listening made: what it is, its people with their gender and the voices they were given. */
 const MADE: UnderstandingText = {
   ...TEXT,
   step: "listening",
   genre: "conversation",
+  setting: "A talk at a bakery",
   people: [
     { name: "Anna", gender: "f", age: "adult" },
     { name: "Verkäufer", gender: "m", age: "senior" },
@@ -118,63 +124,59 @@ const MADE: UnderstandingText = {
   },
   questions: TEXT.questions.map((q) => ({ ...q, phase: "listening" as const })),
 };
+const ALL = [
+  answer(0, { optionId: "b" }, "correct"),
+  answer(1, { g1: "1,20" }, "correct"),
+  answer(2, { optionId: "a" }, "wrong"),
+];
 
-test("Listening's text: read by its people's own voices, every question by ear; all answered, the text opens", async () => {
-  const view = await step([understood([], MADE)]);
+test("Listening: what it is and the task, the recording in the course's player read by its people's voices; the text and what it is about hidden; Check waits", async () => {
+  const bar: { primary: PracticePrimary | null } = { primary: null };
+  const view = await step([understood([], MADE)], PIPER, "listening", (p) => {
+    bar.primary = p;
+  });
+  expect(view.getByText("A talk at a bakery")).toBeTruthy();
+  expect(view.getByText(/Listen and answer the questions/)).toBeTruthy();
   expect(view.getByText("Read by Piper · eva k and thorsten")).toBeTruthy();
-  // The step says what it is: no word of the text's kind.
-  expect(view.queryByText(/a dialogue to listen to/)).toBeNull();
+  expect(view.getByRole("group", { name: "The recording" })).toBeTruthy();
   expect(view.getByText("Wer verkauft?")).toBeTruthy();
-  expect(view.queryByText("The text")).toBeNull();
-  view.unmount();
-  const all = [
-    answer(0, { optionId: "b" }, "correct"),
-    answer(1, { g1: "1,20" }, "correct"),
-    answer(2, { optionId: "b" }, "correct"),
-  ];
-  const done = await step([understood(all, MADE)]);
-  expect(done.getByText("The text")).toBeTruthy();
-  expect(done.queryByText("Read the text and answer")).toBeNull();
-  expect(done.getByText("3 of 3 right")).toBeTruthy();
-  done.unmount();
-});
-
-test("a dialogue heard first: who reads it (both voices), its questions by ear, the text hidden", async () => {
-  const view = await step([understood()]);
-  expect(view.getByRole("heading", { name: "At the bakery" })).toBeTruthy();
-  expect(view.getByText(/a dialogue to listen to/)).toBeTruthy();
-  expect(view.getByText("Read by Piper · thorsten and eva k")).toBeTruthy();
-  expect(view.getByRole("button", { name: "Listen" })).toBeTruthy();
-  expect(view.getByText(/Answer by ear/)).toBeTruthy();
-  expect(view.getByText("Anna möchte drei Brötchen.")).toBeTruthy();
-  expect(view.getByRole("button", { name: "Richtig" })).toBeTruthy();
-  // The answer typed is checked when asked.
-  expect(view.getByRole("button", { name: "Check" })).toBeTruthy();
-  // Neither the text nor its reading question yet.
-  expect(view.queryByText("The text")).toBeNull();
+  // Nothing of what it says before it is checked.
+  expect(view.queryByText("At the bakery")).toBeNull();
+  expect(view.queryByText("Anna buys rolls.")).toBeNull();
   expect(view.queryByText(/Das macht 1,20 Euro/)).toBeNull();
-  expect(view.queryByText("Wer verkauft?")).toBeNull();
+  // The answer typed is a number: said in its field, no letters under it.
+  expect(view.getByPlaceholderText("in digits")).toBeTruthy();
+  expect(view.queryByRole("button", { name: "ä" })).toBeNull();
+  // Choosing checks nothing: Check in the step bar waits for every answer.
+  fireEvent.click(view.getByRole("button", { name: "Falsch" }));
+  expect(view.queryByRole("status")).toBeNull();
+  await waitFor(() =>
+    expect(bar.primary).toMatchObject({
+      label: "Check",
+      disabled: true,
+      note: "Answer every item · 1 of 3",
+    }),
+  );
   view.unmount();
 });
 
-test("answered by ear: the text opens, its glossed words marked, and its reading question follows; all answered, the score", async () => {
-  const heard = [answer(0, { optionId: "b" }, "correct"), answer(1, { g1: "2,10" }, "wrong")];
-  const view = await step([understood(heard)]);
-  expect(view.getByText("The text")).toBeTruthy();
+test("checked: each question's outcome, then the title and situation, the text with its glossed words, the score; Check gives the bar back", async () => {
+  const bar: { primary?: PracticePrimary | null } = {};
+  const view = await step([understood(ALL, MADE)], PIPER, "listening", (p) => {
+    bar.primary = p;
+  });
+  expect(view.getAllByRole("status").map((s) => s.textContent)).toEqual([
+    "Correct",
+    "Correct",
+    "Wrong",
+  ]);
+  expect(view.getByText("At the bakery")).toBeTruthy();
+  expect(view.getByText(/Anna buys rolls\./)).toBeTruthy();
   expect(view.getByText(/Das macht 1,20 Euro/)).toBeTruthy();
-  const marked = view.getByText("Brötchen", { selector: "mark" });
-  expect(marked.getAttribute("title")).toBe("roll");
-  expect(view.getByText("New words")).toBeTruthy();
-  expect(view.getByText("Read the text and answer")).toBeTruthy();
-  expect(view.getByText("Wer verkauft?")).toBeTruthy();
-  // The answers by ear stay, checked.
-  expect(view.getAllByRole("status").map((s) => s.textContent)).toEqual(["Correct", "Not quite"]);
-  expect(view.queryByText(/Answer by ear/)).toBeNull();
+  expect(view.getByText("Brötchen", { selector: "mark" }).getAttribute("title")).toBe("roll");
+  expect(view.getByText("2 of 3 right")).toBeTruthy();
+  await waitFor(() => expect(bar.primary).toBeNull());
   view.unmount();
-
-  const done = await step([understood([...heard, answer(2, { optionId: "b" }, "correct")])]);
-  expect(done.getByText("2 of 3 right")).toBeTruthy();
-  done.unmount();
 });
 
 test("voices given for another engine than the profile's: its people given this engine's, by their gender", async () => {
@@ -188,26 +190,29 @@ test("voices given for another engine than the profile's: its people given this 
   view.unmount();
 });
 
-test("a text to read is shown at once, nothing to listen to", async () => {
+test("Reading: the text shown at once with its questions, nothing to listen to; what it is about after Check", async () => {
   const menu: UnderstandingText = {
     ...TEXT,
     kind: "reading",
+    step: "reading",
+    setting: "A bakery's price list",
     lines: [{ text: "Brötchen 0,60 €" }, { text: "Kaffee 2,50 €" }],
   };
   const view = await step([understood([], menu)], PIPER, "reading");
-  expect(view.getByText(/a text to read/)).toBeTruthy();
-  expect(view.queryByRole("button", { name: "Listen" })).toBeNull();
+  expect(view.getByText("A bakery's price list")).toBeTruthy();
+  expect(view.getByText(/Read the text and answer/)).toBeTruthy();
+  expect(view.queryByRole("group", { name: "The recording" })).toBeNull();
   expect(view.getByText("Kaffee 2,50 €")).toBeTruthy();
   expect(view.getByText("Anna möchte drei Brötchen.")).toBeTruthy();
+  expect(view.queryByText("At the bakery")).toBeNull();
   view.unmount();
 });
 
-test("nothing here reads the language: the step says what listening needs and shows the text with all its questions", async () => {
+test("nothing here reads the language: the step says what listening needs and shows the text with its questions", async () => {
   const view = await step([understood()], { engine: true, auto: {}, voices: [] });
   expect(view.getByText(/Nothing here reads German aloud/)).toBeTruthy();
-  expect(view.queryByRole("button", { name: "Listen" })).toBeNull();
+  expect(view.queryByRole("group", { name: "The recording" })).toBeNull();
   expect(view.getByText(/Das macht 1,20 Euro/)).toBeTruthy();
-  expect(view.getByText("Anna möchte drei Brötchen.")).toBeTruthy();
   expect(view.getByText("Wer verkauft?")).toBeTruthy();
   view.unmount();
 });

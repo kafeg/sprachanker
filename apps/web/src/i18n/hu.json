@@ -1651,10 +1651,8 @@
     "line": "{n, number}. mondat / {total, number}",
     "heard": "{count, plural, one {Egyszer meghallgatva} other {# alkalommal meghallgatva}}",
     "noVoice": "Itt semmi nem olvas fel ezen a nyelven: {language}, ezért a szöveg olvasásra jelenik meg. A meghallgatáshoz válassz hangot itt: Beállítások → Beszéd.",
-    "byEar": "Válaszolj hallás után — a szöveg utána nyílik meg.",
     "text": "A szöveg",
     "newWords": "Új szavak",
-    "readNow": "Olvasd el a szöveget, és válaszolj",
     "result": "{right, number}/{total, number} helyes",
     "past": "A lecke korábbi szövegei",
     "step": {
@@ -1664,7 +1662,14 @@
       "asking": "A kérdések írása…"
     },
     "introReading": "Rövid szöveg a lecke témájáról, olyan, amilyet az életben olvasunk — levél, chat, hirdetmény, történet. Olvasd el, és válaszolj a kérdésekre.",
-    "introListening": "Rövid szöveg a lecke témájáról, felolvasva — beszélgetés, üzenet, bemondás, történet. Hallgasd meg, és hallás után válaszolj; a szöveg utána jelenik meg."
+    "introListening": "Rövid szöveg a lecke témájáról, felolvasva — beszélgetés, üzenet, bemondás, történet. Hallgasd meg, és hallás után válaszolj; a szöveg utána jelenik meg.",
+    "task": {
+      "reading": "Olvasd el a szöveget, és válaszolj a kérdésekre.",
+      "listening": "Hallgasd meg, és válaszolj a kérdésekre. A szöveg az ellenőrzés után jelenik meg."
+    },
+    "digits": "számjegyekkel",
+    "preparingAudio": "A felvétel készül…",
+    "recording": "A felvétel"
   },
   "goingOver": {
     "title": "Hibák átnézése",

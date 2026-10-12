@@ -1651,10 +1651,8 @@
     "line": "Sentensi {n, number} kati ya {total, number}",
     "heard": "{count, plural, one {Imesikilizwa mara moja} other {Imesikilizwa mara #}}",
     "noVoice": "Hakuna kinachosoma {language} kwa sauti hapa, kwa hivyo maandishi yanaonyeshwa ili kusomwa. Ili kusikiliza, chagua sauti katika Mipangilio → Sauti.",
-    "byEar": "Jibu kwa kusikia — maandishi yatafunguka baadaye.",
     "text": "Maandishi",
     "newWords": "Maneno mapya",
-    "readNow": "Soma maandishi na ujibu",
     "result": "{right, number} kati ya {total, number} sahihi",
     "past": "Maandishi ya awali ya somo hili",
     "step": {
@@ -1664,7 +1662,14 @@
       "asking": "Ninaandika maswali…"
     },
     "introReading": "Maandishi mafupi kuhusu mada ya somo, kama yale watu husoma maishani — barua, gumzo, tangazo, hadithi. Yasome na ujibu maswali.",
-    "introListening": "Maandishi mafupi kuhusu mada ya somo, yanayosomwa kwa sauti — mazungumzo, ujumbe, tangazo, hadithi. Sikiliza na ujibu kwa kusikia; maandishi yanafunguka baadaye."
+    "introListening": "Maandishi mafupi kuhusu mada ya somo, yanayosomwa kwa sauti — mazungumzo, ujumbe, tangazo, hadithi. Sikiliza na ujibu kwa kusikia; maandishi yanafunguka baadaye.",
+    "task": {
+      "reading": "Soma maandishi na ujibu maswali.",
+      "listening": "Sikiliza na ujibu maswali. Maandishi yanafunguka baada ya kukaguliwa."
+    },
+    "digits": "kwa tarakimu",
+    "preparingAudio": "Ninaandaa rekodi…",
+    "recording": "Rekodi"
   },
   "goingOver": {
     "title": "Kupitia makosa",

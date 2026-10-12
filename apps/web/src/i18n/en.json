@@ -1651,10 +1651,8 @@
     "line": "Line {n, number} of {total, number}",
     "heard": "{count, plural, one {Heard once} other {Heard # times}}",
     "noVoice": "Nothing here reads {language} aloud, so the text is shown to read. To listen, choose a voice in Settings → Speech.",
-    "byEar": "Answer by ear — the text opens afterwards.",
     "text": "The text",
     "newWords": "New words",
-    "readNow": "Read the text and answer",
     "result": "{right, number} of {total, number} right",
     "past": "Earlier texts of this lesson",
     "step": {
@@ -1664,7 +1662,14 @@
       "asking": "Writing the questions…"
     },
     "introReading": "A short text on the lesson's topic, as people really read them — a letter, a chat, a notice, a story. Read it and answer the questions.",
-    "introListening": "A short text on the lesson's topic, read aloud — a conversation, a message, an announcement, a story. Listen and answer by ear; the text opens afterwards."
+    "introListening": "A short text on the lesson's topic, read aloud — a conversation, a message, an announcement, a story. Listen and answer by ear; the text opens afterwards.",
+    "task": {
+      "reading": "Read the text and answer the questions.",
+      "listening": "Listen and answer the questions. The text opens once they are checked."
+    },
+    "digits": "in digits",
+    "preparingAudio": "Making the recording…",
+    "recording": "The recording"
   },
   "goingOver": {
     "title": "Going over mistakes",

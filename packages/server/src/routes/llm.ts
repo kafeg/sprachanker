@@ -308,6 +308,16 @@ export function llmRoutes() {
       .post("/understanding", zod("json", TextRequest), async (c) =>
         c.json(await c.var.s.understanding.start(c.req.valid("json"))),
       )
+      // A text's recording, its lines read by its people's voices (a WAV, the course's player plays it).
+      .get(
+        "/understanding/audio",
+        zod("query", z.object({ lessonKey: LessonKey, id: Ulid })),
+        async (c) => {
+          const { lessonKey, id } = c.req.valid("query");
+          const wav = await c.var.s.understanding.audio(lessonKey, id);
+          return c.body(wav, 200, { "content-type": "audio/wav", "cache-control": "no-store" });
+        },
+      )
       .post("/understanding/answer", zod("json", PracticeAnswer), (c) =>
         c.json(c.var.s.understanding.answer(c.req.valid("json"))),
       )

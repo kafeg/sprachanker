@@ -14,6 +14,7 @@ import {
   checkUnderstanding,
   newGlosses,
   readingPieces,
+  textVoices,
   unaskedGlosses,
   understandingStage,
 } from "@sprachanker/engine";
@@ -62,6 +63,7 @@ import {
   type Verdict,
   verdicts,
 } from "./verdicts.ts";
+import { joinWavs } from "./wav.ts";
 
 /** What a text being made is at (09: said beside the time it takes): drafts written, the best
  *  chosen, questions asked, read again. */
@@ -70,9 +72,8 @@ export type UnderstandingStep = "writing" | "choosing" | "asking" | "checking";
 /** Drafts written for a text (owner, 2026-10-12: always two or three); side by side, but one after
  *  another on this computer's own model (LM Studio answers one at a time). */
 export const DRAFTS = 3;
-/** The pieces of a text to hear read ahead: its start, there at once; the rest the page asks for as
- *  it plays (the engine reads one piece at a time, the learner's own readings never wait long). */
-const READ_AHEAD = 6;
+/** Pauses in a text's recording: between a speaker's sentences, and before another line. */
+const PAUSE_MS = { piece: 250, line: 650 };
 /** How often a draft is written again when none passes. */
 const REWRITES = 2;
 /** The learner's latest texts whose people's names a new text avoids. */
@@ -111,8 +112,9 @@ export function createUnderstanding(deps: {
   lessonContext: LessonContexts;
   /** The voices a text's people may be given (none: the server reads nothing aloud). */
   voices?: VoicesFor;
-  /** Reads a line aloud ahead with a voice, into the readings' cache. */
-  readAhead?: (text: string, lang: string, voice: string) => Promise<unknown>;
+  /** A line read aloud with a voice (the profile's own without one), kept in the readings' cache: read
+   *  ahead, and joined into a text's recording. */
+  say?: (text: string, lang: string, voice?: string) => Promise<Uint8Array>;
   random?: () => number;
   now?: () => number;
 }) {
@@ -289,19 +291,25 @@ export function createUnderstanding(deps: {
     return Object.keys(by).length ? { ...text, voices: { engine: here.engine, by } } : text;
   }
 
-  /** A text to hear read aloud ahead — its first pieces, as the page asks for them — with its
-   *  people's voices (errors only logged). */
-  async function readAhead(text: UnderstandingText, lang: string) {
-    if (!deps.readAhead || stepOf(text) !== "listening" || !text.voices) return;
-    const { by } = text.voices;
-    const pieces = text.lines
-      .flatMap((l) => {
-        const voice = l.speaker ? by[l.speaker] : undefined;
-        return voice ? readingPieces(l.text).map((piece) => ({ piece, voice })) : [];
-      })
-      .slice(0, READ_AHEAD);
-    for (const { piece, voice } of pieces)
-      await deps.readAhead(piece, lang, voice).catch((error: unknown) => {
+  /** Each piece of a text to hear with its voice, as its recording reads it (by the voices its
+   *  people have now; a text before its people were known: the profile's own voice). */
+  function pieces(id: string, text: UnderstandingText, lang: string) {
+    const by = textVoices(id, text.people ?? [], text.voices, deps.voices?.(lang));
+    return text.lines.flatMap((l, i) =>
+      readingPieces(l.text).map((piece, k, all) => ({
+        piece,
+        voice: l.speaker ? by[l.speaker] : undefined,
+        pauseMs: k < all.length - 1 || i === text.lines.length - 1 ? PAUSE_MS.piece : PAUSE_MS.line,
+      })),
+    );
+  }
+
+  /** A text to hear read aloud ahead, piece by piece, into the readings' cache: its recording is
+   *  there when the step opens (errors only logged). */
+  async function readAhead(id: string, text: UnderstandingText, lang: string) {
+    if (!deps.say || stepOf(text) !== "listening" || !deps.voices?.(lang)) return;
+    for (const { piece, voice } of pieces(id, text, lang))
+      await deps.say(piece, lang, voice).catch((error: unknown) => {
         console.warn(`reading ahead: ${(error as Error).message}`);
       });
   }
@@ -322,7 +330,7 @@ export function createUnderstanding(deps: {
       model: best.model,
       latencyMs: Math.max(0, Math.round(now() - started)),
     });
-    void readAhead(text, input.ctx.target);
+    void readAhead(verdict.id, text, input.ctx.target);
     return { ...verdict, answers: [] };
   }
 
@@ -376,6 +384,24 @@ export function createUnderstanding(deps: {
         outcome,
       });
       return texts(request.lessonKey).find((t) => t.id === request.id) as Understood;
+    },
+
+    /** A text's recording: its lines read by its people's voices with pauses between, one WAV (the
+     *  server's engine reads the language, else 409). */
+    async audio(lessonKey: LessonKey, id: string): Promise<Uint8Array<ArrayBuffer>> {
+      const event = store.event(id);
+      const run = event && store.get(event.runId, "lesson", lessonKey);
+      if (!run?.edition || event?.type !== "llm_verdict" || event.payload.task !== "understanding")
+        throw new ServiceError("no_such_item", 404);
+      const lang = parseEditionId(run.edition).target;
+      const say = deps.say;
+      if (!say || !deps.voices?.(lang)) throw new ServiceError("speech_unavailable", 409);
+      const parts: Array<{ wav: Uint8Array; pauseMs: number }> = [];
+      for (const { piece, voice, pauseMs } of pieces(id, event.payload.result, lang))
+        parts.push({ wav: await say(piece, lang, voice), pauseMs });
+      const wav = joinWavs(parts);
+      if (!wav) throw new ServiceError("speech_unavailable", 409);
+      return wav;
     },
 
     /** The request a draft would send (a genre of the step picked as for a new text). */

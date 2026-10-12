@@ -40,6 +40,7 @@ const CHECK = {
 };
 /** The text as the generator drafts it (a chat: the first genre to read) and rates it. */
 const DRAFT = {
+  setting: "Переписка",
   title: TEXT.title,
   situation: TEXT.situation,
   people: [

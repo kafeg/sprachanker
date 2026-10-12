@@ -7,6 +7,7 @@
 import { expect, test } from "bun:test";
 import { FIXTURE_SERIES } from "@sprachanker/course-fixture";
 import { ulid } from "ulid";
+import { readWav, writeWav } from "../src/services/wav.ts";
 import { setup } from "./setup.ts";
 import { piper } from "./speech-fakes.ts";
 import { until } from "./until.ts";
@@ -16,6 +17,7 @@ const START = { series: FIXTURE_SERIES, lessonKey: LESSON, edition: "ru-de" };
 const LISTENING = { ...START, language: "ru", step: "listening" };
 
 const DRAFT = {
+  setting: "Разговор в пекарне",
   title: "В пекарне",
   situation: "Анна утром покупает булочки.",
   people: [
@@ -132,7 +134,12 @@ const state = (api: Pick<Awaited<ReturnType<typeof setup>>, "getJson">, step: st
   api.getJson(`/api/llm/understanding?lessonKey=${LESSON}&step=${step}`);
 
 test("a text made: three drafts, rated, the best kept; questions asked and read again with and without the text; its people voiced, read ahead; answered and in the Notebook", async () => {
-  const p = piper(["de_DE-thorsten-medium", "de_DE-eva_k-x_low", "de_DE-kerstin-low"]);
+  // Each reading a tenth of a second of 16 kHz audio.
+  const p = piper(
+    ["de_DE-thorsten-medium", "de_DE-eva_k-x_low", "de_DE-kerstin-low"],
+    true,
+    async () => writeWav(new Int16Array(1600).fill(100), 16000),
+  );
   const api = await withModel(REPLIES, { piper: p.host, readings: p.readings });
   const { send, sendJson, getJson, names } = api;
   await send("PUT", "/api/settings", { key: "speech.readEngine", value: "piper" });
@@ -179,12 +186,22 @@ test("a text made: three drafts, rated, the best kept; questions asked and read 
   expect(r.voices.engine).toBe("piper");
   expect(r.voices.by["Herr Brandt"]).toBe("de_DE-thorsten-medium");
   expect(["de_DE-eva_k-x_low", "de_DE-kerstin-low"]).toContain(r.voices.by.Anna);
-  // Its first six pieces read ahead (the rest as the page asks).
-  await until(() => p.said.length === 6);
+  // Every line read ahead, by its person's voice.
+  await until(() => p.said.length === 7);
   expect(p.said[1]).toMatchObject({
     id: "de_DE-thorsten-medium",
     text: "Gern. Möchten Sie auch ein Brot?",
   });
+
+  // Its recording: the lines joined, a pause after each — one WAV for the course's player.
+  const audio = await api.get(`/api/llm/understanding/audio?lessonKey=${LESSON}&id=${text.id}`);
+  expect([audio.status, audio.headers.get("content-type")]).toEqual([200, "audio/wav"]);
+  const joined = readWav(new Uint8Array(await audio.arrayBuffer()));
+  // 7 lines of 0.1 s, 6 pauses of 0.65 s and the last line's 0.25 s.
+  expect(joined?.samples.length).toBe(7 * 1600 + 6 * 10400 + 4000);
+  expect(
+    (await api.get(`/api/llm/understanding/audio?lessonKey=${LESSON}&id=${ulid()}`)).status,
+  ).toBe(404);
 
   // Answered: a choice wrong, an answer typed right; a question answered twice keeps its first.
   const answer = (question: number, value: unknown) =>

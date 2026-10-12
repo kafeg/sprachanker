@@ -1651,10 +1651,8 @@
     "line": "Cümle {n, number} / {total, number}",
     "heard": "{count, plural, one {Bir kez dinlendi} other {# kez dinlendi}}",
     "noVoice": "Burada {language} için sesli okuyan bir şey yok, bu yüzden metin okumak için gösteriliyor. Dinlemek için Ayarlar → Konuşma’dan bir ses seç.",
-    "byEar": "Kulaktan cevapla — metin sonra açılır.",
     "text": "Metin",
     "newWords": "Yeni kelimeler",
-    "readNow": "Metni oku ve cevapla",
     "result": "{total, number} sorudan {right, number} doğru",
     "past": "Bu dersin önceki metinleri",
     "step": {
@@ -1664,7 +1662,14 @@
       "asking": "Sorular yazılıyor…"
     },
     "introReading": "Dersin konusunda, gerçek hayatta okunan türden kısa bir metin — bir mektup, bir sohbet, bir duyuru, bir hikâye. Oku ve soruları yanıtla.",
-    "introListening": "Dersin konusunda, sesli okunan kısa bir metin — bir konuşma, bir mesaj, bir anons, bir hikâye. Dinle ve duyduğuna göre yanıtla; metin sonra açılır."
+    "introListening": "Dersin konusunda, sesli okunan kısa bir metin — bir konuşma, bir mesaj, bir anons, bir hikâye. Dinle ve duyduğuna göre yanıtla; metin sonra açılır.",
+    "task": {
+      "reading": "Metni oku ve soruları yanıtla.",
+      "listening": "Dinle ve soruları yanıtla. Metin kontrolden sonra açılır."
+    },
+    "digits": "rakamla",
+    "preparingAudio": "Kayıt hazırlanıyor…",
+    "recording": "Kayıt"
   },
   "goingOver": {
     "title": "Hataların üzerinden geç",

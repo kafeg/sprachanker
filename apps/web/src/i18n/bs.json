@@ -1651,10 +1651,8 @@
     "line": "Rečenica {n, number} od {total, number}",
     "heard": "{count, plural, one {Preslušano # put} few {Preslušano # puta} other {Preslušano # puta}}",
     "noVoice": "Ovdje ništa ne čita naglas jezik: {language}, pa je tekst prikazan za čitanje. Da slušaš, izaberi glas u Postavkama → Govor.",
-    "byEar": "Odgovaraj po sluhu — tekst se otvara poslije.",
     "text": "Tekst",
     "newWords": "Nove riječi",
-    "readNow": "Pročitaj tekst i odgovori",
     "result": "{right, number} od {total, number} tačno",
     "past": "Raniji tekstovi ove lekcije",
     "step": {
@@ -1664,7 +1662,14 @@
       "asking": "Sastavljam pitanja…"
     },
     "introReading": "Kratak tekst o temi lekcije, kakav se čita u životu — pismo, chat, obavještenje, priča. Pročitaj ga i odgovori na pitanja.",
-    "introListening": "Kratak tekst o temi lekcije, pročitan naglas — razgovor, poruka, obavještenje, priča. Slušaj i odgovaraj po sluhu; tekst se otvara poslije."
+    "introListening": "Kratak tekst o temi lekcije, pročitan naglas — razgovor, poruka, obavještenje, priča. Slušaj i odgovaraj po sluhu; tekst se otvara poslije.",
+    "task": {
+      "reading": "Pročitaj tekst i odgovori na pitanja.",
+      "listening": "Poslušaj i odgovori na pitanja. Tekst se otvara nakon provjere."
+    },
+    "digits": "ciframa",
+    "preparingAudio": "Pripremam snimak…",
+    "recording": "Snimak"
   },
   "goingOver": {
     "title": "Pregled grešaka",

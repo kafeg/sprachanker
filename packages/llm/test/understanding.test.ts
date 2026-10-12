@@ -69,6 +69,7 @@ const TEXT: UnderstandingText = {
 };
 
 const DRAFT: UnderstandingDraft = {
+  setting: "Разговор в пекарне",
   title: "В пекарне",
   situation: "Анна утром покупает булочки.",
   people: [
@@ -244,7 +245,7 @@ test("draftProblem: a course character, a title in the learnt language, a length
     "the people are new, none of the course's characters (Nico)",
   );
   expect(draftProblem({ ...DRAFT, title: "Beim Bäcker", situation: "Anna kauft." }, input)).toBe(
-    '"title" and "situation" in Russian',
+    '"setting", "title" and "situation" in Russian',
   );
   const short = { ...DRAFT, text: "Anna: Hallo!\nHerr Brandt: Hallo!" };
   expect(draftProblem(short, input)).toBe("the text about 40–70 words long (it has 2)");

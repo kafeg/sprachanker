@@ -1651,10 +1651,8 @@
     "line": "Frase {n, number} de {total, number}",
     "heard": "{count, plural, one {Escuchado una vez} other {Escuchado # veces}}",
     "noVoice": "Aquí nada lee en {language} en voz alta, así que el texto se muestra para leer. Para escuchar, elige una voz en Ajustes → Voz.",
-    "byEar": "Responde de oído: el texto se abre después.",
     "text": "El texto",
     "newWords": "Palabras nuevas",
-    "readNow": "Lee el texto y responde",
     "result": "{right, number} de {total, number} correctas",
     "past": "Textos anteriores de esta lección",
     "step": {
@@ -1664,7 +1662,14 @@
       "asking": "Escribiendo las preguntas…"
     },
     "introReading": "Un texto breve sobre el tema de la lección, como los que se leen en la vida real: una carta, un chat, un aviso, una historia. Léelo y responde a las preguntas.",
-    "introListening": "Un texto breve sobre el tema de la lección, leído en voz alta: una conversación, un mensaje, un anuncio, una historia. Escucha y responde de oído; el texto se abre después."
+    "introListening": "Un texto breve sobre el tema de la lección, leído en voz alta: una conversación, un mensaje, un anuncio, una historia. Escucha y responde de oído; el texto se abre después.",
+    "task": {
+      "reading": "Lee el texto y responde a las preguntas.",
+      "listening": "Escucha y responde a las preguntas. El texto se abre tras comprobarlas."
+    },
+    "digits": "en cifras",
+    "preparingAudio": "Preparando la grabación…",
+    "recording": "La grabación"
   },
   "goingOver": {
     "title": "Repaso de errores",

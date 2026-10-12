@@ -1651,10 +1651,8 @@
     "line": "Satz {n, number} von {total, number}",
     "heard": "{count, plural, one {Einmal gehört} other {# Mal gehört}}",
     "noVoice": "Für {language} gibt es hier keine Vorlesestimme, deshalb steht der Text zum Lesen da. Zum Hören wähle eine Stimme unter Einstellungen → Sprechen.",
-    "byEar": "Antworte nach dem Hören — der Text öffnet sich danach.",
     "text": "Der Text",
     "newWords": "Neue Wörter",
-    "readNow": "Lies den Text und antworte",
     "result": "{right, number} von {total, number} richtig",
     "past": "Frühere Texte dieser Lektion",
     "step": {
@@ -1664,7 +1662,14 @@
       "asking": "Fragen werden geschrieben…"
     },
     "introReading": "Ein kurzer Text zum Thema der Lektion, wie man ihn im Alltag liest — ein Brief, ein Chat, ein Aushang, eine Geschichte. Lies ihn und beantworte die Fragen.",
-    "introListening": "Ein kurzer Text zum Thema der Lektion, vorgelesen — ein Gespräch, eine Nachricht, eine Durchsage, eine Geschichte. Hör zu und antworte nach dem Hören; der Text öffnet sich danach."
+    "introListening": "Ein kurzer Text zum Thema der Lektion, vorgelesen — ein Gespräch, eine Nachricht, eine Durchsage, eine Geschichte. Hör zu und antworte nach dem Hören; der Text öffnet sich danach.",
+    "task": {
+      "reading": "Lies den Text und beantworte die Fragen.",
+      "listening": "Hör zu und beantworte die Fragen. Der Text öffnet sich nach der Prüfung."
+    },
+    "digits": "in Ziffern",
+    "preparingAudio": "Die Aufnahme wird erstellt…",
+    "recording": "Die Aufnahme"
   },
   "goingOver": {
     "title": "Fehler durchgehen",

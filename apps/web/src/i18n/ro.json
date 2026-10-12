@@ -1651,10 +1651,8 @@
     "line": "Replica {n, number} din {total, number}",
     "heard": "{count, plural, one {Ascultat o dată} few {Ascultat de # ori} other {Ascultat de # de ori}}",
     "noVoice": "Nimic de aici nu citește cu voce tare în {language}, așa că textul e afișat pentru citit. Ca să asculți, alege o voce în Setări → Vorbire.",
-    "byEar": "Răspunde după auz — textul se deschide apoi.",
     "text": "Textul",
     "newWords": "Cuvinte noi",
-    "readNow": "Citește textul și răspunde",
     "result": "{right, number} din {total, number} corecte",
     "past": "Texte anterioare din această lecție",
     "step": {
@@ -1664,7 +1662,14 @@
       "asking": "Scriu întrebările…"
     },
     "introReading": "Un text scurt pe tema lecției, cum citim în viața de zi cu zi — o scrisoare, un chat, un anunț, o poveste. Citește-l și răspunde la întrebări.",
-    "introListening": "Un text scurt pe tema lecției, citit cu voce tare — o conversație, un mesaj, un anunț, o poveste. Ascultă și răspunde după ureche; textul se deschide după aceea."
+    "introListening": "Un text scurt pe tema lecției, citit cu voce tare — o conversație, un mesaj, un anunț, o poveste. Ascultă și răspunde după ureche; textul se deschide după aceea.",
+    "task": {
+      "reading": "Citește textul și răspunde la întrebări.",
+      "listening": "Ascultă și răspunde la întrebări. Textul se deschide după verificare."
+    },
+    "digits": "în cifre",
+    "preparingAudio": "Pregătesc înregistrarea…",
+    "recording": "Înregistrarea"
   },
   "goingOver": {
     "title": "Analiza greșelilor",

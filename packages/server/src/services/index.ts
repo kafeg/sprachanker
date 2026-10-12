@@ -179,7 +179,7 @@ function profileServices(
     llm,
     lessonContext,
     voices: speechOfProfile.textVoices,
-    readAhead: (text, lang, voice) => speechOfProfile.say({ text, lang, voice }),
+    say: (text, lang, voice) => speechOfProfile.say({ text, lang, ...(voice && { voice }) }),
     random: config.random,
     now,
   });

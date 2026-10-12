@@ -1,13 +1,15 @@
-// An AI practice step of the plan (09): writing, a scene, or going over mistakes — the page an optional
-// feature fills through the player's slot (the mistakes step shows the run's own status first), with
-// the step bar; a step done can no longer be skipped.
+// An AI practice step of the plan (09): reading, listening, writing, a scene, or going over mistakes —
+// the page an optional feature fills through the player's slot (the mistakes step shows the run's own
+// status first), with the step bar, whose main button the page may take while it needs it (Check, as an
+// exercise's); a step done can no longer be skipped.
 
 import type { LessonStep, PracticeKind } from "@sprachanker/engine";
 import type { Lesson, LocaleLesson } from "@sprachanker/schema";
+import { useState } from "react";
 import { useTranslation } from "react-i18next";
 import { MistakesStatus } from "./mistakes-status.tsx";
 import { stepTitle } from "./plan.tsx";
-import type { LessonSlotContext, LessonSlots } from "./slots.ts";
+import type { LessonSlotContext, LessonSlots, PracticePrimary } from "./slots.ts";
 import { StepBar, StepHeader } from "./steps.tsx";
 import type { useRun } from "./use-run.ts";
 
@@ -36,6 +38,8 @@ export function PracticeStep({
 }) {
   const { t } = useTranslation();
   const done = run.done.get(kind) === "done";
+  /** The page's own main button while it needs one (Check), else Next. */
+  const [primary, setPrimary] = useState<PracticePrimary | null>(null);
   return (
     <article className="flex min-h-[calc(100dvh-8rem)] flex-col gap-4">
       <StepHeader
@@ -60,10 +64,14 @@ export function PracticeStep({
           if (!done) mark(kind, true);
         },
         onStored: run.retry,
+        setPrimary,
       })}
       <StepBar
         onBack={onBack}
-        onNext={onNext}
+        onNext={primary ? primary.run : onNext}
+        next={primary?.label}
+        nextDisabled={primary?.disabled}
+        note={primary?.note}
         onSkip={
           done
             ? undefined
