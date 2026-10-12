@@ -63,7 +63,6 @@ export const TEXT_GENRES: readonly TextGenre[] = [
     from: "A1",
     what: "a voice message or a message on an answering machine: who calls, why, what the other should do, how to reach them",
     words: [35, 65],
-    start: true,
   },
   {
     id: "announcement",

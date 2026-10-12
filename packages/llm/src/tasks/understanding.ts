@@ -422,9 +422,11 @@ export const passes = (r: DraftRating) =>
   r.natural >= 4 && r.coherent >= 4 && r.realistic >= 4 && r.level >= 3 && r.lesson >= 3;
 
 /** Whether a draft written again, still short of passing, is kept rather than nothing: nothing in
- *  it plainly wrong — natural, coherent, realistic, the level and the lesson 3 at least. */
+ *  it plainly wrong — natural, coherent, realistic and the lesson 3 at least, the level 2 (a form
+ *  the course teaches later is glossed over in a course's first lessons, where a text without one
+ *  is rare). */
 export const passable = (r: DraftRating) =>
-  r.natural >= 3 && r.coherent >= 3 && r.realistic >= 3 && r.level >= 3 && r.lesson >= 3;
+  r.natural >= 3 && r.coherent >= 3 && r.realistic >= 3 && r.level >= 2 && r.lesson >= 3;
 
 /** A rating's points all told. */
 export const totalRating = (r: DraftRating) =>

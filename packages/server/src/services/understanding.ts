@@ -73,6 +73,8 @@ export const DRAFTS = 3;
 /** The pieces of a text to hear read ahead: its start, there at once; the rest the page asks for as
  *  it plays (the engine reads one piece at a time, the learner's own readings never wait long). */
 const READ_AHEAD = 6;
+/** How often a draft is written again when none passes. */
+const REWRITES = 2;
 /** The learner's latest texts whose people's names a new text avoids. */
 const RECENT_TEXTS = 12;
 
@@ -198,19 +200,25 @@ export function createUnderstanding(deps: {
     const rating = rated.result.ratings.find((r) => r.n === index + 1) as DraftRating;
     const chosen = drafts[index] as UnderstandingDraft;
     if (!again) return { draft: chosen, rating, drafts: drafts.length, model };
-    // None passed: the best written again with what the judge found, rated alone.
-    step("writing");
-    const rewritten = await write({ again: { draft: chosen, problems: rating.problems } });
-    step("choosing");
-    const second = await judge([rewritten.result]);
-    const r = second.result.ratings[0] as DraftRating;
-    if (passes(r)) return { draft: rewritten.result, rating: r, drafts: drafts.length + 1, model };
-    // Still none passing: the better of the two kept when nothing in it is plainly wrong (a text is
-    // better than none — the first lessons' few words make a perfect one rare), else nothing.
-    const [best, bestRating] = total(r) >= total(rating) ? [rewritten.result, r] : [chosen, rating];
-    if (!passable(bestRating))
-      throw new LlmError("invalid_output", `no draft passed (${r.problems.join(" | ")})`);
-    return { draft: best, rating: bestRating, drafts: drafts.length + 1, model };
+    // None passed: the best written again with what the judge found, rated alone — twice at most.
+    let best = { draft: chosen, rating };
+    let count = drafts.length;
+    for (let round = 0; round < REWRITES; round++) {
+      step("writing");
+      const rewritten = await write({
+        again: { draft: best.draft, problems: best.rating.problems },
+      });
+      step("choosing");
+      const r = (await judge([rewritten.result])).result.ratings[0] as DraftRating;
+      count++;
+      if (passes(r)) return { draft: rewritten.result, rating: r, drafts: count, model };
+      if (total(r) >= total(best.rating)) best = { draft: rewritten.result, rating: r };
+    }
+    // Still none passing: the best kept when nothing in it is plainly wrong (a text is better than
+    // none — the first lessons' few words make a perfect one rare), else nothing.
+    if (!passable(best.rating))
+      throw new LlmError("invalid_output", `no draft passed (${best.rating.problems.join(" | ")})`);
+    return { ...best, drafts: count, model };
   }
 
   /** Questions asked on a text and read again — with the text and without it —: those settled. */
