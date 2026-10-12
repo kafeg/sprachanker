@@ -315,3 +315,113 @@ test("a take nothing loud was in: neither kept nor heard, said again; the browse
     mic.restore();
   }
 });
+
+/** A take recorded: the microphone tapped, tapped again. */
+async function recordTake(view: Awaited<ReturnType<typeof renderApp>>) {
+  await act(async () => {
+    fireEvent.click(view.getByRole("button", { name: "Record yourself" }));
+  });
+  await act(async () => {
+    fireEvent.click(view.getByRole("button", { name: "Stop recording" }));
+  });
+}
+
+test("a take the server heard nothing in is neither kept nor the answer; the lines to say go with it; a loudness not measured is the server's to judge", async () => {
+  setSecure(true);
+  for (const level of [0.2, 0]) {
+    const mic = microphone(level);
+    const done = { saved: 0, answers: 0, expected: [] as unknown[] };
+    const view = await renderApp(
+      <SpeechProvider
+        value={{
+          ...host(),
+          save: async () => {
+            done.saved++;
+            return "01K00000000000000000000000";
+          },
+          transcribe: async (_take, _lang, expected) => {
+            done.expected.push(expected);
+            return "";
+          },
+        }}
+      >
+        <TargetLang value="de">
+          <SpeechSelfrate
+            item={{ key: item.key, reference: ["Danke!", "Danke schön!"] }}
+            answer={undefined}
+            onAnswer={() => done.answers++}
+            url={(p) => p}
+          />
+        </TargetLang>
+      </SpeechProvider>,
+    );
+    await recordTake(view);
+    expect(view.getByText(/^Nothing was heard/)).toBeTruthy();
+    expect(view.queryByRole("button", { name: /^Mine/ })).toBeNull();
+    expect(done).toEqual({ saved: 0, answers: 0, expected: [["Danke!", "Danke schön!"]] });
+    view.unmount();
+    mic.restore();
+  }
+});
+
+test("a take neither kept nor heard (both failing) is no answer over an earlier one", async () => {
+  setSecure(true);
+  const mic = microphone(0.2);
+  const answers: unknown[] = [];
+  const view = await renderApp(
+    <SpeechProvider
+      value={{
+        ...host(),
+        save: () => Promise.reject(new Error("full")),
+        transcribe: () => Promise.reject(new Error("engine")),
+      }}
+    >
+      <TargetLang value="de">
+        <SpeechSelfrate
+          item={item}
+          answer={{ recording: "01K00000000000000000000000", transcript: "Guten Tag" }}
+          onAnswer={(a) => answers.push(a)}
+          url={(p) => p}
+        />
+      </TargetLang>
+    </SpeechProvider>,
+  );
+  await recordTake(view);
+  expect(answers).toEqual([]);
+  expect(view.getByText(/^The recording couldn't be saved/)).toBeTruthy();
+  view.unmount();
+  mic.restore();
+});
+
+test("Next pressed while a take is heard: the take is still the item's answer", async () => {
+  setSecure(true);
+  const mic = microphone(0.2);
+  const answers: unknown[] = [];
+  let heard = (_: string) => {};
+  const view = await renderApp(
+    <SpeechProvider
+      value={{
+        ...host(),
+        transcribe: () =>
+          new Promise<string>((resolve) => {
+            heard = resolve;
+          }),
+      }}
+    >
+      <TargetLang value="de">
+        <SpeechSelfrate
+          item={item}
+          answer={undefined}
+          onAnswer={(a) => answers.push(a)}
+          url={(p) => p}
+        />
+      </TargetLang>
+    </SpeechProvider>,
+  );
+  await recordTake(view);
+  expect(view.getByText("Listening to it…")).toBeTruthy();
+  view.unmount();
+  await act(async () => heard("Guten Tag"));
+  expect(answers).toEqual([{ recording: "01K00000000000000000000000", transcript: "Guten Tag" }]);
+  mic.restore();
+});

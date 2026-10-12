@@ -1,6 +1,6 @@
 // A course removed from the library: its folders and the media no other course of its series names.
 import { expect, test } from "bun:test";
-import { cpSync, existsSync, mkdtempSync, readFileSync, writeFileSync } from "node:fs";
+import { cpSync, existsSync, mkdtempSync, readdirSync, readFileSync, writeFileSync } from "node:fs";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
 import { NotInstalledError, openLibrary } from "../src/library.ts";
@@ -61,4 +61,25 @@ test("a course removed: its folders, its copies and the media only it names go; 
   ).toEqual(["other"]);
   // Gone: removing it again is no course here.
   await expect(removeCourse(root, MINI_SERIES, "basic")).rejects.toBeInstanceOf(NotInstalledError);
+});
+
+test("the series' only course removed: no empty folder nor a media index naming nothing left, the key map kept", async () => {
+  const root = mkdtempSync(join(tmpdir(), "sprachanker-remove-"));
+  const series = await writeMiniLibrary(root);
+  writeFileSync(
+    join(series, "media.json"),
+    JSON.stringify({
+      "https://example.org/hallo.mp3": {
+        kind: "audio",
+        path: MINI_AUDIO,
+        sha256: "a".repeat(64),
+        size: 22,
+        mime: "audio/mpeg",
+      },
+    }),
+  );
+  writeFileSync(join(series, "keys.json"), "{}");
+  await removeCourse(root, MINI_SERIES, "basic");
+  expect(readdirSync(series)).toEqual(["keys.json"]);
+  expect(openLibrary(root).courses()).toEqual([]);
 });

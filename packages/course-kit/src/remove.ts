@@ -4,7 +4,7 @@
 // The media index forgets the files removed (a download fetches them again); the key map stays, so a
 // course installed again keeps its keys and the learner's progress meets it. The series' lock is the
 // caller's.
-import { existsSync, readFileSync, rmSync, statSync } from "node:fs";
+import { existsSync, readdirSync, readFileSync, rmdirSync, rmSync, statSync } from "node:fs";
 import { join } from "node:path";
 import { EditionId, MediaIndex, SeriesKey, Slug } from "@sprachanker/schema";
 import { courseBundleContent } from "./bundle.ts";
@@ -66,5 +66,19 @@ export async function removeCourse(
     if (EditionId.safeParse(edition).success)
       rmSync(join(seriesDir, "locale", edition, courseId), { recursive: true, force: true });
   rmSync(join(seriesDir, ".downloads", `${courseId}.json`), { force: true });
+  // Nothing left behind empty: a media index naming nothing, folders holding nothing.
+  if (existsSync(indexFile) && !Object.keys(JSON.parse(readFileSync(indexFile, "utf8"))).length)
+    rmSync(indexFile);
+  removeEmpty(seriesDir);
   return { files: gone.length, bytes, shared: media.length - removedMedia.size };
+}
+
+/** Removes the empty folders under `dir` (the series folder itself stays: its key map). */
+function removeEmpty(dir: string) {
+  for (const entry of readdirSync(dir, { withFileTypes: true })) {
+    if (!entry.isDirectory()) continue;
+    const sub = join(dir, entry.name);
+    removeEmpty(sub);
+    if (!readdirSync(sub).length) rmdirSync(sub);
+  }
 }

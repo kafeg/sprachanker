@@ -75,18 +75,25 @@ function Heard({
 }
 
 /**
- * One's takes of an item (08): recorded, kept when recordings are, heard when recognition is on —
- * at once, either failing leaving the take itself; a take nothing loud was in neither kept nor heard,
- * the learner asked to say it again; with `heardFirst`, kept only once heard (a take
- * that counts by its words is not kept without them). `done` gets what was kept and heard, for the
- * latest take only, while the item is shown. The recogniser starts loading as the item shows (while
- * the learner listens to the original), and again when recognition comes on or changes model.
+ * One's takes of an item (08): heard first when recognition is on, then kept when recordings are; a
+ * take nothing was heard in — nothing loud in it, or only what the recogniser makes of silence and
+ * noise — neither kept nor the item's answer, the learner asked to say it again; hearing failing keeps
+ * the take itself, but with `heardFirst` it is not kept (a take that counts by its words is not kept
+ * without them); a take neither kept nor heard (failing) is no answer over an earlier one
+ * (`answered`). `expected`: the lines to say (telling one said from what silence is heard as). `done`
+ * gets what was kept and heard, for the latest take only — also once the item is gone (Next pressed
+ * while it is heard): the take is still its answer. The recogniser starts loading as the item shows
+ * (while the learner listens to the original), and again when recognition comes on or changes model.
  */
 function useTakes(
   lang: string | undefined,
   readOnly: boolean | undefined,
   done: (kept: { recording?: string; transcript?: string }) => void,
-  heardFirst = false,
+  {
+    heardFirst = false,
+    expected,
+    answered = false,
+  }: { heardFirst?: boolean; expected?: readonly string[]; answered?: boolean } = {},
 ) {
   const host = useSpeechHost();
   const [take, setTake] = useState<{ url: string; ms: number }>();
@@ -94,17 +101,11 @@ function useTakes(
   const [unsaved, setUnsaved] = useState(false);
   const [unheard, setUnheard] = useState(false);
   const [silent, setSilent] = useState(false);
-  /** The latest take's number; 0 once the item is gone. */
+  /** The latest take's number: an earlier take still being heard gives no answer. */
   const latest = useRef(0);
   useEffect(() => {
     if (!readOnly) host?.warm();
   }, [readOnly, host?.warm]);
-  useEffect(
-    () => () => {
-      latest.current = 0;
-    },
-    [],
-  );
   useEffect(
     () => () => {
       if (take) URL.revokeObjectURL(take.url);
@@ -121,26 +122,34 @@ function useTakes(
     setUnsaved(false);
     setUnheard(false);
     setSaving(true);
-    const save = () =>
-      host
-        ? host.save(recorded).catch(() => {
-            if (current()) setUnsaved(true);
-            return undefined;
-          })
-        : Promise.resolve(undefined);
+    let failed = false;
     // Recognition needs the language spoken (never detected, 08).
-    const hear =
+    const transcript =
       host?.recognition && lang
-        ? host.transcribe(recorded, lang).catch(() => {
+        ? await host.transcribe(recorded, lang, expected).catch(() => {
+            failed = true;
             if (current()) setUnheard(true);
             return undefined;
           })
-        : Promise.resolve(undefined);
-    const [recording, transcript] = heardFirst
-      ? await hear.then(async (heard) => [heard ? await save() : undefined, heard] as const)
-      : await Promise.all([save(), hear]);
+        : undefined;
+    if (transcript === "") {
+      if (!current()) return;
+      setSaving(false);
+      setTake(undefined);
+      setSilent(true);
+      return;
+    }
+    const recording =
+      host && !(heardFirst && transcript === undefined)
+        ? await host.save(recorded).catch(() => {
+            failed = true;
+            if (current()) setUnsaved(true);
+            return undefined;
+          })
+        : undefined;
     if (!current()) return;
     setSaving(false);
+    if (failed && answered && !recording && transcript === undefined) return;
     done({ ...(recording && { recording }), ...(transcript !== undefined && { transcript }) });
   };
   return { host, take, saving, unsaved, unheard, silent, recorder };
@@ -200,7 +209,10 @@ export function SpeechSelfrate({
 }: RendererProps<"speech_selfrate">) {
   const lang = useTargetLang();
   const { t } = useTranslation();
-  const takes = useTakes(lang, readOnly, onAnswer);
+  const takes = useTakes(lang, readOnly, onAnswer, {
+    expected: linesToSay(item),
+    answered: answer !== undefined,
+  });
   const { host, take, saving, recorder } = takes;
   const [reveal, setReveal] = useState(false);
 
@@ -322,7 +334,7 @@ export function SpeechRepeat({
       if (transcript !== undefined)
         onAnswer({ speech: { ...(recording && { recording }), transcript } });
     },
-    true,
+    { heardFirst: true, expected: [item.text] },
   );
   const { host, take, saving, recorder } = takes;
   // Without recognition, or a language to hear it in, nothing can check the phrase: the item is left

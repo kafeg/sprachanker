@@ -314,7 +314,7 @@ Built (`apps/cli/src/main.ts`): `serve [--data] [--host] [--port] [--allow-host]
 "Course bundle"; also while a server runs on the data root: the series' import lock keeps them apart,
 and the server reads the files anew; an import whose verify finds problems exits 1), `courses remove
 <series/course>` (02, "Removing a course"; the API's `DELETE /api/course`, refused 409 `course_busy`
-while it downloads) ·
+while it downloads, `course_in_use` while a lesson or exam of it is under way) ·
 `backup [--data] --to <folder>` (05, "Backups": `server.sqlite` and each
 `profile.sqlite` copied with `VACUUM INTO`, consistent while a server runs; the recordings, the
 imported decks and `<app-data>/secret.key`; into a new `sprachanker-backup-<date>-<time>` folder (the

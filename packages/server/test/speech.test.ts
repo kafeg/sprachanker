@@ -3,8 +3,11 @@ import { CLIENT_HEADERS } from "@sprachanker/schema";
 import type { SpeechHost } from "../src/services/local-engines.ts";
 import { setup } from "./setup.ts";
 
-/** A machine with the engine built and models kept in memory; the engine answers through `fetch`. */
-function machine(answer = " Ich heiße Nico.\n") {
+/** A machine with the engine built and models kept in memory; the engine answers through `fetch`
+ *  (verbose_json: with a segment as sure as `logprob` when given; `reply` changes it). */
+function machine(text = " Ich heiße Nico.\n", sure?: number) {
+  let answer = text;
+  let logprob = sure;
   const files = new Set<string>();
   const spawned: string[][] = [];
   let kills = 0;
@@ -35,11 +38,18 @@ function machine(answer = " Ich heiße Nico.\n") {
       return new Response(healthy ? "ok" : "loading", { status: healthy ? 200 : 503 });
     if (url === "http://127.0.0.1:9911/inference") {
       sent.push(init?.body as FormData);
-      return Response.json({ text: answer });
+      return Response.json({
+        text: answer,
+        segments: logprob === undefined ? [] : [{ text: answer, avg_logprob: logprob }],
+      });
     }
     return new Response("not found", { status: 404 });
   }) as unknown as typeof globalThis.fetch;
-  return { host, fetch, spawned, sent, kills: () => kills };
+  const reply = (text: string, sure?: number) => {
+    answer = text;
+    logprob = sure;
+  };
+  return { host, fetch, spawned, sent, kills: () => kills, reply };
 }
 
 test("speech: models downloaded, the engine started on demand with the chosen model, a WAV transcribed in its language", async () => {
@@ -128,32 +138,80 @@ function wav(...parts: Array<{ ms: number; amplitude: number }>) {
   return new Uint8Array(out.buffer);
 }
 
-test("speech: a silent take is nothing heard, the engine not asked; a near-silent one heard as a phrase made up of silence is nothing too", async () => {
-  const hear = async (answer: string, body: Uint8Array) => {
-    const m = machine(answer);
-    const { app, cookie, sendJson } = await setup({ fetch: m.fetch, speech: m.host });
-    await sendJson("POST", "/api/speech/models/small-q5_1", {});
-    const res = await app.request("/api/speech/transcribe?lang=de", {
+test("speech: a silent take is nothing heard, the engine not asked; what Whisper makes of silence and noise is nothing too, a line said is kept", async () => {
+  const m = machine();
+  const { app, cookie, sendJson } = await setup({ fetch: m.fetch, speech: m.host });
+  await sendJson("POST", "/api/speech/models/small-q5_1", {});
+  /** What a take is heard as, the engine answering `answer`; `asked`: whether it was asked. */
+  const hear = async (
+    body: Uint8Array,
+    answer: string,
+    { logprob, expect: lines }: { logprob?: number; expect?: string[] } = {},
+  ) => {
+    m.reply(answer, logprob);
+    const before = m.sent.length;
+    const query = new URLSearchParams({ lang: "de", ...(lines && { expect: lines.join("\n") }) });
+    const res = await app.request(`/api/speech/transcribe?${query}`, {
       method: "POST",
       headers: { cookie, "content-type": "audio/wav", ...CLIENT_HEADERS },
       body,
     });
-    return { text: ((await res.json()) as { text: string }).text, asked: m.sent.length };
+    const heard = (await res.json()) as { text: string; silent?: boolean };
+    return { text: heard.text, silent: !!heard.silent, asked: m.sent.length - before };
   };
-  // Digital silence, and a faint hiss: the engine is never asked.
-  const silence = wav({ ms: 4000, amplitude: 0 });
-  expect(await hear(" Vielen Dank.", silence)).toEqual({ text: "", asked: 0 });
-  expect(await hear(" Amen.", wav({ ms: 4000, amplitude: 0.002 }))).toEqual({ text: "", asked: 0 });
-  // A click in the quiet heard as Whisper's "thank you" or its subtitle credits: dropped.
+  const nothing = (asked: number) => ({ text: "", silent: true, asked });
+  // Digital silence, a faint hiss (-60 dBFS), a click of 20 ms: the engine is never asked.
   const quiet = { ms: 2000, amplitude: 0 };
-  const click = wav(quiet, { ms: 160, amplitude: 0.5 }, quiet);
-  expect(await hear(" Vielen Dank.", click)).toEqual({ text: "", asked: 1 });
-  expect(await hear(" Untertitel im Auftrag des ZDF, 2017", click)).toEqual({ text: "", asked: 1 });
-  // Anything else heard in it is kept; so is "Vielen Dank." said aloud, and a phrase of another
-  // language's list.
-  expect((await hear(" Ja.", click)).text).toBe("Ja.");
-  expect((await hear(" Thank you.", click)).text).toBe("Thank you.");
-  expect((await hear(" Vielen Dank.", wav({ ms: 1200, amplitude: 0.3 }))).text).toBe(
-    "Vielen Dank.",
+  expect(await hear(wav({ ms: 4000, amplitude: 0 }), " Vielen Dank.")).toEqual(nothing(0));
+  expect(await hear(wav({ ms: 4000, amplitude: 0.0014 }), " Amen.")).toEqual(nothing(0));
+  expect(await hear(wav(quiet, { ms: 20, amplitude: 0.5 }, quiet), " Danke.")).toEqual(nothing(0));
+  // A short word said quietly (-46 dBFS for 60 ms) is asked about, and kept.
+  const word = wav(quiet, { ms: 60, amplitude: 0.007 }, quiet);
+  expect(await hear(word, " Ich.")).toEqual({ text: "Ich.", silent: false, asked: 1 });
+
+  // Near-silent (never above -36.5 dBFS, under 250 ms as loud as speech): Whisper's "thank you"
+  // dropped — unless it is the line to say.
+  const faint = wav(quiet, { ms: 200, amplitude: 0.018 }, quiet);
+  expect(await hear(faint, " Danke.")).toEqual(nothing(1));
+  expect((await hear(faint, " Danke.", { expect: ["Danke!", "Bitte!"] })).text).toBe("Danke.");
+  // Said at a normal level, "Danke." and "Tschüss." are kept (Whisper sure of them).
+  const spoken = wav(quiet, { ms: 400, amplitude: 0.1 }, quiet);
+  expect((await hear(spoken, " Danke.", { logprob: -0.05 })).text).toBe("Danke.");
+  expect((await hear(spoken, " Tschüss.")).text).toBe("Tschüss.");
+  // Steady noise (pink, hum) heard as "Vielen Dank." dropped, and any word Whisper is unsure of in it;
+  // a loud tap heard as "Vielen Dank." with Whisper unsure of it too.
+  const hum = wav({ ms: 3000, amplitude: 0.05 });
+  expect(await hear(hum, " Vielen Dank.")).toEqual(nothing(1));
+  expect(await hear(hum, " Spannungsgeladene", { logprob: -0.6 })).toEqual(nothing(1));
+  expect((await hear(hum, " Ja.", { logprob: -0.1 })).text).toBe("Ja.");
+  expect((await hear(spoken, " Spannungsgeladene", { logprob: -0.6 })).text).toBe(
+    "Spannungsgeladene",
   );
+  const tap = wav(quiet, { ms: 160, amplitude: 0.5 }, quiet);
+  expect(await hear(tap, " Vielen Dank.", { logprob: -0.58 })).toEqual(nothing(1));
+  // Credits at any loudness; sounds Whisper names, and punctuation alone.
+  expect(await hear(spoken, " Untertitelung des ZDF, 2020", { logprob: -0.2 })).toEqual(nothing(1));
+  expect(await hear(spoken, " Untertitel im Auftrag des ZDF, 2017")).toEqual(nothing(1));
+  expect(await hear(spoken, " * Musik *")).toEqual(nothing(1));
+  expect(await hear(spoken, " [Musik]")).toEqual(nothing(1));
+  expect(await hear(spoken, " ...")).toEqual(nothing(1));
+  expect((await hear(spoken, " (lacht) Ja, gut.")).text).toBe("Ja, gut.");
+  // Anything else is kept, a phrase of another language's list too.
+  expect((await hear(faint, " Ja.")).text).toBe("Ja.");
+  expect((await hear(faint, " Thank you.")).text).toBe("Thank you.");
+});
+
+test("speech: the engine is asked for verbose_json in the language given, never with the line to say", async () => {
+  const m = machine(" Danke.", -0.1);
+  const { app, cookie, sendJson } = await setup({ fetch: m.fetch, speech: m.host });
+  await sendJson("POST", "/api/speech/models/small-q5_1", {});
+  await app.request("/api/speech/transcribe?lang=de&expect=Danke!", {
+    method: "POST",
+    headers: { cookie, "content-type": "audio/wav", ...CLIENT_HEADERS },
+    body: wav({ ms: 400, amplitude: 0.1 }),
+  });
+  const form = m.sent[0] as FormData;
+  expect(form.get("response_format")).toBe("verbose_json");
+  expect(form.get("language")).toBe("de");
+  expect([...form.keys()].sort()).toEqual(["file", "language", "response_format", "temperature"]);
 });

@@ -182,33 +182,40 @@ test("a line said: what was heard is shown and sent as heard, with its take, kep
 });
 
 test("a silent take is not sent to be heard nor kept: nothing was heard, said again", async () => {
-  microphoneHere(0);
-  const asked: string[] = [];
-  const view = await renderApp(
-    <SpeechProvider
-      value={{
-        ...host(true, "Vielen Dank."),
-        save: async () => {
-          asked.push("save");
-          return TAKE;
-        },
-        transcribe: async () => {
-          asked.push("transcribe");
-          return "Vielen Dank.";
-        },
-      }}
-    >
-      <DialogueLine lang="de" busy={false} onSend={() => {}} />
-    </SpeechProvider>,
-  );
-  fireEvent.click(view.getByRole("button", { name: "Record yourself" }));
-  await waitFor(() => view.getByRole("button", { name: "Stop recording" }));
-  await act(async () => {
-    fireEvent.click(view.getByRole("button", { name: "Stop recording" }));
-  });
-  expect(view.getByText(/^Nothing was heard/)).toBeTruthy();
-  expect(view.queryByText("Vielen Dank.")).toBeNull();
-  expect(asked).toEqual([]);
+  // A quiet room (-60 dBFS) on the page; then a take the server heard nothing in.
+  for (const [level, server] of [
+    [0.001, "Vielen Dank."],
+    [0.2, ""],
+  ] as const) {
+    microphoneHere(level);
+    const asked: string[] = [];
+    const view = await renderApp(
+      <SpeechProvider
+        value={{
+          ...host(true),
+          save: async () => {
+            asked.push("save");
+            return TAKE;
+          },
+          transcribe: async () => {
+            asked.push("transcribe");
+            return server;
+          },
+        }}
+      >
+        <DialogueLine lang="de" busy={false} onSend={() => {}} />
+      </SpeechProvider>,
+    );
+    fireEvent.click(view.getByRole("button", { name: "Record yourself" }));
+    await waitFor(() => view.getByRole("button", { name: "Stop recording" }));
+    await act(async () => {
+      fireEvent.click(view.getByRole("button", { name: "Stop recording" }));
+    });
+    await waitFor(() => expect(view.getByText(/^Nothing was heard/)).toBeTruthy());
+    expect(view.queryByText("Vielen Dank.")).toBeNull();
+    expect(asked).toEqual(server ? [] : ["transcribe"]);
+    view.unmount();
+  }
 });
 
 test("recording stops what is read aloud or played: the microphone never hears the partner's line", async () => {

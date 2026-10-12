@@ -677,6 +677,33 @@ describe("course check and downloads", () => {
     });
   });
 
+  test("a course with a lesson under way is not removed; once that lesson is finished, it is", async () => {
+    const removed: string[] = [];
+    const installer: CourseInstaller = {
+      async remove(series, course) {
+        removed.push(`${series}/${course}`);
+        return { files: 1, bytes: 1 };
+      },
+      offers: () => [],
+      run: async () => ({ failedMedia: [], goneMedia: [], normalised: {} }),
+      unfinished: async () => [],
+      storage: async () => ({ dataRoot: "/data", series: [], free: 1 }),
+    };
+    const api = await setup({ installer });
+    const remove = () => api.send("DELETE", `/api/course?series=${FIXTURE_SERIES}&course=demo`, {});
+    const body = { series: FIXTURE_SERIES, lessonKey: LESSON, edition: "ru-de" };
+    const { run } = await api.sendJson("POST", "/api/runs", body);
+    const refused = await remove();
+    expect(refused.status).toBe(409);
+    expect(await refused.json()).toMatchObject({ error: "course_in_use" });
+    expect(removed).toEqual([]);
+    await skipRest(api, run.id);
+    await readSteps(api, run.id);
+    await api.sendJson("POST", `/api/runs/${run.id}/finish`, {});
+    expect((await remove()).status).toBe(200);
+    expect(removed).toEqual([`${FIXTURE_SERIES}/demo`]);
+  });
+
   test("without an installer nothing can be downloaded", async () => {
     const { send, getJson } = await setup();
     expect(await getJson("/api/catalog")).toEqual([]);

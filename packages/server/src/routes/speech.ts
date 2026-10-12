@@ -1,6 +1,7 @@
 // /api/speech: recognition (08) — the engine and its models (download, remove), the profile's choice
 // (on/off and model, in its settings), warming the engine before a recording, and transcribing a
-// 16 kHz mono WAV in a language given; reading aloud — Piper's voices and Qwen3-TTS's models
+// 16 kHz mono WAV in a language given (with the lines it was to say, if any: `expect`, one a line —
+// only to tell a line said from what Whisper makes of silence); reading aloud — Piper's voices and Qwen3-TTS's models
 // (download, remove; Qwen warmed ahead) and a text said as a WAV with the profile's engine, voice and
 // speed.
 import { Lang } from "@sprachanker/schema";
@@ -74,11 +75,12 @@ export function speechRoutes() {
     })
     .post(
       "/transcribe",
-      zod("query", z.object({ lang: Lang })),
+      zod("query", z.object({ lang: Lang, expect: z.string().max(4000).optional() })),
       audioBody(WAV_MAX_BYTES),
       async (c) => {
         const wav = new Uint8Array(await c.req.arrayBuffer());
-        return c.json(await c.var.s.speech.transcribe(wav, c.req.valid("query").lang));
+        const { lang, expect } = c.req.valid("query");
+        return c.json(await c.var.s.speech.transcribe(wav, lang, expect?.split("\n")));
       },
     );
 }

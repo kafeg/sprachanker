@@ -1316,6 +1316,7 @@
     "card_changed": "Ta fiszka zmieniła się na innym urządzeniu. Jest pokazana ponownie.",
     "downloads_unavailable": "Tutaj nie można pobierać kursów.",
     "course_busy": "Ten kurs właśnie się pobiera. Usuń go, gdy pobieranie się skończy.",
+    "course_in_use": "Lekcja lub egzamin z tego kursu jest wciąż w toku: dokończ go (albo zresetuj postępy w kursie), zanim usuniesz kurs.",
     "empty_recording": "Nagranie jest puste. Spróbuj ponownie.",
     "event_id_taken": "Ta odpowiedź została już zapisana inaczej. Wczytaj stronę ponownie.",
     "event_of_another_run": "Ten wpis należy do innego podejścia. Wczytaj lekcję ponownie.",

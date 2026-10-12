@@ -69,6 +69,8 @@ export function createDownloads(deps: {
   now: () => number;
   /** Called when a download ends (done or failed): the course's files may have changed. */
   onEnd?: (series: string, course: string) => void;
+  /** A profile has a lesson or exam of the course under way (removing it is refused). */
+  underWay?: (series: string, course: string) => boolean;
 }) {
   const jobs = new Map<string, DownloadJob>();
   const queue: DownloadJob[] = [];
@@ -167,7 +169,8 @@ export function createDownloads(deps: {
     },
 
     /**
-     * Removes a downloaded course or exam from this computer (06): refused while it downloads. The
+     * Removes a downloaded course or exam from this computer (06): refused while it downloads, and
+     * while a profile has a lesson or exam of it under way (resumed, it would have nothing to show). The
      * learner's runs keep what they showed (an exam run its snapshot), their cards their words; the
      * same course downloaded again meets them by its keys.
      */
@@ -177,6 +180,7 @@ export function createDownloads(deps: {
       const job = jobs.get(keyOf(series, course));
       if (job && (job.status === "queued" || job.status === "running"))
         throw new ServiceError("course_busy", 409);
+      if (deps.underWay?.(series, course)) throw new ServiceError("course_in_use", 409);
       // Another process importing the series (the CLI): `series_busy`.
       const removed = await guarded(() => installer.remove(series, course));
       deps.onEnd?.(series, course);

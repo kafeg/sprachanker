@@ -84,10 +84,19 @@ export async function sayOnServer(
   return res.blob();
 }
 
-/** What was said in a 16 kHz WAV, in a language given (a binary body, not through the RPC client). */
-export async function transcribe(wav: Uint8Array<ArrayBuffer>, lang: string): Promise<string> {
-  const url = `/api/speech/transcribe?lang=${encodeURIComponent(lang)}`;
-  return (await sendBinary<{ text: string }>(url, wav, "audio/wav")).text;
+/** What was said in a 16 kHz WAV, in a language given (a binary body, not through the RPC client);
+ *  empty when nothing was heard. `expected`: the lines to say, telling one said from what the
+ *  recogniser makes of silence (never heard with, 08) — short ones only: what it makes up is short. */
+export async function transcribe(
+  wav: Uint8Array<ArrayBuffer>,
+  lang: string,
+  expected: readonly string[] = [],
+): Promise<string> {
+  const query = new URLSearchParams({ lang });
+  const short = expected.filter((line) => line.length <= 100).slice(0, 10);
+  if (short.length) query.set("expect", short.join("\n"));
+  return (await sendBinary<{ text: string }>(`/api/speech/transcribe?${query}`, wav, "audio/wav"))
+    .text;
 }
 
 /** Starts the recogniser ahead of a recording. */

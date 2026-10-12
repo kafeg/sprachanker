@@ -1316,6 +1316,7 @@
     "card_changed": "Cette carte a changé sur un autre appareil. Elle est affichée à nouveau.",
     "downloads_unavailable": "Les cours ne peuvent pas être téléchargés ici.",
     "course_busy": "Ce cours est en cours de téléchargement. Retire-le une fois le téléchargement terminé.",
+    "course_in_use": "Une leçon ou un examen de ce cours n’est pas terminé : termine-le (ou réinitialise la progression du cours) avant de retirer le cours.",
     "empty_recording": "L’enregistrement est vide. Réessaie.",
     "event_id_taken": "Cette réponse a déjà été enregistrée autrement. Recharge la page.",
     "event_of_another_run": "Cet enregistrement appartient à un autre passage. Recharge la leçon.",

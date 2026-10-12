@@ -9,6 +9,7 @@ import { useTranslation } from "react-i18next";
 import { languageName } from "@/i18n/index.ts";
 import { Tooltip, TooltipContent, TooltipTrigger } from "@/ui/components/tooltip.tsx";
 import { cn } from "@/ui/utils.ts";
+import type { Alt } from "./speak.ts";
 import { useSpeaker } from "./speaker.ts";
 
 export function ReadByLabel({
@@ -17,8 +18,9 @@ export function ReadByLabel({
   className,
 }: {
   lang: string;
-  /** Read by two voices of the language where there are two (a dialogue's speakers): both named. */
-  two?: boolean;
+  /** Read by two voices of the language where there are two (a dialogue's speakers): both named —
+   *  the second as its parts ask for it (`alt`). */
+  two?: Alt | false;
   className?: string;
 }) {
   const { t, i18n } = useTranslation();
@@ -26,7 +28,7 @@ export function ReadByLabel({
   const [open, setOpen] = useState(false);
   if (speaker.asking) return null;
   const by = speaker.readBy(lang);
-  const other = two ? speaker.readBy(lang, true)?.voice : undefined;
+  const other = two ? speaker.readBy(lang, two)?.voice : undefined;
   const voices =
     by?.voice && other && other !== by.voice
       ? new Intl.ListFormat(i18n.language, { type: "conjunction" }).format([by.voice, other])

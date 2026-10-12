@@ -363,6 +363,11 @@ async function coursesCommand(args: string[]): Promise<void> {
         `${arg}: removed, ${done.files} files (${megabytes(done.bytes)})` +
           (done.shared ? `; ${done.shared} media files other courses use kept` : ""),
       );
+      // A running server keeps the course's words its review cards read: restarted, it reads anew.
+      if (done.server)
+        console.log(
+          `a server runs on this data folder (pid ${done.server}): restart it (sprachanker serve) so it forgets the course`,
+        );
       return;
     }
     default:

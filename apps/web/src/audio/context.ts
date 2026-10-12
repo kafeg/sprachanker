@@ -12,8 +12,9 @@ export interface SpeechHost {
   kept?(id: string): boolean;
   /** Speech recognition is on and ready (the engine and a model, 08). */
   recognition: boolean;
-  /** What was said in a take, in a language given. */
-  transcribe(take: Take, lang: string): Promise<string>;
+  /** What was said in a take, in a language given; empty when nothing was heard (silence, noise,
+   *  what the recogniser makes of them). `expected`: the lines the learner was to say, if any. */
+  transcribe(take: Take, lang: string, expected?: readonly string[]): Promise<string>;
   /** Starts the recogniser ahead of a recording (loading its model takes seconds). */
   warm(): void;
 }

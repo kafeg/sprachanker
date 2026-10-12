@@ -58,13 +58,15 @@ export function DialogueLine({
       if (heardNothing(take)) return setUnheard("silent");
       setHearing(true);
       setUnheard(undefined);
-      const [recording, text] = await Promise.all([
-        host.save(take).catch(() => undefined),
-        host.transcribe(take, lang).catch(() => ""),
-      ]);
+      // Heard first: a take nothing was heard in (only what silence and noise are heard as) is not kept.
+      const text = await host.transcribe(take, lang).then(
+        (heard) => heard.trim(),
+        () => undefined,
+      );
+      const recording = text ? await host.save(take).catch(() => undefined) : undefined;
       if (latest.current !== n) return;
       setHearing(false);
-      if (!text.trim()) setUnheard("unclear");
+      if (!text) setUnheard(text === "" ? "silent" : "unclear");
       else
         setHeard({
           text: text.trim(),

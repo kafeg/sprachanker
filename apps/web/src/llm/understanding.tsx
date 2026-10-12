@@ -12,9 +12,9 @@ import { Headphones, Pause, Play, RotateCcw } from "lucide-react";
 import { useTranslation } from "react-i18next";
 import { useListening } from "@/audio/listening.ts";
 import { ReadByLabel } from "@/audio/read-by.tsx";
-import type { SpokenPart } from "@/audio/speak.ts";
+import type { Alt, SpokenPart } from "@/audio/speak.ts";
 import { useSpeaker } from "@/audio/speaker.ts";
-import { type Gender, otherSpeaker } from "@/audio/voice-genders.ts";
+import { type Gender, nameGender, otherSpeaker } from "@/audio/voice-genders.ts";
 import { languageName } from "@/i18n/index.ts";
 import type { LessonSlotContext } from "@/lesson/slots.ts";
 import {
@@ -45,14 +45,24 @@ const speakersOf = (text: UnderstandingText) => [
   ...new Set(text.lines.flatMap((l) => (l.speaker ? [l.speaker] : []))),
 ];
 
-/** The text as it is read aloud: a line each, one speaker by the language's other voice — the one
- *  whose name says the main voice does not suit them, else the second to speak. */
-const partsOf = (text: UnderstandingText, lang: string, main: Gender | undefined): SpokenPart[] => {
+/** The speaker the language's other voice reads — the one whose name says the main voice does not
+ *  suit them, else the second to speak — and how: a voice of their gender where their name says it
+ *  (two women: another woman's voice). */
+const otherOf = (
+  text: UnderstandingText,
+  main: Gender | undefined,
+): { speaker: string; alt: Alt } | undefined => {
   const second = otherSpeaker(speakersOf(text), main);
+  return second === undefined ? undefined : { speaker: second, alt: nameGender(second) ?? true };
+};
+
+/** The text as it is read aloud: a line each, one speaker by the language's other voice. */
+const partsOf = (text: UnderstandingText, lang: string, main: Gender | undefined): SpokenPart[] => {
+  const other = otherOf(text, main);
   return text.lines.map((l) => ({
     text: l.text,
     lang,
-    ...(second !== undefined && l.speaker === second && { alt: true }),
+    ...(other && l.speaker === other.speaker && { alt: other.alt }),
   }));
 };
 
@@ -60,12 +70,13 @@ const partsOf = (text: UnderstandingText, lang: string, main: Gender | undefined
 function Listen({ text, lang }: { text: UnderstandingText; lang: string }) {
   const { t } = useTranslation();
   const speaker = useSpeaker();
-  const parts = partsOf(text, lang, speaker.gender(lang));
+  const main = speaker.gender(lang);
+  const parts = partsOf(text, lang, main);
   const listening = useListening(parts);
   const going = listening.playing || listening.at > 0;
   return (
     <div className={cn(panelClass, "space-y-3 p-4")}>
-      <ReadByLabel lang={lang} two={speakersOf(text).length > 1} />
+      <ReadByLabel lang={lang} two={otherOf(text, main)?.alt ?? false} />
       <div className="flex flex-wrap items-center gap-2">
         {listening.playing ? (
           <Button onClick={listening.pause}>

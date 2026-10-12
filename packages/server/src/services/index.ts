@@ -4,6 +4,7 @@
 // is first used.
 import type { ApkgRuntime } from "@sprachanker/anki-export";
 import type { LibraryView } from "@sprachanker/course-kit/view";
+import { courseKey, type SeriesKey } from "@sprachanker/schema";
 import type { ProfileDb } from "../db/profile/db.ts";
 import type { ServerDb } from "../db/server/db.ts";
 import { secretBox } from "../security/secrets.ts";
@@ -273,6 +274,15 @@ export function createServices(config: ServicesConfig) {
     onEnd: () => {
       for (const s of open.values()) void relink(s);
     },
+    // Every profile's runs (one not opened yet too).
+    underWay: (series, course) =>
+      profiles.list().some((p) =>
+        createRunStore({
+          db: config.profiles.open(p.id),
+          now,
+          appVersion: config.appVersion,
+        }).underWay(courseKey(series as SeriesKey, course)),
+      ),
   });
   const decks = createDecks({
     files: config.decks,

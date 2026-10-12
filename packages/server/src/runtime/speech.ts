@@ -16,7 +16,16 @@ export function speechHost(dataRoot: string): SpeechHost {
     whisper: {
       binary: () => engineAt("whisper"),
       spawn: (binary, { model }, port) =>
-        spawn([binary, "-m", model, ...local, String(port), "--no-timestamps"]),
+        spawn([
+          binary,
+          "-m",
+          model,
+          ...local,
+          String(port),
+          "--no-timestamps",
+          // verbose_json without the languages detected (the language is always given, 08).
+          "--no-language-probabilities",
+        ]),
     },
     qwen: {
       binary: () => engineAt("qwen"),

@@ -11,7 +11,8 @@
     "Das war's für heute.",
     "Untertitel…",
     "Untertitelung…",
-    "Copyright WDR…",
+    "Copyright…",
+    "WDR…",
     "SWR…",
     "ZDF…"
   ],
@@ -25,7 +26,8 @@
     "Amen.",
     "Please subscribe…",
     "Subtitles by…",
-    "Transcription by…"
+    "Transcription by…",
+    "Copyright…"
   ],
   "ru": [
     "Спасибо.",
@@ -48,6 +50,6 @@
   ],
   "it": ["Grazie.", "Grazie per la visione.", "Sottotitoli…", "Amen."],
   "pt": ["Obrigado.", "Obrigada.", "Obrigado por assistir.", "Legendas…", "Amém."],
-  "pl": ["Dziękuję.", "Dzięki za obejrzenie.", "Napisy…", "Amen."],
+  "pl": ["Dziękuję.", "Dzięki za obejrzenie.", "Napisy stworzone…", "Amen."],
   "nl": ["Dank je wel.", "Bedankt voor het kijken.", "Ondertiteling…", "Ondertiteld door…", "Amen."]
 }

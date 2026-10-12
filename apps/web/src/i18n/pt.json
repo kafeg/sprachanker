@@ -1316,6 +1316,7 @@
     "card_changed": "Este cartão mudou em outro dispositivo. Ele é mostrado de novo.",
     "downloads_unavailable": "Não é possível baixar cursos aqui.",
     "course_busy": "Este curso está sendo baixado. Remova-o quando o download terminar.",
+    "course_in_use": "Uma lição ou um exame deste curso ainda está em andamento: termine-o (ou redefina o progresso do curso) antes de remover o curso.",
     "empty_recording": "A gravação está vazia. Tente de novo.",
     "event_id_taken": "Esta resposta já foi registrada de outra forma. Recarregue a página.",
     "event_of_another_run": "Este registro pertence a outra rodada. Recarregue a lição.",
