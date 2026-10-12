@@ -1,5 +1,5 @@
 // The learner's gender in a reply (07): the words that mark it found by the learner's language — the
-// third walkthrough's own phrasings, and those that only look alike.
+// phrasings models write, and those that only look alike.
 import { expect, test } from "bun:test";
 import { genderMarked, genderProblem } from "../src/tasks/gender.ts";
 import { writingTaskTask } from "../src/tasks/writing-task.ts";

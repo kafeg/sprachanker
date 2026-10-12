@@ -145,7 +145,7 @@ rules.
 
 | Task | Input | Output |
 |---|---|---|
-| `explain_mistake` | exercise item, reference answer, learner answer, lesson grammar pages, the course's level, the grammar topics met so far each with the lesson that taught it (the snapshot); the lesson's transcript when the item is about its audio or video | short explanation in the interface language (streamed text): what is wrong (never a guess at why it was chosen; a tendency said as one, not as a rule), the rule, where its topic was taught — in the learner's language, the lesson by its number and title as given ("… 1.2 «title»"; the topics line names lessons with no English word beside them, which a model copied: walkthrough, 2026-10-12) |
+| `explain_mistake` | exercise item, reference answer, learner answer, lesson grammar pages, the course's level, the grammar topics met so far each with the lesson that taught it (the snapshot); the lesson's transcript when the item is about its audio or video | short explanation in the interface language (streamed text): what is wrong (never a guess at why it was chosen; a tendency said as one, not as a rule), the rule, where its topic was taught — in the learner's language, the lesson by its number and title as given ("… 1.2 «title»"; the topics line names lessons with no English word beside them, which a model would copy) |
 | `chat_turn` | the lesson tutor: lesson context, the course's level and the lesson's place, known words, grammar topics met, the exercise on screen, mistakes, history (the learner's turns marked with the exercise on screen); tools (below) | message (streamed text), one form of address through the chat |
 | `section_chat_turn` | the tutor on its own (the Tutor section): what the learner has met in the courses of the chat's language — the courses (lessons done of all, the lessons worked on), those lessons' words with translations and grammar topics, the latest mistakes in them —, history | message (streamed text), one form of address through the chat |
 | `writing_task` | the lesson (title, goals, its place, words, grammar notes) and the snapshot (level, earlier words, grammar topics met); the text's length at the level and what a text at the level needs, with the data; how the target language's exam sets the task (Goethe's Schreiben for German) | JSON: situation, points (exactly three, three different things — two whose main words mostly match — stop words and the words all three share aside — are asked again once, then kept: `repeatedPoints`, the task's quality), both in the learner's language — the length added by the app (04, "Writing") |
@@ -337,13 +337,13 @@ Both tutors (the lesson's and the section's) take real-life language as in scope
   command-line providers, nor when a server refused the tools). Each learner turn records the
   exercise on screen; in the history sent to the model a turn starts with `[On screen: Exercise N ·
   Title]` where that changed, so earlier turns about other exercises are not read as about the current
-  one. Its rules (walkthrough, 2026-10-12): questions and explanations only (practice is the lesson's
+  one. Its rules: questions and explanations only (practice is the lesson's
   steps, 04); hints first only for the exercise on screen — any other question, "how do I say X"
   too, answered at once; about 150 words, no headings or emoji, no question at the end unless
   something is unclear; only the interface language and the language learnt; no rule assumes the
   learner's gender. Every target-language form right at once — never written and corrected later in
   the same answer —, the lesson notes' forms (the case after a preposition) as they give them, no
-  circumstances of the learner made up (walkthrough 2, 2026-10-12; the tutor on its own alike).
+  circumstances of the learner made up (the tutor on its own alike).
 - **The tutor on its own** (`section_chat_turn`, the Tutor section of 09; owner, 2026-10-10): chats
   about no lesson, on whatever the learner asks (a grammar question, a text to go through, a
   conversation to practise). They are the lesson tutor's chats with another context — one model: a
@@ -384,7 +384,7 @@ Both tutors (the lesson's and the section's) take real-life language as in scope
   Dialogues) is a `scene` run with `llm_turn` events. Its setup is its run's plan, drafted from the
   lesson's goals and the snapshot (no authored ones yet): the learner's goal card and, hidden from
   the learner until it is over, what the partner knows (`partnerInfo`: the information gap — the
-  learner must ask for it). The setup (walkthrough, 2026-10-12): the partner a new person, never a
+  learner must ask for it). The setup: the partner a new person, never a
   course character, nothing said of the course's characters; 2–3 goals of the kinds the level's data
   line gives, at least one asking for a partner's fact and one needing the lesson's grammar (its
   notes are in the data), from B1 on at least one an opinion (the level's data line says it); an
@@ -397,7 +397,7 @@ Both tutors (the lesson's and the section's) take real-life language as in scope
   goals are the learner's to reach — the partner never asks the goal questions itself nor offers a
   fact before it is asked —; it answers as a person would (a short reaction, a word about itself or
   the situation, a question about the learner's plans), asks "anything else?" at most once and only
-  when the learner stalls (walkthrough 2, 2026-10-12: one partner asked it in 18 of 29 lines), and it
+  when the learner stalls, and it
   never corrects inside its line. A reply that ends with the question the partner's last line (or the
   opening) ended with is asked again once, then kept (`repeatedQuestion`, compared without case and
   punctuation). It takes the line as a person would understand it (the
