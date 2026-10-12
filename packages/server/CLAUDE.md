@@ -92,7 +92,8 @@ src/
                      #   writing (a task set, a text on it checked), going-over (the pass's mistakes by
                      #   type, new items checked by the engine), speaking, tutor (+ tutor-tools,
                      #   courses-context), scene (the Dialogue), exam-rating, exam-conversation, examples
-                     # - speech (08): speech (whisper-server), read-aloud (Piper; piper-voices.json from
+                     # - speech (08): speech (whisper-server; silence: a take's loudness, the phrases
+                     #   Whisper makes up of silence by language — hallucinations.json), read-aloud (Piper; piper-voices.json from
                      #   scripts/piper-voices.ts), qwen-tts, local-engines (SpeechHost, ReadingCache,
                      #   engineSidecar), model-downloads, sidecar (the supervisor), profile-speech,
                      #   recordings (the learner's audio)

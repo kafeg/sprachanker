@@ -9,7 +9,9 @@ off, its model, the engine, voice and speed reading aloud) are applied by `servi
 
 - **Capture** in the browser (`apps/web/src/audio/recorder.ts`): MediaRecorder in the browser's own
   format (Safari MP4/AAC, Chrome WebM/Opus), at most 30 s a take, the loudness shown while it records;
-  the microphone chosen per device (Settings → Speech). A take starting stops whatever plays — a line
+  the microphone chosen per device (Settings → Speech). The browser's processing of the microphone is
+  off (automatic gain, noise suppression, echo cancellation): it boosted and reshaped the voice the
+  recogniser heard ("Hallo, Nico!" heard as "Title, Nicole."), and nothing plays during a take. A take starting stops whatever plays — a line
   read aloud (a Dialogue's partner, an exam conversation's examiner), a recording, a video —, so the
   microphone never hears it. Only in a secure context (HTTPS or this
   computer, 06): elsewhere the microphone button is disabled and says why (a tooltip; on a phone a line
@@ -43,6 +45,13 @@ off, its model, the engine, voice and speed reading aloud) are applied by `servi
   server, `audio/wav.ts`) and sent to `POST /api/speech/transcribe?lang=` while the original is kept in
   `recordings/`; the transcript goes into the answer (05).
 - The reference text is never passed to the recogniser (it biases results).
+- **Silence is nothing heard**: Whisper makes up words for a silent take ("Vielen Dank.", "Amen.",
+  "Untertitel im Auftrag des ZDF"). A take never louder than a quiet room (about -40 dBFS) is neither
+  kept nor sent (the recorder's loudest moment) and the learner is asked to say it again; the server
+  does not ask the engine for a WAV with under 0.12 s that loud, and a near-silent one (under 0.25 s,
+  or never above -30 dBFS) heard as one of the phrases Whisper makes up of silence in its language
+  (`services/hallucinations.json`) is heard as nothing (`services/silence.ts`). The engine's own
+  voice activity detection needs a model of its own to download; not used.
 - Measured on the owner's M2 Pro (large-v3-turbo q5_0, Metal): a 3–4 s phrase in 0.7 s warm, 1.2 s
   the first time.
 

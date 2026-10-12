@@ -28,8 +28,9 @@ afterEach(() => {
   g.AudioContext = saved.context;
 });
 
-/** A page where the microphone records: each take is a little audio, stopped when asked. */
-function microphoneHere() {
+/** A page where the microphone records: each take is a little audio at the level given (a voice, or
+ *  silence), stopped when asked. */
+function microphoneHere(level = 0.2) {
   Object.defineProperty(window, "isSecureContext", { value: true, configurable: true });
   g.MediaRecorder = class {
     static isTypeSupported = () => true;
@@ -47,7 +48,10 @@ function microphoneHere() {
     }
   };
   g.AudioContext = class {
-    createAnalyser = () => ({ fftSize: 0, getByteTimeDomainData() {} });
+    createAnalyser = () => ({
+      fftSize: 0,
+      getFloatTimeDomainData: (a: Float32Array) => a.fill(level),
+    });
     createMediaStreamSource = () => ({ connect() {} });
     close = async () => {};
   };
@@ -175,6 +179,36 @@ test("a line said: what was heard is shown and sent as heard, with its take, kep
   expect(view.getByRole("button", { name: "Send" })).toBeTruthy();
   act(() => stored());
   expect(view.getByRole("button", { name: "Record yourself" })).toBeTruthy();
+});
+
+test("a silent take is not sent to be heard nor kept: nothing was heard, said again", async () => {
+  microphoneHere(0);
+  const asked: string[] = [];
+  const view = await renderApp(
+    <SpeechProvider
+      value={{
+        ...host(true, "Vielen Dank."),
+        save: async () => {
+          asked.push("save");
+          return TAKE;
+        },
+        transcribe: async () => {
+          asked.push("transcribe");
+          return "Vielen Dank.";
+        },
+      }}
+    >
+      <DialogueLine lang="de" busy={false} onSend={() => {}} />
+    </SpeechProvider>,
+  );
+  fireEvent.click(view.getByRole("button", { name: "Record yourself" }));
+  await waitFor(() => view.getByRole("button", { name: "Stop recording" }));
+  await act(async () => {
+    fireEvent.click(view.getByRole("button", { name: "Stop recording" }));
+  });
+  expect(view.getByText(/^Nothing was heard/)).toBeTruthy();
+  expect(view.queryByText("Vielen Dank.")).toBeNull();
+  expect(asked).toEqual([]);
 });
 
 test("recording stops what is read aloud or played: the microphone never hears the partner's line", async () => {

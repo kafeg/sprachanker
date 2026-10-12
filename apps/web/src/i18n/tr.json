@@ -1284,6 +1284,7 @@
     },
     "sayIn": "{language} söyle",
     "notHeardShort": "Tanınamadı. Tekrar dene.",
+    "nothingHeard": "Hiçbir şey duyulmadı. Biraz daha yüksek sesle tekrar söyle.",
     "answerSample": "Örnek",
     "aiChecking": "Yapay zekâ cevabını kontrol ediyor…",
     "needsRecognition": "Bir cümleyi söylemek için konuşma tanıma gerekir: Ayarlar → Konuşma bölümünden aç.",

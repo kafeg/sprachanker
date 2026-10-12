@@ -1284,6 +1284,7 @@
     },
     "sayIn": "Izgovori na jeziku: {language}",
     "notHeardShort": "Nije se moglo prepoznati. Pokušaj ponovo.",
+    "nothingHeard": "Ništa se nije čulo. Reci to ponovo, malo glasnije.",
     "answerSample": "Uzorak",
     "aiChecking": "AI provjerava tvoj odgovor…",
     "needsRecognition": "Za izgovaranje fraze potrebno je prepoznavanje govora: uključi ga u Postavkama → Govor.",

@@ -1,7 +1,8 @@
 // Recording oneself (08): whether this page may use the microphone (a secure context with
 // MediaRecorder: HTTPS or this computer), the microphone chosen on this device, and a recorder — start,
 // stop with the take as the browser encoded it (Safari MP4/AAC, Chrome WebM/Opus), its loudness while
-// it records. Nothing here talks to the server.
+// it records and the loudest it got (a take never louder than a quiet room heard nothing). Nothing
+// here talks to the server.
 import { useCallback, useEffect, useRef, useState } from "react";
 import { stopPlayback } from "@/ui/playback.tsx";
 
@@ -38,12 +39,24 @@ export const micDevice = {
   },
 };
 
-/** One recording: the audio as encoded, its type, its length. */
+/** One recording: the audio as encoded, its type, its length, and its loudest moment (the root mean
+ *  square of the loudest stretch measured, 0–1; none when nothing was measured: a hidden page). */
 export interface Take {
   blob: Blob;
   type: string;
   ms: number;
+  peak?: number;
 }
+
+/** Speech is louder than this (about -40 dBFS) somewhere in a take; a quiet room is not. */
+const SPEECH_RMS = 0.01;
+
+/** Nothing in the take was loud enough to be speech: it is not kept nor sent to be heard (08). */
+export const heardNothing = (take: Take) => take.peak !== undefined && take.peak < SPEECH_RMS;
+
+/** The browser's processing of the microphone off: noise suppression and automatic gain change the
+ *  voice the recogniser hears, and nothing plays while a take records (08). */
+const RAW = { autoGainControl: false, noiseSuppression: false, echoCancellation: false };
 
 export type RecorderState = "idle" | "starting" | "recording" | "denied" | "failed";
 
@@ -56,6 +69,7 @@ interface Session {
   started: number;
   frame: number;
   timer: ReturnType<typeof setTimeout>;
+  peak?: number;
 }
 
 /** The types to record in, the first one the browser has. */
@@ -102,7 +116,7 @@ export function useRecorder({
     try {
       const device = micDevice.get();
       const stream = await navigator.mediaDevices.getUserMedia({
-        audio: device ? { deviceId: { ideal: device } } : true,
+        audio: device ? { ...RAW, deviceId: { ideal: device } } : RAW,
       });
       const type = TYPES.find((t) => MediaRecorder.isTypeSupported(t));
       const recorder = new MediaRecorder(stream, type ? { mimeType: type } : undefined);
@@ -110,7 +124,7 @@ export function useRecorder({
       const analyser = context.createAnalyser();
       analyser.fftSize = 512;
       context.createMediaStreamSource(stream).connect(analyser);
-      const samples = new Uint8Array(analyser.fftSize);
+      const samples = new Float32Array(analyser.fftSize);
       const s: Session = {
         recorder,
         stream,
@@ -121,12 +135,15 @@ export function useRecorder({
         timer: setTimeout(stop, maxMs),
       };
       session.current = s;
-      // Loudness as the root mean square of the waveform, for the level shown while recording.
+      // Loudness as the root mean square of the waveform, for the level shown while recording and
+      // the take's loudest moment.
       const measure = () => {
-        analyser.getByteTimeDomainData(samples);
+        analyser.getFloatTimeDomainData(samples);
         let sum = 0;
-        for (const v of samples) sum += ((v - 128) / 128) ** 2;
-        setLevel(Math.min(1, Math.sqrt(sum / samples.length) * 4));
+        for (const v of samples) sum += v * v;
+        const rms = Math.sqrt(sum / samples.length);
+        s.peak = Math.max(s.peak ?? 0, rms);
+        setLevel(Math.min(1, rms * 4));
         s.frame = requestAnimationFrame(measure);
       };
       measure();
@@ -137,6 +154,7 @@ export function useRecorder({
           blob: new Blob(s.chunks, { type: mime }),
           type: mime,
           ms: Date.now() - s.started,
+          ...(s.peak !== undefined && { peak: s.peak }),
         };
         release();
         setState("idle");

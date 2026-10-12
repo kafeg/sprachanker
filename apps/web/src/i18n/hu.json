@@ -1284,6 +1284,7 @@
     },
     "sayIn": "Mondd ki ezen a nyelven: {language}",
     "notHeardShort": "Nem sikerült felismerni. Próbáld újra.",
+    "nothingHeard": "Semmi sem hallatszott. Mondd el újra, kicsit hangosabban.",
     "answerSample": "Minta",
     "aiChecking": "Az MI ellenőrzi a válaszodat…",
     "needsRecognition": "Egy mondat kimondásához beszédfelismerés kell: kapcsold be itt: Beállítások → Beszéd.",

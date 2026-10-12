@@ -1284,6 +1284,7 @@
     },
     "sayIn": "Ucapkan dalam bahasa {language}",
     "notHeardShort": "Ucapan tidak bisa dikenali. Coba lagi.",
+    "nothingHeard": "Tidak ada yang terdengar. Ucapkan lagi, sedikit lebih keras.",
     "answerSample": "Contoh",
     "aiChecking": "AI sedang memeriksa jawaban kamu…",
     "needsRecognition": "Mengucapkan frasa memerlukan pengenalan ucapan: aktifkan di Pengaturan → Ucapan.",

@@ -7,7 +7,7 @@ import { useEffect, useRef, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { useSpeechHost } from "@/audio/context.ts";
 import { MicButton, micProblem } from "@/audio/mic-button.tsx";
-import { micState, type Take, useRecorder } from "@/audio/recorder.ts";
+import { heardNothing, micState, type Take, useRecorder } from "@/audio/recorder.ts";
 import { TakeButton } from "@/audio/take-button.tsx";
 import { Button } from "@/ui/components/button.tsx";
 import { inLang } from "@/ui/direction.tsx";
@@ -44,7 +44,7 @@ export function DialogueLine({
   const [typed, setTyped] = useState("");
   const [heard, setHeard] = useState<Heard>();
   const [hearing, setHearing] = useState(false);
-  const [unheard, setUnheard] = useState(false);
+  const [unheard, setUnheard] = useState<"silent" | "unclear">();
   /** The latest take's number: an older one heard late is dropped. */
   const latest = useRef(0);
   useEffect(() => host?.warm(), [host]);
@@ -54,15 +54,17 @@ export function DialogueLine({
     onTake: async (take: Take) => {
       if (!host) return;
       const n = ++latest.current;
+      // Nothing loud in it: neither kept nor heard, said again.
+      if (heardNothing(take)) return setUnheard("silent");
       setHearing(true);
-      setUnheard(false);
+      setUnheard(undefined);
       const [recording, text] = await Promise.all([
         host.save(take).catch(() => undefined),
         host.transcribe(take, lang).catch(() => ""),
       ]);
       if (latest.current !== n) return;
       setHearing(false);
-      if (!text.trim()) setUnheard(true);
+      if (!text.trim()) setUnheard("unclear");
       else
         setHeard({
           text: text.trim(),
@@ -135,9 +137,11 @@ export function DialogueLine({
               ? t("speech.recording")
               : hearing
                 ? t("speech.listening")
-                : unheard
-                  ? t("speech.notHeardShort")
-                  : t("speech.howTo")}
+                : unheard === "silent"
+                  ? t("speech.nothingHeard")
+                  : unheard
+                    ? t("speech.notHeardShort")
+                    : t("speech.howTo")}
           </p>
         </>
       )}

@@ -6,7 +6,7 @@ import { useEffect, useRef, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { useSpeechHost } from "@/audio/context.ts";
 import { MicButton } from "@/audio/mic-button.tsx";
-import { type Take, useRecorder } from "@/audio/recorder.ts";
+import { heardNothing, type Take, useRecorder } from "@/audio/recorder.ts";
 import { TakeButton } from "@/audio/take-button.tsx";
 import { CourseHtml } from "@/ui/course-html.tsx";
 import { inLang } from "@/ui/direction.tsx";
@@ -76,7 +76,8 @@ function Heard({
 
 /**
  * One's takes of an item (08): recorded, kept when recordings are, heard when recognition is on —
- * at once, either failing leaving the take itself; with `heardFirst`, kept only once heard (a take
+ * at once, either failing leaving the take itself; a take nothing loud was in neither kept nor heard,
+ * the learner asked to say it again; with `heardFirst`, kept only once heard (a take
  * that counts by its words is not kept without them). `done` gets what was kept and heard, for the
  * latest take only, while the item is shown. The recogniser starts loading as the item shows (while
  * the learner listens to the original), and again when recognition comes on or changes model.
@@ -92,6 +93,7 @@ function useTakes(
   const [saving, setSaving] = useState(false);
   const [unsaved, setUnsaved] = useState(false);
   const [unheard, setUnheard] = useState(false);
+  const [silent, setSilent] = useState(false);
   /** The latest take's number; 0 once the item is gone. */
   const latest = useRef(0);
   useEffect(() => {
@@ -113,6 +115,8 @@ function useTakes(
   const taken = async (recorded: Take) => {
     const n = ++latest.current;
     const current = () => latest.current === n;
+    setSilent(heardNothing(recorded));
+    if (heardNothing(recorded)) return;
     setTake({ url: URL.createObjectURL(recorded.blob), ms: recorded.ms });
     setUnsaved(false);
     setUnheard(false);
@@ -139,7 +143,7 @@ function useTakes(
     setSaving(false);
     done({ ...(recording && { recording }), ...(transcript !== undefined && { transcript }) });
   };
-  return { host, take, saving, unsaved, unheard, recorder };
+  return { host, take, saving, unsaved, unheard, silent, recorder };
 }
 
 /** What the take's line under the microphone says: recording, saving or listening, what failed,
@@ -154,24 +158,26 @@ function TakeStatus({
   heard: boolean;
 }) {
   const { t } = useTranslation();
-  const { recorder, saving, host, unsaved, unheard } = takes;
+  const { recorder, saving, host, unsaved, unheard, silent } = takes;
   return (
     <p className="text-center text-xs text-muted-foreground" aria-live="polite">
       {recorder.state === "recording"
         ? t("speech.recording")
-        : saving
-          ? host?.recognition
-            ? t("speech.listening")
-            : t("speech.saving")
-          : unsaved
-            ? t("speech.notSaved")
-            : unheard
-              ? t("speech.notHeard")
-              : attempted
-                ? t("speech.again")
-                : heard
-                  ? t("speech.howTo")
-                  : null}
+        : silent
+          ? t("speech.nothingHeard")
+          : saving
+            ? host?.recognition
+              ? t("speech.listening")
+              : t("speech.saving")
+            : unsaved
+              ? t("speech.notSaved")
+              : unheard
+                ? t("speech.notHeard")
+                : attempted
+                  ? t("speech.again")
+                  : heard
+                    ? t("speech.howTo")
+                    : null}
     </p>
   );
 }

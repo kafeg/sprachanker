@@ -1284,6 +1284,7 @@
     },
     "sayIn": "Say it in {language}",
     "notHeardShort": "It couldn't be recognised. Try again.",
+    "nothingHeard": "Nothing was heard. Say it again, a little louder.",
     "answerSample": "Sample",
     "aiChecking": "The AI is checking your answer…",
     "needsRecognition": "Saying a phrase needs speech recognition: turn it on in Settings → Speech.",

@@ -48,7 +48,7 @@ export function createProfileSpeech(deps: {
       const model = recogniser();
       if (!model) throw new ServiceError("speech_unavailable", 409);
       if (!wav.length) throw new ServiceError("empty_recording");
-      return speech.transcribe(new Blob([wav], { type: "audio/wav" }), lang, model);
+      return speech.take(wav, lang, model);
     },
     /** What a course recording says, heard with the profile's recogniser; undefined without one,
      *  or when hearing fails (what asks goes on without it). */

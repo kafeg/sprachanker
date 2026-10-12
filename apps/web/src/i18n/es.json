@@ -1284,6 +1284,7 @@
     },
     "sayIn": "Dilo en {language}",
     "notHeardShort": "No se pudo reconocer. Inténtalo otra vez.",
+    "nothingHeard": "No se oyó nada. Dilo otra vez, un poco más alto.",
     "answerSample": "Muestra",
     "aiChecking": "La IA está comprobando tu respuesta…",
     "needsRecognition": "Para decir una frase hace falta el reconocimiento de voz: actívalo en Ajustes → Voz.",

@@ -1284,6 +1284,7 @@
     },
     "sayIn": "Spune în {language}",
     "notHeardShort": "Nu s-a putut recunoaște. Încearcă din nou.",
+    "nothingHeard": "Nu s-a auzit nimic. Spune din nou, puțin mai tare.",
     "answerSample": "Model",
     "aiChecking": "AI-ul îți verifică răspunsul…",
     "needsRecognition": "Ca să spui o frază ai nevoie de recunoașterea vorbirii: activeaz-o în Setări → Vorbire.",

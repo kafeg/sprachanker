@@ -1284,6 +1284,7 @@
     },
     "sayIn": "Itamke kwa {language}",
     "notHeardShort": "Haikuweza kutambuliwa. Jaribu tena.",
+    "nothingHeard": "Hakuna kilichosikika. Sema tena, kwa sauti kubwa kidogo.",
     "answerSample": "Mfano",
     "aiChecking": "AI inakagua jibu lako…",
     "needsRecognition": "Kutamka sentensi kunahitaji utambuzi wa sauti: uwashe katika Mipangilio → Sauti.",

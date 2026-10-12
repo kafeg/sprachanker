@@ -1284,6 +1284,7 @@
     },
     "sayIn": "Diga em {language}",
     "notHeardShort": "Não foi possível reconhecer. Tente de novo.",
+    "nothingHeard": "Nada foi ouvido. Diga de novo, um pouco mais alto.",
     "answerSample": "Exemplo",
     "aiChecking": "A IA está verificando a sua resposta…",
     "needsRecognition": "Para dizer uma frase é preciso o reconhecimento de fala: ative-o em Configurações → Fala.",

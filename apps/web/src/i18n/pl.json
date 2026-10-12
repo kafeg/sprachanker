@@ -1284,6 +1284,7 @@
     },
     "sayIn": "Powiedz to w języku: {language}",
     "notHeardShort": "Nie udało się rozpoznać. Spróbuj ponownie.",
+    "nothingHeard": "Nic nie było słychać. Powiedz to jeszcze raz, trochę głośniej.",
     "answerSample": "Wzór",
     "aiChecking": "AI sprawdza twoją odpowiedź…",
     "needsRecognition": "Do wypowiadania zdań potrzebne jest rozpoznawanie mowy: włącz je w Ustawieniach → Mowa.",

@@ -1284,6 +1284,7 @@
     },
     "sayIn": "Dis-le en {language}",
     "notHeardShort": "Rien n’a pu être reconnu. Réessaie.",
+    "nothingHeard": "Rien n’a été entendu. Redis-le, un peu plus fort.",
     "answerSample": "Modèle",
     "aiChecking": "L’IA vérifie ta réponse…",
     "needsRecognition": "Dire une phrase nécessite la reconnaissance vocale : active-la dans Réglages → Parole.",

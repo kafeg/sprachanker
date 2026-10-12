@@ -1284,6 +1284,7 @@
     },
     "sayIn": "Auf {language} sagen",
     "notHeardShort": "Das ließ sich nicht erkennen. Versuch es noch einmal.",
+    "nothingHeard": "Es war nichts zu hören. Sag es noch einmal, etwas lauter.",
     "answerSample": "Muster",
     "aiChecking": "Die KI prüft deine Antwort …",
     "needsRecognition": "Für das Nachsprechen braucht es die Spracherkennung: Schalte sie unter Einstellungen → Sprechen ein.",
