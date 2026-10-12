@@ -166,7 +166,8 @@ rules.
 `rate_exam_answer`, asked on request — in practice once answered, in a mock exam only once handed in:
 an `llm_verdict` (`task: exam`) on the question in the exam run, for that answer (asked once for the
 same answer); the page shows it chosen with its reasons, and nothing scores until the learner takes it
-(`exam_rated` `by: assistant` with the model) or changes it (`by: self`).
+(`exam_rated` `by: assistant` with the model) or changes it (`by: self`); rated before, "Keep mine"
+stores nothing anew (the rating counting is stored) and sets the proposal aside on the device.
 A speaking part of an exam (09, Exams; owner's choice B, 2026-10-10) → `exam_conversation`: the
 model plays the examiner and the other candidate, the learner (candidate A) answers aloud — "Begin the
 part" opens it, each line said (heard by the recogniser) or typed gets the next lines, read aloud;
