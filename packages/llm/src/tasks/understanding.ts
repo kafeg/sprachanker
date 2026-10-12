@@ -270,9 +270,11 @@ export function draftLines(
   draft: UnderstandingDraft,
   genre: TextGenre,
 ): { lines: UnderstandingText["lines"]; problem?: string } {
-  // Tags a model sometimes carries over from the prompt ("</text>") are no part of the text.
+  // Tags a model sometimes carries over from the prompt ("</text>") are no part of the text, and a
+  // line break it escaped twice ("\\n" written out, beside real ones) is one.
   const raw = draft.text
     .replace(/<\/?[a-z]+(?:\s[^>]*)?>/gi, "")
+    .replaceAll("\\n", "\n")
     .split("\n")
     .map((l) => l.trim())
     .filter(Boolean);

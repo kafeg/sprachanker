@@ -222,6 +222,10 @@ test("draftLines: a dialogue's lines by speaker (bold names too), one person's p
   expect(story.map((l) => l.text).join(" ")).toBe(long);
   const turn = draftLines({ ...DRAFT, text: `Anna: ${long}\nHerr Brandt: Aha.` }, CONVERSATION);
   expect(turn.lines.map((l) => l.speaker)).toEqual(["Anna", "Anna", "Herr Brandt"]);
+  // Line breaks escaped twice beside real ones are line breaks.
+  expect(
+    draftLines({ ...DRAFT, text: "Liebe Anna,\\n\\nwie geht's?\nTschüss!" }, genre("story")).lines,
+  ).toEqual([{ text: "Liebe Anna," }, { text: "wie geht's?" }, { text: "Tschüss!" }]);
   // A tag carried over from the prompt is dropped.
   expect(
     draftLines({ ...DRAFT, text: "Liebe Anna,\nTschüss!</text>" }, genre("story")).lines,
