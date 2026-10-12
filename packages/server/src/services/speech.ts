@@ -72,6 +72,8 @@ export function createSpeech(deps: { host?: SpeechHost; fetch: typeof fetch }) {
       form.set("language", lang);
       form.set("response_format", "verbose_json");
       form.set("temperature", "0");
+      // Without the languages detected (the language is given); an older server ignores it.
+      form.set("no_language_probabilities", "true");
       const res = await deps
         .fetch(`${url}/inference`, {
           method: "POST",

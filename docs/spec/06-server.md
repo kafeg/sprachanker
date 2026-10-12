@@ -282,7 +282,10 @@ owner, no admin screens; server matters are the `sprachanker profiles` command's
   The runtime stops the engines with the server (exit and stop signals) and keeps their pids in
   `<data-root>/models/engines.pid`, so one left by a server killed outright is stopped when the
   next one starts. An engine stopped while it starts is not left running; an engine that fails a
-  request with its own failure is replaced on the next one.
+  request with its own failure is replaced on the next one. One that does not start (it exits, or
+  does not answer in time) is logged with the end of what it said on stderr. Options a request can
+  carry go with each request, not as flags (an older engine ignores a field it does not know; a flag
+  it does not know stops it).
 - One server per data root: `serve` makes `<data-root>/server.pid` (only where there is none, so two
   started at once cannot both have it) and refuses to start while the server named there runs — a
   live SprachAnker process, not another program given its pid after a restart; `profiles delete`

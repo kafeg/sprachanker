@@ -9,6 +9,8 @@ import { ServiceError } from "../errors.ts";
 export interface SidecarProcess {
   exited: Promise<number>;
   kill(): void;
+  /** The end of what it said on stderr (logged when it does not start). */
+  stderr?(): string;
 }
 
 interface SidecarOptions {
@@ -84,6 +86,12 @@ export function createSidecar(options: SidecarOptions) {
         if (ok) return url;
         await new Promise((r) => setTimeout(r, 250));
       }
+      // Why it did not start is in what it said.
+      if (!run.stopped)
+        console.error(
+          `${options.failed}: ${run.exited ? "the engine exited" : "no answer in time"}`,
+          proc.stderr?.().trim() ?? "",
+        );
       throw new ServiceError(options.failed, 502);
     })();
     // A start that fails leaves nothing behind; the next request starts afresh.

@@ -138,3 +138,32 @@ test("an engine without a host: speech_unavailable, nothing started; with one, s
   expect(spawned).toEqual(["a:9100"]);
   engine.stop();
 });
+
+test("an engine that exits as it starts: what it said on stderr is logged", async () => {
+  const logged: unknown[][] = [];
+  const real = console.error;
+  console.error = (...args: unknown[]) => void logged.push(args);
+  try {
+    const sidecar = createSidecar({
+      spawn: () => ({
+        exited: Promise.resolve(1),
+        kill: () => {},
+        stderr: () => "error: unknown argument: --no-language-probabilities\n",
+      }),
+      freePort: async () => 9100,
+      fetch: (async () => new Response(null, { status: 503 })) as unknown as typeof fetch,
+      failed: "speech_engine_failed",
+      startMs: 300,
+      idleMs: 60_000,
+    });
+    await expect(sidecar.use("a", async () => {})).rejects.toThrow("speech_engine_failed");
+  } finally {
+    console.error = real;
+  }
+  expect(logged).toEqual([
+    [
+      "speech_engine_failed: the engine exited",
+      "error: unknown argument: --no-language-probabilities",
+    ],
+  ]);
+});
