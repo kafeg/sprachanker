@@ -1,8 +1,8 @@
 // A speaking part of an exam held with the AI assistant (09, Exams; 07, `exam_conversation`; owner's
 // choice B, 2026-10-10): the examiner opens the part, the examiner's and the partner's lines are read
 // aloud as they come, the learner answers by voice (or typing) — line after line until the examiner
-// closes the part or the learner ends it (kept: the part shows ended; ended with nothing said, practice
-// begins it again). The learner's own lines are the
+// closes the part or the learner ends it (kept: the part shows ended, a line being read stops; ended
+// with nothing said, practice begins it again). Who reads the lines is named, as the model is. The learner's own lines are the
 // part's answer — stored once they have said something, again only when it changed —, rated afterwards
 // by its criteria with the conversation around them. The router provides it to the exam run
 // (exams/slots.ts); without an assistant the part is answered aloud as any open answer.
@@ -11,11 +11,13 @@ import type { LlmTurnPayload, RespondAnswer } from "@sprachanker/schema";
 import { Mic } from "lucide-react";
 import { useMemo, useState } from "react";
 import { useTranslation } from "react-i18next";
+import { ReadByLabel } from "@/audio/read-by.tsx";
 import { said } from "@/audio/speak.ts";
 import { readingId, useSpeaker } from "@/audio/speaker.ts";
 import type { ConversationContext } from "@/exams/slots.ts";
 import { Button } from "@/ui/components/button.tsx";
 import { panelClass } from "@/ui/panel.tsx";
+import { stopPlayback } from "@/ui/playback.tsx";
 import { useTargetLang } from "@/ui/target-lang.ts";
 import { useConversationTurn } from "./api.ts";
 import {
@@ -74,6 +76,8 @@ export function ExamConversation({
   /** The learner ends the part: kept, so it shows ended; the answer as it stands is final. */
   const end = () => {
     if (turn.isPending) return;
+    // The part is over: the examiner's line being read stops with it.
+    stopPlayback();
     turn.mutate(
       { ...request, end: true },
       {
@@ -130,6 +134,7 @@ export function ExamConversation({
           <PromptButton request={() => ({ conversation: { ...request, text: text || "…" } })} />
         )}
       </ChatHeader>
+      {lang && <ReadByLabel lang={lang} className="w-full border-b px-4 py-1.5" />}
       <div className="space-y-3 p-4" aria-live="polite">
         {lines
           .filter((l) => l.text.trim())

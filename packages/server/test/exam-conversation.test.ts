@@ -191,13 +191,20 @@ test("a part ended with nothing said: begun again in practice, not in a mock exa
   expect([refused.status, await refused.text()]).toEqual([409, '{"error":"exam_part_done"}']);
   await api.sendJson("POST", `/api/exams/runs/${exam.id}/finish`, {});
 
-  // Practice: begun again, the examiner opening it anew — the conversation not begun.
+  // Practice: begun again with the examiner's opening as before (the same card, the same topic),
+  // the model not asked anew.
   const practice = await start("practice");
   await talk(practice.id);
   await talk(practice.id, { end: true });
+  const asked = bodies.length;
   const reopened = await talk(practice.id);
   expect(reopened.status).toBe(200);
-  expect(bodies.at(-1)?.messages.at(-1)?.content).toContain("(not begun");
+  expect(bodies.length).toBe(asked);
+  expect(
+    (
+      (await reopened.json()) as { events: Array<{ payload: { text: string; done?: boolean } }> }
+    ).events.map((e) => [e.payload.text, e.payload.done]),
+  ).toEqual([["Bitte fragen Sie (2).", undefined]]);
   expect((await talk(practice.id, { text: "Was machst du gern?" })).status).toBe(200);
   expect(bodies.at(-1)?.messages.at(-1)?.content).toContain("Learner (A): Was machst du gern?");
   // Said something, then ended: not begun again.
@@ -225,9 +232,9 @@ test("a part ended with nothing said: begun again in practice, not in a mock exa
   // Answered by the conversation: rated with it (its latest, begun again).
   const held = await answer("Was machst du gern?");
   expect(held).toContain(
-    "<answer>\nExaminer: Bitte fragen Sie (3).\nLearner (A): Was machst du gern?",
+    "<answer>\nExaminer: Bitte fragen Sie (2).\nLearner (A): Was machst du gern?",
   );
-  expect(held).not.toContain("Bitte fragen Sie (2).");
+  expect(held.split("Bitte fragen Sie (2).")).toHaveLength(2);
   // Answered another way (the assistant switched off): its own answer alone.
   const other = await answer("Ich frage: Was machst du am Wochenende?");
   expect(other).toContain("<answer>\nIch frage: Was machst du am Wochenende?\n</answer>");

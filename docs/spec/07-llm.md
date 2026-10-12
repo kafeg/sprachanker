@@ -174,8 +174,10 @@ part" opens it, each line said (heard by the recogniser) or typed gets the next 
 never a hint or a correction. Every line is an `llm_turn` on the question in the exam run (in a mock
 exam too, while it runs); "End the part" keeps the learner's ending (an empty line of theirs, `done`:
 once — the part shows ended, nothing more is said). Ended with nothing said, a mock exam's part stays
-unanswered and practice's may be begun again — the examiner opens it anew; the part is its latest
-conversation (engine `latestConversation`). The learner's own lines are the part's answer —
+unanswered and practice's may be begun again — the examiner's opening as before (the same card and
+topic: the model is not asked anew); the part is its latest conversation (engine
+`latestConversation`). Ending the part stops a line being read aloud; who reads the lines is named
+above them, as the model is (08). The learner's own lines are the part's answer —
 only once they have said something, and again only when they changed (a mock exam keeps it as it
 goes, practice once the part is over or the learner ends it) —, never the speakers' labels in the
 interface's language; it is rated by the part's criteria like any open answer, the rater given the

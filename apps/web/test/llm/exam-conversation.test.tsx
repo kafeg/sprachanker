@@ -5,6 +5,7 @@ import { afterEach, expect, test } from "bun:test";
 import type { TypedEvent } from "@sprachanker/schema";
 import { fireEvent, waitFor } from "@testing-library/react";
 import { ExamConversation } from "../../src/llm/exam-conversation.tsx";
+import { claimPlayback } from "../../src/ui/playback.tsx";
 import { TargetLang } from "../../src/ui/target-lang.ts";
 import { renderApp } from "../render.tsx";
 
@@ -128,4 +129,43 @@ test("a part ended with nothing said: begun again in practice, its new conversat
   expect(next.queryByText("Guten Tag!")).toBeNull();
   expect(next.queryByText("The part is over.")).toBeNull();
   expect(next.getByRole("button", { name: "End the part" })).toBeTruthy();
+});
+
+test("who reads the lines is named; ending the part stops the line being read", async () => {
+  globalThis.fetch = (async () =>
+    Response.json({
+      events: [turn({ role: "user", text: "", done: true })],
+      done: true,
+    })) as unknown as typeof fetch;
+  const view = await renderApp(
+    <TargetLang value="de">
+      <ExamConversation
+        runId="R"
+        itemKey={ITEM}
+        events={[greeting]}
+        onStored={() => {}}
+        onAnswer={() => {}}
+        again={false}
+      />
+    </TargetLang>,
+    {
+      data: [
+        [["llm"], { provider: "custom", model: "m", providers: [] }],
+        [["settings"], { "speech.readEngine": "piper" }],
+        [
+          ["piper-voices"],
+          {
+            engine: true,
+            auto: { de: "de_DE-thorsten-medium" },
+            voices: [{ id: "de_DE-thorsten-medium", lang: "de", installed: true }],
+          },
+        ],
+      ],
+    },
+  );
+  expect(view.getByText("Read by Piper · thorsten")).toBeTruthy();
+  let paused = 0;
+  claimPlayback({ pause: () => paused++ });
+  fireEvent.click(view.getByRole("button", { name: "End the part" }));
+  expect(paused).toBe(1);
 });
