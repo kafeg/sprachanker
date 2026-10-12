@@ -240,6 +240,20 @@ test("sceneSetupTask: a setup without the partner's facts is repaired once", asy
   expect(setup.partnerInfo).toEqual(SETUP.partnerInfo);
 });
 
+test('sceneSetupTask: a situation addressing the learner in a gender ("Ты пришёл в офис") is asked again', async () => {
+  const task = sceneSetupTask({
+    language: "ru",
+    target: "de",
+    lesson: { title: "Am Bahnhof", goals: [], vocab: [], grammarHtml: [] },
+  });
+  const card = { ...SETUP, title: "На вокзале" };
+  expect(task.quality?.(card)).toBeUndefined();
+  const gendered = { ...card, situation: "Ты пришёл в офис к новому коллеге." };
+  expect(task.quality?.(gendered)).toContain("Ты пришёл");
+  const setup = await runStructured(scripted([gendered, card]), "m", task);
+  expect(setup.situation).toBe(card.situation);
+});
+
 test("sceneSummaryTask: the goals reached, the lines with their corrections; cleaned to two corrections of the learner's lines, each with a model line", () => {
   const task = sceneSummaryTask({
     language: "ru",
