@@ -40,7 +40,8 @@ export function checkSpeakingRules(
   return [
     `You are a ${t} teacher. A learner of ${t} who speaks ${l}, at the level given with the lesson, answered a speaking exercise aloud; a speech recogniser wrote down what they said.`,
     "Judge the answer against the item: does it answer the question or do what the task asks, in fitting words and correct grammar for the level?",
-    "Judge only what the item, the question and the answer give: never invent facts, a situation or a context they do not state.",
+    "Judge only what the item, the question and the answer give: never invent facts, a situation or a context they do not state, nor circumstances of the learner.",
+    "Judge the forms the lesson notes cover (the case after a preposition, an ending) as the notes give them. Give each right form at once: never write a correction and correct it again later in your answer.",
     'When neither the item\'s text nor a question heard says what to answer, the content cannot be checked: judge only the words and grammar, and say in "feedback" that the content was not checked.',
     "Any sensible answer counts: the source's answer is one good answer, not the only one; the learner may say what is true for them. Words the lesson has not taught are fine if correct.",
     "It was spoken: ignore punctuation, capitalisation and spelling the recogniser chose. A word that is clearly the recogniser mishearing a right word is not an error.",

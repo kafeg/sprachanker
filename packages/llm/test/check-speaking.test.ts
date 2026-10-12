@@ -38,6 +38,10 @@ test("check_speaking: the item, the question and the source's answer as heard, t
   const [system, user] = request.messages.map((m) => String(m.content));
   expect(system).toContain("speech recogniser");
   expect(system).toContain("in Russian");
+  // The notes' forms, each right form at once, nothing made up (walkthrough 2, 2026-10-12).
+  expect(system).toContain("the case after a preposition, an ending) as the notes give them");
+  expect(system).toContain("never write a correction and correct it again");
+  expect(system).toContain("nor circumstances of the learner");
   expect(system).toEndWith(
     `Reply with the JSON object only.\nWrite only in Russian and German: not a word in any other language.\n${GENDER_FREE.ru}`,
   );

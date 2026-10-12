@@ -177,6 +177,13 @@ test("history: the learner's turns say where the exercise on screen changed", ()
 
 test("the rules (walkthrough): explanations, the phrase asked for given, hints only for the exercise on screen, two languages, no headings or emoji, no question at the end", () => {
   const rules = chatTurnRules("ru", "de");
+  // The right form at once, the notes' forms, no circumstances made up (walkthrough 2, 2026-10-12).
+  for (const part of [
+    "never write a form and correct yourself later in the answer",
+    "their forms as they give them (the case after a preposition, an ending)",
+    "Never invent circumstances of the learner",
+  ])
+    expect(rules).toContain(part);
   for (const part of [
     "you answer questions and explain",
     "About the exercise on screen: give hints first",
