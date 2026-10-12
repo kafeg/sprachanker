@@ -104,13 +104,16 @@ export function openCounts(exam: Exam, setting: SettingOf) {
 }
 
 /** A question's line in a list: what it asks (a gap's text with "…", else its own text's first
- *  line); empty when it has none. */
-export const questionLine = (item: ExamItem) =>
+ *  line), else its Teil's (a speaking part's: its cards' first lines — "Was machen Sie mit Ihrem
+ *  Geld?" —, else its text's); empty when neither has any. */
+export const questionLine = (item: ExamItem, section?: Exam["sections"][number]) =>
   item.prompt ||
   (item.type === "gap_text"
     ? item.segments.map((p) => (typeof p === "string" ? p : "…")).join("")
     : "") ||
   item.text?.split("\n")[0] ||
+  (section?.letters ?? []).flatMap((l) => l.text?.split("\n")[0]?.trim() || []).join(" · ") ||
+  section?.text?.split("\n")[0] ||
   "";
 
 /** `n` of `list` at random (a partial Fisher–Yates shuffle), in the order drawn. */
