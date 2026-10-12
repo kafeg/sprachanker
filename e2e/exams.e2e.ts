@@ -284,14 +284,16 @@ test("an exam removed from my exams: asked first, its runs gone, still downloade
   await expect(page.getByRole("link", { name: /Mini test|Model test/ }).first()).toBeVisible();
 });
 
-test("experimental exams: off until their section and source are turned on in Settings → General → Experimental", async ({
+test("experimental exams: off until their section and source are turned on in Settings → General → Experimental; a source's ready ones shown always", async ({
   page,
   request,
 }) => {
   await put(request, "/api/settings", { key: "experimental.on", value: [] });
   await page.goto("/exams/catalog");
   await expect(page.getByText("Leben in Deutschland").first()).toBeVisible();
-  await expect(page.getByText(/Goethe-Zertifikat/)).toHaveCount(0);
+  // Goethe's A1 is ready, its A2 and B1 experimental.
+  await expect(page.getByText(/Goethe-Zertifikat A1/).first()).toBeVisible();
+  await expect(page.getByText(/Goethe-Zertifikat (A2|B1)/)).toHaveCount(0);
   await page.goto("/settings#experimental");
   await expect(page.getByText("An experiment, not a way to prepare")).toBeVisible();
   const goethe = page.getByRole("checkbox", { name: /Goethe-Institut/ });
@@ -303,6 +305,6 @@ test("experimental exams: off until their section and source are turned on in Se
   await goethe.click();
   await expect(goethe).toBeChecked();
   await page.goto("/exams/catalog");
-  await expect(page.getByText(/Goethe-Zertifikat A1/).first()).toBeVisible();
+  await expect(page.getByText(/Goethe-Zertifikat B1/).first()).toBeVisible();
   await put(request, "/api/settings", { key: "experimental.on", value: [] });
 });

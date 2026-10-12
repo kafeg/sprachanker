@@ -36,7 +36,6 @@ test("the exams installed, with what the learner still has to set and their stan
     asked: 3,
     needs: ["exam.federalState"],
     readiness: 0,
-    active: null,
     last: null,
     tests: 0,
   });
@@ -110,7 +109,7 @@ test("a mock exam: drawn for the state, timed, its answers kept to itself until 
   ).toBe(409);
 
   const [mini] = await api.getJson("/api/exams");
-  expect(mini).toMatchObject({ needs: [], tests: 1, active: null });
+  expect(mini).toMatchObject({ needs: [], tests: 1 });
   expect(mini.last.result.points).toBe(2);
   expect(mini.best.id).toBe(run.id);
   // Known: 001 and 002 (their latest answers right) of the three open to a learner in Berlin.
@@ -217,7 +216,6 @@ test("a running mock exam: no other run meanwhile, its answers kept out of the s
   });
   api.advance(left.plan.deadline - left.startedAt + 60_000);
   const [mini] = await api.getJson("/api/exams");
-  expect(mini.active).toBeNull();
   expect(mini.last.id).toBe(left.id);
   expect(mini.last).toMatchObject({ status: "finished", endReason: "timeout" });
 });
@@ -469,7 +467,7 @@ test("an exam reset: its mock exams and practice go, the course's other exam kee
   const removed = await api.sendJson("POST", "/api/progress/reset", { ...course, exam: EXAM });
   expect(removed.runs).toBe(1);
   const [mini] = await api.getJson("/api/exams");
-  expect(mini).toMatchObject({ key: EXAM, last: null, tests: 0, active: null });
+  expect(mini).toMatchObject({ key: EXAM, last: null, tests: 0 });
   expect((await api.send("GET", `/api/exams/runs/${run.id}`, undefined)).status).toBe(404);
   expect((await api.getJson(`/api/exams/runs/${other.id}`)).run.status).toBe("active");
 });

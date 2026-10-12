@@ -82,7 +82,6 @@ const row = (extra: object = {}) => ({
   timeLimitSec: 3600,
   readiness: 0.5,
   needs: [],
-  active: null,
   last: null,
   best: null,
   tests: 0,

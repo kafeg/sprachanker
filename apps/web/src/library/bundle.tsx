@@ -92,7 +92,7 @@ export function CourseImport({
   upload = uploadCourse,
 }: {
   /** A series this tab does not list (an experiment not turned on): the result says how to see it. */
-  hidden?(series: string): boolean;
+  hidden?(series: string, course: string): boolean;
   upload?: typeof uploadCourse;
 }) {
   const { t } = useTranslation();
@@ -169,12 +169,12 @@ function Imported({
   hidden,
 }: {
   result: ImportedCourse;
-  hidden?(series: string): boolean;
+  hidden?(series: string, course: string): boolean;
 }) {
   const { t } = useTranslation();
   const { course, status, check } = result;
   const title = course.editions.map((e) => course.titles[e]).find(Boolean) ?? course.key;
-  const series = course.key.split("/")[0] ?? "";
+  const [series = "", key = ""] = course.key.split("/");
   return (
     <Panel className="w-full space-y-1" as="div">
       <p className="font-semibold" role="status">
@@ -185,7 +185,7 @@ function Imported({
           ? t("bundle.import.problems", { count: check.problems })
           : t("bundle.import.verified")}
       </p>
-      {hidden?.(series) && (
+      {hidden?.(series, key) && (
         <p className="text-sm">
           {t("bundle.import.experimental")}{" "}
           <Link to="/settings" hash="experimental" className="underline pointer-coarse:min-h-11">

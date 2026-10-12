@@ -74,7 +74,7 @@ export function ExamsPage({ tab }: { tab: ExamsTab }) {
             />,
           )}
           {/* An exam exported on another computer. */}
-          <CourseImport hidden={(series) => !shown("exams", series)} />
+          <CourseImport hidden={(series, course) => !shown("exams", series, course)} />
         </>
       )}
       {tab === "available" &&

@@ -139,7 +139,7 @@ function Downloaded() {
         />
       )}
       {/* A course exported on another computer. */}
-      <CourseImport hidden={(series) => !shown("courses", series)} />
+      <CourseImport hidden={(series, course) => !shown("courses", series, course)} />
     </>
   );
 }

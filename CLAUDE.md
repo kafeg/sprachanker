@@ -108,7 +108,7 @@ alternatives without updating that list.
   through the app: the table the silence thresholds are set by (again on a whisper.cpp update)
 - `bun run speech:mic` — answers read aloud played as Chromium's microphone into the page's recorder
   (at once, and after a Mac's 1.3 s of start-up silence): the first word heard, "recording" shown
-  only once the microphone is live (the Mac, models in `~/SprachAnker/models`; `build:bin` first)
+  only once the microphone is live (the Mac, models in `~/SprachAnker/models`)
 - `bun run build:speech` — builds whisper-server, sherpa-onnx-offline-tts (Piper) and tts-server (Qwen3-TTS)
   for this machine (native/, needs cmake; seconds once built); part of build:cli
 - `bun run cli -- <command>` — the CLI from sources (`serve` uses the last `bun run build:web` output)

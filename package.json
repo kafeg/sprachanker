@@ -35,6 +35,7 @@
     "e2e:real": "bun run build:bin && bun run --filter @sprachanker/e2e e2e:real",
     "speech:check": "bun run build:cli && bun run --filter @sprachanker/e2e speech:check",
     "speech:levels": "bun run build:cli && bun run --filter @sprachanker/e2e speech:levels",
+    "speech:mic": "bun run build:cli && bun run --filter @sprachanker/e2e speech:mic",
     "practice:texts": "bun run --filter @sprachanker/e2e practice:texts",
     "practice:walk": "bun run --cwd e2e practice:walk"
   },

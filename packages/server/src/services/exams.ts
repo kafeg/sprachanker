@@ -190,7 +190,6 @@ export function createExams(deps: {
             timeLimitSec: s.exam.timeLimitSec,
             readiness: s.readiness,
             needs: s.needs,
-            active: s.active,
             last: s.last,
             best: s.best,
             tests: s.tests,
