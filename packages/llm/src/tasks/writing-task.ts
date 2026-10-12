@@ -8,6 +8,7 @@ import { type Lang, WritingTask } from "@sprachanker/schema";
 import type { z } from "zod";
 import type { StructuredTask } from "../structured.ts";
 import { languageName, languageNames } from "../text.ts";
+import { genderProblem } from "./gender.ts";
 import {
   cefrOf,
   goalsLine,
@@ -79,7 +80,7 @@ export function writingTaskRules(
     `You set a short writing task for a learner of ${t} who speaks ${l}, at the learner's level given with the lesson, as a language exam's writing part sets one at that level.`,
     `- "situation": one or two sentences in ${l}: who the learner writes to (a friend, a colleague, a neighbour, a landlord, a forum) and why — an everyday situation from the lesson's goals and topic. No goals given: take it from the lesson's title and its grammar.`,
     `- A goal of learning about something ("learn about the school system") is no task: turn it into a situation where the learner tells, asks for or arranges something in writing (tells a friend about their own school, asks about a course).`,
-    `- "points": exactly three things the text must do, in ${l}, each a short instruction ("say why you are late", "ask when it starts", "suggest a time"); three different things — none repeats another in other words; together they need the lesson's words and grammar; each can be done with what the learner knows at the level; none asks for a fact the learner cannot know.`,
+    `- "points": exactly three things the text must do, in ${l}, each a short instruction ("say why you are late", "ask when it starts", "suggest a time"); three different things — none repeats another in other words; a point offering a choice says "A or B" only when one of them is enough; together they need the lesson's words and grammar; each can be done with what the learner knows at the level; none asks for a fact the learner cannot know.`,
     "- The reader is a new person, never a character of the course.",
     `- ${NEUTRAL}`,
   ].join("\n");
@@ -115,7 +116,9 @@ export function writingTaskTask(input: WritingTaskInput): StructuredTask<Writing
   return {
     name: "writing_task",
     schema: WritingTaskReply,
-    check: (reply) => repeatedPoints(reply.points),
+    quality: (reply) =>
+      repeatedPoints(reply.points) ??
+      genderProblem([reply.situation, ...reply.points], input.language),
     request: {
       messages: [
         { role: "system", content: systemPrompt(input, writingTaskRules, TASK_FIXED) },
@@ -128,20 +131,42 @@ export function writingTaskTask(input: WritingTaskInput): StructuredTask<Writing
   };
 }
 
-/** A point's main words: those of four letters or more, each by its first five (an ending aside). */
-const mainWords = (point: string) =>
-  new Set((point.toLocaleLowerCase().match(/\p{L}{4,}/gu) ?? []).map((w) => w.slice(0, 5)));
+/** Words of four letters or more that say nothing of what a point asks for (data: the learners'
+ *  commonest languages; shorter words are never main ones). */
+const STOP_WORDS = new Set(
+  [
+    "your yours their theirs about with from that this these those what when where which there have",
+    "will would could should they them then than into also some been were does",
+    "ihre ihren ihrem ihrer ihres deine deinen deinem deiner eine einen einem einer eines über dass",
+    "wann wenn sich nicht noch auch oder",
+    "ваша ваше вашего вашему вашей вашим ваши ваших свой своя свое своё своего своему своей своим",
+    "свои своих своём этот этого этой чтобы если когда также тоже который которая которое которые",
+  ].flatMap((line) => line.split(" ")),
+);
 
-/** Two points that ask for the same thing, told by their main words: three or more of the shorter
- *  one's, and three quarters of them, in the other. The problem the task is asked again once for;
- *  undefined when none repeats another. */
+/** A point's main words: those of four letters or more but the stop words, each by its first five
+ *  (an ending aside). */
+const mainWords = (point: string) =>
+  new Set(
+    (point.toLocaleLowerCase().match(/\p{L}{4,}/gu) ?? [])
+      .filter((w) => !STOP_WORDS.has(w))
+      .map((w) => w.slice(0, 5)),
+  );
+
+/** Two points that ask for the same thing, told by their main words — those all three share aside
+ *  (the friend each is about): three or more of the shorter one's, three quarters of them and half
+ *  the longer one's, in the other. The problem the task is asked again once for; undefined when none
+ *  repeats another. */
 export function repeatedPoints(points: string[]): string | undefined {
-  const words = points.map(mainWords);
+  const all = points.map(mainWords);
+  const everywhere = new Set([...(all[0] ?? [])].filter((w) => all.every((s) => s.has(w))));
+  const words = all.map((s) => new Set([...s].filter((w) => !everywhere.has(w))));
   for (let i = 0; i < words.length; i++)
     for (let j = i + 1; j < words.length; j++) {
       const [a, b] = [words[i] ?? new Set<string>(), words[j] ?? new Set<string>()];
       const shared = [...a].filter((w) => b.has(w)).length;
-      if (shared >= 3 && shared >= 0.75 * Math.min(a.size, b.size))
+      const [few, many] = [Math.min(a.size, b.size), Math.max(a.size, b.size)];
+      if (shared >= 3 && shared >= 0.75 * few && shared >= 0.5 * many)
         return `points ${i + 1} and ${j + 1} ask for the same thing: three different things`;
     }
   return undefined;

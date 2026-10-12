@@ -78,7 +78,9 @@ export function ReviewGroup({
           ))}
         </ul>
       </div>
-      {type ? (
+      {type && !group.explanation.trim() && !group.items.length ? (
+        <p className="text-sm text-muted-foreground">{t("goingOver.unmade")}</p>
+      ) : type ? (
         <>
           <RichText text={group.explanation} />
           {group.items.length > 0 && (

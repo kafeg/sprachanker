@@ -448,10 +448,13 @@ in one flat shape (`MistakeItem`, checked per type: `mistakeItemProblem` — a t
 cue in brackets, the base form or the learner-language word, so only one word fits; options all
 different; a true/false only with its statement; never a mistake's sentence again —; repaired once),
 from the words known. The items are then tried blind (`mistake_items_check`, as Understanding's
-second reading): the model answers each choice and gap from the item alone, and only those it answers
-as keyed, unambiguously, are kept (`settledItems`; the walkthrough's keys were wrong: "sollst" for
-"Wann ___ ich dir helfen?"); a type with none kept is asked once more, and one whose call fails keeps its
-mistakes without items. The engine makes each an item of its type (`mistakeItemExercise`) and checks
+second reading): the model answers each choice, gap and order from the item alone (an order's parts
+shown by their text), and only those it answers as keyed, unambiguously, are kept (`settledItems`; a
+model's key can be wrong: "sollst" for "Wann ___ ich dir helfen?"; German puts another word first,
+"Dein Zimmer sollst du aufräumen", so an order's other right order leaves it out); a spelling's or a
+word's typed gap whose cue is its answer ("im ___ (Deutschkurs)") is left out too; a type with none kept is asked once more, and one whose call fails keeps its
+mistakes without items — shown with a line to go over them again, never an empty explanation (a call
+that runs out of time is asked once more first). The engine makes each an item of its type (`mistakeItemExercise`) and checks
 the answers. Only types listed: no call.
 The review is an `llm_verdict` (`task: mistakes`) in the run, its groups with their wrong parts; each
 answer a `practice_answered` on it, the items numbered across its groups (05). The step shows the

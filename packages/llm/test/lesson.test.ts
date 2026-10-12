@@ -36,5 +36,30 @@ test("labels in mixed case before what is said count too; headings, sentence ope
     "<p>Пример: Ich heiße Ada.</p><p>Пример: Du heißt Ben.</p>",
     "<p>Max: Bis morgen!</p><p>MAX: Tschüss.</p>",
   ].join("\n");
-  expect(speakersOf(html)).toEqual(["Frau", "Mann", "Max"]);
+  expect(speakersOf(html)).toEqual(["Max"]);
+});
+
+test("a label with a common word in it is a role, no name: a word of the course's or a role word of every course", () => {
+  const html = [
+    "<p><strong>NICO:</strong><br />Hallo, Lisa!</p>",
+    "<p><strong>LISA:</strong><br />Hallo, Nico!</p>",
+    "<p><strong>KELLNERIN:</strong><br />Was möchten Sie?</p>",
+    "<p><strong>MUTTER VON LOTTE:</strong><br />Lotte, komm!</p>",
+    "<p><strong>ALLE:</strong><br />Ja!</p>",
+    "<p><strong>NICO:</strong><br />Einen Kaffee.</p>",
+    "<p><strong>LISA:</strong><br />Ich auch.</p>",
+    "<p><strong>KELLNERIN:</strong><br />Gern.</p>",
+    "<p><strong>MUTTER VON LOTTE:</strong><br />Jetzt!</p>",
+    "<p><strong>ALLE:</strong><br />Tschüss!</p>",
+    // A title before a name is none; alone it is a role.
+    "<p>Frau Weber: Guten Tag!</p><p>Frau Weber: Danke.</p>",
+    "<p>Frau: Hallo!</p><p>Frau: Bitte.</p>",
+  ].join("\n");
+  expect(speakersOf(html, ["die Kellnerin, die Kellnerinnen", "die Mutter, die Mütter"])).toEqual([
+    "Nico",
+    "Lisa",
+    "Frau Weber",
+  ]);
+  // Without the course's words a role it teaches reads as a name.
+  expect(speakersOf(html)).toEqual(["Nico", "Lisa", "Kellnerin", "Mutter von Lotte", "Frau Weber"]);
 });

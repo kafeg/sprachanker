@@ -29,7 +29,8 @@ src/
   lmstudio.ts      # LM Studio's own API: its models, load with 8k context, downloads; suggested models
   openrouter.ts    # OpenRouter's own API: the key's state (free tier, usage, limit, rate limit)
   structured.ts    # JSON outputs: schema in the request (Anthropic: its system prompt), quotes escaped
-                   # twice made plain, zod validation and the task's check, one repair
+                   # twice made plain, zod validation and the task's check, one repair; its quality:
+                   # one repair, then the reply kept
   thinking.ts      # strips inline <think>…</think> from streamed text (client.ts also drops control tokens)
   text.ts          # course HTML → plain text for prompts (a table: a row a line, cells joined by " · ");
                    # languages' names; scripts (writtenIn: which of two languages a text is in, where
@@ -39,11 +40,12 @@ src/
                        # the reply's languages (languagesLine); NEUTRAL: the line that no
                        # rule assumes the learner's gender, GENDER_FREE: how a learner's language
                        # avoids it (data, in the suffix of the tasks whose rules say NEUTRAL)
+    gender.ts          # genderMarked: words marking the learner's gender (data: ru, uk, pl), a task's quality
     registry.ts        # TASK_PROMPTS: the tasks whose prompt the learner sees and rewrites, in order —
                        # their rules and budgets (the server's prompt settings read it)
     lesson.ts          # LessonInfo (what tasks know of a lesson, with the knowledge snapshot: level,
                        # place, earlier words with translations, topics met, the course's characters —
-                       # speakersOf: a script's speakers) and its prompt lines
+                       # speakersOf: a script's speakers by name, roles left out) and its prompt lines
     describe.ts        # an exercise as text: its header (instruction, texts) and items (task, correct,
                        # learner answer); a mistake naming lesson, exercise and item with its wrong
                        # parts only (wrongPartLine)
@@ -83,6 +85,7 @@ test/              # fake endpoints (no network); fixture course from @sprachank
 
 - JSON task outputs are validated with zod; invalid → one repair attempt → `invalid_output`, which the
   UI shows as "the model could not answer usefully, try again or a larger model" (nothing is stored).
+  A task's `quality` (what makes a valid reply better) gets the one repair too, then the reply is kept.
 - Prompts live next to their task; course text and learner input are delimited data in the prompt.
   The delimiting line (and "JSON only"), then the reply's two languages, are a fixed suffix after the
   rules, so the learner's own rules never remove them.

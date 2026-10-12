@@ -1,7 +1,7 @@
 import { expect, test } from "bun:test";
 import { fixture } from "@sprachanker/course-fixture";
 import { checkSpeakingTask } from "../src/tasks/check-speaking.ts";
-import { cleanCheck } from "../src/tasks/corrections.ts";
+import { cleanCheck, quotes, unlistedChange } from "../src/tasks/corrections.ts";
 import { mistakeLine } from "../src/tasks/describe.ts";
 import { GENDER_FREE, languagesLine, NEUTRAL } from "../src/tasks/rules.ts";
 
@@ -38,7 +38,7 @@ test("check_speaking: the item, the question and the source's answer as heard, t
   const [system, user] = request.messages.map((m) => String(m.content));
   expect(system).toContain("speech recogniser");
   expect(system).toContain("in Russian");
-  // The notes' forms, each right form at once, nothing made up (walkthrough 2, 2026-10-12).
+  // The notes' forms, each right form at once, nothing made up.
   expect(system).toContain("the case after a preposition, an ending) as the notes give them");
   expect(system).toContain("never write a correction and correct it again");
   expect(system).toContain("nor circumstances of the learner");
@@ -81,6 +81,58 @@ test("a check's no-op corrections are dropped and an empty correction filled; a 
   });
   expect(line).toContain("Answer aloud.");
   expect(line).toContain("correct: Guten Tag!; learner: Tschüss");
+});
+
+test("a correction quoting the text in pieces, a compound, a number as the recogniser wrote it or a word left out is kept; one quoting words the text lacks goes", () => {
+  const said = "ich habe gestern um 3 uhr fahrradfahren gegangen dann stehe ich früh auf";
+  const fix = (wrong: string) => ({ wrong, right: "x", explanation: "" });
+  const kept = cleanCheck(
+    {
+      verdict: "minor_errors",
+      corrected: "c",
+      corrections: [
+        fix("habe … gegangen"),
+        fix("stehe...auf"),
+        fix("drei Uhr"),
+        fix("Fahrrad fahren"),
+        fix(""),
+        // In the wrong order, or words not said.
+        fix("gegangen … habe"),
+        fix("um 4 Uhr"),
+        fix("bin gegangen"),
+      ],
+      feedback: "",
+    },
+    said,
+  );
+  expect(kept.corrections.map((c) => c.wrong)).toEqual([
+    "habe … gegangen",
+    "stehe...auf",
+    "drei Uhr",
+    "Fahrrad fahren",
+    "",
+  ]);
+  // Digits in the correction, the number said as a word.
+  expect(quotes("um drei uhr", "um 3 Uhr")).toBe(true);
+});
+
+test("a spoken answer's corrected text makes only the changes its corrections list: a word spelled anew is asked again once", () => {
+  const heard = "ich lasse meine haare beim friseur um 3 uhr schneiden";
+  const check = (corrected: string, corrections: Array<{ wrong: string; right: string }> = []) =>
+    checkSpeakingTask({ ...input, transcript: heard }).quality?.({
+      verdict: corrections.length ? "minor_errors" : "good",
+      corrected,
+      corrections: corrections.map((c) => ({ ...c, explanation: "" })),
+      feedback: "",
+    });
+  expect(check("Ich lasse meine Haare beim Friisör um drei Uhr schneiden.")).toContain("friisör");
+  // A correction's words, a number said as a word, case and punctuation: no change of its own.
+  expect(
+    check("Ich lasse mir die Haare beim Friseur um drei Uhr schneiden.", [
+      { wrong: "meine", right: "mir die" },
+    ]),
+  ).toBeUndefined();
+  expect(unlistedChange({ corrected: "", corrections: [] }, heard)).toBeUndefined();
 });
 
 test("check_speaking: an item's question and the source's written answer (a frame) are the model's", () => {

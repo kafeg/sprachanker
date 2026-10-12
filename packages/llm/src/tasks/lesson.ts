@@ -148,12 +148,32 @@ const titleCase = (label: string) =>
     )
     .join(" ");
 
+/** Labels that name no one, whatever the course teaches: a group, a voice, a narrator, a person by
+ *  sex or age (data: the courses' languages). */
+const ROLE_WORDS = new Set(
+  [
+    "alle beide stimme stimmen erzähler erzählerin sprecher sprecherin übung beispiel mann",
+    "kind junge mädchen all both everyone voice voices narrator announcer speaker man woman boy girl",
+    "child male female",
+  ].flatMap((line) => line.split(" ")),
+);
+
+/** Words before a name that are no part of what makes it one ("Frau Weber"; "Frau" alone a role). */
+const TITLES = new Set(["frau", "herr", "mr", "mrs", "ms", "miss", "dr"]);
+
+/** A text's words in lower case, two letters or more ("die Kellnerin, -nen" → die, kellnerin, nen). */
+const wordsIn = (text: string) => text.toLocaleLowerCase().match(/\p{L}{2,}/gu) ?? [];
+
 /** The people speaking in a script (course HTML), in the order they first speak, by name as written
  *  in a sentence ("LISA:" → "Lisa"): a label that comes at several lines' start, before what is said
  *  on its line or the next, in that line's writing system — never a heading or a sentence's opening
  *  word, which come once ("Am Bahnhof:", "Also: Hallo"), a letter alone ("A:"), or a heading in the
- *  learner's language ("Пример:"). */
-export function speakersOf(html: string): string[] {
+ *  learner's language ("Пример:"). A label with a common word in it is a role, no name ("Kellnerin",
+ *  "Mutter von Lotte", "ALLE"): a word of `words` (the course's words met, as headwords with their
+ *  articles: "die Kellnerin, die Kellnerinnen") or a role word of every course; a title before a
+ *  name is none ("Frau Weber" a name, "Frau" a role). */
+export function speakersOf(html: string, words: string[] = []): string[] {
+  const common = new Set([...ROLE_WORDS, ...words.flatMap(wordsIn)]);
   const lines = htmlToText(html)
     .split("\n")
     .map((line) => line.replace(INVISIBLE, "").trim())
@@ -166,7 +186,13 @@ export function speakersOf(html: string): string[] {
     const name = label === label.toLocaleUpperCase() ? titleCase(label) : label;
     times.set(name, (times.get(name) ?? 0) + 1);
   });
-  return [...times].flatMap(([name, n]) => (n > 1 ? [name] : []));
+  const named = (label: string) => {
+    const words = label.split(" ");
+    while (words.length && TITLES.has(words[0]?.toLocaleLowerCase().replace(/\.$/, "") ?? ""))
+      words.shift();
+    return words.length > 0 && !wordsIn(words.join(" ")).some((w) => common.has(w));
+  };
+  return [...times].flatMap(([name, n]) => (n > 1 && named(name) ? [name] : []));
 }
 
 /** "The course's characters: Nico, Lisa, Emma" — names a made-up person never takes. */

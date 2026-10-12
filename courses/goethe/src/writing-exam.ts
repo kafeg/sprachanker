@@ -40,11 +40,16 @@ const FIELD_LABEL = /(eingabe|text)feld/i;
  *  "… zu allen drei Punkten", "… auch eine Anrede"). */
 const NOT_THE_TASK =
   /\d+\s*(?:[–-]\s*\d+\s*)?(?:Wörter|Punkte)|\b(?:zu (?:jedem|allen)|etwas zu|auch)\b/;
-/** A line of the time the Teil takes ("Prüfungszeit: 10 Minuten"). */
-const TIME = /Prüfungszeit|\d+\s*Minuten/;
+/** A sentence of the time the Teil takes ("Prüfungszeit:", "10 Minuten", "circa 12 Minuten") — never
+ *  one with minutes in it ("Sie kommen 30 Minuten zu spät"). */
+const TIME = /Prüfungszeit|^(?:ca\.|circa)?\s*\d+\s*Minuten\.?$/i;
 /** Where a sentence of the task ends: after "!", "?", ":" or a full stop — not that of a number, a
- *  date or an abbreviation ("am 3. Mai", "ca.", "z. B."). */
-const SENTENCE_END = /(?<=[!?:]|(?<!(?:^|[^\p{L}\d])(?:\d+|\p{L}|ca|bzw|usw|Nr|Str))\.)\s+/u;
+ *  date or an abbreviation ("am 3. Mai", "ca.", "z. B.", "Dr."). */
+const SENTENCE_END =
+  /(?<=[!?:]|(?<!(?:^|[^\p{L}\d])(?:\d+|\p{L}|ca|bzw|usw|Nr|Str|Dr|Hr|Fr|Tel|ggf|evtl|inkl))\.)\s+/u;
+/** A number's full stop that ends a sentence: before a request ("Ihr Freund wird 30. Schreiben
+ *  Sie …") — a date's goes on with a month or a word ("am 3. Mai"). */
+const NUMBER_END = /(?<=\d\.)\s+(?=\p{Lu}\p{Ll}+\s+(?:Sie|du)\b)/u;
 
 /** What a text to write is, as the task says it: its box's own label ("Ihre Meinung"), else the
  *  task's first sentence saying what to write ("Schreiben Sie an die Touristeninformation"), else
@@ -52,10 +57,10 @@ const SENTENCE_END = /(?<=[!?:]|(?<!(?:^|[^\p{L}\d])(?:\d+|\p{L}|ca|bzw|usw|Nr|S
 export function writingPrompt(teil: Pick<WritingTeil, "box" | "instructions" | "title">) {
   if (teil.box && !FIELD_LABEL.test(teil.box)) return teil.box;
   const sentences = teil.instructions
-    .filter((line) => !line.startsWith("•") && !TIME.test(line))
-    .flatMap((line) => line.split(SENTENCE_END))
+    .filter((line) => !line.startsWith("•"))
+    .flatMap((line) => line.split(SENTENCE_END).flatMap((s) => s.split(NUMBER_END)))
     .map((s) => s.replace(/\s*\([^)]*\)/g, "").trim())
-    .filter((s) => s && !NOT_THE_TASK.test(s));
+    .filter((s) => s && !TIME.test(s) && !NOT_THE_TASK.test(s));
   const task = sentences.find((s) => /\bschreiben\b/i.test(s)) ?? sentences[0];
   return task?.replace(/:$/, "") || teil.title;
 }

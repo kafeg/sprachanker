@@ -4,7 +4,9 @@
 // lesson run; each new item answered, checked by the engine and kept; read back in the Notebook's pass.
 import { expect, test } from "bun:test";
 import { FIXTURE_SERIES } from "@sprachanker/course-fixture";
+import { LlmError } from "@sprachanker/llm";
 import { ulid } from "ulid";
+import { stepShown } from "../src/services/going-over.ts";
 import { setup } from "./setup.ts";
 
 const LESSON = "sprachanker.fixture/demo/00-01";
@@ -116,15 +118,15 @@ function teacher() {
     if (user.includes("Wo ist Tom?"))
       return {
         answers: [
-          { n: 1, choice: "a", gaps: null, ambiguous: false },
-          { n: 2, choice: "a", gaps: null, ambiguous: false },
+          { n: 1, choice: "a", gaps: null, order: null, ambiguous: false },
+          { n: 2, choice: "a", gaps: null, order: null, ambiguous: false },
         ],
       };
     gapChecks++;
     return {
       answers: [
-        { n: 1, choice: null, gaps: [gapChecks === 1 ? "b" : "a"], ambiguous: false },
-        { n: 2, choice: null, gaps: ["b"], ambiguous: gapChecks === 1 },
+        { n: 1, choice: null, gaps: [gapChecks === 1 ? "b" : "a"], order: null, ambiguous: false },
+        { n: 2, choice: null, gaps: ["b"], order: null, ambiguous: gapChecks === 1 },
       ],
     };
   };
@@ -303,6 +305,12 @@ test("only mistakes listed (an Understanding question): the review kept without 
   expect(review.result.groups[0].mistakes[0].line).toBe("Tee 2 Euro");
 });
 
+test("the step shown: making while any type's items are made, checking only while one is checked", () => {
+  expect(stepShown(["making", "checking"])).toBe("making");
+  expect(stepShown(["done", "checking"])).toBe("checking");
+  expect(stepShown(["done", "done"])).toBe("making");
+});
+
 test("a type whose call fails keeps its mistakes without items; the others are gone over", async () => {
   const teach = teacher();
   const m = model((name, body) =>
@@ -332,4 +340,38 @@ test("a type whose call fails keeps its mistakes without items; the others are g
     ["word", true, 0],
     ["choice", false, 1],
   ]);
+});
+
+test("a type's call that runs out of time is asked once more", async () => {
+  let timedOut = false;
+  const m = model(teacher());
+  const fetch = (async (url: string, init: RequestInit) => {
+    const body = JSON.parse((init.body as string) ?? "{}") as Body;
+    const name = body.response_format?.json_schema?.name;
+    const words = body.messages?.[1]?.content.includes("the word chosen");
+    if (name === "mistake_items" && words && !timedOut) {
+      timedOut = true;
+      return new Response(
+        new ReadableStream({ pull: (c) => c.error(new LlmError("timeout", "no answer in time")) }),
+      );
+    }
+    return m.fetch(url, init);
+  }) as unknown as typeof globalThis.fetch;
+  const { send, sendJson } = await setup({ fetch });
+  await send("PUT", "/api/llm/providers/custom", { baseUrl: "http://127.0.0.1:9/v1" });
+  await send("PUT", "/api/llm/route", { provider: "custom", model: "m" });
+  const run = (await sendJson("POST", "/api/runs", START)).run.id;
+  await sendJson("POST", `/api/runs/${run}/events`, {
+    events: [
+      {
+        id: ulid(),
+        type: "answered",
+        itemKey: `${LESSON}/ex-07#1`,
+        payload: { answer: { g1: "b", g2: "b" }, attempt: 1, ms: 1 },
+      },
+    ],
+  });
+  const review = await sendJson("POST", "/api/llm/mistakes", REQUEST);
+  expect(timedOut).toBe(true);
+  expect(review.result.groups[0].explanation).not.toBe("");
 });

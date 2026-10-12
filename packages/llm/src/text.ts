@@ -65,8 +65,6 @@ export function clip(text: string, max: number): string {
 export const languageName = (code: string) =>
   new Intl.DisplayNames(["en"], { type: "language" }).of(code) ?? code;
 
-/** The two languages as a task's rules name them: by their English names, or as placeholders for the
- *  learner's own prompt template (Settings → AI assistant → Advanced). */
 /** A writing system and a test for one of its letters. */
 export interface Script {
   name: string;
@@ -104,19 +102,37 @@ export function scriptsOnlyOf(lang: string, other: string): Script[] {
   return SCRIPTS.filter((s) => own.includes(s.name) && !others.includes(s.name));
 }
 
-/** How many of a text's letters are written in `scripts`. */
-export const lettersIn = (text: string, scripts: Script[]) =>
-  [...text].filter((c) => scripts.some((s) => s.letter.test(c))).length;
+/** Scripts whose every character is a word or a syllable of one: counted by character. */
+const BY_CHARACTER = new Set(["Han", "Hiragana", "Katakana"]);
+
+/** How much of a text is written in `scripts`: its words in them, a character a word in Chinese and
+ *  Japanese ("柏林的Lisa" — three and one). */
+const wordsIn = (text: string, scripts: Script[]) =>
+  scripts.reduce(
+    (n, s) =>
+      n +
+      (text.match(new RegExp(`${s.letter.source}${BY_CHARACTER.has(s.name) ? "" : "+"}`, "gu"))
+        ?.length ?? 0),
+    0,
+  );
+
+/** A text's share in `lang` that still makes it `lang`'s: names and a word or two in the other
+ *  language's script beside it ("Lisa und Tom в Берлине") do not make it the other's. */
+const OWN_SHARE = 0.2;
 
 /** Whether a text reads as written in `lang` rather than in `other`, by the scripts only one of them
- *  uses: more of its letters in `lang`'s. Undefined when their scripts do not tell them apart (German
- *  and English). */
+ *  uses: a fifth of its words at least in `lang`'s. Undefined when their scripts do not tell them
+ *  apart (German and English) or the text has no word in either. */
 export function writtenIn(text: string, lang: string, other: string): boolean | undefined {
   const [own, others] = [scriptsOnlyOf(lang, other), scriptsOnlyOf(other, lang)];
   if (!own.length || !others.length) return undefined;
-  return lettersIn(text, own) > lettersIn(text, others);
+  const [mine, theirs] = [wordsIn(text, own), wordsIn(text, others)];
+  if (!mine && !theirs) return undefined;
+  return mine > 0 && mine >= OWN_SHARE * (mine + theirs);
 }
 
+/** The two languages as a task's rules name them: by their English names, or as placeholders for the
+ *  learner's own prompt template (Settings → AI assistant → Advanced). */
 export const languageNames = (language: string, target: string) => ({
   language: languageName(language),
   target: languageName(target),

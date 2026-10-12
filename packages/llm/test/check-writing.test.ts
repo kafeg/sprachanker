@@ -111,6 +111,21 @@ test("writing_task: points that ask for the same thing in other words are asked 
       "Пригласите друга.",
     ]),
   ).toBeUndefined();
+  // The same friend and school, two things asked: stop words and the words all three share aside.
+  expect(
+    repeatedPoints([
+      "Tell your friend about your school.",
+      "Ask your friend about their school.",
+      "Invite your friend to your school party.",
+    ]),
+  ).toBeUndefined();
+  expect(
+    repeatedPoints([
+      "Tell your friend about your school.",
+      "Ask your friend about their school.",
+      "Suggest a day to meet.",
+    ]),
+  ).toBeUndefined();
   const sent: string[] = [];
   const replies = [
     { situation: "s", points: same },
@@ -139,7 +154,7 @@ test("check_writing: the task's points as data, each rated; at most three correc
   const [system, user] = request.messages.map((m) => String(m.content));
   for (const part of [
     '"points": for each content point of the task, in its order',
-    // Points rate the content; language is rated in accuracy (walkthrough 2, 2026-10-12).
+    // Points rate the content; language is rated in accuracy.
     "its content only: a point done with errors in its words is done",
     // Every error fixed in "corrected", nothing right changed ("angefangen" → "begann").
     "every error in it fixed — also those beyond the corrections listed",

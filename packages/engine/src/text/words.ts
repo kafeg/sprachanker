@@ -178,9 +178,9 @@ export interface AskedQuestion {
   accepted?: string[];
 }
 
-/** What stands in quotation marks in a question ("Was bedeutet „nervt“?", «…», '…' aside: an
- *  apostrophe is a letter's). */
-const QUOTED = /["„“”«»‹›「『]([^"„“”«»‹›「」『』]{1,80})["“”«»‹›」』]/gu;
+/** What stands in quotation marks in a question ("Was bedeutet „nervt“?", «…», German's ‚…‘; '…'
+ *  aside: an apostrophe is a letter's). */
+const QUOTED = /["„“”«»‹›「『‚]([^"„“”«»‹›「」『』‚‘]{1,80})["“”«»‹›」』‘]/gu;
 
 const wordsOf = (text: string) =>
   text

@@ -1,5 +1,21 @@
 import { expect, test } from "bun:test";
-import { htmlToText } from "../src/text.ts";
+import { htmlToText, writtenIn } from "../src/text.ts";
+
+test("writtenIn: a fifth of the words in the language's script make a text its, a Chinese character a word", () => {
+  // Names in the other script beside the text do not make it the other's.
+  expect(writtenIn("柏林的Lisa和Tom", "zh", "de")).toBe(true);
+  expect(writtenIn("Lisa und Tom в Берлине", "ru", "de")).toBe(true);
+  expect(writtenIn("बर्लिन में Lisa und Tom", "hi", "de")).toBe(true);
+  // Absent or a lone word among many: the other language's.
+  expect(writtenIn("Beim Bäcker. Anna kauft Brötchen.", "ru", "de")).toBe(false);
+  expect(
+    writtenIn("Anna kauft heute Morgen drei frische Brötchen und Kaffee: хлеб", "ru", "de"),
+  ).toBe(false);
+  expect(writtenIn("Anna kauft Brötchen.", "zh", "de")).toBe(false);
+  // Scripts alike, or no word in either: not told.
+  expect(writtenIn("Beim Bäcker", "en", "de")).toBeUndefined();
+  expect(writtenIn("12:30", "ru", "de")).toBeUndefined();
+});
 
 // Shaped like a conjugation table of a course's grammar notes: indented source, a header row, letters
 // marked one by one, a row label with an empty cell, a cell with paragraphs, an empty row.

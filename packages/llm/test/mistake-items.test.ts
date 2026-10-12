@@ -77,6 +77,17 @@ test("the groups as data: what went wrong, the new items' type and fields, the w
   expect(mistakeItemsRules("ru", "de")).toContain("explanation");
 });
 
+test("an explanation transliterated or marking the learner's gender is asked again once", () => {
+  const { quality } = mistakeItemsTask(input);
+  const reply = (explanation: string) =>
+    quality?.({ groups: [{ n: 1, explanation, items: [] }] } as unknown as MistakeItemsReply);
+  expect(reply("Posle müssen glagol stoit v kontse: Er muss kochen.")).toContain(
+    "in its own script",
+  );
+  expect(reply("Ты выбрал не ту форму: после müssen — инфинитив.")).toContain("Ты выбрал");
+  expect(reply("После müssen — инфинитив в конце: Er muss kochen.")).toBeUndefined();
+});
+
 test("every group answered once, each item valid for its group's type; else repaired", () => {
   const { check } = mistakeItemsTask(input);
   const gap = { text: "Er ___ (müssen) kochen.", gaps: [{ accepted: ["muss"] }] };
@@ -235,9 +246,9 @@ test("new items tried blind: asked without their keys, those answered otherwise 
     items,
     {
       answers: [
-        { n: 1, choice: "a", gaps: null, ambiguous: false },
-        { n: 2, choice: "A", gaps: null, ambiguous: false },
-        { n: 3, choice: "b", gaps: null, ambiguous: true },
+        { n: 1, choice: "a", gaps: null, order: null, ambiguous: false },
+        { n: 2, choice: "A", gaps: null, order: null, ambiguous: false },
+        { n: 3, choice: "b", gaps: null, order: null, ambiguous: true },
       ],
     },
     right,
@@ -249,13 +260,50 @@ test("new items tried blind: asked without their keys, those answered otherwise 
   settledItems(
     "gap_text",
     typed,
-    { answers: [{ n: 1, choice: null, gaps: ["füttern"], ambiguous: false }] },
+    { answers: [{ n: 1, choice: null, gaps: ["füttern"], order: null, ambiguous: false }] },
     (_, a) => {
       words.push(a);
       return true;
     },
   );
   expect(words).toEqual([{ g1: "füttern" }]);
-  const order = [{ parts: ["Ich", "trinke", "Tee."] }];
-  expect(settledItems("order", order, { answers: [] }, () => false)).toEqual(order);
+  // A spelling's or a word's cue that is its answer asks nothing; a form's base form may be it.
+  const spelt = [{ text: "Er ist im ___ (Deutschkurs).", gaps: [{ accepted: ["Deutschkurs"] }] }];
+  const blind = {
+    answers: [{ n: 1, choice: null, gaps: ["Deutschkurs"], order: null, ambiguous: false }],
+  };
+  expect(settledItems("gap_text", spelt, blind, () => true, "spelling")).toEqual([]);
+  expect(settledItems("gap_text", spelt, blind, () => true, "ending")).toEqual(spelt);
+});
+
+test("an order tried blind: its parts shown by their text, the order chosen read back as the key's letters; another right order or none left out", () => {
+  const items = [
+    { parts: ["Du", "sollst", "dein Zimmer", "aufräumen."] },
+    { parts: ["Ich", "trinke", "Tee."] },
+  ];
+  const asked = String(
+    mistakeItemsCheckTask({ language: "ru", target: "de", type: "order", items }).request
+      .messages[1]?.content,
+  );
+  // Shown by their text, never in the key's order.
+  expect(asked).toContain("1. \n   a) aufräumen.\n   b) dein Zimmer\n   c) Du\n   d) sollst");
+  const sequences: unknown[] = [];
+  const kept = settledItems(
+    "order",
+    items,
+    {
+      answers: [
+        // "Dein Zimmer sollst du aufräumen": right too, so not the key's.
+        { n: 1, choice: null, gaps: null, order: ["b", "d", "c", "a"], ambiguous: false },
+        { n: 2, choice: null, gaps: null, order: ["a", "c", "b"], ambiguous: false },
+      ],
+    },
+    (item, answer) => {
+      sequences.push(answer);
+      const want = (item.parts ?? []).map((_, i) => "abcd"[i]);
+      return JSON.stringify((answer as { sequence: string[] }).sequence) === JSON.stringify(want);
+    },
+  );
+  expect(sequences).toEqual([{ sequence: ["c", "b", "a", "d"] }, { sequence: ["a", "b", "c"] }]);
+  expect(kept).toEqual(items.slice(1));
 });

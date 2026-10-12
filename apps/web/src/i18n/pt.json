@@ -1658,6 +1658,7 @@
       "spoken": "Não há novos exercícios para o que foi dito em voz alta: diga-o de novo no seu exercício.",
       "comprehension": "Ouça ou leia o texto de novo: a resposta está nele."
     },
+    "unmade": "Desta vez nada foi preparado para estes erros: reveja-os outra vez.",
     "step": {
       "making": "Criando novas tarefas…",
       "checking": "Verificando as novas tarefas…"

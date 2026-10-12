@@ -50,12 +50,23 @@ describe("structured outputs", () => {
     }
   });
 
-  test("a quote escaped twice (Claude Code's structured output) reads as a plain one", async () => {
+  test("a quote or a line break escaped twice (Claude Code's structured output) reads as a plain one", async () => {
     // As the CLI gives it: the string holds a backslash before each quote once parsed.
     const reply = JSON.stringify({ ok: true, note: 'nicht \\"damit\\", sondern \\"der\\"' });
     expect(await runStructured(scripted([reply]).client, "m", task)).toEqual({
       ok: true,
       note: 'nicht "damit", sondern "der"',
+    });
+    // Line breaks escaped twice too — never in a text that has real ones.
+    const lines = JSON.stringify({ ok: true, note: "Hallo!\\nWie geht's?" });
+    expect(await runStructured(scripted([lines]).client, "m", task)).toEqual({
+      ok: true,
+      note: "Hallo!\nWie geht's?",
+    });
+    const both = JSON.stringify({ ok: true, note: "a\nC:\\new" });
+    expect(await runStructured(scripted([both]).client, "m", task)).toEqual({
+      ok: true,
+      note: "a\nC:\\new",
     });
   });
 
@@ -80,6 +91,25 @@ describe("structured outputs", () => {
     expect(fixed.seen[1]?.messages.at(-1)?.content).toContain("note is empty");
     const never = scripted(['{"ok":true,"note":""}', '{"ok":true,"note":""}']);
     const error: unknown = await runStructured(never.client, "m", checked).catch((e) => e);
+    expect((error as LlmError).code).toBe("invalid_output");
+  });
+
+  test("the task's quality: asked again once, then the last valid reply kept; never one the check refuses", async () => {
+    const short = {
+      ...task,
+      check: (v: z.infer<typeof Verdict>) => (v.ok ? undefined : "ok is true"),
+      quality: (v: z.infer<typeof Verdict>) => (v.note === "same" ? "a new note" : undefined),
+    };
+    const better = scripted(['{"ok":true,"note":"same"}', '{"ok":true,"note":"x"}']);
+    expect(await runStructured(better.client, "m", short)).toEqual({ ok: true, note: "x" });
+    expect(better.seen[1]?.messages.at(-1)?.content).toContain("a new note");
+    const twice = scripted(['{"ok":true,"note":"same"}', '{"ok":true,"note":"same"}']);
+    expect(await runStructured(twice.client, "m", short)).toEqual({ ok: true, note: "same" });
+    // The repair broken: the earlier valid reply is kept.
+    const broken = scripted(['{"ok":true,"note":"same"}', "no json"]);
+    expect(await runStructured(broken.client, "m", short)).toEqual({ ok: true, note: "same" });
+    const refused = scripted(['{"ok":false,"note":"x"}', '{"ok":false,"note":"x"}']);
+    const error: unknown = await runStructured(refused.client, "m", short).catch((e) => e);
     expect((error as LlmError).code).toBe("invalid_output");
   });
 

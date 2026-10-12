@@ -1658,6 +1658,7 @@
       "spoken": "Nu există exerciții noi pentru ce s-a spus cu voce tare: spune-o din nou în exercițiul ei.",
       "comprehension": "Ascultă sau citește textul din nou: răspunsul este în el."
     },
+    "unmade": "De data aceasta nu s-a pregătit nimic pentru aceste greșeli: parcurgeți-le din nou.",
     "step": {
       "making": "Se creează sarcini noi…",
       "checking": "Se verifică sarcinile noi…"

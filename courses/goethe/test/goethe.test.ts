@@ -511,6 +511,24 @@ test("a text to write named by its task, never by its box's label", () => {
     prompt("Eingabetextfeld", "Prüfungszeit: 15 Minuten", "Ihr Chef ruft an. Antworten Sie."),
   ).toBe("Ihr Chef ruft an.");
   expect(prompt("Eingabetextfeld", "Schreiben Sie auch einen Gruß.")).toBe("Teil 2");
+  // Minutes in the task are no exam time; the time's own sentences are.
+  expect(
+    prompt(
+      "Eingabetextfeld",
+      "Reguläre Prüfungszeit: circa 20 Minuten",
+      "Sie kommen 30 Minuten zu spät. Schreiben Sie Ihrer Lehrerin.",
+    ),
+  ).toBe("Schreiben Sie Ihrer Lehrerin.");
+  expect(
+    prompt("Eingabetextfeld", "Prüfungszeit: 10 Minuten", "Sie kommen 30 Minuten zu spät."),
+  ).toBe("Sie kommen 30 Minuten zu spät.");
+  // An abbreviation ends no sentence; a number's full stop before a request does.
+  expect(
+    prompt("Eingabetextfeld", "Ihr Arzt, Dr. Weber, hat Tel. 123. Schreiben Sie ihm eine E-Mail."),
+  ).toBe("Schreiben Sie ihm eine E-Mail.");
+  expect(prompt("Eingabetextfeld", "Ihr Freund wird 30. Schreiben Sie ihm eine Karte.")).toBe(
+    "Schreiben Sie ihm eine Karte.",
+  );
   expect(prompt("Eingabetextfeld", "Prüfungszeit: 15 Minuten", "• Danken Sie.")).toBe("Teil 2");
 });
 

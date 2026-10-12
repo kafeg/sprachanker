@@ -8,7 +8,7 @@ import { until } from "./until.ts";
 
 const LESSON = "sprachanker.fixture/demo/00-01";
 const SETUP = {
-  title: "Im Café",
+  title: "В кафе",
   situation: "Вы в кафе.",
   partner: "Официант",
   goals: ["Поздороваться", "Узнать цену кофе"],
@@ -182,7 +182,7 @@ test("ended by the learner: summed up; a summary that fails is asked for again",
 });
 
 test("the lesson's Dialogues stay readable: a new one ends the open one and comes first", async () => {
-  const { sendJson, getJson } = await signedIn([SETUP, { ...SETUP, title: "Am Bahnhof" }]);
+  const { sendJson, getJson } = await signedIn([SETUP, { ...SETUP, title: "На вокзале" }]);
   const first = await sendJson("POST", "/api/llm/scene/start", base);
   expect(first.done).toBe(false);
   const second = await sendJson("POST", "/api/llm/scene/start", base);
@@ -194,8 +194,8 @@ test("the lesson's Dialogues stay readable: a new one ends the open one and come
       s.done,
     ]),
   ).toEqual([
-    [second.id, "Am Bahnhof", false],
-    [first.id, "Im Café", true],
+    [second.id, "На вокзале", false],
+    [first.id, "В кафе", true],
   ]);
   expect(scenes[1].startedAt).toBeLessThanOrEqual(scenes[0].startedAt);
 });
@@ -224,7 +224,7 @@ test("a Dialogue being prepared is known to a page opened meanwhile; a second st
     "scene_busy",
   ]);
   answer(SETUP);
-  expect((await started).setup.title).toBe("Im Café");
+  expect((await started).setup.title).toBe("В кафе");
   const after = await getJson(`/api/llm/scene?lessonKey=${LESSON}`);
   expect([after.pending, after.scenes.length]).toEqual([null, 1]);
 });

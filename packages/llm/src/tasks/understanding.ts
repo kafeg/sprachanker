@@ -58,7 +58,7 @@ const TRUE_FALSE: Partial<Record<Lang, string>> = {
   de: 'True/false options are "Richtig" and "Falsch", as the Goethe-Zertifikat writes them.',
 };
 
-/** How often a text uses the lesson's grammar at a CEFR level (walkthrough, 2026-10-12): from A2
+/** How often a text uses the lesson's grammar at a CEFR level: from A2
  *  on, twice at least; a beginner's text is free of it. */
 const GRAMMAR_USES: Record<string, number> = { A2: 2, B1: 2, B2: 2, C1: 2, C2: 2 };
 
@@ -108,28 +108,27 @@ function textProblem(text: UnderstandingText): string | undefined {
   return undefined;
 }
 
-/** The course's characters a text names: a speaker or a word of its lines or situation. */
+/** The course's characters a text names: a name as a whole word — the words in a row for a name of
+ *  several ("Mutter von Lotte") — in a speaker, a line or the situation. */
 function charactersIn(text: UnderstandingText, characters: string[]) {
-  const words = new Set(
-    [text.situation, ...text.lines.flatMap((l) => [l.speaker ?? "", l.text])].flatMap(
-      (t) => t.match(/\p{L}[\p{L}'’-]*/gu) ?? [],
-    ),
-  );
-  return characters.filter((name) => name.split(" ").every((part) => words.has(part)));
+  const said = [text.situation, ...text.lines.flatMap((l) => [l.speaker ?? "", l.text])];
+  return characters.filter((name) => {
+    const words = name.split(/\s+/).map((w) => w.replace(/[.*+?^${}()|[\]\\]/g, "\\$&"));
+    const whole = new RegExp(`(?<![\\p{L}'’-])${words.join("\\s+")}(?![\\p{L}'’-])`, "u");
+    return said.some((t) => whole.test(t));
+  });
 }
 
 /**
- * What keeps a text from being shown, beyond its form (`textProblem`): a character of the course in
- * it, a title or situation not in the learner's language, a question in the learnt language with an
- * option in the learner's — the last two told by script where the two languages' differ. Undefined
- * when it holds; else asked again once.
+ * What a text sound in its form (`textProblem`) falls short of: a character of the course in it, a
+ * title or situation not in the learner's language, a question in the learnt language with an option
+ * in the learner's — the last two told by script where the two languages' differ. Undefined when it
+ * holds; else asked again once, then kept as it is (the task's quality).
  */
 export function understandingProblem(
   text: UnderstandingText,
   { language, target, lesson }: Pick<UnderstandingInput, "language" | "target" | "lesson">,
 ): string | undefined {
-  const form = textProblem(text);
-  if (form) return form;
   const named = charactersIn(text, lesson.characters ?? []);
   if (named.length)
     return `the people are new, none of the course's characters (${named.join(", ")})`;
@@ -141,7 +140,7 @@ export function understandingProblem(
       q.options?.some((o) => writtenIn(o, language, target)),
   );
   if (mixed)
-    return `a question in ${languageName(target)} has its options in ${languageName(target)}`;
+    return `a question in ${languageName(target)} has an option in ${languageName(language)}: a question's options in its language`;
   return undefined;
 }
 
@@ -178,7 +177,8 @@ export function understandingTextTask(
   return {
     name: "understanding_text",
     schema: UnderstandingText,
-    check: (text) => understandingProblem(text, input),
+    check: textProblem,
+    quality: (text) => understandingProblem(text, input),
     request: {
       messages: [
         { role: "system", content: systemPrompt(input, understandingTextRules, TEXT_FIXED) },
@@ -226,6 +226,7 @@ export function understandingCheckRules(
   return [
     `You test questions on a short text in ${t} before a learner gets them: answer each from the text alone, as a careful reader would.`,
     `- For each question "n" (its number) and "choice" (the letter of the option you choose) or, for a question without options, "answer" (short, in ${t}).`,
+    `- Before choosing, test every option against the text, not only the first that fits: when the text supports two options (both named in it, one said and later changed, one true in part), "ambiguous" is true.`,
     `- "ambiguous": true when the text does not settle the question, when more than one option fits, or when it is answered without the text; still give your best answer.`,
   ].join("\n");
 }

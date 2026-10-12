@@ -5,7 +5,9 @@ import { type Exercise, type Lang, type LocaleExercise, SpokenCheck } from "@spr
 import type { TaskRequest } from "../client.ts";
 import type { StructuredTask } from "../structured.ts";
 import { clip, languageName, languageNames } from "../text.ts";
+import { unlistedChange } from "./corrections.ts";
 import { describeItem } from "./describe.ts";
+import { genderProblem } from "./gender.ts";
 import { grammarNotes, type LessonInfo, lessonWordsLine, levelLine } from "./lesson.ts";
 import { NEUTRAL, type RulesInput, systemPrompt } from "./rules.ts";
 
@@ -43,7 +45,8 @@ export function checkSpeakingRules(
     "Judge only what the item, the question and the answer give: never invent facts, a situation or a context they do not state, nor circumstances of the learner.",
     "Judge the forms the lesson notes cover (the case after a preposition, an ending) as the notes give them. Give each right form at once: never write a correction and correct it again later in your answer.",
     'When neither the item\'s text nor a question heard says what to answer, the content cannot be checked: judge only the words and grammar, and say in "feedback" that the content was not checked.',
-    "Any sensible answer counts: the source's answer is one good answer, not the only one; the learner may say what is true for them. Words the lesson has not taught are fine if correct.",
+    'Any sensible answer counts: the source\'s answer is one good answer, not the only one; the learner may say what is true for them. Words the lesson has not taught are fine if correct. A right form other than the lesson\'s model is right ("meine Haare schneiden lassen" beside "mir die Haare schneiden lassen").',
+    `"corrected" is the learner's words as heard with only the corrections listed made: no other word changed, none spelled anew.`,
     "It was spoken: ignore punctuation, capitalisation and spelling the recogniser chose. A word that is clearly the recogniser mishearing a right word is not an error.",
     "When the task asks for complete sentences (or a form it gives), a bare word or fragment is a major error.",
     `Correct only real errors, changing as little as possible; keep the learner's ideas. List each error once in "corrections"; none: an empty list.`,
@@ -100,4 +103,7 @@ export const checkSpeakingTask = (input: SpeakingInput): StructuredTask<SpokenCh
   name: "speaking_check",
   schema: SpokenCheck,
   request: checkSpeakingRequest(input),
+  quality: (reply) =>
+    unlistedChange(reply, input.transcript) ??
+    genderProblem([reply.feedback, ...reply.corrections.map((c) => c.explanation)], input.language),
 });

@@ -7,6 +7,7 @@ import type { TaskRequest } from "../client.ts";
 import type { StructuredTask } from "../structured.ts";
 import { clip, languageName, languageNames } from "../text.ts";
 import { cleanCheck } from "./corrections.ts";
+import { genderProblem } from "./gender.ts";
 import {
   grammarNotes,
   knownWordsLine,
@@ -53,12 +54,12 @@ export function checkWritingRules(
   return [
     `You are a ${t} teacher checking a short text by a learner of ${t} who speaks ${l}, written on the task given, at the learner's level given with the lesson.`,
     "Rate it the way the CEFR writing exams of that level do, by what a text at the level needs (given with the data):",
-    '- "points": for each content point of the task, in its order, whether the text does it (2 fully, 1 partly, 0 not) with a short comment — its content only: a point done with errors in its words is done (errors are rated in accuracy);',
+    '- "points": for each content point of the task, in its order, whether the text does it (2 fully, 1 partly, 0 not) with a short comment — its content only: a point done with errors in its words is done (errors are rated in accuracy); a point offering a choice ("A or B") is done by one of them;',
     "- task: the points together and the length (2 all, 1 some, 0 none or off the task); communication: a coherent message for its reader, with a greeting and a closing where the form needs them (2/1/0); accuracy: grammar and spelling for the level — errors that block understanding weigh most (2 few or none, 1 several, 0 many).",
     "Comment only on what the task and the level ask: never invent a requirement (a word, a form or a structure the task does not ask for).",
     "Read every sentence for errors (word order, endings and agreement, a verb's forms, the case after a preposition as the lesson notes give it) before you answer.",
     `"corrections": at most three, the most important first (errors that block understanding, then the lesson's grammar), each "wrong" quoting the learner's words as written; only real errors, changing as little as possible — never what is correct, never style, never a correct form replaced by another correct one (another tense, a synonym); ignore missing final punctuation. No errors: an empty list.`,
-    `"corrected": the whole text with every error in it fixed — also those beyond the corrections listed —, and everything correct kept as written: the learner's words, tenses and ideas.`,
+    `"corrected": the whole text with every error in it fixed — also those beyond the corrections listed —, and everything correct kept as written: the learner's words, tenses and ideas (a correct tense stays as written, even where another is more usual).`,
     `"modelText": the task done well at the learner's level, about as long as asked, with words the learner knows — not the learner's text corrected.`,
     `Write "corrected", "wrong", "right" and "modelText" in ${t}; every "comment", "explanation" and "feedback" in ${l}, briefly. "feedback": one or two encouraging, concrete sentences. ${NEUTRAL}`,
     `verdict: "good" (no errors), "minor_errors", "major_errors", or "off_task" (not on the task or not in ${t}).`,
@@ -114,6 +115,16 @@ export const checkWritingTask = (input: WritingInput): StructuredTask<WritingChe
     reply.points?.length === input.task.points.length
       ? undefined
       : `"points" has one entry for each of the task's ${input.task.points.length} content points`,
+  quality: (reply) =>
+    genderProblem(
+      [
+        reply.feedback,
+        ...reply.corrections.map((c) => c.explanation),
+        ...Object.values(reply.criteria).map((c) => c.comment),
+        ...(reply.points ?? []).map((p) => p.comment),
+      ],
+      input.language,
+    ),
   request: checkWritingRequest(input),
 });
 

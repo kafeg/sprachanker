@@ -256,8 +256,10 @@ criteria it is rated by. German only and shown as it is. Offered in the Exams se
   alternatives, a choice as `single_choice`; keys `q-schreiben-<teil>-<n>`), the form's lines the
   section's text; a text to write as a `respond` item (`q-schreiben-<teil>`), its prompt the box's
   label where it says the task ("Ihre Meinung"), else — the label naming the box, "Eingabetextfeld",
-  "Textfeld für E-Mail" — the task's first sentence saying what to write (not its length nor its
-  time; a date's or an abbreviation's full stop ends no sentence, "am 3. Mai", "z. B."), else its
+  "Textfeld für E-Mail" — the task's first sentence saying what to write (not its length nor the
+  exam's time, "Prüfungszeit:", "10 Minuten" — minutes in the task stay, "30 Minuten zu spät"; a
+  date's or an abbreviation's full stop ends no sentence, "am 3. Mai", "z. B.", "Dr.", a number's
+  before a request does, "Ihr Freund wird 30. Schreiben Sie …"), else its
   first sentence, else the Teil's title: never without one, with criteria (02):
   "pro Inhaltspunkt" one per point of the task (A1), else one per criterion (ids from titles); each
   level's points as the page gives them, else the model test's score sheet's bands for the criterion's
