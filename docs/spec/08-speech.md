@@ -51,7 +51,9 @@ off, its model, the engine, voice and speed reading aloud) are applied by `servi
 - **Silence is nothing heard**: Whisper makes up words for silence and noise ("Vielen Dank.",
   "Amen.", "Untertitelung des ZDF, 2020", "* Musik *"), while it hears a word said quietly (-45 dBFS)
   right. A take never louder than a quiet room (-50 dBFS; the recorder's loudest moment — 0 is
-  nothing measured, a suspended audio context: sent) is neither kept nor sent; the server does not ask
+  nothing measured, a suspended audio context: sent — the recorder makes and resumes its audio
+  context in the tap itself, before asking for the microphone, so iOS Safari runs it and the meter
+  shows from the start) is neither kept nor sent; the server does not ask
   the engine for a WAV with under 40 ms that loud, and of what it hears (`verbose_json`) drops
   (`services/silence.ts`): the sounds it names (`*…*`, `[…]`, `(…)`, `♪…♪`) when they are all of it or
   stand apart before or after what was said (parentheses inside a sentence stay), and punctuation
