@@ -144,17 +144,18 @@ export function openingRecord(
 
 /**
  * The AI practice a run's plan holds of the kinds offered: going over mistakes only while the run has
- * some to go over in the lesson (`hasMistakesToGoOver`, as the server reads them: `lang` the language
- * learnt) or has the step recorded already (04, "AI practice in courses").
+ * some to go over in the lesson (`hasMistakesToGoOver`, as the server reads them: in the edition's
+ * `locale`, `lang` the language learnt) or has the step recorded already (04, "AI practice in courses").
  */
 export function practiceInPlan(
   offered: readonly PracticeKind[],
   events: TypedEvent[],
   lesson: Lesson,
+  locale: LocaleLesson | null | undefined,
   lang: string,
 ): PracticeKind[] {
   const goOver =
     offered.includes("mistakes") &&
-    (stepsDone(events).has("mistakes") || hasMistakesToGoOver(events, lesson, lang));
+    (stepsDone(events).has("mistakes") || hasMistakesToGoOver(events, lesson, locale, lang));
   return offered.filter((kind) => kind !== "mistakes" || goOver);
 }

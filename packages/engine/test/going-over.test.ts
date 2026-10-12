@@ -515,8 +515,8 @@ test("a run's mistakes to go over: the lesson's exercises in its order, those go
     "s.x/c/01-01/ex-01#1",
     "s.x/c/01-01/ex-02#1",
   ]);
-  expect(hasMistakesToGoOver(events, lesson, "de")).toBe(true);
-  expect(hasMistakesToGoOver([events[2] as TypedEvent], lesson, "de")).toBe(false);
+  expect(hasMistakesToGoOver(events, lesson, null, "de")).toBe(true);
+  expect(hasMistakesToGoOver([events[2] as TypedEvent], lesson, null, "de")).toBe(false);
 });
 
 describe("new items", () => {
