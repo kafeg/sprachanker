@@ -241,7 +241,7 @@ imported `.apkg` decks fit in. Scheduling and the queue are pure functions in
   Qwen3-TTS and reads the words' language, else Piper with a voice for it, else Qwen3-TTS; neither
   here, the request is refused and Decks says what to install. The text read is the word as the card
   shows it ("der Abend"; variants as a list: "der Großvater / der Opa" read "der Großvater, der
-  Opa"), with the language's voice the profile picked (else the best one; Qwen3-TTS: its speaker, its
+  Opa"; a separable verb's bar left out: "her|kommen" read "herkommen"), with the language's voice the profile picked (else the best one; Qwen3-TTS: its speaker, its
   model) at the speed recorded — the audio is every profile's, kept in the deck's folder alone (never
   in the readings' cache). Kept beside the deck (`decks/<folder>/extras.json`, 05) by lexeme — a deck's
   words count once per lexeme, as its cards do, so two notes of one word are read once; a course's
