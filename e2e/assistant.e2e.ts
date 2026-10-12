@@ -314,7 +314,7 @@ test("a handed-in mock exam's note: the AI proposes its rating with reasons, the
   expect(rated.payload).toMatchObject({ by: "assistant", model: "fake-model" });
 });
 
-test("a speaking part held as a conversation: the examiner opens, the learner answers, the part closes", async ({
+test("a speaking part said from its script: the examiner and the partner speak, the learner says their places — a mock exam without hints, practice with them and Check", async ({
   page,
 }) => {
   await page.goto("/exams/downloaded");
@@ -325,17 +325,35 @@ test("a speaking part held as a conversation: the examiner opens, the learner an
   await expect(page.getByText("Wochenende?")).toBeVisible();
   await page.getByRole("button", { name: "Begin the part" }).click();
   await expect(page.getByText("FAKE: Bitte fragen Sie Ihren Partner.")).toBeVisible();
-  await page.getByPlaceholder("Your answer…").fill("Was machst du am Wochenende?");
-  await page.getByPlaceholder("Your answer…").press("Enter");
+  // A mock exam gives the cards only, never the hints; the partner's line comes once the learner's
+  // is said (typed here: nothing hears in the test).
+  await expect(page.getByText("FAKE: ask about the weekend")).toHaveCount(0);
+  await expect(page.getByText("FAKE: Ich gehe schwimmen.")).toHaveCount(0);
+  await page.getByPlaceholder("Your line…").fill("Was machst du am Wochenende?");
+  await page.getByRole("button", { name: "Keep it" }).click();
   await expect(page.getByText("FAKE: Ich gehe schwimmen.")).toBeVisible();
-  await expect(page.getByText("The part is over.")).toBeVisible();
-  // The learner's own lines are the part's answer, no speaker's label: handed in, it waits to be
-  // rated.
+  await expect(page.getByText("FAKE: Danke. Das war Teil 1.")).toBeVisible();
+  // Said through: the part is the answer; handed in, it waits to be rated.
   await expect(page.getByText("1/1", { exact: true })).toBeVisible();
   await page.getByRole("button", { name: "Hand in" }).filter({ visible: true }).first().click();
   await expect(page.getByText("1 answer is not rated yet", { exact: false })).toBeVisible();
   await expect(
     page.getByText("Was machst du am Wochenende?", { exact: true }).first(),
   ).toBeVisible();
-  await expect(page.getByText(/Me: Was machst/)).toHaveCount(0);
+
+  // Practice: the hints shown; Check sends the part, the examiner rates it at once; each line said
+  // with the script's good line.
+  await page.goto("/exams/downloaded");
+  await page.getByRole("link", { name: /Model test/ }).click();
+  await page.getByRole("button", { name: "Speaking" }).click();
+  await page.getByRole("button", { name: "Practise" }).click();
+  await page.getByRole("button", { name: "Begin the part" }).click();
+  await expect(page.getByText("FAKE: ask about the weekend").first()).toBeVisible();
+  const check = page.getByRole("button", { name: "Check", exact: true }).filter({ visible: true });
+  await expect(check).toBeDisabled();
+  await page.getByPlaceholder("Your line…").fill("Was du machst am Wochenende?");
+  await page.getByRole("button", { name: "Keep it" }).click();
+  await check.click();
+  await expect(page.getByText(/A good way to say it/)).toBeVisible();
+  await expect(page.getByText(/Proposed by the AI assistant/)).toBeVisible();
 });

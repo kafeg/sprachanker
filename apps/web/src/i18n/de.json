@@ -445,7 +445,6 @@
       "samples": "die Musterantworten der Prüfung, wenn sie welche gibt",
       "writtenAnswer": "deine Antwort",
       "partner": "was dein Partner hat: Karte, Kalender oder Folien (du siehst sie nicht)",
-      "conversation": "das Gespräch bis jetzt (die letzten Zeilen)",
       "level": "das Niveau des Kurses oder Stapels, wenn sein Name es nennt (A1, A2 …), sonst Anfänger",
       "words": "fünf Wörter des Stapels mit Übersetzung, Wortart und Genus",
       "courses": "deine Kurse: abgeschlossene Lektionen, die Lektionen, an denen du gearbeitet hast (die neuesten zuerst)",
@@ -526,7 +525,7 @@
       "writing": "Prüft einen kurzen Text zur Aufgabe aus „Schreiben“: jeden Punkt behandelt oder nicht, höchstens drei Korrekturen, die Kriterien des Kursniveaus (Aufgabe, Kommunikation, Richtigkeit), einen Mustertext und eine Rückmeldung.",
       "speaking": "Prüft eine gesprochene Antwort (was die Erkennung gehört hat) an der Frage und der Antwort des Kurses, wenn du „Mit KI prüfen“ drückst.",
       "exam": "Bewertet eine schriftliche Antwort einer Prüfung nach deren eigenen Kriterien: eine Stufe je Kriterium mit Begründung und was mehr Punkte bringen würde. Nichts zählt, bis du sie übernimmst oder änderst.",
-      "conversation": "Führt einen Sprechteil einer Prüfung: spielt die Prüfenden und die andere Person, wie der Teil es vorgibt, Zeile für Zeile mit dir; hilft und korrigiert nie. Danach wird nach den Kriterien des Teils bewertet.",
+      "conversation": "Schreibt das Drehbuch eines Sprechteils aus seinen Karten: die Sätze der Prüferin, die deines Partners nach seiner Karte und deine Stellen mit einem Hinweis, was du sagst. Du sprichst den Teil durch; danach wird er nach seinen Kriterien bewertet.",
       "sceneSetup": "Startet einen Dialog: erfindet aus den Zielen der Lektion und dem, was du kannst, die Situation, mit wem du sprichst, deine Zielkarte und was nur dein Gegenüber weiß — danach musst du fragen. Einmal pro Dialog.",
       "scene": "Spielt dein Gegenüber: antwortet auf jeden Satz, den du sagst (so, wie die Erkennung ihn gehört hat) oder tippst, sagt, ob er verstanden wurde und passt, korrigiert höchstens zwei Fehler darin, gibt eine Übersetzung und hakt deine Ziele ab.",
       "examples": "Schreibt drei bis fünf Beispielsätze zu jedem Wort eines Stapels, das keine eigenen hat, fünf Wörter auf einmal (Wiederholen → Stapel, „Beispiele erstellen“), möglichst mit Wörtern, die du kennst, neue übersetzt.",
@@ -1338,7 +1337,6 @@
     "event_of_another_run": "Dieser Eintrag gehört zu einem anderen Durchgang. Lade die Lektion neu.",
     "exam_rating_busy": "Diese Antwort wird gerade bewertet. Warte darauf.",
     "exam_conversation_busy": "Dein Partner antwortet gerade. Warte darauf.",
-    "exam_part_done": "Dieser Teil ist schon zu Ende.",
     "invalid_event": "Die App hat einen Eintrag geschickt, den der Server nicht annimmt. Lade die Lektion neu.",
     "invalid_request": "Die App hat etwas geschickt, das der Server nicht annimmt. Lade die Seite neu.",
     "request_too_large": "Diese Anfrage ist zu groß.",
@@ -1563,18 +1561,14 @@
       "proposalSetAside": "Vom KI-Assistenten vorgeschlagen ({model}); es zählt deine eigene Bewertung.",
       "accept": "Vorschlag übernehmen",
       "keepMine": "Meine behalten",
-      "notTaken": "Noch nicht übernommen: das Ergebnis zählt {points, number} von {max, number}."
+      "notTaken": "Noch nicht übernommen: das Ergebnis zählt {points, number} von {max, number}.",
+      "selfRated": "Die Aussprache bewertest du selbst: Hör dir deine Aufnahmen an."
     },
     "conversation": {
       "partner": "Gesprächspartner",
       "examiner": "Prüfer",
       "intro": "Der Assistent spielt die Prüfenden und deinen Partner. Antworte laut mit dem Mikrofon (oder tippe); das Gespräch ist deine Antwort.",
-      "start": "Teil beginnen",
-      "over": "Der Teil ist zu Ende.",
-      "placeholder": "Deine Antwort…",
-      "end": "Teil beenden",
-      "unsaid": "Es wurde nichts gesagt – der Teil ist nicht beantwortet.",
-      "again": "Teil neu beginnen"
+      "start": "Teil beginnen"
     },
     "choose": "Prüfung wählen"
   },

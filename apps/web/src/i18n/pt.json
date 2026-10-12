@@ -445,7 +445,6 @@
       "samples": "as respostas-modelo do exame, se ele tiver",
       "writtenAnswer": "a sua resposta",
       "partner": "o que o parceiro tem: o cartão, a agenda ou os slides dele (você não vê)",
-      "conversation": "a conversa até agora (as falas mais recentes)",
       "level": "o nível do curso ou do baralho quando o nome dele indica (A1, A2…); senão, iniciante",
       "words": "cinco palavras do baralho com tradução, classe gramatical e gênero",
       "courses": "seus cursos: lições concluídas, as lições em que você trabalhou (as mais recentes primeiro)",
@@ -526,7 +525,7 @@
       "writing": "Corrige um texto curto escrito sobre a tarefa de “Escrita”: se cada ponto foi abordado, no máximo três correções, os critérios do nível do curso (tarefa, comunicação, correção), um texto modelo e comentários.",
       "speaking": "Verifica uma resposta que você disse em voz alta (o que o reconhecedor ouviu) em relação à pergunta e à resposta do curso, quando você toca em “Verificar com IA”.",
       "exam": "Avalia uma resposta escrita de um exame pelos critérios do próprio exame: um nível para cada um com o motivo, e o que valeria mais pontos. Nada conta até você aceitar ou alterar.",
-      "conversation": "Conduz uma parte oral de um exame: faz o papel do examinador e do outro candidato, como a parte prevê, fala por fala com você; nunca ajuda nem corrige. Avaliada depois pelos critérios da parte.",
+      "conversation": "Escreve o roteiro de uma parte oral a partir dos cartões: as falas do examinador, as do seu parceiro segundo o cartão dele e as suas vezes com uma dica do que dizer. Você fala a parte inteira; depois ela é avaliada pelos critérios da parte.",
       "sceneSetup": "Começa um diálogo: a partir dos objetivos da lição e do que você sabe, inventa a situação, com quem você fala, o seu cartão de objetivos e o que só o seu interlocutor sabe — que você precisa perguntar. Uma vez por diálogo.",
       "scene": "Faz o papel do seu interlocutor: responde a cada fala que você diz (como o reconhecimento a ouviu) ou digita, diz se foi entendida e se combina, corrige no máximo dois erros, dá uma tradução e marca os objetivos atingidos.",
       "examples": "Escreve de três a cinco frases de exemplo para cada palavra de um baralho que não tenha exemplos próprios, cinco palavras por vez (Revisão → Baralhos, “Criar exemplos”), com palavras que você já conhece sempre que possível e as novas traduzidas.",
@@ -1338,7 +1337,6 @@
     "event_of_another_run": "Este registro pertence a outra rodada. Recarregue a lição.",
     "exam_rating_busy": "Esta resposta está sendo avaliada. Aguarde.",
     "exam_conversation_busy": "O parceiro está respondendo. Aguarde.",
-    "exam_part_done": "Esta parte terminou.",
     "invalid_event": "O app enviou um registro que o servidor não aceitou. Recarregue a lição.",
     "invalid_request": "O app enviou algo que o servidor não aceitou. Recarregue a página.",
     "request_too_large": "Esta solicitação é grande demais.",
@@ -1563,18 +1561,14 @@
       "proposalSetAside": "Sugerida pelo assistente de IA ({model}); conta a sua própria avaliação.",
       "accept": "Aceitar a sugestão",
       "keepMine": "Manter a minha",
-      "notTaken": "Ainda não aceita: o resultado conta {points, number} de {max, number}."
+      "notTaken": "Ainda não aceita: o resultado conta {points, number} de {max, number}.",
+      "selfRated": "A pronúncia é você quem avalia: ouça suas gravações."
     },
     "conversation": {
       "partner": "Parceiro",
       "examiner": "Examinador",
       "intro": "O assistente faz o papel do examinador e do seu parceiro. Responda em voz alta com o microfone (ou digite); a conversa é a sua resposta.",
-      "start": "Começar a parte",
-      "over": "A parte terminou.",
-      "placeholder": "Sua resposta…",
-      "end": "Encerrar a parte",
-      "unsaid": "Nada foi dito: a parte fica sem resposta.",
-      "again": "Começar a parte de novo"
+      "start": "Começar a parte"
     },
     "choose": "Escolha um exame"
   },

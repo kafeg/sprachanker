@@ -6,6 +6,7 @@ import {
   type Exercise,
   type Outcome,
   questionExercise,
+  type RespondAnswer,
   type TypedEvent,
 } from "@sprachanker/schema";
 
@@ -53,3 +54,9 @@ export function inTeile(exam: Exam, items: ExamItem[], sectionOf: Record<string,
     return { item, section, opens };
   });
 }
+
+/** A part said aloud: its takes, in order. */
+export const takesOf = (answer: unknown) =>
+  ((answer as RespondAnswer | undefined)?.lines ?? []).flatMap((l) =>
+    l.recording ? [l.recording] : [],
+  );

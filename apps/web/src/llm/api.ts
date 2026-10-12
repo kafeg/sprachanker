@@ -93,13 +93,13 @@ export const useProposeRating = () =>
       json(api.llm["exam-rating"].$post({ json: request })),
   });
 
-type ConversationRequest = Parameters<(typeof api.llm)["exam-conversation"]["$post"]>[0]["json"];
+type ExamPartRequest = Parameters<(typeof api.llm)["exam-part"]["$post"]>[0]["json"];
 
-/** The next lines of an exam's speaking part (kept in the exam run; its page takes the events). */
-export const useConversationTurn = () =>
+/** An exam's speaking part's script: written once, kept in the exam run (its page takes the
+ *  event). */
+export const useExamPart = () =>
   useMutation({
-    mutationFn: (request: ConversationRequest) =>
-      json(api.llm["exam-conversation"].$post({ json: request })),
+    mutationFn: (request: ExamPartRequest) => json(api.llm["exam-part"].$post({ json: request })),
   });
 
 export type TutorRequest = Parameters<typeof api.llm.tutor.$post>[0]["json"];
@@ -269,7 +269,7 @@ export type PromptRequest =
   | { scene: SceneLineRequest }
   | { deckExamples: { scope: string; edition: string } }
   | { exam: ExamRatingRequest }
-  | { conversation: ConversationRequest }
+  | { conversation: ExamPartRequest }
   | { talk: Parameters<typeof api.llm.talk.prompt.$post>[0]["json"] };
 
 /** The exact request a task would send now (nothing is sent). */
@@ -286,7 +286,7 @@ export function fetchPrompt(kind: PromptRequest): Promise<PromptPreview> {
     return json(api.decks.examples.prompt.$post({ json: kind.deckExamples }));
   if ("exam" in kind) return json(api.llm["exam-rating"].prompt.$post({ json: kind.exam }));
   if ("conversation" in kind)
-    return json(api.llm["exam-conversation"].prompt.$post({ json: kind.conversation }));
+    return json(api.llm["exam-part"].prompt.$post({ json: kind.conversation }));
   if ("talk" in kind) return json(api.llm.talk.prompt.$post({ json: kind.talk }));
   return json(api.llm.scene.prompt.$post({ json: kind.scene }));
 }

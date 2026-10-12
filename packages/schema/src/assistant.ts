@@ -181,17 +181,37 @@ export const DialogueSummary = z.object({
 });
 export type DialogueSummary = z.infer<typeof DialogueSummary>;
 
-/** The next lines of an exam's speaking part (`exam_conversation`): the examiner's and the partner's
- *  up to the learner's turn, each kept as an `llm_turn` with its `speaker` on the question. */
-export const ExamConversationTurn = z.object({
+/** An exam's speaking part as the real one runs (owner, 2026-10-12: no live partner — the part said
+ *  through, then rated): its script written once from the Teil's cards (`exam_part`) — the examiner's
+ *  fixed lines, the partner's from their card, and the learner's places, each with a hint of what to
+ *  say (in the learner's language) and a good line at the exam's level, shown once it is rated. The
+ *  examiner and the partner are read by voices of their gender. Kept as an `llm_verdict` (`task:
+ *  exam_part`) on the question in the exam run. */
+export const ExamPart = z.object({
+  examiner: z.object({ gender: z.enum(["f", "m"]) }),
+  partner: z.object({ name: z.string().max(40), gender: z.enum(["f", "m"]) }).optional(),
   lines: z
-    .array(z.object({ speaker: z.enum(["examiner", "partner"]), text: z.string() }))
-    .min(1)
-    .max(4),
-  /** The part is over (the examiner closed it). */
-  done: z.boolean(),
+    .array(
+      z.object({
+        speaker: z.enum(["examiner", "partner", "learner"]),
+        /** What the examiner or the partner says; for the learner, a good line at the level. */
+        text: z.string().min(1).max(1200),
+        /** The learner's lines: what to say there, in the learner's language. */
+        hint: z.string().max(300).optional(),
+      }),
+    )
+    .min(2)
+    .max(40),
+  /** The server's voices given to the examiner and the partner, when it reads the language. */
+  voices: z
+    .object({
+      engine: z.enum(["piper", "qwen"]),
+      examiner: z.string().optional(),
+      partner: z.string().optional(),
+    })
+    .optional(),
 });
-export type ExamConversationTurn = z.infer<typeof ExamConversationTurn>;
+export type ExamPart = z.infer<typeof ExamPart>;
 
 /** A question on an Understanding text, in the target language: a
  *  choice — true/false as two options in the target language, a/b/c, a number, price or time among

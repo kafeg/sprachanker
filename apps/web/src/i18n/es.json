@@ -445,7 +445,6 @@
       "samples": "las respuestas modelo del examen, si las da",
       "writtenAnswer": "tu respuesta",
       "partner": "lo que tiene tu compañero: su tarjeta, su agenda o sus diapositivas (tú no lo ves)",
-      "conversation": "la conversación hasta ahora (las líneas más recientes)",
       "level": "el nivel del curso o del mazo cuando su nombre lo indica (A1, A2…); si no, principiante",
       "words": "cinco palabras del mazo con su traducción, categoría gramatical y género",
       "courses": "tus cursos: lecciones terminadas, las lecciones en las que trabajaste (las más recientes primero)",
@@ -526,7 +525,7 @@
       "writing": "Corrige un texto corto escrito sobre la tarea de «Escritura»: si se trata cada punto, como mucho tres correcciones, los criterios del nivel del curso (tarea, comunicación, corrección), un texto modelo y comentarios.",
       "speaking": "Comprueba una respuesta que dijiste en voz alta (lo que oyó el reconocedor) frente a la pregunta y la respuesta del curso, cuando pulsas «Comprobar con IA».",
       "exam": "Valora una respuesta escrita de un examen según los criterios del propio examen: un nivel para cada uno con su motivo, y qué daría más puntos. Nada cuenta hasta que lo aceptes o lo cambies.",
-      "conversation": "Lleva una parte oral de un examen: hace de examinador y del otro candidato, como indica la parte, frase a frase contigo; nunca ayuda ni corrige. Se valora después según los criterios de la parte.",
+      "conversation": "Escribe el guion de una parte oral a partir de sus tarjetas: las frases del examinador, las de tu compañero según su tarjeta y tus turnos con una pista de qué decir. Dices la parte entera; después se valora según sus criterios.",
       "sceneSetup": "Empieza un diálogo: a partir de los objetivos de la lección y de lo que sabes, inventa la situación, con quién hablas, tu tarjeta de objetivos y lo que solo sabe tu interlocutor, que tendrás que preguntar. Una vez por diálogo.",
       "scene": "Hace de tu interlocutor: responde a cada frase que dices (tal como la oyó el reconocimiento) o escribes, dice si se entendió y si encaja, corrige como mucho dos errores, da una traducción y marca tus objetivos cumplidos.",
       "examples": "Escribe de tres a cinco frases de ejemplo para cada palabra de un mazo que no tenga ejemplos propios, de cinco en cinco palabras (Repaso → Mazos, «Crear ejemplos»), con palabras que ya conoces siempre que puede y las nuevas traducidas.",
@@ -1338,7 +1337,6 @@
     "event_of_another_run": "Este registro pertenece a otra vuelta. Vuelve a cargar la lección.",
     "exam_rating_busy": "Esta respuesta se está valorando. Espera un momento.",
     "exam_conversation_busy": "Tu compañero está respondiendo. Espera un momento.",
-    "exam_part_done": "Esta parte ha terminado.",
     "invalid_event": "La aplicación envió un registro que el servidor no aceptó. Vuelve a cargar la lección.",
     "invalid_request": "La aplicación envió algo que el servidor no aceptó. Vuelve a cargar la página.",
     "request_too_large": "Esta solicitud es demasiado grande.",
@@ -1563,18 +1561,14 @@
       "proposalSetAside": "Propuesta del asistente de IA ({model}); cuenta tu propia valoración.",
       "accept": "Aceptar la propuesta",
       "keepMine": "Mantener la mía",
-      "notTaken": "Aún sin aceptar: el resultado cuenta {points, number} de {max, number}."
+      "notTaken": "Aún sin aceptar: el resultado cuenta {points, number} de {max, number}.",
+      "selfRated": "La pronunciación la valoras tú: escucha tus grabaciones."
     },
     "conversation": {
       "partner": "Compañero",
       "examiner": "Examinador",
       "intro": "El asistente hace de examinador y de tu compañero. Responde en voz alta con el micrófono (o escribe); la conversación es tu respuesta.",
-      "start": "Empezar la parte",
-      "over": "La parte ha terminado.",
-      "placeholder": "Tu respuesta…",
-      "end": "Terminar la parte",
-      "unsaid": "No se dijo nada: la parte queda sin respuesta.",
-      "again": "Empezar la parte de nuevo"
+      "start": "Empezar la parte"
     },
     "choose": "Elige un examen"
   },

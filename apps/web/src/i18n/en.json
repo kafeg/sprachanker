@@ -445,7 +445,6 @@
       "samples": "the exam's model answers, if it gives any",
       "writtenAnswer": "your answer",
       "partner": "what the partner has: their card, calendar or slides (you don't see it)",
-      "conversation": "the conversation so far (the most recent lines)",
       "level": "the level of the course or deck when its name says it (A1, A2…), else beginners'",
       "words": "five words of the deck with their translations, part of speech and gender",
       "courses": "your courses: lessons done, the lessons you worked on (the latest first)",
@@ -526,7 +525,7 @@
       "writing": "Checks a short text written on the task of “Writing”: each point covered or not, at most three corrections, the criteria of the course's level (task, communication, accuracy), a model text and feedback.",
       "speaking": "Checks an answer you said aloud (what the recogniser heard) against the question and the course's answer, when you press “Check with AI”.",
       "exam": "Rates a written answer of an exam by the exam's own criteria: a level of each with its reason, and what would score more. Nothing counts until you take or change it.",
-      "conversation": "Holds a speaking part of an exam: plays the examiner and the other candidate, as the part prescribes, line by line with you; it never helps or corrects. Rated afterwards by the part's criteria.",
+      "conversation": "Writes a speaking part's script from the part's cards: the examiner's lines, your partner's from their card, and your places with a hint of what to say. You say the part through; it is rated afterwards by the part's criteria.",
       "sceneSetup": "Starts a dialogue: from the lesson's goals and what you know, invents the situation, who you talk to, your goal card and what only your partner knows — which you must ask for. Asked once per dialogue.",
       "scene": "Plays your partner: answers each line you say (as the recogniser heard it) or type, says whether it was understood and fits, corrects at most two mistakes in it, gives a translation and ticks off your goals.",
       "examples": "Writes three to five example sentences for each word of a deck that has none of its own, five words at a time (Review → Decks, “Make examples”), with words you know where it can and the new ones translated.",
@@ -1338,7 +1337,6 @@
     "event_of_another_run": "This record belongs to another pass. Reload the lesson.",
     "exam_rating_busy": "This answer is being rated. Wait for it.",
     "exam_conversation_busy": "The partner is answering. Wait for it.",
-    "exam_part_done": "This part is over.",
     "invalid_event": "The app sent a record the server did not accept. Reload the lesson.",
     "invalid_request": "The app sent something the server did not accept. Reload the page.",
     "request_too_large": "This request is too large.",
@@ -1563,18 +1561,14 @@
       "proposalSetAside": "Proposed by the AI assistant ({model}); your own rating counts.",
       "accept": "Accept the proposal",
       "keepMine": "Keep mine",
-      "notTaken": "Not accepted yet: the result counts {points, number} of {max, number}."
+      "notTaken": "Not accepted yet: the result counts {points, number} of {max, number}.",
+      "selfRated": "Pronunciation is yours to rate: listen to your takes."
     },
     "conversation": {
       "partner": "Partner",
       "examiner": "Examiner",
       "intro": "The assistant plays the examiner and your partner. Answer aloud with the microphone (or type); the conversation is your answer.",
-      "start": "Begin the part",
-      "over": "The part is over.",
-      "placeholder": "Your answer…",
-      "end": "End the part",
-      "unsaid": "Nothing was said: the part is not answered.",
-      "again": "Begin the part again"
+      "start": "Begin the part"
     },
     "choose": "Choose an exam"
   },

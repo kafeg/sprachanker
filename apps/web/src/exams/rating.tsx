@@ -5,12 +5,13 @@
 // until accepted it scores nothing, the result counting the rating saved before — "Accept the
 // proposal" or "Keep mine": one's own levels shown again, nothing stored anew — the rating counting is
 // stored already —, the proposal set aside on this device).
-import { criteriaMax, ratedPoints } from "@sprachanker/engine";
+import { criteriaMax, ratedPoints, selfRated } from "@sprachanker/engine";
 import type { ExamItem, ExamRatingProposal, LocaleItem, TypedEvent } from "@sprachanker/schema";
 import { Check, CircleDashed, Sparkles, X } from "lucide-react";
 import { useState } from "react";
 import { useTranslation } from "react-i18next";
 import { useKeepRunEvents, useRateAnswer } from "@/api/exams.ts";
+import { KeptTake } from "@/audio/take-button.tsx";
 import { CorrectedText, Corrections } from "@/ui/checked-text.tsx";
 import { Button } from "@/ui/components/button.tsx";
 import { inLang } from "@/ui/direction.tsx";
@@ -96,6 +97,7 @@ export function OpenAnswerRating({
   answer,
   points = [],
   auto = false,
+  takes = [],
 }: {
   runId: string;
   item: ExamItem & { criteria: Criteria };
@@ -106,6 +108,8 @@ export function OpenAnswerRating({
   points?: string[];
   /** The assistant's proposal asked at once (practice: the answer was just checked). */
   auto?: boolean;
+  /** The learner's takes of a part said aloud: what pronunciation is rated by (the learner's own). */
+  takes?: string[];
 }) {
   const { t } = useTranslation();
   const rate = useRateAnswer(runId);
@@ -122,6 +126,18 @@ export function OpenAnswerRating({
     <div className="space-y-2">
       {propose?.({ runId, itemKey: item.key, proposed: !!proposal, onStored: keep, auto })}
       {proposal && <GoneOver over={proposal.over} answer={answer} points={points} />}
+      {item.criteria.some(selfRated) && (
+        <div className="space-y-2 rounded-xl border bg-card p-4 text-sm">
+          <p>{t("exams.rating.selfRated")}</p>
+          {takes.length > 0 && (
+            <div className="flex flex-wrap gap-2">
+              {takes.map((id, i) => (
+                <KeptTake key={id} id={id} label={`${t("speech.mine")} ${i + 1}`} />
+              ))}
+            </div>
+          )}
+        </div>
+      )}
       <RatingPanel
         // Chosen anew when a proposal comes (chosen until changed) and when a rating is saved
         // (the learner's kept, or the proposal accepted).
@@ -253,8 +269,13 @@ function RatingPanel({
   const voided = criteria.some((c) => c.voids && chosen[c.id] === 0);
   // A criterion that voids the answer, not rated yet: 0 until it is.
   const unrated = criteria.find((c) => c.voids && chosen[c.id] === undefined);
-  // Taken as proposed: the assistant's rating; changed anywhere: the learner's.
-  const taken = !!proposal && criteria.every((c) => proposal.ratings[c.id] === chosen[c.id]);
+  // Taken as proposed: the assistant's rating; changed anywhere: the learner's (what the assistant
+  // never rates — pronunciation — the learner's in either).
+  const taken =
+    !!proposal &&
+    criteria
+      .filter((c) => c.id in proposal.ratings)
+      .every((c) => proposal.ratings[c.id] === chosen[c.id]);
   const changed = !rated || criteria.some((c) => rated[c.id] !== chosen[c.id]);
   // The proposal shown as it came, not accepted yet: accepted, or the learner's own kept.
   const offered = pending && taken;
@@ -266,7 +287,10 @@ function RatingPanel({
             <Sparkles className="size-4" aria-hidden />{" "}
             {pending
               ? t("exams.rating.proposed", { model: proposal.model })
-              : rated && criteria.every((c) => proposal.ratings[c.id] === rated[c.id])
+              : rated &&
+                  criteria
+                    .filter((c) => c.id in proposal.ratings)
+                    .every((c) => proposal.ratings[c.id] === rated[c.id])
                 ? t("exams.rating.proposalTaken", { model: proposal.model })
                 : t("exams.rating.proposalSetAside", { model: proposal.model })}
           </p>
@@ -328,7 +352,12 @@ function RatingPanel({
                 {t("exams.rating.keepMine")}
               </Button>
             )}
-            <Button size="sm" loading={busy} onClick={() => onRate(chosen, true)}>
+            <Button
+              size="sm"
+              loading={busy}
+              disabled={!complete}
+              onClick={() => onRate(chosen, true)}
+            >
               {t("exams.rating.accept")}
             </Button>
           </span>

@@ -445,7 +445,6 @@
       "samples": "uzorni odgovori ispita, ako ih ima",
       "writtenAnswer": "tvoj odgovor",
       "partner": "šta ima partner: svoju karticu, kalendar ili slajdove (ti to ne vidiš)",
-      "conversation": "dosadašnji razgovor (najnovije replike)",
       "level": "nivo kursa ili špila kad ga naziv navodi (A1, A2…), inače početni",
       "words": "pet riječi špila s prijevodima, vrstom riječi i rodom",
       "courses": "tvoji kursevi: završene lekcije, lekcije na kojima se radilo (najnovije prvo)",
@@ -526,7 +525,7 @@
       "writing": "Provjerava kratki tekst napisan na zadatak iz „Pisanje“: je li svaka tačka obuhvaćena, najviše tri ispravke, kriteriji nivoa kursa (zadatak, komunikacija, tačnost), uzorni tekst i povratna informacija.",
       "speaking": "Provjerava tvoj izgovoreni odgovor (ono što je prepoznavač čuo) u odnosu na pitanje i odgovor kursa, kad pritisneš „Provjeri s AI“.",
       "exam": "Ocjenjuje pisani odgovor na ispitu po kriterijima samog ispita: nivo za svaki kriterij s obrazloženjem i šta bi donijelo više bodova. Ništa se ne računa dok to ne prihvatiš ili izmijeniš.",
-      "conversation": "Vodi usmeni dio ispita: igra ispitivača i drugog kandidata, kako dio propisuje, repliku po repliku s tobom; nikad ne pomaže i ne ispravlja. Nakon toga se ocjenjuje po kriterijima dijela.",
+      "conversation": "Piše scenarij usmenog dijela iz njegovih kartica: rečenice ispitivača, partnera prema njegovoj kartici i tvoja mjesta s nagovještajem šta reći. Izgovoriš cijeli dio; zatim se ocjenjuje po njegovim kriterijima.",
       "sceneSetup": "Započinje dijalog: iz ciljeva lekcije i onoga što znaš smišlja situaciju, s kim razgovaraš, tvoju karticu ciljeva i ono što zna samo tvoj sagovornik — a ti to moraš pitati. Traži se jednom po dijalogu.",
       "scene": "Igra tvog sagovornika: odgovara na svaku tvoju izgovorenu (kako ju je prepoznavač čuo) ili napisanu repliku, kaže je li razumljiva i odgovara li, ispravlja najviše dvije greške u njoj, daje prijevod i označava postignute ciljeve.",
       "examples": "Piše tri do pet rečenica-primjera za svaku riječ špila koji nema svoje, po pet riječi odjednom (Ponavljanje → Špilovi, „Napravi primjere“), gdje može s riječima koje znaš, a nove prevodi.",
@@ -1338,7 +1337,6 @@
     "event_of_another_run": "Ovaj zapis pripada drugom prolazu. Ponovo učitaj lekciju.",
     "exam_rating_busy": "Ovaj odgovor se upravo ocjenjuje. Sačekaj.",
     "exam_conversation_busy": "Partner odgovara. Sačekaj.",
-    "exam_part_done": "Ovaj dio je završen.",
     "invalid_event": "Aplikacija je poslala zapis koji server nije prihvatio. Ponovo učitaj lekciju.",
     "invalid_request": "Aplikacija je poslala nešto što server nije prihvatio. Ponovo učitaj stranicu.",
     "request_too_large": "Ovaj zahtjev je prevelik.",
@@ -1563,18 +1561,14 @@
       "proposalSetAside": "Predložio AI asistent ({model}); računa se tvoja ocjena.",
       "accept": "Prihvati prijedlog",
       "keepMine": "Zadrži moju",
-      "notTaken": "Još nije prihvaćeno: rezultat računa {points, number} od {max, number}."
+      "notTaken": "Još nije prihvaćeno: rezultat računa {points, number} od {max, number}.",
+      "selfRated": "Izgovor ocjenjuješ sam: preslušaj svoje snimke."
     },
     "conversation": {
       "partner": "Partner",
       "examiner": "Ispitivač",
       "intro": "Asistent igra ispitivača i tvog partnera. Odgovaraj naglas mikrofonom (ili kucaj); razgovor je tvoj odgovor.",
-      "start": "Počni dio",
-      "over": "Dio je završen.",
-      "placeholder": "Tvoj odgovor…",
-      "end": "Završi dio",
-      "unsaid": "Ništa nije rečeno — ovaj dio nema odgovora.",
-      "again": "Počni dio ponovo"
+      "start": "Počni dio"
     },
     "choose": "Izaberi ispit"
   },

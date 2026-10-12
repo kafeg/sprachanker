@@ -3,6 +3,7 @@ import { z } from "zod";
 import {
   Correction,
   DialogueSummary,
+  ExamPart,
   ExamRatingProposal,
   MistakesReview,
   SpokenCheck,
@@ -215,6 +216,7 @@ const LlmVerdictPayload = z.discriminatedUnion("task", [
   verdict("example", WordExample),
   verdict("speaking", SpokenCheck),
   verdict("exam", ExamRatingProposal),
+  verdict("exam_part", ExamPart),
   verdict("dialogue", DialogueSummary),
   verdict("understanding", UnderstandingText),
   verdict("talk_task", TalkTask),

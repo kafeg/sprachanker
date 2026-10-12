@@ -445,7 +445,6 @@
       "samples": "a vizsga mintaválaszai, ha vannak",
       "writtenAnswer": "a válaszod",
       "partner": "ami a partnernél van: a kártyája, a naptára vagy a diái (te nem látod)",
-      "conversation": "az eddigi beszélgetés (a legutóbbi sorok)",
       "level": "a kurzus vagy pakli szintje, ha a neve megadja (A1, A2…), egyébként kezdő",
       "words": "a pakli öt szava fordítással, szófajjal és nemmel",
       "courses": "a kurzusaid: elvégzett leckék, a leckék, amelyeken dolgoztál (a legutóbbiak elöl)",
@@ -526,7 +525,7 @@
       "writing": "Ellenőrzi az „Írás” feladatára írt rövid szöveget: kifejtetted-e az egyes pontokat, legfeljebb három javítás, a kurzus szintjének szempontjai (feladat, kommunikáció, pontosság), mintaszöveg és visszajelzés.",
       "speaking": "Ellenőrzi a hangosan mondott válaszodat (amit a beszédfelismerő hallott) a kérdés és a kurzus válasza alapján, ha megnyomod az „Ellenőrzés MI-vel” gombot.",
       "exam": "Értékeli egy vizsga írásbeli válaszát a vizsga saját szempontjai szerint: mindegyikhez egy szintet indoklással, és azt, mi érne több pontot. Semmi sem számít, amíg el nem fogadod vagy meg nem változtatod.",
-      "conversation": "Levezeti a vizsga egy szóbeli részét: a vizsgáztatót és a másik vizsgázót játssza, ahogy a rész előírja, soronként veled; soha nem segít és nem javít. Utána a rész szempontjai szerint kerül értékelésre.",
+      "conversation": "Megírja a szóbeli rész forgatókönyvét a kártyáiból: a vizsgáztató mondatait, a partneredét a kártyája alapján és a te helyeidet egy tippel, mit mondj. Végigmondod a részt; utána a feltételei szerint értékelik.",
       "sceneSetup": "Elindít egy párbeszédet: a lecke céljaiból és abból, amit tudsz, kitalálja a helyzetet, hogy kivel beszélsz, a célkártyádat és azt, amit csak a partnered tud — ezt neked kell megkérdezned. Párbeszédenként egyszer.",
       "scene": "Eljátssza a partneredet: válaszol minden mondatodra, amit kimondasz (ahogy a felismerő hallotta) vagy beírsz, megmondja, érthető volt-e és illik-e, legfeljebb két hibát javít benne, fordítást ad és kipipálja az elért célokat.",
       "examples": "Három-öt példamondatot ír egy pakli minden olyan szavához, amelynek nincs saját példája, egyszerre öt szóhoz (Ismétlés → Paklik, „Példák készítése”); ahol lehet, ismert szavakkal, az újakat lefordítva.",
@@ -1338,7 +1337,6 @@
     "event_of_another_run": "Ez a bejegyzés egy másik körhöz tartozik. Töltsd be újra a leckét.",
     "exam_rating_busy": "Ennek a válasznak az értékelése folyamatban van. Várj egy kicsit.",
     "exam_conversation_busy": "A partner válaszol. Várj egy kicsit.",
-    "exam_part_done": "Ez a rész véget ért.",
     "invalid_event": "Az alkalmazás olyan bejegyzést küldött, amelyet a szerver nem fogadott el. Töltsd be újra a leckét.",
     "invalid_request": "Az alkalmazás olyat küldött, amit a szerver nem fogadott el. Töltsd be újra az oldalt.",
     "request_too_large": "Ez a kérés túl nagy.",
@@ -1563,18 +1561,14 @@
       "proposalSetAside": "Az MI-asszisztens javaslata ({model}); a saját értékelésed számít.",
       "accept": "Javaslat elfogadása",
       "keepMine": "A sajátomat tartom meg",
-      "notTaken": "Még nincs elfogadva: az eredmény {points, number}/{max, number} pontot számol."
+      "notTaken": "Még nincs elfogadva: az eredmény {points, number}/{max, number} pontot számol.",
+      "selfRated": "A kiejtést te értékeled: hallgasd meg a felvételeidet."
     },
     "conversation": {
       "partner": "Partner",
       "examiner": "Vizsgáztató",
       "intro": "Az asszisztens játssza a vizsgáztatót és a partneredet. Válaszolj hangosan a mikrofonnal (vagy gépelj); a beszélgetés a válaszod.",
-      "start": "A rész indítása",
-      "over": "A rész véget ért.",
-      "placeholder": "A válaszod…",
-      "end": "A rész befejezése",
-      "unsaid": "Nem hangzott el semmi: a rész megválaszolatlan.",
-      "again": "A rész újrakezdése"
+      "start": "A rész indítása"
     },
     "choose": "Válassz vizsgát"
   },

@@ -157,6 +157,7 @@ area is built is in its `CLAUDE.md`; work not built yet is in `docs/plan.md`.
 - An exam's tasks are always the source's own (the Modellsatz): the AI never invents an exam task. It acts as the examiner — finds the mistakes, rates by the official criteria (a proposal), shows a model answer (owner, 2026-10-12).
 - An exam is for being tested as in the real one; practice belongs to the courses. No weak-spot training or live partner in exams; a live conversation belongs to the Tutor (owner, 2026-10-12).
 - Every exam (Goethe, Leben in Deutschland) runs on one exam layer and player: a change there reaches all of them.
+- An exam's speaking part runs from a script written once from the Teil's cards (the examiner's fixed lines, the partner's from their card, the learner's places): no live partner and no wait for the model between lines; hints only in practice; rated once at the end by the official criteria, pronunciation by the learner from their takes (owner, 2026-10-12).
 - Exam practice behaves as a lesson: an answer waits for Check in the step bar, then Next; Skip passes a question by. A mock exam keeps Next, since nothing is checked before hand-in (owner, 2026-10-12).
 
 ## Stored data, events and statistics

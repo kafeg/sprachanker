@@ -6,7 +6,7 @@ import { PROVIDERS } from "../src/providers.ts";
 import { type StructuredTask, structuredRequest } from "../src/structured.ts";
 import { checkSpeakingTask } from "../src/tasks/check-speaking.ts";
 import { checkWritingTask } from "../src/tasks/check-writing.ts";
-import { examConversationTask } from "../src/tasks/exam-conversation.ts";
+import { examPartTask } from "../src/tasks/exam-conversation.ts";
 import { mistakeItemsCheckTask, mistakeItemsTask } from "../src/tasks/mistake-items.ts";
 import { rateExamAnswerTask } from "../src/tasks/rate-exam-answer.ts";
 import { sceneSetupTask, sceneSummaryTask, sceneTurnTask } from "../src/tasks/scene.ts";
@@ -33,7 +33,16 @@ const TASKS: StructuredTask<unknown>[] = [
   mistakeItemsTask({ ...RU_DE, lesson, groups: [] }),
   mistakeItemsCheckTask({ ...RU_DE, type: "single_choice", items: [] }),
   checkSpeakingTask({ ...RU_DE, lesson, exercise: speaking, index: 0, transcript: "Hallo" }),
-  examConversationTask({ ...RU_DE, exam: "E", part: "Teil 1", task: [], partner: "", history: [] }),
+  examPartTask({ ...RU_DE, exam: "E", part: "Teil 1", task: [], partner: "" }),
+  rateExamAnswerTask({
+    ...RU_DE,
+    exam: "E",
+    task: [],
+    criteria: [],
+    samples: [],
+    answer: "A",
+    spoken: true,
+  }),
   rateExamAnswerTask({ ...RU_DE, exam: "E", task: [], criteria: [], samples: [], answer: "A" }),
   rateExamAnswerTask({
     ...RU_DE,

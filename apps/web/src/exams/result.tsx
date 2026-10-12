@@ -27,7 +27,7 @@ import { BackLink, EmptyState } from "@/ui/page.tsx";
 import { panelClass } from "@/ui/panel.tsx";
 import { ProgressRing } from "@/ui/progress-ring.tsx";
 import { cn } from "@/ui/utils.ts";
-import { latestAnswers } from "./questions.ts";
+import { latestAnswers, takesOf } from "./questions.ts";
 import { OpenAnswerRating } from "./rating.tsx";
 import { runTally } from "./run-state.ts";
 import { QuestionCard } from "./teil.tsx";
@@ -270,6 +270,7 @@ export function ExamResultView({
                     locale={locale?.items[item.key as keyof typeof locale.items]}
                     events={events}
                     answer={given?.text ?? ""}
+                    takes={takesOf(given)}
                     points={(() => {
                       // A plan without its sections (stored before them) names none.
                       const section = run.plan.sections?.[item.key];

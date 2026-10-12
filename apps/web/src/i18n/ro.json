@@ -445,7 +445,6 @@
       "samples": "răspunsurile model ale examenului, dacă are",
       "writtenAnswer": "răspunsul tău",
       "partner": "ce are partenerul: cartonașul, calendarul sau slide-urile lui (tu nu le vezi)",
-      "conversation": "conversația de până acum (cele mai recente replici)",
       "level": "nivelul cursului sau al pachetului, când reiese din nume (A1, A2…), altfel începător",
       "words": "cinci cuvinte din pachet cu traducerea, partea de vorbire și genul lor",
       "courses": "cursurile tale: lecțiile terminate, lecțiile la care ai lucrat (cele mai recente întâi)",
@@ -526,7 +525,7 @@
       "writing": "Verifică un text scurt scris pe sarcina de la „Scriere”: fiecare punct tratat sau nu, cel mult trei corecturi, criteriile nivelului cursului (sarcină, comunicare, corectitudine), un text model și feedback.",
       "speaking": "Verifică un răspuns spus cu voce tare (ce a auzit recunoașterea vorbirii) față de întrebare și răspunsul cursului, când apeși „Verifică cu AI”.",
       "exam": "Notează un răspuns scris la examen după criteriile examenului: un nivel pentru fiecare, cu motivul, și ce ar aduce mai multe puncte. Nimic nu contează până nu îl accepți sau îl modifici.",
-      "conversation": "Poartă o probă orală de examen: joacă examinatorul și celălalt candidat, așa cum cere proba, replică cu replică împreună cu tine; nu ajută și nu corectează niciodată. Evaluată apoi după criteriile probei.",
+      "conversation": "Scrie scenariul unei părți orale din cartonașele ei: replicile examinatorului, ale partenerului după cartonașul lui și rândurile tale cu un indiciu despre ce să spui. Spui toată partea; apoi e evaluată după criteriile ei.",
       "sceneSetup": "Începe un dialog: din obiectivele lecției și din ce știi, inventează situația, cu cine vorbești, cartea ta de obiective și ce știe doar partenerul tău — trebuie să întrebi. O dată pe dialog.",
       "scene": "Joacă rolul partenerului tău: răspunde la fiecare replică pe care o spui (cum a auzit-o recunoașterea) sau o scrii, spune dacă a fost înțeleasă și dacă se potrivește, corectează cel mult două greșeli, dă o traducere și bifează obiectivele atinse.",
       "examples": "Scrie trei-cinci propoziții exemplu pentru fiecare cuvânt al unui pachet care nu are exemple proprii, câte cinci cuvinte odată (Recapitulare → Pachete, „Creează exemple”), cu cuvinte pe care le știi unde se poate și cu cele noi traduse.",
@@ -1338,7 +1337,6 @@
     "event_of_another_run": "Această înregistrare aparține altei parcurgeri. Reîncarcă lecția.",
     "exam_rating_busy": "Acest răspuns este în curs de notare. Așteaptă.",
     "exam_conversation_busy": "Partenerul răspunde. Așteaptă.",
-    "exam_part_done": "Această probă s-a încheiat.",
     "invalid_event": "Aplicația a trimis o înregistrare pe care serverul nu a acceptat-o. Reîncarcă lecția.",
     "invalid_request": "Aplicația a trimis ceva ce serverul nu a acceptat. Reîncarcă pagina.",
     "request_too_large": "Această cerere este prea mare.",
@@ -1563,18 +1561,14 @@
       "proposalSetAside": "Propusă de asistentul AI ({model}); contează propria ta notare.",
       "accept": "Acceptă propunerea",
       "keepMine": "Păstrează-o pe a mea",
-      "notTaken": "Încă neacceptată: rezultatul socotește {points, number} din {max, number}."
+      "notTaken": "Încă neacceptată: rezultatul socotește {points, number} din {max, number}.",
+      "selfRated": "Pronunția o evaluezi tu: ascultă-ți înregistrările."
     },
     "conversation": {
       "partner": "Partener",
       "examiner": "Examinator",
       "intro": "Asistentul joacă examinatorul și partenerul tău. Răspunde cu voce tare la microfon (sau scrie); conversația este răspunsul tău.",
-      "start": "Începe proba",
-      "over": "Proba s-a încheiat.",
-      "placeholder": "Răspunsul tău…",
-      "end": "Încheie proba",
-      "unsaid": "Nu s-a spus nimic: partea a rămas fără răspuns.",
-      "again": "Începe partea din nou"
+      "start": "Începe proba"
     },
     "choose": "Alege un examen"
   },

@@ -58,7 +58,7 @@ const PARTS = {
   ],
   speaking: ["lesson", "level", "lessonVocab", "grammar", "item", "heard", "answer"],
   exam: ["exam", "criteria", "samples", "writtenAnswer"],
-  conversation: ["exam", "partner", "conversation"],
+  conversation: ["exam", "partner"],
   understandingDraft: [
     "lesson",
     "place",

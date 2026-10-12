@@ -40,12 +40,19 @@ export interface ExamAnswerInput extends RulesInput {
   conversation?: ConversationLine[];
   /** A written answer: gone over too — its content points rated, its errors, a model text. */
   written?: boolean;
+  /** A speaking part said from its script: its errors in the learner's lines listed too. */
+  spoken?: boolean;
   /** The task's content points (its instructions' bullets), in order. */
   contentPoints?: string[];
 }
 
 /** The most corrections a written answer keeps, the most important first. */
 export const EXAM_CORRECTIONS = 3;
+
+/** What a speaking part's examiner adds to the rating: the errors in the learner's lines. */
+const spokenOver = (input: ExamAnswerInput) => [
+  `Then list the errors in the learner's (A) lines: "corrections", at most 10, the most important first, each "wrong" quoting the learner's words as heard, "right", "explanation" in ${languageName(input.language)}. What was said was heard by a speech recogniser: punctuation, capitals and numbers in digits are its own, never errors; a word that sounds alike and makes no sense there was misheard — no correction for it. Never correct what is correct. No errors: an empty list.`,
+];
 
 /** What a written answer's examiner adds to the rating (data with the request: the standing rules
  *  rate only). */
@@ -115,7 +122,7 @@ function rateExamAnswerRequest(input: ExamAnswerInput): TaskRequest {
       ? newest(conversationText(input.conversation), B.writtenAnswer, "\n")
       : clip(input.answer.trim(), B.writtenAnswer),
     "</answer>",
-    ...(input.written ? goneOver(input) : []),
+    ...(input.written ? goneOver(input) : input.spoken ? spokenOver(input) : []),
     // Small models follow the last lines best: what they most often get wrong.
     `Remember: points only from each criterion's levels; reasons and feedback in ${languageName(input.language)}.`,
   ].join("\n");
@@ -128,7 +135,7 @@ function rateExamAnswerRequest(input: ExamAnswerInput): TaskRequest {
       { role: "user", content },
     ],
     temperature: 0.2,
-    maxTokens: input.written ? 3000 : 1500,
+    maxTokens: input.written || input.spoken ? 3000 : 1500,
     reasoning: false,
   };
 }
@@ -159,6 +166,11 @@ const WrittenReply = ExamRatingProposal.omit({ points: true }).required({
   corrected: true,
   modelText: true,
 });
+const SpokenReply = ExamRatingProposal.pick({
+  criteria: true,
+  feedback: true,
+  corrections: true,
+}).required({ corrections: true });
 const PointedReply = ExamRatingProposal.required({
   points: true,
   corrections: true,
@@ -170,7 +182,13 @@ export const rateExamAnswerTask = (input: ExamAnswerInput): StructuredTask<ExamR
   const points = input.contentPoints?.length ?? 0;
   return {
     name: "exam_rating",
-    schema: input.written ? (points ? PointedReply : WrittenReply) : RatingReply,
+    schema: input.written
+      ? points
+        ? PointedReply
+        : WrittenReply
+      : input.spoken
+        ? SpokenReply
+        : RatingReply,
     request: rateExamAnswerRequest(input),
     check: (proposal) =>
       examRatingProblem(input.criteria, proposal) ??
@@ -208,9 +226,11 @@ export const cleanExamProposal = (
   const corrections = proposal.corrections
     .filter((c) => c.wrong.trim() !== c.right.trim() && quotes(answer, c.wrong))
     .slice(0, EXAM_CORRECTIONS);
+  // A spoken part's corrections stand alone: what was said is shown line by line.
+  if (proposal.corrected === undefined) return { ...proposal, corrections };
   return {
     ...proposal,
     corrections,
-    corrected: corrections.length ? proposal.corrected?.trim() || answer.trim() : answer.trim(),
+    corrected: corrections.length ? proposal.corrected.trim() || answer.trim() : answer.trim(),
   };
 };

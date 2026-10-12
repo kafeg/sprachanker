@@ -218,7 +218,13 @@ function profileServices(
     }),
   });
   const examRating = createExamRating({ llm, store, exams });
-  const examConversation = createExamConversation({ llm, store, exams });
+  const examConversation = createExamConversation({
+    llm,
+    store,
+    exams,
+    voices: speechOfProfile.textVoices,
+    random: config.random,
+  });
   const examples = createExamples({
     cards: cardStore,
     shown: cards.shown,

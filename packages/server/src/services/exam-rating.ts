@@ -4,12 +4,18 @@
 // is an `llm_verdict` (`task: exam`) on the question in the exam run, for the answer it rated: asked
 // once per answer, shown again without asking. A mock exam is rated only once handed in. A written
 // answer is gone over too, as an examiner does: the task's content points, the errors, a model text.
-import { contentPoints, conversationAnswer, latestConversation } from "@sprachanker/engine";
+import {
+  contentPoints,
+  conversationAnswer,
+  latestConversation,
+  selfRated,
+} from "@sprachanker/engine";
 import {
   cleanExamProposal,
   conversationOf,
   type ExamAnswerInput,
   rateExamAnswerTask,
+  scriptConversation,
   structuredRequest,
 } from "@sprachanker/llm";
 import { examLang, type LlmTurnPayload, type TypedEvent } from "@sprachanker/schema";
@@ -72,8 +78,20 @@ export function createExamRating(deps: { llm: Llm; store: RunStore; exams: Exams
           contentPoints: contentPoints(sectionLocale?.instructions),
         }),
     };
-    // A speaking part answered by its conversation (not another way, the assistant switched off
-    // after it): rated with what the learner answered.
+    // A speaking part said from its script: rated with the script around what was said (a line of
+    // the answer for each of the learner's places), its errors listed; pronunciation the learner's.
+    const script = verdicts(store, "exam_part", {
+      runIds: [request.runId],
+      itemKey: request.itemKey,
+    })[0];
+    if (script && item.type === "respond" && item.input === "speech") {
+      task.conversation = scriptConversation(script.result, text.split("\n"));
+      task.spoken = true;
+      task.criteria = task.criteria.filter((c) => !selfRated(c));
+      return { task, text };
+    }
+    // A speaking part held live before scripts, answered by its conversation (not another way, the
+    // assistant switched off after it): rated with what the learner answered.
     const held = latestConversation(
       store
         .events(request.runId, ["llm_turn"])

@@ -12,6 +12,7 @@ import {
   examLang,
   type LocaleExam,
   type Outcome,
+  type RespondAnswer,
   type TypedEvent,
 } from "@sprachanker/schema";
 import { useNavigate } from "@tanstack/react-router";
@@ -32,7 +33,7 @@ import { StepBack, StepNext } from "@/ui/step-buttons.tsx";
 import { TargetLang } from "@/ui/target-lang.ts";
 import { useWindowPlace } from "@/ui/window-title.ts";
 import { type ListedQuestion, QuestionList } from "./navigator.tsx";
-import { examExercise, inTeile, latestAnswers } from "./questions.ts";
+import { examExercise, inTeile, latestAnswers, takesOf } from "./questions.ts";
 import { OpenAnswerRating } from "./rating.tsx";
 import { ExamResultView } from "./result.tsx";
 import { questionState, runTally, useQuestionPlace, useTimeLeft } from "./run-state.ts";
@@ -224,26 +225,32 @@ function Running({
     );
   };
   const label = t("exams.question", { n: current + 1, total: items.length });
-  // Practice: a question not answered yet waits for Check (a speaking part held as a conversation
-  // answers itself as it ends).
-  // Said aloud and not yet answered in practice: the conversation (a mock exam keeps it as the answer
-  // as it goes, practice once it is over).
-  const conversation =
-    conversing &&
-    item.type === "respond" &&
-    item.input === "speech" &&
-    !(mode === "practice" && given) &&
-    slots.conversation?.view({
-      runId,
-      itemKey: item.key,
-      events,
-      onStored: keep,
-      onAnswer: (text, final) => (mode === "test" || final ? send({ text }) : undefined),
-      again: mode === "practice",
-    });
-  const checking = mode === "practice" && !given && !conversation;
+  // A speaking part said through from its script while the assistant works here: practice keeps it
+  // as the draft Check sends, then shows it answered with the script's good lines; a mock exam keeps
+  // it as the answer as soon as every place is said (and anew when said again).
+  const spokenPart =
+    conversing && item.type === "respond" && item.input === "speech"
+      ? slots.conversation?.view({
+          runId,
+          itemKey: item.key,
+          events,
+          onStored: keep,
+          onSaid: (said) => {
+            if (mode === "test") {
+              if (said) send(said);
+            } else setDrafts((d) => ({ ...d, [item.key]: said }));
+          },
+          hints: mode === "practice",
+          ...(mode === "practice" && given && { answer: given.answer as RespondAnswer }),
+        })
+      : undefined;
+  const conversation = spokenPart ?? undefined;
+  // Practice: a question not answered yet waits for Check, as a lesson's does.
+  const checking = mode === "practice" && !given;
   const draft = drafts[item.key];
-  const ready = checking && answerComplete(examExercise(item, false), 0, draft);
+  const ready =
+    checking &&
+    (conversation ? draft !== undefined : answerComplete(examExercise(item, false), 0, draft));
   const question = conversation ? (
     <section key={item.key} aria-label={label}>
       <p className="mb-1.5 text-sm text-muted-foreground">{label}</p>
@@ -282,6 +289,7 @@ function Running({
         events={events}
         answer={(given.answer as { text?: string }).text ?? ""}
         points={contentPoints(section && locale?.sections[section.key]?.instructions)}
+        takes={takesOf(given.answer)}
         auto
       />
     </div>

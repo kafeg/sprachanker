@@ -18,6 +18,12 @@ export const RespondItem = ItemBase.extend({
   /** The language the answer is written in: the target (default) or the learner's (a translation). */
   answerIn: z.enum(["target", "learner"]).optional(),
 });
-export const RespondAnswer = z.strictObject({ text: z.string(), speech: SpokenAnswer.optional() });
+export const RespondAnswer = z.strictObject({
+  text: z.string(),
+  speech: SpokenAnswer.optional(),
+  /** An exam's speaking part said line by line from its script: each of the learner's lines as heard,
+   *  with its take; `text` holds them joined, a line each. */
+  lines: z.array(SpokenAnswer).max(40).optional(),
+});
 export const RespondExercise = exerciseOf("respond", RespondItem);
 export type RespondAnswer = z.infer<typeof RespondAnswer>;

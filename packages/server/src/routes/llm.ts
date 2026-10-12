@@ -50,13 +50,6 @@ const SpeakingBody = LessonRequest.extend({
 /** An exam's open answer to be rated by its criteria, the reasons in the learner's language. */
 const ExamRatingBody = z.object({ runId: Ulid, itemKey: ExamItemKey, language: Lang });
 
-/** A speaking part's next line: the learner's (none to open the part). */
-const ConversationBody = ExamRatingBody.extend({
-  text: z.string().trim().max(MESSAGE_MAX).optional(),
-  /** The learner ends the part. */
-  end: z.literal(true).optional(),
-});
-
 /** A Dialogue's line: as the recogniser heard it, with its take, or typed. */
 const SceneLine = LessonRequest.extend({
   text: z.string().trim().min(1).max(MESSAGE_MAX),
@@ -257,11 +250,11 @@ export function llmRoutes() {
       .post("/exam-rating/prompt", zod("json", ExamRatingBody), async (c) =>
         c.json(await c.var.s.examRating.prompt(c.req.valid("json"))),
       )
-      // An exam's speaking part held with the assistant: the next lines (kept in the exam run).
-      .post("/exam-conversation", zod("json", ConversationBody), async (c) =>
-        c.json(await c.var.s.examConversation.turn(c.req.valid("json"))),
+      // An exam's speaking part: its script, written once and kept in the exam run.
+      .post("/exam-part", zod("json", ExamRatingBody), async (c) =>
+        c.json(await c.var.s.examConversation.script(c.req.valid("json"))),
       )
-      .post("/exam-conversation/prompt", zod("json", ConversationBody), async (c) =>
+      .post("/exam-part/prompt", zod("json", ExamRatingBody), async (c) =>
         c.json(await c.var.s.examConversation.prompt(c.req.valid("json"))),
       )
       .get("/prompts", zod("query", z.object({ language: Lang, target: Lang })), (c) => {

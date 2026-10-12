@@ -106,6 +106,11 @@ export function openCounts(exam: Exam, setting: SettingOf) {
 /** A question's line in a list: what it asks (a gap's text with "…", else its own text's first
  *  line), else its Teil's (a speaking part's: its cards' first lines — "Was machen Sie mit Ihrem
  *  Geld?" —, else its text's); empty when neither has any. */
+/** A criterion the learner rates themselves, never the assistant (owner, 2026-10-12): pronunciation
+ *  — what the recogniser heard says nothing of it; the learner rates it from their takes. Goethe names
+ *  it `aussprache`. */
+export const selfRated = (criterion: { id: string }) => criterion.id === "aussprache";
+
 /** A writing task's content points: the lines of its instructions marked as points ("• Bedanken Sie
  *  sich …"), in order. */
 export const contentPoints = (instructions: string | undefined): string[] =>

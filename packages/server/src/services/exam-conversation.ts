@@ -1,77 +1,48 @@
-// An exam's speaking part held with the assistant (owner's choice
-// B, 2026-10-10): the configured model plays the examiner and the partner, the learner answers aloud.
-// Every line is an `llm_turn` on the question in the exam run — the learner's as `user`, the model's
-// as `assistant` with its `speaker` — so the run's page shows the conversation; the learner's lines
-// are the answer, rated afterwards by the part's criteria with the conversation around them. The
-// part ends when the examiner closes it or the learner ends it (an empty line of theirs, `done`);
-// ended with nothing said, practice may begin it again (a mock exam's stays unanswered) with the
-// examiner's opening as before — the same card, the same topic; the model is not asked anew — and the
-// part is its latest conversation (engine `latestConversation`). One line answered at a time per part.
-import { conversationAnswer, conversationEnded, latestConversation } from "@sprachanker/engine";
-import {
-  conversationOf,
-  type ExamConversationInput,
-  examConversationTask,
-  structuredRequest,
-} from "@sprachanker/llm";
-import { examLang, type LlmTurnPayload, type TypedEvent } from "@sprachanker/schema";
-import { ServiceError } from "../errors.ts";
+// An exam's speaking part as the real part runs (owner, 2026-10-12: no live partner, no wait for the
+// model between lines): its script is written once from the Teil's cards (`exam_part`) — the
+// examiner's lines, the partner's from their card, the learner's places with a hint and a good line —
+// and kept as an `llm_verdict` (`task: exam_part`) on the question in the exam run, the examiner and
+// the partner given server voices of their gender. The learner says the part through; their lines are
+// the answer, rated afterwards with the script around them (exam-rating.ts). A mock exam's part is
+// scripted while it runs too: the learner gets the script's lines, never its hints (the page's part).
+import { castVoices } from "@sprachanker/engine";
+import { type ExamPartInput, examPartTask, scriptOf, structuredRequest } from "@sprachanker/llm";
+import { type ExamPart, examLang } from "@sprachanker/schema";
 import type { Exams } from "./exams.ts";
 import { createInFlight } from "./in-flight.ts";
 import type { Llm, PromptPreview } from "./llm.ts";
-import { payloadOf, type RunStore } from "./run-store.ts";
+import type { RunStore } from "./run-store.ts";
+import { keepVerdict, type Verdict, verdicts } from "./verdicts.ts";
 
-export interface ConversationRequest {
+export interface ExamPartRequest {
   runId: string;
   itemKey: string;
-  /** The learner's line, as heard or typed; none to open the part. */
-  text?: string;
-  /** The learner ends the part (once ended, nothing more is kept). */
-  end?: boolean;
+  /** The language of the hints. */
   language: string;
 }
 
-/** A conversation's opening: the examiner's and the partner's lines before the learner's first one,
- *  none that closed it. */
-const openingOf = (lines: LlmTurnPayload[]) => {
-  const first = lines.findIndex((l) => l.role === "user" || l.done);
-  return (first < 0 ? lines : lines.slice(0, first)).filter((l) => l.text.trim());
-};
+/** The server's voices for a language now: the profile's engine and those it reads it with. */
+type VoicesFor = (lang: string) => { engine: "piper" | "qwen"; voices: string[] } | undefined;
 
-export function createExamConversation(deps: { llm: Llm; store: RunStore; exams: Exams }) {
+export function createExamConversation(deps: {
+  llm: Llm;
+  store: RunStore;
+  exams: Exams;
+  voices?: VoicesFor;
+  random?: () => number;
+}) {
   const { llm, store } = deps;
+  const random = deps.random ?? Math.random;
   const busy = createInFlight<true>("exam_conversation_busy");
 
-  /** The part's lines so far, every conversation's, oldest first (the learner's ending among them). */
-  const linesOf = (runId: string, itemKey: string) =>
-    store
-      .events(runId, ["llm_turn"])
-      .filter((e) => e.itemKey === itemKey)
-      .map((e) => payloadOf<LlmTurnPayload>(e));
-
-  async function input(request: ConversationRequest) {
+  async function input(request: ExamPartRequest) {
     const { run, exam, locale, item, section } = await deps.exams.speakingPart(
       request.runId,
       request.itemKey,
     );
-    const all = linesOf(request.runId, request.itemKey);
-    if (conversationEnded(all)) {
-      // Ended with nothing said: practice opens it again; otherwise nothing more is said.
-      const again =
-        run.plan.mode === "practice" && !request.text?.trim() && !conversationAnswer(all);
-      if (!again) throw new ServiceError("exam_part_done", 409);
-    }
-    // The conversation going on (none when it is opened again: the examiner's opening of the one
-    // before, until the learner's first line or the examiner's close).
-    const said = conversationEnded(all) ? [] : latestConversation(all);
-    const opening = conversationEnded(all) ? openingOf(latestConversation(all)) : [];
-    // The examiner opens the part; after that every call answers a line of the learner's.
-    if (!said.length === !!request.text?.trim()) throw new ServiceError("invalid_request");
     const sectionLocale = section ? locale?.sections[section.key] : undefined;
     const target = examLang(run.edition);
-    const history = conversationOf(said);
-    if (request.text) history.push({ speaker: "learner", text: request.text.trim() });
-    const task: ExamConversationInput = {
+    const task: ExamPartInput = {
       language: request.language,
       target,
       rules: llm.rulesFor("conversation", request.language, target),
@@ -84,72 +55,65 @@ export function createExamConversation(deps: { llm: Llm; store: RunStore; exams:
         ...(section?.letters ?? []).map((l) => `Karte ${l.letter}: ${l.text ?? ""}`),
       ],
       ...(item.partner && { partner: item.partner }),
-      history,
     };
-    return { task, opening };
+    return { task, target };
   }
 
-  /** The learner ends the part: an empty line of theirs closing it, kept once (ended already:
-   *  nothing more). */
-  async function end(request: ConversationRequest) {
-    await deps.exams.speakingPart(request.runId, request.itemKey);
-    if (conversationEnded(linesOf(request.runId, request.itemKey)))
-      return { events: [], done: true };
-    const events = store.append(request.runId, [
-      {
-        type: "llm_turn" as const,
-        itemKey: request.itemKey,
-        payload: { role: "user" as const, text: "", done: true },
+  /** The examiner and the partner given server voices of their gender, where the server reads the
+   *  language. */
+  function voiced(part: ExamPart, target: string): ExamPart {
+    const here = deps.voices?.(target);
+    if (!here) return part;
+    const people = [
+      { name: "examiner", gender: part.examiner.gender, age: "adult" as const },
+      ...(part.partner
+        ? [{ name: "partner", gender: part.partner.gender, age: "adult" as const }]
+        : []),
+    ];
+    const cast = castVoices(here.engine, people, here.voices, random);
+    return {
+      ...part,
+      voices: {
+        engine: here.engine,
+        ...(cast.examiner && { examiner: cast.examiner }),
+        ...(cast.partner && { partner: cast.partner }),
       },
-    ]);
-    return { events, done: true };
+    };
   }
 
   return {
-    /** The examiner's and the partner's next lines (after the learner's, if given), kept in the run;
-     *  the events kept, for the run's page. */
-    turn(request: ConversationRequest): Promise<{ events: TypedEvent[]; done: boolean }> {
+    /** The part's script: the one kept for it in the run, else written and kept; the event kept,
+     *  for the run's page. */
+    script(request: ExamPartRequest): Promise<Verdict<"exam_part"> & { event?: unknown }> {
       return busy.run(`${request.runId}|${request.itemKey}`, true, async () => {
-        if (request.end) return end(request);
-        const { task, opening } = await input(request);
-        if (opening.length) {
-          const events = store.append(
-            request.runId,
-            opening.map(({ done: _, ...payload }) => ({
-              type: "llm_turn" as const,
-              itemKey: request.itemKey,
-              payload,
-            })),
-          );
-          return { events, done: false };
-        }
-        const { result, model, latencyMs } = await llm.structured(examConversationTask(task));
-        const lines: LlmTurnPayload[] = [
-          ...(request.text ? [{ role: "user" as const, text: request.text.trim() }] : []),
-          ...result.lines.map((line, i) => ({
-            role: "assistant" as const,
-            text: line.text.trim(),
-            speaker: line.speaker,
+        const kept = verdicts(store, "exam_part", {
+          runIds: [request.runId],
+          itemKey: request.itemKey,
+        })[0];
+        if (kept) return kept;
+        const { task, target } = await input(request);
+        const { result, model, latencyMs } = await llm.structured(examPartTask(task), {
+          timeoutAgain: true,
+        });
+        const { event, verdict } = keepVerdict(
+          store,
+          request.runId,
+          {
+            task: "exam_part",
+            input: "",
+            result: voiced(scriptOf(result), target),
             model,
             latencyMs,
-            ...(result.done && i === result.lines.length - 1 && { done: true }),
-          })),
-        ];
-        const events = store.append(
-          request.runId,
-          lines.map((payload) => ({
-            type: "llm_turn" as const,
-            itemKey: request.itemKey,
-            payload,
-          })),
+          },
+          { itemKey: request.itemKey },
         );
-        return { events, done: result.done };
+        return { ...verdict, event };
       });
     },
 
     /** The request it would send, without sending it. */
-    async prompt(request: ConversationRequest): Promise<PromptPreview> {
-      return llm.preview(structuredRequest(examConversationTask((await input(request)).task)));
+    async prompt(request: ExamPartRequest): Promise<PromptPreview> {
+      return llm.preview(structuredRequest(examPartTask((await input(request)).task)));
     },
   };
 }

@@ -94,7 +94,7 @@ src/
                      #   a recording joined by wav.ts), writing (a message answered: a task, a text checked), talk (Speaking:
                      #   a monologue card or a role-play, what was said checked), practice-prep (made ahead as a lesson starts),
                      #   going-over (the pass's mistakes by type, new items checked by the engine), speaking, tutor (+ tutor-tools,
-                     #   courses-context), scene (the Dialogue: out of the lesson, its runs read), exam-rating, exam-conversation, examples
+                     #   courses-context), scene (the Dialogue: out of the lesson, its runs read), exam-rating, exam-conversation (a speaking part's script), examples
                      # - speech: speech (whisper-server; silence: a take's loudness, what is not speech of
                      #   what Whisper heard — its credits and made-up phrases by language: hallucinations.json), read-aloud (Piper; piper-voices.json from
                      #   scripts/piper-voices.ts), qwen-tts, local-engines (SpeechHost, ReadingCache,

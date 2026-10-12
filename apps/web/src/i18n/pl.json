@@ -445,7 +445,6 @@
       "samples": "przykładowe odpowiedzi z egzaminu, jeśli są",
       "writtenAnswer": "twoja odpowiedź",
       "partner": "to, co ma partner: jego kartę, kalendarz lub slajdy (ty ich nie widzisz)",
-      "conversation": "dotychczasowa rozmowa (najnowsze kwestie)",
       "level": "poziom kursu lub talii, jeśli wynika z nazwy (A1, A2…), w przeciwnym razie początkujący",
       "words": "pięć słów talii z tłumaczeniami, częścią mowy i rodzajem",
       "courses": "twoje kursy: ukończone lekcje, lekcje, nad którymi pracowano (najnowsze najpierw)",
@@ -526,7 +525,7 @@
       "writing": "Sprawdza krótki tekst napisany na zadanie z „Pisanie”: czy każdy punkt omówiono, najwyżej trzy poprawki, kryteria poziomu kursu (zadanie, komunikacja, poprawność), tekst wzorcowy i komentarz.",
       "speaking": "Sprawdza odpowiedź powiedzianą na głos (to, co usłyszało rozpoznawanie mowy) względem pytania i odpowiedzi z kursu, gdy naciśniesz „Sprawdź z AI”.",
       "exam": "Ocenia pisemną odpowiedź egzaminacyjną według kryteriów samego egzaminu: poziom w każdym kryterium z uzasadnieniem i co dałoby więcej punktów. Nic się nie liczy, dopóki tego nie przyjmiesz lub nie zmienisz.",
-      "conversation": "Prowadzi część ustną egzaminu: odgrywa egzaminatora i drugiego kandydata, jak przewiduje ta część, kwestia po kwestii z tobą; nigdy nie pomaga ani nie poprawia. Potem oceniana jest według kryteriów tej części.",
+      "conversation": "Pisze scenariusz części ustnej na podstawie jej kart: kwestie egzaminatora, partnera według jego karty i twoje miejsca z podpowiedzią, co powiedzieć. Mówisz całą część, potem jest oceniana według jej kryteriów.",
       "sceneSetup": "Rozpoczyna dialog: z celów lekcji i tego, co już znasz, wymyśla sytuację, rozmówcę, twoją kartę celów i to, co wie tylko rozmówca — o to musisz zapytać. Raz na dialog.",
       "scene": "Gra twojego rozmówcę: odpowiada na każdą kwestię, którą mówisz (tak jak usłyszało ją rozpoznawanie) lub piszesz, mówi, czy była zrozumiała i pasuje, poprawia w niej najwyżej dwa błędy, podaje tłumaczenie i odhacza osiągnięte cele.",
       "examples": "Pisze od trzech do pięciu przykładowych zdań do każdego słowa talii, która nie ma własnych, po pięć słów naraz (Powtórki → Talie, „Utwórz przykłady”), w miarę możliwości ze znanymi ci słowami, a nowe tłumaczy.",
@@ -1338,7 +1337,6 @@
     "event_of_another_run": "Ten wpis należy do innego podejścia. Wczytaj lekcję ponownie.",
     "exam_rating_busy": "Ta odpowiedź jest właśnie oceniana. Poczekaj.",
     "exam_conversation_busy": "Rozmówca odpowiada. Poczekaj.",
-    "exam_part_done": "Ta część się zakończyła.",
     "invalid_event": "Aplikacja wysłała wpis, którego serwer nie przyjął. Wczytaj lekcję ponownie.",
     "invalid_request": "Aplikacja wysłała coś, czego serwer nie przyjął. Wczytaj stronę ponownie.",
     "request_too_large": "To zapytanie jest za duże.",
@@ -1563,18 +1561,14 @@
       "proposalSetAside": "Zaproponowane przez asystenta AI ({model}); liczy się twoja ocena.",
       "accept": "Przyjmij propozycję",
       "keepMine": "Zostaw moją",
-      "notTaken": "Jeszcze nie przyjęte: wynik liczy {points, number} z {max, number}."
+      "notTaken": "Jeszcze nie przyjęte: wynik liczy {points, number} z {max, number}.",
+      "selfRated": "Wymowę oceń sam: odsłuchaj swoje nagrania."
     },
     "conversation": {
       "partner": "Partner",
       "examiner": "Egzaminator",
       "intro": "Asystent odgrywa egzaminatora i twojego partnera. Odpowiadaj na głos przez mikrofon (albo pisz); rozmowa jest twoją odpowiedzią.",
-      "start": "Zacznij część",
-      "over": "Ta część się zakończyła.",
-      "placeholder": "Twoja odpowiedź…",
-      "end": "Zakończ część",
-      "unsaid": "Nic nie zostało powiedziane — ta część nie ma odpowiedzi.",
-      "again": "Zacznij część od nowa"
+      "start": "Zacznij część"
     },
     "choose": "Wybierz egzamin"
   },

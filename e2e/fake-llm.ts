@@ -284,21 +284,35 @@ const EXAM_RATING = {
   modelText: "FAKE: Lieber Tom, ich komme um drei Uhr und bringe einen Kuchen für dich mit.",
 };
 
-/** A speaking part: the examiner opens it; after the learner's first line the partner answers and
- *  the examiner closes it. */
-const conversation = (prompt: string) =>
-  prompt.includes("Learner (A):")
-    ? {
-        lines: [
-          { speaker: "partner", text: "FAKE: Ich gehe schwimmen." },
-          { speaker: "examiner", text: "FAKE: Danke. Das war Teil 1." },
-        ],
-        done: true,
-      }
-    : {
-        lines: [{ speaker: "examiner", text: "FAKE: Bitte fragen Sie Ihren Partner." }],
-        done: false,
-      };
+/** A speaking part rated (the fixture's part: its own criteria), an error of the learner's listed. */
+const SPOKEN_RATING = {
+  criteria: [
+    { id: "aufgabe", points: 4, reason: "FAKE: asked and answered." },
+    { id: "sprache", points: 2, reason: "FAKE: one word order error." },
+  ],
+  feedback: "FAKE: mind the word order.",
+  corrections: [{ wrong: "du machst", right: "machst du", explanation: "FAKE: verb second." }],
+};
+/** An open answer rated: a speaking part's or a note's. */
+const examRating = (prompt: string) =>
+  prompt.includes("Learner (A):") ? SPOKEN_RATING : EXAM_RATING;
+
+/** A speaking part's script: the examiner opens, the learner asks (from the card), the partner
+ *  answers, the examiner closes. */
+const EXAM_PART = {
+  examiner: { gender: "f" },
+  partner: { name: "Jonas", gender: "m" },
+  lines: [
+    { speaker: "examiner", text: "FAKE: Bitte fragen Sie Ihren Partner.", hint: "" },
+    {
+      speaker: "learner",
+      text: "FAKE: Was machst du am Wochenende?",
+      hint: "FAKE: ask about the weekend",
+    },
+    { speaker: "partner", text: "FAKE: Ich gehe schwimmen.", hint: "" },
+    { speaker: "examiner", text: "FAKE: Danke. Das war Teil 1.", hint: "" },
+  ],
+};
 
 /** Structured replies by the task's schema name; the writing check otherwise. */
 const STRUCTURED: Record<string, unknown> = {
@@ -310,7 +324,7 @@ const STRUCTURED: Record<string, unknown> = {
   understanding_judge: JUDGED,
   understanding_questions: UNDERSTANDING_QUESTIONS,
   speaking_check: SPOKEN_CHECK,
-  exam_rating: EXAM_RATING,
+  exam_part: EXAM_PART,
 };
 
 const sse = (text: string) =>
@@ -355,12 +369,12 @@ if (import.meta.main) {
                   ? mistakeItems(body.messages.at(-1)?.content ?? "")
                   : task === "mistake_items_check"
                     ? itemsTried(body.messages.at(-1)?.content ?? "")
-                    : task === "exam_conversation"
-                      ? conversation(body.messages.at(-1)?.content ?? "")
-                      : task === "understanding_draft"
-                        ? draft(body.messages.at(-1)?.content ?? "")
-                        : task === "understanding_check"
-                          ? understandingCheck(body.messages.at(-1)?.content ?? "")
+                    : task === "understanding_draft"
+                      ? draft(body.messages.at(-1)?.content ?? "")
+                      : task === "understanding_check"
+                        ? understandingCheck(body.messages.at(-1)?.content ?? "")
+                        : task === "exam_rating"
+                          ? examRating(body.messages.at(-1)?.content ?? "")
                           : task === "talk_cues"
                             ? talkCues(body.messages.at(-1)?.content ?? "")
                             : task === "talk_check"

@@ -114,6 +114,29 @@
           "needsLlm": true
         }
       }
+    },
+    {
+      "since": "2026-10-12",
+      "payload": {
+        "answer": {
+          "text": "Hallo!\nIch lese gern.",
+          "lines": [
+            {
+              "transcript": "Hallo!",
+              "recording": "01HZY0000000000000000000AB"
+            },
+            {
+              "transcript": "Ich lese gern."
+            }
+          ]
+        },
+        "attempt": 1,
+        "ms": 1000,
+        "outcome": {
+          "result": "unscored",
+          "score": 0
+        }
+      }
     }
   ],
   "item_skipped": [
@@ -772,6 +795,44 @@
           ],
           "corrected": "Lieber Tom, ich komme um drei Uhr.",
           "modelText": "Lieber Tom, ich komme um drei Uhr und bringe Kuchen mit."
+        },
+        "model": "m",
+        "latencyMs": 10
+      }
+    },
+    {
+      "since": "2026-10-12",
+      "payload": {
+        "task": "exam_part",
+        "input": "",
+        "result": {
+          "examiner": {
+            "gender": "f"
+          },
+          "partner": {
+            "name": "Jonas",
+            "gender": "m"
+          },
+          "lines": [
+            {
+              "speaker": "examiner",
+              "text": "Guten Tag."
+            },
+            {
+              "speaker": "learner",
+              "text": "Hallo!",
+              "hint": "Поздоровайтесь."
+            },
+            {
+              "speaker": "partner",
+              "text": "Hallo!"
+            }
+          ],
+          "voices": {
+            "engine": "piper",
+            "examiner": "de_DE-eva_k-x_low",
+            "partner": "de_DE-thorsten-medium"
+          }
         },
         "model": "m",
         "latencyMs": 10
