@@ -148,7 +148,7 @@ rules.
 | `check_speaking` | the lesson (title, words, grammar), the course's level, a speaking item without a line to say (instruction, prompt, hint, the source's written answer or its frame), the question and the source's answer as the recogniser heard them in the course's recordings (none heard: said so — the content then is not checked, only the form, and the feedback says so), what was heard of the learner's answer; nothing invented beyond them, nothing right corrected | JSON: verdict, corrected answer, corrections[] (wrong, right, explanation), feedback |
 | `understanding_text` | Understanding's text (04, "AI practice in courses"): the lesson (title, goals, its place, words) and the snapshot (level, earlier words, grammar topics met); the text's length at the level and how the target language's exams write true and false (German's "Richtig", "Falsch") with the data | JSON: kind (`dialogue` \| `announcement` \| `reading`), title and situation (the learner's language), lines (target language; a dialogue's each with its speaker, two at most), glossary (the few new words, translated; a word of the lesson or met before dropped by the engine — `newGlosses`, QA 2026-10-12), questions (target language; phase `listening` \| `reading`, options with the right one's index, or the accepted answers of one typed) — checked: every question askable, at least three, a text heard with questions by ear |
 | `understanding_check` | the text written and its questions without their keys | JSON: answers[] (n, the option's letter or the answer typed, ambiguous) — the questions answered otherwise than their key (an answer typed checked by the engine, as the learner's), ambiguous or not answered are left out (`settledQuestions`) |
-| `scene_setup` | a Dialogue's setup: the lesson (title, goals, its place, words, its grammar notes) and the snapshot (level, earlier words, grammar topics met, the course's characters — none of them the partner), the goal kinds of the level (A1 facts, A2 arranging, B1 an opinion with a reason or a complaint, B2–C2 beyond), the card's language last | JSON: title, situation, partner, goals (1–3: the learner's goal card), partnerInfo (2–4 facts the partner holds and the learner must ask for, in the target language), opening line and its translation |
+| `scene_setup` | a Dialogue's setup: the lesson (title, goals, its place, words, its grammar notes) and the snapshot (level, earlier words, grammar topics met, the course's characters — none of them the partner), the goal kinds of the level (A1 facts, A2 arranging, B1 an opinion with a reason or a complaint, B2–C2 beyond; from B1 at least one goal an opinion), the card's language last | JSON: title, situation, partner, goals (1–3: the learner's goal card), partnerInfo (2–4 facts the partner holds and the learner must ask for, in the target language), opening line and its translation |
 | `scene_turn` | a Dialogue's line: its setup with the partner's information, the course's characters (the partner never takes their names), the level, the words known and the lesson's grammar notes, history, the learner's new line (said and recognised, or typed) | JSON: reply (target language), translation, understood, fits, corrections[] (of the new line only; at most two kept; keeping to the goals — a goal's form of address is the one corrected to), goalsMet[], done (the app ends it only when every goal is met) |
 | `scene_summary` | a Dialogue ended: its setup, the goals met, its lines with the corrections given | JSON: corrections[] (one or two key ones, each with a model line: the learner's line said well), feedback |
 | `rate_exam_answer` | an exam's title, the task as set (the Teil's instructions and text, the question), its criteria (titles, each level's points and meaning, which voids the task), the exam's model answers if any, the learner's answer (a speaking part held as a conversation: its lines, each speaker named in English) | JSON: criteria[] (id, points — one of its levels, checked with one repair —, reason), feedback |
@@ -355,13 +355,20 @@ Both tutors (the lesson's and the section's) take real-life language as in scope
   learner must ask for it). The setup (walkthrough, 2026-10-12): the partner a new person, never a
   course character, nothing said of the course's characters; 2–3 goals of the kinds the level's data
   line gives, at least one asking for a partner's fact and one needing the lesson's grammar (its
-  notes are in the data); an opening that asks nothing the learner cannot know; the card in the
-  learner's language whatever language the lesson's texts are in. Each learner line is sent as the
+  notes are in the data), from B1 on at least one an opinion (the level's data line says it); an
+  opening within the level, true to the situation, that asks nothing the learner cannot know; one
+  form of address (familiar or polite, where the language has both) for the goals, the opening and
+  every partner line; the card in the learner's language whatever language the lesson's texts are
+  in. Each learner line is sent as the
   recogniser heard it (`spoken`, with the take's `recording`), or typed where there is no microphone
   or recognition; the model plays the partner within the level and the words known, in role: the
   goals are the learner's to reach — the partner never asks the goal questions itself nor offers a
-  fact before it is asked, and a learner who drifts gets a short neutral "anything else?" —, and it
-  never corrects inside its line. It takes the line as a person would understand it (the
+  fact before it is asked —; it answers as a person would (a short reaction, a word about itself or
+  the situation, a question about the learner's plans), asks "anything else?" at most once and only
+  when the learner stalls (walkthrough 2, 2026-10-12: one partner asked it in 18 of 29 lines), and it
+  never corrects inside its line. A reply that ends with the question the partner's last line (or the
+  opening) ended with is asked again once (`repeatedQuestion`, compared without case and
+  punctuation). It takes the line as a person would understand it (the
   recogniser's punctuation, capitals and digits are no errors) and says whether it was understood
   and fits; corrections give only the words corrected, in the target language (word order in
   subordinate and relative clauses, endings, the lesson's grammar checked; never what is correct,

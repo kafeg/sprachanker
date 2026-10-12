@@ -65,10 +65,10 @@ export const SCENE_BUDGETS = {
 const GOAL_KINDS: Record<string, string> = {
   A1: "ask for and give simple facts (a time, a price, a place, a name, a number)",
   A2: "arrange or ask for something (a meeting, a ticket, a room, the way), with the facts it needs",
-  B1: "give an opinion with a reason, compare, complain or ask for a solution",
-  B2: "argue a point, weigh options, negotiate",
-  C1: "persuade, handle a delicate request tactfully, discuss implications",
-  C2: "discuss nuance, irony and implication; handle any register",
+  B1: "give an opinion with a reason (at least one goal does), compare, complain or ask for a solution",
+  B2: "give and argue an opinion (at least one goal does), weigh options, negotiate",
+  C1: "give and defend an opinion (at least one goal does), persuade, handle a delicate request tactfully, discuss implications",
+  C2: "give and defend an opinion (at least one goal does), discuss nuance, irony and implication; handle any register",
 };
 
 /** The goal kinds of the learner's level: each level the course names (a range: both ends), a
@@ -109,7 +109,8 @@ export function sceneSetupRules(
     "Make an information gap: the partner knows 2–4 concrete facts the learner does not (a time, a price, a place, a name, a number) and must ask for.",
     `Write title, situation, partner and goals in ${l}, whatever language the lesson's texts are in. "goals" are the learner's goal card: 2–3 concrete things to say or find out, of the kinds given for the learner's level; at least one asks for a fact the partner holds, without giving the fact away; at least one needs this lesson's grammar to say.`,
     `"partnerInfo": the partner's facts as short sentences in ${t}; the learner does not see them.`,
-    `"opening" is the partner's first line in ${t} within the learner's level, using words they know; it does not give away the facts and asks nothing the learner cannot know (only about themselves, their wishes or the situation). "openingTranslation": the opening in ${l}.`,
+    `"opening" is the partner's first line in ${t} within the learner's level, using words they know, and true to the situation (who the two are, where they are, what each already knows); it does not give away the facts and asks nothing the learner cannot know (only about themselves, their wishes or the situation). "openingTranslation": the opening in ${l}.`,
+    `One form of address for the whole dialogue, the one the situation calls for (where ${t} has a familiar and a polite one): the goals, the opening and the partner's facts all use it, and no goal asks for the other.`,
     NEUTRAL,
   ].join("\n");
 }
@@ -175,8 +176,9 @@ export function sceneTurnRules(
   const { language: l, target: t } = names;
   return [
     `You play a role in a short spoken dialogue with a learner of ${t} who speaks ${l}, at the learner's level given in <scene>. Stay in role: you are the person of "You play", none of the course's characters — never take one of their names.`,
-    `- "reply": your next line in ${t} only, within the learner's level — one or two short sentences with words they know, in correct ${t}. React to what the learner says.`,
-    `- The goals are the learner's to reach: never ask the learner's goal questions yourself, never offer or hint at a fact of "You know" before the learner asks for it. If the learner drifts, answer briefly and ask a short neutral question (whether there is anything else) without naming a goal.`,
+    `- "reply": your next line in ${t} only, within the learner's level — one or two short sentences with words they know, in correct ${t}, in the form of address of your opening.`,
+    `- Answer like a person in that situation: react to what the learner just said (a short reaction), then add a word about yourself or the situation, or ask about the learner's plans or wishes. Never end two lines with the same question.`,
+    `- The goals are the learner's to reach: never ask the learner's goal questions yourself, never offer or hint at a fact of "You know" before the learner asks for it. Ask whether there is anything else at most once in the dialogue, and only when the learner has nothing more to say; if the learner drifts, answer briefly and bring the talk back to the situation without naming a goal.`,
     `- If the learner speaks ${l} or is stuck, still answer in ${t}, more simply.`,
     `- Never correct the learner inside "reply" (you stay in role); corrections go only in "corrections".`,
     `- "translation": your reply in ${l}.`,
@@ -236,6 +238,11 @@ export function sceneTurnRequest(input: SceneTurnInput): TaskRequest {
 export const sceneTurnTask = (input: SceneTurnInput): StructuredTask<SceneTurn> => ({
   name: "scene_turn",
   schema: SceneTurn,
+  check: (turn) =>
+    repeatedQuestion(
+      turn.reply,
+      input.history.findLast((t) => t.role === "assistant")?.text ?? input.setup.opening,
+    ),
   request: sceneTurnRequest(input),
 });
 
@@ -246,6 +253,19 @@ const bare = (text: string) =>
     .replace(/[\p{P}\p{S}]+/gu, " ")
     .replace(/\s+/g, " ")
     .trim();
+
+/** The question a line ends with, as compared; none: empty. */
+const closingQuestion = (line: string) =>
+  bare(/[^.!?。！？]*[?？]\s*$/u.exec(line.trim())?.[0] ?? "");
+
+/** A partner's reply that ends with the question its last line ended with ("Haben Sie noch eine
+ *  Frage?" in line after line): the problem the reply is asked again once for. Undefined when it
+ *  does not. */
+export function repeatedQuestion(reply: string, previous: string | undefined) {
+  const question = closingQuestion(reply);
+  if (!question || !previous || question !== closingQuestion(previous)) return undefined;
+  return '"reply" ends with the same question as your last line: react to what the learner said instead (a short reaction, a word about yourself or the situation, a question about their plans)';
+}
 
 /** The two languages of a Dialogue: the learner's (explanations) and the one learnt. */
 export interface SceneLangs {

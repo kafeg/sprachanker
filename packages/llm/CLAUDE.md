@@ -63,7 +63,8 @@ src/
     rate-exam-answer.ts # rate_exam_answer: an exam's open answer → a level of each of its criteria with
                        # the reason (checked against the levels), feedback
     scene.ts           # the Dialogue: scene_setup (goal card, the partner's hidden facts), scene_turn (a
-                       # line judged; cleanSceneTurn: remarks in place of corrections dropped), scene_summary
+                       # line judged; repeatedQuestion: a reply ending as the last one did asked again;
+                       # cleanSceneTurn: remarks in place of corrections dropped), scene_summary
                        # (key corrections, model lines without the error); goal kinds by level (data)
     tutor-tools.ts     # the tutor's tool definitions (progress, mistakes, word, lesson) and prompt lines
     understanding.ts   # Understanding: understanding_text (a text to hear or read with its questions, its
