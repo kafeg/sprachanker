@@ -91,10 +91,14 @@ describe("explainMistakeMessages", () => {
     });
     expect(system?.content).toContain("never guess why they chose it");
     expect(system?.content).toContain('a tendency ("usually", "often") is no rule');
-    expect(system?.content).toContain("This is X from lesson 1.2 «title»");
+    // Where a topic was taught, cited in the learner's language: no English example to copy.
+    expect(system?.content).toContain(
+      'one short sentence in Russian saying where it was taught: the lesson\'s number and title as given ("… 1.2 «…»")',
+    );
+    expect(system?.content).not.toContain("from lesson");
     expect(system?.content).toContain("Write only in Russian and German");
     expect(user?.content).toContain(
-      "<lesson_notes>\nGrammar topics met so far, each with the lessons that taught it: Begrüßung — lesson 0.1 «Hallo!»; Herr und Frau — lesson 0.2\nFrau = Mrs\n</lesson_notes>",
+      "<lesson_notes>\nGrammar topics met so far, each with the lessons (unit.lesson «title») that taught it: Begrüßung — 0.1 «Hallo!»; Herr und Frau — 0.2\nFrau = Mrs\n</lesson_notes>",
     );
   });
 });

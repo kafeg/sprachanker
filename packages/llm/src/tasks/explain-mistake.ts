@@ -44,7 +44,7 @@ export function explainMistakeRules(
     "2. what exactly is wrong in the learner's answer (if they gave one) — say what is wrong, never guess why they chose it;",
     `3. if a grammar or vocabulary rule is behind it, that rule with one short ${t} example — a tendency ("usually", "often") is no rule: say it as one;`,
     "   if the item checks understanding of a text, audio or video, what in it gives the answer instead (quote the transcript when it is given; never guess what was said);",
-    '4. if that rule is one of the grammar topics met so far, one short sentence saying where it was taught ("This is X from lesson 1.2 «title»").',
+    `4. if that rule is one of the grammar topics met so far, one short sentence in ${l} saying where it was taught: the lesson's number and title as given ("… 1.2 «…»"), every other word of the sentence in ${l} — the word for "lesson" too.`,
     `Write ${t} words and examples in ${t}. Do not invent rules; when the lesson notes cover the topic, use their terms.`,
     "If several answers are accepted, they are separated by |. Gaps are shown in [brackets].",
     `Plain text in short paragraphs; **bold** is allowed; no headings, no tables, no emoji. ${NEUTRAL}`,

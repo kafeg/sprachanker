@@ -101,20 +101,21 @@ export const topicsLine = ({ topics = [] }: Pick<LessonInfo, "topics">, max: num
     : undefined;
 
 /** The grammar topics met so far with the lessons that taught each, the first first ("Modalverben —
- *  lesson 2.3 «Im Café», 4.1"): the most recent within `max` characters — the lessons' titles
+ *  2.3 «Im Café», 4.1"; no word of English beside the numbers, which the model would copy into an
+ *  explanation in another language): the most recent within `max` characters — the lessons' titles
  *  dropped before a topic or its first lesson is. */
 export function topicPlacesLine({ topics = [] }: Pick<LessonInfo, "topics">, max: number) {
   if (!topics.length) return undefined;
   const entries = (titled: boolean) =>
     topicPlaces(topics).map(
       ([title, places]) =>
-        `${title} — lesson ${places
+        `${title} — ${places
           .map((t) => `${t.lesson}${titled && t.lessonTitle ? ` «${t.lessonTitle}»` : ""}`)
           .join(", ")}`,
     );
   const full = entries(true);
   const fits = full.join("; ").length <= max;
-  return `Grammar topics met so far, each with the lessons that taught it: ${
+  return `Grammar topics met so far, each with the lessons (unit.lesson «title») that taught it: ${
     fits ? full.join("; ") : newest(entries(false), max, "; ")
   }`;
 }
