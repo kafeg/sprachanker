@@ -33,7 +33,7 @@ apps/web/src/
                    # placed by drag or tap); item-card (an item with its prompt, media and renderer:
                    # answered in the player, read-only in the Notebook); no API calls
   exams/           # exams: card (the list's), page (an exam's: modes, the latest mock exam, sources),
-                   # player (a run a question at a time: mock exam timed, practice checked at once;
+                   # player (a run a question at a time: mock exam timed, nothing checked before hand-in; practice as a lesson — Check in the step bar, then Next, Skip;
                    # run-state: the questions' states and tally, the place kept, the time left),
                    # navigator (the run's plan by Teil), result, catalog (a compact list, a question
                    # opened with its answer), state-select, questions (a question as an exercise, the

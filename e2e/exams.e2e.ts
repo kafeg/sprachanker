@@ -1,6 +1,6 @@
 // Exams on the fixture course's mini exam (two general questions, one of the learner's state; pass
 // marks 2 and 3): the Exams section, the state chosen, a mock exam drawn, answered, handed in, its
-// result and the Notebook; practice with each answer checked at once.
+// result and the Notebook; practice with each answer checked by Check, as in a lesson.
 import { expect, type Locator, type Page, test } from "@playwright/test";
 import { put } from "./api.ts";
 
@@ -118,7 +118,7 @@ test("a mock exam: a question at a time, the grid above, nothing marked; handed 
   await expect(page.getByRole("button", { name: /3 of 3\s*Passed/ }).first()).toBeVisible();
 });
 
-test("practice: a question at a time, each checked at once; ended early, scored over the answers given", async ({
+test("practice: a question at a time, each checked with Check as in a lesson; ended early, scored over the answers given", async ({
   page,
 }) => {
   await openExam(page);
@@ -139,7 +139,10 @@ test("practice: a question at a time, each checked at once; ended early, scored 
       : undefined;
   if (wrong) await main.getByRole("button", { name: wrong }).click();
   else await main.locator("button:has(img[src*='kuchen'])").click();
-  // Checked at once: marked, the tally and the question wrong in the list.
+  // Nothing checked until Check in the step bar, as in a lesson.
+  await expect(main.getByRole("status").filter({ hasText: /^Wrong$/ })).toHaveCount(0);
+  await button(page, "Check").click();
+  // Checked: marked, the tally and the question wrong in the list.
   await expect(main.getByRole("status").filter({ hasText: /^Wrong$/ })).toBeAttached();
   await withQuestions(page, (_, column) =>
     expect(column.getByText(/0 right · 1 wrong/)).toBeVisible(),

@@ -7,7 +7,6 @@ import { useEffect, useRef, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { ItemCard } from "@/exercises/item-card.tsx";
 import { SourceOrder } from "@/exercises/shared.tsx";
-import { Button } from "@/ui/components/button.tsx";
 import { inLang } from "@/ui/direction.tsx";
 import { useRequiredTargetLang } from "@/ui/target-lang.ts";
 import { cn } from "@/ui/utils.ts";
@@ -160,7 +159,8 @@ export function TeilHeader({
 }
 
 /** A typed answer is kept as a draft while it is typed: a mock exam takes it after a pause in typing
- *  (and when the page is left), practice when "Check" is pressed — never each keystroke. */
+ *  (and when the page is left) — never each keystroke. Practice keeps every answer as the run page's
+ *  draft (`draft`, `onDraft`) until Check in the step bar sends it, as a lesson does. */
 const SETTLE_MS = 800;
 
 /** One question: its label, its own text, its recording (played as the Teil allows in a mock
@@ -171,7 +171,8 @@ export function QuestionCard({
   answer,
   outcome,
   onAnswer,
-  checkAtOnce = false,
+  draft: held,
+  onDraft,
   active = false,
   plays,
   run,
@@ -182,8 +183,9 @@ export function QuestionCard({
   answer: unknown;
   outcome?: Outcome;
   onAnswer?(answer: unknown): void;
-  /** Practice: a typed answer is checked when "Check" is pressed. */
-  checkAtOnce?: boolean;
+  /** Practice: the answer as given so far, kept by the page until Check sends it. */
+  draft?: unknown;
+  onDraft?(answer: unknown): void;
   /** The question on screen: number keys choose its options. */
   active?: boolean;
   /** How often its recording may be played (a mock exam); none: freely. */
@@ -191,7 +193,6 @@ export function QuestionCard({
   run: string;
   url(path: string): string;
 }) {
-  const { t } = useTranslation();
   const typed = item.type !== "single_choice";
   const [draft, setDraft] = useState<unknown>(undefined);
   const timer = useRef<ReturnType<typeof setTimeout>>(undefined);
@@ -205,20 +206,18 @@ export function QuestionCard({
       setDraft(undefined);
     }
   };
-  // Leaving a mock exam's page: what was typed is taken (practice takes only what "Check" sends).
+  // Leaving a mock exam's page: what was typed is taken (practice takes only what Check sends).
   // biome-ignore lint/correctness/useExhaustiveDependencies: runs once, reads the latest through a ref
-  useEffect(() => () => (checkAtOnce ? undefined : commit()), []);
+  useEffect(() => () => (onDraft ? undefined : commit()), []);
   const change =
-    onAnswer &&
-    ((a: unknown) => {
-      if (!typed) return onAnswer(a);
-      setDraft(a);
-      clearTimeout(timer.current);
-      if (!checkAtOnce) timer.current = setTimeout(commit, SETTLE_MS);
-    });
-  const filled =
-    draft !== undefined &&
-    Object.values(draft as Record<string, unknown>).some((v) => `${v ?? ""}`.trim());
+    onDraft ??
+    (onAnswer &&
+      ((a: unknown) => {
+        if (!typed) return onAnswer(a);
+        setDraft(a);
+        clearTimeout(timer.current);
+        timer.current = setTimeout(commit, SETTLE_MS);
+      }));
   return (
     // A question's own region, named by its label (an example above is the Teil's, not its).
     <section aria-label={label || undefined}>
@@ -234,13 +233,13 @@ export function QuestionCard({
         />
       )}
       {/* biome-ignore lint/a11y/noStaticElementInteractions: focus leaving the card's own fields, no interaction of its own */}
-      <div onBlur={typed && !checkAtOnce ? commit : undefined}>
+      <div onBlur={typed && !onDraft ? commit : undefined}>
         <SourceOrder.Provider value>
           <ItemCard
             exercise={examExercise(item, false)}
             locale={null}
             index={0}
-            answer={draft ?? answer}
+            answer={held ?? draft ?? answer}
             outcome={outcome}
             url={url}
             onAnswer={change}
@@ -248,11 +247,6 @@ export function QuestionCard({
           />
         </SourceOrder.Provider>
       </div>
-      {typed && checkAtOnce && onAnswer && (
-        <Button variant="outline" className="mt-3" disabled={!filled} onClick={commit}>
-          {t("lesson.check")}
-        </Button>
-      )}
     </section>
   );
 }

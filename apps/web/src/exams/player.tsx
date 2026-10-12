@@ -2,9 +2,10 @@
 // it, the grid of the run's numbers above (by Teil) to go to any, the Teil's material — its text,
 // recording, picture, example — with its every question (beside it on a wide screen). A mock exam runs
 // as the real test does — the time left above, answers that can be changed until it is handed in,
-// nothing checked before (then the result, 4B); practice (D) checks each answer at once, its tally
-// above.
-import { checkQuestion, questionLine } from "@sprachanker/engine";
+// nothing checked before (then the result, 4B), Next in the step bar; practice (D) as a lesson: an
+// answer kept until Check in the step bar sends it and shows it checked, then Next; Skip passes a
+// question by; its tally above.
+import { answerComplete, checkQuestion, questionLine } from "@sprachanker/engine";
 import {
   type Exam,
   type ExamItem,
@@ -31,7 +32,7 @@ import { StepBack, StepNext } from "@/ui/step-buttons.tsx";
 import { TargetLang } from "@/ui/target-lang.ts";
 import { useWindowPlace } from "@/ui/window-title.ts";
 import { type ListedQuestion, QuestionList } from "./navigator.tsx";
-import { inTeile, latestAnswers } from "./questions.ts";
+import { examExercise, inTeile, latestAnswers } from "./questions.ts";
 import { OpenAnswerRating } from "./rating.tsx";
 import { ExamResultView } from "./result.tsx";
 import { questionState, runTally, useQuestionPlace, useTimeLeft } from "./run-state.ts";
@@ -149,6 +150,8 @@ function Running({
   const keep = useKeepRunEvents(runId);
   /** Questions left unanswered, asked about before handing in (0: not asking). */
   const [confirm, setConfirm] = useState(0);
+  /** Practice: each question's answer as given so far, until Check sends it. */
+  const [drafts, setDrafts] = useState<Record<string, unknown>>({});
   const teile = useMemo(() => inTeile(exam, items, sectionOf), [exam, items, sectionOf]);
   const url = (path: string) => mediaUrl(series, path);
   const moduleTitle = (m?: string) => (m ? (locale?.modules?.[m]?.title ?? m) : undefined);
@@ -221,6 +224,8 @@ function Running({
     );
   };
   const label = t("exams.question", { n: current + 1, total: items.length });
+  // Practice: a question not answered yet waits for Check (a speaking part held as a conversation
+  // answers itself as it ends).
   // Said aloud and not yet answered in practice: the conversation (a mock exam keeps it as the answer
   // as it goes, practice once it is over).
   const conversation =
@@ -236,6 +241,9 @@ function Running({
       onAnswer: (text, final) => (mode === "test" || final ? send({ text }) : undefined),
       again: mode === "practice",
     });
+  const checking = mode === "practice" && !given && !conversation;
+  const draft = drafts[item.key];
+  const ready = checking && answerComplete(examExercise(item, false), 0, draft);
   const question = conversation ? (
     <section key={item.key} aria-label={label}>
       <p className="mb-1.5 text-sm text-muted-foreground">{label}</p>
@@ -248,7 +256,10 @@ function Running({
       item={item}
       label={label}
       plays={mode === "test" ? section?.plays : undefined}
-      checkAtOnce={mode === "practice"}
+      {...(checking && {
+        draft: drafts[item.key],
+        onDraft: (a: unknown) => setDrafts((d) => ({ ...d, [item.key]: a })),
+      })}
       active
       run={runId}
       answer={given?.answer}
@@ -292,7 +303,18 @@ function Running({
         onClick={() => go(current - 1)}
         disabled={current === 0}
       />
-      {last ? (
+      {checking ? (
+        <div className="flex items-center gap-2">
+          {!last && (
+            <Button variant="ghost" size="lg" onClick={() => go(current + 1)}>
+              {t("lesson.skip")}
+            </Button>
+          )}
+          <StepNext disabled={!ready} onClick={() => send(draft)}>
+            {t("lesson.check")}
+          </StepNext>
+        </div>
+      ) : last ? (
         <StepNext loading={finishing} onClick={askFinish}>
           {finishLabel}
         </StepNext>
