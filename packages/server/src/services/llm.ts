@@ -11,6 +11,7 @@ import {
   cliRun,
   estimateTokens,
   type LlmClient,
+  LlmError,
   LMSTUDIO_CONTEXT,
   type OpenRouterKey,
   openRouterKey,
@@ -256,11 +257,17 @@ export function createLlm(deps: {
       };
     },
     /** A structured task with the configured model: its result, the model and how long it took (a
-     *  stored answer records both). */
-    async structured<T>(task: StructuredTask<T>) {
+     *  stored answer records both). `timeoutAgain`: a call that ran out of time asked once more (a
+     *  step the learner waits for under a model's passing load). */
+    async structured<T>(task: StructuredTask<T>, options: { timeoutAgain?: boolean } = {}) {
       const { client, model } = await self.model();
       const elapsed = stopwatch(deps.now);
-      const result = await runStructured(client, model, task);
+      const result = await runStructured(client, model, task).catch((error: unknown) => {
+        if (!options.timeoutAgain || !(error instanceof LlmError) || error.code !== "timeout")
+          throw error;
+        console.warn(`${task.name}: ${model} ran out of time; asked once more`);
+        return runStructured(client, model, task);
+      });
       return { result, model, latencyMs: elapsed() };
     },
     /** The model's context window when the app knows it (LM Studio: loaded by us with this size). */

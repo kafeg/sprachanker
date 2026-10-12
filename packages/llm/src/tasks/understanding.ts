@@ -226,6 +226,7 @@ export function understandingCheckRules(
   return [
     `You test questions on a short text in ${t} before a learner gets them: answer each from the text alone, as a careful reader would.`,
     `- For each question "n" (its number) and "choice" (the letter of the option you choose) or, for a question without options, "answer" (short, in ${t}).`,
+    `- Before choosing, test every option against the text, not only the first that fits: when the text supports two options (both named in it, one said and later changed, one true in part), "ambiguous" is true.`,
     `- "ambiguous": true when the text does not settle the question, when more than one option fits, or when it is answered without the text; still give your best answer.`,
   ].join("\n");
 }

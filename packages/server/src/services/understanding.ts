@@ -91,10 +91,11 @@ export function createUnderstanding(deps: {
     step: (now: UnderstandingStep) => void,
   ) {
     step("writing");
-    const made = await llm.structured(understandingTextTask(input.text));
+    const made = await llm.structured(understandingTextTask(input.text), { timeoutAgain: true });
     step("checking");
     const read = await llm.structured(
       understandingCheckTask({ ...input.check, text: made.result }),
+      { timeoutAgain: true },
     );
     const typedRight = (q: Parameters<typeof checkUnderstanding>[0], answer: string) =>
       checkUnderstanding(q, { g1: answer }, input.target).result === "correct";

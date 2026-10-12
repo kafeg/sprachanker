@@ -129,7 +129,9 @@ export function createGoingOver(deps: {
     let made: { explanation: string; items: MistakeItem[]; model: string } | undefined;
     for (let attempt = 0; attempt < 2 && !made?.items.length; attempt++) {
       step("making");
-      const reply = await llm.structured(mistakeItemsTask({ ...input, groups: [group] }));
+      const reply = await llm.structured(mistakeItemsTask({ ...input, groups: [group] }), {
+        timeoutAgain: true,
+      });
       latencyMs += reply.latencyMs;
       const [one] = reply.result.groups;
       const items = (one?.items ?? []).map(mistakeItemOf);
@@ -138,6 +140,7 @@ export function createGoingOver(deps: {
         step("checking");
         const tried = await llm.structured(
           mistakeItemsCheckTask({ language: input.language, target: input.target, type, items }),
+          { timeoutAgain: true },
         );
         latencyMs += tried.latencyMs;
         kept = settledItems(
