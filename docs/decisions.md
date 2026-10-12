@@ -154,6 +154,9 @@ area is built is in its `CLAUDE.md`; work not built yet is in `docs/plan.md`.
 - A mock exam checks nothing before hand-in, and a running one's outcomes appear nowhere (run, stats, readiness) until it is handed in.
 - An exam run's plan freezes each question's section and the questions as shown, so it scores the same whatever the catalogue becomes.
 - An assistant's rating of an open answer is a proposal and scores nothing until taken as `exam_rated`; the latest rating counts and rescores a handed-in run.
+- An exam's tasks are always the source's own (the Modellsatz): the AI never invents an exam task. It acts as the examiner — finds the mistakes, rates by the official criteria (a proposal), shows a model answer (owner, 2026-10-12).
+- An exam is for being tested as in the real one; practice belongs to the courses. No weak-spot training or live partner in exams; a live conversation belongs to the Tutor (owner, 2026-10-12).
+- Every exam (Goethe, Leben in Deutschland) runs on one exam layer and player: a change there reaches all of them.
 
 ## Stored data, events and statistics
 

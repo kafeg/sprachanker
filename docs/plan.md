@@ -6,12 +6,25 @@ area's CLAUDE.md. How the parts fit: `docs/architecture.md`.
 
 ## Next
 
-### 1. Goethe mock exams on the AI practice's machinery (planned, not begun)
-Goethe A1–B1 exist as model papers (one set per level, experimental). The proposal and its options:
-`docs/research/goethe-exams-redesign.md`, written before the AI practice was finished; what Reading,
-Listening, Writing and Speaking now do changes its cost.
-- The owner chooses the option before work starts.
-- **Accept**: the chosen option's parts held end to end on Goethe A1–B1 with a real model.
+### 1. Goethe exams: Sprechen and Schreiben as the real exam (owner, 2026-10-12; not begun)
+The tasks stay the Modellsatz's; Hören and Lesen stay as they are. What is proposed, with screenshots
+and mockups: the owner's page "Goethe в SprachAnker"; background: `docs/research/goethe-exams-redesign.md`.
+- Sprechen on the Speaking machinery of the lessons: each Teil's own card from the Modellsatz; a
+  monologue Teil (A1 T1, A2 T2, B1 T2) said in one take with the Teil's time; a dialogue Teil the
+  examiner's fixed lines and the partner's lines prepared from the partner's card, each read by its
+  own voice, the learner's lines said in turn; checked once at the end by Goethe's criteria (a
+  proposal) with corrections and a way to say it; pronunciation rated by the learner from the takes.
+- Schreiben checked as the lessons' Writing is: each point of the task, at most three corrections, a
+  model text, then the criteria's points as a proposal.
+- Practice mode as a lesson: Check in the step bar until a question is answered and checked, then
+  Next (every exam, Leben in Deutschland too). A mock exam keeps Next: nothing is checked before
+  hand-in, as in the real exam.
+- Goethe A1 out of the experimental sources once its Sprechen works: "experimental" by course, not
+  only by source (A2 and B1 stay experimental).
+- Open for the owner: whether exams need the practice mode at all; more original sets (Goethe's
+  Übungssätze, PDF and MP4) instead of only one Modellsatz per level.
+- **Accept**: Goethe A2 Sprechen and Schreiben held end to end by voice with a real model; A1 shown
+  without turning on experimental sources.
 
 ### 2. Releases (proposed, waiting for the owner's choice)
 - v0.1 for the owner's family: a GitHub Release built by CI on macOS arm64 — the binary and the speech
