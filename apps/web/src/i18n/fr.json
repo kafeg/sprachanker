@@ -18,7 +18,9 @@
     "loading": "Chargement…",
     "retry": "Réessayer",
     "close": "Fermer",
-    "cancel": "Annuler"
+    "cancel": "Annuler",
+    "minutesLeft": "{count, plural, one {encore environ # minute} other {encore environ # minutes}}",
+    "hoursLeft": "{count, plural, one {encore environ # heure} other {encore environ # heures}}"
   },
   "courses": {
     "lessons": "{count, plural, one {# leçon} many {# de leçons} other {# leçons}}",
@@ -1059,7 +1061,6 @@
       "voice": "Lu par {engine, select, qwen {Qwen3-TTS} other {Piper}} · {voice} ({language})",
       "chooseVoice": "Choisir une voix"
     },
-    "left": "encore environ {time}",
     "why": "Raison : {reason}",
     "examples": {
       "missing": "{count, plural, one {# mot sans exemples} many {# de mots sans exemples} other {# mots sans exemples}}",

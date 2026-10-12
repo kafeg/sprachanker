@@ -18,7 +18,9 @@
     "loading": "加载中…",
     "retry": "重试",
     "close": "关闭",
-    "cancel": "取消"
+    "cancel": "取消",
+    "minutesLeft": "{count, plural, other {剩余约 # 分钟}}",
+    "hoursLeft": "{count, plural, other {剩余约 # 小时}}"
   },
   "courses": {
     "lessons": "{count, plural, other {#节课}}",
@@ -1059,7 +1061,6 @@
       "voice": "朗读：{engine, select, qwen {Qwen3-TTS} other {Piper}} · {voice}（{language}）",
       "chooseVoice": "选择声音"
     },
-    "left": "剩余约{time}",
     "why": "原因：{reason}",
     "examples": {
       "missing": "{count, plural, other {#个单词没有例句}}",

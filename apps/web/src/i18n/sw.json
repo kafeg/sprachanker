@@ -18,7 +18,9 @@
     "loading": "Inapakia…",
     "retry": "Jaribu tena",
     "close": "Funga",
-    "cancel": "Ghairi"
+    "cancel": "Ghairi",
+    "minutesLeft": "{count, plural, one {takriban dakika # imebaki} other {takriban dakika # zimebaki}}",
+    "hoursLeft": "{count, plural, one {takriban saa # imebaki} other {takriban saa # zimebaki}}"
   },
   "courses": {
     "lessons": "{count, plural, one {somo #} other {masomo #}}",
@@ -1059,7 +1061,6 @@
       "voice": "Imesomwa na {engine, select, qwen {Qwen3-TTS} other {Piper}} · {voice} ({language})",
       "chooseVoice": "Chagua sauti"
     },
-    "left": "takriban {time} zimebaki",
     "why": "Sababu: {reason}",
     "examples": {
       "missing": "{count, plural, one {Neno # halina mifano} other {Maneno # hayana mifano}}",

@@ -18,7 +18,9 @@
     "loading": "Ładowanie…",
     "retry": "Spróbuj ponownie",
     "close": "Zamknij",
-    "cancel": "Anuluj"
+    "cancel": "Anuluj",
+    "minutesLeft": "{count, plural, one {zostało ok. # minuty} few {zostało ok. # minut} many {zostało ok. # minut} other {zostało ok. # minuty}}",
+    "hoursLeft": "{count, plural, one {zostało ok. # godziny} few {zostało ok. # godzin} many {zostało ok. # godzin} other {zostało ok. # godziny}}"
   },
   "courses": {
     "lessons": "{count, plural, one {# lekcja} few {# lekcje} many {# lekcji} other {# lekcji}}",
@@ -1059,7 +1061,6 @@
       "voice": "Czyta {engine, select, qwen {Qwen3-TTS} other {Piper}} · {voice} ({language})",
       "chooseVoice": "Wybierz głos"
     },
-    "left": "zostało ok. {time}",
     "why": "Przyczyna: {reason}",
     "examples": {
       "missing": "{count, plural, one {# słowo bez przykładów} few {# słowa bez przykładów} many {# słów bez przykładów} other {# słowa bez przykładów}}",

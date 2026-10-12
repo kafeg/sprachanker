@@ -18,7 +18,9 @@
     "loading": "Завантаження…",
     "retry": "Спробувати ще",
     "close": "Закрити",
-    "cancel": "Скасувати"
+    "cancel": "Скасувати",
+    "minutesLeft": "{count, plural, one {залишилося близько # хвилини} few {залишилося близько # хвилин} many {залишилося близько # хвилин} other {залишилося близько # хвилини}}",
+    "hoursLeft": "{count, plural, one {залишилося близько # години} few {залишилося близько # годин} many {залишилося близько # годин} other {залишилося близько # години}}"
   },
   "courses": {
     "lessons": "{count, plural, one {# урок} few {# уроки} many {# уроків} other {# уроку}}",
@@ -1059,7 +1061,6 @@
       "voice": "Озвучує {engine, select, qwen {Qwen3-TTS} other {Piper}} · {voice} ({language})",
       "chooseVoice": "Обрати голос"
     },
-    "left": "залишилося близько {time}",
     "why": "Причина: {reason}",
     "examples": {
       "missing": "{count, plural, one {# слово без прикладів} few {# слова без прикладів} many {# слів без прикладів} other {# слова без прикладів}}",

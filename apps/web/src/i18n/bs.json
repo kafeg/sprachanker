@@ -18,7 +18,9 @@
     "loading": "Učitavanje…",
     "retry": "Pokušaj ponovo",
     "close": "Zatvori",
-    "cancel": "Otkaži"
+    "cancel": "Otkaži",
+    "minutesLeft": "{count, plural, one {još oko # minute} few {još oko # minute} other {još oko # minuta}}",
+    "hoursLeft": "{count, plural, one {još oko # sata} few {još oko # sata} other {još oko # sati}}"
   },
   "courses": {
     "lessons": "{count, plural, one {# lekcija} few {# lekcije} other {# lekcija}}",
@@ -1059,7 +1061,6 @@
       "voice": "Čita {engine, select, qwen {Qwen3-TTS} other {Piper}} · {voice} ({language})",
       "chooseVoice": "Izaberi glas"
     },
-    "left": "još oko {time}",
     "why": "Razlog: {reason}",
     "examples": {
       "missing": "{count, plural, one {# riječ bez primjera} few {# riječi bez primjera} other {# riječi bez primjera}}",

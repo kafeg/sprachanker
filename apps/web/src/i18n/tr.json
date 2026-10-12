@@ -18,7 +18,9 @@
     "loading": "Yükleniyor…",
     "retry": "Tekrar dene",
     "close": "Kapat",
-    "cancel": "İptal"
+    "cancel": "İptal",
+    "minutesLeft": "{count, plural, one {yaklaşık # dakika kaldı} other {yaklaşık # dakika kaldı}}",
+    "hoursLeft": "{count, plural, one {yaklaşık # saat kaldı} other {yaklaşık # saat kaldı}}"
   },
   "courses": {
     "lessons": "{count, plural, one {# ders} other {# ders}}",
@@ -1059,7 +1061,6 @@
       "voice": "Seslendiren: {engine, select, qwen {Qwen3-TTS} other {Piper}} · {voice} ({language})",
       "chooseVoice": "Bir ses seç"
     },
-    "left": "yaklaşık {time} kaldı",
     "why": "Neden: {reason}",
     "examples": {
       "missing": "{count, plural, one {# kelimenin örneği yok} other {# kelimenin örneği yok}}",

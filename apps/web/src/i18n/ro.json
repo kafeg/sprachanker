@@ -18,7 +18,9 @@
     "loading": "Se încarcă…",
     "retry": "Încearcă din nou",
     "close": "Închide",
-    "cancel": "Anulează"
+    "cancel": "Anulează",
+    "minutesLeft": "{count, plural, one {mai durează circa # minut} few {mai durează circa # minute} other {mai durează circa # de minute}}",
+    "hoursLeft": "{count, plural, one {mai durează circa # oră} few {mai durează circa # ore} other {mai durează circa # de ore}}"
   },
   "courses": {
     "lessons": "{count, plural, one {# lecție} few {# lecții} other {# de lecții}}",
@@ -1059,7 +1061,6 @@
       "voice": "Citit de {engine, select, qwen {Qwen3-TTS} other {Piper}} · {voice} ({language})",
       "chooseVoice": "Alege o voce"
     },
-    "left": "mai durează circa {time}",
     "why": "Motiv: {reason}",
     "examples": {
       "missing": "{count, plural, one {# cuvânt fără exemple} few {# cuvinte fără exemple} other {# de cuvinte fără exemple}}",

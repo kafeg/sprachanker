@@ -18,7 +18,9 @@
     "loading": "Φόρτωση…",
     "retry": "Δοκίμασε ξανά",
     "close": "Κλείσιμο",
-    "cancel": "Ακύρωση"
+    "cancel": "Ακύρωση",
+    "minutesLeft": "{count, plural, one {απομένει περίπου # λεπτό} other {απομένουν περίπου # λεπτά}}",
+    "hoursLeft": "{count, plural, one {απομένει περίπου # ώρα} other {απομένουν περίπου # ώρες}}"
   },
   "courses": {
     "lessons": "{count, plural, one {# ενότητα} other {# ενότητες}}",
@@ -1059,7 +1061,6 @@
       "voice": "Εκφωνεί: {engine, select, qwen {Qwen3-TTS} other {Piper}} · {voice} ({language})",
       "chooseVoice": "Επίλεξε φωνή"
     },
-    "left": "απομένουν περίπου {time}",
     "why": "Αιτία: {reason}",
     "examples": {
       "missing": "{count, plural, one {# λέξη χωρίς παραδείγματα} other {# λέξεις χωρίς παραδείγματα}}",

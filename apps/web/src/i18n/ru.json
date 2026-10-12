@@ -18,7 +18,9 @@
     "loading": "Загрузка…",
     "retry": "Повторить",
     "close": "Закрыть",
-    "cancel": "Отмена"
+    "cancel": "Отмена",
+    "minutesLeft": "{count, plural, one {осталось около # минуты} few {осталось около # минут} many {осталось около # минут} other {осталось около # минуты}}",
+    "hoursLeft": "{count, plural, one {осталось около # часа} few {осталось около # часов} many {осталось около # часов} other {осталось около # часа}}"
   },
   "courses": {
     "lessons": "{count, plural, one {# урок} few {# урока} many {# уроков} other {# урока}}",
@@ -1059,7 +1061,6 @@
       "voice": "Голосом {engine, select, qwen {Qwen3-TTS} other {Piper}} · {voice} ({language})",
       "chooseVoice": "Выбрать голос"
     },
-    "left": "осталось около {time}",
     "why": "Причина: {reason}",
     "examples": {
       "missing": "{count, plural, one {# слово без примеров} few {# слова без примеров} many {# слов без примеров} other {# слова без примеров}}",

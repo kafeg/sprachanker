@@ -18,7 +18,9 @@
     "loading": "Memuat…",
     "retry": "Coba lagi",
     "close": "Tutup",
-    "cancel": "Batal"
+    "cancel": "Batal",
+    "minutesLeft": "{count, plural, other {sekitar # menit lagi}}",
+    "hoursLeft": "{count, plural, other {sekitar # jam lagi}}"
   },
   "courses": {
     "lessons": "{count, plural, other {# pelajaran}}",
@@ -1059,7 +1061,6 @@
       "voice": "Dibacakan oleh {engine, select, qwen {Qwen3-TTS} other {Piper}} · {voice} ({language})",
       "chooseVoice": "Pilih suara"
     },
-    "left": "sekitar {time} lagi",
     "why": "Alasan: {reason}",
     "examples": {
       "missing": "{count, plural, other {# kata tanpa contoh}}",

@@ -18,7 +18,9 @@
     "loading": "लोड हो रहा है…",
     "retry": "फिर से कोशिश करो",
     "close": "बंद करो",
-    "cancel": "रद्द करो"
+    "cancel": "रद्द करो",
+    "minutesLeft": "{count, plural, one {लगभग # मिनट बाकी} other {लगभग # मिनट बाकी}}",
+    "hoursLeft": "{count, plural, one {लगभग # घंटा बाकी} other {लगभग # घंटे बाकी}}"
   },
   "courses": {
     "lessons": "{count, plural, one {# पाठ} other {# पाठ}}",
@@ -1059,7 +1061,6 @@
       "voice": "{engine, select, qwen {Qwen3-TTS} other {Piper}} ने पढ़ा · {voice} ({language})",
       "chooseVoice": "आवाज चुनो"
     },
-    "left": "लगभग {time} बाकी",
     "why": "कारण: {reason}",
     "examples": {
       "missing": "{count, plural, one {बिना उदाहरण का # शब्द} other {बिना उदाहरणों के # शब्द}}",

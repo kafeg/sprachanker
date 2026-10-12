@@ -18,7 +18,9 @@
     "loading": "جارٍ التحميل…",
     "retry": "حاول مجددًا",
     "close": "إغلاق",
-    "cancel": "إلغاء"
+    "cancel": "إلغاء",
+    "minutesLeft": "{count, plural, zero {بقي نحو # دقيقة} one {بقيت نحو دقيقة واحدة} two {بقي نحو دقيقتين} few {بقي نحو # دقائق} many {بقي نحو # دقيقة} other {بقي نحو # دقيقة}}",
+    "hoursLeft": "{count, plural, zero {بقي نحو # ساعة} one {بقيت نحو ساعة واحدة} two {بقي نحو ساعتين} few {بقي نحو # ساعات} many {بقي نحو # ساعة} other {بقي نحو # ساعة}}"
   },
   "courses": {
     "lessons": "{count, plural, zero {# درس} one {درس واحد} two {درسان} few {# دروس} many {# درسًا} other {# درس}}",
@@ -1059,7 +1061,6 @@
       "voice": "يقرؤها {engine, select, qwen {Qwen3-TTS} other {Piper}} · {voice} ({language})",
       "chooseVoice": "اختر صوتًا"
     },
-    "left": "بقي نحو {time}",
     "why": "السبب: {reason}",
     "examples": {
       "missing": "{count, plural, zero {# كلمة بلا أمثلة} one {كلمة واحدة بلا أمثلة} two {كلمتان بلا أمثلة} few {# كلمات بلا أمثلة} many {# كلمةً بلا أمثلة} other {# كلمة بلا أمثلة}}",

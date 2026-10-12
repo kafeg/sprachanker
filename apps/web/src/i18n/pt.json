@@ -18,7 +18,9 @@
     "loading": "Carregando…",
     "retry": "Tentar de novo",
     "close": "Fechar",
-    "cancel": "Cancelar"
+    "cancel": "Cancelar",
+    "minutesLeft": "{count, plural, one {falta cerca de # minuto} other {faltam cerca de # minutos}}",
+    "hoursLeft": "{count, plural, one {falta cerca de # hora} other {faltam cerca de # horas}}"
   },
   "courses": {
     "lessons": "{count, plural, =0 {# lições} one {# lição} other {# lições}}",
@@ -1059,7 +1061,6 @@
       "voice": "Lido por {engine, select, qwen {Qwen3-TTS} other {Piper}} · {voice} ({language})",
       "chooseVoice": "Escolher uma voz"
     },
-    "left": "faltam cerca de {time}",
     "why": "Motivo: {reason}",
     "examples": {
       "missing": "{count, plural, =0 {# palavras sem exemplos} one {# palavra sem exemplos} other {# palavras sem exemplos}}",

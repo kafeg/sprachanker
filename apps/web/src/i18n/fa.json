@@ -18,7 +18,9 @@
     "loading": "در حال بارگذاری…",
     "retry": "دوباره امتحان کن",
     "close": "بستن",
-    "cancel": "لغو"
+    "cancel": "لغو",
+    "minutesLeft": "{count, plural, one {حدود # دقیقه مانده} other {حدود # دقیقه مانده}}",
+    "hoursLeft": "{count, plural, one {حدود # ساعت مانده} other {حدود # ساعت مانده}}"
   },
   "courses": {
     "lessons": "{count, plural, one {# درس} other {# درس}}",
@@ -1059,7 +1061,6 @@
       "voice": "خوانده با {engine, select, qwen {Qwen3-TTS} other {Piper}} · {voice} ({language})",
       "chooseVoice": "انتخاب صدا"
     },
-    "left": "حدود {time} مانده",
     "why": "دلیل: {reason}",
     "examples": {
       "missing": "{count, plural, one {# واژه بدون مثال} other {# واژه بدون مثال}}",

@@ -18,7 +18,9 @@
     "loading": "Betöltés…",
     "retry": "Újra",
     "close": "Bezárás",
-    "cancel": "Mégse"
+    "cancel": "Mégse",
+    "minutesLeft": "{count, plural, one {kb. # perc van hátra} other {kb. # perc van hátra}}",
+    "hoursLeft": "{count, plural, one {kb. # óra van hátra} other {kb. # óra van hátra}}"
   },
   "courses": {
     "lessons": "{count, plural, one {# lecke} other {# lecke}}",
@@ -1059,7 +1061,6 @@
       "voice": "Felolvassa: {engine, select, qwen {Qwen3-TTS} other {Piper}} · {voice} ({language})",
       "chooseVoice": "Hang kiválasztása"
     },
-    "left": "kb. {time} van hátra",
     "why": "Ok: {reason}",
     "examples": {
       "missing": "{count, plural, one {# szó példák nélkül} other {# szó példák nélkül}}",
