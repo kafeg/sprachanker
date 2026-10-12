@@ -1,12 +1,12 @@
 // Task `check_writing` (07, `check_answer` for free writing): a short text the learner wrote on the
 // writing task (writing-task.ts), checked against its content points and the lesson, rated on the
 // writing criteria of the course's level (Goethe's "Schreiben" for German, said with the data): each
-// point covered or not, at most three corrections — the most important first — and a model text.
+// point covered or not, the corrections — the most important first, three kept — and a model text.
 import { type Lang, WRITING_MAX, WritingCheck, type WritingTask } from "@sprachanker/schema";
 import type { TaskRequest } from "../client.ts";
 import type { StructuredTask } from "../structured.ts";
 import { clip, languageName, languageNames } from "../text.ts";
-import { cleanCheck } from "./corrections.ts";
+import { cleanCheck, unlistedChange } from "./corrections.ts";
 import { genderFreeReply, genderProblem } from "./gender.ts";
 import {
   grammarNotes,
@@ -37,6 +37,10 @@ export const CHECK_WRITING_BUDGETS = {
 /** The most corrections a check keeps (the most important first). */
 export const WRITING_CORRECTIONS = 3;
 
+/** The most corrections asked for: every change of "corrected" is one (`unlistedChange`), within
+ *  what the reply's schema takes. */
+const CORRECTIONS_ASKED = 10;
+
 /** What the model answers: a point for each of the task's and a model text, always. */
 const WritingCheckReply = WritingCheck.required({ points: true, modelText: true });
 
@@ -58,8 +62,8 @@ export function checkWritingRules(
     "- task: the points together and the length (2 all, 1 some, 0 none or off the task); communication: a coherent message for its reader, with a greeting and a closing where the form needs them (2/1/0); accuracy: grammar and spelling for the level — errors that block understanding weigh most (2 few or none, 1 several, 0 many).",
     "Comment only on what the task and the level ask: never invent a requirement (a word, a form or a structure the task does not ask for).",
     "Read every sentence for errors (word order, endings and agreement, a verb's forms, the case after a preposition as the lesson notes give it) before you answer.",
-    `"corrections": at most three, the most important first (errors that block understanding, then the lesson's grammar), each "wrong" quoting the learner's words as written; only real errors, changing as little as possible — never what is correct, never style, never a correct form replaced by another correct one (another tense, a synonym); ignore missing final punctuation. No errors: an empty list.`,
-    `"corrected": the whole text with every error in it fixed — also those beyond the corrections listed —, and everything correct kept as written: the learner's words, tenses and ideas (a correct tense stays as written, even where another is more usual).`,
+    `"corrections": every error, at most ${CORRECTIONS_ASKED}, the most important first (errors that block understanding, then the lesson's grammar) — the learner is shown the first ${WRITING_CORRECTIONS} —, each "wrong" quoting the learner's words as written; only real errors, changing as little as possible — never what is correct, never style, never a correct form replaced by another correct one (another tense, a synonym); ignore missing final punctuation. No errors: an empty list.`,
+    `"corrected": the whole text with the corrections made and nothing else changed — no word added, left out or replaced without a correction —: everything correct kept as written, the learner's words, tenses and ideas (a correct tense stays as written, even where another is more usual).`,
     `"modelText": the task done well at the learner's level, about as long as asked, with words the learner knows — not the learner's text corrected.`,
     `Write "corrected", "wrong", "right" and "modelText" in ${t}; every "comment", "explanation" and "feedback" in ${l}, briefly. "feedback": one or two encouraging, concrete sentences. ${NEUTRAL}`,
     `verdict: "good" (no errors), "minor_errors", "major_errors", or "off_task" (not on the task or not in ${t}).`,
@@ -93,7 +97,7 @@ function checkWritingRequest(input: WritingInput): TaskRequest {
     WRITING_EXAM[input.target]?.rating,
     // Small models follow the last lines best: what they most often get wrong.
     SPELLING[input.target],
-    `Remember: ${input.task.points.length} points in the task's order, at most ${WRITING_CORRECTIONS} corrections; comments, explanations and feedback in ${languageName(input.language)}.`,
+    `Remember: ${input.task.points.length} points in the task's order; every change of "corrected" is a correction, the most important first; comments, explanations and feedback in ${languageName(input.language)}.`,
   ]
     .filter(Boolean)
     .join("\n");
@@ -103,7 +107,7 @@ function checkWritingRequest(input: WritingInput): TaskRequest {
       { role: "user", content: context },
     ],
     temperature: 0.2,
-    maxTokens: 2000,
+    maxTokens: 2500,
     reasoning: false,
   };
 }
@@ -117,6 +121,7 @@ export const checkWritingTask = (input: WritingInput): StructuredTask<WritingChe
       : `"points" has one entry for each of the task's ${input.task.points.length} content points`,
   fix: (reply) => genderFreeReply(reply, input.language),
   quality: (reply) =>
+    unlistedChange(reply, input.text, true) ??
     genderProblem(
       [
         reply.feedback,

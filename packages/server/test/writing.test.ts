@@ -14,7 +14,7 @@ const TASK = {
 const fix = (wrong: string, right: string) => ({ wrong, right, explanation: "…" });
 const CHECK = {
   verdict: "minor_errors",
-  corrected: "Ich heiße Lena.",
+  corrected: "Ich heiße Lena. Ich komme gleich gegen acht, dort bin ich.",
   corrections: [
     fix("heisse", "heiße"),
     fix("Lena", "Lena"),
@@ -64,7 +64,8 @@ async function withModel(replies: unknown[], bad = 0) {
 }
 
 test("writing: a task written and kept, a text on it checked and kept with its task, listed across the lesson's runs; the prompts", async () => {
-  const { send, sendJson, getJson, bodies } = await withModel([TASK, CHECK, TASK, CHECK], 1);
+  const good = { ...CHECK, verdict: "good", corrected: "Ich heiße Lena.", corrections: [] };
+  const { send, sendJson, getJson, bodies } = await withModel([TASK, CHECK, TASK, good], 1);
 
   const before = await getJson(`/api/llm/writing?${query}`);
   expect(before.words).toContain("der Kaffee, die Kaffees");
