@@ -79,7 +79,7 @@ export function writingTaskRules(
     `You set a short writing task for a learner of ${t} who speaks ${l}, at the learner's level given with the lesson, as a language exam's writing part sets one at that level.`,
     `- "situation": one or two sentences in ${l}: who the learner writes to (a friend, a colleague, a neighbour, a landlord, a forum) and why — an everyday situation from the lesson's goals and topic. No goals given: take it from the lesson's title and its grammar.`,
     `- A goal of learning about something ("learn about the school system") is no task: turn it into a situation where the learner tells, asks for or arranges something in writing (tells a friend about their own school, asks about a course).`,
-    `- "points": exactly three things the text must do, in ${l}, each a short instruction ("say why you are late", "ask when it starts", "suggest a time"); together they need the lesson's words and grammar; each can be done with what the learner knows at the level; none asks for a fact the learner cannot know.`,
+    `- "points": exactly three things the text must do, in ${l}, each a short instruction ("say why you are late", "ask when it starts", "suggest a time"); three different things — none repeats another in other words; together they need the lesson's words and grammar; each can be done with what the learner knows at the level; none asks for a fact the learner cannot know.`,
     "- The reader is a new person, never a character of the course.",
     `- ${NEUTRAL}`,
   ].join("\n");
@@ -115,6 +115,7 @@ export function writingTaskTask(input: WritingTaskInput): StructuredTask<Writing
   return {
     name: "writing_task",
     schema: WritingTaskReply,
+    check: (reply) => repeatedPoints(reply.points),
     request: {
       messages: [
         { role: "system", content: systemPrompt(input, writingTaskRules, TASK_FIXED) },
@@ -125,6 +126,25 @@ export function writingTaskTask(input: WritingTaskInput): StructuredTask<Writing
       reasoning: false,
     },
   };
+}
+
+/** A point's main words: those of four letters or more, each by its first five (an ending aside). */
+const mainWords = (point: string) =>
+  new Set((point.toLocaleLowerCase().match(/\p{L}{4,}/gu) ?? []).map((w) => w.slice(0, 5)));
+
+/** Two points that ask for the same thing, told by their main words: three or more of the shorter
+ *  one's, and three quarters of them, in the other. The problem the task is asked again once for;
+ *  undefined when none repeats another. */
+export function repeatedPoints(points: string[]): string | undefined {
+  const words = points.map(mainWords);
+  for (let i = 0; i < words.length; i++)
+    for (let j = i + 1; j < words.length; j++) {
+      const [a, b] = [words[i] ?? new Set<string>(), words[j] ?? new Set<string>()];
+      const shared = [...a].filter((w) => b.has(w)).length;
+      if (shared >= 3 && shared >= 0.75 * Math.min(a.size, b.size))
+        return `points ${i + 1} and ${j + 1} ask for the same thing: three different things`;
+    }
+  return undefined;
 }
 
 /** The task as kept: the model's, with the level's length. */

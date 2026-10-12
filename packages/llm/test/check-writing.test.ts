@@ -3,6 +3,8 @@
 // corrections, a model text; the level's criteria and the target language's exam said with the data.
 import { expect, test } from "bun:test";
 import type { WritingCheck } from "@sprachanker/schema";
+import type { LlmClient } from "../src/client.ts";
+import { runStructured } from "../src/structured.ts";
 import {
   checkWritingRules,
   checkWritingTask,
@@ -11,6 +13,7 @@ import {
 } from "../src/tasks/check-writing.ts";
 import { GENDER_FREE } from "../src/tasks/rules.ts";
 import {
+  repeatedPoints,
   type WritingTaskInput,
   writingTaskOf,
   writingTaskRules,
@@ -52,6 +55,7 @@ test("writing_task: a situation and three points from the lesson's goals, its le
   const [system, user] = request.messages.map((m) => String(m.content));
   for (const part of [
     '"points": exactly three things the text must do, in Russian',
+    "three different things — none repeats another in other words",
     "A goal of learning about something",
     "is no task: turn it into a situation where the learner tells, asks for or arranges something",
     "No goals given: take it from the lesson's title and its grammar.",
@@ -89,12 +93,59 @@ test("writing_task: a situation and three points from the lesson's goals, its le
   expect(writingTaskRules("ru", "de")).toContain("You set a short writing task");
 });
 
+test("writing_task: points that ask for the same thing in other words are asked again once", async () => {
+  expect(repeatedPoints(TASK.points)).toBeUndefined();
+  const same = [
+    "Спросите, сколько стоит билет.",
+    "Узнайте, сколько стоит билет на поезд.",
+    "Предложите время встречи.",
+  ];
+  expect(repeatedPoints(same)).toBe(
+    "points 1 and 2 ask for the same thing: three different things",
+  );
+  // Two shared words are no repeat ("ask when it opens", "ask when it closes").
+  expect(
+    repeatedPoints([
+      "Спросите, когда открывается магазин.",
+      "Спросите, когда закрывается музей.",
+      "Пригласите друга.",
+    ]),
+  ).toBeUndefined();
+  const sent: string[] = [];
+  const replies = [
+    { situation: "s", points: same },
+    { situation: "s", points: TASK.points },
+  ];
+  const client: LlmClient = {
+    models: async () => [],
+    chat: () => (async function* () {})(),
+    complete: async (request) => {
+      sent.push(String(request.messages.at(-1)?.content));
+      return JSON.stringify(replies.shift());
+    },
+  };
+  const task = await runStructured(
+    client,
+    "m",
+    writingTaskTask({ language: "ru", target: "de", lesson }),
+  );
+  expect(task.points).toEqual(TASK.points);
+  expect(sent[1]).toContain("points 1 and 2 ask for the same thing");
+});
+
 test("check_writing: the task's points as data, each rated; at most three corrections; a model text; the learner's language last", () => {
   const { name, request, check } = checkWritingTask(input);
   expect(name).toBe("writing_check");
   const [system, user] = request.messages.map((m) => String(m.content));
   for (const part of [
     '"points": for each content point of the task, in its order',
+    // Points rate the content; language is rated in accuracy (walkthrough 2, 2026-10-12).
+    "its content only: a point done with errors in its words is done",
+    // Every error fixed in "corrected", nothing right changed ("angefangen" → "begann").
+    "every error in it fixed — also those beyond the corrections listed",
+    "everything correct kept as written",
+    "never a correct form replaced by another correct one (another tense, a synonym)",
+    "Read every sentence for errors",
     "never invent a requirement",
     '"corrections": at most three, the most important first',
     '"modelText": the task done well at the learner\'s level',
@@ -135,13 +186,22 @@ test("check_writing: the task's points as data, each rated; at most three correc
   expect(check?.(three)).toBeUndefined();
 });
 
-test("a check kept: corrections that change nothing dropped, at most three of the rest", () => {
+test("a check kept: corrections that change nothing or quote words the text lacks dropped, at most three of the rest", () => {
   const fix = (wrong: string, right: string) => ({ wrong, right, explanation: "" });
   const kept = cleanWritingCheck(
     {
       verdict: "minor_errors",
       corrected: "",
-      corrections: [fix("a", "a"), fix("b", "B"), fix("c", "C"), fix("d", "D"), fix("e", "E")],
+      corrections: [
+        fix("a", "a"),
+        // Not the learner's words (a false change of a form the text does not have, a word's part).
+        fix("hat angefangen", "begann"),
+        fix("Tex", "Text"),
+        fix("b,", "B"),
+        fix("c", "C"),
+        fix("d", "D"),
+        fix("e", "E"),
+      ],
       criteria: {
         task: { score: 2, comment: "" },
         communication: { score: 2, comment: "" },
@@ -149,10 +209,10 @@ test("a check kept: corrections that change nothing dropped, at most three of th
       },
       feedback: "",
     },
-    " Mein Text ",
+    " Mein Text: a b, c d e. ",
   );
-  expect(kept.corrections.map((c) => c.wrong)).toEqual(["b", "c", "d"]);
-  expect(kept.corrected).toBe("Mein Text");
+  expect(kept.corrections.map((c) => c.wrong)).toEqual(["b,", "c", "d"]);
+  expect(kept.corrected).toBe("Mein Text: a b, c d e.");
 });
 
 test("German spelling is said with the text, so it holds under the learner's own rules too", () => {

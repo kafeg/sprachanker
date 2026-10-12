@@ -459,14 +459,16 @@ go over; "Go over again" makes a new review of the run's mistakes as they are th
 
 **Writing** (`writing_task`, `check_writing`; 07; owner, 2026-10-12, from the walkthrough): the
 model sets the task from the lesson's goals and the snapshot — a situation (who the learner writes to
-and why) and three content points, in the learner's language; a goal of learning about something is
+and why) and three content points, three different things, in the learner's language; a goal of learning about something is
 no task, it becomes a situation where the learner tells, asks for or arranges something; a lesson
 without goals takes its situation from its title and grammar. Its length is the level's, set by the
 app (A1 about 30 words, A2 40, B1 80; with the data), and what a text at the level needs (the CEFR
 writing exams' criteria, Goethe's Schreiben named for German) goes with the data to both calls. A
 task is asked for once ("Get a task") and kept; "New task" sets another. A text on it is checked:
-each point rated (covered, partly, not), task · communication · accuracy, at most three corrections —
-the most important first, never a requirement the task does not make —, the text corrected, a model
+each point rated by its content (covered, partly, not; its language errors go to accuracy), task ·
+communication · accuracy, at most three corrections — the most important first, never a requirement
+the task does not make, never a correct form changed —, the text corrected (every error, what is
+right as written), a model
 text at the level from the words known, a line of feedback. Both are `llm_verdict`s in the lesson
 run the lesson shows (`writing_task`, `writing` with the task it answered; 05); a check counts in no
 score.

@@ -54,14 +54,15 @@ src/
                        # mistake_items_check: the items answered blind, those not settled left out
     chat-turn.ts       # chat_turn: the lesson tutor (lesson context, known words, exercise, mistakes, history)
     section-chat.ts    # section_chat_turn: the tutor on its own (what the learner met in their courses, history)
-    writing-task.ts    # writing_task: a situation and three content points from the lesson; the length
+    writing-task.ts    # writing_task: a situation and three content points from the lesson (repeatedPoints:
+                       # two asking for the same asked again); the length
                        # and what a text needs at a level (data), the exam that sets and rates it (German)
     check-writing.ts   # check_writing: a text on the task → each point rated, at most three corrections,
                        # the level's criteria, a model text
     check-speaking.ts  # check_speaking: an answer said aloud (what was heard) against the item, its
                        # question and the source's answer as heard → structured verdict
-    corrections.ts     # cleanCheck: a check's corrections cleaned, a good text kept as written (writing,
-                       # speaking)
+    corrections.ts     # cleanCheck: a check's corrections cleaned (no-ops and words the text lacks
+                       # dropped), a good text kept as written (writing, speaking)
     rate-exam-answer.ts # rate_exam_answer: an exam's open answer → a level of each of its criteria with
                        # the reason (checked against the levels), feedback
     scene.ts           # the Dialogue: scene_setup (goal card, the partner's hidden facts), scene_turn (a
