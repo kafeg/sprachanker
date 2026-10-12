@@ -67,6 +67,9 @@ off, its model, the engine, voice and speed reading aloud) are applied by `servi
   lines the learner was to say (sent with the take as `expect`, never given to the recogniser). Being
   unsure alone drops nothing: a learner's accent makes Whisper less sure of a real "Danke." (owner,
   2026-10-12); course speakers and both voices measured above -0.36, a tap's "Vielen Dank." -0.58.
+  The log probabilities are whisper.cpp's own (`avg_logprob`: the non-special tokens' log
+  probabilities summed, over all the segment's tokens, special ones counted): every threshold here is
+  measured again with `bun run speech:levels` (10) whenever `native/whisper/VERSION` changes.
   Nothing heard is `{ text: "", silent: true }`: the take is not kept nor the item's answer, nor a
   Dialogue's line, and the learner is asked to say it again ("Nothing was heard"). Whisper's
   `no_speech_prob` is 0 for silence too (whisper.cpp 1.9.5, large-v3-turbo); its own voice activity

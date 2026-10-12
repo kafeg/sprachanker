@@ -3,6 +3,9 @@
 // ("Untertitelung des ZDF, 2020") and phrases it makes up of silence and noise ("Vielen Dank.") —
 // by language, as data (hallucinations.json). Measured with whisper-server's large-v3-turbo on human
 // course recordings, Piper and Qwen3-TTS at levels down to -45 dBFS, and on noise and breathing.
+// Every threshold is whisper.cpp's (native/whisper/VERSION): its avg_logprob sums the non-special
+// tokens' log probabilities over all tokens, special ones counted — measured again with
+// `bun run speech:levels` (e2e/speech/levels.ts) whenever it changes.
 import PHRASES from "./hallucinations.json" with { type: "json" };
 
 const FRAME_MS = 20;

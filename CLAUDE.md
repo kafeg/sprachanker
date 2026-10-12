@@ -100,7 +100,8 @@ alternatives without updating that table.
   `REAL=<key prefix>`, `REAL_PER_COURSE=<n|all>`, `REAL_DESKTOP=1`, `REAL_UI=ru`, `REAL_SHOTS=<dir>`); the Mac only, not in CI
 - A whole course checked end to end: the course-check skill (`.claude/skills/course-check/SKILL.md`)
 - `bun run speech:check` — speech round-trip: the corpus read by Qwen3-TTS, heard by Whisper (the Mac,
-  models in `~/SprachAnker/models`)
+  models in `~/SprachAnker/models`) · `bun run speech:levels` — short answers at four levels and noise
+  through the app: the table the silence thresholds are set by (again on a whisper.cpp update)
 - `bun run build:speech` — builds whisper-server, sherpa-onnx-offline-tts (Piper) and tts-server (Qwen3-TTS)
   for this machine (native/, needs cmake; seconds once built); part of build:cli
 - `bun run cli -- <command>` — the CLI from sources (`serve` uses the last `bun run build:web` output)
