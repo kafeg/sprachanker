@@ -131,8 +131,12 @@ the course's level and what the learner can be assumed to know at the lesson —
   earlier lessons and this one (`speakersOf`: a label at several lines' start of a script — "LISA:"
   alone on its line, "Frau: Guten Abend!" before what is said —, in the writing system of what is
   said; a heading or a sentence's opening word comes once, "Am Bahnhof:", "Also: Hallo"; never a
-  letter alone, "A:"; a speaker of a single line in one lesson is found where they speak more),
-  the latest 30 — so a person a task makes up (a Dialogue's partner) is none of them.
+  letter alone, "A:"; a speaker of a single line in one lesson is found where they speak more; a
+  label with a common word in it is a role, no name — a word of the course's met so far,
+  "Kellnerin", "Mutter von Lotte", or a role word of every course, "ALLE", "Mann"; a title before a
+  name is none, "Frau Weber" a name, "Frau" a role), the latest 30 — so a person a task makes up (a
+  Dialogue's partner) is none of them. A text names one only by the whole name as a word ("Lisas",
+  "Herr Berg" do not name "Lisa", "Frau Berg").
 
 Each task takes the parts it needs within its budgets (`*_BUDGETS`, shown in Settings → AI assistant
 → Advanced). What one target language needs (German's ß, the Goethe exam's name for its writing

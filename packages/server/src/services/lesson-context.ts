@@ -105,10 +105,12 @@ ${t.lesson}`,
       );
       const unit = map.index.units.find((u) => u.lessons.includes(lessonKey));
       const level = levelOf(course);
-      // The course's people met so far: its scripts' speakers, the latest last.
+      // The course's people met so far: its scripts' speakers, the latest last — a label that is a
+      // word met so far ("Kellnerin") a role, no name.
+      const met = [...known, ...wordsOf(lesson, locale)].map((w) => w.target);
       const characters = latest(
         [...files.map((f) => f.locale), locale].flatMap((loc) =>
-          loc?.tabs.script ? speakersOf(loc.tabs.script.bodyHtml) : [],
+          loc?.tabs.script ? speakersOf(loc.tabs.script.bodyHtml, met) : [],
         ),
         (name) => name,
       ).slice(-CHARACTERS);

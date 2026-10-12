@@ -146,6 +146,21 @@ test("understandingProblem: a course character in the text, a title in the learn
   );
   const named = { ...TEXT, lines: [...TEXT.lines, { speaker: "Anna", text: "Und Lisa?" }] };
   expect(understandingProblem(named, input)).toContain("(Lisa)");
+  // Names as whole words, a name of several words as a whole: a role or a longer word is no name.
+  const people = { ...LESSON, characters: ["Nico", "Lisa", "Frau Berg"] };
+  const ordinary = {
+    ...TEXT,
+    lines: [
+      { speaker: "Frau Weber", text: "Guten Tag! Alle Brötchen sind frisch, sagt der Mann." },
+      { speaker: "Verkäufer", text: "Lisas Brötchen? Nicola kommt. Herr Berg auch." },
+    ],
+  };
+  expect(understandingProblem(ordinary, { ...input, lesson: people })).toBeUndefined();
+  const berg = {
+    ...TEXT,
+    lines: [...TEXT.lines, { speaker: "Anna", text: "Guten Tag, Frau  Berg!" }],
+  };
+  expect(understandingProblem(berg, { ...input, lesson: people })).toContain("(Frau Berg)");
   const german = { ...TEXT, title: "Beim Bäcker", situation: "Anna kauft Brötchen." };
   expect(understandingProblem(german, input)).toBe('"title" and "situation" in Russian');
   const mixed = {

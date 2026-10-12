@@ -108,14 +108,15 @@ function textProblem(text: UnderstandingText): string | undefined {
   return undefined;
 }
 
-/** The course's characters a text names: a speaker or a word of its lines or situation. */
+/** The course's characters a text names: a name as a whole word — the words in a row for a name of
+ *  several ("Mutter von Lotte") — in a speaker, a line or the situation. */
 function charactersIn(text: UnderstandingText, characters: string[]) {
-  const words = new Set(
-    [text.situation, ...text.lines.flatMap((l) => [l.speaker ?? "", l.text])].flatMap(
-      (t) => t.match(/\p{L}[\p{L}'’-]*/gu) ?? [],
-    ),
-  );
-  return characters.filter((name) => name.split(" ").every((part) => words.has(part)));
+  const said = [text.situation, ...text.lines.flatMap((l) => [l.speaker ?? "", l.text])];
+  return characters.filter((name) => {
+    const words = name.split(/\s+/).map((w) => w.replace(/[.*+?^${}()|[\]\\]/g, "\\$&"));
+    const whole = new RegExp(`(?<![\\p{L}'’-])${words.join("\\s+")}(?![\\p{L}'’-])`, "u");
+    return said.some((t) => whole.test(t));
+  });
 }
 
 /**
