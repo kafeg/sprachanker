@@ -738,6 +738,44 @@
         "model": "m",
         "latencyMs": 10
       }
+    },
+    {
+      "since": "2026-10-12",
+      "payload": {
+        "task": "exam",
+        "input": "Lieber Tom, ich komme um drei.",
+        "result": {
+          "criteria": [
+            {
+              "id": "wann",
+              "points": 3,
+              "reason": "Um drei."
+            }
+          ],
+          "feedback": "Say what you bring.",
+          "points": [
+            {
+              "score": 2,
+              "comment": "Um drei."
+            },
+            {
+              "score": 0,
+              "comment": "Nichts."
+            }
+          ],
+          "corrections": [
+            {
+              "wrong": "um drei",
+              "right": "um drei Uhr",
+              "explanation": "Time."
+            }
+          ],
+          "corrected": "Lieber Tom, ich komme um drei Uhr.",
+          "modelText": "Lieber Tom, ich komme um drei Uhr und bringe Kuchen mit."
+        },
+        "model": "m",
+        "latencyMs": 10
+      }
     }
   ],
   "llm_turn": [

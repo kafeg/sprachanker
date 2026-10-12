@@ -3,7 +3,7 @@
 // counts them, and the points with the open answers apart), then the questions answered wrongly or not at all with the
 // right answer (all of them on request), and the ways on: practise the mistakes, try again, back.
 
-import { examPassed, examScore, markMax, marksOf } from "@sprachanker/engine";
+import { contentPoints, examPassed, examScore, markMax, marksOf } from "@sprachanker/engine";
 import type {
   Exam,
   ExamItem,
@@ -270,6 +270,11 @@ export function ExamResultView({
                     locale={locale?.items[item.key as keyof typeof locale.items]}
                     events={events}
                     answer={given?.text ?? ""}
+                    points={(() => {
+                      // A plan without its sections (stored before them) names none.
+                      const section = run.plan.sections?.[item.key];
+                      return contentPoints(section && locale?.sections[section]?.instructions);
+                    })()}
                   />
                 </li>
               );

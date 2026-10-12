@@ -78,7 +78,7 @@ export function checkWritingRules(
 
 /** What the text's language spells in a way learners often miss: said with the text, so it holds
  *  whatever rules the learner wrote. */
-const SPELLING: Partial<Record<Lang, string>> = {
+export const SPELLING: Partial<Record<Lang, string>> = {
   de: 'Spelling is the standard of Germany, as the course teaches it: ß and umlauts where they belong (heiße, not heisse; Grüße, not Grüsse) — "ss" where German writes "ß" is an error to correct.',
 };
 

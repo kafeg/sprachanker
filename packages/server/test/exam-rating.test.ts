@@ -13,6 +13,18 @@ const PROPOSAL = {
     { id: "form", points: 1, reason: "Lieber Tom … Bis bald!" },
   ],
   feedback: "Say who the cake is for.",
+  // A written answer gone over: its content points, its errors, a model text.
+  points: [
+    { score: 2, comment: "Um drei." },
+    { score: 1, comment: "Kuchen — für wen?" },
+  ],
+  corrections: [
+    { wrong: "um drei", right: "um drei Uhr", explanation: "Время с «Uhr»." },
+    { wrong: "Kuchen", right: "Kuchen", explanation: "—" },
+    { wrong: "Torte", right: "Kuchen", explanation: "Нет в тексте." },
+  ],
+  corrected: "Lieber Tom, ich komme um drei Uhr und bringe Kuchen mit. Bis bald!",
+  modelText: "Lieber Tom, ich komme um drei Uhr und bringe einen Kuchen für dich mit. Bis bald!",
 };
 
 /** A model answering structured requests: first a level the criterion lacks, then the proposal. */
@@ -66,13 +78,22 @@ test("a proposal for a handed-in mock exam's note: kept on the question, asked o
   expect([closed.status, await closed.text()]).toEqual([400, '{"error":"no_such_item"}']);
 
   const proposed = await api.sendJson("POST", "/api/llm/exam-rating", body);
-  expect(proposed).toMatchObject({ itemKey: m("s3"), input: note, result: PROPOSAL, model: "m" });
+  // Corrections that change nothing or quote words the note lacks are dropped.
+  expect(proposed).toMatchObject({
+    itemKey: m("s3"),
+    input: note,
+    result: { ...PROPOSAL, corrections: PROPOSAL.corrections.slice(0, 1) },
+    model: "m",
+  });
   // The request: the task as set, the criteria by their titles and levels, the answer; the level
   // the first reply chose that the criterion does not have was asked again.
   const sent = ai.bodies[0]?.messages.map((x) => x.content).join("\n") ?? "";
   expect(sent).toContain("Write Tom a note.");
   expect(sent).toContain("- wann (When you come) — voiding: 3");
   expect(sent).toContain(note);
+  // Gone over as an examiner does: the task's content points (its instructions' bullets) listed.
+  expect(sent).toContain("<points>\n1. When you come.\n2. What you bring.\n</points>");
+  expect(sent).toContain("Then go over the written answer as an examiner does");
   expect(ai.bodies).toHaveLength(2);
   // Asked again for the same answer: the kept one, the model not asked.
   expect((await api.sendJson("POST", "/api/llm/exam-rating", body)).ts).toBe(proposed.ts);

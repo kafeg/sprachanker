@@ -298,6 +298,11 @@ test("a handed-in mock exam's note: the AI proposes its rating with reasons, the
   await expect(page.getByText(/Proposed by the AI assistant/)).toBeVisible();
   await expect(page.getByText("FAKE: say who the cake is for.")).toBeVisible();
   await expect(page.getByText("FAKE: what, but not for whom.")).toBeVisible();
+  // Gone over as an examiner does: the task's points, the error corrected, a model text.
+  await expect(page.getByText("When you come.")).toBeVisible();
+  await expect(page.getByText("FAKE: a cake, for whom?")).toBeVisible();
+  await expect(page.getByText("FAKE: a time with Uhr.")).toBeVisible();
+  await expect(page.getByText(/FAKE: Lieber Tom, ich komme um drei Uhr/)).toBeVisible();
   // The proposal chosen, not counted until accepted: taken as it is.
   await expect(page.getByText("5.5 of 7", { exact: true })).toBeVisible();
   await expect(page.getByText(/Not accepted yet: the result counts 0 of 7/)).toBeVisible();

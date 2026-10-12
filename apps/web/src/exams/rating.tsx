@@ -6,14 +6,17 @@
 // proposal" or "Keep mine": one's own levels shown again, nothing stored anew — the rating counting is
 // stored already —, the proposal set aside on this device).
 import { criteriaMax, ratedPoints } from "@sprachanker/engine";
-import type { ExamItem, LocaleItem, TypedEvent } from "@sprachanker/schema";
-import { Sparkles } from "lucide-react";
+import type { ExamItem, ExamRatingProposal, LocaleItem, TypedEvent } from "@sprachanker/schema";
+import { Check, CircleDashed, Sparkles, X } from "lucide-react";
 import { useState } from "react";
 import { useTranslation } from "react-i18next";
 import { useKeepRunEvents, useRateAnswer } from "@/api/exams.ts";
+import { CorrectedText, Corrections } from "@/ui/checked-text.tsx";
 import { Button } from "@/ui/components/button.tsx";
+import { inLang } from "@/ui/direction.tsx";
 import { errorText } from "@/ui/error-text.ts";
 import { useNumber } from "@/ui/format.ts";
+import { useTargetLang } from "@/ui/target-lang.ts";
 import { cn } from "@/ui/utils.ts";
 import { useExamSlots } from "./slots.ts";
 
@@ -24,6 +27,8 @@ interface Proposal {
   notes: Record<string, string>;
   feedback: string;
   model: string;
+  /** A written answer gone over: its content points, corrections, the text corrected, a model. */
+  over: Pick<ExamRatingProposal, "points" | "corrections" | "corrected" | "modelText">;
 }
 
 /** Proposals set aside ("Keep mine") on this device, by their event's id. */
@@ -65,13 +70,14 @@ function ratingsOf(
       ratedId = e.id;
     }
     if (e.type === "llm_verdict" && e.payload.task === "exam" && e.payload.input === answer) {
-      const { criteria, feedback } = e.payload.result;
+      const { criteria, feedback, points, corrections, corrected, modelText } = e.payload.result;
       proposal = {
         id: e.id,
         ratings: Object.fromEntries(criteria.map((c) => [c.id, c.points])),
         notes: Object.fromEntries(criteria.map((c) => [c.id, c.reason])),
         feedback,
         model: e.payload.model,
+        over: { points, corrections, corrected, modelText },
       };
       first = proposal.ratings;
     }
@@ -88,12 +94,18 @@ export function OpenAnswerRating({
   locale,
   events,
   answer,
+  points = [],
+  auto = false,
 }: {
   runId: string;
   item: ExamItem & { criteria: Criteria };
   locale?: LocaleItem;
   events: TypedEvent[];
   answer: string;
+  /** The task's content points (a writing task's), shown with how the answer did each. */
+  points?: string[];
+  /** The assistant's proposal asked at once (practice: the answer was just checked). */
+  auto?: boolean;
 }) {
   const { t } = useTranslation();
   const rate = useRateAnswer(runId);
@@ -108,7 +120,8 @@ export function OpenAnswerRating({
   );
   return (
     <div className="space-y-2">
-      {propose?.({ runId, itemKey: item.key, proposed: !!proposal, onStored: keep })}
+      {propose?.({ runId, itemKey: item.key, proposed: !!proposal, onStored: keep, auto })}
+      {proposal && <GoneOver over={proposal.over} answer={answer} points={points} />}
       <RatingPanel
         // Chosen anew when a proposal comes (chosen until changed) and when a rating is saved
         // (the learner's kept, or the proposal accepted).
@@ -138,6 +151,67 @@ export function OpenAnswerRating({
         <p role="alert" className="text-sm text-destructive">
           {errorText(t, rate.error)}
         </p>
+      )}
+    </div>
+  );
+}
+
+/** A written answer as the examiner went over it: each content point, the text corrected with its
+ *  corrections, a model text. */
+function GoneOver({
+  over,
+  answer,
+  points,
+}: {
+  over: Proposal["over"];
+  answer: string;
+  points: string[];
+}) {
+  const { t } = useTranslation();
+  const lang = useTargetLang();
+  if (!over.points && !over.corrections && !over.modelText) return null;
+  const Mark = ({ score }: { score: number }) =>
+    score === 2 ? (
+      <Check className="size-4 shrink-0 text-correct" aria-label={t("lesson.state.correct")} />
+    ) : score === 1 ? (
+      <CircleDashed className="size-4 shrink-0 text-wrong" aria-label={t("lesson.state.partial")} />
+    ) : (
+      <X className="size-4 shrink-0 text-wrong" aria-label={t("lesson.state.wrong")} />
+    );
+  return (
+    <div className="space-y-3 rounded-xl border bg-card p-4">
+      {over.points && over.points.length > 0 && (
+        <div className="space-y-1.5">
+          <h3 className="text-sm font-medium">{t("writing.pointsTitle")}</h3>
+          <ul className="space-y-1.5 text-sm">
+            {over.points.map((p, i) => (
+              // biome-ignore lint/suspicious/noArrayIndexKey: the task's points, in order
+              <li key={i} className="flex items-start gap-2">
+                <Mark score={p.score} />
+                <span>
+                  {points[i] && (
+                    <span {...inLang(lang)} className="font-medium">
+                      {points[i]}{" "}
+                    </span>
+                  )}
+                  <span className="text-muted-foreground">{p.comment}</span>
+                </span>
+              </li>
+            ))}
+          </ul>
+        </div>
+      )}
+      {over.corrected && over.corrections && over.corrections.length > 0 && (
+        <div className="space-y-2">
+          <CorrectedText text={answer} corrected={over.corrected} className="text-base" />
+          <Corrections corrections={over.corrections} />
+        </div>
+      )}
+      {over.modelText && (
+        <div className="rounded-lg bg-muted px-3 py-2">
+          <h3 className="text-sm font-medium">{t("writing.modelText")}</h3>
+          <p {...inLang(lang)}>{over.modelText}</p>
+        </div>
       )}
     </div>
   );

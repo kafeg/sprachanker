@@ -274,6 +274,14 @@ const EXAM_RATING = {
     { id: "form", points: 1, reason: "FAKE: greeting and closing." },
   ],
   feedback: "FAKE: say who the cake is for.",
+  // A written answer gone over: its content points, an error, a model text.
+  points: [
+    { score: 2, comment: "FAKE: the time is there." },
+    { score: 1, comment: "FAKE: a cake, for whom?" },
+  ],
+  corrections: [{ wrong: "drei", right: "drei Uhr", explanation: "FAKE: a time with Uhr." }],
+  corrected: "",
+  modelText: "FAKE: Lieber Tom, ich komme um drei Uhr und bringe einen Kuchen für dich mit.",
 };
 
 /** A speaking part: the examiner opens it; after the learner's first line the partner answers and

@@ -298,7 +298,14 @@ export function localeModell(lang: Lang): LocaleExam {
         t("Часть 1", "Part 1"),
         t("Заполните формуляр за Тома.", "Fill in the form for Tom."),
       ),
-      section("s2", t("Часть 2", "Part 2"), t("Напишите Тому записку.", "Write Tom a note.")),
+      section(
+        "s2",
+        t("Часть 2", "Part 2"),
+        t(
+          "Напишите Тому записку.\n• Когда вы придёте.\n• Что вы принесёте.",
+          "Write Tom a note.\n• When you come.\n• What you bring.",
+        ),
+      ),
       section(
         "p1",
         t("Часть 1", "Part 1"),

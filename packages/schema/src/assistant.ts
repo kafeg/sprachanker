@@ -109,6 +109,17 @@ export const ExamRatingProposal = z.object({
     .max(12),
   /** One or two concrete sentences in the learner's language: what would score more. */
   feedback: z.string(),
+  /** A written answer gone over as an examiner does (owner, 2026-10-12): each content point of the
+   *  task in order — 2 done, 1 partly, 0 not — with why. */
+  points: z
+    .array(z.object({ score: z.number().int().min(0).max(2), comment: z.string() }))
+    .max(8)
+    .optional(),
+  /** Its errors, the most important first (three kept), the text with them corrected, and the task
+   *  done well at the exam's level. */
+  corrections: z.array(Correction).max(10).optional(),
+  corrected: z.string().optional(),
+  modelText: z.string().optional(),
 });
 export type ExamRatingProposal = z.infer<typeof ExamRatingProposal>;
 

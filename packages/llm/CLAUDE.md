@@ -71,7 +71,8 @@ src/
     corrections.ts     # cleanCheck: a check's corrections cleaned (no-ops and words the text lacks
                        # dropped), a good text kept as written (writing, speaking)
     rate-exam-answer.ts # rate_exam_answer: an exam's open answer → a level of each of its criteria with
-                       # the reason (checked against the levels), feedback
+                       # the reason (checked against the levels), feedback; a written one gone over as an
+                       # examiner does (content points, corrections — cleanExamProposal —, a model text)
     scene.ts           # the Dialogue: scene_setup (goal card, the partner's hidden facts), scene_turn (a
                        # line judged; repeatedQuestion: a reply ending as the last one did asked again;
                        # cleanSceneTurn: remarks in place of corrections dropped), scene_summary

@@ -829,3 +829,56 @@ test("an exam's sources and checks: the documents read with their copies, every 
   fireEvent.click(await catalog.findByRole("button", { name: /Frage 001\?/ }));
   expect(catalog.getByText(/Allgemeine Fragen, Aufgabe 1/)).toBeTruthy();
 });
+
+test("a written answer gone over as the examiner did: each content point, the error corrected, a model text", async () => {
+  const item = {
+    key: `${KEY}/q-w2`,
+    type: "respond",
+    input: "text",
+    criteria: [{ id: "task", levels: [0, 1, 2], voids: true }],
+  } as unknown as ExamItem & { criteria: NonNullable<ExamItem["criteria"]> };
+  const events = [
+    {
+      id: "E1",
+      runId: "R",
+      ts: 1,
+      type: "llm_verdict",
+      itemKey: item.key,
+      payload: {
+        task: "exam",
+        input: "Ich komme um drei.",
+        result: {
+          criteria: [{ id: "task", points: 1, reason: "Teilweise." }],
+          feedback: "Sag, was du mitbringst.",
+          points: [
+            { score: 2, comment: "Die Zeit ist da." },
+            { score: 0, comment: "Fehlt." },
+          ],
+          corrections: [{ wrong: "drei", right: "drei Uhr", explanation: "Mit Uhr." }],
+          corrected: "Ich komme um drei Uhr.",
+          modelText: "Ich komme um drei Uhr und bringe Kuchen mit.",
+        },
+        model: "m",
+        latencyMs: 1,
+      },
+    },
+  ];
+  const view = await renderApp(
+    <TargetLang value="de">
+      <OpenAnswerRating
+        runId="R"
+        item={item}
+        events={events as never}
+        answer="Ich komme um drei."
+        points={["Wann kommst du?", "Was bringst du mit?"]}
+      />
+    </TargetLang>,
+    { path: "/exam/run" },
+  );
+  expect(view.getByText("Wann kommst du?")).toBeTruthy();
+  expect(view.getByText("Fehlt.")).toBeTruthy();
+  expect(view.getByText(/Mit Uhr\./)).toBeTruthy();
+  expect(view.getByText("Model text")).toBeTruthy();
+  expect(view.getByText("Ich komme um drei Uhr und bringe Kuchen mit.")).toBeTruthy();
+  view.unmount();
+});

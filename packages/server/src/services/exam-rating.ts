@@ -2,9 +2,11 @@
 // 2026-10-10): the configured model proposes a level of each of the exam's criteria with its reason;
 // the learner takes the proposal or changes it, and only that rating scores (`exam_rated`). A proposal
 // is an `llm_verdict` (`task: exam`) on the question in the exam run, for the answer it rated: asked
-// once per answer, shown again without asking. A mock exam is rated only once handed in.
-import { conversationAnswer, latestConversation } from "@sprachanker/engine";
+// once per answer, shown again without asking. A mock exam is rated only once handed in. A written
+// answer is gone over too, as an examiner does: the task's content points, the errors, a model text.
+import { contentPoints, conversationAnswer, latestConversation } from "@sprachanker/engine";
 import {
+  cleanExamProposal,
   conversationOf,
   type ExamAnswerInput,
   rateExamAnswerTask,
@@ -64,6 +66,11 @@ export function createExamRating(deps: { llm: Llm; store: RunStore; exams: Exams
       }),
       samples: item.type === "respond" ? item.reference : [],
       answer: text,
+      ...(item.type === "respond" &&
+        item.input === "text" && {
+          written: true,
+          contentPoints: contentPoints(sectionLocale?.instructions),
+        }),
     };
     // A speaking part answered by its conversation (not another way, the assistant switched off
     // after it): rated with what the learner answered.
@@ -93,7 +100,9 @@ export function createExamRating(deps: { llm: Llm; store: RunStore; exams: Exams
       const same = kept(request.runId, request.itemKey).find((r) => r.input === text);
       if (same) return same;
       return rating.run(`${request.runId}|${request.itemKey}|${text}`, true, async () => {
-        const { result, model, latencyMs } = await llm.structured(rateExamAnswerTask(task));
+        const rated = await llm.structured(rateExamAnswerTask(task));
+        const { model, latencyMs } = rated;
+        const result = cleanExamProposal(rated.result, text);
         const { event, verdict } = keepVerdict(
           store,
           request.runId,

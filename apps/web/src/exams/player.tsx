@@ -5,7 +5,7 @@
 // nothing checked before (then the result, 4B), Next in the step bar; practice (D) as a lesson: an
 // answer kept until Check in the step bar sends it and shows it checked, then Next; Skip passes a
 // question by; its tally above.
-import { answerComplete, checkQuestion, questionLine } from "@sprachanker/engine";
+import { answerComplete, checkQuestion, contentPoints, questionLine } from "@sprachanker/engine";
 import {
   type Exam,
   type ExamItem,
@@ -269,7 +269,8 @@ function Running({
       onAnswer={mode === "practice" && given ? undefined : send}
     />
   );
-  // Practice rates an open answer once it is given (its criteria; the assistant's proposal later).
+  // Practice rates an open answer once it is given: the assistant goes over it at once (its proposal),
+  // the learner takes it or rates by the criteria.
   const rating = mode === "practice" && item.criteria && given && (
     <div className="mt-4">
       <p className="mb-2 text-sm font-medium">{t("exams.rating.title")}</p>
@@ -280,6 +281,8 @@ function Running({
         locale={locale?.items[item.key as keyof typeof locale.items]}
         events={events}
         answer={(given.answer as { text?: string }).text ?? ""}
+        points={contentPoints(section && locale?.sections[section.key]?.instructions)}
+        auto
       />
     </div>
   );

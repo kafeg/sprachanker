@@ -12,6 +12,8 @@ export interface ExamSlots {
     proposed: boolean;
     /** The proposal kept: the run's page reads it at once. */
     onStored(event: TypedEvent): void;
+    /** Asked at once, without a button (practice: the answer was just checked). */
+    auto?: boolean;
   }): ReactNode;
   /** A speaking part held as a conversation — the assistant the examiner and the partner — while it
    *  works there (`useOn`, a hook called on every render); otherwise the part is answered aloud as

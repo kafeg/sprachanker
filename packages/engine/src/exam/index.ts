@@ -106,6 +106,15 @@ export function openCounts(exam: Exam, setting: SettingOf) {
 /** A question's line in a list: what it asks (a gap's text with "…", else its own text's first
  *  line), else its Teil's (a speaking part's: its cards' first lines — "Was machen Sie mit Ihrem
  *  Geld?" —, else its text's); empty when neither has any. */
+/** A writing task's content points: the lines of its instructions marked as points ("• Bedanken Sie
+ *  sich …"), in order. */
+export const contentPoints = (instructions: string | undefined): string[] =>
+  (instructions ?? "")
+    .split("\n")
+    .map((l) => l.trim())
+    .filter((l) => /^[•·▪\-–]\s+/.test(l))
+    .map((l) => l.replace(/^[•·▪\-–]\s+/, ""));
+
 export const questionLine = (item: ExamItem, section?: Exam["sections"][number]) =>
   item.prompt ||
   (item.type === "gap_text"
