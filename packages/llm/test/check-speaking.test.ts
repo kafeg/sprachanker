@@ -1,7 +1,7 @@
 import { expect, test } from "bun:test";
 import { fixture } from "@sprachanker/course-fixture";
 import { checkSpeakingTask } from "../src/tasks/check-speaking.ts";
-import { cleanCheck, quotes } from "../src/tasks/corrections.ts";
+import { cleanCheck, quotes, unlistedChange } from "../src/tasks/corrections.ts";
 import { mistakeLine } from "../src/tasks/describe.ts";
 import { GENDER_FREE, languagesLine, NEUTRAL } from "../src/tasks/rules.ts";
 
@@ -114,6 +114,25 @@ test("a correction quoting the text in pieces, a compound, a number as the recog
   ]);
   // Digits in the correction, the number said as a word.
   expect(quotes("um drei uhr", "um 3 Uhr")).toBe(true);
+});
+
+test("a spoken answer's corrected text makes only the changes its corrections list: a word spelled anew is asked again once", () => {
+  const heard = "ich lasse meine haare beim friseur um 3 uhr schneiden";
+  const check = (corrected: string, corrections: Array<{ wrong: string; right: string }> = []) =>
+    checkSpeakingTask({ ...input, transcript: heard }).quality?.({
+      verdict: corrections.length ? "minor_errors" : "good",
+      corrected,
+      corrections: corrections.map((c) => ({ ...c, explanation: "" })),
+      feedback: "",
+    });
+  expect(check("Ich lasse meine Haare beim Friisör um drei Uhr schneiden.")).toContain("friisör");
+  // A correction's words, a number said as a word, case and punctuation: no change of its own.
+  expect(
+    check("Ich lasse mir die Haare beim Friseur um drei Uhr schneiden.", [
+      { wrong: "meine", right: "mir die" },
+    ]),
+  ).toBeUndefined();
+  expect(unlistedChange({ corrected: "", corrections: [] }, heard)).toBeUndefined();
 });
 
 test("check_speaking: an item's question and the source's written answer (a frame) are the model's", () => {

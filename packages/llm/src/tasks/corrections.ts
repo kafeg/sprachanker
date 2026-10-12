@@ -46,6 +46,27 @@ export function quotes(text: string, wrong: string) {
   return at >= 0;
 }
 
+/** A word of a spoken answer's "corrected" that is neither heard nor a correction's — a heard word
+ *  spelled anew ("Friisör") —: the problem the check is asked again once for. A compound written
+ *  apart or together, and a number said as a word for the recogniser's digits, are no change. */
+export function unlistedChange(
+  check: { corrected: string; corrections: Correction[] },
+  heard: string,
+): string | undefined {
+  if (!check.corrected.trim()) return undefined;
+  const said = words(heard).split(" ").filter(Boolean);
+  const listed = new Set([...said, ...check.corrections.flatMap((c) => words(c.right).split(" "))]);
+  const within = (w: string) =>
+    said.some((s) => (s.length >= 4 && w.includes(s)) || (w.length >= 4 && s.includes(w)));
+  const changed = words(check.corrected)
+    .split(" ")
+    .filter((w) => w && !listed.has(w) && !isNumber(w) && !within(w));
+  const digits = said.filter(isNumber).length;
+  return changed.length > digits
+    ? `"corrected" makes only the changes "corrections" list: "${changed[0]}" is neither said nor a correction's`
+    : undefined;
+}
+
 export const cleanCheck = <
   T extends { verdict: string; corrected: string; corrections: Correction[] },
 >(
