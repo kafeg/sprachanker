@@ -109,7 +109,8 @@ JSON under `/api`, validated with zod and typed for the web client through Hono 
   and the translations' must differ); 404 `deck_upload_gone`; 422 `not_a_deck`, `deck_without_words`,
   `deck_unpacked_too_large`; 413 `deck_too_large`), `DELETE /api/decks/uploads/:upload` (an upload
   let go unimported: its sheet closed), `DELETE /api/decks/:id` (409 `deck_in_use` while any profile
-  has cards made from it; the offers name them: `studiedBy`, the profiles' names). An import asked again with its upload's id — at once, or after it ended
+  has cards made from it; the offers name them: `studiedBy`, the profiles' names — one whose cards
+  do not read counts as having them, logged, never failing the others). An import asked again with its upload's id — at once, or after it ended
   (within a day) — answers with the deck it made, so a retry after a dropped connection gets it. Bun
   takes bodies up to a course bundle's size (the largest); the deck's preview and import, a profile
   file's and a course bundle's import and download wait as long as they take, every

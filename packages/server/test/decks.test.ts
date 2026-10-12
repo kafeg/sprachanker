@@ -475,6 +475,30 @@ test("a deck studied by a profile: offered with who studies it, not deleted unti
   expect((await send("DELETE", `/api/decks/${id}`, {})).status).toBe(200);
 });
 
+test("a profile whose database does not open counts as studying a deck: it is not deleted, the others still listed", async () => {
+  const api = await withDecks();
+  const { id } = await api.importDeck();
+  await api.anonymous("POST", "/api/profiles", { name: "Kaputt" });
+  const open = api.profiles.open;
+  const logged = console.error;
+  console.error = () => {};
+  api.profiles.open = (profile) => {
+    // The first profile ("local", signed in) opens; the other does not.
+    if (profile !== "local") throw new Error("file is not a database");
+    return open(profile);
+  };
+  try {
+    const offers = await api.getJson("/api/cards/decks/offers");
+    expect(offers.imported.find((o: { deck: string }) => o.deck === id).studiedBy).toEqual([
+      "Kaputt",
+    ]);
+    expect((await api.send("DELETE", `/api/decks/${id}`, {})).status).toBe(409);
+  } finally {
+    api.profiles.open = open;
+    console.error = logged;
+  }
+});
+
 test("media named apart whatever their case, kept inside the deck's folder whatever their name", async () => {
   const { importDeck, get, wordsOf, root } = await withDecks();
   const sound = (n: number) => new Uint8Array([0x49, 0x44, 0x33, n]);

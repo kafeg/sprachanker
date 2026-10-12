@@ -281,15 +281,21 @@ export function createServices(config: ServicesConfig) {
   const decks = createDecks({
     files: config.decks,
     apkg: config.apkg,
-    // The profiles whose cards made from the deck keep it (a profile not opened yet too).
+    // The profiles whose cards made from the deck keep it (a profile not opened yet too); one whose
+    // cards do not read is counted as keeping it — logged, never failing the others.
     studiedBy: (id) =>
       profiles
         .list()
-        .filter((p) =>
-          createCardStore(config.profiles.open(p.id))
-            .all()
-            .some((n) => n.deck === `deck:${id}`),
-        )
+        .filter((p) => {
+          try {
+            return createCardStore(config.profiles.open(p.id))
+              .all()
+              .some((n) => n.deck === `deck:${id}`);
+          } catch (error) {
+            console.error(`profile ${p.id}: its cards do not read:`, error);
+            return true;
+          }
+        })
         .map((p) => p.name),
     // Cards follow their words in a deck imported again.
     onImport: () => {
