@@ -102,7 +102,8 @@ test("a mock exam: a question at a time, the grid above, nothing marked; handed 
   await button(page, "Hand in").click();
 
   await expect(page.getByRole("heading", { name: "Passed" })).toBeVisible();
-  await expect(page.getByRole("img", { name: "3/3" })).toBeVisible();
+  // The points' share in the ring.
+  await expect(page.getByRole("img", { name: "100%" })).toBeVisible();
   await expect(page.getByRole("heading", { name: "No mistakes" })).toBeVisible();
   await page.getByRole("button", { name: "Show all answers" }).click();
   await expect(page.getByRole("status").filter({ hasText: /^Correct$/ })).toHaveCount(3);
@@ -182,8 +183,11 @@ test("a language exam: a module alone, then the whole — each question with its
     if (i < 2) await button(page, "Next").click();
   }
   await button(page, "Hand in").click();
-  await expect(page.getByRole("heading", { name: "3 of 3" })).toBeVisible();
-  await expect(page.getByText("Reading", { exact: true }).locator("..")).toContainText("25 of 25");
+  // On the exam's own scale: the module's scaled points, its tasks' points beside them.
+  await expect(page.getByRole("heading", { name: "25 of 25" })).toBeVisible();
+  const reading = page.getByText("Reading", { exact: true }).locator("..");
+  await expect(reading).toContainText("25 of 25");
+  await expect(reading).toContainText("tasks: 3 of 3");
 
   // The whole exam: Listening's example answered, a Teil's recording limited on every one of its
   // questions.
@@ -238,7 +242,7 @@ test("a language exam: a module alone, then the whole — each question with its
     .getByRole("group", { name: "Language" })
     .getByRole("button", { name: "2", exact: true })
     .click();
-  await expect(page.getByText("6 of 8")).toBeVisible();
+  await expect(page.getByText("6 of 8", { exact: true })).toBeVisible();
   await page.getByRole("button", { name: "Save rating" }).last().click();
   await expect(page.getByText("1 answer is not rated yet", { exact: false })).toBeVisible();
   // Rated as the raters would: the result computed anew — passed.
@@ -254,7 +258,7 @@ test("a language exam: a module alone, then the whole — each question with its
     .getByRole("group", { name: "Greeting and closing" })
     .getByRole("button", { name: "1", exact: true })
     .click();
-  await expect(page.getByText("5.5 of 7")).toBeVisible();
+  await expect(page.getByText("5.5 of 7", { exact: true })).toBeVisible();
   await page.getByRole("button", { name: "Save rating" }).click();
   await expect(page.getByRole("heading", { name: "Passed" })).toBeVisible();
   await expect(page.getByRole("button", { name: "Change rating" })).toHaveCount(2);

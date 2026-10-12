@@ -30,7 +30,7 @@ import {
 } from "@sprachanker/schema";
 import { checkItem } from "../check/index.ts";
 import { questionPhase, understandingExercise } from "../check/understanding.ts";
-import { wordDiff } from "../text/diff.ts";
+import { bareWord, wordDiff } from "../text/diff.ts";
 import { mistakesOf } from "./mistakes.ts";
 
 /** A mistake to go over: the item as the pass showed it, the first answer to it. */
@@ -215,8 +215,10 @@ function itemParts(m: MistakeToGoOver, lang: string): WrongPart[] {
         .map((x, k) => (k === i ? GAP : x.op === "extra" ? "" : (x.expected ?? "")))
         .filter(Boolean)
         .join(" ");
-      const given = d.actual ?? "";
-      const right = d.expected ?? "";
+      // The words themselves (the diff grades words, never their marks); the sentence around them
+      // as written, its final mark too.
+      const given = bareWord(d.actual ?? "");
+      const right = bareWord(d.expected ?? "");
       return [part(kind(given, right), given, right || "—", around(text))];
     });
 
