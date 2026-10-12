@@ -290,6 +290,8 @@ test("the Notebook lists the mock exams handed in, newest first, with their resu
   ).entries[0];
   expect(after.runs[0]).toMatchObject({ id: left.id, endReason: "timeout" });
   expect(detail.lang).toBe("de");
+  // No modules: its questions numbered by their whole ids, as its catalogue numbers them.
+  expect(detail.modules).toBeUndefined();
   const states = Object.fromEntries(
     detail.items.map((i: { key: string; state: string }) => [i.key, i.state]),
   );
@@ -436,6 +438,7 @@ test("a result kept before results had their score: read on the exam's scale eve
     [16.67, 25],
   ]);
   const journal = await api.getJson(`/api/notebook/exam?exam=${MODELL}`);
+  expect(journal.modules).toBe(true);
   expect(journal.entry.runs.find((r: { id: string }) => r.id === lesen.id)).toMatchObject(scale);
 });
 

@@ -22,11 +22,11 @@ export function ExamNotebook({ params }: { params: ExamParams }) {
 
   if (detail.isPending) return <Loading />;
   if (detail.isError) return <ErrorState error={detail.error} onRetry={() => detail.refetch()} />;
-  const { entry, items, lang } = detail.data;
+  const { entry, items, lang, modules = false } = detail.data;
   const known = items.filter((i) => i.state === "right").length;
   const wrong = items.filter((i) => i.state === "wrong");
-  // A question by its number in its Teil (named beside it), never by its key.
-  const number = (i: (typeof items)[number]) => questionNumber(i.key, !!i.group);
+  // A question by its number as the catalogue gives it (its Teil named beside it), never by its key.
+  const number = (i: (typeof items)[number]) => questionNumber(i.key, modules);
   const nameOf = (i: (typeof items)[number]) => [i.group, number(i)].filter(Boolean).join(" · ");
   const toRun = (run: string) =>
     void navigate({ to: "/exam/$series/$course/$exam/run/$run", params: { ...params, run } });

@@ -150,6 +150,7 @@ export function createExams(deps: {
         },
         items,
         lang: examLang(edition),
+        ...(exam?.modules && { modules: true }),
       };
     },
 

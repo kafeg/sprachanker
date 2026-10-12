@@ -224,9 +224,9 @@ test("an exam in the Notebook: its runs, the map of its questions, those answere
           },
           // Berlin's: the two general questions and Berlin's one, of which one known, one wrong.
           items: [
-            { key: `${KEY}/q-001`, state: "right", line: "Frage 001?" },
-            { key: `${KEY}/q-002`, state: "unseen", line: "Frage 002?" },
-            { key: `${KEY}/q-be-01`, state: "wrong", line: "Frage be-01?" },
+            { key: `${KEY}/q-001`, state: "right", line: "Frage 001?", group: "General" },
+            { key: `${KEY}/q-002`, state: "unseen", line: "Frage 002?", group: "General" },
+            { key: `${KEY}/q-be-01`, state: "wrong", line: "Frage be-01?", group: "Your state" },
           ],
           lang: "de",
         },
@@ -240,7 +240,9 @@ test("an exam in the Notebook: its runs, the map of its questions, those answere
     view.getByRole("img", { name: "Of 3 questions: 1 known, 1 wrong last time" }),
   ).toBeTruthy();
   expect(view.getByText("1 question answered wrongly last time")).toBeTruthy();
-  expect(view.getByText("Frage be-01?")).toBeTruthy();
+  // Numbered as the catalogue numbers it: an exam without modules keeps its whole id.
+  expect(view.getByText("Frage be-01?").previousElementSibling?.textContent).toBe("be-01");
+  expect(view.container.querySelector('[title="General · 001"]')).toBeTruthy();
 });
 
 test("a language exam in the Notebook: questions by their Teil and number, never by their keys", async () => {
@@ -270,6 +272,7 @@ test("a language exam in the Notebook: questions by their Teil and number, never
             },
           ],
           lang: "de",
+          modules: true,
         },
       ],
     ],
