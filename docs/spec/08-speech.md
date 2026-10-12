@@ -140,8 +140,10 @@ writes (owner, 2026-10-08).
   of the other gender than the main voice's, where the server's voices say theirs (Qwen3-TTS's
   speakers, Piper's voices by name: `audio/voice-genders.ts`), else Piper's next installed voice of it, Qwen3-TTS's next
   speaker, the device's next best voice —, else by the same one; which speaker that is, by their names
-  only where obvious ("Frau Weber", "Nina": the one the main voice does not suit), else the second to
-  speak; the line playing and the next two asked of the server ahead, one after another, so the next
+  only where obvious ("Frau Weber", "Nina"): the main voice reads the first speaker of its gender,
+  else the first not known (its gender not known: the first to speak), and when both are of the other
+  gender (two women, a man's main voice) neither — each a voice of hers, the second another one of it
+  (owner, 2026-10-12); the line playing and the next two asked of the server ahead, one after another, so the next
   is ready when one ends — no more (the engine says one at a time: more would only wait), and those
   not read let go (their requests aborted) when it is paused, stopped or left — the server stops
   making a reading no request waits for any more (Piper's run killed, Qwen3-TTS's request aborted);

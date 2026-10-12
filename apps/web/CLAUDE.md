@@ -101,7 +101,7 @@ apps/web/src/
                    # time; a dialogue's second speaker by another voice), listening (a text line by line: pause, on, again), speak-button, read-by (who reads a language, named), read-aloud-settings (engine cards, speed) with each
                    # engine's voices: device-, piper-, qwen-voices (voice-pick: a language's voice and
                    # "Listen"; voice-names: a server voice's name, pure; voice-genders: a server voice's
-                   # gender, a speaker's by name, which speaker the other voice reads — pure); download-row (a model or voice the server downloads), read-languages (the
+                   # gender, a speaker's by name, each speaker's voice by gender — pure); download-row (a model or voice the server downloads), read-languages (the
                    # languages read aloud), samples ("Listen"'s sentences; pure), in-use (the in-use mark)
   word/            # a word as shown: gender colouring; tones (ratings and counts in our hues), time
                    # (intervals, next due)

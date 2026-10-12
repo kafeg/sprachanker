@@ -320,13 +320,17 @@ export function useSpeaker() {
   /** The server's voice of a language: the profile's while it is there, else Piper's best or
    *  Qwen3-TTS's default speaker; `alt`: another of the language when there is one. */
   const serverVoice = (lang: string, alt?: Alt): string | undefined => {
-    /** Another voice than `main`: of the gender asked for (two women speaking: another woman's),
-     *  else of the other gender than main's where it is known, else the first. */
+    /** Another voice than `main`: of the gender asked for (two women speaking: another woman's; a
+     *  second: the next of it), else of the other gender than main's where it is known, else the
+     *  first. */
     const other = (kind: "piper" | "qwen", main: string, voices: readonly string[]) => {
       const others = voices.filter((v) => v !== main);
       const mine = voiceGender(kind, main);
-      const wanted = alt === "f" || alt === "m" ? alt : mine && (mine === "f" ? "m" : "f");
-      return (wanted && others.find((v) => voiceGender(kind, v) === wanted)) ?? others[0] ?? main;
+      const asked = typeof alt === "string" ? (alt[0] as Gender) : undefined;
+      const wanted = asked ?? (mine && (mine === "f" ? "m" : "f"));
+      const theirs = wanted ? others.filter((v) => voiceGender(kind, v) === wanted) : [];
+      const nth = alt === "f2" || alt === "m2" ? 1 : 0;
+      return theirs[nth] ?? theirs[0] ?? others[0] ?? main;
     };
     if (engine === "piper" && piper) {
       const own = chosen?.piper?.[lang];
