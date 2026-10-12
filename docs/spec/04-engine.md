@@ -232,8 +232,9 @@ imported `.apkg` decks fit in. Scheduling and the queue are pure functions in
   until imported, at most 512 MB, unpacking to at most 512 MB at a time — the collection, a batch of
   its media: a decompression bomb is refused) and previewed — its deck's name, words with audio and examples, the
   languages its fields are named by, the first words — then imported. A file imported again — most
-  of its words those of a deck here (by guid; words of several notes counted once, as the deck
-  counts them), and that deck mostly them, in the same languages: the
+  of its words those of a deck here (by guid; its words those an import in the deck's own languages
+  makes — several notes of one word counted once, as the deck counts them —, so the preview and the
+  import tell it alike), and that deck mostly them, in the same languages: the
   preview names each such deck with its languages, the same file imported in two language pairs being
   two — updates that deck (another deck sharing a note, or the same in other languages,
   is one of its own), and cards follow their words (relinking); a card of a word the update drops

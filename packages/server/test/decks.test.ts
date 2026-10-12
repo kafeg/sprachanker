@@ -264,6 +264,67 @@ test("a package of words most of them of two notes updates its deck when importe
   expect((await getJson("/api/decks")).decks).toHaveLength(1);
 });
 
+test("the preview tells an update as the import does: the package's words counted in the deck's own languages", async () => {
+  const { preview, sendJson, getJson } = await withDecks();
+  const old = [
+    ["вечер", "Abend"],
+    ["хлеб", "Brot"],
+    ["кафе", "Café"],
+    ["крыша", "Dach"],
+  ].map(([ru, de]) => ({ guid: `g-${de}`, fields: [ru as string, de as string] }));
+  // Four notes of one German word, each with its own Russian: one word in German, four in Russian.
+  const fresh = [1, 2, 3, 4].map((i) => ({ guid: `x${i}`, fields: [`ксилофон ${i}`, "Xylophon"] }));
+  const apkg = (notes: typeof old) =>
+    buildApkg({ deck: "Paare", fields: ["russian", "german"], notes });
+  const request = (upload: string) => ({
+    upload,
+    title: "Paare",
+    lang: "de",
+    translationLang: "ru",
+    file: "p.apkg",
+  });
+  const first = await sendJson(
+    "POST",
+    "/api/decks/import",
+    request((await preview(apkg(old))).upload),
+  );
+  expect(first.words).toBe(4);
+  const again = await preview(apkg([...old, ...fresh]));
+  expect(again.languages).toEqual(["ru", "de"]);
+  // Counted in the language named first (Russian) it has eight words, which would not update a deck
+  // of four; in the deck's own (German) five: it updates it, as the import does.
+  expect(again.words).toBe(8);
+  expect(again.updates).toMatchObject([{ id: first.id }]);
+  const updated = await sendJson("POST", "/api/decks/import", request(again.upload));
+  expect(updated).toMatchObject({ id: first.id, words: 5 });
+  expect((await getJson("/api/decks")).decks).toHaveLength(1);
+});
+
+test("notes of one word joined as long as they make one word together: one that would not is left out alone", async () => {
+  const { preview, sendJson, wordsOf } = await withDecks();
+  // The second note's guid is too long for a word's key: alone it makes no word, but joined to the
+  // first it adds its translation; the third joins too.
+  const notes = [
+    { guid: "auf1", fields: ["auf", "на"] },
+    { guid: "x".repeat(201), fields: ["auf", "в"] },
+    { guid: "auf3", fields: ["auf", "к"] },
+  ];
+  const { upload } = await preview(
+    buildApkg({ deck: "Auf", fields: ["german", "russian"], notes }),
+  );
+  const made = await sendJson("POST", "/api/decks/import", {
+    upload,
+    title: "Auf",
+    lang: "de",
+    translationLang: "ru",
+    file: "a.apkg",
+  });
+  expect(made).toMatchObject({ words: 1, left: { unusable: 0, joined: 2 } });
+  expect((wordsOf(made.id) as Record<string, { translation?: string }>).auf1).toMatchObject({
+    translation: "на; в; к",
+  });
+});
+
 test("fields named by language: the translation in the language chosen, the deck's examples with their audio on the card", async () => {
   const { preview, importDeck, getJson, sendJson, get, wordsOf } = await withDecks();
   const fields = [
