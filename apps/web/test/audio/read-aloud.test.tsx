@@ -360,6 +360,8 @@ test("Settings with Qwen3-TTS: its models (the one in use), each language's spea
   expect(row(/Large model/).textContent).toContain("In use");
   expect(row(/Small model/).textContent).not.toContain("In use");
   expect(within(row(/Small model/)).getByRole("button", { name: "Use" })).toBeTruthy();
+  // A model removed as a model, not as a voice.
+  expect(within(row(/Small model/)).getByRole("button", { name: "Remove the model" })).toBeTruthy();
   // Each language its own speaker (automatic: the default one).
   expect(view.getByRole("combobox", { name: "Voice for German" }).textContent).toBe(
     "Automatic — Ryan",
