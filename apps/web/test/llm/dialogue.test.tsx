@@ -182,7 +182,8 @@ test("a line said: what was heard is shown and sent as heard, with its take, kep
 });
 
 test("a silent take is not sent to be heard nor kept: nothing was heard, said again", async () => {
-  // A quiet room (-60 dBFS) on the page; then a take the server heard nothing in.
+  // A quiet room (-60 dBFS) on the page; then a take the server heard nothing in (its recording, kept
+  // while it was heard, forgotten).
   for (const [level, server] of [
     [0.001, "Vielen Dank."],
     [0.2, ""],
@@ -201,6 +202,7 @@ test("a silent take is not sent to be heard nor kept: nothing was heard, said ag
             asked.push("transcribe");
             return server;
           },
+          forget: (id: string) => void asked.push(`forget ${id}`),
         }}
       >
         <DialogueLine lang="de" busy={false} onSend={() => {}} />
@@ -213,7 +215,8 @@ test("a silent take is not sent to be heard nor kept: nothing was heard, said ag
     });
     await waitFor(() => expect(view.getByText(/^Nothing was heard/)).toBeTruthy());
     expect(view.queryByText("Vielen Dank.")).toBeNull();
-    expect(asked).toEqual(server ? [] : ["transcribe"]);
+    // Kept while heard, then forgotten.
+    expect(asked).toEqual(server ? [] : ["save", "transcribe", `forget ${TAKE}`]);
     view.unmount();
   }
 });

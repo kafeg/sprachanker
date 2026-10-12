@@ -78,7 +78,8 @@
     "checkAgain": "Erneut prüfen",
     "complete": "Vollständig geladen",
     "next": "weiter: {where} – {title}",
-    "notInstalled": "Dieser Kurs ist nicht (mehr) installiert.",
+    "gone": "Dieser Kurs ist nicht mehr auf diesem Computer — lade ihn erneut herunter, um weiterzumachen.",
+    "examGone": "Diese Prüfung ist nicht mehr auf diesem Computer — lade sie erneut herunter, um weiterzumachen.",
     "checkFiles": "Prüfen",
     "problem": {
       "missingMedia": "Datei fehlt: {at}",
@@ -1281,6 +1282,7 @@
       "how": "So funktioniert es"
     },
     "listening": "Wird erkannt …",
+    "heardLater": "Noch nicht erkannt — deine Aufnahme ist gespeichert, was gehört wurde, kommt gleich.",
     "notHeard": "Das ließ sich nicht erkennen; die Aufnahme zählt trotzdem.",
     "heard": "Gehört:",
     "heardNothing": "nichts",
@@ -1316,7 +1318,7 @@
     "card_changed": "Die Karte hat sich auf einem anderen Gerät geändert. Sie wird neu gezeigt.",
     "downloads_unavailable": "Kurse können hier nicht heruntergeladen werden.",
     "course_busy": "Dieser Kurs wird gerade heruntergeladen. Entferne ihn, wenn der Download fertig ist.",
-    "course_in_use": "Eine Lektion oder Prüfung dieses Kurses ist noch nicht abgeschlossen: Schließ sie ab (oder setz den Fortschritt im Kurs zurück), bevor du den Kurs entfernst.",
+    "course_gone": "Dieser Kurs ist nicht mehr auf diesem Computer — lade ihn erneut herunter, um weiterzumachen.",
     "empty_recording": "Die Aufnahme ist leer. Versuch es noch einmal.",
     "event_id_taken": "Diese Antwort ist schon anders gespeichert. Lade die Seite neu.",
     "event_of_another_run": "Dieser Eintrag gehört zu einem anderen Durchgang. Lade die Lektion neu.",

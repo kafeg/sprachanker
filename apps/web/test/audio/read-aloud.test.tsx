@@ -8,7 +8,7 @@ import { useReadLanguages } from "../../src/audio/read-languages.ts";
 import { samplesOf } from "../../src/audio/samples.ts";
 import type { SpokenPart } from "../../src/audio/speak.ts";
 import { SpeakButton } from "../../src/audio/speak-button.tsx";
-import { stop } from "../../src/audio/speaker.ts";
+import { stop, useSpeaker } from "../../src/audio/speaker.ts";
 import { ChatBubble } from "../../src/llm/parts.tsx";
 import { queryClient, renderApp } from "../render.tsx";
 
@@ -390,6 +390,16 @@ function Listener({ parts }: { parts: SpokenPart[] }) {
   );
 }
 
+/** Another reading: a word's "listen" while a text is listened to. */
+function Word() {
+  const speaker = useSpeaker();
+  return (
+    <button type="button" onClick={() => void speaker.say("word", [{ text: "Wort.", lang: "de" }])}>
+      word
+    </button>
+  );
+}
+
 const DIALOGUE: SpokenPart[] = [
   { text: "Guten Morgen!", lang: "de" },
   { text: "Hallo!", lang: "de", alt: true },
@@ -545,6 +555,18 @@ test("the second speaker by a voice of the other gender where the voices say the
       ],
     });
     expect(men.getByText("Read by Piper · thorsten and karlsson")).toBeTruthy();
+    men.unmount();
+    // Two women and a man's voice: neither by it — each by a woman's voice of her own.
+    const women = await renderApp(<ReadByLabel lang="de" two={["f", "f2"]} />, {
+      data: [
+        [["settings"], { "speech.readEngine": "piper" }],
+        [
+          ["piper-voices"],
+          { ...three, voices: [...three.voices, voice("de_DE-kerstin-low", "kerstin")] },
+        ],
+      ],
+    });
+    expect(women.getByText("Read by Piper · eva k and kerstin")).toBeTruthy();
   } finally {
     globalThis.fetch = realFetch;
     (globalThis as { Audio: unknown }).Audio = realAudio;
@@ -573,12 +595,18 @@ test("a long text listened to: only the next few lines asked for ahead, those le
     lang: "de",
   }));
   try {
-    const view = await renderApp(<Listener parts={lines} />, {
-      data: [
-        [["settings"], { "speech.readEngine": "piper" }],
-        [["piper-voices"], PIPER],
-      ],
-    });
+    const view = await renderApp(
+      <>
+        <Listener parts={lines} />
+        <Word />
+      </>,
+      {
+        data: [
+          [["settings"], { "speech.readEngine": "piper" }],
+          [["piper-voices"], PIPER],
+        ],
+      },
+    );
     fireEvent.click(view.getByRole("button", { name: "play" }));
     await waitFor(() => expect(ends).toHaveLength(1));
     await act(() => new Promise((r) => setTimeout(r, 20)));
@@ -597,6 +625,10 @@ test("a long text listened to: only the next few lines asked for ahead, those le
     await waitFor(() => expect(ends).toHaveLength(3));
     await act(() => new Promise((r) => setTimeout(r, 20)));
     expect(asked.slice(4).map((a) => a.text)).toEqual(["Zwei.", "Drei.", "Vier."]);
+    // Another reading interrupts it: what was asked for ahead goes too, the word is asked for.
+    fireEvent.click(view.getByRole("button", { name: "word" }));
+    expect(asked.slice(5).every((a) => a.signal?.aborted)).toBe(true);
+    await waitFor(() => expect(asked.at(-1)?.text).toBe("Wort."));
     // Left: the reading and what it asked for ahead stop.
     view.unmount();
     expect(asked.slice(5).every((a) => a.signal?.aborted)).toBe(true);

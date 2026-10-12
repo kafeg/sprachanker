@@ -66,6 +66,9 @@ const ahead = new Map<string, { wav: Promise<Blob | undefined>; abort: AbortCont
 const AHEAD = 3;
 /** The latest piece asked for ahead: the next waits for it. */
 let asking: Promise<unknown> = Promise.resolve();
+/** The part the pieces asked for ahead begin with: a reading of it goes on with them (a text listened
+ *  to line by line); any other reading interrupts them. */
+let aheadFrom: SpokenPart | undefined;
 const aheadKey = (text: string, lang: string, voice?: string) => `${lang}\n${voice ?? ""}\n${text}`;
 /** The next AHEAD of the server's pieces of `parts` asked for one after another, so each is ready when
  *  its turn comes; pieces asked before and no longer among them are let go. */
@@ -79,11 +82,8 @@ function prepare(parts: SpokenPart[], options: ReadOptions) {
     })
     .slice(0, AHEAD);
   const keys = next.map((p) => aheadKey(p.piece, p.lang, p.server.voice));
-  for (const [key, asked] of ahead)
-    if (!keys.includes(key)) {
-      asked.abort.abort();
-      ahead.delete(key);
-    }
+  aheadFrom = parts[0];
+  letGoAhead(keys);
   next.forEach(({ piece, lang, server }, i) => {
     const key = keys[i] as string;
     if (ahead.has(key)) return;
@@ -97,10 +97,13 @@ function prepare(parts: SpokenPart[], options: ReadOptions) {
     asking = wav;
   });
 }
-/** Lets every piece asked for ahead go. */
-function letGoAhead() {
-  for (const asked of ahead.values()) asked.abort.abort();
-  ahead.clear();
+/** Lets the pieces asked for ahead go (their requests aborted), but those of `keep`. */
+function letGoAhead(keep: readonly string[] = []) {
+  for (const [key, asked] of ahead)
+    if (!keep.includes(key)) {
+      asked.abort.abort();
+      ahead.delete(key);
+    }
 }
 /** The read-aloud as the one thing playing: another medium starting stops it. */
 const asPlaying = { pause: () => stop() };
@@ -163,6 +166,14 @@ export async function read(
     return way ? pieces(text).map((piece) => ({ text: piece, lang, way })) : [];
   });
   if (!queue.length) return false;
+  // Another reading than the one asked for ahead (a word's "listen" while a text is listened to):
+  // what was asked for ahead goes, but its own pieces.
+  if (parts[0] !== aheadFrom)
+    letGoAhead(
+      queue.flatMap((p) =>
+        "server" in p.way ? [aheadKey(p.text, p.lang, p.way.server.voice)] : [],
+      ),
+    );
   const controller = new AbortController();
   let stopNow = () => {};
   const stopped = new Promise<void>((resolve) => {
@@ -320,13 +331,17 @@ export function useSpeaker() {
   /** The server's voice of a language: the profile's while it is there, else Piper's best or
    *  Qwen3-TTS's default speaker; `alt`: another of the language when there is one. */
   const serverVoice = (lang: string, alt?: Alt): string | undefined => {
-    /** Another voice than `main`: of the gender asked for (two women speaking: another woman's),
-     *  else of the other gender than main's where it is known, else the first. */
+    /** Another voice than `main`: of the gender asked for (two women speaking: another woman's; a
+     *  second: the next of it), else of the other gender than main's where it is known, else the
+     *  first. */
     const other = (kind: "piper" | "qwen", main: string, voices: readonly string[]) => {
       const others = voices.filter((v) => v !== main);
       const mine = voiceGender(kind, main);
-      const wanted = alt === "f" || alt === "m" ? alt : mine && (mine === "f" ? "m" : "f");
-      return (wanted && others.find((v) => voiceGender(kind, v) === wanted)) ?? others[0] ?? main;
+      const asked = typeof alt === "string" ? (alt[0] as Gender) : undefined;
+      const wanted = asked ?? (mine && (mine === "f" ? "m" : "f"));
+      const theirs = wanted ? others.filter((v) => voiceGender(kind, v) === wanted) : [];
+      const nth = alt === "f2" || alt === "m2" ? 1 : 0;
+      return theirs[nth] ?? theirs[0] ?? others[0] ?? main;
     };
     if (engine === "piper" && piper) {
       const own = chosen?.piper?.[lang];

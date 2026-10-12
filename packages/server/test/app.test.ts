@@ -3,8 +3,8 @@ import { describe, expect, test } from "bun:test";
 import { mkdtempSync, readFileSync, writeFileSync } from "node:fs";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
-import { FIXTURE_SERIES } from "@sprachanker/course-fixture";
-import { openLibrary } from "@sprachanker/course-kit";
+import { FIXTURE_SERIES, writeFixtureLibrary } from "@sprachanker/course-fixture";
+import { openLibrary, removeCourse } from "@sprachanker/course-kit";
 import { CLIENT_HEADERS, type LessonKey } from "@sprachanker/schema";
 import { ulid } from "ulid";
 import { directoryAssets, fileAssets } from "../src/runtime/bun.ts";
@@ -677,31 +677,46 @@ describe("course check and downloads", () => {
     });
   });
 
-  test("a course with a lesson under way is not removed; once that lesson is finished, it is", async () => {
-    const removed: string[] = [];
+  test("a course with a lesson under way is removed; the run waits for it (course_gone), its pass reads from snapshots, and the course downloaded again meets it", async () => {
+    let library = "";
     const installer: CourseInstaller = {
-      async remove(series, course) {
-        removed.push(`${series}/${course}`);
-        return { files: 1, bytes: 1 };
-      },
+      remove: (series, course) => removeCourse(library, series, course),
       offers: () => [],
       run: async () => ({ failedMedia: [], goneMedia: [], normalised: {} }),
       unfinished: async () => [],
       storage: async () => ({ dataRoot: "/data", series: [], free: 1 }),
     };
     const api = await setup({ installer });
-    const remove = () => api.send("DELETE", `/api/course?series=${FIXTURE_SERIES}&course=demo`, {});
+    library = join(api.root, "library");
     const body = { series: FIXTURE_SERIES, lessonKey: LESSON, edition: "ru-de" };
     const { run } = await api.sendJson("POST", "/api/runs", body);
-    const refused = await remove();
+    const shown = (pageIndex: number) => ({
+      events: [{ id: ulid(), type: "page_shown", payload: { pageIndex } }],
+    });
+    await api.sendJson("POST", `/api/runs/${run.id}/events`, shown(0));
+    expect(
+      (await api.send("DELETE", `/api/course?series=${FIXTURE_SERIES}&course=demo`, {})).status,
+    ).toBe(200);
+    // Its events and its end wait for the course: refused with a code the outbox keeps them for.
+    const later = shown(1);
+    const refused = await api.send("POST", `/api/runs/${run.id}/events`, later);
     expect(refused.status).toBe(409);
-    expect(await refused.json()).toMatchObject({ error: "course_in_use" });
-    expect(removed).toEqual([]);
-    await skipRest(api, run.id);
-    await readSteps(api, run.id);
-    await api.sendJson("POST", `/api/runs/${run.id}/finish`, {});
-    expect((await remove()).status).toBe(200);
-    expect(removed).toEqual([`${FIXTURE_SERIES}/demo`]);
+    expect(await refused.json()).toEqual({ error: "course_gone" });
+    const finish = await api.send("POST", `/api/runs/${run.id}/finish`, {});
+    expect(await finish.json()).toEqual({ error: "course_gone" });
+    // The lesson still opens on its run; the pass reads as it was shown.
+    const query = new URLSearchParams({ series: FIXTURE_SERIES, lessonKey: LESSON });
+    expect((await api.getJson(`/api/runs/lesson?${query}`)).state.run.id).toBe(run.id);
+    const pass = await api.getJson(`/api/notebook/passes/${run.id}`);
+    expect(pass.events[0].payload.snapshot.exercise.key).toBe(`${LESSON}/ex-01`);
+    // Downloaded again: the events kept are stored in the same run.
+    await writeFixtureLibrary(library);
+    await api.sendJson("POST", `/api/runs/${run.id}/events`, later);
+    const again = await api.getJson(`/api/runs/lesson?${query}`);
+    expect(again.state.events.map((e: { type: string }) => e.type)).toEqual([
+      "page_shown",
+      "page_shown",
+    ]);
   });
 
   test("without an installer nothing can be downloaded", async () => {

@@ -1,9 +1,10 @@
 // Installed course content for the API: course list, course map, lessons (each file's reading cached
 // while the file stays the same).
-import type { LibraryView } from "@sprachanker/course-kit/view";
+import { type LibraryView, NotInstalledError } from "@sprachanker/course-kit/view";
 import {
   type CourseIndex,
   type CourseSource,
+  courseKey,
   type Exam,
   type ExamKey,
   type ExamSources,
@@ -13,7 +14,9 @@ import {
   type LocaleExam,
   type LocaleLesson,
   lessonOrder,
+  type SeriesKey,
 } from "@sprachanker/schema";
+import { ServiceError } from "../errors.ts";
 import { createOnce } from "../once.ts";
 
 interface CourseSummary {
@@ -97,6 +100,20 @@ export function createContent(library: LibraryView) {
 
   return {
     lesson,
+    /** What a run going on reads of its course (`read`): refused `course_gone` (409) when its course
+     *  (`course`, the run's) is not on this computer any more — the run's events wait for it to be
+     *  downloaded again (05, "Sending"). */
+    async ofRun<T>(course: string | null, read: () => Promise<T>): Promise<T> {
+      try {
+        return await read();
+      } catch (error) {
+        const here = () =>
+          library.courses().some((c) => courseKey(c.series as SeriesKey, c.course) === course);
+        if (error instanceof NotInstalledError && course && !here())
+          throw new ServiceError("course_gone", 409);
+        throw error;
+      }
+    },
     localeLesson,
     courseIndex,
     localeCourse,

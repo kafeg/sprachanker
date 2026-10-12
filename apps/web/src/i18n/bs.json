@@ -78,7 +78,8 @@
     "checkAgain": "Provjeri ponovo",
     "complete": "Sve preuzeto",
     "next": "sljedeće: {where} — {title}",
-    "notInstalled": "Ovaj kurs nije (više) instaliran.",
+    "gone": "Ovog kursa više nema na ovom računaru — preuzmi ga ponovo da nastaviš.",
+    "examGone": "Ovog ispita više nema na ovom računaru — preuzmi ga ponovo da nastaviš.",
     "checkFiles": "Provjeri",
     "problem": {
       "missingMedia": "Nedostaje datoteka: {at}",
@@ -1281,6 +1282,7 @@
       "how": "Kako radi"
     },
     "listening": "Slušam…",
+    "heardLater": "Još nije prepoznato — tvoj snimak je sačuvan, a ono što je čuto stiže kasnije.",
     "notHeard": "Nije se moglo prepoznati; snimak se svejedno računa.",
     "heard": "Čuto:",
     "heardNothing": "ništa",
@@ -1316,7 +1318,7 @@
     "card_changed": "Ova kartica je promijenjena na drugom uređaju. Prikazuje se ponovo.",
     "downloads_unavailable": "Kursevi se ovdje ne mogu preuzimati.",
     "course_busy": "Ovaj kurs se upravo preuzima. Ukloni ga kad preuzimanje završi.",
-    "course_in_use": "Lekcija ili ispit ovog kursa još je u toku: završi ih (ili poništi napredak kursa) prije nego što ukloniš kurs.",
+    "course_gone": "Ovog kursa više nema na ovom računaru — preuzmi ga ponovo da nastaviš.",
     "empty_recording": "Snimak je prazan. Pokušaj ponovo.",
     "event_id_taken": "Ovaj odgovor je već drugačije zabilježen. Ponovo učitaj stranicu.",
     "event_of_another_run": "Ovaj zapis pripada drugom prolazu. Ponovo učitaj lekciju.",

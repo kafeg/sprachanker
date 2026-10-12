@@ -1,7 +1,8 @@
 // Whose voice it is (08; pure): a server voice's gender where it is known — Qwen3-TTS's named speakers,
 // Piper's voices by name (those whose speaker is known; a voice of several speakers, or one not known,
 // has none) — and a dialogue's speaker's by their name, only where it is obvious ("Frau Weber", "Nina",
-// "Jonas"); the second speaker of a dialogue is then the one the other voice suits.
+// "Jonas"); a dialogue's speakers are then read each by a voice of their gender.
+import type { Alt } from "./speak.ts";
 
 export type Gender = "f" | "m";
 
@@ -149,13 +150,22 @@ export function nameGender(name: string): Gender | undefined {
 }
 
 /**
- * Which of a dialogue's speakers the other voice reads: the one whose name says they are not of the
- * main voice's gender, while the other is (or is not known); else the second to speak.
+ * How a dialogue's two first speakers are read, by those another voice than the language's main one
+ * reads — each by a voice of their gender where their name says it (`true`: any other). The main
+ * voice reads the first whose gender is its own, else the first not known (its gender not known:
+ * the first to speak), the other speaker another voice; when both are of the other gender (two women,
+ * a man's main voice), neither: the first a voice of theirs, the second another one of it (`f2`).
  */
-export function otherSpeaker(speakers: string[], main: Gender | undefined): string | undefined {
+export function speakerVoices(speakers: string[], main: Gender | undefined): Record<string, Alt> {
   const [a, b] = speakers;
-  if (a === undefined || b === undefined) return undefined;
-  const [ga, gb] = [nameGender(a), nameGender(b)];
-  if (main && ga && ga !== main && gb !== ga) return a;
-  return b;
+  if (a === undefined || b === undefined) return {};
+  const genders = [nameGender(a), nameGender(b)];
+  const pair = [a, b];
+  const reads = main
+    ? (pair.find((_, i) => genders[i] === main) ?? pair.find((_, i) => !genders[i]))
+    : a;
+  const [ga, gb] = genders as [Gender, Gender];
+  if (reads === undefined) return { [a]: ga, [b]: gb === ga ? `${gb}2` : gb };
+  const other = reads === a ? b : a;
+  return { [other]: nameGender(other) ?? true };
 }

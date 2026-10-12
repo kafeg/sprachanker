@@ -8,8 +8,9 @@ import { mediaUrl } from "@/api/client.ts";
 import { useCourseMap, useLesson } from "@/api/courses.ts";
 import { useCourseEdition } from "@/api/edition.ts";
 import { ShuffleSeed } from "@/exercises/shared.tsx";
+import { CourseGone } from "@/library/course-gone.tsx";
 import { CourseMedia } from "@/ui/course-html.tsx";
-import { ErrorState, Loading, NotInstalled } from "@/ui/page.tsx";
+import { ErrorState, Loading } from "@/ui/page.tsx";
 import { TargetLang } from "@/ui/target-lang.ts";
 import { Episode } from "@/ui/video.tsx";
 import { useWindowPlace } from "@/ui/window-title.ts";
@@ -72,7 +73,7 @@ export function LessonPlayer({
           : t(`windowTitle.${step.kind}`),
   );
 
-  if (courses.isSuccess && !info) return <NotInstalled />;
+  if (courses.isSuccess && !info) return <CourseGone series={series} course={course} />;
   if (run.error) return <ErrorState error={run.error} onRetry={run.retry} />;
   if (
     data.isPending ||

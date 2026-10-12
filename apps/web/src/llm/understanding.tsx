@@ -14,7 +14,7 @@ import { useListening } from "@/audio/listening.ts";
 import { ReadByLabel } from "@/audio/read-by.tsx";
 import type { Alt, SpokenPart } from "@/audio/speak.ts";
 import { useSpeaker } from "@/audio/speaker.ts";
-import { type Gender, nameGender, otherSpeaker } from "@/audio/voice-genders.ts";
+import { type Gender, speakerVoices } from "@/audio/voice-genders.ts";
 import { languageName } from "@/i18n/index.ts";
 import type { LessonSlotContext } from "@/lesson/slots.ts";
 import {
@@ -45,25 +45,20 @@ const speakersOf = (text: UnderstandingText) => [
   ...new Set(text.lines.flatMap((l) => (l.speaker ? [l.speaker] : []))),
 ];
 
-/** The speaker the language's other voice reads — the one whose name says the main voice does not
- *  suit them, else the second to speak — and how: a voice of their gender where their name says it
- *  (two women: another woman's voice). */
-const otherOf = (
-  text: UnderstandingText,
-  main: Gender | undefined,
-): { speaker: string; alt: Alt } | undefined => {
-  const second = otherSpeaker(speakersOf(text), main);
-  return second === undefined ? undefined : { speaker: second, alt: nameGender(second) ?? true };
+/** The text as it is read aloud: a line each, its speaker's voice — by their gender where their
+ *  name says it (voice-genders' `speakerVoices`). */
+const partsOf = (text: UnderstandingText, lang: string, main: Gender | undefined): SpokenPart[] => {
+  const voices = speakerVoices(speakersOf(text), main);
+  return text.lines.map((l) => {
+    const alt = l.speaker === undefined ? undefined : voices[l.speaker];
+    return { text: l.text, lang, ...(alt !== undefined && { alt }) };
+  });
 };
 
-/** The text as it is read aloud: a line each, one speaker by the language's other voice. */
-const partsOf = (text: UnderstandingText, lang: string, main: Gender | undefined): SpokenPart[] => {
-  const other = otherOf(text, main);
-  return text.lines.map((l) => ({
-    text: l.text,
-    lang,
-    ...(other && l.speaker === other.speaker && { alt: other.alt }),
-  }));
+/** Which voices the label names: the main one and another, or two others (neither is the main's). */
+const twoOf = (text: UnderstandingText, main: Gender | undefined): Alt | [Alt, Alt] | false => {
+  const alts = Object.values(speakerVoices(speakersOf(text), main));
+  return alts.length === 2 ? [alts[0] as Alt, alts[1] as Alt] : (alts[0] ?? false);
 };
 
 /** The text to listen to: who reads it, play or pause, from the start, which line, how often heard. */
@@ -76,7 +71,7 @@ function Listen({ text, lang }: { text: UnderstandingText; lang: string }) {
   const going = listening.playing || listening.at > 0;
   return (
     <div className={cn(panelClass, "space-y-3 p-4")}>
-      <ReadByLabel lang={lang} two={otherOf(text, main)?.alt ?? false} />
+      <ReadByLabel lang={lang} two={twoOf(text, main)} />
       <div className="flex flex-wrap items-center gap-2">
         {listening.playing ? (
           <Button onClick={listening.pause}>

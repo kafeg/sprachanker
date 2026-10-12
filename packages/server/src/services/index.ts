@@ -4,7 +4,6 @@
 // is first used.
 import type { ApkgRuntime } from "@sprachanker/anki-export";
 import type { LibraryView } from "@sprachanker/course-kit/view";
-import { courseKey, type SeriesKey } from "@sprachanker/schema";
 import type { ProfileDb } from "../db/profile/db.ts";
 import type { ServerDb } from "../db/server/db.ts";
 import { secretBox } from "../security/secrets.ts";
@@ -227,7 +226,11 @@ function profileServices(
     courseTransfer,
     settings,
     speech: speechOfProfile,
-    recordings,
+    recordings: {
+      ...recordings,
+      /** A take nothing was heard in removed, unless an answer holds it. */
+      forget: (id: string) => recordings.forget(id, progress.recordingsInUse()),
+    },
     lessons,
     progress,
     exams,
@@ -274,28 +277,25 @@ export function createServices(config: ServicesConfig) {
     onEnd: () => {
       for (const s of open.values()) void relink(s);
     },
-    // Every profile's runs (one not opened yet too).
-    underWay: (series, course) =>
-      profiles.list().some((p) =>
-        createRunStore({
-          db: config.profiles.open(p.id),
-          now,
-          appVersion: config.appVersion,
-        }).underWay(courseKey(series as SeriesKey, course)),
-      ),
   });
   const decks = createDecks({
     files: config.decks,
     apkg: config.apkg,
-    // The profiles whose cards made from the deck keep it (a profile not opened yet too).
+    // The profiles whose cards made from the deck keep it (a profile not opened yet too); one whose
+    // cards do not read is counted as keeping it — logged, never failing the others.
     studiedBy: (id) =>
       profiles
         .list()
-        .filter((p) =>
-          createCardStore(config.profiles.open(p.id))
-            .all()
-            .some((n) => n.deck === `deck:${id}`),
-        )
+        .filter((p) => {
+          try {
+            return createCardStore(config.profiles.open(p.id))
+              .all()
+              .some((n) => n.deck === `deck:${id}`);
+          } catch (error) {
+            console.error(`profile ${p.id}: its cards do not read:`, error);
+            return true;
+          }
+        })
         .map((p) => p.name),
     // Cards follow their words in a deck imported again.
     onImport: () => {

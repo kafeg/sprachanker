@@ -71,14 +71,15 @@ export function createProfileSpeech(deps: {
 
     /** A WAV of a text read by the profile's engine on this computer — Qwen3-TTS when chosen, else
      *  Piper — with the voice chosen for its one language (or `voice`, to hear one: Settings'
-     *  "Listen") and speed. */
-    say(input: { text: string; lang: string; voice?: string }) {
+     *  "Listen") and speed. `signal`: the request gone — the reading stops unless another request
+     *  waits for it too. */
+    say(input: { text: string; lang: string; voice?: string }, signal?: AbortSignal) {
       const { text, lang } = input;
       const engine = settings.value("speech.readEngine") === "qwen" ? "qwen" : "piper";
       const chosen = input.voice ?? settings.value("speech.voices")?.[engine]?.[lang];
       if (engine === "piper")
-        return readAloud.say(text, lang, chosen, settings.value("speech.readRate"));
-      return qwenTts.say(text, lang, chosen, qwenModel());
+        return readAloud.say(text, lang, chosen, settings.value("speech.readRate"), true, signal);
+      return qwenTts.say(text, lang, chosen, qwenModel(), { signal });
     },
 
     /** The engine on this computer that reads a deck's words in `lang`, with its voice: the profile's

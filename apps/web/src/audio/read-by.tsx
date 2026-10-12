@@ -19,16 +19,18 @@ export function ReadByLabel({
 }: {
   lang: string;
   /** Read by two voices of the language where there are two (a dialogue's speakers): both named —
-   *  the second as its parts ask for it (`alt`). */
-  two?: Alt | false;
+   *  the main one and the other as its parts ask for it (`alt`), or two others (a pair: neither is
+   *  the main one's). */
+  two?: Alt | readonly [Alt, Alt] | false;
   className?: string;
 }) {
   const { t, i18n } = useTranslation();
   const speaker = useSpeaker();
   const [open, setOpen] = useState(false);
   if (speaker.asking) return null;
-  const by = speaker.readBy(lang);
-  const other = two ? speaker.readBy(lang, two)?.voice : undefined;
+  const [first, second] = Array.isArray(two) ? two : [undefined, two];
+  const by = speaker.readBy(lang, first);
+  const other = second ? speaker.readBy(lang, second)?.voice : undefined;
   const voices =
     by?.voice && other && other !== by.voice
       ? new Intl.ListFormat(i18n.language, { type: "conjunction" }).format([by.voice, other])

@@ -117,17 +117,27 @@ export function createDecks(deps: {
   }
 
   /** The decks here most of whose words a package holds, and that hold mostly its words: the one of
-   *  the same languages it updates (the same file imported in other language pairs is several). A
-   *  word is a note's (`notes`: their guids) or several notes' joined: the package's are counted as
-   *  joined (`words`), as a deck's are. */
-  const updatable = (notes: Array<{ guid: string }>, words: number) => {
-    const keys = new Set(notes.map((n) => n.guid));
+   *  the same languages it updates (the same file imported in other language pairs is several). Its
+   *  words are those an import in the deck's own languages makes (`deckWords`): the preview and the
+   *  import tell an update alike. */
+  const updatable = (apkg: Apkg) => {
+    const keys = new Set(apkg.notes.map((n) => n.guid));
+    const counted = new Map<string, number>();
+    const wordsIn = (d: Deck) => {
+      const pair = `${d.lang}>${d.translationLang}`;
+      const known = counted.get(pair);
+      if (known !== undefined) return known;
+      const notes = noteWords(apkg.notes, { lang: d.lang, translationLang: d.translationLang });
+      const n = deckWords(notes, apkg.notes.length, d.lang).words.length;
+      counted.set(pair, n);
+      return n;
+    };
     return files
       .ids()
       .flatMap((id) => deckOf(id) ?? [])
       .filter((d) => {
         const shared = d.words.filter((w) => keys.has(w.key)).length;
-        return shared * 2 > words && shared * 2 > d.words.length;
+        return shared * 2 > d.words.length && shared * 2 > wordsIn(d);
       });
   };
 
@@ -164,6 +174,69 @@ export function createDecks(deps: {
     return { groups: [...groups.values()], unusable };
   };
 
+  /**
+   * A package's notes (`notes`, of `total`) as a deck's words in `lang`: by lexeme, each word its
+   * notes joined — its first note's word, every note's translation ("с; в, от, прочь"), examples and
+   * tags, the first audio — as many of them as make one word together (joined one by one: a note that
+   * would not is left out alone, never the others with it), checked as a deck's word. What an import
+   * keeps, a preview counts, an update is told by. `pathOf`: where a sound is kept in the deck's folder
+   * (none: the words counted without their audio). Notes left out are counted by why: without a word,
+   * none a key can hold (unusable), joined to a word.
+   */
+  const deckWords = (
+    notes: NoteWord[],
+    total: number,
+    lang: Lang,
+    pathOf: (sound: string | undefined) => string | undefined = () => undefined,
+  ) => {
+    const { groups, unusable } = byLexeme(notes, lang);
+    const left = { withoutWord: total - notes.length, unusable, joined: 0 };
+    const words: DeckWord[] = [];
+    /** The notes each word is made of, in the words' order. */
+    const made: NoteWord[][] = [];
+    for (const { lexeme, notes: all } of groups) {
+      const wordOf = (same: NoteWord[]) => {
+        const [note] = same as [NoteWord];
+        const audio = same.map((n) => pathOf(n.sound)).find(Boolean);
+        const examples = same
+          .flatMap((n) => n.examples ?? [])
+          .filter((e, i, list) => list.findIndex((x) => x.sentence === e.sentence) === i)
+          .map((e) => {
+            const at = pathOf(e.sound);
+            return {
+              sentence: e.sentence,
+              ...(e.translation && { translation: e.translation }),
+              ...(at && { audio: at }),
+            };
+          });
+        const translation = [...new Set(same.flatMap((n) => n.translation ?? []))].join("; ");
+        return DeckWord.safeParse({
+          key: note.key,
+          target: note.target,
+          ...lexeme,
+          ...(translation && { translation }),
+          tags: [...new Set(same.flatMap((n) => n.tags))],
+          ...(audio && { audio }),
+          ...(examples.length && { examples }),
+        });
+      };
+      const same: NoteWord[] = [];
+      let word: DeckWord | undefined;
+      for (const note of all) {
+        const joined = wordOf([...same, note]);
+        if (!joined.success) continue;
+        same.push(note);
+        word = joined.data;
+      }
+      left.unusable += all.length - same.length;
+      if (!word) continue;
+      left.joined += same.length - 1;
+      words.push(word);
+      made.push(same);
+    }
+    return { words, made, left };
+  };
+
   /** What a preview says of a package: its deck's name, words (with audio the package holds, with
    *  examples) — its lexemes in the words' language as it would be imported —, the notes left out
    *  (without a word, unusable) or joined to a word, the languages its fields are named by, the first
@@ -178,7 +251,7 @@ export function createDecks(deps: {
         ),
       ),
     ];
-    const { groups, unusable } = byLexeme(words, (languages[0] ?? "de") as Lang);
+    const built = deckWords(words, apkg.notes.length, (languages[0] ?? "de") as Lang);
     const held = (sound: string | undefined) => !!sound && AUDIO.test(sound) && apkg.holds(sound);
     // The notes of the first words shown, each language's translations read from them.
     const shown = new Set(words.slice(0, PREVIEW_WORDS).map((w) => w.key));
@@ -191,14 +264,10 @@ export function createDecks(deps: {
     return {
       upload,
       title: apkg.deckName ?? "",
-      words: groups.length,
-      withAudio: groups.filter((g) => g.notes.some((n) => held(n.sound))).length,
-      withExamples: groups.filter((g) => g.notes.some((n) => n.examples?.length)).length,
-      left: {
-        withoutWord: apkg.notes.length - words.length,
-        unusable,
-        joined: words.length - unusable - groups.length,
-      },
+      words: built.words.length,
+      withAudio: built.made.filter((same) => same.some((n) => held(n.sound))).length,
+      withExamples: built.words.filter((w) => w.examples?.length).length,
+      left: built.left,
       languages,
       first: words.slice(0, PREVIEW_WORDS).map((w) => ({
         target: w.target,
@@ -209,7 +278,7 @@ export function createDecks(deps: {
           }),
         ) as Record<string, string>,
       })),
-      updates: updatable(apkg.notes, groups.length).map((d) => ({
+      updates: updatable(apkg).map((d) => ({
         id: d.id,
         title: d.title,
         lang: d.lang,
@@ -276,60 +345,9 @@ export function createDecks(deps: {
           ),
         );
         const pathOf = (sound: string | undefined) => (sound ? paths.get(sound) : undefined);
-        const words: DeckWord[] = [];
-        const keys = new Set<string>();
-        // Notes left out: without a word (noteWords leaves them out), or one that makes no entry —
-        // no lemma, a key too long, a note repeated; notes of a word already there joined to it: its
-        // first note's word, every note's translation ("с; в, от, прочь"), examples and tags, the
-        // first audio.
-        const { groups, unusable } = byLexeme(notes, request.lang);
-        const left = { withoutWord: apkg.notes.length - notes.length, unusable, joined: 0 };
-        for (const { lexeme, notes: all } of groups) {
-          const wordOf = (same: NoteWord[]) => {
-            const [note] = same as [NoteWord];
-            const audio = same.map((n) => pathOf(n.sound)).find(Boolean);
-            const examples = same
-              .flatMap((n) => n.examples ?? [])
-              .filter((e, i, list) => list.findIndex((x) => x.sentence === e.sentence) === i)
-              .map((e) => {
-                const at = pathOf(e.sound);
-                return {
-                  sentence: e.sentence,
-                  ...(e.translation && { translation: e.translation }),
-                  ...(at && { audio: at }),
-                };
-              });
-            const translation = [...new Set(same.flatMap((n) => n.translation ?? []))].join("; ");
-            return DeckWord.safeParse({
-              key: note.key,
-              target: note.target,
-              ...lexeme,
-              ...(translation && { translation }),
-              tags: [...new Set(same.flatMap((n) => n.tags))],
-              ...(audio && { audio }),
-              ...(examples.length && { examples }),
-            });
-          };
-          // A note that makes no word of its own is left out, not the word's other notes.
-          let same = all;
-          let word = wordOf(same);
-          if (!word.success) {
-            same = all.filter((n) => wordOf([n]).success);
-            word = same.length ? wordOf(same) : word;
-            if (!word.success && same.length) {
-              same = same.slice(0, 1);
-              word = wordOf(same);
-            }
-          }
-          if (!word.success) {
-            left.unusable += all.length;
-            continue;
-          }
-          left.unusable += all.length - same.length;
-          left.joined += same.length - 1;
-          for (const n of same) keys.add(n.key);
-          words.push(word.data);
-        }
+        const built = deckWords(notes, apkg.notes.length, request.lang, pathOf);
+        const { words, left } = built;
+        const keys = new Set(built.made.flatMap((same) => same.map((n) => n.key)));
         if (!words.length) throw new ServiceError("deck_without_words", 422);
         // Paths of sounds the package does not hold are dropped from the words.
         const soundAt = new Map([...paths].map(([sound, path]) => [path, sound]));
@@ -355,7 +373,7 @@ export function createDecks(deps: {
             yield out;
           }
         }
-        const same = updatable(apkg.notes, words.length).find(
+        const same = updatable(apkg).find(
           (d) => d.lang === request.lang && d.translationLang === request.translationLang,
         );
         const id = same?.id ?? (await newId(request.title, [...keys], files.ids()));

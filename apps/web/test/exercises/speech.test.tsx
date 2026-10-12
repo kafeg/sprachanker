@@ -326,11 +326,11 @@ async function recordTake(view: Awaited<ReturnType<typeof renderApp>>) {
   });
 }
 
-test("a take the server heard nothing in is neither kept nor the answer; the lines to say go with it; a loudness not measured is the server's to judge", async () => {
+test("a take the server heard nothing in is no answer, its recording (kept while heard) forgotten; the lines to say go with it; a loudness not measured is the server's to judge", async () => {
   setSecure(true);
   for (const level of [0.2, 0]) {
     const mic = microphone(level);
-    const done = { saved: 0, answers: 0, expected: [] as unknown[] };
+    const done = { saved: 0, forgot: [] as string[], answers: 0, expected: [] as unknown[] };
     const view = await renderApp(
       <SpeechProvider
         value={{
@@ -339,6 +339,7 @@ test("a take the server heard nothing in is neither kept nor the answer; the lin
             done.saved++;
             return "01K00000000000000000000000";
           },
+          forget: (id) => void done.forgot.push(id),
           transcribe: async (_take, _lang, expected) => {
             done.expected.push(expected);
             return "";
@@ -358,7 +359,12 @@ test("a take the server heard nothing in is neither kept nor the answer; the lin
     await recordTake(view);
     expect(view.getByText(/^Nothing was heard/)).toBeTruthy();
     expect(view.queryByRole("button", { name: /^Mine/ })).toBeNull();
-    expect(done).toEqual({ saved: 0, answers: 0, expected: [["Danke!", "Danke schön!"]] });
+    expect(done).toEqual({
+      saved: 1,
+      forgot: ["01K00000000000000000000000"],
+      answers: 0,
+      expected: [["Danke!", "Danke schön!"]],
+    });
     view.unmount();
     mic.restore();
   }
@@ -423,5 +429,98 @@ test("Next pressed while a take is heard: the take is still the item's answer", 
   view.unmount();
   await act(async () => heard("Guten Tag"));
   expect(answers).toEqual([{ recording: "01K00000000000000000000000", transcript: "Guten Tag" }]);
+  mic.restore();
+});
+
+/** A host whose hearing ends when the test says (`hear`), waited for 20 ms before a take counts. */
+function slowHost(saved: string[] = []) {
+  let hear = (_: string | Error) => {};
+  const forgot: string[] = [];
+  const value = {
+    ...host(),
+    hearingMs: 20,
+    save: async () => {
+      saved.push("take");
+      return "01K00000000000000000000000";
+    },
+    forget: (id: string) => void forgot.push(id),
+    transcribe: () =>
+      new Promise<string>((resolve, reject) => {
+        hear = (r) => (typeof r === "string" ? resolve(r) : reject(r));
+      }),
+  };
+  return { value, forgot, hear: (r: string | Error) => hear(r) };
+}
+const later = () => act(() => new Promise((r) => setTimeout(r, 40)));
+
+test("hearing slow: the take counts kept at once, not heard yet; what was heard follows as its answer", async () => {
+  setSecure(true);
+  const mic = microphone(0.2);
+  const answers: unknown[] = [];
+  const slow = slowHost();
+  const view = await renderApp(
+    <SpeechProvider value={slow.value}>
+      <TargetLang value="de">
+        <SpeechSelfrate
+          item={item}
+          answer={undefined}
+          onAnswer={(a) => answers.push(a)}
+          url={(p) => p}
+        />
+      </TargetLang>
+    </SpeechProvider>,
+  );
+  await recordTake(view);
+  await later();
+  expect(answers).toEqual([{ recording: "01K00000000000000000000000" }]);
+  expect(view.getByText(/^Not heard yet/)).toBeTruthy();
+  await act(async () => slow.hear("Guten Tag"));
+  expect(answers).toEqual([
+    { recording: "01K00000000000000000000000" },
+    { recording: "01K00000000000000000000000", transcript: "Guten Tag" },
+  ]);
+  expect(view.queryByText(/^Not heard yet/)).toBeNull();
+  // Counted before it was heard: nothing heard in it later does not take its recording away.
+  await recordTake(view);
+  await later();
+  await act(async () => slow.hear(""));
+  expect(view.getByText(/^Nothing was heard/)).toBeTruthy();
+  expect(slow.forgot).toEqual([]);
+  expect(answers).toHaveLength(3);
+  view.unmount();
+  mic.restore();
+});
+
+test("a phrase that counts by its words waits to be heard; heard failing, its recording is forgotten", async () => {
+  setSecure(true);
+  const mic = microphone(0.2);
+  const answers: unknown[] = [];
+  const slow = slowHost();
+  const phrase = { key: item.key, text: "Guten Tag!" };
+  const view = await renderApp(
+    <SpeechProvider value={slow.value}>
+      <TargetLang value="de">
+        <SpeechRepeat
+          item={phrase}
+          answer={undefined}
+          onAnswer={(a) => answers.push(a)}
+          url={(p) => p}
+        />
+      </TargetLang>
+    </SpeechProvider>,
+  );
+  await recordTake(view);
+  await later();
+  expect(answers).toEqual([]);
+  expect(view.getByText(/^Not heard yet/)).toBeTruthy();
+  await act(async () => slow.hear("Guten Tag"));
+  expect(answers).toEqual([
+    { speech: { recording: "01K00000000000000000000000", transcript: "Guten Tag" } },
+  ]);
+  await recordTake(view);
+  await act(async () => slow.hear(new Error("engine")));
+  expect(answers).toHaveLength(1);
+  expect(slow.forgot).toEqual(["01K00000000000000000000000"]);
+  view.unmount();
   mic.restore();
 });

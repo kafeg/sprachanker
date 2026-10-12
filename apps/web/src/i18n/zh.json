@@ -78,7 +78,8 @@
     "checkAgain": "重新检查",
     "complete": "已全部下载",
     "next": "下一课：{where}——{title}",
-    "notInstalled": "此课程未安装（或已被移除）。",
+    "gone": "这门课程已不在这台电脑上——重新下载即可继续。",
+    "examGone": "这场考试已不在这台电脑上——重新下载即可继续。",
     "checkFiles": "检查",
     "problem": {
       "missingMedia": "文件缺失：{at}",
@@ -1281,6 +1282,7 @@
       "how": "使用说明"
     },
     "listening": "正在识别…",
+    "heardLater": "尚未识别——你的录音已保存，识别结果稍后显示。",
     "notHeard": "无法识别；但录音仍计入作答。",
     "heard": "识别结果：",
     "heardNothing": "无",
@@ -1316,7 +1318,7 @@
     "card_changed": "此卡片已在另一台设备上更改，现重新显示。",
     "downloads_unavailable": "此处无法下载课程。",
     "course_busy": "这门课程正在下载。下载结束后再删除。",
-    "course_in_use": "这门课程还有一节课或一场考试没有完成：先完成它（或重置这门课程的进度），再删除课程。",
+    "course_gone": "这门课程已不在这台电脑上——重新下载即可继续。",
     "empty_recording": "录音为空。请重试。",
     "event_id_taken": "此答案已以不同方式记录。请重新加载页面。",
     "event_of_another_run": "此记录属于另一轮学习。请重新加载本课。",

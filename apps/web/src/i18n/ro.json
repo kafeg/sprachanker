@@ -78,7 +78,8 @@
     "checkAgain": "Verifică din nou",
     "complete": "Totul descărcat",
     "next": "urmează: {where} — {title}",
-    "notInstalled": "Acest curs nu este (sau nu mai este) instalat.",
+    "gone": "Acest curs nu mai este pe acest calculator — descarcă-l din nou ca să continui.",
+    "examGone": "Acest examen nu mai este pe acest calculator — descarcă-l din nou ca să continui.",
     "checkFiles": "Verifică",
     "problem": {
       "missingMedia": "Fișier lipsă: {at}",
@@ -1281,6 +1282,7 @@
       "how": "Cum funcționează"
     },
     "listening": "Se ascultă…",
+    "heardLater": "Încă nerecunoscut — înregistrarea ta e păstrată; ce s-a auzit vine imediat.",
     "notHeard": "Nu s-a putut recunoaște nimic; înregistrarea contează oricum.",
     "heard": "Auzit:",
     "heardNothing": "nimic",
@@ -1316,7 +1318,7 @@
     "card_changed": "Acest card s-a schimbat pe alt dispozitiv. E afișat din nou.",
     "downloads_unavailable": "Cursurile nu pot fi descărcate aici.",
     "course_busy": "Acest curs se descarcă acum. Elimină-l după ce se termină descărcarea.",
-    "course_in_use": "O lecție sau un examen din acest curs este încă în desfășurare: termină-l (sau resetează progresul cursului) înainte de a elimina cursul.",
+    "course_gone": "Acest curs nu mai este pe acest calculator — descarcă-l din nou ca să continui.",
     "empty_recording": "Înregistrarea e goală. Încearcă din nou.",
     "event_id_taken": "Acest răspuns a fost deja înregistrat altfel. Reîncarcă pagina.",
     "event_of_another_run": "Această înregistrare aparține altei parcurgeri. Reîncarcă lecția.",

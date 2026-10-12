@@ -47,6 +47,9 @@ export const freePort = () =>
     });
   });
 
+/** How much of the end of an engine's stderr is kept. */
+const STDERR_KEPT = 4000;
+
 /** Engines run on a local port go with the server — on its exit and on the signals that stop it — so
  *  none is left holding a model in memory. Their pids are kept in `pidFile`, so those a server killed
  *  outright left are stopped when the next one starts. */
@@ -70,16 +73,23 @@ export function engineProcesses(pidFile: string) {
       stopAll();
       process.exit(0);
     });
-  /** Runs an engine, kept in the pid file while it runs. */
+  /** Runs an engine, kept in the pid file while it runs; the end of what it says on stderr kept (a
+   *  start that fails logs it). */
   return (args: string[]) => {
-    const proc = Bun.spawn(args, { stdout: "ignore", stderr: "ignore" });
+    const proc = Bun.spawn(args, { stdout: "ignore", stderr: "pipe" });
     running.set(proc.pid, proc);
     writePids();
     void proc.exited.then(() => {
       running.delete(proc.pid);
       writePids();
     });
-    return { exited: proc.exited, kill: () => proc.kill() };
+    let said = "";
+    void (async () => {
+      const decoder = new TextDecoder();
+      for await (const chunk of proc.stderr)
+        said = (said + decoder.decode(chunk, { stream: true })).slice(-STDERR_KEPT);
+    })().catch(() => {});
+    return { exited: proc.exited, kill: () => proc.kill(), stderr: () => said };
   };
 }
 

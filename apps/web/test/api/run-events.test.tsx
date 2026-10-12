@@ -3,7 +3,21 @@ import type { TypedEvent } from "@sprachanker/schema";
 import { QueryClient } from "@tanstack/react-query";
 import { act, render } from "@testing-library/react";
 import { StrictMode, useMemo } from "react";
+import { ApiError, refusedByServer } from "../../src/api/client.ts";
 import { runOutbox, type Stored, useRunOutbox, withStored } from "../../src/api/run-events.ts";
+
+test("a run's events wait, not dropped, for a lost session, a busy server or a course removed; any other 4xx is a refusal", () => {
+  const waits = [
+    new ApiError("unauthorized", 401),
+    new ApiError("busy", 429),
+    new ApiError("course_gone", 409),
+    new ApiError("HTTP 502", 502),
+    new Error("offline"),
+  ];
+  expect(waits.map(refusedByServer)).toEqual([false, false, false, false, false]);
+  expect(refusedByServer(new ApiError("run_not_active", 409))).toBe(true);
+  expect(refusedByServer(new ApiError("no_such_item", 400))).toBe(true);
+});
 
 const answer = (id: string, attempt: number, outcome?: unknown) =>
   ({

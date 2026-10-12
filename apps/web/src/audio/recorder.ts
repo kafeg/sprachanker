@@ -117,17 +117,19 @@ export function useRecorder({
     // Nothing plays into the take: a line read aloud, a recording, a video.
     stopPlayback();
     setState("starting");
+    // Made and resumed here, in the tap itself, before anything is awaited: iOS Safari runs an audio
+    // context only when it starts inside the user's gesture — the meter and the take's loudness need
+    // it running from the start (one still suspended leaves the loudest moment 0: the server judges).
+    let context: AudioContext | undefined;
     try {
+      context = new AudioContext();
+      void context.resume?.().catch(() => {});
       const device = micDevice.get();
       const stream = await navigator.mediaDevices.getUserMedia({
         audio: device ? { ...RAW, deviceId: { ideal: device } } : RAW,
       });
       const type = TYPES.find((t) => MediaRecorder.isTypeSupported(t));
       const recorder = new MediaRecorder(stream, type ? { mimeType: type } : undefined);
-      const context = new AudioContext();
-      // Made after an await, it may start suspended (iOS Safari): measured once it runs — not waited
-      // for, as it may never run without a tap; until then the take's loudest moment stays 0.
-      void context.resume?.().catch(() => {});
       const analyser = context.createAnalyser();
       analyser.fftSize = 512;
       context.createMediaStreamSource(stream).connect(analyser);
@@ -170,7 +172,8 @@ export function useRecorder({
       recorder.start();
       setState("recording");
     } catch (error) {
-      release();
+      if (session.current) release();
+      else void context?.close().catch(() => {});
       setState(
         error instanceof DOMException && error.name === "NotAllowedError" ? "denied" : "failed",
       );

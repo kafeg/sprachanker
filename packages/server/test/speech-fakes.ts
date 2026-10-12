@@ -15,9 +15,9 @@ export function piper(
   const said: Array<{ key: string; id: string; text: string; lengthScale: number }> = [];
   let key = "";
   const readings: ReadingCache = {
-    kept(k, produce) {
+    kept(k, produce, signal = new AbortController().signal) {
       key = k;
-      return produce();
+      return produce(signal);
     },
   };
   const downloaded: string[] = [];

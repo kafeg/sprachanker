@@ -4,17 +4,13 @@
 // learnt, read in that language (a text mixing languages is never read aloud, 08) and scored as the
 // share of its words heard (the spoken check's word diff). Seeded synthesis and Whisper make it repeat.
 // `bun run speech:check` (`SPEECH_LIMIT=n` for the first n texts).
-import { execFileSync, spawn } from "node:child_process";
-import { existsSync, mkdirSync, readFileSync, rmSync, writeFileSync } from "node:fs";
-import { homedir, tmpdir } from "node:os";
-import { join, resolve } from "node:path";
+import { readFileSync, writeFileSync } from "node:fs";
+import { join } from "node:path";
 import { wordDiff } from "@sprachanker/engine";
+import { checkRoot, speechApp, wav16k } from "./app.ts";
 
-const ROOT = join(tmpdir(), "sprachanker-speech");
-const MODELS = process.env.SPRACHANKER_MODELS ?? join(homedir(), "SprachAnker", "models");
+const ROOT = checkRoot("sprachanker-speech");
 const PORT = 4592;
-const BASE = `http://127.0.0.1:${PORT}`;
-const binary = resolve(import.meta.dirname, "../../apps/cli/dist/sprachanker");
 
 interface Text {
   lesson: string;
@@ -25,59 +21,6 @@ const corpus = JSON.parse(
   readFileSync(new URL("./corpus.json", import.meta.url), "utf8"),
 ) as Text[];
 const limit = Number(process.env.SPEECH_LIMIT ?? corpus.length);
-
-/** A WAV's PCM (16-bit mono) and rate. */
-function pcmOf(wav: Uint8Array) {
-  const view = new DataView(wav.buffer, wav.byteOffset, wav.byteLength);
-  let rate = 0;
-  for (let at = 12; at + 8 <= wav.length; ) {
-    const id = String.fromCharCode(...wav.subarray(at, at + 4));
-    const size = view.getUint32(at + 4, true);
-    if (id === "fmt ") rate = view.getUint32(at + 12, true);
-    if (id === "data")
-      return {
-        rate,
-        samples: new Int16Array(
-          wav.buffer.slice(wav.byteOffset + at + 8, wav.byteOffset + at + 8 + size),
-        ),
-      };
-    at += 8 + size + (size % 2);
-  }
-  throw new Error("no data in the WAV");
-}
-
-/** A 16 kHz WAV of the PCM (linear interpolation): what the recogniser takes. */
-function to16k(wav: Uint8Array): Uint8Array<ArrayBuffer> {
-  const { rate, samples } = pcmOf(wav);
-  const n = Math.floor((samples.length * 16000) / rate);
-  const out = new Int16Array(n);
-  for (let i = 0; i < n; i++) {
-    const x = (i * rate) / 16000;
-    const a = samples[Math.floor(x)] ?? 0;
-    const b = samples[Math.min(Math.floor(x) + 1, samples.length - 1)] ?? a;
-    out[i] = Math.round(a + (b - a) * (x - Math.floor(x)));
-  }
-  const head = new DataView(new ArrayBuffer(44));
-  const str = (at: number, s: string) => {
-    for (const [i, c] of [...s].entries()) head.setUint8(at + i, c.charCodeAt(0));
-  };
-  str(0, "RIFF");
-  head.setUint32(4, 36 + n * 2, true);
-  str(8, "WAVEfmt ");
-  head.setUint32(16, 16, true);
-  head.setUint16(20, 1, true);
-  head.setUint16(22, 1, true);
-  head.setUint32(24, 16000, true);
-  head.setUint32(28, 32000, true);
-  head.setUint16(32, 2, true);
-  head.setUint16(34, 16, true);
-  str(36, "data");
-  head.setUint32(40, n * 2, true);
-  const file = new Uint8Array(44 + n * 2);
-  file.set(new Uint8Array(head.buffer), 0);
-  file.set(new Uint8Array(out.buffer), 44);
-  return file;
-}
 
 /** The share of the reference's words heard (words heard joined or split count as said). */
 function heard(lang: string, reference: string, transcript: string) {
@@ -91,46 +34,14 @@ function heard(lang: string, reference: string, transcript: string) {
 }
 
 // The data root: the models cloned, nothing else.
-rmSync(ROOT, { recursive: true, force: true });
-mkdirSync(ROOT, { recursive: true });
-if (!existsSync(MODELS)) throw new Error(`no models at ${MODELS} (set SPRACHANKER_MODELS)`);
-execFileSync("cp", ["-c", "-R", MODELS, join(ROOT, "models")]);
-const server = spawn(binary, ["serve", "--port", String(PORT), "--data", ROOT], {
-  stdio: "ignore",
-  cwd: tmpdir(),
-});
+const app = await speechApp(ROOT, PORT);
 try {
-  for (let i = 0; i < 50 && !(await fetch(`${BASE}/api/health`).catch(() => undefined))?.ok; i++)
-    await new Promise((r) => setTimeout(r, 200));
-  const made = await fetch(`${BASE}/api/profiles`, {
-    method: "POST",
-    headers: { "content-type": "application/json", "x-sprachanker": "1" },
-    body: JSON.stringify({ name: "Speech" }),
-  });
-  const cookie = (made.headers.get("set-cookie") ?? "").split(";")[0] ?? "";
-  const headers = { "content-type": "application/json", "x-sprachanker": "1", cookie };
-  await fetch(`${BASE}/api/settings`, {
-    method: "PUT",
-    headers,
-    body: JSON.stringify({ key: "speech.readEngine", value: "qwen" }),
-  });
+  await app.set("speech.readEngine", "qwen");
 
   const rows: Array<{ t: Text; score: number; heardAs: string }> = [];
   for (const t of corpus.slice(0, limit)) {
     const lang = t.edition.split("-")[1] as string;
-    const res = await fetch(`${BASE}/api/speech/say`, {
-      method: "POST",
-      headers,
-      body: JSON.stringify({ text: t.text, lang }),
-    });
-    if (!res.ok) throw new Error(`say ${res.status}: ${t.text}`);
-    const wav = to16k(new Uint8Array(await res.arrayBuffer()));
-    const r = await fetch(`${BASE}/api/speech/transcribe?lang=${lang}`, {
-      method: "POST",
-      headers: { "content-type": "audio/wav", "x-sprachanker": "1", cookie },
-      body: wav,
-    });
-    const heardAs = ((await r.json()) as { text: string }).text;
+    const heardAs = (await app.transcribe(wav16k(await app.say(t.text, lang)), lang)).text;
     const score = heard(lang, t.text, heardAs);
     rows.push({ t, score, heardAs });
     console.log(`${t.edition}  ${`${Math.round(score * 100)}%`.padEnd(5)} ${t.text}`);
@@ -156,5 +67,5 @@ try {
     process.exitCode = 1;
   }
 } finally {
-  server.kill();
+  app.stop();
 }

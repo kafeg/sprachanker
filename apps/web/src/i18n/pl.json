@@ -78,7 +78,8 @@
     "checkAgain": "Sprawdź ponownie",
     "complete": "Wszystko pobrane",
     "next": "dalej: {where} — {title}",
-    "notInstalled": "Ten kurs nie jest (już) zainstalowany.",
+    "gone": "Tego kursu nie ma już na tym komputerze — pobierz go ponownie, aby kontynuować.",
+    "examGone": "Tego egzaminu nie ma już na tym komputerze — pobierz go ponownie, aby kontynuować.",
     "checkFiles": "Sprawdź",
     "problem": {
       "missingMedia": "Brak pliku: {at}",
@@ -1281,6 +1282,7 @@
       "how": "Jak to działa"
     },
     "listening": "Słucham…",
+    "heardLater": "Jeszcze nie rozpoznano — twoje nagranie jest zapisane; to, co usłyszano, pojawi się za chwilę.",
     "notHeard": "Nie udało się rozpoznać; nagranie i tak się liczy.",
     "heard": "Usłyszano:",
     "heardNothing": "nic",
@@ -1316,7 +1318,7 @@
     "card_changed": "Ta fiszka zmieniła się na innym urządzeniu. Jest pokazana ponownie.",
     "downloads_unavailable": "Tutaj nie można pobierać kursów.",
     "course_busy": "Ten kurs właśnie się pobiera. Usuń go, gdy pobieranie się skończy.",
-    "course_in_use": "Lekcja lub egzamin z tego kursu jest wciąż w toku: dokończ go (albo zresetuj postępy w kursie), zanim usuniesz kurs.",
+    "course_gone": "Tego kursu nie ma już na tym komputerze — pobierz go ponownie, aby kontynuować.",
     "empty_recording": "Nagranie jest puste. Spróbuj ponownie.",
     "event_id_taken": "Ta odpowiedź została już zapisana inaczej. Wczytaj stronę ponownie.",
     "event_of_another_run": "Ten wpis należy do innego podejścia. Wczytaj lekcję ponownie.",

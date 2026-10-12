@@ -30,7 +30,8 @@ export const ERROR_CODES = [
   "not_offered",
   "downloads_unavailable",
   "course_busy",
-  "course_in_use",
+  // A run whose course is not on this computer any more: its events wait for it (05, "Sending").
+  "course_gone",
   "lesson_not_in_series",
   // A course bundle: exported, imported (02, "Course bundle").
   "course_export_gone",

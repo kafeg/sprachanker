@@ -3,8 +3,9 @@
 // `gate` is what to show — loading, an error, or that it is not installed.
 import { useEdition } from "@/api/edition.ts";
 import { type ExamRow, useExamPage, useExams } from "@/api/exams.ts";
+import { CourseGone } from "@/library/course-gone.tsx";
 import { type ExamParams, examKeyOf } from "@/library/exam-address.ts";
-import { ErrorState, Loading, NotInstalled } from "@/ui/page.tsx";
+import { ErrorState, Loading } from "@/ui/page.tsx";
 
 type PageData = NonNullable<ReturnType<typeof useExamPage>["data"]>;
 
@@ -26,7 +27,12 @@ export function useExam(params: ExamParams): ExamData {
       ready: false,
       gate: <ErrorState error={exams.error} onRetry={() => exams.refetch()} />,
     };
-  if (exams.isSuccess && !row) return { key, ready: false, gate: <NotInstalled /> };
+  if (exams.isSuccess && !row)
+    return {
+      key,
+      ready: false,
+      gate: <CourseGone series={params.series} course={params.course} kind="exam" />,
+    };
   if (page.isError)
     return {
       key,

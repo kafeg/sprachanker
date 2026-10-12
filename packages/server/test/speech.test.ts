@@ -169,24 +169,31 @@ test("speech: a silent take is nothing heard, the engine not asked; what Whisper
   const word = wav(quiet, { ms: 60, amplitude: 0.007 }, quiet);
   expect(await hear(word, " Ich.")).toEqual({ text: "Ich.", silent: false, asked: 1 });
 
-  // Near-silent (never above -36.5 dBFS, under 250 ms as loud as speech): Whisper's "thank you"
-  // dropped — unless it is the line to say.
+  // Near-silent (never above -36.5 dBFS, under 250 ms as loud as speech): Whisper's "thank you" it
+  // is unsure of dropped — unless it is the line to say; one it is sure of, or only a little unsure
+  // of (a learner's accent), kept.
   const faint = wav(quiet, { ms: 200, amplitude: 0.018 }, quiet);
-  expect(await hear(faint, " Danke.")).toEqual(nothing(1));
-  expect((await hear(faint, " Danke.", { expect: ["Danke!", "Bitte!"] })).text).toBe("Danke.");
-  // Said at a normal level, "Danke." and "Tschüss." are kept (Whisper sure of them).
+  expect(await hear(faint, " Danke.", { logprob: -0.6 })).toEqual(nothing(1));
+  const line = { logprob: -0.6, expect: ["Danke!", "Bitte!"] };
+  expect((await hear(faint, " Danke.", line)).text).toBe("Danke.");
+  expect((await hear(faint, " Danke.", { logprob: -0.01 })).text).toBe("Danke.");
+  expect((await hear(faint, " Tschüss.", { logprob: -0.5 })).text).toBe("Tschüss.");
+  // Said at a normal level, "Danke." and "Tschüss." are kept, Whisper unsure of them too.
   const spoken = wav(quiet, { ms: 400, amplitude: 0.1 }, quiet);
   expect((await hear(spoken, " Danke.", { logprob: -0.05 })).text).toBe("Danke.");
-  expect((await hear(spoken, " Tschüss.")).text).toBe("Tschüss.");
-  // Steady noise (pink, hum) heard as "Vielen Dank." dropped, and any word Whisper is unsure of in it;
-  // a loud tap heard as "Vielen Dank." with Whisper unsure of it too.
+  expect((await hear(spoken, " Tschüss.", { logprob: -0.7 })).text).toBe("Tschüss.");
+  // Steady noise (pink, hum) heard as "Vielen Dank." with Whisper unsure of it: dropped; any word it
+  // is unsure of in steady noise loud only briefly, too — in loud steady noise it may be quiet speech.
   const hum = wav({ ms: 3000, amplitude: 0.05 });
-  expect(await hear(hum, " Vielen Dank.")).toEqual(nothing(1));
-  expect(await hear(hum, " Spannungsgeladene", { logprob: -0.6 })).toEqual(nothing(1));
+  expect(await hear(hum, " Vielen Dank.", { logprob: -0.69 })).toEqual(nothing(1));
+  const hiss = wav({ ms: 3000, amplitude: 0.008 });
+  expect(await hear(hiss, " Spannungsgeladene", { logprob: -0.6 })).toEqual(nothing(1));
+  expect((await hear(hum, " Spannungsgeladene", { logprob: -0.6 })).text).toBe("Spannungsgeladene");
   expect((await hear(hum, " Ja.", { logprob: -0.1 })).text).toBe("Ja.");
   expect((await hear(spoken, " Spannungsgeladene", { logprob: -0.6 })).text).toBe(
     "Spannungsgeladene",
   );
+  // A loud tap heard as "Vielen Dank." with Whisper unsure of it.
   const tap = wav(quiet, { ms: 160, amplitude: 0.5 }, quiet);
   expect(await hear(tap, " Vielen Dank.", { logprob: -0.58 })).toEqual(nothing(1));
   // Credits at any loudness; sounds Whisper names, and punctuation alone.
@@ -213,5 +220,13 @@ test("speech: the engine is asked for verbose_json in the language given, never 
   const form = m.sent[0] as FormData;
   expect(form.get("response_format")).toBe("verbose_json");
   expect(form.get("language")).toBe("de");
-  expect([...form.keys()].sort()).toEqual(["file", "language", "response_format", "temperature"]);
+  // Without the languages detected: asked per request (an older engine ignores it), no flag.
+  expect(form.get("no_language_probabilities")).toBe("true");
+  expect([...form.keys()].sort()).toEqual([
+    "file",
+    "language",
+    "no_language_probabilities",
+    "response_format",
+    "temperature",
+  ]);
 });

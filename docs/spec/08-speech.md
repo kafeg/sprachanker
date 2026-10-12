@@ -51,26 +51,40 @@ off, its model, the engine, voice and speed reading aloud) are applied by `servi
 - **Silence is nothing heard**: Whisper makes up words for silence and noise ("Vielen Dank.",
   "Amen.", "Untertitelung des ZDF, 2020", "* Musik *"), while it hears a word said quietly (-45 dBFS)
   right. A take never louder than a quiet room (-50 dBFS; the recorder's loudest moment — 0 is
-  nothing measured, a suspended audio context: sent) is neither kept nor sent; the server does not ask
+  nothing measured, a suspended audio context: sent — the recorder makes and resumes its audio
+  context in the tap itself, before asking for the microphone, so iOS Safari runs it and the meter
+  shows from the start) is neither kept nor sent; the server does not ask
   the engine for a WAV with under 40 ms that loud, and of what it hears (`verbose_json`) drops
-  (`services/silence.ts`): the sounds it names (`*…*`, `[…]`, `(…)`) and punctuation alone; credits
-  (`Untertitel…`, `ZDF…`, `Subtitles by…`) at any loudness; a phrase it makes up of silence in that
-  language (`services/hallucinations.json`) when the take is near-silent (never above -36.5 dBFS and
-  under 0.25 s above -40 dBFS), steady (its 20 ms levels varying under 4 dB, the loudest under 10 dB
-  above the middle one: noise, hum — and quiet speech in noise, so only doubt) or Whisper unsure of it
-  (a segment's mean log probability under -0.4: said aloud they measured above -0.2, made up of a tap
-  or noise below -0.55); anything it is unsure of in a steady take ("Spannungsgeladene" of hiss) —
-  unless it is one of the lines the learner was to say (sent with the take as `expect`, never given to
-  the recogniser; a phrase said below about -37 dBFS is dropped without it).
+  (`services/silence.ts`): the sounds it names (`*…*`, `[…]`, `(…)`, `♪…♪`) when they are all of it or
+  stand apart before or after what was said (parentheses inside a sentence stay), and punctuation
+  alone; credits (`Untertitel im Auftrag…`, `Untertitelung des…`, `Subtitles by…`: long stems and
+  whole known lines, so "Untertitel sind gut." stays) at any loudness — one after what was said is
+  cut off ("Ich heiße Anna. Untertitel im Auftrag des ZDF, 2020" → "Ich heiße Anna."); a phrase it
+  makes up of silence in that language (`services/hallucinations.json`) when the take is steady (its
+  20 ms levels varying under 4 dB, the loudest under 10 dB above the middle one: noise, hum — Whisper
+  makes "Amen." of -42 dBFS noise as sure of it as of a word said), or when Whisper is unsure of it (a
+  segment's mean log probability under -0.55) and the take is near-silent (never above -36.5 dBFS and
+  under 0.25 s above -40 dBFS) or loud only briefly (under 0.2 s above -40 dBFS: a tap); anything it is
+  unsure of in a steady take loud only briefly ("Spannungsgeladene" of hiss) — unless it is one of the
+  lines the learner was to say (sent with the take as `expect`, never given to the recogniser). Being
+  unsure alone drops nothing: a learner's accent makes Whisper less sure of a real "Danke." (owner,
+  2026-10-12); course speakers and both voices measured above -0.36, a tap's "Vielen Dank." -0.58.
+  The log probabilities are whisper.cpp's own (`avg_logprob`: the non-special tokens' log
+  probabilities summed, over all the segment's tokens, special ones counted): every threshold here is
+  measured again with `bun run speech:levels` (10) whenever `native/whisper/VERSION` changes.
   Nothing heard is `{ text: "", silent: true }`: the take is not kept nor the item's answer, nor a
   Dialogue's line, and the learner is asked to say it again ("Nothing was heard"). Whisper's
   `no_speech_prob` is 0 for silence too (whisper.cpp 1.9.5, large-v3-turbo); its own voice activity
-  detection needs a model of its own to download; neither used. Measured (owner's M2 Pro): human course
-  recordings, Piper and Qwen3-TTS at ×1, ×0.3, ×0.18 kept; silence, room noise, breathing, hum,
-  white and pink noise heard as nothing.
-- **A take is heard first**, then kept: one nothing was heard in leaves no recording. Hearing and
-  keeping it both failing, an earlier answer stays. Moving on while a take is heard ("Listening…"),
-  the take is still the item's answer when heard.
+  detection needs a model of its own to download; neither used. Measured (owner's M2 Pro,
+  2026-10-12): human course recordings, Piper and Qwen3-TTS at ×1, ×0.3, ×0.18 and ×0.1 (to -39 dBFS)
+  all kept, short answers ("Danke.", "Tschüss.") too; of 136 takes of silence, room noise, breathing,
+  hum, white and pink noise and a tap, one heard as a word ("So." of -38 dBFS noise).
+- **A take is kept and heard at once**, side by side: one nothing was heard in is no answer, and its
+  recording is forgotten (`DELETE /api/recordings/:id`, refused while an answer holds it), as is a
+  Dialogue line's not heard and a phrase's that counts by its words. Hearing taking over 15 s, the take
+  counts as kept — "Not heard yet" — and what was heard follows as its answer when it comes (a phrase
+  that counts by its words waits for it). Hearing and keeping it both failing, an earlier answer stays.
+  Moving on while a take is heard ("Listening…"), the take is still the item's answer when heard.
 - Measured on the owner's M2 Pro (large-v3-turbo q5_0, Metal): a 3–4 s phrase in 0.7 s warm, 1.2 s
   the first time.
 
@@ -126,10 +140,15 @@ writes (owner, 2026-10-08).
   of the other gender than the main voice's, where the server's voices say theirs (Qwen3-TTS's
   speakers, Piper's voices by name: `audio/voice-genders.ts`), else Piper's next installed voice of it, Qwen3-TTS's next
   speaker, the device's next best voice —, else by the same one; which speaker that is, by their names
-  only where obvious ("Frau Weber", "Nina": the one the main voice does not suit), else the second to
-  speak; the line playing and the next two asked of the server ahead, one after another, so the next
+  only where obvious ("Frau Weber", "Nina"): the main voice reads the first speaker of its gender,
+  else the first not known (its gender not known: the first to speak), and when both are of the other
+  gender (two women, a man's main voice) neither — each a voice of hers, the second another one of it
+  (owner, 2026-10-12); the line playing and the next two asked of the server ahead, one after another, so the next
   is ready when one ends — no more (the engine says one at a time: more would only wait), and those
-  not read let go (their requests aborted) when it is paused, stopped or left; a line the server reads is kept in its reading cache, so hearing it again
+  not read let go (their requests aborted) when it is paused, stopped, left or another reading starts
+  (a word's "Listen") — the server stops
+  making a reading no request waits for any more (Piper's run killed, Qwen3-TTS's request aborted);
+  one another request waits for is made; a line the server reads is kept in its reading cache, so hearing it again
   makes nothing anew. A reading that waits for the server's voice longer than a moment (Qwen3-TTS
   loading its model: half a minute the first time) says so ("Starting the voice…"), on "Listen" in
   Settings too. Nothing here reading the language, the text is shown to read instead and the

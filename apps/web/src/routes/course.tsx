@@ -8,8 +8,9 @@ import { mediaUrl } from "@/api/client.ts";
 import { useCourseMap } from "@/api/courses.ts";
 import { useCourseEdition } from "@/api/edition.ts";
 import { CourseHero } from "@/courses/hero.tsx";
+import { CourseGone } from "@/library/course-gone.tsx";
 import { CourseMedia } from "@/ui/course-html.tsx";
-import { ErrorState, Loading, NotInstalled, Page } from "@/ui/page.tsx";
+import { ErrorState, Loading, Page } from "@/ui/page.tsx";
 import { cn } from "@/ui/utils.ts";
 import { useWindowPlace } from "@/ui/window-title.ts";
 
@@ -79,7 +80,7 @@ export function CoursePage({ series, course }: { series: string; course: string 
   const map = useCourseMap(series, course, edition);
   useWindowPlace(t("windowTitle.course"));
   if (courses.isPending) return <Loading />;
-  if (!info) return <NotInstalled />;
+  if (!info) return <CourseGone series={series} course={course} />;
   if (map.isPending) return <Loading />;
   if (map.isError) return <ErrorState error={map.error} onRetry={() => map.refetch()} />;
   const { index, locale, titles, lessons } = map.data;

@@ -78,7 +78,8 @@
     "checkAgain": "Verificar de novo",
     "complete": "Tudo baixado",
     "next": "próxima: {where} — {title}",
-    "notInstalled": "Este curso não está (mais) instalado.",
+    "gone": "Este curso não está mais neste computador — baixe-o de novo para continuar.",
+    "examGone": "Este exame não está mais neste computador — baixe-o de novo para continuar.",
     "checkFiles": "Verificar",
     "problem": {
       "missingMedia": "Arquivo ausente: {at}",
@@ -1281,6 +1282,7 @@
       "how": "Como funciona"
     },
     "listening": "Ouvindo…",
+    "heardLater": "Ainda não reconhecido — sua gravação foi guardada; o que foi ouvido vem em seguida.",
     "notHeard": "Não foi possível reconhecer; a gravação conta mesmo assim.",
     "heard": "Ouvido:",
     "heardNothing": "nada",
@@ -1316,7 +1318,7 @@
     "card_changed": "Este cartão mudou em outro dispositivo. Ele é mostrado de novo.",
     "downloads_unavailable": "Não é possível baixar cursos aqui.",
     "course_busy": "Este curso está sendo baixado. Remova-o quando o download terminar.",
-    "course_in_use": "Uma lição ou um exame deste curso ainda está em andamento: termine-o (ou redefina o progresso do curso) antes de remover o curso.",
+    "course_gone": "Este curso não está mais neste computador — baixe-o de novo para continuar.",
     "empty_recording": "A gravação está vazia. Tente de novo.",
     "event_id_taken": "Esta resposta já foi registrada de outra forma. Recarregue a página.",
     "event_of_another_run": "Este registro pertence a outra rodada. Recarregue a lição.",

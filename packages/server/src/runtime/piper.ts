@@ -47,7 +47,7 @@ export function piperHost(dataRoot: string): PiperHost {
       rmSync(join(voices, `${id}.part`), { recursive: true, force: true });
       rmSync(join(voices, `${id}.tar.bz2.part`), { force: true });
     },
-    async run({ binary, dir, id, text, lengthScale }) {
+    async run({ binary, dir, id, text, lengthScale, signal }) {
       // A folder per reading, gone after it: nothing to lose to a temp cleaner, nothing left behind.
       const out = mkdtempSync(join(tmpdir(), "sprachanker-piper-"));
       const wav = join(out, "reading.wav");
@@ -65,8 +65,14 @@ export function piperHost(dataRoot: string): PiperHost {
         { stdout: "ignore", stderr: "ignore" },
       );
       const timer = setTimeout(() => proc.kill(), RUN_MS);
+      // The request gone (and no other waiting for it): stopped.
+      const stop = () => proc.kill();
+      signal?.addEventListener("abort", stop, { once: true });
       try {
-        const code = await proc.exited.finally(() => clearTimeout(timer));
+        const code = await proc.exited.finally(() => {
+          clearTimeout(timer);
+          signal?.removeEventListener("abort", stop);
+        });
         if (code !== 0 || !existsSync(wav)) throw new Error(`reading aloud failed (${code})`);
         return new Uint8Array(await Bun.file(wav).arrayBuffer());
       } finally {

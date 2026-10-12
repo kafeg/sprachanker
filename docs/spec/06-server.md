@@ -72,7 +72,9 @@ JSON under `/api`, validated with zod and typed for the web client through Hono 
   models with downloads, languages, speakers and the default speaker), `POST` / `DELETE
   /api/speech/qwen/models/:id`, `POST /api/speech/qwen/warm`.
 - Recordings (08): `GET /api/recordings` (count and size), `POST /api/recordings` (the audio as the
-  body, its type in Content-Type), `GET /api/recordings/:id` (with ranges), `DELETE /api/recordings`.
+  body, its type in Content-Type), `GET /api/recordings/:id` (with ranges), `DELETE
+  /api/recordings/:id` (a take nothing was heard in, kept while it was heard: removed unless an answer
+  holds it), `DELETE /api/recordings`.
 - Notebook (09): `GET /api/notebook` (the study days with how much each module did, and every
   module's standing in one shape — schema `stats.ts`: review's decks, the lessons worked on by course,
   the exams with their latest mock exams), `GET /api/notebook/lesson?lessonKey=` (a lesson's passes),
@@ -107,7 +109,8 @@ JSON under `/api`, validated with zod and typed for the web client through Hono 
   and the translations' must differ); 404 `deck_upload_gone`; 422 `not_a_deck`, `deck_without_words`,
   `deck_unpacked_too_large`; 413 `deck_too_large`), `DELETE /api/decks/uploads/:upload` (an upload
   let go unimported: its sheet closed), `DELETE /api/decks/:id` (409 `deck_in_use` while any profile
-  has cards made from it; the offers name them: `studiedBy`, the profiles' names). An import asked again with its upload's id — at once, or after it ended
+  has cards made from it; the offers name them: `studiedBy`, the profiles' names — one whose cards
+  do not read counts as having them, logged, never failing the others). An import asked again with its upload's id — at once, or after it ended
   (within a day) — answers with the deck it made, so a retry after a dropped connection gets it. Bun
   takes bodies up to a course bundle's size (the largest); the deck's preview and import, a profile
   file's and a course bundle's import and download wait as long as they take, every
@@ -282,7 +285,10 @@ owner, no admin screens; server matters are the `sprachanker profiles` command's
   The runtime stops the engines with the server (exit and stop signals) and keeps their pids in
   `<data-root>/models/engines.pid`, so one left by a server killed outright is stopped when the
   next one starts. An engine stopped while it starts is not left running; an engine that fails a
-  request with its own failure is replaced on the next one.
+  request with its own failure is replaced on the next one. One that does not start (it exits, or
+  does not answer in time) is logged with the end of what it said on stderr. Options a request can
+  carry go with each request, not as flags (an older engine ignores a field it does not know; a flag
+  it does not know stops it).
 - One server per data root: `serve` makes `<data-root>/server.pid` (only where there is none, so two
   started at once cannot both have it) and refuses to start while the server named there runs — a
   live SprachAnker process, not another program given its pid after a restart; `profiles delete`
@@ -313,8 +319,8 @@ Built (`apps/cli/src/main.ts`): `serve [--data] [--host] [--port] [--allow-host]
 `courses export <series/course> [--editions] --to <file|folder>` and `courses import <file>` (02,
 "Course bundle"; also while a server runs on the data root: the series' import lock keeps them apart,
 and the server reads the files anew; an import whose verify finds problems exits 1), `courses remove
-<series/course>` (02, "Removing a course"; the API's `DELETE /api/course`, refused 409 `course_busy`
-while it downloads, `course_in_use` while a lesson or exam of it is under way) ·
+<series/course>` (02, "Removing a course"; the same removal as the API's `DELETE /api/course`, which
+is refused 409 `course_busy` while it downloads) ·
 `backup [--data] --to <folder>` (05, "Backups": `server.sqlite` and each
 `profile.sqlite` copied with `VACUUM INTO`, consistent while a server runs; the recordings, the
 imported decks and `<app-data>/secret.key`; into a new `sprachanker-backup-<date>-<time>` folder (the

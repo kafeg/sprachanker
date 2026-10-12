@@ -9,12 +9,19 @@
     "Bis zum nächsten Mal.",
     "Bis zum nächsten Mal. Tschüss.",
     "Das war's für heute.",
-    "Untertitel…",
-    "Untertitelung…",
-    "Copyright…",
-    "WDR…",
-    "SWR…",
-    "ZDF…"
+    "Okay.",
+    "Untertitel im Auftrag…",
+    "Untertitelung im Auftrag…",
+    "Untertitelung des…",
+    "Untertitel von Stephanie Geiges…",
+    "Untertitel der Amara.org-Community…",
+    "Copyright WDR…",
+    "Copyright SWR…",
+    "Copyright ZDF…",
+    "WDR 20…",
+    "SWR 20…",
+    "ZDF 20…",
+    "ZDF für funk…"
   ],
   "en": [
     "Thank you.",
@@ -24,32 +31,73 @@
     "Bye.",
     "You",
     "Amen.",
-    "Please subscribe…",
+    "Please subscribe to…",
     "Subtitles by…",
     "Transcription by…",
-    "Copyright…"
+    "Transcribed by…",
+    "Captions by…"
   ],
   "ru": [
     "Спасибо.",
     "Спасибо за внимание.",
     "Спасибо за просмотр.",
     "Продолжение следует…",
-    "Субтитры…",
+    "Субтитры сделал…",
+    "Субтитры делал…",
+    "Субтитры создавал…",
+    "Субтитры подготовил…",
     "Редактор субтитров…",
     "Аминь."
   ],
-  "uk": ["Дякую.", "Дякую за перегляд.", "Субтитри…", "Продовження буде…"],
-  "fr": ["Merci.", "Merci d'avoir regardé.", "Sous-titres…", "Sous-titrage…", "Amen."],
+  "uk": [
+    "Дякую.",
+    "Дякую за перегляд.",
+    "Субтитри зробив…",
+    "Субтитри створено…",
+    "Продовження буде…"
+  ],
+  "fr": [
+    "Merci.",
+    "Merci d'avoir regardé.",
+    "Sous-titres réalisés…",
+    "Sous-titres par…",
+    "Sous-titrage ST…",
+    "Sous-titrage Société Radio-Canada…",
+    "Amen."
+  ],
   "es": [
     "Gracias.",
     "Gracias por ver.",
     "Gracias por ver el video.",
-    "Subtítulos…",
-    "Suscríbete…",
+    "Subtítulos realizados por…",
+    "Subtítulos por…",
+    "Subtitulado por…",
+    "Suscríbete al canal…",
     "Amén."
   ],
-  "it": ["Grazie.", "Grazie per la visione.", "Sottotitoli…", "Amen."],
-  "pt": ["Obrigado.", "Obrigada.", "Obrigado por assistir.", "Legendas…", "Amém."],
-  "pl": ["Dziękuję.", "Dzięki za obejrzenie.", "Napisy stworzone…", "Amen."],
-  "nl": ["Dank je wel.", "Bedankt voor het kijken.", "Ondertiteling…", "Ondertiteld door…", "Amen."]
+  "it": [
+    "Grazie.",
+    "Grazie per la visione.",
+    "Sottotitoli creati…",
+    "Sottotitoli a cura di…",
+    "Sottotitoli e revisione…",
+    "Amen."
+  ],
+  "pt": [
+    "Obrigado.",
+    "Obrigada.",
+    "Obrigado por assistir.",
+    "Legendas pela comunidade…",
+    "Legendas por…",
+    "Amém."
+  ],
+  "pl": ["Dziękuję.", "Dzięki za obejrzenie.", "Napisy stworzone…", "Napisy wykonane…", "Amen."],
+  "nl": [
+    "Dank je wel.",
+    "Bedankt voor het kijken.",
+    "Ondertiteling door…",
+    "Ondertiteld door…",
+    "Ondertitels ingediend door…",
+    "Amen."
+  ]
 }

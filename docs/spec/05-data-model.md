@@ -178,7 +178,8 @@ parsed, and a stored row that no longer parses is left out (and logged), never b
   `api/run-events.ts`, the same for a lesson's and an exam's): a run's events go out in order, one
   queue per lesson or exam run, each event to the run it was recorded in (a batch never mixes two), idempotent
   by id. Not reached or a 5xx: sent again after 2 s, doubling up to a minute. A lost session (401), a
-  wrong host (421), 408 and 429 keep the events for later. Any other 4xx, or a run no longer there to
+  wrong host (421), 408, 429 and a run whose course is not on this computer any more (409
+  `course_gone`: removed, it may be downloaded again, 02) keep the events for later. Any other 4xx, or a run no longer there to
   send to: the batch is sent again event by event (the server keeps a batch whole or not), an event
   refused alone is dropped and the run is read again. A new event while it waits to retry sends at
   once. Each profile has its own queues: events of a profile signed out wait until it is back; the

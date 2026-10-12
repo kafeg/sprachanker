@@ -33,7 +33,8 @@
     "e2e": "bun run build:bin && bun run --filter @sprachanker/e2e e2e",
     "e2e:all": "E2E_ALL=1 bun run e2e",
     "e2e:real": "bun run build:bin && bun run --filter @sprachanker/e2e e2e:real",
-    "speech:check": "bun run build:cli && bun run --filter @sprachanker/e2e speech:check"
+    "speech:check": "bun run build:cli && bun run --filter @sprachanker/e2e speech:check",
+    "speech:levels": "bun run build:cli && bun run --filter @sprachanker/e2e speech:levels"
   },
   "devDependencies": {
     "@biomejs/biome": "2.5.15",

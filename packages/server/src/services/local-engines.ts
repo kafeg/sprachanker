@@ -48,18 +48,24 @@ export interface SpeechHost {
  *  text, hashed). */
 export interface ReadingCache {
   /** From the cache, else made by `produce` once (a second request for it waits for the first) and
-   *  kept. */
+   *  kept. A request whose `signal` aborts stops waiting; once every request waiting for it has, the
+   *  making is stopped (`produce`'s signal). */
   kept(
     key: string,
-    produce: () => Promise<Uint8Array<ArrayBuffer>>,
+    produce: (signal: AbortSignal) => Promise<Uint8Array<ArrayBuffer>>,
+    signal?: AbortSignal,
   ): Promise<Uint8Array<ArrayBuffer>>;
 }
 
-/** A reading kept when there is a cache, else made each time. */
+/** A reading kept when there is a cache, else made each time (stopped when `signal` aborts). */
 export const keptIn =
   (cache: ReadingCache | undefined) =>
-  (key: string, produce: () => Promise<Uint8Array<ArrayBuffer>>) =>
-    cache ? cache.kept(key, produce) : produce();
+  (
+    key: string,
+    produce: (signal: AbortSignal) => Promise<Uint8Array<ArrayBuffer>>,
+    signal: AbortSignal = new AbortController().signal,
+  ) =>
+    cache ? cache.kept(key, produce, signal) : produce(signal);
 
 /** What is offered with this id (a model, a voice); 404 when nothing is. */
 export function offered<T extends { id: string }>(list: readonly T[], id: string): T {

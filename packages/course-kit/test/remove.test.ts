@@ -1,10 +1,18 @@
 // A course removed from the library: its folders and the media no other course of its series names.
 import { expect, test } from "bun:test";
-import { cpSync, existsSync, mkdtempSync, readdirSync, readFileSync, writeFileSync } from "node:fs";
+import {
+  cpSync,
+  existsSync,
+  mkdirSync,
+  mkdtempSync,
+  readdirSync,
+  readFileSync,
+  writeFileSync,
+} from "node:fs";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
 import { NotInstalledError, openLibrary } from "../src/library.ts";
-import { removeCourse } from "../src/remove.ts";
+import { removeCourse, SERIES_LOCK } from "../src/remove.ts";
 import { MINI_AUDIO, MINI_SERIES, writeMiniLibrary } from "./mini-library.ts";
 
 test("a course removed: its folders, its copies and the media only it names go; media another course names, the key map and the other course stay", async () => {
@@ -79,7 +87,11 @@ test("the series' only course removed: no empty folder nor a media index naming 
     }),
   );
   writeFileSync(join(series, "keys.json"), "{}");
+  // The import lock and another process's, being taken (empty a moment): never touched.
+  mkdirSync(join(series, SERIES_LOCK));
+  writeFileSync(join(series, SERIES_LOCK, "pid"), "1");
+  mkdirSync(join(series, `${SERIES_LOCK}.4242-1`));
   await removeCourse(root, MINI_SERIES, "basic");
-  expect(readdirSync(series)).toEqual(["keys.json"]);
+  expect(readdirSync(series).sort()).toEqual([SERIES_LOCK, `${SERIES_LOCK}.4242-1`, "keys.json"]);
   expect(openLibrary(root).courses()).toEqual([]);
 });

@@ -22,7 +22,8 @@ src/
                      # build scripts —, where each is, their processes going with the server),
                      # model-files.ts (checked downloads into <data-root>/models), speech.ts
                      # (whisper-server and Qwen3-TTS's tts-server), piper.ts (Piper's voices and
-                     # runs), readings.ts (what was read aloud, kept in cache/tts);
+                     # runs), readings.ts (what was read aloud, kept in cache/tts; one asked twice
+                     # made once, stopped once no request waits for it);
                      # backup.ts (a copy of each database a day; a backup on request into a folder);
                      # transfers.ts (transfer folders: swept, room on the disk, a file received or
                      # saved, a zip streamed — course-kit's zip.ts); profile-transfer.ts (profile files
@@ -42,7 +43,7 @@ src/
     server/          # Drizzle schema + migrations for server.sqlite
     profile/         # Drizzle schema + migrations for profile.sqlite
     migrate.ts       # forward-only migrations, a copy before migrating (five kept), newer databases refused
-  once.ts            # one promise per key: a load, a reading, a hearing asked twice made once
+  once.ts            # one promise per key: a load, a hearing asked twice made once
   validate.ts        # request validation helper (input type for the client, output for the handler)
   errors.ts          # ServiceError(code, status): what a service refuses; errorResponse: how app.ts and
                      # routes/llm.ts answer it (and a request that does not validate)

@@ -41,8 +41,8 @@ export function useDownloadsWatch() {
     .join("|");
   useEffect(() => {
     if (!phases) return;
-    void client.invalidateQueries({ queryKey: ["courses"] });
-    void client.invalidateQueries({ queryKey: ["catalog"] });
+    for (const key of ["courses", "exams", "catalog"])
+      void client.invalidateQueries({ queryKey: [key] });
   }, [phases, client]);
   useEffect(() => {
     if (!ended) return;

@@ -65,7 +65,8 @@ export function speechRoutes() {
         }),
       ),
       async (c) => {
-        const wav = await c.var.s.speech.say(c.req.valid("json"));
+        // The request gone (a read-ahead let go), its reading stops unless another waits for it.
+        const wav = await c.var.s.speech.say(c.req.valid("json"), c.req.raw.signal);
         return c.body(wav, 200, { "content-type": "audio/wav", "cache-control": "no-store" });
       },
     )
