@@ -7,6 +7,7 @@ import { useInfiniteQuery, useMutation, useQuery, useQueryClient } from "@tansta
 import type { InferResponseType } from "hono/client";
 import { useEffect, useRef } from "react";
 import { withAttempt, withCheck, withReview, withScene, withText, withTurns } from "@/api/cache.ts";
+import { DECK_EXAMPLES } from "@/api/cards.ts";
 import { ApiError, api, apiError, errorOf, json } from "@/api/client.ts";
 
 export type ExplainRequest = Parameters<typeof api.llm.explain.$post>[0]["json"];
@@ -517,7 +518,7 @@ export type DeckExamplesState = InferResponseType<typeof api.decks.examples.$get
 export function useDeckExamples(scope: string, edition: string) {
   const client = useQueryClient();
   const query = useQuery({
-    queryKey: ["deck-examples", scope, edition],
+    queryKey: [DECK_EXAMPLES, scope, edition],
     queryFn: () => json(api.decks.examples.$get({ query: { scope, edition } })),
     refetchInterval: (q) => (writing(q.state.data) ? 2000 : false),
   });
@@ -536,7 +537,7 @@ export function useDeckExamples(scope: string, edition: string) {
 export function useDeckExamplesActions(scope: string, edition: string) {
   const client = useQueryClient();
   const onSuccess = (state: DeckExamplesState) =>
-    client.setQueryData(["deck-examples", scope, edition], state);
+    client.setQueryData([DECK_EXAMPLES, scope, edition], state);
   const cardsAgain = () => client.invalidateQueries({ queryKey: ["card-examples"] });
   return {
     start: useMutation({

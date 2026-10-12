@@ -4,7 +4,7 @@
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import type { InferResponseType } from "hono/client";
 import { useEffect, useRef } from "react";
-import { readCardsAgain } from "./cards.ts";
+import { DECK_AUDIO, readCardsAgain } from "./cards.ts";
 import { api, json, sendBinary } from "./client.ts";
 
 export const useImportedDecks = () =>
@@ -32,7 +32,7 @@ export function useImportDeck() {
     onSuccess: () =>
       Promise.all([
         client.invalidateQueries({ queryKey: ["imported-decks"] }),
-        client.invalidateQueries({ queryKey: ["deck-audio"] }),
+        client.invalidateQueries({ queryKey: [DECK_AUDIO] }),
         readCardsAgain(client),
       ]),
   });
@@ -50,7 +50,7 @@ export const reading = (state: DeckAudioState | undefined) =>
 export function useDeckAudio(scope: string) {
   const client = useQueryClient();
   const query = useQuery({
-    queryKey: ["deck-audio", scope],
+    queryKey: [DECK_AUDIO, scope],
     queryFn: () => json(api.decks.audio.$get({ query: { scope } })),
     refetchInterval: (q) => (reading(q.state.data) ? 1500 : false),
   });
@@ -68,7 +68,7 @@ export function useDeckAudio(scope: string) {
  *  shown. */
 export function useDeckAudioActions(scope: string) {
   const client = useQueryClient();
-  const onSuccess = (state: DeckAudioState) => client.setQueryData(["deck-audio", scope], state);
+  const onSuccess = (state: DeckAudioState) => client.setQueryData([DECK_AUDIO, scope], state);
   return {
     start: useMutation({
       mutationFn: (again?: boolean) =>

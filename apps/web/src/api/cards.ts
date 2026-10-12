@@ -30,9 +30,12 @@ export const useDecks = () =>
 export const useDeckOffers = () =>
   useQuery({ queryKey: ["deck-offers"], queryFn: () => json(api.cards.decks.offers.$get()) });
 
-/** What is made for a deck's words, counted over the words taken: their audio, their examples (the
- *  assistant's) — read anew when a deck's words are taken or left. */
-const DECK_MADE = ["deck-audio", "deck-examples"];
+/** The queries of what is made for a deck's words, counted over the words taken: their audio
+ *  (decks.ts) and their examples (the assistant's, llm/: so its folder can go, the key is here) —
+ *  read anew when a deck's words are taken or left. */
+export const DECK_AUDIO = "deck-audio";
+export const DECK_EXAMPLES = "deck-examples";
+const DECK_MADE = [DECK_AUDIO, DECK_EXAMPLES];
 
 /** Taking or leaving a deck (a course's or an imported one), and more new cards today: every card list
  *  is read anew, and what is made for the decks' words. */
