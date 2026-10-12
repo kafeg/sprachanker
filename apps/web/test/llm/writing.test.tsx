@@ -2,7 +2,7 @@
 // situation, three points and length, the words counted as typed; a check — the points covered, at
 // most three corrections, the criteria and a model text; earlier texts with the task they answered.
 import { expect, test } from "bun:test";
-import { fireEvent } from "@testing-library/react";
+import { fireEvent, waitFor } from "@testing-library/react";
 import type { WritingAttempt, WritingTaskShown } from "../../src/llm/api.ts";
 import { WritingTask } from "../../src/llm/writing.tsx";
 import { TargetLang } from "../../src/ui/target-lang.ts";
@@ -125,6 +125,29 @@ test("a check: the task's points as covered, the corrections, the criteria and a
   fireEvent.click(view.getByRole("button", { name: /Hallo Lena\./ }));
   expect(view.getByText("Older task.")).toBeTruthy();
   view.unmount();
+});
+
+test("a check that failed: said, with Try again asking it again as it was", async () => {
+  const sent: unknown[] = [];
+  const real = globalThis.fetch;
+  globalThis.fetch = (async (input: RequestInfo | URL, init?: RequestInit) => {
+    const request = input instanceof Request ? input : new Request(String(input), init);
+    sent.push(await request.json());
+    return Response.json({ error: "llm_unreachable" }, { status: 502 });
+  }) as typeof fetch;
+  try {
+    const view = await step({ task });
+    fireEvent.change(view.getByRole("textbox", { name: "Your text…" }), {
+      target: { value: "Hallo Lena." },
+    });
+    fireEvent.click(view.getByRole("button", { name: "Check" }));
+    const retry = await view.findByRole("button", { name: "Try again" });
+    fireEvent.click(retry);
+    await waitFor(() => expect(sent).toHaveLength(2));
+    expect(sent[1]).toMatchObject({ taskId: task.id, text: "Hallo Lena." });
+  } finally {
+    globalThis.fetch = real;
+  }
 });
 
 test("a check from before tasks had points: no points, no model text", async () => {

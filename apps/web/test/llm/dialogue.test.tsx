@@ -319,3 +319,37 @@ test("a Dialogue over without its summary offers to sum it up again", async () =
   expect(view.getByRole("button", { name: "Sum it up" })).toBeTruthy();
   view.unmount();
 });
+
+test("a Dialogue that could not begin: said, with Try again asking it again", async () => {
+  microphoneHere();
+  const asked: string[] = [];
+  const real = globalThis.fetch;
+  globalThis.fetch = (async (input: RequestInfo | URL, init?: RequestInit) => {
+    const request = input instanceof Request ? input : new Request(String(input), init);
+    asked.push(new URL(request.url).pathname);
+    return Response.json({ error: "llm_unreachable" }, { status: 502 });
+  }) as typeof fetch;
+  try {
+    const view = await renderApp(
+      <SpeechProvider value={host(true)}>
+        <TargetLang value="de">
+          <DialogueStep {...ids} />
+        </TargetLang>
+      </SpeechProvider>,
+      {
+        data: [
+          llm,
+          [["settings"], { "speech.readEngine": "piper" }],
+          [["piper-voices"], PIPER],
+          [["scenes", ids.lessonKey], { scenes: [], pending: null }],
+        ],
+      },
+    );
+    fireEvent.click(view.getByRole("button", { name: "Start a dialogue" }));
+    fireEvent.click(await view.findByRole("button", { name: "Try again" }));
+    await waitFor(() => expect(asked).toEqual(["/api/llm/scene/start", "/api/llm/scene/start"]));
+    view.unmount();
+  } finally {
+    globalThis.fetch = real;
+  }
+});
