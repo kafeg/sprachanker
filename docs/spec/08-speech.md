@@ -141,7 +141,9 @@ writes (owner, 2026-10-08).
   only where obvious ("Frau Weber", "Nina": the one the main voice does not suit), else the second to
   speak; the line playing and the next two asked of the server ahead, one after another, so the next
   is ready when one ends — no more (the engine says one at a time: more would only wait), and those
-  not read let go (their requests aborted) when it is paused, stopped or left; a line the server reads is kept in its reading cache, so hearing it again
+  not read let go (their requests aborted) when it is paused, stopped or left — the server stops
+  making a reading no request waits for any more (Piper's run killed, Qwen3-TTS's request aborted);
+  one another request waits for is made; a line the server reads is kept in its reading cache, so hearing it again
   makes nothing anew. A reading that waits for the server's voice longer than a moment (Qwen3-TTS
   loading its model: half a minute the first time) says so ("Starting the voice…"), on "Listen" in
   Settings too. Nothing here reading the language, the text is shown to read instead and the

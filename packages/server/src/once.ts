@@ -1,5 +1,5 @@
 // One promise per key: what is asked for again while it is being made gets the same promise (a model
-// loaded, a reading made, a recording heard, a lesson read), never a second one.
+// loaded, a recording heard, a lesson read), never a second one.
 
 /** Promises by key. Without `keep` one is forgotten once it settles (asked again later, made again);
  *  with it a success is kept — while its `stamp` stays the same — and only a failure forgotten. */

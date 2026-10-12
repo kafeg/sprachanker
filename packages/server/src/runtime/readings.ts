@@ -11,8 +11,8 @@ import {
   writeFileSync,
 } from "node:fs";
 import { join } from "node:path";
-import { createOnce } from "../once.ts";
 import type { ReadingCache } from "../services/local-engines.ts";
+import { untilAborted } from "../services/model-downloads.ts";
 import { removeParts } from "./model-files.ts";
 
 /** What was read aloud and kept: the newest this many (a few hours of replies). */
@@ -23,8 +23,12 @@ const PRUNE_EVERY = 100;
 export function readingCache(dataRoot: string): ReadingCache {
   const cache = join(dataRoot, "cache", "tts");
   removeParts(cache);
-  /** Readings being made, by key: a second request for the same one waits for it. */
-  const making = createOnce<Uint8Array<ArrayBuffer>>();
+  /** Readings being made, by key: a second request for the same one waits for it; the making stops
+   *  once no request waits any more. */
+  const making = new Map<
+    string,
+    { bytes: Promise<Uint8Array<ArrayBuffer>>; stop: AbortController; waiting: number }
+  >();
   let made = 0;
   /** Old readings go when there are too many (oldest first). */
   const prune = () => {
@@ -35,7 +39,7 @@ export function readingCache(dataRoot: string): ReadingCache {
     for (const { f } of files.slice(KEPT_READINGS)) rmSync(join(cache, f), { force: true });
   };
   return {
-    async kept(key, produce) {
+    async kept(key, produce, signal = new AbortController().signal) {
       const file = join(cache, `${key}.wav`);
       if (existsSync(file)) {
         try {
@@ -48,15 +52,34 @@ export function readingCache(dataRoot: string): ReadingCache {
           // Pruned meanwhile: made again.
         }
       }
-      return making(key, async () => {
-        const bytes = await produce();
-        mkdirSync(cache, { recursive: true });
-        const part = join(cache, `${key}.part`);
-        writeFileSync(part, bytes);
-        renameSync(part, file);
-        if (++made % PRUNE_EVERY === 0) prune();
-        return bytes;
-      });
+      let reading = making.get(key);
+      if (!reading) {
+        const stop = new AbortController();
+        const bytes = (async () => {
+          const bytes = await produce(stop.signal);
+          mkdirSync(cache, { recursive: true });
+          const part = join(cache, `${key}.part`);
+          writeFileSync(part, bytes);
+          renameSync(part, file);
+          if (++made % PRUNE_EVERY === 0) prune();
+          return bytes;
+        })();
+        reading = { bytes, stop, waiting: 0 };
+        const made_ = reading;
+        making.set(key, made_);
+        void bytes.catch(() => {}).finally(() => making.get(key) === made_ && making.delete(key));
+      }
+      const r = reading;
+      r.waiting++;
+      try {
+        return await untilAborted(r.bytes, signal);
+      } finally {
+        // Nobody waits for it any more: stopped, and a request after it makes it anew.
+        if (--r.waiting === 0 && signal.aborted) {
+          r.stop.abort();
+          if (making.get(key) === r) making.delete(key);
+        }
+      }
     },
   };
 }

@@ -232,7 +232,7 @@ export function createQwenTts(deps: {
       lang: string,
       choice: unknown,
       modelChoice?: unknown,
-      { keep = true } = {},
+      { keep = true, signal }: { keep?: boolean; signal?: AbortSignal } = {},
     ) {
       const model = inUse(modelChoice);
       if (!binary() || !model || !QWEN_LANGUAGES[lang])
@@ -240,7 +240,7 @@ export function createQwenTts(deps: {
       const language = QWEN_LANGUAGES[lang] as string;
       const speaker = speakerOf(choice);
       const key = await sha256(`qwen\n${model.id}\n${speaker}\n${language}\n${text}`);
-      const read = () =>
+      const read = (stop?: AbortSignal) =>
         engine.use(model.id, async (url) => {
           const res = await deps
             .fetch(`${url}/v1/audio/speech`, {
@@ -253,13 +253,15 @@ export function createQwenTts(deps: {
                 response_format: "wav",
                 seed: SEED,
               }),
-              signal: AbortSignal.timeout(SAY_MS),
+              signal: stop
+                ? AbortSignal.any([AbortSignal.timeout(SAY_MS), stop])
+                : AbortSignal.timeout(SAY_MS),
             })
             .catch(() => undefined);
           if (!res?.ok) throw new ServiceError("speech_engine_failed", 502);
           return new Uint8Array(await res.arrayBuffer());
         });
-      return keep ? kept(key, read) : read();
+      return keep ? kept(key, read, signal) : read(signal);
     },
   };
 }

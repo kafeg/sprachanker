@@ -87,6 +87,43 @@ test("a reading is made once however many ask for it together, then served from 
   expect(readdirSync(join(root, "cache", "tts"))).toEqual(["k1.wav"]);
 });
 
+test("a reading no request waits for any more is stopped; one another request still waits for is made", async () => {
+  const root = join(work, "root-abort");
+  const host = piperHost(root);
+  const readings = readingCache(root);
+  const runs = join(work, "runs-abort.txt");
+  const engine = join(work, "engine-abort.sh");
+  writeFileSync(
+    engine,
+    `#!/bin/sh\nfor a in "$@"; do case "$a" in --output-filename=*) out="\${a#--output-filename=}";; esac; text="$a"; done\nsleep 0.4\necho run >> "${runs}"\nprintf '%s' "$text" > "$out"\n`,
+  );
+  chmodSync(engine, 0o755);
+  const say = (key: string, signal: AbortSignal) =>
+    readings.kept(
+      key,
+      (stop) =>
+        host.run({ binary: engine, dir: work, id: ID, text: key, lengthScale: 1, signal: stop }),
+      signal,
+    );
+  // Two ask for it, one lets go: the other gets it.
+  const first = new AbortController();
+  const a = say("shared", first.signal);
+  const b = say("shared", new AbortController().signal);
+  first.abort();
+  await expect(a).rejects.toThrow("cancelled");
+  expect(new TextDecoder().decode(await b)).toBe("shared");
+  // The only one asking lets go: the engine is stopped, nothing kept; asked again, made anew.
+  const only = new AbortController();
+  const gone = say("alone", only.signal);
+  await new Promise((r) => setTimeout(r, 100));
+  only.abort();
+  await expect(gone).rejects.toThrow("cancelled");
+  await new Promise((r) => setTimeout(r, 500));
+  expect(readFileSync(runs, "utf8").trim().split("\n")).toHaveLength(1);
+  expect(readdirSync(join(root, "cache", "tts"))).toEqual(["shared.wav"]);
+  expect(new TextDecoder().decode(await say("alone", new AbortController().signal))).toBe("alone");
+});
+
 test("what a stopped server left is gone once one starts; a reading kept counts as new when used", async () => {
   const root = join(work, "root-leftovers");
   const cache = join(root, "cache", "tts");

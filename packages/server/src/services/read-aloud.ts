@@ -50,13 +50,15 @@ export interface PiperHost {
     signal: AbortSignal,
   ): Promise<void>;
   remove(id: string): void;
-  /** A WAV of `text` said by the voice at `lengthScale` (1: as recorded; larger: slower). */
+  /** A WAV of `text` said by the voice at `lengthScale` (1: as recorded; larger: slower); stopped
+   *  when `signal` aborts. */
   run(run: {
     binary: string;
     dir: string;
     id: string;
     text: string;
     lengthScale: number;
+    signal?: AbortSignal;
   }): Promise<Uint8Array<ArrayBuffer>>;
 }
 
@@ -120,16 +122,26 @@ export function createReadAloud(deps: { host?: PiperHost; readings?: ReadingCach
       host?.binary() ? voiceFor(lang, choice)?.id : undefined,
 
     /** A WAV of a text in a language, with the profile's voice and speed (0.5–1.5); kept in the
-     *  readings' cache unless `keep` is false (a deck's words: kept in the deck's folder instead). */
-    async say(text: string, lang: string, choice: unknown, rate: number, keep = true) {
+     *  readings' cache unless `keep` is false (a deck's words: kept in the deck's folder instead).
+     *  `signal`: the request gone — the reading stops unless another request waits for it too. */
+    async say(
+      text: string,
+      lang: string,
+      choice: unknown,
+      rate: number,
+      keep = true,
+      signal?: AbortSignal,
+    ) {
       const binary = host?.binary();
       const voice = voiceFor(lang, choice);
       const dir = voice && host?.voiceDir(voice.id);
       if (!host || !binary || !voice || !dir) throw new ServiceError("speech_unavailable", 409);
       const lengthScale = Math.round((1 / rate) * 100) / 100;
       const key = await sha256(`${voice.id}\n${lengthScale}\n${text}`);
-      const run = () => host.run({ binary, dir, id: voice.id, text, lengthScale });
-      return (keep ? kept(key, run) : run()).catch((error: unknown) => {
+      const run = (stop?: AbortSignal) =>
+        host.run({ binary, dir, id: voice.id, text, lengthScale, signal: stop });
+      return (keep ? kept(key, run, signal) : run(signal)).catch((error: unknown) => {
+        if (signal?.aborted) throw error;
         console.error("reading aloud:", error);
         throw new ServiceError("speech_engine_failed", 502);
       });
