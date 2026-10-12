@@ -30,11 +30,19 @@ export const useDecks = () =>
 export const useDeckOffers = () =>
   useQuery({ queryKey: ["deck-offers"], queryFn: () => json(api.cards.decks.offers.$get()) });
 
+/** What is made for a deck's words, counted over the words taken: their audio, their examples (the
+ *  assistant's) — read anew when a deck's words are taken or left. */
+const DECK_MADE = ["deck-audio", "deck-examples"];
+
 /** Taking or leaving a deck (a course's or an imported one), and more new cards today: every card list
- *  is read anew. */
+ *  is read anew, and what is made for the decks' words. */
 export function useDeckActions() {
   const client = useQueryClient();
-  const fresh = () => void readCardsAgain(client);
+  const fresh = () =>
+    void Promise.all([
+      readCardsAgain(client),
+      client.invalidateQueries({ predicate: (q) => DECK_MADE.includes(String(q.queryKey[0])) }),
+    ]);
   return {
     take: useMutation({
       mutationFn: (input: Parameters<typeof api.cards.decks.take.$post>[0]["json"]) =>
