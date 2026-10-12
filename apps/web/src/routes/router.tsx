@@ -201,21 +201,11 @@ const examsCatalog = createRoute({
 const exam = createRoute({
   getParentRoute: () => shell,
   path: "/exam/$series/$course/$exam",
-  // Asked from a card: begin a mock exam or practice at once (the state chosen first if need be).
-  validateSearch: (s: Record<string, unknown>): { start?: "test" | "practice" } =>
-    s.start === "test" || s.start === "practice" ? { start: s.start } : {},
 });
 exam.update({
   component: opening(ExamPage, function Exam() {
     const params = exam.useParams();
-    const { start } = exam.useSearch();
-    return (
-      <ExamPage
-        key={`${params.series}/${params.course}/${params.exam}`}
-        params={params}
-        start={start}
-      />
-    );
+    return <ExamPage key={`${params.series}/${params.course}/${params.exam}`} params={params} />;
   }),
 });
 const examCatalog = createRoute({

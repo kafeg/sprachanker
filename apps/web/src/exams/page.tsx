@@ -13,7 +13,7 @@ import {
 import type { ExamMode } from "@sprachanker/schema";
 import { Link, useNavigate } from "@tanstack/react-router";
 import { ArrowRight, BookOpenCheck, Dumbbell, Timer } from "lucide-react";
-import { useEffect, useRef, useState } from "react";
+import { useState } from "react";
 import { useTranslation } from "react-i18next";
 import { useStartExam } from "@/api/exams.ts";
 import { useSettings } from "@/api/settings.ts";
@@ -32,7 +32,7 @@ import { ExamSourcesPanel } from "./sources.tsx";
 import { StateSelect } from "./state-select.tsx";
 import { useExam } from "./use-exam.tsx";
 
-export function ExamPage({ params, start }: { params: ExamParams; start?: ExamMode }) {
+export function ExamPage({ params }: { params: ExamParams }) {
   const { t } = useTranslation();
   const navigate = useNavigate();
   const loaded = useExam(params);
@@ -43,9 +43,8 @@ export function ExamPage({ params, start }: { params: ExamParams; start?: ExamMo
   // An exam of modules: the whole of it, or one module (Goethe B1's are taken apart).
   const [module, setModule] = useState("");
 
-  /** Begins a run and opens it; begun from a card's `?start=`, the run takes this page's place in
-   *  the history, so Back does not begin another. */
-  const go = (mode: ExamMode, replace = false) => {
+  /** Begins a run and opens it. */
+  const go = (mode: ExamMode) => {
     if (!edition) return;
     begin.mutate(
       { exam: key, edition, mode, ...(module && { module }) },
@@ -54,7 +53,6 @@ export function ExamPage({ params, start }: { params: ExamParams; start?: ExamMo
           void navigate({
             to: "/exam/$series/$course/$exam/run/$run",
             params: { ...params, run: run.id },
-            replace,
           }),
       },
     );
@@ -62,14 +60,6 @@ export function ExamPage({ params, start }: { params: ExamParams; start?: ExamMo
   const setting = examSettings((k) => settings.data?.[k as keyof typeof settings.data]);
   // The settings still to choose, read from the settings as they are now (a state just chosen).
   const needs = loaded.data ? missingSettings(loaded.data.exam, setting) : [];
-  // Asked from a card (`?start=`): begun at once, unless the state is still to be chosen.
-  const asked = useRef(false);
-  useEffect(() => {
-    if (start && loaded.data && !needs.length && !asked.current) {
-      asked.current = true;
-      go(start, true);
-    }
-  });
 
   if (!loaded.ready) return loaded.gate;
   const { row, data } = loaded;

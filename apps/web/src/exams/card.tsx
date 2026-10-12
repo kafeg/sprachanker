@@ -1,12 +1,12 @@
 // An installed exam on "My exams" and "Downloaded" (owner's choice 1A, 2026-10-10), on the
 // library's card: a band with the language pair and the last mock exam's points, a ring with how ready
-// the learner is, the title and publisher, the last mock exam, and the ways in — a mock exam (continued
-// while one runs) and practice; on "My exams" its removal (its runs deleted), on "Downloaded" its
+// the learner is, the title and publisher, the last mock exam, and the way to its page (its mock exam
+// and practice there); on "My exams" its removal (its runs deleted), on "Downloaded" its
 // course's check, sync and export to a file.
 import { examPassed, examScore } from "@sprachanker/engine";
 import type { ExamKey } from "@sprachanker/schema";
 import { Link } from "@tanstack/react-router";
-import { ArrowRight, Dumbbell } from "lucide-react";
+import { ArrowRight } from "lucide-react";
 import { useTranslation } from "react-i18next";
 import type { ExamRow } from "@/api/exams.ts";
 import { CourseExport } from "@/library/bundle.tsx";
@@ -37,7 +37,6 @@ export function ExamCard({
   const last = exam.last?.result;
   const passed = examPassed(last);
   const params = examParams(exam.key);
-  const testRunning = exam.active?.plan.mode === "test" ? exam.active : undefined;
   return (
     <LibraryCard
       series={exam.series}
@@ -90,31 +89,12 @@ export function ExamCard({
           })}
         </p>
       )}
-      <div className="mt-auto flex flex-wrap gap-2 pt-4">
-        {testRunning ? (
-          <Button asChild size="lg" className="flex-1">
-            <Link
-              to="/exam/$series/$course/$exam/run/$run"
-              params={{ ...params, run: testRunning.id }}
-            >
-              {t("exams.continueTest")} <ArrowRight className="rtl:-scale-x-100 size-4" />
-            </Link>
-          </Button>
-        ) : (
-          <Button asChild size="lg" className="flex-1">
-            <Link to="/exam/$series/$course/$exam" params={params} search={{ start: "test" }}>
-              {t("exams.mode.test")} <ArrowRight className="rtl:-scale-x-100 size-4" />
-            </Link>
-          </Button>
-        )}
-        {/* No practice while a mock exam runs: it is handed in first. */}
-        {!testRunning && (
-          <Button asChild size="lg" variant="outline">
-            <Link to="/exam/$series/$course/$exam" params={params} search={{ start: "practice" }}>
-              <Dumbbell className="size-4" /> {t("exams.mode.practice")}
-            </Link>
-          </Button>
-        )}
+      <div className="mt-auto pt-4">
+        <Button asChild size="lg" className="w-full">
+          <Link to="/exam/$series/$course/$exam" params={params}>
+            {t("exams.toExam")} <ArrowRight className="rtl:-scale-x-100 size-4" />
+          </Link>
+        </Button>
       </div>
     </LibraryCard>
   );
