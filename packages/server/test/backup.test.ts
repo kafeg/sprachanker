@@ -57,7 +57,8 @@ test("a backup on request: the databases, recordings, imported decks and the key
   const to = mkdtempSync(join(tmpdir(), "sprachanker-backups-"));
   // One an earlier run left half-made: it goes.
   mkdirSync(join(to, "sprachanker-backup-20261010-120000.part/profiles"), { recursive: true });
-  const { folder } = backUpTo(root, to, key, new Date("2026-10-11T08:30:05Z"));
+  // Named by the computer's own time: 08:30:05 here, whatever its time zone.
+  const { folder } = backUpTo(root, to, key, new Date(2026, 9, 11, 8, 30, 5));
   expect(folder).toBe(join(to, "sprachanker-backup-20261011-083005"));
   expect(readdirSync(to)).toEqual(["sprachanker-backup-20261011-083005"]);
   // Its owner's only: it holds the key.
@@ -77,7 +78,7 @@ test("a backup on request: the databases, recordings, imported decks and the key
   const copy = new Database(join(folder, "profiles/local/profile.sqlite"));
   expect(copy.query("SELECT x FROM t").all()).toEqual([{ x: 1 }]);
   // The same second again: refused, the first left as it was.
-  expect(() => backUpTo(root, to, key, new Date("2026-10-11T08:30:05Z"))).toThrow(/exists/);
+  expect(() => backUpTo(root, to, key, new Date(2026, 9, 11, 8, 30, 5))).toThrow(/exists/);
   // Never into the data folder it copies (by any path to it), nor a folder in it not made yet.
   for (const inside of [root, join(root, "backups"), join(root, "profiles/../backups/new")])
     expect(() => backUpTo(root, inside, key)).toThrow(/inside the data folder/);

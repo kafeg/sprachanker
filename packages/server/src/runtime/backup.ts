@@ -102,7 +102,8 @@ export function startDailyBackups(dataRoot: string) {
 
 /**
  * A backup of what cannot be fetched again (05, "Backups") in a new folder in `to`
- * (`sprachanker-backup-<date>-<time>`, written as `….part` and renamed when whole): server.sqlite and
+ * (`sprachanker-backup-<date>-<time>`, local time, written as `….part` and renamed when whole):
+ * server.sqlite and
  * each profile's database (`VACUUM INTO`: consistent while a server runs), the profiles' recordings,
  * the imported decks, and `secretKey` (the stored API keys are sealed with it). The folder is its
  * owner's only (0700); never inside the data root; half-made ones an earlier run left there go; the
@@ -116,7 +117,9 @@ export function backUpTo(dataRoot: string, to: string, secretKey: string, now = 
     throw new Error(
       `${to} is inside the data folder ${dataRoot}: back it up to a folder outside it`,
     );
-  const stamp = now.toISOString().slice(0, 19).replace(/[-:]/g, "").replace("T", "-");
+  // The computer's own time, as its clock shows it (not UTC).
+  const two = (n: number) => String(n).padStart(2, "0");
+  const stamp = `${now.getFullYear()}${two(now.getMonth() + 1)}${two(now.getDate())}-${two(now.getHours())}${two(now.getMinutes())}${two(now.getSeconds())}`;
   const folder = join(to, `sprachanker-backup-${stamp}`);
   if (existsSync(folder)) throw new Error(`${folder} exists`);
   const ids = profileIds(dataRoot);

@@ -317,7 +317,8 @@ and the server reads the files anew; an import whose verify finds problems exits
 while it downloads) ·
 `backup [--data] --to <folder>` (05, "Backups": `server.sqlite` and each
 `profile.sqlite` copied with `VACUUM INTO`, consistent while a server runs; the recordings, the
-imported decks and `<app-data>/secret.key`; into a new `sprachanker-backup-<date>-<time>` folder,
+imported decks and `<app-data>/secret.key`; into a new `sprachanker-backup-<date>-<time>` folder (the
+computer's local time),
 its owner's only (0700: it holds the key, the command says to keep it private), never inside the
 data root, written as `….part` and renamed when whole — half-made ones an earlier run left there go
 —, the disk's free space checked first. Each file is copied consistent, but one after another: a
