@@ -13,9 +13,17 @@ export const useAppInfo = () =>
     queryFn: () => json(api.health.$get()),
   });
 
-/** The addresses the app is reached at: this machine, the local network, the tailnet. */
+/** The addresses the app is reached at: this machine, the local network, the tailnet — asked again
+ *  every few seconds while shown (Tailscale turned on or off meanwhile). */
 export const useAddresses = () =>
-  useQuery({ queryKey: ["addresses"], meta: STATIC, queryFn: () => json(api.addresses.$get()) });
+  useQuery({
+    queryKey: ["addresses"],
+    meta: STATIC,
+    refetchInterval: ADDRESSES_REFRESH_MS,
+    queryFn: () => json(api.addresses.$get()),
+  });
+
+const ADDRESSES_REFRESH_MS = 10_000;
 
 export type Settings = Record<string, unknown>;
 export const useSettings = () =>

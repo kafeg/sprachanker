@@ -25,8 +25,16 @@ export const commandOutput = (file: string, args: string[], ms = COMMAND_MS) =>
     );
   });
 
+/** The `tailscale` command with its arguments, as run. The macOS app's binary started by a process
+ *  launchd started (the server under its LaunchAgent) opens the app's window instead of answering
+ *  ("The Tailscale GUI failed to start", exit 0): run through a shell that stays its parent, it
+ *  answers as from a terminal. */
+const tailscaleCommand = (args: string[]): [string, string[]] =>
+  process.platform === "darwin" && existsSync(MAC_APP)
+    ? ["/bin/sh", ["-c", '"$0" "$@"; :', MAC_APP, ...args]]
+    : ["tailscale", args];
+
 export function networkHost(): NetworkHost {
-  const tailscale = process.platform === "darwin" && existsSync(MAC_APP) ? MAC_APP : "tailscale";
   return {
     ipv4: () =>
       Object.values(networkInterfaces())
@@ -47,7 +55,7 @@ export function networkHost(): NetworkHost {
         command === "status"
           ? ["status", "--json", "--peers=false"]
           : ["serve", "status", "--json"];
-      const text = await commandOutput(tailscale, args);
+      const text = await commandOutput(...tailscaleCommand(args));
       try {
         return text === undefined ? undefined : JSON.parse(text);
       } catch {
