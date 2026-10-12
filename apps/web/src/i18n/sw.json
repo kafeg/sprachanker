@@ -1630,14 +1630,14 @@
       "spoken": "Yaliyosemwa kwa sauti",
       "sentence_order": "Mpangilio wa sentensi",
       "misheard": "Kusikia vibaya",
-      "misread": "Kusoma vibaya"
+      "misread": "Kusoma vibaya",
+      "comprehension": "Kuelewa maandishi"
     },
     "inText": "Katika maandishi:",
     "more": "{n, plural, one {Kosa # zaidi} other {Makosa # zaidi}} ya mzunguko huu hayajapitiwa hapa.",
     "listed": {
       "spoken": "Hakuna mazoezi mapya kwa yaliyosemwa kwa sauti: yaseme tena katika zoezi lake.",
-      "misheard": "Sikiliza maandishi tena: jibu limo ndani yake.",
-      "misread": "Soma maandishi tena: jibu limo ndani yake."
+      "comprehension": "Sikiliza au soma maandishi tena: jibu limo ndani yake."
     }
   }
 }

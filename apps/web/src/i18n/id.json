@@ -1630,14 +1630,14 @@
       "spoken": "Diucapkan",
       "sentence_order": "Urutan kalimat",
       "misheard": "Salah dengar",
-      "misread": "Salah baca"
+      "misread": "Salah baca",
+      "comprehension": "Memahami teks"
     },
     "inText": "Di teks:",
     "more": "{n, plural, other {# kesalahan lagi}} dari putaran ini tidak dibahas di sini.",
     "listed": {
       "spoken": "Tidak ada latihan baru untuk yang diucapkan: ucapkan lagi di latihannya.",
-      "misheard": "Dengarkan teksnya lagi: jawabannya ada di sana.",
-      "misread": "Baca teksnya lagi: jawabannya ada di sana."
+      "comprehension": "Dengarkan atau baca teksnya lagi: jawabannya ada di sana."
     }
   }
 }

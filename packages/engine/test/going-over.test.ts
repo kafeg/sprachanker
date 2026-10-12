@@ -284,12 +284,12 @@ test("an Understanding question answered wrong is a mistake to go over, as the i
       line: "Kaffee 2 Euro",
     },
   ]);
-  // Listed only: no new items are set of it, whatever else is gone over.
+  // Listed only, in one group last ("comprehension"): no new items are set of it.
   const oneWrong = { ...RIGHT, g1: "musst" };
   const { groups } = mistakeGroups([m as MistakeToGoOver, mistake(WG, oneWrong)], "de");
   expect(groups.map((g) => [g.type, g.what])).toEqual([
     ["gap_text", "ending"],
-    [undefined, "misread"],
+    [undefined, "comprehension"],
   ]);
   // A question heard: misheard; a true/false one names no line.
   const heard = {

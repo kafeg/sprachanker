@@ -46,7 +46,8 @@ src/
     exam-conversation.ts # exam_conversation: a speaking part — the examiner's and the partner's lines
     explain-mistake.ts # explain_mistake: prompt + call (where its topic was taught)
     mistake-items.ts   # mistake_items: going over mistakes — an explanation and new items per type of
-                       # mistakes (the engine's groups), each item checked for its type
+                       # mistakes (the engine's groups), each item checked for its type;
+                       # mistake_items_check: the items answered blind, those not settled left out
     chat-turn.ts       # chat_turn: the lesson tutor (lesson context, known words, exercise, mistakes, history)
     section-chat.ts    # section_chat_turn: the tutor on its own (what the learner met in their courses, history)
     writing-task.ts    # writing_task: a situation and three content points from the lesson; the length

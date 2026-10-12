@@ -58,44 +58,80 @@ const gap = (text: string, answer: number) =>
     text,
     gaps: [{ options: ["heißt", "bestellst"], answer }],
   });
-/** The model's explanations and new items: group 2's second item without its gaps first. */
-const BAD = {
+/** Each type's explanation and new items, asked on its own: the choices' second item answered
+ *  otherwise when tried blind (left out); the gaps' second item without its gaps (repaired), then,
+ *  tried blind, none answered as keyed (asked once more). */
+const CHOICES = {
   groups: [
     {
       n: 1,
       explanation: "Читайте вопрос внимательно.",
       items: [choice("Wo ist Tom?", 0), choice("Wo ist Anna?", 1)],
     },
-    {
-      n: 2,
-      explanation: "heißen — имя, bestellen — заказ.",
-      items: [gap("Du ___ Tom.", 0), full({ text: "Du ___ Tee." })],
-    },
   ],
 };
-const ITEMS = {
-  groups: [
-    BAD.groups[0],
-    { ...BAD.groups[1], items: [gap("Du ___ Tom.", 0), gap("Du ___ einen Tee.", 1)] },
-  ],
+const GAPS = (items: unknown[]) => ({
+  groups: [{ n: 1, explanation: "heißen — имя, bestellen — заказ.", items }],
+});
+const GAPS_BAD = GAPS([gap("Du ___ Tom.", 0), full({ text: "Du ___ Tee." })]);
+const GAPS_OK = GAPS([gap("Du ___ Tom.", 0), gap("Du ___ einen Tee.", 1)]);
+
+type Body = {
+  messages: Array<{ content: string }>;
+  response_format?: { json_schema?: { name: string } };
 };
 
-/** A model answering in order, each request's schema name and body kept. */
-function model(replies: unknown[]) {
+/** A model answering by the request (types are asked side by side), each request's schema name and
+ *  body kept. */
+function model(answer: (name: string, body: Body) => unknown) {
   const names: string[] = [];
-  const bodies: Array<{ messages: Array<{ content: string }> }> = [];
+  const bodies: Body[] = [];
   const fetch = (async (url: string, init: RequestInit) => {
     if (url.endsWith("/api/v1/models")) return Response.json({ models: [] });
-    const body = JSON.parse(init.body as string);
-    names.push(body.response_format?.json_schema?.name);
+    const body = JSON.parse(init.body as string) as Body;
+    const name = body.response_format?.json_schema?.name ?? "";
+    names.push(name);
     bodies.push(body);
-    return Response.json({ choices: [{ message: { content: JSON.stringify(replies.shift()) } }] });
+    return Response.json({
+      choices: [{ message: { content: JSON.stringify(answer(name, body)) } }],
+    });
   }) as unknown as typeof globalThis.fetch;
   return { fetch, names, bodies };
 }
 
+/** The walkthrough's model: Understanding's text and check, then the types as above. */
+function teacher() {
+  let gapChecks = 0;
+  return (name: string, body: Body) => {
+    const user = body.messages.find((m, i) => i > 0)?.content ?? "";
+    if (name === "understanding_text") return TEXT;
+    if (name === "understanding_check") return CHECK;
+    if (name === "mistake_items")
+      return user.includes("the option chosen")
+        ? CHOICES
+        : body.messages.length > 2
+          ? GAPS_OK
+          : GAPS_BAD;
+    // Tried blind: the choices' first right, the second not; the gaps wrong at first, then right.
+    if (user.includes("Wo ist Tom?"))
+      return {
+        answers: [
+          { n: 1, choice: "a", gaps: null, ambiguous: false },
+          { n: 2, choice: "a", gaps: null, ambiguous: false },
+        ],
+      };
+    gapChecks++;
+    return {
+      answers: [
+        { n: 1, choice: null, gaps: [gapChecks === 1 ? "b" : "a"], ambiguous: false },
+        { n: 2, choice: null, gaps: ["b"], ambiguous: gapChecks === 1 },
+      ],
+    };
+  };
+}
+
 test("the pass's mistakes and wrong Understanding answers gone over by type: wrong parts only, an explanation and new items each, answered and checked by the engine, kept in the run", async () => {
-  const m = model([TEXT, CHECK, BAD, ITEMS]);
+  const m = model(teacher());
   const { send, sendJson, getJson } = await setup({ fetch: m.fetch });
   await send("PUT", "/api/llm/providers/custom", { baseUrl: "http://127.0.0.1:9/v1" });
   await send("PUT", "/api/llm/route", { provider: "custom", model: "m" });
@@ -132,30 +168,42 @@ test("the pass's mistakes and wrong Understanding answers gone over by type: wro
     answer: { optionId: "a" },
   });
 
-  // What the task is sent: the groups, each mistake its wrong part only.
+  // What the task is sent for the first type: its mistakes, each its wrong part only.
   const prompt = await sendJson("POST", "/api/llm/mistakes/prompt", REQUEST);
   const data = prompt.body.messages[1].content as string;
   expect(data).toContain(
     'Group 1 — what went wrong: the option chosen; new items: single_choice, with "prompt"',
   );
   expect(data).toContain('- learner "Im Park.", correct "Im Café." to "Wo ist Lena?"');
+  expect(data).toContain("Remember: 1 group;");
   // Understanding's question is listed only: no new items are asked for it.
   expect(data).not.toContain("Was kostet der Kaffee?");
-  expect(data).toContain("Group 2 — what went wrong: the word chosen; new items: gap_choice");
-  // The gap of two that was wrong, the other filled right; never the item whole twice.
-  expect(data).toContain(
-    '- learner "bestelle", correct "heiße" in "Ich [_] Lena. Ich bestelle einen Kaffee."',
-  );
-  expect(data).not.toContain('learner "bestelle", correct "bestelle"');
+  expect(m.names).toEqual(["understanding_text", "understanding_check"]);
 
   const review = await sendJson("POST", "/api/llm/mistakes", REQUEST);
-  // An item without its gaps was repaired.
-  expect(m.names).toEqual([
-    "understanding_text",
-    "understanding_check",
+  // Each type asked on its own and tried blind: the choices once; the gaps (an item without gaps
+  // repaired each time) twice, none of theirs settled at first.
+  expect(m.names.slice(2).sort()).toEqual([
     "mistake_items",
     "mistake_items",
+    "mistake_items",
+    "mistake_items",
+    "mistake_items",
+    "mistake_items_check",
+    "mistake_items_check",
+    "mistake_items_check",
   ]);
+  const asked = m.bodies.map((b) => b.messages[1]?.content ?? "");
+  const gaps = asked.find((c) => c.includes("the word chosen")) ?? "";
+  expect(gaps).toContain("Group 1 — what went wrong: the word chosen; new items: gap_choice");
+  // The gap of two that was wrong, the other filled right; never the item whole twice.
+  expect(gaps).toContain(
+    '- learner "bestelle", correct "heiße" in "Ich [_] Lena. Ich bestelle einen Kaffee."',
+  );
+  expect(gaps).not.toContain('learner "bestelle", correct "bestelle"');
+  // Tried blind: the items without their keys.
+  const tried = asked.find((c) => c.startsWith("<items>") && c.includes("Wo ist Tom?")) ?? "";
+  expect(tried).toContain("1. Wo ist Tom?\n   a) Im Café.\n   b) Im Park.");
   expect([review.runId, review.model, review.answers]).toEqual([run, "m", []]);
   expect(
     review.result.groups.map((g: { type: string; what: string; mistakes: unknown[] }) => [
@@ -166,10 +214,12 @@ test("the pass's mistakes and wrong Understanding answers gone over by type: wro
   ).toEqual([
     ["single_choice", "choice", 1],
     ["gap_choice", "word", 1],
-    [undefined, "misread", 1],
+    [undefined, "comprehension", 1],
   ]);
+  // The choice answered otherwise blind left out; the gaps' second try kept whole.
+  expect(review.result.groups.map((g: { items: unknown[] }) => g.items.length)).toEqual([1, 2, 0]);
   expect(review.result.groups[2]).toEqual({
-    what: "misread",
+    what: "comprehension",
     mistakes: [
       {
         itemKey: `${text.id}#1`,
@@ -194,8 +244,8 @@ test("the pass's mistakes and wrong Understanding answers gone over by type: wro
       answer: value,
     });
   await reply(0, { optionId: "a" });
-  await reply(1, { optionId: "a" });
-  await reply(2, { g1: "a" });
+  await reply(1, { g1: "b" });
+  await reply(2, { g1: "b" });
   // Answered again: the first answer stays; one of the wrong shape, an item not there.
   const again = (await (await reply(0, { optionId: "b" })).json()) as {
     answers: Array<{ question: number; outcome: { result: string } }>;
@@ -205,7 +255,7 @@ test("the pass's mistakes and wrong Understanding answers gone over by type: wro
     [1, "wrong"],
     [2, "correct"],
   ]);
-  expect((await reply(3, { optionId: "a" })).status).toBe(400);
+  expect((await reply(1, { optionId: "a" })).status).toBe(400);
   expect((await reply(9, { optionId: "a" })).status).toBe(404);
 
   const state = await getJson(`/api/llm/mistakes?lessonKey=${LESSON}`);
@@ -225,7 +275,7 @@ test("the pass's mistakes and wrong Understanding answers gone over by type: wro
 });
 
 test("only mistakes listed (an Understanding question): the review kept without a call", async () => {
-  const m = model([TEXT, CHECK]);
+  const m = model(teacher());
   const { send, sendJson } = await setup({ fetch: m.fetch });
   await send("PUT", "/api/llm/providers/custom", { baseUrl: "http://127.0.0.1:9/v1" });
   await send("PUT", "/api/llm/route", { provider: "custom", model: "m" });
@@ -248,6 +298,6 @@ test("only mistakes listed (an Understanding question): the review kept without 
   expect(review.model).toBe("");
   expect(
     review.result.groups.map((g: { what: string; items: unknown[] }) => [g.what, g.items.length]),
-  ).toEqual([["misread", 0]]);
+  ).toEqual([["comprehension", 0]]);
   expect(review.result.groups[0].mistakes[0].line).toBe("Tee 2 Euro");
 });

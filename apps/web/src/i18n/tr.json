@@ -1630,14 +1630,14 @@
       "spoken": "Sesli söylenenler",
       "sentence_order": "Cümlelerin sırası",
       "misheard": "Yanlış duyulan",
-      "misread": "Yanlış okunan"
+      "misread": "Yanlış okunan",
+      "comprehension": "Metni anlama"
     },
     "inText": "Metinde:",
     "more": "Bu geçişin {n, plural, one {# hatası daha} other {# hatası daha}} burada ele alınmadı.",
     "listed": {
       "spoken": "Sesli söylenenler için yeni alıştırma yok: alıştırmasında yeniden söyleyin.",
-      "misheard": "Metni yeniden dinleyin: cevap içinde.",
-      "misread": "Metni yeniden okuyun: cevap içinde."
+      "comprehension": "Metni yeniden dinleyin ya da okuyun: cevap içinde."
     }
   }
 }

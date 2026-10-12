@@ -180,7 +180,7 @@ test("a type listed only: its mistakes with the line of the text, what to do ins
   const listed: MistakesReview = {
     groups: [
       {
-        what: "misread",
+        what: "comprehension",
         mistakes: [
           {
             itemKey: "t#1",
@@ -199,9 +199,10 @@ test("a type listed only: its mistakes with the line of the text, what to do ins
   };
   let done = 0;
   const view = await step([review([], undefined, RUN, listed)], false, { onDone: () => done++ });
-  expect(view.getByRole("heading", { name: "Misread" })).toBeTruthy();
+  expect(view.getByRole("heading", { name: "Understanding the text" })).toBeTruthy();
+  expect(view.getByText("Misread")).toBeTruthy();
   expect(view.getByText("Kaffee 2,50 Euro")).toBeTruthy();
-  expect(view.getByText("Read the text again: the answer is in it.")).toBeTruthy();
+  expect(view.getByText("Listen to or read the text again: the answer is in it.")).toBeTruthy();
   expect(view.queryByText("Now you")).toBeNull();
   expect(view.getByText("4 more mistakes of this pass not gone over here.")).toBeTruthy();
   // Nothing to answer: done at once.

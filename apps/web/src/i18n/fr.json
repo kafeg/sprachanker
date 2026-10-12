@@ -1630,14 +1630,14 @@
       "spoken": "Dit à voix haute",
       "sentence_order": "Ordre des phrases",
       "misheard": "Mal entendu",
-      "misread": "Mal lu"
+      "misread": "Mal lu",
+      "comprehension": "Compréhension du texte"
     },
     "inText": "Dans le texte :",
     "more": "{n, plural, one {# autre erreur} other {# autres erreurs}} de ce passage non revues ici.",
     "listed": {
       "spoken": "Pas de nouveaux exercices pour ce qui a été dit à voix haute : redites-le dans son exercice.",
-      "misheard": "Réécoutez le texte : la réponse s’y trouve.",
-      "misread": "Relisez le texte : la réponse s’y trouve."
+      "comprehension": "Réécoutez ou relisez le texte : la réponse s’y trouve."
     }
   }
 }

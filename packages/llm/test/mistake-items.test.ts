@@ -6,8 +6,10 @@ import { mistakeLine, wrongPartLine } from "../src/tasks/describe.ts";
 import {
   type MistakeItemsInput,
   type MistakeItemsReply,
+  mistakeItemsCheckTask,
   mistakeItemsRules,
   mistakeItemsTask,
+  settledItems,
 } from "../src/tasks/mistake-items.ts";
 
 const input: MistakeItemsInput = {
@@ -205,4 +207,54 @@ test("a mistake for the tutor: its wrong parts only, never the item whole; else 
   const whole = mistakeLine({ exercise, index: 0, answer: { g1: "musst" }, fixed: false });
   // Cut at a word's end, never inside one.
   expect(whole.split("\n")[0]).toMatch(/Satz …$|langer …$|sehr …$|Ein …$/);
+});
+
+test("new items tried blind: asked without their keys, those answered otherwise or found ambiguous left out", () => {
+  const items = [
+    { prompt: "Wann ___ ich dir helfen?", options: ["soll", "sollst"], answer: 1 },
+    { prompt: "Wo ist Tom?", options: ["Im Café.", "Im Park."], answer: 0 },
+    { prompt: "Wer ___?", options: ["bin", "ist"], answer: 1 },
+  ];
+  const { name, request } = mistakeItemsCheckTask({
+    language: "ru",
+    target: "de",
+    type: "single_choice",
+    items,
+  });
+  expect(name).toBe("mistake_items_check");
+  expect(request.effort).toBe("low");
+  const asked = String(request.messages[1]?.content);
+  expect(asked).toContain("1. Wann ___ ich dir helfen?\n   a) soll\n   b) sollst");
+  // Never the key.
+  expect(asked).not.toContain("answer");
+  const right = (item: { answer?: number }, answer: unknown) =>
+    "abcd"[item.answer ?? 0] === (answer as { optionId: string }).optionId;
+  const kept = settledItems(
+    "single_choice",
+    items,
+    {
+      answers: [
+        { n: 1, choice: "a", gaps: null, ambiguous: false },
+        { n: 2, choice: "A", gaps: null, ambiguous: false },
+        { n: 3, choice: "b", gaps: null, ambiguous: true },
+      ],
+    },
+    right,
+  );
+  expect(kept.map((i) => i.prompt)).toEqual(["Wo ist Tom?"]);
+  // Gaps typed: the words given, as the item takes them; an order is not tried.
+  const typed = [{ text: "Er soll den Hund ___ (füttern).", gaps: [{ accepted: ["füttern"] }] }];
+  const words: unknown[] = [];
+  settledItems(
+    "gap_text",
+    typed,
+    { answers: [{ n: 1, choice: null, gaps: ["füttern"], ambiguous: false }] },
+    (_, a) => {
+      words.push(a);
+      return true;
+    },
+  );
+  expect(words).toEqual([{ g1: "füttern" }]);
+  const order = [{ parts: ["Ich", "trinke", "Tee."] }];
+  expect(settledItems("order", order, { answers: [] }, () => false)).toEqual(order);
 });

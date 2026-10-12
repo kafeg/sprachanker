@@ -1630,14 +1630,14 @@
       "spoken": "Powiedziane na głos",
       "sentence_order": "Kolejność zdań",
       "misheard": "Źle usłyszane",
-      "misread": "Źle przeczytane"
+      "misread": "Źle przeczytane",
+      "comprehension": "Rozumienie tekstu"
     },
     "inText": "W tekście:",
     "more": "Nie omówiono tutaj: jeszcze {n, plural, one {# błąd} few {# błędy} many {# błędów} other {# błędu}} z tego podejścia.",
     "listed": {
       "spoken": "Brak nowych zadań do tego, co powiedziane na głos: powiedz to jeszcze raz w jego ćwiczeniu.",
-      "misheard": "Posłuchaj tekstu jeszcze raz: odpowiedź w nim jest.",
-      "misread": "Przeczytaj tekst jeszcze raz: odpowiedź w nim jest."
+      "comprehension": "Posłuchaj tekstu albo przeczytaj go jeszcze raz: odpowiedź w nim jest."
     }
   }
 }

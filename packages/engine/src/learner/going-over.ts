@@ -319,8 +319,9 @@ export interface MistakeGroupDraft {
 
 /**
  * A pass's mistakes by type: those new items are set of, the commonest first (in the order met where
- * as common), at most `GOING_OVER.groups`; then those listed only, in the order met; each of at most
- * `GOING_OVER.parts` wrong parts. `more`: the wrong parts left out.
+ * as common), at most `GOING_OVER.groups`; then those listed only — said aloud, then Understanding's
+ * questions in one group (comprehension), last —; each of at most `GOING_OVER.parts` wrong parts.
+ * `more`: the wrong parts left out.
  */
 export function mistakeGroups(
   list: MistakeToGoOver[],
@@ -331,8 +332,9 @@ export function mistakeGroups(
   for (const m of list) {
     const type = newItemsOf(m);
     for (const p of wrongParts(m, lang)) {
-      const key = `${type ?? ""}:${p.what}`;
-      const group = groups.get(key) ?? { ...(type && { type }), what: p.what, mistakes: [] };
+      const what = m.text ? "comprehension" : p.what;
+      const key = `${type ?? ""}:${what}`;
+      const group = groups.get(key) ?? { ...(type && { type }), what, mistakes: [] };
       group.mistakes.push(p);
       groups.set(key, group);
       all++;
@@ -344,7 +346,8 @@ export function mistakeGroups(
       .filter((g) => g.type)
       .sort((a, b) => b.mistakes.length - a.mistakes.length)
       .slice(0, GOING_OVER.groups),
-    ...drafts.filter((g) => !g.type),
+    ...drafts.filter((g) => !g.type && g.what !== "comprehension"),
+    ...drafts.filter((g) => g.what === "comprehension"),
   ].map((g) => ({ ...g, mistakes: g.mistakes.slice(0, GOING_OVER.parts) }));
   return { groups: kept, more: all - kept.reduce((n, g) => n + g.mistakes.length, 0) };
 }

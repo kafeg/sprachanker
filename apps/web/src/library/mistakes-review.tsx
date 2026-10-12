@@ -57,6 +57,9 @@ export function ReviewGroup({
         <ul className="mt-1 space-y-1.5">
           {group.mistakes.map((m) => (
             <li key={`${m.itemKey}:${m.given}:${m.right}`} className="text-sm">
+              {m.what !== group.what && (
+                <span className="block font-medium">{t(`goingOver.what.${m.what}`)}</span>
+              )}
               <span {...inLang(lang)}>
                 <s className="text-wrong">{m.given || "—"}</s> →{" "}
                 <strong className="text-correct">{m.right}</strong>
@@ -78,20 +81,22 @@ export function ReviewGroup({
       {type ? (
         <>
           <RichText text={group.explanation} />
-          <div className="space-y-3">
-            <p className="text-sm font-semibold">{t("goingOver.try")}</p>
-            {group.items.map((item, k) => {
-              const n = start + k;
-              return (
-                <PracticeItemCard
-                  key={n}
-                  exercise={mistakeItemExercise(type, item, `${id}-${n}`)}
-                  given={given(n)}
-                  onAnswer={onAnswer && ((answer) => onAnswer(n, answer))}
-                />
-              );
-            })}
-          </div>
+          {group.items.length > 0 && (
+            <div className="space-y-3">
+              <p className="text-sm font-semibold">{t("goingOver.try")}</p>
+              {group.items.map((item, k) => {
+                const n = start + k;
+                return (
+                  <PracticeItemCard
+                    key={n}
+                    exercise={mistakeItemExercise(type, item, `${id}-${n}`)}
+                    given={given(n)}
+                    onAnswer={onAnswer && ((answer) => onAnswer(n, answer))}
+                  />
+                );
+              })}
+            </div>
+          )}
         </>
       ) : (
         <p className="text-sm text-muted-foreground">{t(`goingOver.listed.${group.what}`)}</p>

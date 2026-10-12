@@ -1630,14 +1630,14 @@
       "spoken": "Izgovoreno",
       "sentence_order": "Redoslijed rečenica",
       "misheard": "Pogrešno čuto",
-      "misread": "Pogrešno pročitano"
+      "misread": "Pogrešno pročitano",
+      "comprehension": "Razumijevanje teksta"
     },
     "inText": "U tekstu:",
     "more": "Ovdje nije obrađeno: još {n, plural, one {# greška} few {# greške} other {# grešaka}} iz ovog prolaza.",
     "listed": {
       "spoken": "Nema novih zadataka za izgovoreno: izgovori to ponovo u njegovoj vježbi.",
-      "misheard": "Poslušaj tekst ponovo: odgovor je u njemu.",
-      "misread": "Pročitaj tekst ponovo: odgovor je u njemu."
+      "comprehension": "Poslušaj ili pročitaj tekst ponovo: odgovor je u njemu."
     }
   }
 }

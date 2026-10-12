@@ -427,15 +427,22 @@ differ in meaning or form, and "word" makes the explanation tell the two apart, 
 slip; a choice, an order, sentences put in order — only the places another sentence took —, a pair,
 spoken), the commonest first, at most three types of at most six parts; the parts left out are
 counted ("and 4 more"). Answers said aloud (often the recogniser mishearing) and Understanding's
-questions ("misheard", "misread", each with the line of its text the right answer is in) are listed
-only, after the others: no new items are set of them — a comprehension slip is no grammar point.
+questions (one group, "comprehension", last: each "misheard" or "misread" with the line of its text
+the right answer is in) are listed only, after the others: no new items are set of them — a
+comprehension slip is no grammar point.
 Whether a run has anything to go over is one predicate (`hasMistakesToGoOver`: a mistake with a wrong
-part to show), read alike by the plan (`practiceInPlan`) and the server. One model call gives each
-type gone over a short explanation (what is wrong, never why it was chosen) and two or three new items
+part to show), read alike by the plan (`practiceInPlan`) and the server. A model call per type gone
+over, side by side (one call for all took up to three minutes in the walkthrough, owner 2026-10-12),
+gives it a short explanation (what is wrong, never why it was chosen) and two or three new items
 in one flat shape (`MistakeItem`, checked per type: `mistakeItemProblem` — a typed gap followed by its
 cue in brackets, the base form or the learner-language word, so only one word fits; options all
-different; never a mistake's sentence again —; repaired once), from the words known; the engine makes
-each an item of its type (`mistakeItemExercise`) and checks the answers. Only types listed: no call.
+different; a true/false only with its statement; never a mistake's sentence again —; repaired once),
+from the words known. The items are then tried blind (`mistake_items_check`, as Understanding's
+second reading): the model answers each choice and gap from the item alone, and only those it answers
+as keyed, unambiguously, are kept (`settledItems`; the walkthrough's keys were wrong: "sollst" for
+"Wann ___ ich dir helfen?"); a type with none kept is asked once more, and one whose call fails keeps its
+mistakes without items. The engine makes each an item of its type (`mistakeItemExercise`) and checks
+the answers. Only types listed: no call.
 The review is an `llm_verdict` (`task: mistakes`) in the run, its groups with their wrong parts; each
 answer a `practice_answered` on it, the items numbered across its groups (05). The step shows the
 newest review of the run the lesson shows (another run's are past ones), one type at a time ("Type 1 of

@@ -222,7 +222,8 @@ export type MistakeItemType = z.infer<typeof MistakeItemType>;
 
 /** What went wrong in a part of an item: a word's ending, another word, the option chosen, the
  *  order of words, the order of sentences, a pair, a word's spelling; listed only, without new items
- *  (04): an answer said aloud, an Understanding question on a text heard or read. */
+ *  (04): an answer said aloud, an Understanding question on a text heard or read (their group:
+ *  comprehension). */
 export const MistakeKind = z.enum([
   "ending",
   "word",
@@ -234,6 +235,7 @@ export const MistakeKind = z.enum([
   "spoken",
   "misheard",
   "misread",
+  "comprehension",
 ]);
 export type MistakeKind = z.infer<typeof MistakeKind>;
 
