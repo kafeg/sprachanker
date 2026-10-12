@@ -107,7 +107,7 @@
     "summary": "Підсумки",
     "score": "Правильно з першої спроби: {correct, number} з {scored, number}. Відсоток враховує й частково правильні відповіді.",
     "skipped": "пропущено",
-    "skippedCount": "{count, plural, one {# пропущено} few {# пропущено} many {# пропущено} other {# пропущено}}",
+    "skippedCount": "{count, plural, one {пропущено: #} few {пропущено: #} many {пропущено: #} other {пропущено: #}}",
     "notDone": "не виконано",
     "backToCourse": "Назад до курсу",
     "nextLesson": "Наступний урок",
