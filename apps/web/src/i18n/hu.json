@@ -1471,6 +1471,7 @@
     "answered": "Megválaszolva: {done, number}/{total, number}",
     "question": "Kérdés: {n, number}/{total, number}",
     "practiceScore": "{count, plural, one {Helyes: {points, number} / # válasz} other {Helyes: {points, number} / # válasz}}",
+    "practicePoints": "A nyílt válaszokkal: {points, number} / {max, number} pont",
     "timeUp": "Lejárt az idő: az addig adott válaszok számítanak.",
     "needed": "Szükséges: {points, number}/{max, number}",
     "practiseMistakes": "Hibák gyakorlása",

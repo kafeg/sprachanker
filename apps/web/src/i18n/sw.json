@@ -1471,6 +1471,7 @@
     "answered": "Yamejibiwa: {done, number} kati ya {total, number}",
     "question": "Swali {n, number} kati ya {total, number}",
     "practiceScore": "{count, plural, one {{points, number} sahihi kati ya jibu #} other {{points, number} sahihi kati ya majibu #}}",
+    "practicePoints": "Pamoja na majibu ya wazi: alama {points, number} kati ya {max, number}",
     "timeUp": "Muda ulikwisha: majibu yaliyotolewa hadi wakati huo yanahesabiwa.",
     "needed": "{points, number} kati ya {max, number} zinahitajika",
     "practiseMistakes": "Jizoeze makosa",

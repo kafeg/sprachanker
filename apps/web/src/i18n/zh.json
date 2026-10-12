@@ -1471,6 +1471,7 @@
     "answered": "已作答：{done, number}/{total, number}",
     "question": "第{n, number}题，共{total, number}题",
     "practiceScore": "{count, plural, other {#次作答中答对{points, number}次}}",
+    "practicePoints": "含开放式回答：{max, number} 分中得 {points, number} 分",
     "timeUp": "时间已到：在此之前作答的答案计入成绩。",
     "needed": "需要{points, number}/{max, number}",
     "practiseMistakes": "练习错题",

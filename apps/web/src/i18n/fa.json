@@ -1471,6 +1471,7 @@
     "answered": "پاسخ‌داده‌شده: {done, number} از {total, number}",
     "question": "پرسش {n, number} از {total, number}",
     "practiceScore": "{count, plural, one {{points, number} از # پاسخ درست} other {{points, number} از # پاسخ درست}}",
+    "practicePoints": "با پاسخ‌های باز: {points, number} از {max, number} امتیاز",
     "timeUp": "وقت تمام شد: پاسخ‌هایی که تا آن لحظه داده شده بودند حساب می‌شوند.",
     "needed": "{points, number} از {max, number} لازم است",
     "practiseMistakes": "تمرین اشتباه‌ها",

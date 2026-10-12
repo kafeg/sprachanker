@@ -1471,6 +1471,7 @@
     "answered": "Odgovoreno: {done, number} od {total, number}",
     "question": "Pitanje {n, number} od {total, number}",
     "practiceScore": "{count, plural, one {Tačno: {points, number} od # odgovora} few {Tačno: {points, number} od # odgovora} other {Tačno: {points, number} od # odgovora}}",
+    "practicePoints": "S otvorenim odgovorima: {points, number} od {max, number} bodova",
     "timeUp": "Vrijeme je isteklo: računaju se odgovori dati do tada.",
     "needed": "Potrebno: {points, number} od {max, number}",
     "practiseMistakes": "Vježbaj greške",

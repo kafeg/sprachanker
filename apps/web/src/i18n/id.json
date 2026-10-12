@@ -1471,6 +1471,7 @@
     "answered": "Dijawab: {done, number} dari {total, number}",
     "question": "Pertanyaan {n, number} dari {total, number}",
     "practiceScore": "{count, plural, other {{points, number} dari # jawaban benar}}",
+    "practicePoints": "Dengan jawaban terbuka: {points, number} dari {max, number} poin",
     "timeUp": "Waktunya sudah habis: jawaban yang diberikan sampai saat itu yang dihitung.",
     "needed": "{points, number} dari {max, number} diperlukan",
     "practiseMistakes": "Latih kesalahan",

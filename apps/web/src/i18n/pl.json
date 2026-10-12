@@ -1471,6 +1471,7 @@
     "answered": "Odpowiedziano: {done, number} z {total, number}",
     "question": "Pytanie {n, number} z {total, number}",
     "practiceScore": "{count, plural, one {{points, number} z # odpowiedzi dobrze} few {{points, number} z # odpowiedzi dobrze} many {{points, number} z # odpowiedzi dobrze} other {{points, number} z # odpowiedzi dobrze}}",
+    "practicePoints": "Z odpowiedziami otwartymi: {points, number} z {max, number} punktów",
     "timeUp": "Czas minął: liczą się odpowiedzi udzielone do tego momentu.",
     "needed": "wymagane {points, number} z {max, number}",
     "practiseMistakes": "Przećwicz błędy",

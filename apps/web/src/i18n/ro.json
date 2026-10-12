@@ -1471,6 +1471,7 @@
     "answered": "Răspunse: {done, number} din {total, number}",
     "question": "Întrebarea {n, number} din {total, number}",
     "practiceScore": "{count, plural, one {{points, number} din # răspuns corect} few {{points, number} din # răspunsuri corecte} other {{points, number} din # de răspunsuri corecte}}",
+    "practicePoints": "Cu răspunsurile deschise: {points, number} din {max, number} puncte",
     "timeUp": "Timpul a expirat: contează răspunsurile date până atunci.",
     "needed": "necesar: {points, number} din {max, number}",
     "practiseMistakes": "Exersează greșelile",

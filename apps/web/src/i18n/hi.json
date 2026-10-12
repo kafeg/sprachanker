@@ -1471,6 +1471,7 @@
     "answered": "उत्तर दिए: {total, number} में से {done, number}",
     "question": "प्रश्न {n, number} / {total, number}",
     "practiceScore": "{count, plural, one {# उत्तर में से {points, number} सही} other {# उत्तरों में से {points, number} सही}}",
+    "practicePoints": "खुले उत्तरों के साथ: {max, number} में से {points, number} अंक",
     "timeUp": "समय खत्म हो गया था: तब तक दिए गए उत्तर गिने जाते हैं.",
     "needed": "{max, number} में से {points, number} चाहिए",
     "practiseMistakes": "गलतियों की प्रैक्टिस करो",

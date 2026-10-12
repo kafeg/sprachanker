@@ -1471,6 +1471,7 @@
     "answered": "Απαντήθηκαν: {done, number} από {total, number}",
     "question": "Ερώτηση {n, number} από {total, number}",
     "practiceScore": "{count, plural, one {{points, number} από # απάντηση σωστή} other {{points, number} από # απαντήσεις σωστές}}",
+    "practicePoints": "Με τις ανοιχτές απαντήσεις: {points, number} από {max, number} μονάδες",
     "timeUp": "Ο χρόνος τελείωσε: μετράνε οι απαντήσεις που δόθηκαν ως τότε.",
     "needed": "χρειάζονται {points, number} από {max, number}",
     "practiseMistakes": "Εξάσκηση στα λάθη",

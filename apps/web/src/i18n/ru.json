@@ -1471,6 +1471,7 @@
     "answered": "Отвечено: {done, number} из {total, number}",
     "question": "Вопрос {n, number} из {total, number}",
     "practiceScore": "{count, plural, one {Верно {points, number} из # ответа} few {Верно {points, number} из # ответов} many {Верно {points, number} из # ответов} other {Верно {points, number} из # ответа}}",
+    "practicePoints": "С открытыми ответами: {points, number} из {max, number} баллов",
     "timeUp": "Время вышло: засчитаны ответы, данные до этого.",
     "needed": "нужно {points, number} из {max, number}",
     "practiseMistakes": "Тренировать ошибки",

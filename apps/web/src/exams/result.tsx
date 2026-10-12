@@ -1,5 +1,6 @@
 // An exam run handed in (09, Exams; owner's choice 4B, 2026-10-10): the points and each pass mark
-// reached or not, the points by section, then the questions answered wrongly or not at all with the
+// reached or not, the points by section (practice: the answers right of those marked, as its tally
+// counts them, and the points with the open answers apart), then the questions answered wrongly or not at all with the
 // right answer (all of them on request), and the ways on: practise the mistakes, try again, back.
 
 import { examPassed, examScore, markMax, marksOf } from "@sprachanker/engine";
@@ -28,6 +29,7 @@ import { ProgressRing } from "@/ui/progress-ring.tsx";
 import { cn } from "@/ui/utils.ts";
 import { latestAnswers } from "./questions.ts";
 import { OpenAnswerRating } from "./rating.tsx";
+import { runTally } from "./run-state.ts";
 import { QuestionCard } from "./teil.tsx";
 
 export function ExamResultView({
@@ -75,6 +77,10 @@ export function ExamResultView({
   const passed = !!examPassed(result);
   // A mock exam on the exam's own scale (Goethe A1: the modules' scaled points), as its marks count.
   const score = result ? examScore(result, run.plan.mode) : { points: 0, max: 0 };
+  // Practice: the answers right of those marked right or wrong, as the run's tally counts them.
+  const tally = runTally(asked, answers);
+  const marked = tally.right + tally.wrong;
+  const share = practice ? marked && tally.right / marked : score.max && score.points / score.max;
   /** A section's title; with modules, its module's too ("Hören · Teil 1"). */
   const sectionTitle = (key: string) => {
     const title = locale?.sections[key as keyof typeof locale.sections]?.title ?? "";
@@ -114,15 +120,20 @@ export function ExamResultView({
         <section className={cn(panelClass, "mt-3 p-5 shadow-sm")}>
           <div className="flex items-center gap-4">
             <ProgressRing
-              value={score.max ? score.points / score.max : 0}
-              text={percent(score.max ? score.points / score.max : 0)}
+              value={share}
+              text={percent(share)}
               tone={!judged ? "primary" : passed ? "correct" : "wrong"}
             />
             <div>
               {practice ? (
-                <h1 className="font-heading text-2xl font-bold">
-                  {t("exams.practiceScore", { points: score.points, count: score.max })}
-                </h1>
+                <>
+                  <h1 className="font-heading text-2xl font-bold">
+                    {t("exams.practiceScore", { points: tally.right, count: marked })}
+                  </h1>
+                  {open.length > 0 && (
+                    <p className="font-medium tabular-nums">{t("exams.practicePoints", score)}</p>
+                  )}
+                </>
               ) : !judged ? (
                 <h1 className="font-heading text-2xl font-bold">{t("exams.points", score)}</h1>
               ) : (

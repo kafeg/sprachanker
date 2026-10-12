@@ -1471,6 +1471,7 @@
     "answered": "Відповіді: {done, number} з {total, number}",
     "question": "Запитання {n, number} з {total, number}",
     "practiceScore": "{count, plural, one {{points, number} з # відповіді правильно} few {{points, number} з # відповідей правильно} many {{points, number} з # відповідей правильно} other {{points, number} з # відповіді правильно}}",
+    "practicePoints": "З відкритими відповідями: {points, number} з {max, number} балів",
     "timeUp": "Час вийшов: зараховуються відповіді, дані до цього моменту.",
     "needed": "потрібно {points, number} з {max, number}",
     "practiseMistakes": "Потренувати помилки",

@@ -1471,6 +1471,7 @@
     "answered": "Respondidas: {done, number} de {total, number}",
     "question": "Pregunta {n, number} de {total, number}",
     "practiceScore": "{count, plural, one {{points, number} de # respuesta correcta} other {{points, number} de # respuestas correctas}}",
+    "practicePoints": "Con las respuestas abiertas: {points, number} de {max, number} puntos",
     "timeUp": "Se acabó el tiempo: cuentan las respuestas dadas hasta entonces.",
     "needed": "Se necesitan {points, number} de {max, number}",
     "practiseMistakes": "Practicar los errores",

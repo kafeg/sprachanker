@@ -358,6 +358,58 @@ test("a result: passed or not by each pass mark, the mistakes with their right a
   expect(view.getByRole("button", { name: "Practise the mistakes" })).toBeTruthy();
 });
 
+test("a practice's result: the answers right of those marked, as its tally; the points with the open answers apart", async () => {
+  const open = {
+    key: `${KEY}/q-w1`,
+    type: "respond",
+    criteria: [{ id: "task", levels: [0, 1, 2, 3] }],
+  } as unknown as ExamItem;
+  const asked = [items[0], items[1], open] as ExamItem[];
+  const run = {
+    ...finished(0, []),
+    plan: { mode: "practice", items: asked.map((i) => i.key), snapshot: asked },
+    // The points: one right answer and the open answer's 2.5 of 10.
+    result: { points: 3.5, max: 12, answered: 3, sections: {}, passed: [] },
+  } as unknown as ExamRun;
+  const answered = (itemKey: string, result: string, answer: object) => ({
+    id: itemKey,
+    runId: run.id,
+    ts: 1,
+    type: "answered",
+    itemKey,
+    cardId: null,
+    payload: {
+      answer,
+      attempt: 1,
+      ms: 1,
+      outcome: { result, score: result === "correct" ? 1 : 0, ruleIds: [], lexemes: [] },
+    },
+  });
+  const events = [
+    answered(items[0]?.key as string, "correct", { optionId: "a" }),
+    answered(items[1]?.key as string, "wrong", { optionId: "b" }),
+    answered(open.key, "unscored", { text: "Hallo" }),
+  ];
+  const view = await renderApp(
+    <TargetLang value="de">
+      <ExamResultView
+        title="Leben in Deutschland"
+        params={params}
+        run={run}
+        exam={exam}
+        locale={locale as never}
+        items={asked}
+        events={events as never}
+        onLeave={() => {}}
+      />
+    </TargetLang>,
+    { path: "/exam/run" },
+  );
+  expect(view.getByRole("heading", { name: "1 of 2 answers right" })).toBeTruthy();
+  expect(view.getByRole("img", { name: "50%" })).toBeTruthy();
+  expect(view.getByText("With the open answers: 3.5 of 12 points")).toBeTruthy();
+});
+
 test("an open answer rated: a criterion that voids the answer, not rated yet, is told as what keeps it at 0", async () => {
   const item = {
     key: `${KEY}/q-w1`,

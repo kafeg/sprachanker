@@ -1471,6 +1471,7 @@
     "answered": "تمت الإجابة: {done, number} من {total, number}",
     "question": "السؤال {n, number} من {total, number}",
     "practiceScore": "{count, plural, zero {{points, number} صحيحة من أصل # إجابة} one {{points, number} صحيحة من أصل إجابة واحدة} two {{points, number} صحيحة من أصل إجابتين} few {{points, number} صحيحة من أصل # إجابات} many {{points, number} صحيحة من أصل # إجابةً} other {{points, number} صحيحة من أصل # إجابة}}",
+    "practicePoints": "مع الإجابات المفتوحة: {points, number} من {max, number} نقطة",
     "timeUp": "انتهى الوقت: تُحتسب الإجابات المقدَّمة حتى تلك اللحظة.",
     "needed": "المطلوب {points, number} من {max, number}",
     "practiseMistakes": "تدرّب على الأخطاء",

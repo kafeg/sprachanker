@@ -1471,6 +1471,7 @@
     "answered": "Cevaplanan: {done, number} / {total, number}",
     "question": "Soru {n, number} / {total, number}",
     "practiceScore": "{count, plural, one {# cevaptan {points, number} tanesi doğru} other {# cevaptan {points, number} tanesi doğru}}",
+    "practicePoints": "Açık cevaplarla birlikte: {max, number} puandan {points, number}",
     "timeUp": "Süre doldu: o ana kadar verilen cevaplar sayılır.",
     "needed": "{max, number} puandan {points, number} puan gerekli",
     "practiseMistakes": "Hatalar üzerinde pratik yap",
