@@ -29,7 +29,12 @@ afterEach(() => {
   globalThis.fetch = real;
 });
 
-const render = (events: TypedEvent[], answers: Array<[string, boolean]>, stored: unknown[] = []) =>
+const render = (
+  events: TypedEvent[],
+  answers: Array<[string, boolean]>,
+  stored: unknown[] = [],
+  again = false,
+) =>
   renderApp(
     <TargetLang value="de">
       <ExamConversation
@@ -38,6 +43,7 @@ const render = (events: TypedEvent[], answers: Array<[string, boolean]>, stored:
         events={events}
         onStored={(kept) => stored.push(...kept)}
         onAnswer={(text, final) => answers.push([text, final])}
+        again={again}
       />
     </TargetLang>,
     { data: [[["llm"], { provider: "custom", model: "m", providers: [] }]] },
@@ -87,4 +93,39 @@ test("a part ended shows ended: no composer, no End; only the examiner greeting 
   fireEvent.click(open.getByRole("button", { name: "End the part" }));
   await waitFor(() => expect(stored).toEqual([ended]));
   expect(answers).toEqual([]);
+});
+
+test("a part ended with nothing said: begun again in practice, its new conversation shown alone; a mock exam's stays unanswered", async () => {
+  const ended = turn({ role: "user", text: "", done: true });
+  const anew = turn({
+    role: "assistant",
+    speaker: "examiner",
+    text: "Noch einmal: Wie heißen Sie?",
+  });
+  const asked: unknown[] = [];
+  globalThis.fetch = (async (input: RequestInfo | URL, init?: RequestInit) => {
+    const request = input instanceof Request ? input : new Request(String(input), init);
+    asked.push(await request.json());
+    return Response.json({ events: [anew], done: false });
+  }) as typeof fetch;
+
+  // A mock exam: said to be unanswered, nothing to begin again.
+  const exam = await render([greeting, ended], []);
+  expect(exam.getByText("Nothing was said: the part is not answered.")).toBeTruthy();
+  expect(exam.queryByRole("button", { name: "Begin the part again" })).toBeNull();
+  exam.unmount();
+
+  // Practice: begun again — the examiner opens it anew.
+  const stored: TypedEvent[] = [];
+  const view = await render([greeting, ended], [], stored, true);
+  fireEvent.click(view.getByRole("button", { name: "Begin the part again" }));
+  await waitFor(() => expect(stored).toEqual([anew]));
+  expect(asked[0]).toEqual({ runId: "R", itemKey: ITEM, language: "en" });
+  view.unmount();
+  const answers: Array<[string, boolean]> = [];
+  const next = await render([greeting, ended, anew], answers, [], true);
+  expect(next.getByText("Noch einmal: Wie heißen Sie?")).toBeTruthy();
+  expect(next.queryByText("Guten Tag!")).toBeNull();
+  expect(next.queryByText("The part is over.")).toBeNull();
+  expect(next.getByRole("button", { name: "End the part" })).toBeTruthy();
 });

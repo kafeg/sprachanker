@@ -1533,7 +1533,9 @@
       "start": "Zacznij część",
       "over": "Ta część się zakończyła.",
       "placeholder": "Twoja odpowiedź…",
-      "end": "Zakończ część"
+      "end": "Zakończ część",
+      "unsaid": "Nic nie zostało powiedziane — ta część nie ma odpowiedzi.",
+      "again": "Zacznij część od nowa"
     },
     "choose": "Wybierz egzamin"
   },

@@ -1533,7 +1533,9 @@
       "start": "Počni dio",
       "over": "Dio je završen.",
       "placeholder": "Tvoj odgovor…",
-      "end": "Završi dio"
+      "end": "Završi dio",
+      "unsaid": "Ništa nije rečeno — ovaj dio nema odgovora.",
+      "again": "Počni dio ponovo"
     },
     "choose": "Izaberi ispit"
   },

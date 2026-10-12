@@ -1533,7 +1533,9 @@
       "start": "Începe proba",
       "over": "Proba s-a încheiat.",
       "placeholder": "Răspunsul tău…",
-      "end": "Încheie proba"
+      "end": "Încheie proba",
+      "unsaid": "Nu s-a spus nimic: partea a rămas fără răspuns.",
+      "again": "Începe partea din nou"
     },
     "choose": "Alege un examen"
   },

@@ -3,6 +3,7 @@
 // the learner takes the proposal or changes it, and only that rating scores (`exam_rated`). A proposal
 // is an `llm_verdict` (`task: exam`) on the question in the exam run, for the answer it rated: asked
 // once per answer, shown again without asking. A mock exam is rated only once handed in.
+import { conversationAnswer, latestConversation } from "@sprachanker/engine";
 import {
   conversationOf,
   type ExamAnswerInput,
@@ -64,14 +65,15 @@ export function createExamRating(deps: { llm: Llm; store: RunStore; exams: Exams
       samples: item.type === "respond" ? item.reference : [],
       answer: text,
     };
-    // A speaking part held as a conversation: rated with what the learner answered.
-    const conversation = conversationOf(
+    // A speaking part answered by its conversation (not another way, the assistant switched off
+    // after it): rated with what the learner answered.
+    const held = latestConversation(
       store
         .events(request.runId, ["llm_turn"])
         .filter((e) => e.itemKey === request.itemKey)
         .map((e) => payloadOf<LlmTurnPayload>(e)),
     );
-    if (conversation.length) task.conversation = conversation;
+    if (conversationAnswer(held) === text) task.conversation = conversationOf(held);
     return { task, text };
   }
 

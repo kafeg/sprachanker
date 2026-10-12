@@ -74,6 +74,21 @@ test("a speaking part held as a conversation: rated as its lines, each speaker n
   expect(request.messages[0]?.content).toContain("rate only the learner's (A) lines");
 });
 
+test("a long conversation keeps its end: the learner's last lines are rated", () => {
+  const turns = Array.from({ length: 120 }, (_, i) => [
+    { role: "assistant" as const, speaker: "examiner" as const, text: `Frage ${i}: Und dann?` },
+    { role: "user" as const, text: `Antwort ${i}: Ich gehe dann nach Hause.` },
+  ]).flat();
+  const content =
+    rateExamAnswerTask({ ...input, answer: "…", conversation: conversationOf(turns) }).request
+      .messages[1]?.content ?? "";
+  const answer = content.slice(content.indexOf("<answer>"), content.indexOf("</answer>"));
+  expect(answer).toContain("Learner (A): Antwort 119: Ich gehe dann nach Hause.\n");
+  expect(answer).toContain("… ");
+  expect(answer).not.toContain("Antwort 0:");
+  expect(answer.length).toBeLessThanOrEqual(4100);
+});
+
 test("points not among a criterion's levels, or a criterion left out, are repaired once", async () => {
   const reply = (criteria: unknown) => JSON.stringify({ criteria, feedback: "Mehr." });
   const { client, seen } = scripted([

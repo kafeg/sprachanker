@@ -3,6 +3,7 @@ export * from "./check/index.ts";
 export * from "./check/mistake-items.ts";
 export * from "./check/understanding.ts";
 export * from "./compose/steps.ts";
+export * from "./exam/conversation.ts";
 export * from "./exam/index.ts";
 export * from "./learner/activity.ts";
 export * from "./learner/going-over.ts";

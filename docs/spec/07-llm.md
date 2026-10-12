@@ -165,11 +165,15 @@ model plays the examiner and the other candidate, the learner (candidate A) answ
 part" opens it, each line said (heard by the recogniser) or typed gets the next lines, read aloud;
 never a hint or a correction. Every line is an `llm_turn` on the question in the exam run (in a mock
 exam too, while it runs); "End the part" keeps the learner's ending (an empty line of theirs, `done`:
-once — the part shows ended, nothing more is said). The learner's own lines are the part's answer —
+once — the part shows ended, nothing more is said). Ended with nothing said, a mock exam's part stays
+unanswered and practice's may be begun again — the examiner opens it anew; the part is its latest
+conversation (engine `latestConversation`). The learner's own lines are the part's answer —
 only once they have said something, and again only when they changed (a mock exam keeps it as it
 goes, practice once the part is over or the learner ends it) —, never the speakers' labels in the
 interface's language; it is rated by the part's criteria like any open answer, the rater given the
-conversation around it (QA 2026-10-12). Without an assistant (or its place off) the part is answered aloud or typed as any open
+conversation around it when the answer is that conversation's (not one said or typed another way,
+the assistant switched off after it) — a long one clipped from its start, keeping the learner's last
+lines. Without an assistant (or its place off) the part is answered aloud or typed as any open
 answer.
 "Make examples" under a deck in Review → Decks → `word_examples`, a call per five of its words without
 examples, kept beside the deck (04, "A deck's words given examples"; earlier versions' one-at-a-time

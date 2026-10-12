@@ -1533,7 +1533,9 @@
       "start": "A rész indítása",
       "over": "A rész véget ért.",
       "placeholder": "A válaszod…",
-      "end": "A rész befejezése"
+      "end": "A rész befejezése",
+      "unsaid": "Nem hangzott el semmi: a rész megválaszolatlan.",
+      "again": "A rész újrakezdése"
     },
     "choose": "Válassz vizsgát"
   },
