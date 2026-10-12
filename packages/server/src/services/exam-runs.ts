@@ -30,6 +30,7 @@ import {
   examLang,
   type LocaleExam,
   type Outcome,
+  parseLessonKey,
   type SettingKey,
   seriesOf,
 } from "@sprachanker/schema";
@@ -123,6 +124,13 @@ export function createExamRuns({
       throw new ServiceError("not_installed", 404);
     }
   };
+  /** The exam of a run going on: `course_gone` (409) when its course was removed (05, "Sending"). */
+  const examOfRun = (run: ExamRun) =>
+    content
+      .ofRun(parseLessonKey(run.exam).course, () => content.exam(seriesOf(run.exam), run.exam))
+      .catch((e: unknown) => {
+        throw e instanceof ServiceError ? e : new ServiceError("not_installed", 404);
+      });
   /** A run's events as the learner may see them: a mock exam still running keeps its outcomes to
    *  itself (they would give the answers away). */
   const shownEvents = (run: ExamRun) => {
@@ -159,7 +167,7 @@ export function createExamRuns({
   }
   /** Ends the run with its result; one handed in after its time ends as `timeout`. */
   async function handIn(runId: string, run: ExamRun) {
-    const exam = await examOf(run.exam);
+    const exam = await examOfRun(run);
     const late = run.plan.deadline !== null && now() > run.plan.deadline;
     store.end(runId, "finished", late ? "timeout" : "completed", resultOf(exam, run));
   }
@@ -188,7 +196,8 @@ export function createExamRuns({
   /** A run as the player opens it: the run, its answers (a running mock exam's without their
    *  outcomes) and the server's clock, which the countdown keeps to. */
   async function open(runId: string) {
-    await settle(getRun(runId).run);
+    // One of an exam no longer installed stays as it is (settleOverdue).
+    await settle(getRun(runId).run).catch(() => undefined);
     const { row, run } = getRun(runId);
     const scored = run.result ? (toExamRun(row, await installed(run.exam)) ?? run) : run;
     return { run: scored, events: shownEvents(run), now: now() };
@@ -199,7 +208,7 @@ export function createExamRuns({
   async function openAnswer(runId: string, itemKey: string) {
     const { row, run } = getRun(runId);
     if (row.status === "abandoned") throw new ServiceError("run_not_active", 409);
-    const exam = await examOf(run.exam);
+    const exam = await examOfRun(run);
     const item = run.plan.items.includes(itemKey as ExamItemKey)
       ? questionOf(exam, run, itemKey)
       : undefined;
@@ -221,7 +230,7 @@ export function createExamRuns({
     if (row.status !== "active") throw new ServiceError("run_not_active", 409);
     if (run.plan.deadline !== null && now() > run.plan.deadline)
       throw new ServiceError("exam_time_over", 409);
-    const exam = await examOf(run.exam);
+    const exam = await examOfRun(run);
     const item = run.plan.items.includes(itemKey as ExamItemKey)
       ? questionOf(exam, run, itemKey)
       : undefined;
@@ -293,7 +302,7 @@ export function createExamRuns({
         await handIn(runId, run);
         throw new ServiceError("exam_time_over", 409);
       }
-      const exam = await examOf(run.exam);
+      const exam = await examOfRun(run);
       // Answers are checked in the language the exam is in (04).
       const lang = examLang(row.edition);
       const asked = new Set<string>(run.plan.items);

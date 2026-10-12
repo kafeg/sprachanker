@@ -1,7 +1,9 @@
 // Exam runs through the API, on the fixture course's mini exam: two general questions and one of the
 // learner's state (Berlin or Bavaria), pass marks 2 and 3.
 import { expect, test } from "bun:test";
-import { EXAM, MODELL } from "@sprachanker/course-fixture";
+import { join } from "node:path";
+import { EXAM, FIXTURE_SERIES, MODELL, writeFixtureLibrary } from "@sprachanker/course-fixture";
+import { removeCourse } from "@sprachanker/course-kit";
 import { ulid } from "ulid";
 import { createRunStore } from "../src/services/run-store.ts";
 import { setup } from "./setup.ts";
@@ -470,4 +472,24 @@ test("an exam reset: its mock exams and practice go, the course's other exam kee
   expect(mini).toMatchObject({ key: EXAM, last: null, tests: 0, active: null });
   expect((await api.send("GET", `/api/exams/runs/${run.id}`, undefined)).status).toBe(404);
   expect((await api.getJson(`/api/exams/runs/${other.id}`)).run.status).toBe("active");
+});
+
+test("an exam run whose course was removed: its answers wait for it (course_gone), stored once it is back", async () => {
+  const api = await inBerlin();
+  const { run } = await api.sendJson("POST", "/api/exams/runs", {
+    exam: EXAM,
+    edition: "en-de",
+    mode: "practice",
+  });
+  const library = join(api.root, "library");
+  await removeCourse(library, FIXTURE_SERIES, "demo");
+  const first = answer("be-01", "a");
+  const refused = await api.send("POST", `/api/exams/runs/${run.id}/events`, { events: [first] });
+  expect(refused.status).toBe(409);
+  expect(await refused.json()).toEqual({ error: "course_gone" });
+  // The run still opens.
+  expect((await api.getJson(`/api/exams/runs/${run.id}`)).run.id).toBe(run.id);
+  await writeFixtureLibrary(library);
+  const sent = await api.sendJson("POST", `/api/exams/runs/${run.id}/events`, { events: [first] });
+  expect(sent.outcomes[first.id].result).toBe("correct");
 });

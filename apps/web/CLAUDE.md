@@ -46,6 +46,7 @@ apps/web/src/
                    # exam (an exam's runs and questions as they stand), review-day (a deck's day: its answers), mark
   library/         # what feature folders share: card (a course's or an exam's, an offer, the publisher),
                    # hero (their page's head), tab-page (Courses' and Exams' tabs), download, upkeep, bundle (a course to a file and back),
+                   # course-gone (a course or exam not on this computer: its offer to download again),
                    # reset-progress, exam-address, item-history (an item across passes), spoken-check,
                    # understanding-text (a text, its glossed words — glossed.ts —, its questions answered), mistakes-review (mistakes gone over by type), practice-item (an item the assistant set)
   api/             # client (Hono RPC, hono/client; no codegen) + TanStack Query hooks by area: settings

@@ -78,7 +78,8 @@
     "checkAgain": "Check again",
     "complete": "All downloaded",
     "next": "next: {where} — {title}",
-    "notInstalled": "This course is not installed (any more).",
+    "gone": "This course isn't on this computer any more — download it again to go on.",
+    "examGone": "This exam isn't on this computer any more — download it again to go on.",
     "checkFiles": "Check",
     "problem": {
       "missingMedia": "File missing: {at}",
@@ -1316,7 +1317,7 @@
     "card_changed": "This card changed on another device. It is shown again.",
     "downloads_unavailable": "Courses cannot be downloaded here.",
     "course_busy": "This course is downloading. Remove it once the download has ended.",
-    "course_in_use": "A lesson or exam of this course is still under way: finish it (or reset the course's progress) before removing the course.",
+    "course_gone": "This course isn't on this computer any more — download it again to go on.",
     "empty_recording": "The recording is empty. Try again.",
     "event_id_taken": "This answer was already recorded differently. Reload the page.",
     "event_of_another_run": "This record belongs to another pass. Reload the lesson.",

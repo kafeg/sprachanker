@@ -376,7 +376,9 @@ export function createLessons({ store, content }: { store: RunStore; content: Co
       }
       if (!row.edition) throw new ServiceError("run_without_edition", 409);
       const series = seriesOf(row.contextKey as LessonKey);
-      const lesson = await content.lesson(series, row.contextKey as LessonKey);
+      const lesson = await content.ofRun(row.courseKey, () =>
+        content.lesson(series, row.contextKey as LessonKey),
+      );
       const locale = await content.localeLesson(series, lesson.key, row.edition);
       // Answers are checked in the language the edition teaches (case rules differ, 04).
       const target = parseEditionId(row.edition).target;
@@ -430,7 +432,9 @@ export function createLessons({ store, content }: { store: RunStore; content: Co
       const row = getRun(runId);
       if (row.status !== "active") return toRun(row);
       const series = seriesOf(row.contextKey as LessonKey);
-      const lesson = await content.lesson(series, row.contextKey as LessonKey);
+      const lesson = await content.ofRun(row.courseKey, () =>
+        content.lesson(series, row.contextKey as LessonKey),
+      );
       const locale = row.edition
         ? await content.localeLesson(series, lesson.key, row.edition)
         : undefined;

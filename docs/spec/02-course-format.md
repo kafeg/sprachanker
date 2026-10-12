@@ -327,10 +327,13 @@ media removed (a download fetches them again); `keys.json` stays, so the course 
 its keys and the learner's runs, cards and Notebook meet it. The rest of `raw/` stays (a source's
 pages, possibly another course's); then a `media.json` naming nothing and the folders left empty go.
 Learner data is untouched: runs keep what they showed (an exam run its snapshot), cards their words —
-a card's recording from the course plays again once it is back. Refused while a profile has a lesson
-or exam of the course under way (its run active: resumed, it would have nothing to show; 409
-`course_in_use`, 06). Removed from the command line while a server runs on the data root, the CLI says
-to restart it: the server keeps the course's words its review cards read until then.
+a card's recording from the course plays again once it is back. A lesson or exam under way may be
+removed too (owner, 2026-10-12: removal is never blocked, and the only other way out would delete
+learner data): opened, it says the course is not on this computer any more, with its offer to download
+it again (09); its events wait for it (409 `course_gone`, 05 "Sending") and the run goes on once it is
+back. The Notebook reads its passes from their snapshots meanwhile. Removed from the command line while
+a server runs on the data root, the CLI says to restart it: the server keeps the course's words its
+review cards read until then. The API and the CLI remove through one path (`removeInstalledCourse`).
 
 ## Course bundle
 

@@ -78,7 +78,8 @@
     "checkAgain": "Volver a comprobar",
     "complete": "Todo descargado",
     "next": "siguiente: {where} — {title}",
-    "notInstalled": "Este curso no está instalado (o ya no lo está).",
+    "gone": "Este curso ya no está en este ordenador — descárgalo de nuevo para seguir.",
+    "examGone": "Este examen ya no está en este ordenador — descárgalo de nuevo para seguir.",
     "checkFiles": "Comprobar",
     "problem": {
       "missingMedia": "Falta el archivo: {at}",
@@ -1316,7 +1317,7 @@
     "card_changed": "Esta tarjeta cambió en otro dispositivo. Se muestra de nuevo.",
     "downloads_unavailable": "Aquí no se pueden descargar cursos.",
     "course_busy": "Este curso se está descargando. Quítalo cuando termine la descarga.",
-    "course_in_use": "Una lección o un examen de este curso sigue a medias: termínalo (o restablece el progreso del curso) antes de quitar el curso.",
+    "course_gone": "Este curso ya no está en este ordenador — descárgalo de nuevo para seguir.",
     "empty_recording": "La grabación está vacía. Inténtalo otra vez.",
     "event_id_taken": "Esta respuesta ya se registró de otra forma. Vuelve a cargar la página.",
     "event_of_another_run": "Este registro pertenece a otra vuelta. Vuelve a cargar la lección.",

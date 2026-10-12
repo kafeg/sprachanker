@@ -17,8 +17,9 @@ import { useNavigate } from "@tanstack/react-router";
 import { ArrowLeft, Timer } from "lucide-react";
 import { useMemo, useRef, useState } from "react";
 import { useTranslation } from "react-i18next";
-import { mediaUrl } from "@/api/client.ts";
+import { ApiError, mediaUrl } from "@/api/client.ts";
 import { useExamPage, useExamRun, useKeepRunEvents } from "@/api/exams.ts";
+import { CourseGone } from "@/library/course-gone.tsx";
 import { type ExamParams, examKeyOf } from "@/library/exam-address.ts";
 import { Button } from "@/ui/components/button.tsx";
 import { Progress } from "@/ui/components/progress.tsx";
@@ -47,6 +48,9 @@ export function ExamPlayer({ params, runId }: { params: ExamParams; runId: strin
 
   if (query.isPending || (run && page.isPending)) return <Loading />;
   if (query.isError) return <ErrorState error={query.error} onRetry={() => query.refetch()} />;
+  // Its course removed: said so, with its offer (the run waits for it).
+  if (page.error instanceof ApiError && page.error.message === "not_installed")
+    return <CourseGone series={params.series} course={params.course} kind="exam" />;
   if (page.isError) return <ErrorState error={page.error} onRetry={() => page.refetch()} />;
   if (!run || !page.data) return <Loading />;
   const target = examLang(run.edition);

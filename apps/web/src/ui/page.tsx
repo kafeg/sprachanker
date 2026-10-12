@@ -1,6 +1,5 @@
 // Page pieces every screen uses (09): the page with its title, loading, errors, empty states, a link back,
 // a course that is not installed. Presentational: no data of their own.
-import { Link } from "@tanstack/react-router";
 import { ArrowLeft } from "lucide-react";
 import { useTranslation } from "react-i18next";
 import { errorText } from "./error-text.ts";
@@ -70,22 +69,6 @@ export function BackLink({ onClick, children }: { onClick(): void; children: Rea
 export function Loading() {
   const { t } = useTranslation();
   return <p className="p-8 text-muted-foreground">{t("common.loading")}</p>;
-}
-
-/** A course (or a lesson of it) that is not installed: a stale link, a course removed. */
-export function NotInstalled() {
-  const { t } = useTranslation();
-  return (
-    <div className="m-6 space-y-2 rounded-xl border p-4">
-      <p>{t("course.notInstalled")}</p>
-      <Link
-        to="/catalog"
-        className="inline-flex items-center font-semibold underline pointer-coarse:min-h-11"
-      >
-        {t("courses.tabs.available")}
-      </Link>
-    </div>
-  );
 }
 
 export function ErrorState({
