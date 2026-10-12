@@ -222,7 +222,8 @@ imported `.apkg` decks fit in. Scheduling and the queue are pure functions in
   preview and the import say how many and why. A deck's words are its lexemes, as its cards are: a
   note of a word already in it ("ab" twice, "с" and "в, от, прочь") joins that word — its first
   note's word and key, every note's translation ("с; в, от, прочь"), examples and tags, the first
-  audio —, said in the preview and the import; the preview counts words as the import makes them (in
+  audio —, said in the preview and the import (a note of it that makes no word of its own, as a guid
+  too long for a key, is left out alone); the preview counts words as the import makes them (in
   the first language its fields are named by), with audio only those whose file the package holds.
   So a word a course has links to its card. A card made from a
   deck's word has the deck in its source (`deck:<id>/<guid>`): two decks sharing a note never take
@@ -231,7 +232,8 @@ imported `.apkg` decks fit in. Scheduling and the queue are pure functions in
   until imported, at most 512 MB, unpacking to at most 512 MB at a time — the collection, a batch of
   its media: a decompression bomb is refused) and previewed — its deck's name, words with audio and examples, the
   languages its fields are named by, the first words — then imported. A file imported again — most
-  of its notes those of a deck here (by guid), and that deck mostly them, in the same languages: the
+  of its words those of a deck here (by guid; words of several notes counted once, as the deck
+  counts them), and that deck mostly them, in the same languages: the
   preview names each such deck with its languages, the same file imported in two language pairs being
   two — updates that deck (another deck sharing a note, or the same in other languages,
   is one of its own), and cards follow their words (relinking); a card of a word the update drops

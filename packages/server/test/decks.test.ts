@@ -228,6 +228,42 @@ test("two notes of one word: one word, both senses' translations; the preview co
   expect(words.k?.audio).toBeUndefined();
 });
 
+test("a package of words most of them of two notes updates its deck when imported again; a note that makes no word leaves the word's other notes", async () => {
+  const { preview, sendJson, getJson, wordsOf } = await withDecks();
+  const pairs = ["ab", "damit", "doch"].flatMap((w) => [
+    { guid: `${w}1`, fields: [w, `${w}-1`] },
+    { guid: `${w}2`, fields: [w, `${w}-2`] },
+  ]);
+  // A guid too long for a word's key: that note is left out, not "auf"'s other one.
+  const notes = [
+    ...pairs,
+    { guid: "x".repeat(201), fields: ["auf", "на"] },
+    { guid: "auf2", fields: ["auf", "в"] },
+  ];
+  const request = (upload: string) => ({
+    upload,
+    title: "Paare",
+    lang: "de",
+    translationLang: "ru",
+    file: "p.apkg",
+  });
+  const apkg = () => buildApkg({ deck: "Paare", fields: ["german", "russian"], notes });
+  const first = await sendJson(
+    "POST",
+    "/api/decks/import",
+    request((await preview(apkg())).upload),
+  );
+  expect(first).toMatchObject({ words: 4, left: { unusable: 1, joined: 3 } });
+  expect((wordsOf(first.id) as Record<string, { translation?: string }>).auf2).toMatchObject({
+    translation: "в",
+  });
+  const again = await preview(apkg());
+  expect(again.updates).toMatchObject([{ id: first.id }]);
+  const updated = await sendJson("POST", "/api/decks/import", request(again.upload));
+  expect(updated.id).toBe(first.id);
+  expect((await getJson("/api/decks")).decks).toHaveLength(1);
+});
+
 test("fields named by language: the translation in the language chosen, the deck's examples with their audio on the card", async () => {
   const { preview, importDeck, getJson, sendJson, get, wordsOf } = await withDecks();
   const fields = [
