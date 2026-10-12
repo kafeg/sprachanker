@@ -58,7 +58,7 @@ const TRUE_FALSE: Partial<Record<Lang, string>> = {
   de: 'True/false options are "Richtig" and "Falsch", as the Goethe-Zertifikat writes them.',
 };
 
-/** How often a text uses the lesson's grammar at a CEFR level (walkthrough, 2026-10-12): from A2
+/** How often a text uses the lesson's grammar at a CEFR level: from A2
  *  on, twice at least; a beginner's text is free of it. */
 const GRAMMAR_USES: Record<string, number> = { A2: 2, B1: 2, B2: 2, C1: 2, C2: 2 };
 
@@ -140,7 +140,7 @@ export function understandingProblem(
       q.options?.some((o) => writtenIn(o, language, target)),
   );
   if (mixed)
-    return `a question in ${languageName(target)} has its options in ${languageName(target)}`;
+    return `a question in ${languageName(target)} has an option in ${languageName(language)}: a question's options in its language`;
   return undefined;
 }
 

@@ -169,7 +169,9 @@ test("understandingProblem: a course character in the text, a title in the learn
       i === 2 ? { ...q, options: ["утром", "вечером", "ночью"] } : q,
     ),
   };
-  expect(understandingProblem(mixed, input)).toBe("a question in German has its options in German");
+  expect(understandingProblem(mixed, input)).toBe(
+    "a question in German has an option in Russian: a question's options in its language",
+  );
   // Languages written alike are not told apart: no check.
   expect(understandingProblem(german, { ...input, language: "en" })).toBeUndefined();
   // The task's check: repaired once.
