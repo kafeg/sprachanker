@@ -541,3 +541,58 @@ test("the second speaker by a voice of the other gender where the voices say the
     (globalThis as { Audio: unknown }).Audio = realAudio;
   }
 });
+
+test("a long text listened to: only the next few lines asked for ahead, those let go when it is paused or left", async () => {
+  const asked: Array<{ text: string; signal?: AbortSignal | null }> = [];
+  const ends: Array<() => void> = [];
+  const realFetch = globalThis.fetch;
+  const realAudio = globalThis.Audio;
+  globalThis.fetch = (async (input: RequestInfo | URL, init?: RequestInit) => {
+    const request = input instanceof Request ? input : new Request(String(input), init);
+    asked.push({ ...((await request.json()) as { text: string }), signal: init?.signal });
+    return new Response(new Blob([new Uint8Array([1])], { type: "audio/wav" }));
+  }) as typeof fetch;
+  (globalThis as { Audio: unknown }).Audio = class {
+    onended?: () => void;
+    async play() {
+      ends.push(() => this.onended?.());
+    }
+    pause() {}
+  };
+  const lines = ["Eins.", "Zwei.", "Drei.", "Vier.", "Fünf.", "Sechs."].map((text) => ({
+    text,
+    lang: "de",
+  }));
+  try {
+    const view = await renderApp(<Listener parts={lines} />, {
+      data: [
+        [["settings"], { "speech.readEngine": "piper" }],
+        [["piper-voices"], PIPER],
+      ],
+    });
+    fireEvent.click(view.getByRole("button", { name: "play" }));
+    await waitFor(() => expect(ends).toHaveLength(1));
+    await act(() => new Promise((r) => setTimeout(r, 20)));
+    // The first line playing: it and the next two asked for, no more.
+    expect(asked.map((a) => a.text)).toEqual(["Eins.", "Zwei.", "Drei."]);
+    act(() => ends[0]?.());
+    await waitFor(() => expect(ends).toHaveLength(2));
+    await waitFor(() => expect(asked.map((a) => a.text)).toContain("Vier."));
+    expect(asked).toHaveLength(4);
+    // Paused: what was asked for ahead and not read is let go.
+    fireEvent.click(view.getByRole("button", { name: "pause" }));
+    const waiting = asked.filter((a) => a.text === "Drei." || a.text === "Vier.");
+    expect(waiting.every((a) => a.signal?.aborted)).toBe(true);
+    // Played on from its line: asked again, the next few only.
+    fireEvent.click(view.getByRole("button", { name: "play" }));
+    await waitFor(() => expect(ends).toHaveLength(3));
+    await act(() => new Promise((r) => setTimeout(r, 20)));
+    expect(asked.slice(4).map((a) => a.text)).toEqual(["Zwei.", "Drei.", "Vier."]);
+    // Left: the reading and what it asked for ahead stop.
+    view.unmount();
+    expect(asked.slice(5).every((a) => a.signal?.aborted)).toBe(true);
+  } finally {
+    globalThis.fetch = realFetch;
+    (globalThis as { Audio: unknown }).Audio = realAudio;
+  }
+});

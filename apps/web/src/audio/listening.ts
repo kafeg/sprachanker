@@ -1,7 +1,7 @@
 // A text to listen to (08; Understanding, 09): its parts — a dialogue's lines, each speaker's voice —
 // read one after another by the profile's engine, paused (it goes on from the line it was at) and
 // played again from the start, as often as wanted; the line being read and how often it was heard
-// to its end are known; the lines to come are asked for ahead.
+// to its end are known; the next few lines are asked for ahead.
 import { useEffect, useRef, useState } from "react";
 import type { SpokenPart } from "./speak.ts";
 import { readingId, useSpeaker } from "./speaker.ts";
@@ -27,11 +27,11 @@ export function useListening(parts: SpokenPart[]) {
   async function from(start: number) {
     const mine = ++current.current;
     setPlaying(true);
-    // Every line from here asked for at once, one after another: no pause between lines while the
-    // server's voice makes the next.
-    speaker.prepare(parts.slice(start));
     for (let i = start; i < parts.length; i++) {
       setAt(i);
+      // This line and the next few asked for, one after another: no pause between lines while the
+      // server's voice makes the next.
+      speaker.prepare(parts.slice(i));
       const part = parts[i] as SpokenPart;
       // Each line a reading of its own: the same text twice is still two lines.
       const done = await speaker.say(`${readingId([part])}#${i}`, [part]);

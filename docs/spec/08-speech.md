@@ -126,8 +126,9 @@ writes (owner, 2026-10-08).
   voices by name: `audio/voice-genders.ts`), else Piper's next installed voice of it, Qwen3-TTS's next
   speaker, the device's next best voice —, else by the same one; which speaker that is, by their names
   only where obvious ("Frau Weber", "Nina": the one the main voice does not suit), else the second to
-  speak; every line from where it plays asked of the server at once, one after another, so the next
-  is ready when one ends; a line the server reads is kept in its reading cache, so hearing it again
+  speak; the line playing and the next two asked of the server ahead, one after another, so the next
+  is ready when one ends — no more (the engine says one at a time: more would only wait), and those
+  not read let go (their requests aborted) when it is paused, stopped or left; a line the server reads is kept in its reading cache, so hearing it again
   makes nothing anew. A reading that waits for the server's voice longer than a moment (Qwen3-TTS
   loading its model: half a minute the first time) says so ("Starting the voice…"), on "Listen" in
   Settings too. Nothing here reading the language, the text is shown to read instead and the
