@@ -253,6 +253,30 @@ export function markPoints(
   return exam.roundTotal ? Math.round(sum) : round2(sum);
 }
 
+/** A result of an exam of modules on the exam's own scale: its modules' scaled points together, as
+ *  its pass marks count them. */
+const scaledScore = (exam: Exam, result: Pick<ExamResult, "points" | "max" | "modules">) => ({
+  points: markPoints(exam, {}, result),
+  max: markMax(exam, {}, result),
+});
+
+/** A result as read: one kept before results had their `score`, of an exam of modules, given it
+ *  from its modules' points — as `examResult` gives it now — so every view shows one scale. */
+export const withScore = (exam: Exam, result: ExamResult): ExamResult =>
+  result.score || !result.modules || !exam.modules
+    ? result
+    : { ...result, score: scaledScore(exam, result) };
+
+/** A run's share of the most it could score (`examScore`): what runs taken over different modules
+ *  are compared by. */
+export const examShare = (
+  result: Pick<ExamResult, "points" | "max" | "score">,
+  mode: "test" | "practice",
+) => {
+  const { points, max } = examScore(result, mode);
+  return max ? points / max : 0;
+};
+
 const round2 = (n: number) => Math.round(n * 100) / 100;
 
 type Criteria = NonNullable<ExamItem["criteria"]>;
@@ -350,10 +374,7 @@ export function examResult(exam: Exam, plan: ExamPlan, events: TypedEvent[]): Ex
     answered: plan.items.filter((k) => latest.has(k)).length,
     ...(pending > 0 && { pending }),
     sections,
-    ...(exam.modules && {
-      modules,
-      score: { points: markPoints(exam, {}, totals), max: markMax(exam, {}, totals) },
-    }),
+    ...(exam.modules && { modules, score: scaledScore(exam, totals) }),
     passed,
     // A module taken alone without a pass mark of its own is not judged.
     ...(marks.length > 0 && {

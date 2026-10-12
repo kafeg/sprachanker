@@ -15,6 +15,7 @@ import {
   ratingsFit,
   sectionsOf,
   timeOf,
+  withScore,
 } from "@sprachanker/engine";
 import {
   type Exam,
@@ -45,14 +46,17 @@ const GRACE_MS = 30_000;
  *  WebCrypto: the same in every runtime). */
 const random = () => (crypto.getRandomValues(new Uint32Array(1))[0] as number) / 2 ** 32;
 
-const toExamRun = (row: RunRow): ExamRun | undefined => {
+/** A run as read; its result on the exam's own scale when the exam is given (one kept before
+ *  results had their score is given it: engine `withScore`). */
+const toExamRun = (row: RunRow, exam?: Exam): ExamRun | undefined => {
   const plan = readStored(row.planJson, ExamPlan, `plan of run ${row.id}`);
   if (!plan) return undefined;
+  const result = readStored(row.resultJson, ExamResult, `result of run ${row.id}`) ?? null;
   return {
     ...headerOf(row),
     exam: row.contextKey as ExamKey,
     plan,
-    result: readStored(row.resultJson, ExamResult, `result of run ${row.id}`) ?? null,
+    result: result && exam ? withScore(exam, result) : result,
   };
 };
 
@@ -82,14 +86,26 @@ export function createExamRuns({
       .eventsWhere({ types: ["answered"], kind: "exam", about: exam, ascending: true })
       .filter((e) => e.runId !== hidden);
   };
-  /** The exam's runs, newest first, read whole (one whose plan no longer reads is left out). */
-  const runsOf = (exam: ExamKey) => store.list("exam", exam).flatMap((row) => toExamRun(row) ?? []);
-  /** Every exam's runs, by exam, newest first. */
-  const allRuns = () => {
-    const byExam = new Map<ExamKey, ExamRun[]>();
+  /** The exam as installed, if it still is. */
+  const installed = (key: ExamKey) => content.exam(seriesOf(key), key).catch(() => undefined);
+  /** The exam's runs, newest first, read whole (one whose plan no longer reads is left out); their
+   *  results on its own scale when the exam is given. */
+  const runsOf = (key: ExamKey, exam?: Exam) =>
+    store.list("exam", key).flatMap((row) => toExamRun(row, exam) ?? []);
+  /** Every exam's runs, by exam, newest first; their results on its scale while it is installed. */
+  const allRuns = async () => {
+    const rows = new Map<ExamKey, RunRow[]>();
     for (const row of store.all("exam")) {
-      const run = toExamRun(row);
-      if (run) byExam.set(run.exam, [run, ...(byExam.get(run.exam) ?? [])]);
+      const key = row.contextKey as ExamKey;
+      rows.set(key, [row, ...(rows.get(key) ?? [])]);
+    }
+    const byExam = new Map<ExamKey, ExamRun[]>();
+    for (const [key, list] of rows) {
+      const exam = await installed(key);
+      byExam.set(
+        key,
+        list.flatMap((row) => toExamRun(row, exam) ?? []),
+      );
     }
     return byExam;
   };
@@ -173,8 +189,9 @@ export function createExamRuns({
    *  outcomes) and the server's clock, which the countdown keeps to. */
   async function open(runId: string) {
     await settle(getRun(runId).run);
-    const { run } = getRun(runId);
-    return { run, events: shownEvents(run), now: now() };
+    const { row, run } = getRun(runId);
+    const scored = run.result ? (toExamRun(row, await installed(run.exam)) ?? run) : run;
+    return { run: scored, events: shownEvents(run), now: now() };
   }
 
   /** An open answer of a run, to be rated: the question (with criteria, in the run's plan) and the

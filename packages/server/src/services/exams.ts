@@ -5,6 +5,7 @@
 import {
   examPassed,
   examScore,
+  examShare,
   missingSettings,
   openQuestions,
   questionLine,
@@ -28,8 +29,9 @@ import { createExamRuns } from "./exam-runs.ts";
 import type { RunStore } from "./run-store.ts";
 import type { Settings } from "./settings.ts";
 
-/** A mock exam's points on the exam's own scale (engine `examScore`). */
-const score = (run: ExamRun) => (run.result ? examScore(run.result, "test").points : 0);
+/** A mock exam's share of the most it could score, on the exam's own scale (engine `examShare`):
+ *  a module taken alone compared with the whole exam alike. */
+const share = (run: ExamRun) => (run.result ? examShare(run.result, "test") : 0);
 
 /** A run as a standing lists it: its points (a mock exam's on the exam's own scale), a mock exam or
  *  practice, the module taken (by its title in `locale`, when given); passed or not for a mock exam
@@ -60,10 +62,10 @@ export function createExams(deps: {
   async function standingIn(key: ExamKey) {
     const exam = await examOf(key);
     const stats = questionStats(answersIn(key));
-    const all = runsOf(key);
+    const all = runsOf(key, exam);
     const tests = all.filter((r) => r.plan.mode === "test" && r.status === "finished");
     const best = tests.reduce<ExamRun | undefined>(
-      (a, r) => (!a || score(r) > score(a) ? r : a),
+      (a, r) => (!a || share(r) > share(a) ? r : a),
       undefined,
     );
     return {
@@ -86,7 +88,7 @@ export function createExams(deps: {
     async standing(): Promise<ModuleStanding> {
       await settleOverdue();
       const entries = await Promise.all(
-        [...runs.allRuns()].flatMap(([key, all]) => {
+        [...(await runs.allRuns())].flatMap(([key, all]) => {
           const tests = all.filter((r) => r.status === "finished" && r.plan.mode === "test");
           const latest = tests[0];
           if (!latest) return [];
@@ -113,7 +115,7 @@ export function createExams(deps: {
       // An exam no longer installed still has its runs; its questions are gone with it.
       const exam = await content.exam(seriesOf(key), key).catch(() => undefined);
       const stats = questionStats(answersIn(key));
-      const all = runsOf(key);
+      const all = runsOf(key, exam);
       const done = all.filter((r) => r.status === "finished");
       const course = (await content.courses()).find((c) => c.exams.includes(key));
       const edition = done[0]?.edition ?? course?.editions[0] ?? null;
@@ -217,7 +219,7 @@ export function createExams(deps: {
         active: s.active,
         last: s.last,
         best: s.best,
-        runs: runsOf(key).filter((r) => r.status === "finished"),
+        runs: runsOf(key, s.exam).filter((r) => r.status === "finished"),
       };
     },
 
