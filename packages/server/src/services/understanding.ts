@@ -100,12 +100,12 @@ export function createUnderstanding(deps: {
       checkUnderstanding(q, { g1: answer }, input.target).result === "correct";
     const settled = settledQuestions(made.result, read.result, typedRight);
     // New words only: a word of the lesson or met before is never glossed as new, nor one a
-    // question asks about (the glossary would give its answer away).
+    // question asks the meaning of (the glossary would give its answer away).
     const { lesson } = input.text;
     const known = [...lesson.vocab, ...(lesson.knownWords ?? [])];
-    const asked = settled.questions.flatMap((q) => [q.question, ...(q.options ?? [])]);
+    const glossary = unaskedGlosses(settled.glossary, settled.questions);
     return {
-      text: { ...settled, glossary: newGlosses(unaskedGlosses(settled.glossary, asked), known) },
+      text: { ...settled, glossary: newGlosses(glossary, known) },
       model: made.model,
       latencyMs: made.latencyMs + read.latencyMs,
     };

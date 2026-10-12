@@ -171,16 +171,47 @@ export function newGlosses<G extends { word: string }>(glossary: G[], known: Voc
   );
 }
 
-/** A glossary without the words a question asks about (`asked`: the questions and their options):
- *  an entry is dropped when a question has a form of one of its words — its words of four letters or
- *  more, all of them when it has none ("zum Beispiel": "Beispiel"; "Uhr": "Uhr") —, so the glossary
- *  never gives an answer away. */
-export function unaskedGlosses<G extends { word: string }>(glossary: G[], asked: string[]): G[] {
-  const words = asked.flatMap((text) => text.split(WORD).filter((part) => WORD.test(part)));
+/** A question as a glossary is held against it: its text, its options or its accepted answers. */
+export interface AskedQuestion {
+  question: string;
+  options?: string[];
+  accepted?: string[];
+}
+
+/** What stands in quotation marks in a question ("Was bedeutet „nervt“?", «…», '…' aside: an
+ *  apostrophe is a letter's). */
+const QUOTED = /["„“”«»‹›「『]([^"„“”«»‹›「」『』]{1,80})["“”«»‹›」』]/gu;
+
+const wordsOf = (text: string) =>
+  text
+    .split(WORD)
+    .filter((part) => WORD.test(part))
+    .map(lower);
+
+/** Whether `words` hold `part` as a run of whole words. */
+const holds = (words: string[], part: string[]) =>
+  part.length > 0 && words.some((_, i) => part.every((p, k) => words[i + k] === p));
+
+/**
+ * A glossary without the entries that would give an answer away — a question asking what the word
+ * means: the word quoted in the question ("Was bedeutet „Quatsch“?" — a form of one of its words of
+ * four letters or more, all when it has none), or its translation among a question's options or
+ * accepted answers. A word a question merely uses ("Anna möchte drei Brötchen.") stays glossed.
+ */
+export function unaskedGlosses<G extends { word: string; translation: string }>(
+  glossary: G[],
+  questions: AskedQuestion[],
+): G[] {
+  const quoted = questions.flatMap((q) =>
+    [...q.question.matchAll(QUOTED)].flatMap(([, inside]) => wordsOf(inside ?? "")),
+  );
+  const answers = questions.flatMap((q) => [...(q.options ?? []), ...(q.accepted ?? [])]);
   return glossary.filter((g) => {
     const forms = glossForms({ target: g.word });
     const main = forms.some((f) => f.length >= 4) ? forms.filter((f) => f.length >= 4) : forms;
-    return !main.some((f) => words.some((w) => sameWord(w, f, Math.min(4, f.length))));
+    const asked = main.some((f) => quoted.some((w) => sameWord(w, f, Math.min(4, f.length))));
+    const meaning = wordsOf(g.translation);
+    return !asked && !answers.some((a) => holds(wordsOf(a), meaning));
   });
 }
 
