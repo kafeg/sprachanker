@@ -29,6 +29,9 @@ import {
   verdicts,
 } from "./verdicts.ts";
 
+/** What a text being made is at (09: said beside the time it takes): written, or read again. */
+export type UnderstandingStep = "writing" | "checking";
+
 export interface UnderstandingRequest {
   series: string;
   lessonKey: LessonKey;
@@ -55,7 +58,7 @@ export function createUnderstanding(deps: {
 }) {
   const { store, llm } = deps;
   /** A text being written, per lesson. */
-  const writing = createInFlight<{ preparing: true }>("understanding_busy");
+  const writing = createInFlight<UnderstandingStep>("understanding_busy");
 
   /** The lesson's texts in all its runs, newest first, each with its answers. */
   function texts(lessonKey: LessonKey): Understood[] {
@@ -81,9 +84,15 @@ export function createUnderstanding(deps: {
     };
   }
 
-  /** A text written and read again: its questions the second reading settles as the key does. */
-  async function settledText(input: Awaited<ReturnType<typeof inputs>>) {
+  /** A text written and read again: its questions the second reading settles as the key does.
+   *  `step` says which of the two runs. */
+  async function settledText(
+    input: Awaited<ReturnType<typeof inputs>>,
+    step: (now: UnderstandingStep) => void,
+  ) {
+    step("writing");
     const made = await llm.structured(understandingTextTask(input.text));
+    step("checking");
     const read = await llm.structured(
       understandingCheckTask({ ...input.check, text: made.result }),
     );
@@ -106,10 +115,11 @@ export function createUnderstanding(deps: {
     const session = await deps.session(request.lessonKey);
     if (!session) throw new ServiceError("no_lesson_run", 409);
     const input = await inputs(request);
-    let best = await settledText(input);
+    const step = (now: UnderstandingStep) => writing.set(request.lessonKey, now);
+    let best = await settledText(input, step);
     // Too few questions settled: written again once, the better of the two kept.
     if (best.text.questions.length < UNDERSTANDING_MIN_QUESTIONS) {
-      const again = await settledText(input).catch(() => undefined);
+      const again = await settledText(input, step).catch(() => undefined);
       if (again && again.text.questions.length > best.text.questions.length) best = again;
     }
     if (!best.text.questions.length)
@@ -125,18 +135,16 @@ export function createUnderstanding(deps: {
   }
 
   return {
-    /** The lesson's texts, newest first, and whether one is being written now. */
+    /** The lesson's texts, newest first, and whether one is being made now, at which step. */
     state(lessonKey: LessonKey) {
-      return {
-        texts: texts(lessonKey).slice(0, HISTORY_LIMIT),
-        preparing: writing.get(lessonKey) !== undefined,
-      };
+      const step = writing.get(lessonKey) ?? null;
+      return { texts: texts(lessonKey).slice(0, HISTORY_LIMIT), preparing: !!step, step };
     },
 
     /** Writes a text for the lesson and keeps it in the run the lesson shows. Runs to its end even
      *  when the page that asked is gone. */
     start(request: UnderstandingRequest): Promise<Understood> {
-      return writing.run(request.lessonKey, { preparing: true }, () => write(request));
+      return writing.run(request.lessonKey, "writing", () => write(request));
     },
 
     /** An answer to a text's question, checked by the engine and kept on the text in its run; a

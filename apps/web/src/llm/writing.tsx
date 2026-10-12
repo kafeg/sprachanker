@@ -22,7 +22,7 @@ import { useRequiredTargetLang } from "@/ui/target-lang.ts";
 import { cn } from "@/ui/utils.ts";
 import { useCheckWriting, useWriting, useWritingTask, type WritingAttempt } from "./api.ts";
 import { AssistantLabel, modelName } from "./assistant-label.tsx";
-import { ErrorLine, StartPrompt } from "./parts.tsx";
+import { ErrorLine, StartPrompt, Thinking } from "./parts.tsx";
 import { PromptButton } from "./prompt-view.tsx";
 import { useLlm } from "./setup-api.ts";
 
@@ -309,6 +309,12 @@ export function WritingTask({
             />
             <AssistantLabel className="ms-auto" />
           </div>
+          {(preparing || checking) && (
+            <Thinking
+              label={checking ? t("writing.step.checking") : t("writing.step.task")}
+              className="text-sm"
+            />
+          )}
           <ErrorLine
             error={check.error ?? newTask.error}
             // Asked again as it was: the text checked (still in the editor), or a new task.
@@ -336,6 +342,7 @@ export function WritingTask({
             <PromptButton request={() => ({ writing: { ...ids, text: "" } })} />
             <AssistantLabel className="ms-auto" />
           </div>
+          {preparing && <Thinking label={t("writing.step.task")} className="text-sm" />}
           <ErrorLine error={newTask.error} onRetry={preparing ? undefined : write} />
         </Panel>
       )}

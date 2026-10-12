@@ -543,6 +543,10 @@
       "task": "Aufgabenerfüllung",
       "communication": "Kommunikative Gestaltung",
       "accuracy": "Formale Richtigkeit"
+    },
+    "step": {
+      "task": "Aufgabe wird gestellt…",
+      "checking": "Dein Text wird geprüft…"
     }
   },
   "mistakes": {
@@ -1614,7 +1618,11 @@
     "newWords": "Neue Wörter",
     "readNow": "Lies den Text und antworte",
     "result": "{right, number} von {total, number} richtig",
-    "past": "Frühere Texte dieser Lektion"
+    "past": "Frühere Texte dieser Lektion",
+    "step": {
+      "writing": "Text wird geschrieben…",
+      "checking": "Fragen werden geprüft…"
+    }
   },
   "goingOver": {
     "title": "Fehler durchgehen",
@@ -1647,6 +1655,10 @@
     "listed": {
       "spoken": "Keine neuen Aufgaben zu Gesprochenem: Sag es in seiner Übung noch einmal.",
       "comprehension": "Hör oder lies den Text noch einmal: Die Antwort steht darin."
+    },
+    "step": {
+      "making": "Neue Aufgaben werden erstellt…",
+      "checking": "Neue Aufgaben werden geprüft…"
     }
   }
 }

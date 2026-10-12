@@ -543,6 +543,10 @@
       "task": "Feladat",
       "communication": "Kommunikáció",
       "accuracy": "Pontosság"
+    },
+    "step": {
+      "task": "Készül a feladat…",
+      "checking": "A szöveged ellenőrzése…"
     }
   },
   "mistakes": {
@@ -1614,7 +1618,11 @@
     "newWords": "Új szavak",
     "readNow": "Olvasd el a szöveget, és válaszolj",
     "result": "{right, number}/{total, number} helyes",
-    "past": "A lecke korábbi szövegei"
+    "past": "A lecke korábbi szövegei",
+    "step": {
+      "writing": "Készül a szöveg…",
+      "checking": "A kérdések ellenőrzése…"
+    }
   },
   "goingOver": {
     "title": "Hibák átnézése",
@@ -1647,6 +1655,10 @@
     "listed": {
       "spoken": "A hangosan mondottakhoz nincs új feladat: mondd el újra a gyakorlatában.",
       "comprehension": "Hallgasd meg vagy olvasd el újra a szöveget: benne van a válasz."
+    },
+    "step": {
+      "making": "Új feladatok készülnek…",
+      "checking": "Az új feladatok ellenőrzése…"
     }
   }
 }

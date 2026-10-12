@@ -1,7 +1,9 @@
 import { expect, setSystemTime, test } from "bun:test";
 import { waitFor } from "@testing-library/react";
 import { DialogueStep } from "../../src/llm/dialogue.tsx";
+import { GoingOverStep } from "../../src/llm/going-over.tsx";
 import { PendingExchange } from "../../src/llm/parts.tsx";
+import { UnderstandingStep } from "../../src/llm/understanding.tsx";
 import { WritingTask } from "../../src/llm/writing.tsx";
 import { TargetLang } from "../../src/ui/target-lang.ts";
 import { lesson } from "../lesson/lesson.ts";
@@ -76,4 +78,49 @@ test("a reply not begun shows Thinking… with the seconds it takes (a CLI answe
     setSystemTime();
     view.unmount();
   }
+});
+
+test("a long wait says what is being done beside its seconds: the text's questions checked, new tasks made, a task set", async () => {
+  const understanding = await renderApp(
+    <TargetLang value="de">
+      <UnderstandingStep {...ids} />
+    </TargetLang>,
+    {
+      data: [
+        llm,
+        [["understanding", ids.lessonKey], { texts: [], preparing: true, step: "checking" }],
+      ],
+    },
+  );
+  expect(understanding.getByText(/Checking the questions…/)).toBeTruthy();
+  understanding.unmount();
+  const goingOver = await renderApp(
+    <TargetLang value="de">
+      <GoingOverStep {...ids} />
+    </TargetLang>,
+    {
+      data: [
+        llm,
+        [["going-over", ids.lessonKey], { reviews: [], preparing: true, step: "making" }],
+      ],
+    },
+  );
+  expect(goingOver.getByText(/Making new tasks…/)).toBeTruthy();
+  goingOver.unmount();
+  const writing = await renderApp(
+    <TargetLang value="de">
+      <WritingTask {...ids} />
+    </TargetLang>,
+    {
+      data: [
+        llm,
+        [
+          ["writing", ids.lessonKey, ids.edition],
+          { task: null, words: [], attempts: [], checking: null, preparing: true },
+        ],
+      ],
+    },
+  );
+  expect(writing.getByText(/Setting a task…/)).toBeTruthy();
+  writing.unmount();
 });

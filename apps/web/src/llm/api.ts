@@ -366,12 +366,12 @@ const fetchUnderstanding = (lessonKey: LessonKey) =>
   json(api.llm.understanding.$get({ query: { lessonKey } }));
 
 /** The lesson's Understanding texts with their answers, newest first; asked again while one is being
- *  written (from here or before). */
-export const useUnderstanding = (lessonKey: LessonKey) =>
+ *  made — asked from here (`asked`) or before —, so its step shows. */
+export const useUnderstanding = (lessonKey: LessonKey, asked = false) =>
   useQuery({
     queryKey: ["understanding", lessonKey],
     queryFn: () => fetchUnderstanding(lessonKey),
-    refetchInterval: (query) => (query.state.data?.preparing ? WHILE_BUSY : false),
+    refetchInterval: (query) => (asked || query.state.data?.preparing ? WHILE_BUSY : false),
   });
 
 /** Shows a text at once: on top when just written, in its place with an answer added. */
@@ -413,12 +413,12 @@ const fetchGoingOver = (lessonKey: LessonKey) =>
   json(api.llm.mistakes.$get({ query: { lessonKey } }));
 
 /** The lesson's mistakes reviews with their answers, newest first; asked again while one is being
- *  written (from here or before). */
-export const useGoingOver = (lessonKey: LessonKey) =>
+ *  made — asked from here (`asked`) or before —, so its step shows. */
+export const useGoingOver = (lessonKey: LessonKey, asked = false) =>
   useQuery({
     queryKey: ["going-over", lessonKey],
     queryFn: () => fetchGoingOver(lessonKey),
-    refetchInterval: (query) => (query.state.data?.preparing ? WHILE_BUSY : false),
+    refetchInterval: (query) => (asked || query.state.data?.preparing ? WHILE_BUSY : false),
   });
 
 /** Shows a review at once: on top when just written, in its place with an answer added. */

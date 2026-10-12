@@ -48,6 +48,10 @@ import {
   verdicts,
 } from "./verdicts.ts";
 
+/** What a review being made is at (09: said beside the time it takes): new items made, or tried
+ *  blind. */
+export type GoingOverStep = "making" | "checking";
+
 export interface GoingOverRequest {
   series: string;
   lessonKey: LessonKey;
@@ -74,7 +78,7 @@ export function createGoingOver(deps: {
 }) {
   const { store, llm } = deps;
   /** A review being written, per lesson. */
-  const busy = createInFlight<{ preparing: true }>("mistakes_busy");
+  const busy = createInFlight<GoingOverStep>("mistakes_busy");
 
   /** The lesson's reviews in all its runs, newest first, each with its answers. */
   function reviews(lessonKey: LessonKey): Review[] {
@@ -108,18 +112,25 @@ export function createGoingOver(deps: {
   }
 
   /** One type gone over, asked on its own: its explanation and the new items the blind try settles
-   *  as their keys do (`mistake_items_check`); none settled, asked once more. */
-  async function goneOver(input: MistakeItemsInput, group: MistakeGroupInput) {
+   *  as their keys do (`mistake_items_check`); none settled, asked once more. `step` says which of
+   *  the two runs. */
+  async function goneOver(
+    input: MistakeItemsInput,
+    group: MistakeGroupInput,
+    step: (now: GoingOverStep | "done") => void,
+  ) {
     const { type } = group;
     let latencyMs = 0;
     let made: { explanation: string; items: MistakeItem[]; model: string } | undefined;
     for (let attempt = 0; attempt < 2 && !made?.items.length; attempt++) {
+      step("making");
       const reply = await llm.structured(mistakeItemsTask({ ...input, groups: [group] }));
       latencyMs += reply.latencyMs;
       const [one] = reply.result.groups;
       const items = (one?.items ?? []).map(mistakeItemOf);
       let kept = items;
       if (CHECKED_TYPES.includes(type)) {
+        step("checking");
         const tried = await llm.structured(
           mistakeItemsCheckTask({ language: input.language, target: input.target, type, items }),
         );
@@ -139,8 +150,16 @@ export function createGoingOver(deps: {
   async function write(request: GoingOverRequest): Promise<Review> {
     const { run, groups, more, input } = await inputs(request);
     // Each type gone over in a call of its own, side by side (one call for all took up to three
-    // minutes); only types listed: no call.
-    const made = await Promise.allSettled(input.groups.map((g) => goneOver(input, g)));
+    // minutes); only types listed: no call. The step shown: making while any type's items are
+    // being made, then checking.
+    const steps = input.groups.map((): GoingOverStep | "done" => "making");
+    const step = (i: number) => (now: GoingOverStep | "done") => {
+      steps[i] = now;
+      busy.set(request.lessonKey, steps.includes("making") ? "making" : "checking");
+    };
+    const made = await Promise.allSettled(
+      input.groups.map((g, i) => goneOver(input, g, step(i)).finally(() => step(i)("done"))),
+    );
     const done = made.flatMap((m) => (m.status === "fulfilled" ? [m.value] : []));
     const failed = made.find((m): m is PromiseRejectedResult => m.status === "rejected");
     if (failed && !done.length) throw failed.reason;
@@ -166,18 +185,16 @@ export function createGoingOver(deps: {
   }
 
   return {
-    /** The lesson's reviews, newest first, and whether one is being written now. */
+    /** The lesson's reviews, newest first, and whether one is being made now, at which step. */
     state(lessonKey: LessonKey) {
-      return {
-        reviews: reviews(lessonKey).slice(0, HISTORY_LIMIT),
-        preparing: busy.get(lessonKey) !== undefined,
-      };
+      const step = busy.get(lessonKey) ?? null;
+      return { reviews: reviews(lessonKey).slice(0, HISTORY_LIMIT), preparing: !!step, step };
     },
 
     /** Goes over the mistakes of the pass the lesson shows and keeps the review in its run; none to
      *  go over: 409 `no_mistakes`. Runs to its end even when the page that asked is gone. */
     start(request: GoingOverRequest): Promise<Review> {
-      return busy.run(request.lessonKey, { preparing: true }, () => write(request));
+      return busy.run(request.lessonKey, "making", () => write(request));
     },
 
     /** An answer to a review's new item, checked by the engine and kept on the review in its run; an

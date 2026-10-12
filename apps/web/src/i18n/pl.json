@@ -543,6 +543,10 @@
       "task": "Zadanie",
       "communication": "Komunikacja",
       "accuracy": "Poprawność"
+    },
+    "step": {
+      "task": "Układam zadanie…",
+      "checking": "Sprawdzam twój tekst…"
     }
   },
   "mistakes": {
@@ -1614,7 +1618,11 @@
     "newWords": "Nowe słowa",
     "readNow": "Przeczytaj tekst i odpowiedz",
     "result": "{right, number} z {total, number} dobrze",
-    "past": "Wcześniejsze teksty tej lekcji"
+    "past": "Wcześniejsze teksty tej lekcji",
+    "step": {
+      "writing": "Piszę tekst…",
+      "checking": "Sprawdzam pytania…"
+    }
   },
   "goingOver": {
     "title": "Omówienie błędów",
@@ -1647,6 +1655,10 @@
     "listed": {
       "spoken": "Brak nowych zadań do tego, co powiedziane na głos: powiedz to jeszcze raz w jego ćwiczeniu.",
       "comprehension": "Posłuchaj tekstu albo przeczytaj go jeszcze raz: odpowiedź w nim jest."
+    },
+    "step": {
+      "making": "Układam nowe zadania…",
+      "checking": "Sprawdzam nowe zadania…"
     }
   }
 }

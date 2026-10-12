@@ -543,6 +543,10 @@
       "task": "Sarcină",
       "communication": "Comunicare",
       "accuracy": "Corectitudine"
+    },
+    "step": {
+      "task": "Se pregătește sarcina…",
+      "checking": "Se verifică textul tău…"
     }
   },
   "mistakes": {
@@ -1614,7 +1618,11 @@
     "newWords": "Cuvinte noi",
     "readNow": "Citește textul și răspunde",
     "result": "{right, number} din {total, number} corecte",
-    "past": "Texte anterioare din această lecție"
+    "past": "Texte anterioare din această lecție",
+    "step": {
+      "writing": "Se scrie textul…",
+      "checking": "Se verifică întrebările…"
+    }
   },
   "goingOver": {
     "title": "Analiza greșelilor",
@@ -1647,6 +1655,10 @@
     "listed": {
       "spoken": "Nu există exerciții noi pentru ce s-a spus cu voce tare: spune-o din nou în exercițiul ei.",
       "comprehension": "Ascultă sau citește textul din nou: răspunsul este în el."
+    },
+    "step": {
+      "making": "Se creează sarcini noi…",
+      "checking": "Se verifică sarcinile noi…"
     }
   }
 }

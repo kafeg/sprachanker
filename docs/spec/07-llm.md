@@ -229,7 +229,10 @@ lesson run the lesson shows, its answers `practice_answered` events checked by t
 - **Calls outlive the page** (Dialogues, writing checks, Understanding's texts): a structured call runs
   to its end on the server and is stored even when the learner left the page meanwhile; the step's
   state says what is running (`pending` for a Dialogue, `checking` for a text checked, `preparing` for
-  a text being written), so a page opened again shows it as waiting and polls until it lands. One
+  a text being written) and, where a call has steps, which one runs (`step`: Understanding's
+  `writing` the text, then `checking` its questions; Going over's `making` new items while any
+  type's are made, then `checking` them), so a page opened again shows it as waiting and polls until
+  it lands — also while a call it asked itself runs — and says the step beside the seconds (09). One
   such call per lesson at a time; a second is refused (`scene_busy`, `writing_busy`,
   `understanding_busy`, 409). A streamed reply (the tutor, explanations) still ends with its connection.
 - **Structured outputs** (`packages/llm/src/structured.ts`): the JSON Schema of the task's zod schema is
