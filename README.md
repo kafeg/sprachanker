@@ -5,8 +5,8 @@ catalogues into a library on your own machine, then study them in one interface:
 with exercises checked as you go, flashcards with spaced repetition, speaking checked by speech
 recognition, and practice set by any AI model you connect — a local one or a cloud one.
 
-> **Status:** used daily by its authors for German, in the browser on a Mac; phones over
-> Tailscale work and are being tried out; the desktop app is planned. What comes next:
+> **Status:** used daily by its authors for German, in the browser on a Mac with Apple Silicon (the
+> only platform for now); phones over Tailscale work and are being tried out; the desktop app is planned. What comes next:
 > [`docs/plan.md`](docs/plan.md). The decisions behind it: [`docs/decisions.md`](docs/decisions.md).
 
 ## Why
@@ -93,26 +93,55 @@ OpenAI-compatible server on your network, OpenRouter, OpenAI, Anthropic, Google 
 the Claude Code and Codex command-line agents. Every place the AI works can be turned off one by one;
 lessons, review and exams work without any model.
 
-## Running it
+## Install
 
-Requirements: [Bun](https://bun.sh), and `cmake` with a C++ compiler for the speech engines. Built
-and used on macOS (Apple Silicon); other platforms are untried.
+**Macs with Apple Silicon (M1 and later) only, for now.** Linux, a Docker image and Windows come
+later ([`docs/plan.md`](docs/plan.md)). Open Terminal and run:
+
+```bash
+curl -fsSL https://github.com/kafeg/sprachanker/releases/latest/download/install.sh | bash
+```
+
+It downloads the latest release, starts SprachAnker and opens it in your browser at
+`http://127.0.0.1:4580`. There you choose your language, make a profile, set up speech (its models
+download from there) and, if you like, an AI model; then download a course from Courses → Available.
+SprachAnker starts by itself at login. To update, run the same command again.
+
+What goes where:
+
+| Where | What |
+|---|---|
+| `~/SprachAnker/bin/` | the program: `sprachanker` (the server with the web app inside) and the speech engines beside it — `whisper-server` (recognition), `sherpa-onnx-offline-tts` (Piper voices), `tts-server` (Qwen3-TTS); `serve.log` |
+| `~/SprachAnker/` | your data: `library/` (downloaded courses and exams), `profiles/` (each learner's progress and recordings), `decks/` (imported Anki decks), `models/` (speech models and voices), `cache/`, `server.sqlite` with its daily copies |
+| `~/Library/Application Support/SprachAnker/secret.key` | the key your AI providers' API keys are stored encrypted with |
+| `~/Library/LaunchAgents/app.sprachanker.server.plist` | starts the server at login and again if it stops |
+| `~/SprachAnker-backups/` | a copy of your data made before each update (databases, recordings, decks, the key) |
+
+The archive is about 40 MB; with a course, speech models and voices expect 3–5 GB, every course 20 GB
+and more. Settings: `SPRACHANKER_HOME` (another folder), `SPRACHANKER_PORT`, `SPRACHANKER_HOST=0.0.0.0`
+(phones on the local network, without the microphone), `SPRACHANKER_VERSION=vX.Y.Z` (a given release)
+before `bash`, e.g. `curl … | SPRACHANKER_PORT=4600 bash`.
+
+**Phones** open the same server over Tailscale (HTTPS, so the microphone works): Settings → General →
+Other devices shows how, with QR codes.
+
+**Remove** it (your data stays in `~/SprachAnker` until you delete it):
+
+```bash
+launchctl bootout gui/$(id -u)/app.sprachanker.server; rm ~/Library/LaunchAgents/app.sprachanker.server.plist; rm -rf ~/SprachAnker/bin
+```
+
+## Build from source
+
+Requirements: [Bun](https://bun.sh), and `cmake` with a C++ compiler for the speech engines.
 
 ```bash
 bun install
 bun run build:cli
-```
-
-This makes `apps/cli/dist/sprachanker` (the server with the web app inside) and the speech engines
-beside it. Then:
-
-```bash
 apps/cli/dist/sprachanker serve --data ~/SprachAnker
 ```
 
-Open the address it prints, choose your language, make a profile and download a course from
-Courses → Available. To use it from a phone, start the server with `--host 0.0.0.0` (local network),
-or serve it over Tailscale; Settings → General → Other devices shows the addresses with QR codes.
+`build:cli` makes `apps/cli/dist/sprachanker` and the speech engines beside it.
 
 ## Privacy
 

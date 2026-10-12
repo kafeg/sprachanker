@@ -8,8 +8,11 @@ The `sprachanker` binary. Depends on `packages/server` only; commands call the s
 src/main.ts         # serve, import, verify, profiles (the server's profile matters: list, registration
                     # on|off, delete; a profile exported to a file, a file imported — the server's
                     # refusals in words), courses (those installed; one exported to a file, a file
-                    # imported, one removed — the server's refusals in words), backup; main(argv, embedded?) — also
+                    # imported, one removed — the server's refusals in words), backup, version; main(argv, embedded?) — also
                     # runs from sources
+install.sh          # the installer published with each release (curl … | bash): Apple Silicon only; the
+                    # program into ~/SprachAnker/bin, a LaunchAgent, a backup before an update
+                    # (README's Install; docs/decisions.md)
 scripts/build.ts    # bun run build:bin (build:cli after build:speech): embeds the web build, compiles dist/sprachanker
                     # (the server's profile-db Worker a second entry, its name handed in), copies the
                     # speech engines built in native/ beside it (whisper-server, Piper's

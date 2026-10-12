@@ -10,38 +10,41 @@ Publishes one version: a tested archive of the binary and the speech engines tha
 - The archive holds the `sprachanker` binary and the speech engines beside it — nothing else. Models, voices and courses download from the app.
 - ⚠️ Never put course content, keys or personal data in an archive or a release note: the repository is public.
 - Versions follow semver; the version lives in `apps/cli/package.json` (the server reports it at `/api/health`).
-- Build on the platform the archive is for: the speech engines are native (today macOS arm64 only).
+- Build on the platform the archive is for: the speech engines are native (macOS arm64 only, the
+  owner's decision 2026-10-12). CI caches them by `native/*/VERSION`.
 
 ## Procedure
 1. Read the current version and the changes since the last tag:
    ```bash
    jq -r .version apps/cli/package.json && git describe --tags --abbrev=0 && git log --oneline "$(git describe --tags --abbrev=0)"..HEAD
    ```
-2. Set the new version in `apps/cli/package.json`. Commit it as `release: vX.Y.Z`.
-3. Build everything from scratch and test the build:
+2. Set the new version in `apps/cli/package.json`. Commit it as `release: vX.Y.Z`, push `main`.
+3. Tag and push the tag. CI (`.github/workflows/release.yml`) builds the engines and the binary on
+   `macos-15`, runs the e2e on that build and makes a draft release with the archive and `install.sh`:
    ```bash
-   bun install --frozen-lockfile && bun run build:cli && bun run e2e
+   git tag vX.Y.Z && git push origin vX.Y.Z && gh run watch "$(gh run list -w Release -L 1 --json databaseId -q '.[0].databaseId')"
    ```
-4. Pack the archive (one per platform):
+4. Check the draft's archive on a clean folder, without the repository (`open` stubbed: no browser):
    ```bash
-   cd apps/cli/dist && tar -czf "../sprachanker-vX.Y.Z-macos-arm64.tar.gz" sprachanker *-apple-darwin
+   gh release download vX.Y.Z -D /tmp/sa-rel && SPRACHANKER_ARCHIVE=/tmp/sa-rel/sprachanker-macos-arm64.tar.gz SPRACHANKER_HOME=/tmp/sa-home SPRACHANKER_PORT=4590 bash /tmp/sa-rel/install.sh
    ```
-5. Check it on a clean folder, without the repository: unpack into a temporary folder, run `./sprachanker serve --data <tmp>/data --port 4590`, open it, download a course, finish a lesson step with speech recognition (its model downloaded in Settings).
-6. Tag and publish:
+   Open it, download a course, finish a lesson step with speech recognition (its model downloaded in
+   Settings). Then remove the test install as the README's Install says, and its folder.
+5. Write the notes for learners — what is new, what changed in use; updating is the install command
+   again — and publish:
    ```bash
-   git tag vX.Y.Z && git push origin main vX.Y.Z
-   gh release create vX.Y.Z apps/cli/sprachanker-vX.Y.Z-macos-arm64.tar.gz --title vX.Y.Z --notes-file <notes.md>
+   gh release edit vX.Y.Z --notes-file <notes.md> --draft=false
    ```
-   Write the notes for learners: what is new, what changed in use, how to update (replace the files, restart).
-7. Deploy the same build to the owner's server: `deploy-local` with `--no-build`.
+6. Update the owner's own server: the install command (installed by it) or `deploy-local`.
 
 ## Gotchas
-- "cannot be opened" on another Mac → the file came through a browser (quarantine) → install with `curl` + `tar`, or `xattr -dr com.apple.quarantine <folder>`.
+- "cannot be opened" on another Mac → the file came through a browser (quarantine) → install with the `curl … | bash` command, or `xattr -dr com.apple.quarantine <folder>`.
+- The release run fails at "The tag is the binary's version" → the tag and `apps/cli/package.json` differ → delete the tag (`git push origin :vX.Y.Z`), fix, tag again.
 - The binary starts but speech is off → the engines are not beside the binary → unpack all files into one folder.
 - A database newer than the binary → an older version started on newer data → never ship a downgrade over the same data folder.
 
 ## Boundaries
 - The owner's own server: `deploy-local`.
-- Automating this in CI and an install script: `docs/plan.md`, "Releases".
+- Platforms beyond macOS arm64, signing, the desktop app: `docs/plan.md`, "Releases".
 
 <!-- style: ste80 -->

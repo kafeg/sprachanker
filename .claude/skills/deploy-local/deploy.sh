@@ -12,6 +12,18 @@ if [[ "${1:-}" != "--no-build" ]]; then (cd "$ROOT" && bun run build:bin); fi
 DIST="$ROOT/apps/cli/dist"
 [[ -x "$DIST/sprachanker" ]] || { echo "no binary in $DIST: run bun run build:cli once"; exit 1; }
 
+# Installed by apps/cli/install.sh: its LaunchAgent restarts the server from the new files.
+PLIST="$HOME/Library/LaunchAgents/app.sprachanker.server.plist"
+if [[ -f "$PLIST" ]]; then
+  cp "$DIST/sprachanker" "$DIST"/*-apple-darwin "$BIN/"
+  launchctl kickstart -k "gui/$(id -u)/app.sprachanker.server"
+  for _ in $(seq 1 40); do
+    if curl -fs "http://127.0.0.1:$PORT/api/health"; then echo; exit 0; fi
+    sleep 0.5
+  done
+  echo "server did not answer; see $BIN/serve.log"; exit 1
+fi
+
 pid="$(lsof -tiTCP:"$PORT" -sTCP:LISTEN || true)"
 if [[ -n "$pid" ]]; then
   kill "$pid"

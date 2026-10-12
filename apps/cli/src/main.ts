@@ -47,6 +47,8 @@ Commands:
                                    progress kept), then verified
   courses remove <series/course>   a course or exam removed from this computer: its files and the
                                    media no other course uses (progress kept; download it again)
+  version
+         the version of this binary
   backup [--data <dir>] --to <folder>
          copy what cannot be downloaded again into a new folder there: the databases, recordings,
          imported decks and the key the API keys are sealed with
@@ -429,6 +431,9 @@ async function run(argv: string[], embedded?: Embedded): Promise<void> {
       break;
     case "backup":
       backupCommand(rest);
+      break;
+    case "version":
+      console.log(pkg.version);
       break;
     default:
       console.log(USAGE);

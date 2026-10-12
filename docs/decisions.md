@@ -201,6 +201,7 @@ area is built is in its `CLAUDE.md`; work not built yet is in `docs/plan.md`.
 - Plain HTTP on the LAN (`--host 0.0.0.0`) is allowed but is no secure context: no microphone, and the UI says why.
 - `/api/addresses` shows anyone who reaches the server its local IPs, `.local` name, tailnet name and serve/Funnel state. Accepted: the network already shows that.
 - The PWA is installable but has no offline use: a failed request shows its error with "Try again"; a lesson's unsent events stay in memory and are sent again.
+- Installing (owner, 2026-10-12): Macs with Apple Silicon only, for now. A tag `vX.Y.Z` builds the release on GitHub Actions (`macos-15`): the engines, the binary, the e2e on that build, an archive and `install.sh` as a draft release. `install.sh` (`curl … | bash`: no quarantine, no Gatekeeper prompt) puts the program in `~/SprachAnker/bin` beside the data in `~/SprachAnker`, keeps it running by a LaunchAgent on `127.0.0.1:4580`, and backs the data up into `~/SprachAnker-backups` before an update (a backup never goes inside the data folder). Running it again updates.
 - The speech engines are part of the app (owner, 2026-10-11): `build:cli` builds them, and they are the only runtime files beside the binary rather than embedded.
 - Options a request can carry go in each request, not as engine flags: an older engine ignores an unknown field, but an unknown flag stops it.
 

@@ -1,0 +1,60 @@
+name: Release
+
+# A tag vX.Y.Z (the version in apps/cli/package.json) builds the speech engines and the binary on a Mac
+# with Apple Silicon, runs the e2e against that build and makes a draft release with the archive and
+# the installer; the release skill writes its notes and publishes it. Run by hand (Actions → Release →
+# Run workflow), the same build's archive is kept as the run's artifact instead.
+on:
+  push:
+    tags: ["v*"]
+  workflow_dispatch:
+
+jobs:
+  macos-arm64:
+    runs-on: macos-15
+    timeout-minutes: 120
+    permissions:
+      contents: write
+    steps:
+      - uses: actions/checkout@v7
+      - name: The tag is the binary's version
+        if: github.ref_type == 'tag'
+        run: test "v$(jq -r .version apps/cli/package.json)" = "$GITHUB_REF_NAME"
+      - uses: oven-sh/setup-bun@v2 # version from packageManager in package.json
+      - run: bun install --frozen-lockfile
+      - name: Speech engines, built once per pinned version
+        id: engines
+        uses: actions/cache@v4
+        with:
+          path: native/*/out
+          key: engines-macos-arm64-${{ hashFiles('native/*/VERSION', 'native/scripts/build.ts') }}
+      - if: steps.engines.outputs.cache-hit != 'true'
+        run: bun run build:speech
+      - name: Install Playwright browsers
+        working-directory: e2e
+        run: bunx playwright install chromium webkit
+      - name: Build web and binary, run e2e on the build
+        run: bun run e2e
+      - name: Archive
+        working-directory: apps/cli/dist
+        run: tar -czf ../sprachanker-macos-arm64.tar.gz sprachanker *-apple-darwin
+      - if: github.ref_type != 'tag'
+        uses: actions/upload-artifact@v7
+        with:
+          name: sprachanker-macos-arm64
+          path: |
+            apps/cli/sprachanker-macos-arm64.tar.gz
+            apps/cli/install.sh
+      - name: Draft release
+        if: github.ref_type == 'tag'
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: >
+          gh release create "$GITHUB_REF_NAME" --draft --title "$GITHUB_REF_NAME" --generate-notes
+          apps/cli/sprachanker-macos-arm64.tar.gz apps/cli/install.sh
+      - if: failure()
+        uses: actions/upload-artifact@v7
+        with:
+          name: playwright-traces
+          path: e2e/test-results/
+          if-no-files-found: ignore

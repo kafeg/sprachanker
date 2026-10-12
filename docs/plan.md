@@ -31,11 +31,11 @@ and mockups: the owner's page "Goethe в SprachAnker"; background: `docs/researc
 - **Accept**: Goethe A2 Sprechen and Schreiben held end to end by voice with a real model; A1 shown
   without turning on experimental sources.
 
-### 2. Releases (proposed, waiting for the owner's choice)
-- v0.1 for the owner's family: a GitHub Release built by CI on macOS arm64 — the binary and the speech
-  engines in one archive, e2e run on the built files —, installed by one command into
-  `~/SprachAnker/bin` (no Gatekeeper prompt: `curl` sets no quarantine), the app saying when a newer
-  version is out. Tried on a clean machine: install to the first lesson.
+### 2. Releases
+- v0.1 for the owner's family (owner, 2026-10-12: Apple Silicon only). Built: the release workflow
+  (`.github/workflows/release.yml`), `apps/cli/install.sh`, the README's Install. Remaining: the first
+  tag and its run on GitHub; tried on a clean machine, install to the first lesson; the app saying when
+  a newer version is out. Background: the owner's page "Релиз SprachAnker".
 - v0.2: Linux builds and a Docker image (engines inside, data in a volume) for a home server.
 - v1.0: the desktop app (`apps/desktop`, Tauri), signed and notarised for macOS (an Apple Developer
   ID), then Windows and Linux; automatic updates.
