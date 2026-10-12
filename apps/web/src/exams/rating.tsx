@@ -25,16 +25,20 @@ interface Proposal {
   model: string;
 }
 
-/** The latest rating saved for a question, the latest proposal for this answer, and what is chosen
- *  first: the later of the two (a proposal asked for after rating is shown chosen — `pending` until
- *  it is accepted or the learner keeps theirs). */
+/** The latest rating saved for a question (and its event's id), the latest proposal for this
+ *  answer, and what is chosen first: the later of the two (a proposal asked for after rating is shown
+ *  chosen — `pending` until it is accepted or the learner keeps theirs). */
 function ratingsOf(events: TypedEvent[], itemKey: string, answer: string) {
   let rated: Record<string, number> | undefined;
+  let ratedId: string | undefined;
   let proposal: (Proposal & { id: string }) | undefined;
   let first: Record<string, number> | undefined;
   for (const e of events) {
     if (e.itemKey !== itemKey) continue;
-    if (e.type === "exam_rated") first = rated = e.payload.ratings;
+    if (e.type === "exam_rated") {
+      first = rated = e.payload.ratings;
+      ratedId = e.id;
+    }
     if (e.type === "llm_verdict" && e.payload.task === "exam" && e.payload.input === answer) {
       const { criteria, feedback } = e.payload.result;
       proposal = {
@@ -47,7 +51,7 @@ function ratingsOf(events: TypedEvent[], itemKey: string, answer: string) {
       first = proposal.ratings;
     }
   }
-  return { rated, proposal, first, pending: !!proposal && first === proposal.ratings };
+  return { rated, ratedId, proposal, first, pending: !!proposal && first === proposal.ratings };
 }
 
 /** An open answer of a run rated: the assistant's proposal asked for (when it works here), the
@@ -69,13 +73,14 @@ export function OpenAnswerRating({
   const rate = useRateAnswer(runId);
   const keep = useKeepRunEvents(runId);
   const { propose } = useExamSlots();
-  const { rated, proposal, first, pending } = ratingsOf(events, item.key, answer);
+  const { rated, ratedId, proposal, first, pending } = ratingsOf(events, item.key, answer);
   return (
     <div className="space-y-2">
       {propose?.({ runId, itemKey: item.key, proposed: !!proposal, onStored: keep })}
       <RatingPanel
-        // A proposal that comes is chosen until changed.
-        key={proposal?.id ?? "self"}
+        // Chosen anew when a proposal comes (chosen until changed) and when a rating is saved
+        // (the learner's kept, or the proposal accepted).
+        key={`${proposal?.id ?? "self"}/${ratedId ?? "unrated"}`}
         criteria={item.criteria}
         locale={locale}
         rated={rated}
