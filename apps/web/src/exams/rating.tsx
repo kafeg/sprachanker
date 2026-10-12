@@ -185,7 +185,7 @@ function GoneOver({
 }) {
   const { t } = useTranslation();
   const lang = useTargetLang();
-  if (!over.points && !over.corrections && !over.modelText) return null;
+  if (!over.points?.length && !over.corrections?.length && !over.modelText) return null;
   const Mark = ({ score }: { score: number }) =>
     score === 2 ? (
       <Check className="size-4 shrink-0 text-correct" aria-label={t("lesson.state.correct")} />
@@ -217,9 +217,12 @@ function GoneOver({
           </ul>
         </div>
       )}
-      {over.corrected && over.corrections && over.corrections.length > 0 && (
+      {over.corrections && over.corrections.length > 0 && (
         <div className="space-y-2">
-          <CorrectedText text={answer} corrected={over.corrected} className="text-base" />
+          {/* A written answer corrected whole; a part said aloud, its corrections alone. */}
+          {over.corrected && (
+            <CorrectedText text={answer} corrected={over.corrected} className="text-base" />
+          )}
           <Corrections corrections={over.corrections} />
         </div>
       )}
