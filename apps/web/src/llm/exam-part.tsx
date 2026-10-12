@@ -47,7 +47,8 @@ export function ExamPartView({
   onStored,
   onSaid,
   hints,
-  answer,
+  said,
+  checked,
 }: ConversationContext) {
   const { t, i18n } = useTranslation();
   const make = useExamPart();
@@ -81,7 +82,8 @@ export function ExamPartView({
       part={part}
       id={script?.id ?? itemKey}
       hints={hints}
-      answer={answer}
+      initial={said}
+      checked={checked}
       onSaid={onSaid}
       prompt={request}
     />
@@ -92,14 +94,17 @@ function Said({
   part,
   id,
   hints,
-  answer,
+  initial,
+  checked,
   onSaid,
   prompt,
 }: {
   part: ExamPart;
   id: string;
   hints: boolean;
-  answer?: RespondAnswer;
+  /** What was said already (the answer given, a draft): shown again as it was. */
+  initial?: RespondAnswer;
+  checked: boolean;
   onSaid(answer: RespondAnswer | undefined): void;
   prompt: { runId: string; itemKey: string; language: string };
 }) {
@@ -108,9 +113,9 @@ function Said({
   const speaker = useSpeaker();
   const engine = speaker.serverVoices(lang)?.engine;
   const places = part.lines.flatMap((l, n) => (l.speaker === "learner" ? [n] : []));
-  // What was said: the answer once given (practice: checked), else what is said now.
-  const [said, setSaid] = useState<Said[]>(() => answer?.lines ?? []);
-  const done = !!answer;
+  // What was said: as it was (an answer given, a draft), then as it is said now.
+  const [said, setSaid] = useState<Said[]>(() => initial?.lines ?? []);
+  const done = checked;
   const next = done ? undefined : places[said.length];
   // The lines up to the learner's next place (all of them once every place is said).
   const upTo = next ?? part.lines.length;
@@ -122,21 +127,16 @@ function Said({
     const voice = voiceOf(who);
     return { text: line.text, lang, ...(gender && { alt: gender }), ...(voice && { voice }) };
   };
-  // The newest lines read aloud as they come (the opening once the part begins: a tap began it).
-  const heard = useRef(done ? part.lines.length - 1 : -1);
+  // The newest lines read aloud as they come (the opening once the part begins: a tap began it);
+  // those shown when the page came back are not read again.
+  const heard = useRef(said.length ? upTo - 1 : -1);
   useEffect(() => {
     if (done || upTo <= heard.current + 1) return;
     const lines = part.lines.slice(heard.current + 1, upTo).filter((l) => l.speaker !== "learner");
     heard.current = upTo - 1;
     if (lines.length) void speaker.say(`${id}-${upTo}`, lines.map(spoken));
   });
-  // Every place said: the part is the answer (practice: sent with Check).
-  const complete = !done && said.length === places.length;
-  const latest = useRef(onSaid);
-  latest.current = onSaid;
-  useEffect(() => {
-    if (!done) latest.current(complete ? answerOf(said) : undefined);
-  }, [complete, said, done]);
+
   const name = (speaker: string) =>
     speaker === "partner"
       ? (part.partner?.name ?? t("exams.conversation.partner"))
@@ -204,10 +204,13 @@ function Said({
             sendLabel={t("talk.keep")}
             {...(nextLine.text.length > LONG_LINE && { maxMs: LONG_MS })}
             onSend={(heard, sent) => {
-              setSaid((s) => [
-                ...s,
+              const now = [
+                ...said,
                 { transcript: heard.text, ...(heard.recording && { recording: heard.recording }) },
-              ]);
+              ];
+              setSaid(now);
+              // Every place said: the part is the answer (practice: sent with Check).
+              if (now.length === places.length) onSaid(answerOf(now));
               sent();
             }}
           />
@@ -219,6 +222,7 @@ function Said({
           onClick={() => {
             heard.current = -1;
             setSaid([]);
+            onSaid(undefined);
           }}
         >
           {t("talk.restart")}

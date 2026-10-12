@@ -524,7 +524,7 @@
       "writingTask": "Menetapkan tugas “Menulis”: situasi dari pelajaran dengan tiga poin yang harus dibahas, panjangnya sesuai level kursus, seperti ujian menulis di level itu. Diminta sekali per tugas.",
       "writing": "Memeriksa teks pendek yang ditulis untuk tugas “Menulis”: tiap poin terbahas atau tidak, paling banyak tiga koreksi, kriteria level kursus (tugas, komunikasi, ketepatan), teks contoh, dan umpan balik.",
       "speaking": "Memeriksa jawaban yang kamu ucapkan (apa yang didengar pengenal ucapan) terhadap pertanyaan dan jawaban kursus, saat kamu menekan “Periksa dengan AI”.",
-      "exam": "Menilai jawaban tertulis dalam ujian menurut kriteria ujian itu sendiri: tingkat untuk setiap kriteria beserta alasannya, dan apa yang akan mendapat nilai lebih. Belum ada yang dihitung sampai kamu menerima atau mengubahnya.",
+      "exam": "Menilai jawaban terbuka ujian — teks tertulis atau bagian lisan yang diucapkan — menurut kriteria ujian itu sendiri: satu tingkat untuk tiap kriteria beserta alasannya dan apa yang memberi nilai lebih; teks juga ditinjau (poin, koreksi, teks contoh), kesalahan bagian lisan didaftar. Tidak ada yang dihitung sampai kamu menerima atau mengubahnya.",
       "conversation": "Menulis naskah bagian lisan dari kartu-kartunya: kalimat penguji, kalimat pasanganmu dari kartunya, dan giliranmu dengan petunjuk apa yang dikatakan. Kamu mengucapkan seluruh bagian; lalu dinilai menurut kriterianya.",
       "sceneSetup": "Memulai dialog: dari tujuan pelajaran dan apa yang sudah Anda ketahui, mengarang situasi, lawan bicara, kartu tujuan Anda, dan hal yang hanya diketahui lawan bicara — yang harus Anda tanyakan. Sekali per dialog.",
       "scene": "Memerankan lawan bicara Anda: menjawab setiap kalimat yang Anda ucapkan (seperti didengar pengenal ucapan) atau ketik, mengatakan apakah kalimat itu dipahami dan sesuai, membetulkan paling banyak dua kesalahan, memberi terjemahan, dan mencentang tujuan yang tercapai.",
@@ -1337,7 +1337,7 @@
     "event_id_taken": "Jawaban ini sudah tercatat secara berbeda. Muat ulang halaman.",
     "event_of_another_run": "Catatan ini milik putaran lain. Muat ulang pelajaran.",
     "exam_rating_busy": "Jawaban ini sedang dinilai. Tunggu sebentar.",
-    "exam_conversation_busy": "Pasangan bicara sedang menjawab. Tunggu sebentar.",
+    "exam_conversation_busy": "Bagian sedang disiapkan. Tunggu sebentar.",
     "invalid_event": "Aplikasi mengirim catatan yang tidak diterima server. Muat ulang pelajaran.",
     "invalid_request": "Aplikasi mengirim sesuatu yang tidak diterima server. Muat ulang halaman.",
     "request_too_large": "Permintaan ini terlalu besar.",
@@ -1568,7 +1568,7 @@
     "conversation": {
       "partner": "Pasangan",
       "examiner": "Penguji",
-      "intro": "Asisten memerankan penguji dan pasangan bicara kamu. Jawab secara lisan dengan mikrofon (atau ketik); percakapan ini adalah jawaban kamu.",
+      "intro": "Penguji dan pasanganmu berbicara dengan suara; kamu berbicara saat giliranmu. Yang kamu ucapkan adalah jawabanmu, dinilai kemudian menurut kriteria bagian itu.",
       "start": "Mulai bagian ini"
     },
     "choose": "Pilih ujian"

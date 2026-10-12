@@ -226,15 +226,44 @@ test("the recordings answers hold are found in runs of every kind, exams too", (
     edition: "ru-de",
   });
   store.append(exam.id, [answered("sprachanker.fixture/demo/exams/modell/q-1", "rec-exam")]);
-  expect(store.recordingIds().sort()).toEqual(["rec-exam", "rec-lesson"]);
-  expect(store.recordingIds([exam.id])).toEqual(["rec-exam"]);
+  // A speaking part said line by line holds every take.
+  store.append(exam.id, [
+    {
+      type: "answered",
+      itemKey: "sprachanker.fixture/demo/exams/modell/q-p1",
+      payload: {
+        answer: {
+          text: "Hallo\nTschüss",
+          lines: [
+            { transcript: "Hallo", recording: "rec-line-1" },
+            { transcript: "Tschüss", recording: "rec-line-2" },
+          ],
+        },
+        attempt: 1,
+        ms: 1,
+        outcome,
+      },
+    },
+  ]);
+  expect(store.recordingIds().sort()).toEqual([
+    "rec-exam",
+    "rec-lesson",
+    "rec-line-1",
+    "rec-line-2",
+  ]);
+  expect(store.recordingIds([exam.id]).sort()).toEqual(["rec-exam", "rec-line-1", "rec-line-2"]);
   expect(store.recordingIds([])).toEqual([]);
   // An answer stored in a shape that no longer reads still holds its take: it is never swept.
   sqlite.run(
     "INSERT INTO events (id, run_id, ts, type, payload_json) VALUES (?, ?, ?, 'answered', ?)",
     [ulid(), exam.id, 5000, JSON.stringify({ answer: { recording: "rec-old" }, attempt: "?" })],
   );
-  expect(store.recordingIds([exam.id]).sort()).toEqual(["rec-exam", "rec-old"]);
+  expect(store.recordingIds([exam.id]).sort()).toEqual([
+    "rec-exam",
+    "rec-line-1",
+    "rec-line-2",
+    "rec-old",
+  ]);
   // A Dialogue's line said aloud holds its take too.
   const take = ulid();
   const dialogue = store.start("scene", LESSON, { edition: "ru-de" });

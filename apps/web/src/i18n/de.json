@@ -524,7 +524,7 @@
       "writingTask": "Stellt die Aufgabe für „Schreiben“: eine Situation aus der Lektion mit drei Punkten, die du behandelst, so lang, wie das Niveau des Kurses es verlangt — wie eine Schreibprüfung auf diesem Niveau sie stellt. Einmal pro Aufgabe gefragt.",
       "writing": "Prüft einen kurzen Text zur Aufgabe aus „Schreiben“: jeden Punkt behandelt oder nicht, höchstens drei Korrekturen, die Kriterien des Kursniveaus (Aufgabe, Kommunikation, Richtigkeit), einen Mustertext und eine Rückmeldung.",
       "speaking": "Prüft eine gesprochene Antwort (was die Erkennung gehört hat) an der Frage und der Antwort des Kurses, wenn du „Mit KI prüfen“ drückst.",
-      "exam": "Bewertet eine schriftliche Antwort einer Prüfung nach deren eigenen Kriterien: eine Stufe je Kriterium mit Begründung und was mehr Punkte bringen würde. Nichts zählt, bis du sie übernimmst oder änderst.",
+      "exam": "Bewertet eine offene Antwort einer Prüfung — einen geschriebenen Text oder einen gesprochenen Teil — nach den Kriterien der Prüfung: eine Stufe pro Kriterium mit Begründung und was mehr Punkte bringt; ein Text wird auch durchgegangen (Inhaltspunkte, Korrekturen, ein Mustertext), bei einem Sprechteil werden die Fehler genannt. Nichts zählt, bevor du es übernimmst oder änderst.",
       "conversation": "Schreibt das Drehbuch eines Sprechteils aus seinen Karten: die Sätze der Prüferin, die deines Partners nach seiner Karte und deine Stellen mit einem Hinweis, was du sagst. Du sprichst den Teil durch; danach wird er nach seinen Kriterien bewertet.",
       "sceneSetup": "Startet einen Dialog: erfindet aus den Zielen der Lektion und dem, was du kannst, die Situation, mit wem du sprichst, deine Zielkarte und was nur dein Gegenüber weiß — danach musst du fragen. Einmal pro Dialog.",
       "scene": "Spielt dein Gegenüber: antwortet auf jeden Satz, den du sagst (so, wie die Erkennung ihn gehört hat) oder tippst, sagt, ob er verstanden wurde und passt, korrigiert höchstens zwei Fehler darin, gibt eine Übersetzung und hakt deine Ziele ab.",
@@ -1337,7 +1337,7 @@
     "event_id_taken": "Diese Antwort ist schon anders gespeichert. Lade die Seite neu.",
     "event_of_another_run": "Dieser Eintrag gehört zu einem anderen Durchgang. Lade die Lektion neu.",
     "exam_rating_busy": "Diese Antwort wird gerade bewertet. Warte darauf.",
-    "exam_conversation_busy": "Dein Partner antwortet gerade. Warte darauf.",
+    "exam_conversation_busy": "Der Teil wird vorbereitet. Warte kurz.",
     "invalid_event": "Die App hat einen Eintrag geschickt, den der Server nicht annimmt. Lade die Lektion neu.",
     "invalid_request": "Die App hat etwas geschickt, das der Server nicht annimmt. Lade die Seite neu.",
     "request_too_large": "Diese Anfrage ist zu groß.",
@@ -1568,7 +1568,7 @@
     "conversation": {
       "partner": "Gesprächspartner",
       "examiner": "Prüfer",
-      "intro": "Der Assistent spielt die Prüfenden und deinen Partner. Antworte laut mit dem Mikrofon (oder tippe); das Gespräch ist deine Antwort.",
+      "intro": "Die Prüferin und dein Partner sprechen; du sprichst, wenn du dran bist. Was du sagst, ist deine Antwort und wird danach nach den Kriterien des Teils bewertet.",
       "start": "Teil beginnen"
     },
     "choose": "Prüfung wählen"

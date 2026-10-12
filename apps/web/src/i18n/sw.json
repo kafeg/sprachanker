@@ -524,7 +524,7 @@
       "writingTask": "Huweka kazi ya “Uandishi”: hali kutoka kwenye somo na mambo matatu ya kueleza, urefu kulingana na kiwango cha kozi, kama mtihani wa kuandika wa kiwango hicho unavyoweka. Huombwa mara moja kwa kila kazi.",
       "writing": "Hukagua maandishi mafupi yaliyoandikwa kwa kazi ya “Uandishi”: kila jambo limeelezwa au la, masahihisho matatu kwa juu zaidi, vigezo vya kiwango cha kozi (kazi, mawasiliano, usahihi), maandishi ya mfano na maoni.",
       "speaking": "Hukagua jibu ulilotamka (kile kitambuzi kilichosikia) dhidi ya swali na jibu la kozi, unapobonyeza “Kagua kwa AI”.",
-      "exam": "Hutathmini jibu la maandishi la mtihani kwa vigezo vya mtihani wenyewe: kiwango cha kila kigezo pamoja na sababu yake, na kipi kingeleta alama zaidi. Hakuna kinachohesabiwa hadi ukikubali au ukibadilishe.",
+      "exam": "Hutathmini jibu huru la mtihani — maandishi au sehemu ya kuzungumza iliyosemwa — kwa vigezo vya mtihani wenyewe: kiwango cha kila kimoja na sababu yake, na kitakacholeta alama zaidi; maandishi pia hupitiwa (vipengele, masahihisho, maandishi ya mfano), makosa ya sehemu ya kuzungumza huorodheshwa. Hakuna kinachohesabiwa mpaka ukikubali au ukibadilishe.",
       "conversation": "Huandika hati ya sehemu ya kuzungumza kutoka kadi zake: maneno ya mtahini, ya mwenzako kutoka kadi yake, na zamu zako pamoja na dokezo la cha kusema. Unaisema sehemu yote; kisha inatathminiwa kwa vigezo vyake.",
       "sceneSetup": "Huanzisha mazungumzo: kutokana na malengo ya somo na unachokijua, hubuni hali, unazungumza na nani, kadi yako ya malengo na kile anachojua mwenzako pekee — ambacho lazima ukiulize. Mara moja kwa kila mazungumzo.",
       "scene": "Huigiza mwenzako: hujibu kila sentensi unayoitamka (kama kitambuzi kilivyoisikia) au kuiandika, husema kama ilieleweka na kama inafaa, hurekebisha makosa mawili zaidi, hutoa tafsiri na huweka alama kwenye malengo uliyoyafikia.",
@@ -1337,7 +1337,7 @@
     "event_id_taken": "Jibu hili tayari limerekodiwa kwa namna nyingine. Pakia ukurasa upya.",
     "event_of_another_run": "Kumbukumbu hii ni ya mzunguko mwingine. Pakia somo upya.",
     "exam_rating_busy": "Jibu hili linatathminiwa. Subiri.",
-    "exam_conversation_busy": "Mwenzako anajibu. Subiri.",
+    "exam_conversation_busy": "Sehemu inaandaliwa. Subiri.",
     "invalid_event": "Programu ilituma kumbukumbu ambayo seva haikuikubali. Pakia somo upya.",
     "invalid_request": "Programu ilituma kitu ambacho seva haikukikubali. Pakia ukurasa upya.",
     "request_too_large": "Ombi hili ni kubwa mno.",
@@ -1568,7 +1568,7 @@
     "conversation": {
       "partner": "Mwenzako",
       "examiner": "Mtahini",
-      "intro": "Msaidizi anaigiza mtahini na mwenzako. Jibu kwa sauti kwa maikrofoni (au andika); mazungumzo ndiyo jibu lako.",
+      "intro": "Mtahini na mwenzako wanazungumza kwa sauti; wewe zungumza zamu yako ikifika. Unachosema ndiyo jibu lako, linalotathminiwa baadaye kwa vigezo vya sehemu.",
       "start": "Anza sehemu"
     },
     "choose": "Chagua mtihani"

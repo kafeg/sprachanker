@@ -9,6 +9,7 @@ import { useEffect, useRef } from "react";
 import { withAttempt, withCheck, withReview, withScene, withText, withTurns } from "@/api/cache.ts";
 import { DECK_EXAMPLES } from "@/api/cards.ts";
 import { ApiError, api, apiError, errorOf, json } from "@/api/client.ts";
+import { runKey } from "@/api/exams.ts";
 
 export type ExplainRequest = Parameters<typeof api.llm.explain.$post>[0]["json"];
 
@@ -87,20 +88,28 @@ type ExamRatingRequest = Parameters<(typeof api.llm)["exam-rating"]["$post"]>[0]
 
 /** The ratings of an exam's open answer proposed by the model, kept in the exam run (its page takes
  *  the event). */
-export const useProposeRating = () =>
-  useMutation({
+/** A rating proposed for an exam's open answer, kept in the exam run: the run read again once it
+ *  comes, whether or not the page that asked is still there. */
+export const useProposeRating = () => {
+  const client = useQueryClient();
+  return useMutation({
     mutationFn: (request: ExamRatingRequest) =>
       json(api.llm["exam-rating"].$post({ json: request })),
+    onSuccess: (_, request) => void client.invalidateQueries({ queryKey: runKey(request.runId) }),
   });
+};
 
 type ExamPartRequest = Parameters<(typeof api.llm)["exam-part"]["$post"]>[0]["json"];
 
-/** An exam's speaking part's script: written once, kept in the exam run (its page takes the
- *  event). */
-export const useExamPart = () =>
-  useMutation({
+/** An exam's speaking part's script: written once, kept in the exam run — the run read again once
+ *  it comes, whether or not the page that asked is still there. */
+export const useExamPart = () => {
+  const client = useQueryClient();
+  return useMutation({
     mutationFn: (request: ExamPartRequest) => json(api.llm["exam-part"].$post({ json: request })),
+    onSuccess: (_, request) => void client.invalidateQueries({ queryKey: runKey(request.runId) }),
   });
+};
 
 export type TutorRequest = Parameters<typeof api.llm.tutor.$post>[0]["json"];
 

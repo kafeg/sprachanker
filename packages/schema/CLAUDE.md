@@ -30,7 +30,7 @@ src/
                      # question the AI set), step ids and AI practice kinds, cards
   assistant.ts       # the AI's answers as kept: corrections, writing tasks and checks, spoken checks,
                      # word examples, scene setups, an exam answer's proposed rating, a speaking part's
-                     # next lines, Understanding's texts with their questions, mistakes reviews (wrong
+                     # script, Understanding's texts with their questions, mistakes reviews (wrong
                      # parts by type, new items in one flat shape checked per type)
   stats.ts           # how every module reports its statistics: modules, a run's module, a study day, a
                      # module's standing (figures, entries, run summaries), an entry in full

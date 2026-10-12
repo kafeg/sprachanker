@@ -220,7 +220,23 @@ export function createExamRuns({
       answer?.type === "answered" ? (answer.payload.answer as { text?: unknown }).text : undefined;
     if (typeof text !== "string") throw new ServiceError("invalid_request");
     const locale = await localeOf(run.exam, run.edition);
-    return { row, run, exam, locale, item: { ...item, criteria: item.criteria }, text };
+    // A speaking part said line by line: each line as said (a line typed may hold a line break).
+    const lines =
+      (answer?.type === "answered" &&
+        (answer.payload.answer as { lines?: Array<{ transcript?: unknown }> }).lines) ||
+      undefined;
+    const said = Array.isArray(lines)
+      ? lines.map((l) => (typeof l?.transcript === "string" ? l.transcript : ""))
+      : undefined;
+    return {
+      row,
+      run,
+      exam,
+      locale,
+      item: { ...item, criteria: item.criteria },
+      text,
+      ...(said && { said }),
+    };
   }
 
   /** A speaking part of a run being taken: the question said aloud (in the run's plan), its section

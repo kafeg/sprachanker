@@ -64,11 +64,14 @@ function ratingsOf(
   let ratedId: string | undefined;
   let proposal: (Proposal & { id: string }) | undefined;
   let first: Record<string, number> | undefined;
+  /** What is chosen first is the proposal (with one's own levels of what it does not rate). */
+  let proposed = false;
   for (const e of events) {
     if (e.itemKey !== itemKey) continue;
     if (e.type === "exam_rated") {
       first = rated = e.payload.ratings;
       ratedId = e.id;
+      proposed = false;
     }
     if (e.type === "llm_verdict" && e.payload.task === "exam" && e.payload.input === answer) {
       const { criteria, feedback, points, corrections, corrected, modelText } = e.payload.result;
@@ -80,11 +83,16 @@ function ratingsOf(
         model: e.payload.model,
         over: { points, corrections, corrected, modelText },
       };
-      first = proposal.ratings;
+      // What the proposal does not rate (pronunciation, the learner's own) kept as rated.
+      first = { ...rated, ...proposal.ratings };
+      proposed = true;
     }
   }
-  if (proposal && rated && first === proposal.ratings && kept(proposal.id)) first = rated;
-  return { rated, ratedId, proposal, first, pending: !!proposal && first === proposal.ratings };
+  if (proposal && rated && proposed && kept(proposal.id)) {
+    first = rated;
+    proposed = false;
+  }
+  return { rated, ratedId, proposal, first, pending: !!proposal && proposed };
 }
 
 /** An open answer of a run rated: the assistant's proposal asked for (when it works here), the

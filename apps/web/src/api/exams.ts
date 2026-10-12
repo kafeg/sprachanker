@@ -27,7 +27,7 @@ interface ExamRunState {
   skew: number;
 }
 
-const runKey = (runId: string) => ["exam-run", runId] as const;
+export const runKey = (runId: string) => ["exam-run", runId] as const;
 
 /** A run as the server gives it, with this device's clock compared to the server's. A running mock exam's
  *  answers come without outcomes (kept by the server until it is handed in), read as events all the same. */

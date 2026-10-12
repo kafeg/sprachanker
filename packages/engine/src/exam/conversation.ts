@@ -1,7 +1,6 @@
-// A speaking part held as a conversation: its lines are the
-// `llm_turn`s on its question, a conversation ending on a line marked `done` (the examiner's closing
-// line, or the learner's empty one). One ended with nothing said may be begun again in practice, so
-// the part is the latest conversation; the learner's own lines in it are the part's answer.
+// A speaking part held live before scripts (runs kept from then): its lines are the `llm_turn`s on its
+// question, a conversation ending on a line marked `done`; the part is the latest conversation, the
+// learner's own lines in it its answer. Read when such an answer is rated.
 import type { LlmTurnPayload } from "@sprachanker/schema";
 
 type Turn = Pick<LlmTurnPayload, "role" | "text" | "done">;
@@ -12,9 +11,6 @@ export function latestConversation<T extends Turn>(turns: T[]): T[] {
   const before = turns.slice(0, -1).findLastIndex((t) => t.done);
   return turns.slice(before + 1);
 }
-
-/** Whether the part's latest conversation has ended. */
-export const conversationEnded = (turns: Turn[]) => !!turns.at(-1)?.done;
 
 /** A conversation's answer: the learner's own lines, one a line ("" when they said nothing). */
 export const conversationAnswer = (turns: Turn[]) =>

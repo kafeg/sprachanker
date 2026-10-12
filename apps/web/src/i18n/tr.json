@@ -524,7 +524,7 @@
       "writingTask": "“Yazma” görevini belirler: dersten bir durum ve ele alınacak üç nokta, uzunluğu kursun seviyesine göre — o seviyedeki bir yazma sınavının verdiği gibi. Her görev için bir kez istenir.",
       "writing": "“Yazma” görevine yazılmış kısa bir metni kontrol eder: her nokta ele alınmış mı, en fazla üç düzeltme, kursun seviyesinin ölçütleri (görev, iletişim, doğruluk), örnek bir metin ve geri bildirim.",
       "speaking": "“Yapay zekâ ile kontrol et”e bastığında sesli söylediğin bir cevabı (konuşma tanımanın duyduğunu) soruya ve kursun cevabına göre kontrol eder.",
-      "exam": "Bir sınavın yazılı cevabını sınavın kendi ölçütlerine göre puanlar: her biri için gerekçesiyle bir seviye ve daha yüksek puan için ne gerektiği. Sen kabul edene ya da değiştirene kadar hiçbir şey sayılmaz.",
+      "exam": "Bir sınavın açık cevabını — yazılmış bir metni ya da söylenmiş bir konuşma bölümünü — sınavın kendi ölçütlerine göre değerlendirir: her biri için bir düzey ve gerekçesi, daha çok puan getirecek olan; metin ayrıca gözden geçirilir (maddeler, düzeltmeler, örnek metin), konuşma bölümünün hataları sıralanır. Sen kabul edip değiştirmedikçe hiçbir şey sayılmaz.",
       "conversation": "Konuşma bölümünün senaryosunu kartlarından yazar: sınav görevlisinin cümleleri, partnerinin kartına göre cümleleri ve senin sıraların, ne söyleyeceğine dair bir ipucuyla. Bölümü baştan sona konuşursun; sonra ölçütlerine göre değerlendirilir.",
       "sceneSetup": "Bir diyalog başlatır: dersin hedeflerinden ve bildiklerinden durumu, kiminle konuştuğunu, hedef kartını ve yalnızca karşındakinin bildiklerini — senin sorman gerekenleri — kurgular. Her diyalogda bir kez.",
       "scene": "Karşındaki kişiyi oynar: söylediğin (tanıma nasıl duyduysa) ya da yazdığın her cümleye cevap verir, anlaşılıp anlaşılmadığını ve uyup uymadığını söyler, içindeki en fazla iki hatayı düzeltir, çeviri verir ve ulaştığın hedefleri işaretler.",
@@ -1337,7 +1337,7 @@
     "event_id_taken": "Bu cevap zaten farklı şekilde kaydedilmiş. Sayfayı yeniden yükle.",
     "event_of_another_run": "Bu kayıt başka bir tura ait. Dersi yeniden yükle.",
     "exam_rating_busy": "Bu cevap puanlanıyor. Biraz bekle.",
-    "exam_conversation_busy": "Partner cevap veriyor. Biraz bekle.",
+    "exam_conversation_busy": "Bölüm hazırlanıyor. Biraz bekle.",
     "invalid_event": "Uygulama, sunucunun kabul etmediği bir kayıt gönderdi. Dersi yeniden yükle.",
     "invalid_request": "Uygulama, sunucunun kabul etmediği bir şey gönderdi. Sayfayı yeniden yükle.",
     "request_too_large": "Bu istek çok büyük.",
@@ -1568,7 +1568,7 @@
     "conversation": {
       "partner": "Partner",
       "examiner": "Sınav görevlisi",
-      "intro": "Asistan, sınav görevlisini ve partnerini oynar. Mikrofonla sesli cevap ver (ya da yaz); konuşma senin cevabındır.",
+      "intro": "Sınav görevlisi ve partnerin sesli konuşur; sıra sana gelince sen konuş. Söylediklerin cevabındır, sonra bölümün ölçütlerine göre değerlendirilir.",
       "start": "Bölüme başla"
     },
     "choose": "Bir sınav seç"

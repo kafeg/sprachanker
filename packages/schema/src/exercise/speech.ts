@@ -43,12 +43,20 @@ export const SpeechSelfrateAnswer = z.strictObject({
   rating: z.enum(["good", "fair", "poor"]).optional(),
 });
 
-/** The profile recording an answer refers to, if any (a spoken answer or a recorded self-check). */
-export function recordingOf(answer: unknown): string | undefined {
-  if (!answer || typeof answer !== "object") return undefined;
-  const a = answer as { recording?: unknown; speech?: { recording?: unknown } };
-  const id = a.recording ?? a.speech?.recording;
-  return typeof id === "string" ? id : undefined;
+/** The profile recordings an answer refers to: a spoken answer's or a recorded self-check's, and
+ *  every take of an exam's speaking part said line by line. */
+export function recordingsOf(answer: unknown): string[] {
+  if (!answer || typeof answer !== "object") return [];
+  const a = answer as {
+    recording?: unknown;
+    speech?: { recording?: unknown };
+    lines?: Array<{ recording?: unknown }>;
+  };
+  const ids = [
+    a.recording ?? a.speech?.recording,
+    ...(Array.isArray(a.lines) ? a.lines : []).map((l) => l?.recording),
+  ];
+  return ids.filter((id): id is string => typeof id === "string");
 }
 export const SpeechSelfrateExercise = exerciseOf("speech_selfrate", SpeechSelfrateItem);
 export type DictationAnswer = z.infer<typeof DictationAnswer>;

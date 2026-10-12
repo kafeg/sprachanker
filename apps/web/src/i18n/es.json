@@ -524,7 +524,7 @@
       "writingTask": "Plantea la tarea de «Escritura»: una situación de la lección con tres puntos que tratar, de la extensión que pide el nivel del curso, como la plantea un examen escrito de ese nivel. Se pide una vez por tarea.",
       "writing": "Corrige un texto corto escrito sobre la tarea de «Escritura»: si se trata cada punto, como mucho tres correcciones, los criterios del nivel del curso (tarea, comunicación, corrección), un texto modelo y comentarios.",
       "speaking": "Comprueba una respuesta que dijiste en voz alta (lo que oyó el reconocedor) frente a la pregunta y la respuesta del curso, cuando pulsas «Comprobar con IA».",
-      "exam": "Valora una respuesta escrita de un examen según los criterios del propio examen: un nivel para cada uno con su motivo, y qué daría más puntos. Nada cuenta hasta que lo aceptes o lo cambies.",
+      "exam": "Valora una respuesta abierta de un examen —un texto escrito o una parte oral dicha— según los criterios del propio examen: un nivel de cada uno con su motivo y qué daría más puntos; el texto además se repasa (puntos, correcciones, un texto modelo) y se listan los errores de la parte oral. Nada cuenta hasta que lo aceptes o lo cambies.",
       "conversation": "Escribe el guion de una parte oral a partir de sus tarjetas: las frases del examinador, las de tu compañero según su tarjeta y tus turnos con una pista de qué decir. Dices la parte entera; después se valora según sus criterios.",
       "sceneSetup": "Empieza un diálogo: a partir de los objetivos de la lección y de lo que sabes, inventa la situación, con quién hablas, tu tarjeta de objetivos y lo que solo sabe tu interlocutor, que tendrás que preguntar. Una vez por diálogo.",
       "scene": "Hace de tu interlocutor: responde a cada frase que dices (tal como la oyó el reconocimiento) o escribes, dice si se entendió y si encaja, corrige como mucho dos errores, da una traducción y marca tus objetivos cumplidos.",
@@ -1337,7 +1337,7 @@
     "event_id_taken": "Esta respuesta ya se registró de otra forma. Vuelve a cargar la página.",
     "event_of_another_run": "Este registro pertenece a otra vuelta. Vuelve a cargar la lección.",
     "exam_rating_busy": "Esta respuesta se está valorando. Espera un momento.",
-    "exam_conversation_busy": "Tu compañero está respondiendo. Espera un momento.",
+    "exam_conversation_busy": "Se está preparando la parte. Espera.",
     "invalid_event": "La aplicación envió un registro que el servidor no aceptó. Vuelve a cargar la lección.",
     "invalid_request": "La aplicación envió algo que el servidor no aceptó. Vuelve a cargar la página.",
     "request_too_large": "Esta solicitud es demasiado grande.",
@@ -1568,7 +1568,7 @@
     "conversation": {
       "partner": "Compañero",
       "examiner": "Examinador",
-      "intro": "El asistente hace de examinador y de tu compañero. Responde en voz alta con el micrófono (o escribe); la conversación es tu respuesta.",
+      "intro": "El examinador y tu compañero hablan en voz alta; tú hablas cuando te toca. Lo que dices es tu respuesta y después se valora según los criterios de la parte.",
       "start": "Empezar la parte"
     },
     "choose": "Elige un examen"

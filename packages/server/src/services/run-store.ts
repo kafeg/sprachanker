@@ -21,7 +21,7 @@ import {
   type RunHeader,
   type RunKind,
   readPayload,
-  recordingOf,
+  recordingsOf,
   type TypedEvent,
 } from "@sprachanker/schema";
 import {
@@ -485,8 +485,8 @@ export function createRunStore(deps: { db: ProfileDb; now: () => number; appVers
       return rows.flatMap(({ payload }) => {
         try {
           const read = JSON.parse(payload) as { answer?: unknown; recording?: unknown };
-          const held = recordingOf(read.answer) ?? read.recording;
-          return typeof held === "string" ? [held] : [];
+          const held = recordingsOf(read.answer);
+          return held.length ? held : typeof read.recording === "string" ? [read.recording] : [];
         } catch {
           return [];
         }

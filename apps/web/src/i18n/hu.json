@@ -524,7 +524,7 @@
       "writingTask": "Kitűzi az „Írás” feladatát: egy helyzetet a leckéből három kifejtendő ponttal, a kurzus szintjének megfelelő hosszal, ahogy egy ilyen szintű írásbeli vizsga adja. Feladatonként egyszer kérdezi.",
       "writing": "Ellenőrzi az „Írás” feladatára írt rövid szöveget: kifejtetted-e az egyes pontokat, legfeljebb három javítás, a kurzus szintjének szempontjai (feladat, kommunikáció, pontosság), mintaszöveg és visszajelzés.",
       "speaking": "Ellenőrzi a hangosan mondott válaszodat (amit a beszédfelismerő hallott) a kérdés és a kurzus válasza alapján, ha megnyomod az „Ellenőrzés MI-vel” gombot.",
-      "exam": "Értékeli egy vizsga írásbeli válaszát a vizsga saját szempontjai szerint: mindegyikhez egy szintet indoklással, és azt, mi érne több pontot. Semmi sem számít, amíg el nem fogadod vagy meg nem változtatod.",
+      "exam": "Egy vizsga nyílt válaszát — írott szöveget vagy elmondott szóbeli részt — a vizsga saját feltételei szerint értékeli: mindegyiknél egy szintet indoklással, és hogy mi hozna több pontot; a szöveget át is nézi (pontok, javítások, mintaszöveg), a szóbeli rész hibáit felsorolja. Semmi sem számít, amíg el nem fogadod vagy meg nem változtatod.",
       "conversation": "Megírja a szóbeli rész forgatókönyvét a kártyáiból: a vizsgáztató mondatait, a partneredét a kártyája alapján és a te helyeidet egy tippel, mit mondj. Végigmondod a részt; utána a feltételei szerint értékelik.",
       "sceneSetup": "Elindít egy párbeszédet: a lecke céljaiból és abból, amit tudsz, kitalálja a helyzetet, hogy kivel beszélsz, a célkártyádat és azt, amit csak a partnered tud — ezt neked kell megkérdezned. Párbeszédenként egyszer.",
       "scene": "Eljátssza a partneredet: válaszol minden mondatodra, amit kimondasz (ahogy a felismerő hallotta) vagy beírsz, megmondja, érthető volt-e és illik-e, legfeljebb két hibát javít benne, fordítást ad és kipipálja az elért célokat.",
@@ -1337,7 +1337,7 @@
     "event_id_taken": "Ezt a választ már másként rögzítettük. Töltsd be újra az oldalt.",
     "event_of_another_run": "Ez a bejegyzés egy másik körhöz tartozik. Töltsd be újra a leckét.",
     "exam_rating_busy": "Ennek a válasznak az értékelése folyamatban van. Várj egy kicsit.",
-    "exam_conversation_busy": "A partner válaszol. Várj egy kicsit.",
+    "exam_conversation_busy": "A rész készül. Várj egy kicsit.",
     "invalid_event": "Az alkalmazás olyan bejegyzést küldött, amelyet a szerver nem fogadott el. Töltsd be újra a leckét.",
     "invalid_request": "Az alkalmazás olyat küldött, amit a szerver nem fogadott el. Töltsd be újra az oldalt.",
     "request_too_large": "Ez a kérés túl nagy.",
@@ -1568,7 +1568,7 @@
     "conversation": {
       "partner": "Partner",
       "examiner": "Vizsgáztató",
-      "intro": "Az asszisztens játssza a vizsgáztatót és a partneredet. Válaszolj hangosan a mikrofonnal (vagy gépelj); a beszélgetés a válaszod.",
+      "intro": "A vizsgáztató és a partnered hangosan beszél; te akkor beszélsz, amikor rád kerül a sor. Amit mondasz, az a válaszod, amit utána a rész feltételei szerint értékelnek.",
       "start": "A rész indítása"
     },
     "choose": "Válassz vizsgát"

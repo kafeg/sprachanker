@@ -524,7 +524,7 @@
       "writingTask": "Ustala zadanie „Pisanie”: sytuację z lekcji z trzema punktami do omówienia, o długości według poziomu kursu — tak, jak stawia je egzamin pisemny na tym poziomie. Pytane raz na zadanie.",
       "writing": "Sprawdza krótki tekst napisany na zadanie z „Pisanie”: czy każdy punkt omówiono, najwyżej trzy poprawki, kryteria poziomu kursu (zadanie, komunikacja, poprawność), tekst wzorcowy i komentarz.",
       "speaking": "Sprawdza odpowiedź powiedzianą na głos (to, co usłyszało rozpoznawanie mowy) względem pytania i odpowiedzi z kursu, gdy naciśniesz „Sprawdź z AI”.",
-      "exam": "Ocenia pisemną odpowiedź egzaminacyjną według kryteriów samego egzaminu: poziom w każdym kryterium z uzasadnieniem i co dałoby więcej punktów. Nic się nie liczy, dopóki tego nie przyjmiesz lub nie zmienisz.",
+      "exam": "Ocenia otwartą odpowiedź egzaminu — napisany tekst albo wypowiedzianą część ustną — według kryteriów egzaminu: poziom każdego z uzasadnieniem i co dałoby więcej punktów; tekst jest też omawiany (punkty, poprawki, tekst wzorcowy), w części ustnej wymieniane są błędy. Nic się nie liczy, dopóki tego nie przyjmiesz lub nie zmienisz.",
       "conversation": "Pisze scenariusz części ustnej na podstawie jej kart: kwestie egzaminatora, partnera według jego karty i twoje miejsca z podpowiedzią, co powiedzieć. Mówisz całą część, potem jest oceniana według jej kryteriów.",
       "sceneSetup": "Rozpoczyna dialog: z celów lekcji i tego, co już znasz, wymyśla sytuację, rozmówcę, twoją kartę celów i to, co wie tylko rozmówca — o to musisz zapytać. Raz na dialog.",
       "scene": "Gra twojego rozmówcę: odpowiada na każdą kwestię, którą mówisz (tak jak usłyszało ją rozpoznawanie) lub piszesz, mówi, czy była zrozumiała i pasuje, poprawia w niej najwyżej dwa błędy, podaje tłumaczenie i odhacza osiągnięte cele.",
@@ -1337,7 +1337,7 @@
     "event_id_taken": "Ta odpowiedź została już zapisana inaczej. Wczytaj stronę ponownie.",
     "event_of_another_run": "Ten wpis należy do innego podejścia. Wczytaj lekcję ponownie.",
     "exam_rating_busy": "Ta odpowiedź jest właśnie oceniana. Poczekaj.",
-    "exam_conversation_busy": "Rozmówca odpowiada. Poczekaj.",
+    "exam_conversation_busy": "Część jest przygotowywana. Poczekaj.",
     "invalid_event": "Aplikacja wysłała wpis, którego serwer nie przyjął. Wczytaj lekcję ponownie.",
     "invalid_request": "Aplikacja wysłała coś, czego serwer nie przyjął. Wczytaj stronę ponownie.",
     "request_too_large": "To zapytanie jest za duże.",
@@ -1568,7 +1568,7 @@
     "conversation": {
       "partner": "Partner",
       "examiner": "Egzaminator",
-      "intro": "Asystent odgrywa egzaminatora i twojego partnera. Odpowiadaj na głos przez mikrofon (albo pisz); rozmowa jest twoją odpowiedzią.",
+      "intro": "Egzaminator i partner mówią na głos; ty mówisz, gdy przyjdzie twoja kolej. To, co powiesz, jest twoją odpowiedzią, ocenianą potem według kryteriów części.",
       "start": "Zacznij część"
     },
     "choose": "Wybierz egzamin"

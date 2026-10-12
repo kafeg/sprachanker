@@ -524,7 +524,7 @@
       "writingTask": "Stabilește sarcina de la „Scriere”: o situație din lecție cu trei puncte de tratat, lungimea după nivelul cursului, cum o dă un examen scris la acel nivel. Cerută o dată pe sarcină.",
       "writing": "Verifică un text scurt scris pe sarcina de la „Scriere”: fiecare punct tratat sau nu, cel mult trei corecturi, criteriile nivelului cursului (sarcină, comunicare, corectitudine), un text model și feedback.",
       "speaking": "Verifică un răspuns spus cu voce tare (ce a auzit recunoașterea vorbirii) față de întrebare și răspunsul cursului, când apeși „Verifică cu AI”.",
-      "exam": "Notează un răspuns scris la examen după criteriile examenului: un nivel pentru fiecare, cu motivul, și ce ar aduce mai multe puncte. Nimic nu contează până nu îl accepți sau îl modifici.",
+      "exam": "Evaluează un răspuns deschis al unui examen — un text scris sau o parte orală spusă — după criteriile examenului: un nivel pentru fiecare cu motivul și ce ar aduce mai multe puncte; textul e și trecut în revistă (puncte, corecturi, un text model), iar greșelile părții orale sunt enumerate. Nimic nu contează până nu îl accepți sau nu îl schimbi.",
       "conversation": "Scrie scenariul unei părți orale din cartonașele ei: replicile examinatorului, ale partenerului după cartonașul lui și rândurile tale cu un indiciu despre ce să spui. Spui toată partea; apoi e evaluată după criteriile ei.",
       "sceneSetup": "Începe un dialog: din obiectivele lecției și din ce știi, inventează situația, cu cine vorbești, cartea ta de obiective și ce știe doar partenerul tău — trebuie să întrebi. O dată pe dialog.",
       "scene": "Joacă rolul partenerului tău: răspunde la fiecare replică pe care o spui (cum a auzit-o recunoașterea) sau o scrii, spune dacă a fost înțeleasă și dacă se potrivește, corectează cel mult două greșeli, dă o traducere și bifează obiectivele atinse.",
@@ -1337,7 +1337,7 @@
     "event_id_taken": "Acest răspuns a fost deja înregistrat altfel. Reîncarcă pagina.",
     "event_of_another_run": "Această înregistrare aparține altei parcurgeri. Reîncarcă lecția.",
     "exam_rating_busy": "Acest răspuns este în curs de notare. Așteaptă.",
-    "exam_conversation_busy": "Partenerul răspunde. Așteaptă.",
+    "exam_conversation_busy": "Partea se pregătește. Așteaptă.",
     "invalid_event": "Aplicația a trimis o înregistrare pe care serverul nu a acceptat-o. Reîncarcă lecția.",
     "invalid_request": "Aplicația a trimis ceva ce serverul nu a acceptat. Reîncarcă pagina.",
     "request_too_large": "Această cerere este prea mare.",
@@ -1568,7 +1568,7 @@
     "conversation": {
       "partner": "Partener",
       "examiner": "Examinator",
-      "intro": "Asistentul joacă examinatorul și partenerul tău. Răspunde cu voce tare la microfon (sau scrie); conversația este răspunsul tău.",
+      "intro": "Examinatorul și partenerul vorbesc cu voce tare; tu vorbești când îți vine rândul. Ce spui este răspunsul tău, evaluat apoi după criteriile părții.",
       "start": "Începe proba"
     },
     "choose": "Alege un examen"

@@ -103,9 +103,6 @@ export function openCounts(exam: Exam, setting: SettingOf) {
   return out;
 }
 
-/** A question's line in a list: what it asks (a gap's text with "…", else its own text's first
- *  line), else its Teil's (a speaking part's: its cards' first lines — "Was machen Sie mit Ihrem
- *  Geld?" —, else its text's); empty when neither has any. */
 /** A criterion the learner rates themselves, never the assistant (owner, 2026-10-12): pronunciation
  *  — what the recogniser heard says nothing of it; the learner rates it from their takes. Goethe names
  *  it `aussprache`. */
@@ -120,6 +117,9 @@ export const contentPoints = (instructions: string | undefined): string[] =>
     .filter((l) => /^[•·▪\-–]\s+/.test(l))
     .map((l) => l.replace(/^[•·▪\-–]\s+/, ""));
 
+/** A question's line in a list: what it asks (a gap's text with "…", else its own text's first
+ *  line), else its Teil's (a speaking part's: its cards' first lines — "Was machen Sie mit Ihrem
+ *  Geld?" —, else its text's); empty when neither has any. */
 export const questionLine = (item: ExamItem, section?: Exam["sections"][number]) =>
   item.prompt ||
   (item.type === "gap_text"

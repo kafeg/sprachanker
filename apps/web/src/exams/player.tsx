@@ -145,7 +145,7 @@ function Running({
   const { t } = useTranslation();
   useWindowPlace(title);
   const answers = useMemo(() => latestAnswers(events), [events]);
-  // A speaking part held as a conversation while the assistant works here (exams/slots.ts).
+  // A speaking part said from its script while the assistant works here (exams/slots.ts).
   const slots = useExamSlots();
   const conversing = slots.conversation?.useOn() ?? false;
   const keep = useKeepRunEvents(runId);
@@ -228,8 +228,11 @@ function Running({
   // A speaking part said through from its script while the assistant works here: practice keeps it
   // as the draft Check sends, then shows it answered with the script's good lines; a mock exam keeps
   // it as the answer as soon as every place is said (and anew when said again).
+  // Answered from a script (line by line), or not answered yet: an answer given otherwise (before
+  // scripts, or without the assistant) is shown as any open answer.
+  const givenLines = (given?.answer as RespondAnswer | undefined)?.lines;
   const spokenPart =
-    conversing && item.type === "respond" && item.input === "speech"
+    conversing && item.type === "respond" && item.input === "speech" && (!given || givenLines)
       ? slots.conversation?.view({
           runId,
           itemKey: item.key,
@@ -241,7 +244,8 @@ function Running({
             } else setDrafts((d) => ({ ...d, [item.key]: said }));
           },
           hints: mode === "practice",
-          ...(mode === "practice" && given && { answer: given.answer as RespondAnswer }),
+          said: (given?.answer as RespondAnswer | undefined) ?? (drafts[item.key] as RespondAnswer),
+          checked: mode === "practice" && !!given,
         })
       : undefined;
   const conversation = spokenPart ?? undefined;

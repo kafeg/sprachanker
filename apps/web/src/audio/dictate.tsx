@@ -40,8 +40,14 @@ export function DictateButton({
   });
   if (!host?.recognition || micState() !== "ready") return null;
   const recording = recorder.state === "recording";
+  // The microphone turning on: speaking into it now would lose the first word.
+  const starting = recorder.state === "starting";
   const name = languageName(lang, i18n.language);
-  const label = recording ? t("speech.stop") : t("speech.sayIn", { language: name });
+  const label = recording
+    ? t("speech.stop")
+    : starting
+      ? t("speech.micStarting")
+      : t("speech.sayIn", { language: name });
   return (
     <Tooltip>
       <TooltipTrigger asChild>
@@ -49,7 +55,7 @@ export function DictateButton({
           type="button"
           aria-label={label}
           aria-pressed={recording}
-          disabled={busy}
+          disabled={busy || starting}
           onClick={() => (recording ? recorder.stop() : void recorder.start())}
           className={cn(
             "relative grid size-11 shrink-0 place-items-center rounded-full border bg-card text-xs font-semibold hover:bg-accent disabled:opacity-60",
@@ -58,7 +64,7 @@ export function DictateButton({
             className,
           )}
         >
-          {busy ? (
+          {busy || starting ? (
             <LoaderCircle className="size-4 animate-spin" />
           ) : recording ? (
             <Square className="size-3.5 fill-current" />

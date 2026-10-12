@@ -36,8 +36,10 @@ export interface ConversationContext {
   onSaid(answer: RespondAnswer | undefined): void;
   /** The hints of what to say shown (practice); a mock exam gives only the cards, as the real one. */
   hints: boolean;
-  /** The part answered (practice: checked): what was said shown with the script's good lines. */
-  answer?: RespondAnswer;
+  /** What was said already: the answer given, or practice's draft not checked yet. */
+  said?: RespondAnswer;
+  /** Checked (practice): each line said shown with the script's good line, nothing more to say. */
+  checked: boolean;
 }
 
 const Slots = createContext<ExamSlots>({});

@@ -41,7 +41,7 @@ export function createExamRating(deps: { llm: Llm; store: RunStore; exams: Exams
   /** The answer to rate and what the task gets: the exam, the task as set, the criteria named. */
   async function input(request: ExamRatingRequest) {
     const found = await deps.exams.openAnswer(request.runId, request.itemKey);
-    const { run, exam, locale, item, text } = found;
+    const { run, exam, locale, item, text, said } = found;
     // A mock exam still running is the learner's alone: no help before it is handed in.
     if (run.plan.mode === "test" && found.row.status !== "finished")
       throw new ServiceError("exam_test_running", 409);
@@ -78,14 +78,14 @@ export function createExamRating(deps: { llm: Llm; store: RunStore; exams: Exams
           contentPoints: contentPoints(sectionLocale?.instructions),
         }),
     };
-    // A speaking part said from its script: rated with the script around what was said (a line of
-    // the answer for each of the learner's places), its errors listed; pronunciation the learner's.
+    // A speaking part said from its script (its answer line by line): rated with the script around
+    // what was said in each of the learner's places, its errors listed; pronunciation the learner's.
     const script = verdicts(store, "exam_part", {
       runIds: [request.runId],
       itemKey: request.itemKey,
     })[0];
-    if (script && item.type === "respond" && item.input === "speech") {
-      task.conversation = scriptConversation(script.result, text.split("\n"));
+    if (script && said && item.type === "respond" && item.input === "speech") {
+      task.conversation = scriptConversation(script.result, said);
       task.spoken = true;
       task.criteria = task.criteria.filter((c) => !selfRated(c));
       return { task, text };

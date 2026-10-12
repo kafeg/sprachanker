@@ -524,7 +524,7 @@
       "writingTask": "Postavlja zadatak za „Pisanje“: situaciju iz lekcije s tri tačke koje treba obuhvatiti, dužine prema nivou kursa, kako ga postavlja pismeni ispit tog nivoa. Traži se jednom po zadatku.",
       "writing": "Provjerava kratki tekst napisan na zadatak iz „Pisanje“: je li svaka tačka obuhvaćena, najviše tri ispravke, kriteriji nivoa kursa (zadatak, komunikacija, tačnost), uzorni tekst i povratna informacija.",
       "speaking": "Provjerava tvoj izgovoreni odgovor (ono što je prepoznavač čuo) u odnosu na pitanje i odgovor kursa, kad pritisneš „Provjeri s AI“.",
-      "exam": "Ocjenjuje pisani odgovor na ispitu po kriterijima samog ispita: nivo za svaki kriterij s obrazloženjem i šta bi donijelo više bodova. Ništa se ne računa dok to ne prihvatiš ili izmijeniš.",
+      "exam": "Ocjenjuje otvoreni odgovor ispita — napisani tekst ili izgovoreni usmeni dio — po kriterijima samog ispita: nivo svakog s razlogom i šta bi donijelo više bodova; tekst se i pregleda (tačke, ispravke, uzorni tekst), a navode se greške usmenog dijela. Ništa se ne računa dok to ne prihvatiš ili promijeniš.",
       "conversation": "Piše scenarij usmenog dijela iz njegovih kartica: rečenice ispitivača, partnera prema njegovoj kartici i tvoja mjesta s nagovještajem šta reći. Izgovoriš cijeli dio; zatim se ocjenjuje po njegovim kriterijima.",
       "sceneSetup": "Započinje dijalog: iz ciljeva lekcije i onoga što znaš smišlja situaciju, s kim razgovaraš, tvoju karticu ciljeva i ono što zna samo tvoj sagovornik — a ti to moraš pitati. Traži se jednom po dijalogu.",
       "scene": "Igra tvog sagovornika: odgovara na svaku tvoju izgovorenu (kako ju je prepoznavač čuo) ili napisanu repliku, kaže je li razumljiva i odgovara li, ispravlja najviše dvije greške u njoj, daje prijevod i označava postignute ciljeve.",
@@ -1337,7 +1337,7 @@
     "event_id_taken": "Ovaj odgovor je već drugačije zabilježen. Ponovo učitaj stranicu.",
     "event_of_another_run": "Ovaj zapis pripada drugom prolazu. Ponovo učitaj lekciju.",
     "exam_rating_busy": "Ovaj odgovor se upravo ocjenjuje. Sačekaj.",
-    "exam_conversation_busy": "Partner odgovara. Sačekaj.",
+    "exam_conversation_busy": "Dio se priprema. Sačekaj.",
     "invalid_event": "Aplikacija je poslala zapis koji server nije prihvatio. Ponovo učitaj lekciju.",
     "invalid_request": "Aplikacija je poslala nešto što server nije prihvatio. Ponovo učitaj stranicu.",
     "request_too_large": "Ovaj zahtjev je prevelik.",
@@ -1568,7 +1568,7 @@
     "conversation": {
       "partner": "Partner",
       "examiner": "Ispitivač",
-      "intro": "Asistent igra ispitivača i tvog partnera. Odgovaraj naglas mikrofonom (ili kucaj); razgovor je tvoj odgovor.",
+      "intro": "Ispitivač i tvoj partner govore naglas; ti govoriš kad dođe tvoj red. Ono što kažeš je tvoj odgovor, koji se poslije ocjenjuje po kriterijima dijela.",
       "start": "Počni dio"
     },
     "choose": "Izaberi ispit"

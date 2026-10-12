@@ -524,7 +524,7 @@
       "writingTask": "Fixe la tâche « Écriture » : une situation de la leçon avec trois points à traiter, d’une longueur selon le niveau du cours, comme la pose un examen écrit de ce niveau. Demandée une fois par tâche.",
       "writing": "Corrige un court texte écrit sur la tâche « Écriture » : chaque point traité ou non, trois corrections au plus, les critères du niveau du cours (tâche, communication, correction), un texte modèle et un commentaire.",
       "speaking": "Vérifie une réponse dite à voix haute (ce que la reconnaissance vocale a entendu) par rapport à la question et à la réponse du cours, quand tu appuies sur « Vérifier avec l’IA ».",
-      "exam": "Note une réponse écrite d’examen selon les critères de l’examen lui-même : un niveau pour chacun avec sa raison, et ce qui rapporterait plus. Rien ne compte tant que tu ne l’as pas accepté ou modifié.",
+      "exam": "Évalue une réponse ouverte d’un examen — un texte écrit ou une partie orale dite — selon les critères de l’examen : un niveau pour chacun avec sa raison, et ce qui rapporterait plus ; un texte est aussi repris (points, corrections, un texte modèle), les erreurs d’une partie orale sont listées. Rien ne compte tant que tu ne l’acceptes ou ne le modifies.",
       "conversation": "Écrit le script d’une épreuve orale à partir de ses cartes : les répliques de l’examinateur, celles de ton partenaire d’après sa carte et tes tours avec une indication de ce qu’il faut dire. Tu dis toute la partie ; elle est ensuite évaluée selon ses critères.",
       "sceneSetup": "Lance un dialogue : à partir des objectifs de la leçon et de ce que tu sais, invente la situation, ton interlocuteur, ta carte d’objectifs et ce que seul ton interlocuteur sait — et que tu dois lui demander. Une fois par dialogue.",
       "scene": "Joue ton interlocuteur : répond à chaque réplique que tu dis (telle que la reconnaissance l’a entendue) ou que tu tapes, dit si elle a été comprise et si elle convient, corrige au plus deux erreurs, donne une traduction et coche tes objectifs atteints.",
@@ -1337,7 +1337,7 @@
     "event_id_taken": "Cette réponse a déjà été enregistrée autrement. Recharge la page.",
     "event_of_another_run": "Cet enregistrement appartient à un autre passage. Recharge la leçon.",
     "exam_rating_busy": "Cette réponse est en cours de notation. Patiente.",
-    "exam_conversation_busy": "Le partenaire est en train de répondre. Patiente.",
+    "exam_conversation_busy": "La partie est en préparation. Patiente.",
     "invalid_event": "L’appli a envoyé une donnée que le serveur n’a pas acceptée. Recharge la leçon.",
     "invalid_request": "L’appli a envoyé quelque chose que le serveur n’a pas accepté. Recharge la page.",
     "request_too_large": "Cette requête est trop volumineuse.",
@@ -1568,7 +1568,7 @@
     "conversation": {
       "partner": "Partenaire",
       "examiner": "Examinateur",
-      "intro": "L’assistant joue l’examinateur et ton partenaire. Réponds à voix haute avec le micro (ou écris) ; la conversation est ta réponse.",
+      "intro": "L’examinateur et ton partenaire parlent à voix haute ; tu parles quand c’est ton tour. Ce que tu dis est ta réponse, évaluée ensuite selon les critères de la partie.",
       "start": "Commencer l’épreuve"
     },
     "choose": "Choisir un examen"

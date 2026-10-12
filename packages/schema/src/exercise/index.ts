@@ -18,7 +18,7 @@ export { Outcome, TokenDiff } from "./outcome.ts";
 export { RespondAnswer } from "./respond.ts";
 export {
   DictationAnswer,
-  recordingOf,
+  recordingsOf,
   SpeechRepeatAnswer,
   SpeechSelfrateAnswer,
 } from "./speech.ts";

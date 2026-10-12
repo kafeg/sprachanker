@@ -6,7 +6,7 @@ area's CLAUDE.md. How the parts fit: `docs/architecture.md`.
 
 ## Next
 
-### 1. Goethe exams: Sprechen and Schreiben as the real exam (owner, 2026-10-12; not begun)
+### 1. Goethe exams: Sprechen and Schreiben as the real exam (owner, 2026-10-12)
 The tasks stay the Modellsatz's; Hören and Lesen stay as they are. What is proposed, with screenshots
 and mockups: the owner's page "Goethe в SprachAnker"; background: `docs/research/goethe-exams-redesign.md`.
 - Sprechen on the Speaking machinery of the lessons: each Teil's own card from the Modellsatz; a
@@ -23,6 +23,10 @@ and mockups: the owner's page "Goethe в SprachAnker"; background: `docs/researc
   only by source (A2 and B1 stay experimental).
 - Open for the owner: whether exams need the practice mode at all; more original sets (Goethe's
   Übungssätze, PDF and MP4) instead of only one Modellsatz per level.
+- Built: practice as a lesson (every exam); Schreiben gone over as an examiner does; Sprechen from a
+  script. Tried on A2 with a real model (Schreiben, Teil 1–3 scripts, Teil 3 said and rated).
+  Remaining: A1 and B1 tried the same way (B1's presentation with its slides); A1 out of the
+  experimental sources.
 - **Accept**: Goethe A2 Sprechen and Schreiben held end to end by voice with a real model; A1 shown
   without turning on experimental sources.
 
