@@ -143,13 +143,18 @@ export function createWriting(deps: {
       return busy.run(request.lessonKey, {}, async () => {
         const run = await session(request.lessonKey);
         const started = now();
-        const message = await messageFor(request);
-        const input = { ...(await taskInput(request)), message };
+        // No message the generator could stand behind: a task of the learner's own situation, as
+        // before messages (a course's first lesson's few words make one hard).
+        const message = await messageFor(request).catch((error: unknown) => {
+          console.warn(`writing: no message to answer: ${(error as Error).message}`);
+          return undefined;
+        });
+        const input = { ...(await taskInput(request)), ...(message && { message }) };
         const { result, model } = await llm.structured(writingTaskTask(input));
         return keepVerdict(store, run.id, {
           task: "writing_task",
           input: "",
-          result: { ...writingTaskOf(result, input.lesson.level), message },
+          result: { ...writingTaskOf(result, input.lesson.level), ...(message && { message }) },
           model,
           latencyMs: Math.max(0, Math.round(now() - started)),
         }).verdict;

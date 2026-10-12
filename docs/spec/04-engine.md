@@ -486,7 +486,8 @@ go over; "Go over again" makes a new review of the run's mistakes as they are th
 **Writing** (`writing_task`, `check_writing`; 07; owner, 2026-10-12, from the walkthrough): the
 text generator (Reading's: drafts rated, the best kept) writes a message to the learner, its genre
 drawn from those one answers (a chat, a personal, work or — from A2 — official letter, small ads, a
-post; not the lesson's last three), that asks, offers or invites; the model then sets the task of
+post; not the lesson's last three; at a course's start a chat only), that asks, offers or invites (none
+passing: the task is set without one, on a situation of the learner's own); the model then sets the task of
 answering it from the message, the lesson's goals and the snapshot — a situation (who the learner
 writes to and why) and three content points, three different things, in the learner's language; a goal of learning about something is
 no task, it becomes a situation where the learner tells, asks for or arranges something; a lesson

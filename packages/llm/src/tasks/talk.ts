@@ -28,6 +28,7 @@ import {
   topicsLine,
 } from "./lesson.ts";
 import { learnerWordsProblem, NEUTRAL, type RulesInput, systemPrompt } from "./rules.ts";
+import { wordCount } from "./understanding.ts";
 
 export const TALK_BUDGETS = {
   lessonVocab: 1200,
@@ -90,8 +91,8 @@ export function talkCardRules(
     `- "setting": in ${l}, a few words naming the task ("Tell about yourself", "Your weekend").`,
     `- "instruction": in ${l}, one or two sentences: what to talk about and that the three points below are to be said.`,
     `- "topic": in ${t}, the card's topic as an exam card writes it ("Meine Familie", "Mein Wochenende").`,
-    `- "points": in ${t}, three things to say, each a short cue as an exam card gives it (a key word with a question mark, or a short question: "Wohnort?", "Wie viele Geschwister?"); things a learner at this level can say about their own life with the words they know.`,
-    `- "model": in ${t}, an answer a good learner at this level gives, about as long as the time given, covering the three points — in the first person, as someone made up says it; with the words and grammar the learner knows.`,
+    `- "points": in ${t}, three things to say about the topic, each a short cue as an exam card gives it (a key word with a question mark, or a short question); things a learner at this level can say about their own life with the words they know.`,
+    `- "model": in ${t}, an answer a good learner at this level gives, no longer than the words given, covering the three points in order — in the first person, as someone made up says it, each sentence telling something about them; no filler, no line said only to make it longer; with the words and grammar the learner knows.`,
     `- ${NEUTRAL}`,
   ].join("\n");
 }
@@ -111,12 +112,18 @@ export function talkCardTask(input: TalkInput): StructuredTask<MonologueReply> {
     name: "talk_card",
     schema: MonologueReply,
     fix: (reply) => genderFreeReply(reply, input.language),
-    quality: (reply) =>
-      [reply.setting, reply.instruction].some(
-        (s) => writtenIn(s, input.language, input.target) === false,
+    quality: (reply) => {
+      if (
+        [reply.setting, reply.instruction].some(
+          (s) => writtenIn(s, input.language, input.target) === false,
+        )
       )
-        ? `"setting" and "instruction" in ${languageName(input.language)}`
-        : learnerWordsProblem([reply.instruction], input.language),
+        return `"setting" and "instruction" in ${languageName(input.language)}`;
+      const words = wordCount([{ text: reply.model }]);
+      if (words > seconds * 2 * 1.25)
+        return `"model" about ${seconds * 2} words, no more (it has ${words}): cut what is not one of the points`;
+      return learnerWordsProblem([reply.instruction], input.language);
+    },
     request: {
       messages: [
         { role: "system", content: systemPrompt(input, talkCardRules, CARD_FIXED) },

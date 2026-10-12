@@ -231,3 +231,15 @@ test("writing: a model that never returns valid JSON is reported, nothing stored
   const state = await getJson(`/api/llm/writing?${query}`);
   expect([state.task, state.attempts]).toEqual([null, []]);
 });
+
+test("no message the generator stands behind: the task is set without one", async () => {
+  const { sendJson, bodies } = await withModel({
+    understanding_draft: [{ nothing: true }],
+    writing_task: [TASK],
+  });
+  await sendJson("POST", "/api/runs", START);
+  const task = await sendJson("POST", "/api/llm/writing/task", IDS);
+  expect(task.result).toEqual({ ...TASK, words: 30 });
+  const asked = bodies.find((b) => b.name === "writing_task");
+  expect(asked?.messages[1]?.content).not.toContain("<message>");
+});
