@@ -11,7 +11,9 @@ Publishes one version: a tested archive of the binary and the speech engines tha
 - ⚠️ Never put course content, keys or personal data in an archive or a release note: the repository is public.
 - Versions follow semver; the version lives in `apps/cli/package.json` (the server reports it at `/api/health`).
 - Build on the platform the archive is for: the speech engines are native (macOS arm64 only, the
-  owner's decision 2026-10-12). CI caches them by `native/*/VERSION`.
+  owner's decision 2026-10-12). They are built apart, each kept as a pre-release
+  (`bun native/scripts/tag.ts <engine>` names it; `.github/workflows/engines.yml` builds a missing
+  one); the Release workflow downloads them.
 
 ## Procedure
 1. Read the current version and the changes since the last tag:
@@ -39,6 +41,9 @@ Publishes one version: a tested archive of the binary and the speech engines tha
 
 ## Gotchas
 - "cannot be opened" on another Mac → the file came through a browser (quarantine) → install with the `curl … | bash` command, or `xattr -dr com.apple.quarantine <folder>`.
+- The release run fails at "Speech engines, from their releases" → an engine's release is missing (a new
+  `VERSION` or `build.ts`) → wait for the Engines workflow (Actions → Engines), then run the release
+  again: delete and push the tag again.
 - The release run fails at "The tag is the binary's version" → the tag and `apps/cli/package.json` differ → delete the tag (`git push origin :vX.Y.Z`), fix, tag again.
 - The binary starts but speech is off → the engines are not beside the binary → unpack all files into one folder.
 - A database newer than the binary → an older version started on newer data → never ship a downgrade over the same data folder.

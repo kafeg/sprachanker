@@ -95,7 +95,7 @@ lessons, review and exams work without any model.
 
 ## Install
 
-**Macs with Apple Silicon (M1 and later) only, for now.** Linux, a Docker image and Windows come
+**Macs with Apple Silicon (M1 and later), macOS 13 or later, only for now.** Linux, a Docker image and Windows come
 later ([`docs/plan.md`](docs/plan.md)). Open Terminal and run:
 
 ```bash

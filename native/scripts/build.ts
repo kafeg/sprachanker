@@ -9,7 +9,7 @@
 // run with ours). Needs git, cmake and a C++ toolchain.
 //   bun native/scripts/build.ts [whisper|piper|qwen]
 import { copyFileSync, existsSync, mkdirSync, readFileSync, renameSync, rmSync } from "node:fs";
-import { homedir } from "node:os";
+import { availableParallelism, homedir } from "node:os";
 import { join } from "node:path";
 import { $ } from "bun";
 // The engines (folder, program) and the target triple, as the server finds them.
@@ -43,7 +43,8 @@ async function build(engine: EngineName, repo: string, flags: string[]) {
   const version = readFileSync(join(root, "VERSION"), "utf8").trim();
   const src = await sources(repo, repo.split("/").at(-1) ?? engine, version);
   await $`cmake -S ${src} -B ${join(src, "build")} -DCMAKE_BUILD_TYPE=Release -DBUILD_SHARED_LIBS=OFF ${flags}`;
-  await $`cmake --build ${join(src, "build")} --config Release --target ${target} -j`;
+  // As many compilers as cores: a bare -j starts them all at once (a CI runner's memory runs out).
+  await $`cmake --build ${join(src, "build")} --config Release --target ${target} -j ${availableParallelism()}`;
   mkdirSync(join(root, "out"), { recursive: true });
   const out = join(root, "out", `${target}-${triple}`);
   const built = [join(src, "build", "bin", target), join(src, "build", target)].find(existsSync);
@@ -53,8 +54,12 @@ async function build(engine: EngineName, repo: string, flags: string[]) {
 }
 
 const only = process.argv[2];
+// macOS 13 and later, as the binary (else the macOS building them is the oldest they run on).
+const macos = process.platform === "darwin" ? ["-DCMAKE_OSX_DEPLOYMENT_TARGET=13.0"] : [];
 const metal =
-  process.platform === "darwin" ? ["-DGGML_METAL=ON", "-DGGML_METAL_EMBED_LIBRARY=ON"] : [];
+  process.platform === "darwin"
+    ? [...macos, "-DGGML_METAL=ON", "-DGGML_METAL_EMBED_LIBRARY=ON"]
+    : [];
 if (!only || only === "whisper")
   await build("whisper", "https://github.com/ggml-org/whisper.cpp", [
     "-DWHISPER_BUILD_SERVER=ON",
@@ -71,6 +76,7 @@ if (!only || only === "piper")
     "-DSHERPA_ONNX_ENABLE_PORTAUDIO=OFF",
     "-DSHERPA_ONNX_ENABLE_WEBSOCKET=OFF",
     "-DSHERPA_ONNX_ENABLE_BINARY=ON",
+    ...macos,
   ]);
 if (!only || only === "qwen")
   await build("qwen", "https://github.com/ServeurpersoCom/qwentts.cpp", metal);

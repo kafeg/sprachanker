@@ -15,7 +15,10 @@ scripts/   # build.ts (`bun run build:speech [whisper|piper|qwen]`): clones each
            # with submodules, builds whisper-server and tts-server static with Metal and embedded
            # shaders on macOS and sherpa-onnx-offline-tts static, writes them to <engine>/out/;
            # build:cli runs it and copies them beside the sprachanker binary. The engines (folder, program) and
-           # the target triple are the server's (packages/server/src/runtime/engines.ts)
+           # the target triple are the server's (packages/server/src/runtime/engines.ts); macOS 13
+           # and later. tag.ts: the GitHub release an engine's build is kept in (its version and
+           # build.ts's hash) — `.github/workflows/engines.yml` builds an engine only while its
+           # release is missing, the Release workflow downloads them
 ```
 
 ## Rules

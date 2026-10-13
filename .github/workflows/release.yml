@@ -1,8 +1,8 @@
 name: Release
 
-# A tag vX.Y.Z (the version in apps/cli/package.json) builds the speech engines and the binary on a Mac
-# with Apple Silicon, runs the e2e against that build and makes a draft release with the archive and
-# the installer; the release skill writes its notes and publishes it. Run by hand (Actions → Release →
+# A tag vX.Y.Z (the version in apps/cli/package.json) builds the binary on a Mac with Apple Silicon,
+# the speech engines taken from their releases (the Engines workflow), runs the e2e against that build
+# and makes a draft release with the archive and the installer; the release skill writes its notes and publishes it. Run by hand (Actions → Release →
 # Run workflow), the same build's archive is kept as the run's artifact instead.
 on:
   push:
@@ -12,7 +12,7 @@ on:
 jobs:
   macos-arm64:
     runs-on: macos-15
-    timeout-minutes: 120
+    timeout-minutes: 45
     permissions:
       contents: write
     steps:
@@ -22,14 +22,17 @@ jobs:
         run: test "v$(jq -r .version apps/cli/package.json)" = "$GITHUB_REF_NAME"
       - uses: oven-sh/setup-bun@v2 # version from packageManager in package.json
       - run: bun install --frozen-lockfile
-      - name: Speech engines, built once per pinned version
-        id: engines
-        uses: actions/cache@v4
-        with:
-          path: native/*/out
-          key: engines-macos-arm64-${{ hashFiles('native/*/VERSION', 'native/scripts/build.ts') }}
-      - if: steps.engines.outputs.cache-hit != 'true'
-        run: bun run build:speech
+      - name: Speech engines, from their releases
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          for e in whisper piper qwen; do
+            info=$(bun native/scripts/tag.ts "$e")
+            tag=$(jq -r .tag <<<"$info"); out=$(jq -r .out <<<"$info"); file=$(jq -r .file <<<"$info")
+            gh release download "$tag" -p "$file" -D "$out" --clobber ||
+              { echo "::error::no release $tag: run the Engines workflow"; exit 1; }
+            chmod +x "$out/$file"
+          done
       - name: Install Playwright browsers
         working-directory: e2e
         run: bunx playwright install chromium webkit

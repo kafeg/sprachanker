@@ -1,0 +1,41 @@
+name: Engines
+
+# Each speech engine built at its pinned version (native/<engine>/VERSION) for Macs with Apple Silicon
+# and kept as a pre-release of its own (`bun native/scripts/tag.ts <engine>` names it) — built only
+# while no such release is there. The Release workflow takes the engines from there.
+on:
+  push:
+    branches: [main]
+    paths: ["native/**", ".github/workflows/engines.yml"]
+  workflow_dispatch:
+
+jobs:
+  build:
+    strategy:
+      fail-fast: false
+      matrix:
+        engine: [whisper, piper, qwen]
+    runs-on: macos-15
+    timeout-minutes: 120
+    permissions:
+      contents: write
+    env:
+      GH_TOKEN: ${{ github.token }}
+    steps:
+      - uses: actions/checkout@v7
+      - uses: oven-sh/setup-bun@v2 # version from packageManager in package.json
+      - name: Its release
+        id: release
+        run: |
+          info=$(bun native/scripts/tag.ts ${{ matrix.engine }})
+          echo "tag=$(jq -r .tag <<<"$info")" >> "$GITHUB_OUTPUT"
+          echo "file=$(jq -r .out <<<"$info")/$(jq -r .file <<<"$info")" >> "$GITHUB_OUTPUT"
+          if gh release view "$(jq -r .tag <<<"$info")" >/dev/null 2>&1; then echo "have=1" >> "$GITHUB_OUTPUT"; fi
+      - if: steps.release.outputs.have != '1'
+        run: bun native/scripts/build.ts ${{ matrix.engine }}
+      - if: steps.release.outputs.have != '1'
+        run: >
+          gh release create "${{ steps.release.outputs.tag }}" --prerelease
+          --title "${{ steps.release.outputs.tag }}"
+          --notes "A speech engine of SprachAnker, built for Macs with Apple Silicon (macOS 13 and later)."
+          "${{ steps.release.outputs.file }}"
