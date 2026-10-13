@@ -32,10 +32,8 @@ and mockups: the owner's page "Goethe в SprachAnker"; background: `docs/researc
   without turning on experimental sources.
 
 ### 2. Releases
-- v0.1 for the owner's family (owner, 2026-10-12: Apple Silicon only). Built: the release workflow
-  (`.github/workflows/release.yml`), `apps/cli/install.sh`, the README's Install. Remaining: the first
-  tag and its run on GitHub; tried on a clean machine, install to the first lesson; the app saying when
-  a newer version is out. Background: the owner's page "Релиз SprachAnker".
+- v0.1 for the owner's family (owner, 2026-10-12: Apple Silicon, macOS 13 and later): released.
+  Remaining: the app saying when a newer version is out; tried on another, clean Mac.
 - v0.2: Linux builds and a Docker image (engines inside, data in a volume) for a home server.
 - v1.0: the desktop app (`apps/desktop`, Tauri), signed and notarised for macOS (an Apple Developer
   ID), then Windows and Linux; automatic updates.
