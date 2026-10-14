@@ -1728,6 +1728,7 @@
       "stopped": "Dihentikan: {made, number} dari {total, number} dibuat.",
       "stop": "Hentikan",
       "make": "Buat untuk semua pelajaran",
+      "upTo": "Langkah setiap pelajaran diisi hingga jumlah yang dipilih; jika dimulai lagi, dilanjutkan dari tempat berhenti.",
       "steps": "Langkah"
     }
   }

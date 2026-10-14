@@ -44,7 +44,12 @@ import {
   type PracticeFiles,
   type PracticeStepName,
 } from "./practice.ts";
-import { createPracticeJobs, type PracticeJobs } from "./practice-jobs.ts";
+import {
+  createPracticeJobs,
+  PRACTICE_PARALLEL,
+  type PracticeJobs,
+  type PracticeUnit,
+} from "./practice-jobs.ts";
 import { createPracticePrep } from "./practice-prep.ts";
 import { createProfileSpeech } from "./profile-speech.ts";
 import { contentUsed, createProfileTransfer, type TransferFiles } from "./profile-transfer.ts";
@@ -355,18 +360,30 @@ function profileServices(
           throw new ServiceError("practice_needs_voice", 409);
         const lessons = lessonOrder(await shared.content.courseIndex(series, course));
         const steps = PRACTICE_STEPS.filter((s) => options.steps.includes(s));
-        const units = lessons.flatMap((lessonKey) => steps.map((step) => ({ lessonKey, step })));
+        // Each lesson's steps filled up to the count (owner, 2026-10-14): a job started again goes
+        // on where the last one stopped.
+        const units: Array<PracticeUnit & { count: number }> = [];
+        for (const lessonKey of lessons) {
+          const has = await practice.lesson({ series, lessonKey, edition });
+          for (const step of steps) {
+            const count = options.count - (has?.[step].length ?? 0);
+            if (count > 0) units.push({ lessonKey, step, count });
+          }
+        }
         const language = practice.language(edition);
+        // Several units at a time; one on this computer's own model (LM Studio answers one at a time).
+        const parallel = llm.state().provider === "lmstudio" ? 1 : PRACTICE_PARALLEL;
         return shared.practiceJobs.start(
           { series, course, edition, steps, count: options.count },
           units,
-          async ({ lessonKey, step }) => {
+          async ({ lessonKey, step, count }) => {
             const request = { series, lessonKey, edition, language };
             if (step === "reading" || step === "listening")
-              await understanding.make({ ...request, step }, options.count);
-            else if (step === "writing") await writing.make(request, options.count);
-            else await talk.make(request, options.count);
+              await understanding.make({ ...request, step }, count);
+            else if (step === "writing") await writing.make(request, count);
+            else await talk.make(request, count);
           },
+          parallel,
         );
       },
       stop: (series: string, course: string, edition: string) =>

@@ -51,7 +51,7 @@ import { createInFlight } from "./in-flight.ts";
 import type { Llm, PromptPreview } from "./llm.ts";
 import type { Practice, PracticeReader } from "./practice.ts";
 import { HISTORY_LIMIT, type RunStore } from "./run-store.ts";
-import type { Drafted, MakerInputs, TextMaker } from "./text-maker.ts";
+import { type Drafted, keptOf, type MakerInputs, type TextMaker } from "./text-maker.ts";
 import {
   keepPracticeAnswer,
   type PracticeAnswer,
@@ -223,8 +223,9 @@ export function createUnderstanding(deps: {
     );
   }
 
-  /** A text made and added to the course's practice: a text to hear recorded first. */
-  async function make(request: UnderstandingRequest) {
+  /** Texts made from one round of drafts — up to `want`: the best, and others that pass — and
+   *  added to the course's practice, a text to hear recorded first: how many were. */
+  async function make(request: UnderstandingRequest, want = 1) {
     const target = parseEditionId(request.edition).target;
     const reader = request.step === "listening" ? deps.reader?.(target) : undefined;
     if (request.step === "listening" && !reader)
@@ -232,7 +233,20 @@ export function createUnderstanding(deps: {
     const input = await inputs(request);
     const step = (at: UnderstandingStep) => making.set(key(request.lessonKey, request.step), at);
     const genre = await genreFor(request, input.ctx.info.level, fewWords(input.ctx.info));
-    const best = await deps.maker.draft(input, genre, step);
+    const best = await deps.maker.draft(input, genre, step, undefined, want);
+    const round = [best, ...best.more.map((m) => ({ ...best, ...m }))];
+    return keptOf(round, (drafted) => keep(request, input, genre, drafted, reader, step));
+  }
+
+  /** A drafted text asked questions on, recorded when it is to be heard, and added. */
+  async function keep(
+    request: UnderstandingRequest,
+    input: MakerInputs,
+    genre: TextGenre,
+    best: Drafted,
+    reader: PracticeReader | undefined,
+    step: (at: UnderstandingStep) => void,
+  ) {
     const asked = await askedText(input, request, genre, best, step);
     const id = await deps.practice.newId(request);
     if (!reader) {
@@ -283,7 +297,7 @@ export function createUnderstanding(deps: {
     start(request: UnderstandingRequest, count = 1): Promise<Understood> {
       return making.run(key(request.lessonKey, request.step), "writing", async () => {
         await deps.practice.run(request.lessonKey);
-        for (let i = 0; i < count; i++) await make(request);
+        for (let done = 0; done < count; ) done += await make(request, count - done);
         const taken = await take(request);
         if (!taken) throw new ServiceError("no_such_item", 404);
         return taken;
@@ -294,7 +308,7 @@ export function createUnderstanding(deps: {
      *  course's practice made ahead). */
     make(request: UnderstandingRequest, count = 1) {
       return making.run(key(request.lessonKey, request.step), "writing", async () => {
-        for (let i = 0; i < count; i++) await make(request);
+        for (let done = 0; done < count; ) done += await make(request, count - done);
       });
     },
 

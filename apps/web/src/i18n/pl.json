@@ -1728,6 +1728,7 @@
       "stopped": "Zatrzymano: zrobiono {made, number} z {total, number}.",
       "stop": "Zatrzymaj",
       "make": "Zrób dla wszystkich lekcji",
+      "upTo": "Kroki każdej lekcji są uzupełniane do wybranej liczby; uruchomione ponownie, kontynuuje tam, gdzie skończyło.",
       "steps": "Kroki"
     }
   }

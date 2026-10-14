@@ -19,9 +19,11 @@ import {
   monologueCard,
   pickPurposeGenre,
   structuredRequest,
+  type TextGenre,
   talkCardTask,
   talkCheckTask,
   talkCuesTask,
+  type UnderstandingDraft,
 } from "@sprachanker/llm";
 import {
   type LessonKey,
@@ -37,7 +39,7 @@ import { createInFlight } from "./in-flight.ts";
 import type { Llm, PromptPreview } from "./llm.ts";
 import type { Practice, PracticeReader } from "./practice.ts";
 import { HISTORY_LIMIT, type RunStore } from "./run-store.ts";
-import type { MakerInputs, TextMaker, TextRequest } from "./text-maker.ts";
+import { keptOf, type MakerInputs, type TextMaker, type TextRequest } from "./text-maker.ts";
 import { keepVerdict, type Verdict, verdicts } from "./verdicts.ts";
 import { joinWavs } from "./wav.ts";
 
@@ -95,14 +97,14 @@ export function createTalk(deps: {
     return monologueCard(result, input.ctx.info.level);
   }
 
-  /** A role-play: a conversation drafted for it, its learner's lines given hints, its partner a
-   *  voice of their gender. */
-  async function roleplay(
+  /** Conversations drafted for role-plays in one round: up to `want` (the best, and others that
+   *  pass), with the genre drawn. */
+  async function roleplayDrafts(
     input: MakerInputs,
     made: TalkTask[],
-    reader: PracticeReader,
     step: (now: TalkStep) => void,
-  ): Promise<Roleplay> {
+    want: number,
+  ) {
     const recent = made
       .slice(-4)
       .flatMap((t) => (t.kind === "roleplay" && t.genre ? [t.genre] : []));
@@ -113,7 +115,19 @@ export function createTalk(deps: {
       maker.random,
       fewWords(input.ctx.info),
     );
-    const { draft } = await maker.draft(input, genre, step, "roleplay");
+    const best = await maker.draft(input, genre, step, "roleplay", want);
+    return { genre, drafts: [best.draft, ...best.more.map((m) => m.draft)] };
+  }
+
+  /** A role-play of a drafted conversation: its learner's lines given hints, its partner a voice of
+   *  their gender. */
+  async function roleplay(
+    input: MakerInputs,
+    genre: TextGenre,
+    draft: UnderstandingDraft,
+    reader: PracticeReader,
+    step: (now: TalkStep) => void,
+  ): Promise<Roleplay> {
     const [partner, learner] = draft.people;
     if (!partner || !learner) throw new ServiceError("no_such_item", 502);
     const lines = untilLearnerLines(draftLines(draft, genre).lines.slice(0, 30), learner.name);
@@ -169,41 +183,46 @@ export function createTalk(deps: {
     return { task: { ...task, recordings }, files };
   }
 
-  /** A task made and added to the course's practice: the kinds take turns there (the first drawn;
-   *  no reader for the language: a monologue). */
-  async function make(request: TextRequest) {
+  /** Up to `want` tasks made and added to the course's practice: how many were. The kinds take turns
+   *  there (the first drawn; no reader for the language: monologues); the role-plays among them
+   *  drafted in one round. */
+  async function make(request: TextRequest, want = 1) {
     const r = { ...request, language: deps.practice.language(request.edition) };
     const input = await maker.inputs(r);
     const step = (at: TalkStep) => busy.set(request.lessonKey, at);
     const made = ((await deps.practice.lesson(r))?.speaking ?? []).map((v) => v.task);
-    const last = made.at(-1)?.kind;
     const reader = deps.reader?.(parseEditionId(request.edition).target);
-    const kind = !reader
-      ? "monologue"
-      : last
-        ? last === "monologue"
-          ? "roleplay"
-          : "monologue"
-        : maker.random() < 0.5
-          ? "monologue"
-          : "roleplay";
+    let last = made.at(-1)?.kind ?? (maker.random() < 0.5 ? "roleplay" : "monologue");
+    const kinds = Array.from({ length: want }, () => {
+      last = !reader || last === "roleplay" ? "monologue" : "roleplay";
+      return last;
+    });
     step("writing");
     const model = (await llm.model()).model;
-    if (kind === "monologue" || !reader) {
-      const task = await card(input);
-      await deps.practice.add(r, { step: "speaking", variant: { model, madeAt: now(), task } });
-      return;
-    }
-    const drafted = await roleplay(input, made, reader, step);
-    step("recording");
-    const id = await deps.practice.newId(request);
-    const { task, files } = await recorded(drafted, reader, r, id);
-    await deps.practice.add(
-      r,
-      { step: "speaking", variant: { model, madeAt: now(), task } },
-      files,
-      id,
-    );
+    const plays = kinds.filter((k) => k === "roleplay").length;
+    const round = reader && plays ? await roleplayDrafts(input, made, step, plays) : undefined;
+    const tasks: Array<"monologue" | UnderstandingDraft> = [
+      ...kinds.filter((k) => k === "monologue").map(() => "monologue" as const),
+      ...(round?.drafts ?? []),
+    ];
+    return keptOf(tasks, async (what) => {
+      if (what === "monologue" || !reader || !round) {
+        step("writing");
+        const task = await card(input);
+        await deps.practice.add(r, { step: "speaking", variant: { model, madeAt: now(), task } });
+        return;
+      }
+      const drafted = await roleplay(input, round.genre, what, reader, step);
+      step("recording");
+      const id = await deps.practice.newId(request);
+      const { task, files } = await recorded(drafted, reader, r, id);
+      await deps.practice.add(
+        r,
+        { step: "speaking", variant: { model, madeAt: now(), task } },
+        files,
+        id,
+      );
+    });
   }
 
   return {
@@ -225,7 +244,7 @@ export function createTalk(deps: {
     start(request: TextRequest, count = 1): Promise<Verdict<"talk_task">> {
       return busy.run(request.lessonKey, "writing", async () => {
         await deps.practice.run(request.lessonKey);
-        for (let i = 0; i < count; i++) await make(request);
+        for (let done = 0; done < count; ) done += await make(request, count - done);
         const taken = await deps.practice.take(request, "speaking");
         if (!taken) throw new ServiceError("no_such_item", 404);
         return taken;
@@ -235,7 +254,7 @@ export function createTalk(deps: {
     /** Makes `count` tasks for the lesson into the course's practice, nothing taken. */
     make(request: TextRequest, count = 1) {
       return busy.run(request.lessonKey, "writing", async () => {
-        for (let i = 0; i < count; i++) await make(request);
+        for (let done = 0; done < count; ) done += await make(request, count - done);
       });
     },
 

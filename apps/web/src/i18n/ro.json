@@ -1728,6 +1728,7 @@
       "stopped": "Oprit: făcute {made, number} din {total, number}.",
       "stop": "Oprește",
       "make": "Fă pentru toate lecțiile",
+      "upTo": "Pașii fiecărei lecții sunt completați până la numărul ales; pornit din nou, continuă de unde s-a oprit.",
       "steps": "Pași"
     }
   }

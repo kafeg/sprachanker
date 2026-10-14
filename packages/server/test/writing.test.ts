@@ -244,3 +244,14 @@ test("no message the generator stands behind: the task is set without one", asyn
   const asked = bodies.find((b) => b.name === "writing_task");
   expect(asked?.messages[1]?.content).not.toContain("<message>");
 });
+
+test("several tasks at once: their messages from one round of drafts, a task on each", async () => {
+  const { sendJson, getJson, bodies } = await withModel({ writing_task: [TASK] });
+  await sendJson("POST", "/api/runs", START);
+  await sendJson("POST", "/api/llm/writing/task", { ...IDS, count: 3 });
+  expect((await getJson(`/api/llm/practice/lesson?${query}`)).writing).toBe(3);
+  const asked = bodies.map((b) => b.name);
+  expect(asked.filter((n) => n === "understanding_draft")).toHaveLength(3);
+  expect(asked.filter((n) => n === "understanding_judge")).toHaveLength(1);
+  expect(asked.filter((n) => n === "writing_task")).toHaveLength(3);
+});

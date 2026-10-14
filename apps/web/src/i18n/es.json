@@ -1728,6 +1728,7 @@
       "stopped": "Detenido: {made, number} de {total, number} hechos.",
       "stop": "Detener",
       "make": "Hacer para todas las lecciones",
+      "upTo": "Los pasos de cada lección se completan hasta el número elegido; si se inicia de nuevo, sigue donde se quedó.",
       "steps": "Pasos"
     }
   }

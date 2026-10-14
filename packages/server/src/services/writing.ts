@@ -26,7 +26,7 @@ import type { LessonContexts } from "./lesson-context.ts";
 import type { Llm, PromptPreview } from "./llm.ts";
 import type { Practice } from "./practice.ts";
 import { HISTORY_LIMIT, type RunStore } from "./run-store.ts";
-import type { TextMaker } from "./text-maker.ts";
+import { keptOf, type TextMaker } from "./text-maker.ts";
 import { keepVerdict, type Verdict, verdicts } from "./verdicts.ts";
 
 export interface WritingTaskRequest {
@@ -92,7 +92,7 @@ export function createWriting(deps: {
 
   /** The message a new task answers: drafted by the text generator in a genre one answers (not one
    *  of the latest three of the lesson's practice). */
-  async function messageFor(request: WritingTaskRequest): Promise<TaskMessage> {
+  async function messagesFor(request: WritingTaskRequest, want: number): Promise<TaskMessage[]> {
     const input = await deps.maker.inputs(request);
     const recent = (await madeBefore(request)).flatMap((t) =>
       t.message?.genre ? [t.message.genre] : [],
@@ -104,28 +104,34 @@ export function createWriting(deps: {
       random,
       fewWords(input.ctx.info),
     );
-    const { draft } = await deps.maker.draft(input, genre, () => {}, "reply");
-    return {
+    const best = await deps.maker.draft(input, genre, () => {}, "reply", want);
+    return [best, ...best.more].map(({ draft }) => ({
       genre: genre.id,
       setting: draft.setting,
       lines: draftLines(draft, genre).lines,
       glossary: [],
-    };
+    }));
   }
 
-  /** A task written and added to the course's practice. */
-  async function make(request: WritingTaskRequest) {
+  /** Tasks written — up to `want`, on messages from one round of drafts — and added to the course's
+   *  practice: how many were. */
+  async function make(request: WritingTaskRequest, want = 1) {
     const r = { ...request, language: deps.practice.language(request.edition) };
     // No message the generator could stand behind: a task of the learner's own situation, as
     // before messages (a course's first lesson's few words make one hard).
-    const message = await messageFor(r).catch((error: unknown) => {
-      console.warn(`writing: no message to answer: ${(error as Error).message}`);
-      return undefined;
+    const messages: Array<TaskMessage | undefined> = await messagesFor(r, want).catch(
+      (error: unknown) => {
+        console.warn(`writing: no message to answer: ${(error as Error).message}`);
+        return [undefined];
+      },
+    );
+    const base = await taskInput(r);
+    return keptOf(messages, async (message) => {
+      const input = { ...base, ...(message && { message }) };
+      const { result, model } = await llm.structured(writingTaskTask(input));
+      const task = { ...writingTaskOf(result, input.lesson.level), ...(message && { message }) };
+      await deps.practice.add(r, { step: "writing", variant: { model, madeAt: now(), task } });
     });
-    const input = { ...(await taskInput(r)), ...(message && { message }) };
-    const { result, model } = await llm.structured(writingTaskTask(input));
-    const task = { ...writingTaskOf(result, input.lesson.level), ...(message && { message }) };
-    await deps.practice.add(r, { step: "writing", variant: { model, madeAt: now(), task } });
   }
 
   async function writingInput(request: WritingRequest): Promise<WritingInput> {
@@ -166,7 +172,7 @@ export function createWriting(deps: {
     task(request: WritingTaskRequest, count = 1): Promise<Verdict<"writing_task">> {
       return busy.run(request.lessonKey, {}, async () => {
         await deps.practice.run(request.lessonKey);
-        for (let i = 0; i < count; i++) await make(request);
+        for (let done = 0; done < count; ) done += await make(request, count - done);
         const taken = await deps.practice.take(request, "writing");
         if (!taken) throw new ServiceError("no_such_item", 404);
         return taken;
@@ -176,7 +182,7 @@ export function createWriting(deps: {
     /** Writes `count` tasks for the lesson into the course's practice, nothing taken. */
     make(request: WritingTaskRequest, count = 1) {
       return busy.run(request.lessonKey, {}, async () => {
-        for (let i = 0; i < count; i++) await make(request);
+        for (let done = 0; done < count; ) done += await make(request, count - done);
       });
     },
 

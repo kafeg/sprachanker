@@ -243,3 +243,20 @@ test("speaking: a monologue card, said and checked as said aloud; then a role-pl
   expect(after.task.id).toBe(play.id);
   expect(after.attempts.map((a: { id: string }) => a.id)).toEqual([played.id, spoken.id]);
 });
+
+test("several tasks at once: the kinds take turns, the role-plays among them from one round of drafts, each recorded", async () => {
+  const { sendJson, getJson, bodies } = await withModel();
+  await sendJson("POST", "/api/runs", START);
+  // A monologue card, then three: a role-play, a card, a role-play — the role-plays drafted and
+  // rated together.
+  await sendJson("POST", "/api/llm/talk", { ...IDS, count: 1 });
+  await sendJson("POST", "/api/llm/talk", { ...IDS, count: 3 });
+  const has = await getJson(
+    `/api/llm/practice/lesson?series=${FIXTURE_SERIES}&lessonKey=${LESSON}&edition=ru-de`,
+  );
+  expect(has.speaking).toBe(4);
+  expect(names(bodies).filter((n) => n === "understanding_draft")).toHaveLength(3);
+  expect(names(bodies).filter((n) => n === "understanding_judge")).toHaveLength(1);
+  expect(names(bodies).filter((n) => n === "talk_cues")).toHaveLength(2);
+  expect(names(bodies).filter((n) => n === "talk_card")).toHaveLength(2);
+});

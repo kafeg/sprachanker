@@ -1728,6 +1728,7 @@
       "stopped": "Angehalten: {made, number} von {total, number} erstellt.",
       "stop": "Anhalten",
       "make": "Für alle Lektionen erstellen",
+      "upTo": "Die Schritte jeder Lektion werden bis zur gewählten Zahl aufgefüllt; neu gestartet, geht es dort weiter, wo es aufgehört hat.",
       "steps": "Schritte"
     }
   }

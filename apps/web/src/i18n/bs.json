@@ -1728,6 +1728,7 @@
       "stopped": "Zaustavljeno: napravljeno {made, number} od {total, number}.",
       "stop": "Zaustavi",
       "make": "Napravi za sve lekcije",
+      "upTo": "Koraci svake lekcije popunjavaju se do odabranog broja; pokrenuto ponovo, nastavlja gdje je stalo.",
       "steps": "Koraci"
     }
   }

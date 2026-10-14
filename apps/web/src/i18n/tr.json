@@ -1728,6 +1728,7 @@
       "stopped": "Durduruldu: {total, number} içinden {made, number} yapıldı.",
       "stop": "Durdur",
       "make": "Tüm dersler için yap",
+      "upTo": "Her dersin adımları seçilen sayıya kadar tamamlanır; yeniden başlatılırsa kaldığı yerden devam eder.",
       "steps": "Adımlar"
     }
   }

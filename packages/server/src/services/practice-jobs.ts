@@ -1,16 +1,17 @@
 // A course's practice made in one go (owner, 2026-10-14: a button on the course's page and the
-// command line): a job per course and edition — its lessons in course order, each step asked made
-// `count` times (1–3) into the course's practice by the profile that started it (its model, its
-// voices), one after another —; one job of a course's edition at a time, stopped on request, a unit
+// command line): a job per course and edition — its lessons in course order, each step filled up to
+// `count` (1–3) in the course's practice by the profile that started it (its model, its voices),
+// several units at a time —; one job of a course's edition at a time, stopped on request, a unit
 // that fails recorded and the job going on. The server's: every profile sees it.
 import type { LessonKey } from "@sprachanker/schema";
 import { ServiceError } from "../errors.ts";
 import type { PracticeStepName } from "./practice.ts";
 
-/** One lesson's step to make. */
+/** One lesson's step to make: how many of it. */
 export interface PracticeUnit {
   lessonKey: LessonKey;
   step: PracticeStepName;
+  count: number;
 }
 
 export interface PracticeJob {
@@ -22,13 +23,17 @@ export interface PracticeJob {
   /** Units in all, units done (made or failed). */
   total: number;
   done: number;
-  /** The unit being made now. */
-  current: PracticeUnit | null;
+  /** The units being made now. */
+  current: PracticeUnit[];
   failed: Array<PracticeUnit & { error: string }>;
   state: "running" | "stopping" | "stopped" | "done";
   startedAt: number;
   endedAt: number | null;
 }
+
+/** Units made at a time on a provider that answers several calls at once (each unit's drafts are
+ *  side by side already). */
+export const PRACTICE_PARALLEL = 3;
 
 /** A lesson's step being made by its own button meanwhile is waited for, this often, this long. */
 const BUSY_WAIT_MS = 3000;
@@ -59,19 +64,23 @@ export function createPracticeJobs(deps: {
     job: PracticeJob,
     units: PracticeUnit[],
     make: (u: PracticeUnit) => Promise<void>,
+    parallel: number,
   ) {
-    for (const unit of units) {
-      if (job.state === "stopping") break;
-      job.current = unit;
-      try {
-        await attempt(() => make(unit));
-      } catch (error) {
-        const message = error instanceof ServiceError ? error.code : (error as Error).message;
-        job.failed.push({ ...unit, error: message });
+    let next = 0;
+    const worker = async () => {
+      for (let unit = units[next++]; unit && job.state !== "stopping"; unit = units[next++]) {
+        job.current.push(unit);
+        try {
+          await attempt(() => make(unit as PracticeUnit));
+        } catch (error) {
+          const message = error instanceof ServiceError ? error.code : (error as Error).message;
+          job.failed.push({ ...unit, error: message });
+        }
+        job.current = job.current.filter((u) => u !== unit);
+        job.done++;
       }
-      job.done++;
-    }
-    job.current = null;
+    };
+    await Promise.all(Array.from({ length: Math.max(1, parallel) }, worker));
     job.state = job.state === "stopping" ? "stopped" : "done";
     job.endedAt = deps.now();
   }
@@ -81,12 +90,13 @@ export function createPracticeJobs(deps: {
     get: (series: string, course: string, edition: string): PracticeJob | null =>
       jobs.get(key(series, course, edition)) ?? null,
 
-    /** Starts a job over `units`, each made by `make`; refused while one of the course's edition
-     *  runs. Its end is `done` (or `stopped`). */
+    /** Starts a job over `units`, each made by `make`, `parallel` at a time; refused while one of
+     *  the course's edition runs. Its end is `done` (or `stopped`). */
     start(
       what: Pick<PracticeJob, "series" | "course" | "edition" | "steps" | "count">,
       units: PracticeUnit[],
       make: (unit: PracticeUnit) => Promise<void>,
+      parallel = 1,
     ) {
       const k = key(what.series, what.course, what.edition);
       const running = jobs.get(k);
@@ -96,14 +106,14 @@ export function createPracticeJobs(deps: {
         ...what,
         total: units.length,
         done: 0,
-        current: null,
+        current: [],
         failed: [],
         state: "running",
         startedAt: deps.now(),
         endedAt: null,
       };
       jobs.set(k, job);
-      const ended = run(job, units, make).catch((error: unknown) => {
+      const ended = run(job, units, make, parallel).catch((error: unknown) => {
         console.error(`practice of ${k}:`, error);
       });
       return { job, ended };

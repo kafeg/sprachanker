@@ -60,11 +60,13 @@ export function CoursePractice({
           <progress className="w-full" value={job.done} max={job.total} />
           <p className="text-sm">
             {t("practice.course.progress", { done: job.done, total: job.total })}
-            {job.current &&
-              ` · ${t("practice.course.current", {
-                lesson: job.current.lessonKey.split("/").at(-1),
-                step: t(`lesson.step.${job.current.step}`),
-              })}`}
+            {job.current.map(
+              (u) =>
+                ` · ${t("practice.course.current", {
+                  lesson: u.lessonKey.split("/").at(-1),
+                  step: t(`lesson.step.${u.step}`),
+                })}`,
+            )}
             {job.failed.length > 0 &&
               ` · ${t("practice.course.failed", { count: job.failed.length })}`}
           </p>
@@ -108,6 +110,7 @@ export function CoursePractice({
               );
             })}
           </fieldset>
+          <p className="text-sm text-muted-foreground">{t("practice.course.upTo")}</p>
           {!voice && (
             <p className="text-sm text-muted-foreground">{t("error.practice_needs_voice")}</p>
           )}

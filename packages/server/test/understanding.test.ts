@@ -413,9 +413,11 @@ test("the course's practice: texts made gather in the course, the step takes the
       ),
     ) as { language: string; reading: Array<{ id: string; text: { title: string } }> };
   await api.sendJson("POST", "/api/runs", START);
-  // Two made at once into the course's practice, in its edition's language; the first taken.
+  // Two made at once into the course's practice, in its edition's language — from one round of
+  // drafts: the best and the other that passes —; the first taken.
   const first = await api.sendJson("POST", "/api/llm/understanding", { ...READING, count: 2 });
-  expect(api.names.filter((n) => n === "understanding_draft")).toHaveLength(6);
+  expect(api.names.filter((n) => n === "understanding_draft")).toHaveLength(3);
+  expect(api.names.filter((n) => n === "understanding_judge")).toHaveLength(1);
   const made = practice();
   expect(made.language).toBe("ru");
   expect(made.reading.map((v) => v.id)).toHaveLength(2);
@@ -476,6 +478,26 @@ test("a course's practice made in one go: each lesson's step in course order, a 
   expect(((await twice.json()) as { error: string }).error).toBe("practice_busy");
   await until(async () => (await api.getJson(`/api/llm/practice?${query}`)).job.state === "done");
   const after = await api.getJson(`/api/llm/practice?${query}`);
-  expect(after.job).toMatchObject({ done: before.lessons, failed: [], current: null });
+  expect(after.job).toMatchObject({ done: before.lessons, failed: [], current: [] });
   expect([after.made, after.variants.reading]).toEqual([before.lessons, before.lessons]);
+
+  // Started again: each lesson's step filled up to the count — nothing left at one; at two, one
+  // more each, several lessons at a time.
+  const drafts = () => api.names.filter((n) => n === "understanding_draft").length;
+  const drafted = drafts();
+  const none = await api.sendJson("POST", "/api/llm/practice", { ...COURSE, steps: ["reading"] });
+  expect(none).toMatchObject({ total: 0 });
+  await until(async () => (await api.getJson(`/api/llm/practice?${query}`)).job.state === "done");
+  expect(drafts()).toBe(drafted);
+  const more = await api.sendJson("POST", "/api/llm/practice", {
+    ...COURSE,
+    steps: ["reading"],
+    count: 2,
+  });
+  expect(more).toMatchObject({ total: before.lessons, count: 2 });
+  expect(more.current.length).toBeGreaterThan(1);
+  await until(async () => (await api.getJson(`/api/llm/practice?${query}`)).job.state === "done");
+  expect((await api.getJson(`/api/llm/practice?${query}`)).variants.reading).toBe(
+    2 * before.lessons,
+  );
 });

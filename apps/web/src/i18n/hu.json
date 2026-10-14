@@ -1728,6 +1728,7 @@
       "stopped": "Leállítva: {total, number} közül {made, number} elkészült.",
       "stop": "Leállítás",
       "make": "Elkészítés minden leckéhez",
+      "upTo": "Minden lecke lépései a választott számig töltődnek fel; újraindítva ott folytatja, ahol abbahagyta.",
       "steps": "Lépések"
     }
   }

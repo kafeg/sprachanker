@@ -1728,6 +1728,7 @@
       "stopped": "Imesimamishwa: {made, number} kati ya {total, number} zimetengenezwa.",
       "stop": "Simamisha",
       "make": "Tengeneza kwa masomo yote",
+      "upTo": "Hatua za kila somo hujazwa hadi idadi uliyochagua; ukianzisha tena, inaendelea pale ilipoishia.",
       "steps": "Hatua"
     }
   }

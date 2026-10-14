@@ -1728,6 +1728,7 @@
       "stopped": "Parado: {made, number} de {total, number} feitos.",
       "stop": "Parar",
       "make": "Fazer para todas as lições",
+      "upTo": "Os passos de cada lição são completados até o número escolhido; iniciado de novo, continua de onde parou.",
       "steps": "Etapas"
     }
   }

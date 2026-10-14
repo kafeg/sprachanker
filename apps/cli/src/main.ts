@@ -55,7 +55,7 @@ Commands:
   practice <series/course> [--edition ru-de] [--steps reading,listening,writing,speaking]
            [--count 1-3] [--profile <name|id>] [--data <dir>]
          a course's AI practice made by a profile's model and voices, as the course page's button
-         makes it: each lesson's steps, as many variants each as --count, added to what the course has
+         makes it: each lesson's steps filled up to --count variants (started again: goes on where it stopped)
          (Listening and role-plays recorded by Qwen3-TTS); --status: how much there is
   version
          the version of this binary
@@ -479,7 +479,7 @@ async function practiceCommand(args: string[]): Promise<void> {
   const job = await admin
     .make(profile.id, what, { steps, count }, (j) =>
       console.log(
-        `${j.done}/${j.total}${j.current ? ` ${j.current.lessonKey} ${j.current.step}` : ""}${j.failed.length ? `, ${j.failed.length} failed` : ""}`,
+        `${j.done}/${j.total}${j.current.map((u) => ` ${u.lessonKey} ${u.step}`).join(",")}${j.failed.length ? `, ${j.failed.length} failed` : ""}`,
       ),
     )
     .catch((error: unknown) => {
@@ -487,7 +487,7 @@ async function practiceCommand(args: string[]): Promise<void> {
     });
   for (const f of job.failed) console.log(`  failed: ${f.lessonKey} ${f.step}: ${f.error}`);
   console.log(
-    `${key} [${edition}]: ${job.done - job.failed.length} of ${job.total} made (${steps.join(", ")}, ${count} each)`,
+    `${key} [${edition}]: ${job.done - job.failed.length} of ${job.total} made (${steps.join(", ")}, up to ${count} each)`,
   );
   if (job.failed.length) process.exitCode = 1;
   // The speech engines it started go with it.

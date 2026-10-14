@@ -96,7 +96,7 @@ src/
                      #   a monologue card or a role-play, what was said checked); practice (a course's practice:
                      #   variants made into it, the next untaken taken — keeping a verdict —, read by the
                      #   steps above), practice-jobs (a course's edition made in one go: the server's
-                     #   jobs, stopped on request), practice-prep (taken, or made ahead, as a lesson starts),
+                     #   jobs, several units at a time, stopped on request), practice-prep (taken, or made ahead, as a lesson starts),
                      #   going-over (the pass's mistakes by type, new items checked by the engine), speaking, tutor (+ tutor-tools,
                      #   courses-context), scene (the Dialogue: out of the lesson, its runs read), exam-rating, exam-conversation (a speaking part's script), examples
                      # - speech: speech (whisper-server; silence: a take's loudness, what is not speech of

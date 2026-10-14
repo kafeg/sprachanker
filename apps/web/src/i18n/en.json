@@ -1728,6 +1728,7 @@
       "stopped": "Stopped: {made, number} of {total, number} made.",
       "stop": "Stop",
       "make": "Make for every lesson",
+      "upTo": "Each lesson's steps are filled up to the number chosen; started again, it goes on where it stopped.",
       "steps": "Steps"
     }
   }

@@ -41,6 +41,7 @@ test("how much the course's lessons have; made for every lesson: the steps chose
   const view = await renderApp(<CoursePractice {...WHAT} />, { data: [llm, [KEY, STATE]] });
   expect(view.getByText("3 of 12 lessons have practice.")).toBeTruthy();
   expect(view.getByText("Reading: 3 · Listening: 2 · Writing: 3 · Speaking: 1")).toBeTruthy();
+  expect(view.getByText(/filled up to the number chosen/)).toBeTruthy();
   const asked = server({ ...STATE, job: null });
   fireEvent.click(view.getByRole("checkbox", { name: "Writing" }));
   fireEvent.click(view.getByRole("button", { name: "×2" }));
@@ -61,8 +62,13 @@ test("a job running: its progress, the step being made, Stop; Listening off with
     count: 1,
     total: 12,
     done: 4,
-    current: { lessonKey: "sprachanker.test/demo/01-05", step: "reading" },
-    failed: [{ lessonKey: "sprachanker.test/demo/01-02", step: "reading", error: "llm_timeout" }],
+    current: [
+      { lessonKey: "sprachanker.test/demo/01-05", step: "reading", count: 1 },
+      { lessonKey: "sprachanker.test/demo/01-06", step: "reading", count: 1 },
+    ],
+    failed: [
+      { lessonKey: "sprachanker.test/demo/01-02", step: "reading", count: 1, error: "llm_timeout" },
+    ],
     state: "running",
     startedAt: 1,
     endedAt: null,
@@ -70,7 +76,9 @@ test("a job running: its progress, the step being made, Stop; Listening off with
   const running = await renderApp(<CoursePractice {...WHAT} />, {
     data: [llm, [KEY, { ...STATE, job }]],
   });
-  expect(running.getByText("4 of 12 · lesson 01-05, Reading · 1 failed")).toBeTruthy();
+  expect(
+    running.getByText("4 of 12 · lesson 01-05, Reading · lesson 01-06, Reading · 1 failed"),
+  ).toBeTruthy();
   const asked = server({ ...job, state: "stopping" });
   fireEvent.click(running.getByRole("button", { name: "Stop" }));
   await waitFor(() => expect(asked[0]).toStartWith("POST /api/llm/practice/stop"));

@@ -4,7 +4,9 @@
 // text), the drafts rated (`understanding_judge`) and the best that passes kept; none passing, the
 // best written again with its problems, twice at most, then kept when nothing in it is plainly
 // wrong, else the call fails. Reading's and Listening's texts, the message a writing task answers and
-// a role-play's conversation are all made here; what each is for comes as the draft's purpose.
+// a role-play's conversation are all made here; what each is for comes as the draft's purpose. More
+// than one wanted (a course's practice, owner 2026-10-14): the other drafts that pass come too, best
+// first — one round of drafts and rating for several texts.
 import {
   chooseDraft,
   type DraftInput,
@@ -83,12 +85,14 @@ export function createTextMaker(deps: {
   }
 
   /** Drafts of a genre written and rated: the one kept with its rating, how many drafts there were
-   *  and the model. `step` says where it is. */
+   *  and the model; `want` more than one: `more`, the other drafts of the round that pass (best
+   *  first, `want - 1` at most). `step` says where it is. */
   async function draft(
     input: Awaited<ReturnType<typeof inputs>>,
     genre: TextGenre,
     step: (now: MakingStep) => void,
     purpose?: TextPurpose,
+    want = 1,
   ) {
     const { base, rules } = input;
     const names = usedNames();
@@ -121,7 +125,18 @@ export function createTextMaker(deps: {
     const { index, again } = chooseDraft(rated.result.ratings);
     const rating = rated.result.ratings.find((r) => r.n === index + 1) as DraftRating;
     const chosen = drafts[index] as UnderstandingDraft;
-    if (!again) return { draft: chosen, rating, drafts: drafts.length, model };
+    const more: Array<{ draft: UnderstandingDraft; rating: DraftRating }> = rated.result.ratings
+      .filter(
+        (r, i, all) =>
+          r.n !== index + 1 &&
+          drafts[r.n - 1] &&
+          passes(r) &&
+          all.findIndex((o) => o.n === r.n) === i,
+      )
+      .sort((a, b) => total(b) - total(a))
+      .slice(0, want - 1)
+      .map((r) => ({ draft: drafts[r.n - 1] as UnderstandingDraft, rating: r }));
+    if (!again) return { draft: chosen, rating, drafts: drafts.length, model, more };
     // None passed: the best written again with what the judge found, rated alone — twice at most.
     let best = { draft: chosen, rating };
     let count = drafts.length;
@@ -133,18 +148,36 @@ export function createTextMaker(deps: {
       step("choosing");
       const r = (await judge([rewritten.result])).result.ratings[0] as DraftRating;
       count++;
-      if (passes(r)) return { draft: rewritten.result, rating: r, drafts: count, model };
+      if (passes(r)) return { draft: rewritten.result, rating: r, drafts: count, model, more: [] };
       if (total(r) >= total(best.rating)) best = { draft: rewritten.result, rating: r };
     }
     // Still none passing: the best kept when nothing in it is plainly wrong (a text is better than
     // none — the first lessons' few words make a perfect one rare), else nothing.
     if (!passable(best.rating))
       throw new LlmError("invalid_output", `no draft passed (${best.rating.problems.join(" | ")})`);
-    return { ...best, drafts: count, model };
+    return { ...best, drafts: count, model, more: [] };
   }
 
   return { inputs, draft, random };
 }
+/** A round's texts kept one by one (`keep`): how many were; one failing leaves the others, all
+ *  failing is the first's error. */
+export async function keptOf<T>(round: T[], keep: (item: T) => Promise<unknown>) {
+  let kept = 0;
+  let first: unknown;
+  for (const item of round) {
+    try {
+      await keep(item);
+      kept++;
+    } catch (error) {
+      first ??= error;
+      console.warn(`a text of the round not kept: ${(error as Error).message}`);
+    }
+  }
+  if (!kept) throw first;
+  return kept;
+}
+
 export type TextMaker = ReturnType<typeof createTextMaker>;
 export type MakerInputs = Awaited<ReturnType<TextMaker["inputs"]>>;
 export type Drafted = Awaited<ReturnType<TextMaker["draft"]>>;
