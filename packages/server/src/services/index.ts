@@ -36,6 +36,7 @@ import type { ReadingCache, SpeechHost } from "./local-engines.ts";
 import { createMistakes } from "./mistakes.ts";
 import { createNetwork, type ListensOn, type NetworkHost } from "./network.ts";
 import { createNotebook } from "./notebook.ts";
+import { createPractice, type PracticeFiles } from "./practice.ts";
 import { createPracticePrep } from "./practice-prep.ts";
 import { createProfileSpeech } from "./profile-speech.ts";
 import { contentUsed, createProfileTransfer, type TransferFiles } from "./profile-transfer.ts";
@@ -77,6 +78,8 @@ export interface ServicesConfig {
   transfers: TransferFiles;
   /** Course bundles exported and imported (runtime adapter). */
   courseTransfers: CourseTransferFiles;
+  /** A course's practice written (runtime adapter); without it none is made. */
+  practice?: PracticeFiles;
   /** The imported decks' folders, and what reading a package needs of the runtime. */
   decks: DeckFiles;
   apkg: ApkgRuntime;
@@ -176,11 +179,25 @@ function profileServices(
     now,
   });
   const maker = createTextMaker({ store, llm, lessonContext, random: config.random });
+  const practice = createPractice({
+    store,
+    library: config.library,
+    ...(config.practice && { files: config.practice }),
+    session: lessons.shown,
+    random: config.random,
+    now,
+  });
+  const reader = (lang: string) => speechOfProfile.practiceReader(lang);
   const understanding = createUnderstanding({
     store,
-    session: lessons.shown,
     llm,
     maker,
+    practice,
+    reader,
+    recording: async (series, path) => {
+      const file = config.library.practiceFile(series, path);
+      return file ? new Uint8Array(await config.mediaBlob(file).arrayBuffer()) : undefined;
+    },
     voices: speechOfProfile.textVoices,
     say: (text, lang, voice) => speechOfProfile.say({ text, lang, ...(voice && { voice }) }),
     now,
@@ -191,6 +208,7 @@ function profileServices(
     llm,
     lessonContext,
     maker,
+    practice,
     random: config.random,
     now,
   });
@@ -199,7 +217,8 @@ function profileServices(
     session: lessons.shown,
     llm,
     maker,
-    voices: speechOfProfile.textVoices,
+    practice,
+    reader,
     now,
   });
   const practicePrep = createPracticePrep({ understanding, writing, talk, settings, llm });

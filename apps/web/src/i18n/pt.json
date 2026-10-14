@@ -1429,7 +1429,9 @@
     "course_import_busy": "Outro arquivo de curso está sendo importado. Tente de novo quando terminar.",
     "series_busy": "Cursos desta fonte estão sendo baixados ou importados agora. Tente de novo quando terminar.",
     "understanding_busy": "Um texto para esta lição está sendo escrito. Aguarde.",
-    "talk_busy": "Uma tarefa desta lição já está sendo preparada ou verificada. Aguarde."
+    "talk_busy": "Uma tarefa desta lição já está sendo preparada ou verificada. Aguarde.",
+    "practice_busy": "A prática do curso está sendo preparada. Aguarde até terminar.",
+    "practice_needs_voice": "Os textos para ouvir e as encenações são gravados com o Qwen3-TTS. Configure-o em Configurações → Fala."
   },
   "exams": {
     "tabs": {

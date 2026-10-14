@@ -40,8 +40,12 @@ export function piper(
 }
 
 /** A machine with Qwen3-TTS on paper: model files "there" by name, the engine a local HTTP server
- *  that answers its health check and says what it is asked as bytes. */
-export function qwen(files: string[] = []) {
+ *  that answers its health check and says what it is asked as bytes — or what `say` makes of it (a
+ *  WAV). */
+export function qwen(
+  files: string[] = [],
+  say: (text: string) => Uint8Array = (text) => new TextEncoder().encode(text),
+) {
   const asked: Array<Record<string, unknown>> = [];
   const talkers: string[] = [];
   let spawned = 0;
@@ -58,7 +62,7 @@ export function qwen(files: string[] = []) {
             if (new URL(req.url).pathname === "/health") return Response.json({ status: "ok" });
             const body = (await req.json()) as Record<string, unknown>;
             asked.push(body);
-            return new Response(new TextEncoder().encode(String(body.input)));
+            return new Response(say(String(body.input)));
           },
         });
         return { exited: new Promise<number>(() => {}), kill: () => void server.stop(true) };

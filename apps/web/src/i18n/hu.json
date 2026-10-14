@@ -1429,7 +1429,9 @@
     "course_import_busy": "Épp egy másik kurzusfájl importálása folyik. Próbáld újra, ha végzett.",
     "series_busy": "Ebből a forrásból éppen kurzusok letöltése vagy importálása folyik. Próbáld újra, ha végzett.",
     "understanding_busy": "Épp készül egy szöveg ehhez a leckéhez. Várj egy kicsit.",
-    "talk_busy": "Ehhez a leckéhez már készül vagy ellenőrzés alatt van egy feladat. Várj."
+    "talk_busy": "Ehhez a leckéhez már készül vagy ellenőrzés alatt van egy feladat. Várj.",
+    "practice_busy": "A kurzus gyakorlatai most készülnek. Várd meg, amíg elkészülnek.",
+    "practice_needs_voice": "A hallgatási szövegeket és a szerepjátékokat a Qwen3-TTS veszi fel. Állítsd be: Beállítások → Beszéd."
   },
   "exams": {
     "tabs": {

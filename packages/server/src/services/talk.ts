@@ -3,10 +3,13 @@
 // (`talk_card`; checked as a writing check is, said aloud), or a role-play, the learner playing one
 // part of a conversation the text generator wrote (purpose `roleplay`), each of their lines a hint
 // (`talk_cues`), the partner read aloud by a voice of their gender, checked line by line
-// (`talk_check`). The kinds take turns in a lesson. A task is an `llm_verdict` (`task: talk_task`) in
-// the lesson run the lesson shows; what was said on it, with its check and the task, a `talk` one.
-// The lesson's tasks and attempts are read across its runs, newest first.
-import { castVoices } from "@sprachanker/engine";
+// (`talk_check`). The kinds take turns in a lesson's practice; a role-play's partner lines are
+// recorded by Qwen3-TTS when it is made (none to read them: a monologue). Each task made goes into
+// the course's practice (practice.ts); the learner's step takes the next variant they have not had
+// from there, as an `llm_verdict` (`task: talk_task`, `variant`) in the lesson run the lesson shows;
+// what was said on it, with its check and the task, a `talk` one. The lesson's tasks and attempts are
+// read across its runs, newest first.
+import { castVoices, readingPieces } from "@sprachanker/engine";
 import {
   checkWritingTask,
   cleanTalkCheck,
@@ -20,16 +23,29 @@ import {
   talkCheckTask,
   talkCuesTask,
 } from "@sprachanker/llm";
-import type { LessonKey, Roleplay, Run, TalkAttempt, TalkTask } from "@sprachanker/schema";
+import {
+  type LessonKey,
+  parseEditionId,
+  practiceRecordingPath,
+  type Roleplay,
+  type Run,
+  type TalkAttempt,
+  type TalkTask,
+} from "@sprachanker/schema";
 import { ServiceError } from "../errors.ts";
 import { createInFlight } from "./in-flight.ts";
 import type { Llm, PromptPreview } from "./llm.ts";
+import type { Practice, PracticeReader } from "./practice.ts";
 import { HISTORY_LIMIT, type RunStore } from "./run-store.ts";
 import type { MakerInputs, TextMaker, TextRequest } from "./text-maker.ts";
 import { keepVerdict, type Verdict, verdicts } from "./verdicts.ts";
+import { joinWavs } from "./wav.ts";
 
 /** Where making a task or checking it is (said beside the time it takes). */
-export type TalkStep = "writing" | "choosing" | "hinting" | "checking";
+export type TalkStep = "writing" | "choosing" | "hinting" | "recording" | "checking";
+
+/** The pause between the pieces of a partner's line recorded. */
+const PIECE_PAUSE_MS = 250;
 
 /** A conversation cut after the learner's 15th line (a hint each, at most `RoleplayCue`'s count). */
 const untilLearnerLines = (lines: Roleplay["lines"], learner: string, most = 15) => {
@@ -44,16 +60,16 @@ export interface TalkRequest extends TextRequest {
   said: TalkAttempt["said"];
 }
 
-/** The server's voices for a language now: the profile's engine and those it reads it with. */
-type VoicesFor = (lang: string) => { engine: "piper" | "qwen"; voices: string[] } | undefined;
-
 export function createTalk(deps: {
   store: RunStore;
   /** The run the lesson shows (the lessons service). */
   session: (lessonKey: LessonKey) => Promise<{ run: Run } | undefined>;
   llm: Llm;
   maker: TextMaker;
-  voices?: VoicesFor;
+  /** The course's practice: tasks made go there, a step takes its next from there. */
+  practice: Practice;
+  /** Qwen3-TTS reading a language: a role-play's partner recorded with it (none: no role-play). */
+  reader?: (lang: string) => PracticeReader | undefined;
   now?: () => number;
 }) {
   const { store, llm, maker } = deps;
@@ -83,12 +99,13 @@ export function createTalk(deps: {
    *  voice of their gender. */
   async function roleplay(
     input: MakerInputs,
-    lessonKey: LessonKey,
+    made: TalkTask[],
+    reader: PracticeReader,
     step: (now: TalkStep) => void,
-  ): Promise<TalkTask> {
-    const recent = tasks(lessonKey)
-      .slice(0, 4)
-      .flatMap((t) => (t.result.kind === "roleplay" && t.result.genre ? [t.result.genre] : []));
+  ): Promise<Roleplay> {
+    const recent = made
+      .slice(-4)
+      .flatMap((t) => (t.kind === "roleplay" && t.genre ? [t.genre] : []));
     const genre = pickPurposeGenre(
       "roleplay",
       input.ctx.info.level,
@@ -111,10 +128,7 @@ export function createTalk(deps: {
       }),
       { timeoutAgain: true },
     );
-    const here = deps.voices?.(input.ctx.target);
-    const voice = here
-      ? castVoices(here.engine, [partner], here.voices, maker.random)[partner.name]
-      : undefined;
+    const voice = castVoices(reader.engine, [partner], reader.voices, maker.random)[partner.name];
     const task: Roleplay = {
       kind: "roleplay",
       genre: genre.id,
@@ -123,7 +137,7 @@ export function createTalk(deps: {
       role: learner.role,
       learner: learner.name,
       partner: { name: partner.name, gender: partner.gender, age: partner.age },
-      ...(here && voice && { voice: { engine: here.engine, id: voice } }),
+      ...(voice && { voice: { engine: reader.engine, id: voice } }),
       lines,
       cues: result.cues.slice(0, 15),
       glossary: [],
@@ -131,30 +145,65 @@ export function createTalk(deps: {
     return task;
   }
 
-  async function make(request: TextRequest): Promise<Verdict<"talk_task">> {
-    const run = await session(request.lessonKey);
-    const started = now();
-    const input = await maker.inputs(request);
+  /** A role-play's partner lines recorded by their voice, each read piece by piece. */
+  async function recorded(
+    task: Roleplay,
+    reader: PracticeReader,
+    request: TextRequest,
+    id: string,
+  ) {
+    const recordings: Record<string, string> = {};
+    const files: Array<{ path: string; wav: Uint8Array }> = [];
+    const voice = task.voice?.id ?? (reader.voices[0] as string);
+    for (const [n, line] of task.lines.entries()) {
+      if (line.speaker === task.learner) continue;
+      const parts: Array<{ wav: Uint8Array; pauseMs: number }> = [];
+      for (const piece of readingPieces(line.text))
+        parts.push({ wav: await reader.read(piece, voice), pauseMs: PIECE_PAUSE_MS });
+      const wav = joinWavs(parts);
+      if (!wav) throw new ServiceError("speech_engine_failed", 502);
+      const path = practiceRecordingPath(request.lessonKey, request.edition, `${id}-${n}`);
+      recordings[String(n)] = path;
+      files.push({ path, wav });
+    }
+    return { task: { ...task, recordings }, files };
+  }
+
+  /** A task made and added to the course's practice: the kinds take turns there (the first drawn;
+   *  no reader for the language: a monologue). */
+  async function make(request: TextRequest) {
+    const r = { ...request, language: deps.practice.language(request.edition) };
+    const input = await maker.inputs(r);
     const step = (at: TalkStep) => busy.set(request.lessonKey, at);
-    // The kinds take turns; the first drawn.
-    const last = tasks(request.lessonKey)[0]?.result.kind;
-    const kind = last
-      ? last === "monologue"
-        ? "roleplay"
-        : "monologue"
-      : maker.random() < 0.5
-        ? "monologue"
-        : "roleplay";
+    const made = ((await deps.practice.lesson(r))?.speaking ?? []).map((v) => v.task);
+    const last = made.at(-1)?.kind;
+    const reader = deps.reader?.(parseEditionId(request.edition).target);
+    const kind = !reader
+      ? "monologue"
+      : last
+        ? last === "monologue"
+          ? "roleplay"
+          : "monologue"
+        : maker.random() < 0.5
+          ? "monologue"
+          : "roleplay";
     step("writing");
-    const task =
-      kind === "monologue" ? await card(input) : await roleplay(input, request.lessonKey, step);
-    return keepVerdict(store, run.id, {
-      task: "talk_task",
-      input: "",
-      result: task,
-      model: (await llm.model()).model,
-      latencyMs: Math.max(0, Math.round(now() - started)),
-    }).verdict;
+    const model = (await llm.model()).model;
+    if (kind === "monologue" || !reader) {
+      const task = await card(input);
+      await deps.practice.add(r, { step: "speaking", variant: { model, madeAt: now(), task } });
+      return;
+    }
+    const drafted = await roleplay(input, made, reader, step);
+    step("recording");
+    const id = await deps.practice.newId(request);
+    const { task, files } = await recorded(drafted, reader, r, id);
+    await deps.practice.add(
+      r,
+      { step: "speaking", variant: { model, madeAt: now(), task } },
+      files,
+      id,
+    );
   }
 
   return {
@@ -170,21 +219,39 @@ export function createTalk(deps: {
       };
     },
 
-    /** Makes a task for the lesson and keeps it in the run the lesson shows. Runs to its end even
-     *  when the page that asked is gone. */
-    start(request: TextRequest): Promise<Verdict<"talk_task">> {
-      return busy.run(request.lessonKey, "writing", () => make(request));
+    /** Makes `count` tasks for the lesson into the course's practice, then takes the step's next
+     *  the learner has not had into the run the lesson shows. Runs to its end even when the page that
+     *  asked is gone. */
+    start(request: TextRequest, count = 1): Promise<Verdict<"talk_task">> {
+      return busy.run(request.lessonKey, "writing", async () => {
+        await deps.practice.run(request.lessonKey);
+        for (let i = 0; i < count; i++) await make(request);
+        const taken = await deps.practice.take(request, "speaking");
+        if (!taken) throw new ServiceError("no_such_item", 404);
+        return taken;
+      });
     },
 
-    /** Makes a task ahead (the lesson started) unless one is being made or the latest has no attempt
-     *  yet; its failure only logged. */
-    async prepare(request: TextRequest) {
+    /** Makes `count` tasks for the lesson into the course's practice, nothing taken. */
+    make(request: TextRequest, count = 1) {
+      return busy.run(request.lessonKey, "writing", async () => {
+        for (let i = 0; i < count; i++) await make(request);
+      });
+    },
+
+    /** The lesson started: unless a task is being made or the latest has no attempt yet, the step's
+     *  next task of the course's practice is taken — one is made first when none is left and
+     *  `makeIfNone`; a failure only logged. */
+    async prepare(request: TextRequest, makeIfNone: boolean) {
       if (busy.get(request.lessonKey)) return;
       const latest = tasks(request.lessonKey)[0];
       if (latest && !attempts(request.lessonKey).some((a) => a.ts > latest.ts)) return;
-      await this.start(request).catch((error: unknown) => {
+      try {
+        if (await deps.practice.take(request, "speaking")) return;
+        if (makeIfNone) await this.start(request);
+      } catch (error) {
         console.warn(`speaking made ahead: ${(error as Error).message}`);
-      });
+      }
     },
 
     /** Checks what was said on a task and keeps it, with its check and the task, in the run the

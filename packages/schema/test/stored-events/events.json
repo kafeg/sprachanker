@@ -837,6 +837,147 @@
         "model": "m",
         "latencyMs": 10
       }
+    },
+    {
+      "since": "2026-10-14",
+      "payload": {
+        "task": "understanding",
+        "input": "",
+        "result": {
+          "kind": "dialogue",
+          "step": "listening",
+          "genre": "conversation",
+          "title": "В пекарне",
+          "situation": "Анна покупает булочки.",
+          "people": [
+            {
+              "name": "Anna",
+              "gender": "f",
+              "age": "adult"
+            },
+            {
+              "name": "Herr Brandt",
+              "gender": "m",
+              "age": "senior"
+            }
+          ],
+          "voices": {
+            "engine": "qwen",
+            "by": {
+              "Anna": "serena"
+            }
+          },
+          "lines": [
+            {
+              "speaker": "Anna",
+              "text": "Guten Morgen! Zwei Brötchen, bitte."
+            },
+            {
+              "speaker": "Herr Brandt",
+              "text": "Gern. Das macht 1,20 Euro."
+            }
+          ],
+          "glossary": [
+            {
+              "word": "Brötchen",
+              "translation": "булочка"
+            }
+          ],
+          "questions": [
+            {
+              "phase": "listening",
+              "question": "Wie viel kostet das?",
+              "accepted": ["1,20"]
+            }
+          ],
+          "rating": {
+            "natural": 4,
+            "coherent": 5,
+            "realistic": 4,
+            "level": 4,
+            "lesson": 5,
+            "interest": 3,
+            "drafts": 3
+          },
+          "variant": "k3m9q2x7w1ab",
+          "recording": "practice/ru-de/demo/00-01/k3m9q2x7w1ab.wav"
+        },
+        "model": "m",
+        "latencyMs": 10
+      }
+    },
+    {
+      "since": "2026-10-14",
+      "payload": {
+        "task": "writing_task",
+        "input": "",
+        "result": {
+          "situation": "Lena writes to you. Answer her.",
+          "points": ["Say yes.", "Say when.", "Ask what to bring."],
+          "words": 30,
+          "message": {
+            "genre": "chat",
+            "setting": "A message from Lena",
+            "lines": [
+              {
+                "speaker": "Lena",
+                "text": "Kommst du am Samstag?"
+              }
+            ],
+            "glossary": []
+          },
+          "variant": "p0q1r2s3t4u5"
+        },
+        "model": "m",
+        "latencyMs": 10
+      }
+    },
+    {
+      "since": "2026-10-14",
+      "payload": {
+        "task": "talk_task",
+        "input": "",
+        "result": {
+          "kind": "roleplay",
+          "genre": "conversation",
+          "setting": "At a café",
+          "situation": "You order a coffee.",
+          "role": "a guest",
+          "learner": "Gast",
+          "partner": {
+            "name": "Herr Brandt",
+            "gender": "m",
+            "age": "adult"
+          },
+          "voice": {
+            "engine": "qwen",
+            "id": "uncle_fu"
+          },
+          "lines": [
+            {
+              "speaker": "Herr Brandt",
+              "text": "Guten Tag! Was möchten Sie?"
+            },
+            {
+              "speaker": "Gast",
+              "text": "Einen Kaffee, bitte."
+            }
+          ],
+          "cues": [
+            {
+              "n": 1,
+              "cue": "Order a coffee."
+            }
+          ],
+          "glossary": [],
+          "variant": "z9y8x7w6v5u4",
+          "recordings": {
+            "0": "practice/ru-de/demo/00-01/z9y8x7w6v5u4-0.wav"
+          }
+        },
+        "model": "m",
+        "latencyMs": 10
+      }
     }
   ],
   "llm_turn": [

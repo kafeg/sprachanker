@@ -92,6 +92,8 @@ export const ERROR_CODES = [
   "understanding_busy",
   "writing_busy",
   "talk_busy",
+  "practice_busy",
+  "practice_needs_voice",
   "mistakes_busy",
   "no_mistakes",
   "scene_busy",

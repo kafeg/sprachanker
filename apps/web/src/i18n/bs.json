@@ -1429,7 +1429,9 @@
     "course_import_busy": "Upravo se uvozi druga datoteka kursa. Pokušaj ponovo kad se završi.",
     "series_busy": "Kursevi iz ovog izvora se upravo preuzimaju ili uvoze. Pokušaj ponovo kad se to završi.",
     "understanding_busy": "Tekst za ovu lekciju se upravo piše. Sačekaj.",
-    "talk_busy": "Za ovu lekciju se već priprema zadatak ili provjera. Sačekaj."
+    "talk_busy": "Za ovu lekciju se već priprema zadatak ili provjera. Sačekaj.",
+    "practice_busy": "Vježbe kursa se upravo prave. Sačekaj da se završe.",
+    "practice_needs_voice": "Tekstovi za slušanje i igre uloga snimaju se pomoću Qwen3-TTS. Podesi ga u Postavke → Govor."
   },
   "exams": {
     "tabs": {

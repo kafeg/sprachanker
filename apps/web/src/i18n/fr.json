@@ -1429,7 +1429,9 @@
     "course_import_busy": "Un autre fichier de cours est en cours d’import. Réessaie quand il sera terminé.",
     "series_busy": "Des cours de cette source sont en cours de téléchargement ou d'import. Réessaie quand ce sera fini.",
     "understanding_busy": "Un texte pour cette leçon est en cours d’écriture. Patiente.",
-    "talk_busy": "Une tâche de cette leçon est en préparation ou en vérification. Patiente."
+    "talk_busy": "Une tâche de cette leçon est en préparation ou en vérification. Patiente.",
+    "practice_busy": "La pratique du cours est en cours de création. Attends qu'elle soit terminée.",
+    "practice_needs_voice": "Les textes à écouter et les jeux de rôle sont enregistrés avec Qwen3-TTS. Configure-le dans Réglages → Parole."
   },
   "exams": {
     "tabs": {

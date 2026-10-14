@@ -30,6 +30,7 @@ import { createServices } from "./services/index.ts";
 import type { CliHost, LmStudioHost } from "./services/llm.ts";
 import type { ReadingCache, SpeechHost } from "./services/local-engines.ts";
 import type { ListensOn, NetworkHost } from "./services/network.ts";
+import type { PracticeFiles } from "./services/practice.ts";
 import type { TransferFiles } from "./services/profile-transfer.ts";
 import type { ProfileFiles } from "./services/profiles.ts";
 import type { PiperHost } from "./services/read-aloud.ts";
@@ -53,6 +54,8 @@ export interface AppConfig {
   transfers: TransferFiles;
   /** Course bundles exported and imported (runtime adapter: `library/.transfers`). */
   courseTransfers: CourseTransferFiles;
+  /** A course's practice written (runtime adapter: `library/<series>/practice/`). */
+  practice?: PracticeFiles;
   appVersion: string;
   /** 32-byte key that seals the profiles' API keys. */
   secretKey: Uint8Array;
@@ -149,7 +152,10 @@ export function createApp(config: AppConfig) {
       .get("/library/:series/*", (c) => {
         const series = c.req.param("series");
         const path = safeDecode(c.req.path.slice(`/library/${series}/`.length));
-        const file = path && config.library.mediaFile(series, path);
+        // A media file of the series, or a recording of a course's practice.
+        const file =
+          path &&
+          (config.library.mediaFile(series, path) ?? config.library.practiceFile(series, path));
         return file && path
           ? blobResponse(config.mediaBlob(file), c.req.header("range"), path)
           : c.notFound();

@@ -75,6 +75,10 @@ const TalkBody = LessonRequest.extend({
 /** A text of Reading or Listening asked for. */
 const TextRequest = LessonRequest.extend({ step: PracticeStep });
 
+/** How many variants a step's button makes into the course's practice (owner, 2026-10-14: 1–3),
+ *  before the next the learner has not had is taken. */
+const Count = z.object({ count: z.number().int().min(1).max(3).optional() });
+
 /** An answer to a question the assistant set — a Reading or Listening text's, a mistakes review's new
  *  item (the verdict that set it, the question's number) —, checked by the engine. */
 const PracticeAnswer = LessonRequest.extend({
@@ -313,9 +317,10 @@ export function llmRoutes() {
           return c.json(c.var.s.understanding.state(lessonKey, step));
         },
       )
-      .post("/understanding", zod("json", TextRequest), async (c) =>
-        c.json(await c.var.s.understanding.start(c.req.valid("json"))),
-      )
+      .post("/understanding", zod("json", TextRequest.extend(Count.shape)), async (c) => {
+        const { count, ...request } = c.req.valid("json");
+        return c.json(await c.var.s.understanding.start(request, count));
+      })
       // A text's recording, its lines read by its people's voices (a WAV, the course's player plays it).
       .get(
         "/understanding/audio",
@@ -337,9 +342,10 @@ export function llmRoutes() {
       .get("/talk", zod("query", z.object({ lessonKey: LessonKey })), (c) =>
         c.json(c.var.s.talk.state(c.req.valid("query").lessonKey)),
       )
-      .post("/talk", zod("json", LessonRequest), async (c) =>
-        c.json(await c.var.s.talk.start(c.req.valid("json"))),
-      )
+      .post("/talk", zod("json", LessonRequest.extend(Count.shape)), async (c) => {
+        const { count, ...request } = c.req.valid("json");
+        return c.json(await c.var.s.talk.start(request, count));
+      })
       .post("/talk/check", zod("json", TalkBody), async (c) =>
         c.json(await c.var.s.talk.check(c.req.valid("json"))),
       )
@@ -370,9 +376,10 @@ export function llmRoutes() {
           return c.json(await c.var.s.writing.state(series, lessonKey, edition));
         },
       )
-      .post("/writing/task", zod("json", LessonRequest), async (c) =>
-        c.json(await c.var.s.writing.task(c.req.valid("json"))),
-      )
+      .post("/writing/task", zod("json", LessonRequest.extend(Count.shape)), async (c) => {
+        const { count, ...request } = c.req.valid("json");
+        return c.json(await c.var.s.writing.task(request, count));
+      })
       .post("/writing", zod("json", WritingBody), async (c) =>
         c.json(await c.var.s.writing.check(c.req.valid("json"))),
       )

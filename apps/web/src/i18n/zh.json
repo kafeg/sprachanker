@@ -1429,7 +1429,9 @@
     "course_import_busy": "正在导入另一个课程文件。请在其完成后重试。",
     "series_busy": "此来源的课程正在下载或导入。请在完成后重试。",
     "understanding_busy": "正在为本课写一篇文本。请稍候。",
-    "talk_busy": "本课的任务正在准备或检查中，请稍候。"
+    "talk_busy": "本课的任务正在准备或检查中，请稍候。",
+    "practice_busy": "正在制作课程练习，请等待完成。",
+    "practice_needs_voice": "听力文本和角色扮演由 Qwen3-TTS 录制。请在“设置 → 语音”中进行设置。"
   },
   "exams": {
     "tabs": {

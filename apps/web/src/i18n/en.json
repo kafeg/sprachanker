@@ -1429,7 +1429,9 @@
     "course_import_busy": "Another course file is being imported. Try again when it is done.",
     "series_busy": "Courses from this source are being downloaded or imported right now. Try again when that is done.",
     "understanding_busy": "A text for this lesson is being written. Wait for it.",
-    "talk_busy": "A task for this lesson is being made or checked. Wait for it."
+    "talk_busy": "A task for this lesson is being made or checked. Wait for it.",
+    "practice_busy": "The course's practice is being made now. Wait for it to finish.",
+    "practice_needs_voice": "Texts to hear and role-plays are recorded with Qwen3-TTS. Set it up in Settings → Speech."
   },
   "exams": {
     "tabs": {

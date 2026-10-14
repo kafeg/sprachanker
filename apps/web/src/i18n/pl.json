@@ -1429,7 +1429,9 @@
     "course_import_busy": "Trwa import innego pliku kursu. Spróbuj ponownie, gdy się skończy.",
     "series_busy": "Kursy z tego źródła są właśnie pobierane lub importowane. Spróbuj ponownie, gdy to się skończy.",
     "understanding_busy": "Tekst do tej lekcji jest właśnie pisany. Poczekaj.",
-    "talk_busy": "Dla tej lekcji trwa przygotowanie zadania lub sprawdzanie. Poczekaj."
+    "talk_busy": "Dla tej lekcji trwa przygotowanie zadania lub sprawdzanie. Poczekaj.",
+    "practice_busy": "Trwa przygotowywanie ćwiczeń kursu. Poczekaj, aż się zakończy.",
+    "practice_needs_voice": "Teksty do słuchania i scenki są nagrywane przez Qwen3-TTS. Skonfiguruj go w Ustawieniach → Mowa."
   },
   "exams": {
     "tabs": {

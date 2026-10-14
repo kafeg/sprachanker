@@ -21,6 +21,7 @@ import { apkgRuntime, deckFiles } from "./runtime/decks.ts";
 import { lmStudioHost } from "./runtime/lmstudio.ts";
 import { networkHost } from "./runtime/network.ts";
 import { piperHost } from "./runtime/piper.ts";
+import { practiceFiles } from "./runtime/practice.ts";
 import { profileTransferFiles } from "./runtime/profile-transfer.ts";
 import { readingCache } from "./runtime/readings.ts";
 import { speechHost } from "./runtime/speech.ts";
@@ -64,6 +65,7 @@ export function startServer(config: ServerConfig): Listening {
     apkg: apkgRuntime,
     transfers: profileTransferFiles(config.dataRoot, { worker: config.profileDbWorker }),
     courseTransfers: courseTransferFiles(config.dataRoot),
+    practice: practiceFiles(config.dataRoot),
     appVersion: config.appVersion,
     // Outside the data root, so a copied data folder does not carry usable API keys.
     secretKey: secretKey(join(appDataDir(), "secret.key")),

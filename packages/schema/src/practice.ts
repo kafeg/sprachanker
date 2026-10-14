@@ -9,7 +9,7 @@
 import { z } from "zod";
 import { TalkTask, UnderstandingText, WritingTask } from "./assistant.ts";
 import { format, PracticeId } from "./common.ts";
-import { LessonKey } from "./keys.ts";
+import { LessonKey, parseLessonKey } from "./keys.ts";
 import { EditionId, Lang } from "./lang.ts";
 
 export const PRACTICE_FORMAT = 1;
@@ -37,6 +37,12 @@ export const PracticeLesson = z.strictObject({
   speaking: z.array(PracticeSpeaking).max(200),
 });
 export type PracticeLesson = z.infer<typeof PracticeLesson>;
+
+/** Where a lesson's practice recording `name` goes: its path in the series folder. */
+export function practiceRecordingPath(lessonKey: LessonKey, edition: string, name: string) {
+  const { courseId, name: lesson } = parseLessonKey(lessonKey);
+  return `practice/${edition}/${courseId}/${lesson}/${name}.wav`;
+}
 
 /** The recordings a lesson's practice names: its texts to hear, its partners' lines. */
 export const practiceRecordings = (lesson: PracticeLesson): string[] => [

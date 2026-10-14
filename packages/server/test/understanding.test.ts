@@ -1,15 +1,18 @@
 // Reading and Listening: a text made by the generator — drafts
 // written side by side, rated, the best kept (none passing: written again once, then nothing), its
 // questions asked and read again with the text and without it (those not settled, or given away by
-// common sense, left out; asked again once when too few are left) —, its people given the server's
-// voices by gender and read aloud ahead, kept in the lesson run; answered, each answer checked by the
-// engine and kept on the text; read back in the Notebook's pass; made ahead as the lesson starts.
+// common sense, left out; asked again once when too few are left) —, a text to hear recorded by
+// Qwen3-TTS's voices by gender, added to the course's practice and taken into the lesson run;
+// answered, each answer checked by the engine and kept on the text; read back in the Notebook's pass;
+// made ahead as the lesson starts.
 import { expect, test } from "bun:test";
+import { readFileSync } from "node:fs";
+import { join } from "node:path";
 import { FIXTURE_SERIES } from "@sprachanker/course-fixture";
 import { ulid } from "ulid";
 import { readWav, writeWav } from "../src/services/wav.ts";
 import { setup } from "./setup.ts";
-import { piper } from "./speech-fakes.ts";
+import { qwen } from "./speech-fakes.ts";
 import { until } from "./until.ts";
 
 const LESSON = "sprachanker.fixture/demo/00-01";
@@ -100,6 +103,8 @@ type Replies = Record<string, unknown[]>;
 function model(replies: Replies) {
   const names: string[] = [];
   const fetch = (async (url: string, init: RequestInit) => {
+    // Qwen3-TTS on this machine (speech-fakes' engine): not the model's.
+    if (!url.startsWith("http://127.0.0.1:9/")) return globalThis.fetch(url, init);
     if (url.endsWith("/api/v1/models")) return Response.json({ models: [] });
     const body = JSON.parse(init.body as string);
     const name: string = body.response_format?.json_schema?.name;
@@ -133,16 +138,16 @@ async function withModel(replies: Replies, options: Parameters<typeof setup>[0] 
 const state = (api: Pick<Awaited<ReturnType<typeof setup>>, "getJson">, step: string) =>
   api.getJson(`/api/llm/understanding?lessonKey=${LESSON}&step=${step}`);
 
-test("a text made: three drafts, rated, the best kept; questions asked and read again with and without the text; its people voiced, read ahead; answered and in the Notebook", async () => {
-  // Each reading a tenth of a second of 16 kHz audio.
-  const p = piper(
-    ["de_DE-thorsten-medium", "de_DE-eva_k-x_low", "de_DE-kerstin-low"],
-    true,
-    async () => writeWav(new Int16Array(1600).fill(100), 16000),
+/** Qwen3-TTS here, each reading a tenth of a second of 16 kHz audio. */
+const QWEN = () =>
+  qwen(["qwen-tokenizer-12hz-Q8_0.gguf", "qwen-talker-0.6b-customvoice-Q8_0.gguf"], () =>
+    writeWav(new Int16Array(1600).fill(100), 16000),
   );
-  const api = await withModel(REPLIES, { piper: p.host, readings: p.readings });
+
+test("a text made: three drafts, rated, the best kept; questions asked and read again with and without the text; recorded by its people's voices into the course's practice; answered and in the Notebook", async () => {
+  const q = QWEN();
+  const api = await withModel(REPLIES, { speech: q.host });
   const { send, sendJson, getJson, names } = api;
-  await send("PUT", "/api/settings", { key: "speech.readEngine", value: "piper" });
   // A text belongs to a run of the lesson: none yet, so it is refused before the model is asked.
   const early = await send("POST", "/api/llm/understanding", LISTENING);
   expect([early.status, ((await early.json()) as { error: string }).error]).toEqual([
@@ -182,16 +187,19 @@ test("a text made: three drafts, rated, the best kept; questions asked and read 
   expect([text.runId, text.model, text.answers]).toEqual([run, "m", []]);
   // Glossed as new: only words not met — "gern" is one of the lesson's own.
   expect(r.glossary.map((g: { word: string }) => g.word)).toEqual(["Brötchen", "macht"]);
-  // Its people voiced by their gender among Piper's voices for German.
-  expect(r.voices.engine).toBe("piper");
-  expect(r.voices.by["Herr Brandt"]).toBe("de_DE-thorsten-medium");
-  expect(["de_DE-eva_k-x_low", "de_DE-kerstin-low"]).toContain(r.voices.by.Anna);
-  // Every line read ahead, by its person's voice.
-  await until(() => p.said.length === 7);
-  expect(p.said[1]).toMatchObject({
-    id: "de_DE-thorsten-medium",
-    text: "Gern. Möchten Sie auch ein Brot?",
+  // Its people voiced by their gender among Qwen3-TTS's speakers; every line read when it was made.
+  expect(r.voices.engine).toBe("qwen");
+  expect(Object.keys(r.voices.by).sort()).toEqual(["Anna", "Herr Brandt"]);
+  expect(q.asked).toHaveLength(7);
+  expect(q.asked[1]).toMatchObject({
+    input: "Gern. Möchten Sie auch ein Brot?",
+    voice: r.voices.by["Herr Brandt"],
   });
+  // Kept in the course's practice, the text the variant taken; its recording there too.
+  expect(r.variant).toMatch(/^[a-z0-9]{12}$/);
+  expect(r.recording).toBe(`practice/ru-de/demo/00-01/${r.variant}.wav`);
+  const kept = await api.get(`/library/${FIXTURE_SERIES}/${r.recording}`);
+  expect([kept.status, kept.headers.get("content-type")]).toEqual([200, "audio/wav"]);
 
   // Its recording: the lines joined, a pause after each — one WAV for the course's player.
   const audio = await api.get(`/api/llm/understanding/audio?lessonKey=${LESSON}&id=${text.id}`);
@@ -258,31 +266,40 @@ test("no draft passing: the best written again with its problems; still none, no
   const failingAll = {
     ratings: [failing.ratings[0], rating(2, { coherent: 2 }), rating(3, { realistic: 2 })],
   };
-  const api = await withModel({
-    ...REPLIES,
-    understanding_judge: [
-      { ratings: [failing.ratings[0], rating(2, { realistic: 1 }), rating(3, { natural: 2 })] },
-      { ratings: [rating(1)] },
-    ],
-  });
+  const api = await withModel(
+    {
+      ...REPLIES,
+      understanding_judge: [
+        { ratings: [failing.ratings[0], rating(2, { realistic: 1 }), rating(3, { natural: 2 })] },
+        { ratings: [rating(1)] },
+      ],
+    },
+    { speech: QWEN().host },
+  );
   await api.sendJson("POST", "/api/runs", START);
   const text = await api.sendJson("POST", "/api/llm/understanding", LISTENING);
   expect(api.names.filter((n) => n === "understanding_draft")).toHaveLength(4);
   expect(text.result.rating.drafts).toBe(4);
 
   // Written again and still short, but nothing plainly wrong (3s): the better of the two kept.
-  const short = await withModel({
-    ...REPLIES,
-    understanding_judge: [failingAll, { ratings: [rating(1, { coherent: 3 })] }],
-  });
+  const short = await withModel(
+    {
+      ...REPLIES,
+      understanding_judge: [failingAll, { ratings: [rating(1, { coherent: 3 })] }],
+    },
+    { speech: QWEN().host },
+  );
   await short.sendJson("POST", "/api/runs", START);
   const kept = await short.sendJson("POST", "/api/llm/understanding", LISTENING);
   expect(kept.result.rating.coherent).toBe(3);
 
-  const none = await withModel({
-    ...REPLIES,
-    understanding_judge: [failingAll, failing],
-  });
+  const none = await withModel(
+    {
+      ...REPLIES,
+      understanding_judge: [failingAll, failing],
+    },
+    { speech: QWEN().host },
+  );
   await none.sendJson("POST", "/api/runs", START);
   const res = await none.send("POST", "/api/llm/understanding", LISTENING);
   expect([res.status, ((await res.json()) as { error: string }).error]).toEqual([
@@ -294,17 +311,23 @@ test("no draft passing: the best written again with its problems; still none, no
 
 test("too few questions settled: asked again once and the better kept; none settled: nothing is kept", async () => {
   const few = { answers: CHECK.answers.slice(0, 1) };
-  const api = await withModel({
-    ...REPLIES,
-    understanding_check: [few, SETTLES_ALL],
-    blind: [{ answers: [] }],
-  });
+  const api = await withModel(
+    {
+      ...REPLIES,
+      understanding_check: [few, SETTLES_ALL],
+      blind: [{ answers: [] }],
+    },
+    { speech: QWEN().host },
+  );
   await api.sendJson("POST", "/api/runs", START);
   const text = await api.sendJson("POST", "/api/llm/understanding", LISTENING);
   expect(api.names.filter((n) => n === "understanding_questions")).toHaveLength(2);
   expect(text.result.questions).toHaveLength(5);
 
-  const none = await withModel({ ...REPLIES, understanding_check: [{ answers: [] }] });
+  const none = await withModel(
+    { ...REPLIES, understanding_check: [{ answers: [] }] },
+    { speech: QWEN().host },
+  );
   await none.sendJson("POST", "/api/runs", START);
   const res = await none.send("POST", "/api/llm/understanding", LISTENING);
   expect(res.status).toBe(502);
@@ -316,21 +339,24 @@ test("made ahead as a new run starts: Reading and Listening's texts, the writing
     points: ["Wann?", "Wo?", "Was?"],
     words: 40,
   };
-  const api = await withModel({
-    ...REPLIES,
-    understanding_check: [SETTLES_ALL],
-    blind: [{ answers: [] }],
-    writing_task: [task],
-    talk_card: [
-      {
-        setting: "О себе",
-        instruction: "Расскажите о себе.",
-        topic: "Über mich",
-        points: ["Name?", "Woher?", "Hobby?"],
-        model: "Ich heiße Mara. Ich komme aus Polen. Ich lese gern.",
-      },
-    ],
-  });
+  const api = await withModel(
+    {
+      ...REPLIES,
+      understanding_check: [SETTLES_ALL],
+      blind: [{ answers: [] }],
+      writing_task: [task],
+      talk_card: [
+        {
+          setting: "О себе",
+          instruction: "Расскажите о себе.",
+          topic: "Über mich",
+          points: ["Name?", "Woher?", "Hobby?"],
+          model: "Ich heiße Mara. Ich komme aus Polen. Ich lese gern.",
+        },
+      ],
+    },
+    { speech: QWEN().host },
+  );
   await api.send("PUT", "/api/settings", { key: "llm.preparePractice", value: true });
   await api.sendJson("POST", "/api/runs", START);
   await until(async () => (await state(api, "listening")).texts.length === 1);
@@ -364,4 +390,46 @@ test("made ahead as a new run starts: Reading and Listening's texts, the writing
   await api.sendJson("POST", "/api/runs", { ...START, restart: true });
   await new Promise((r) => setTimeout(r, 50));
   expect(api.names.length).toBe(asked);
+});
+
+test("the course's practice: texts made gather in the course, the step takes the next the learner has not had; a new run takes one without the model; a course removed keeps them", async () => {
+  const api = await withModel(
+    { ...REPLIES, understanding_check: [SETTLES_ALL], blind: [{ answers: [] }] },
+    { speech: QWEN().host },
+  );
+  const READING = { ...START, language: "ru", step: "reading" };
+  const practice = () =>
+    JSON.parse(
+      readFileSync(
+        join(api.root, "library", FIXTURE_SERIES, "practice/ru-de/demo/00-01.json"),
+        "utf8",
+      ),
+    ) as { language: string; reading: Array<{ id: string; text: { title: string } }> };
+  await api.sendJson("POST", "/api/runs", START);
+  // Two made at once into the course's practice, in its edition's language; the first taken.
+  const first = await api.sendJson("POST", "/api/llm/understanding", { ...READING, count: 2 });
+  expect(api.names.filter((n) => n === "understanding_draft")).toHaveLength(6);
+  const made = practice();
+  expect(made.language).toBe("ru");
+  expect(made.reading.map((v) => v.id)).toHaveLength(2);
+  expect(first.result.variant).toBe(made.reading[0]?.id);
+
+  // The step done, a new run of the lesson takes the next variant as it starts: no model asked.
+  const asked = api.names.length;
+  for (const [question, q] of (first.result.questions as Array<{ options?: string[] }>).entries())
+    await api.send("POST", "/api/llm/understanding/answer", {
+      ...START,
+      language: "ru",
+      id: first.id,
+      question,
+      answer: q.options ? { optionId: "a" } : { g1: "x" },
+    });
+  await api.sendJson("POST", "/api/runs", { ...START, restart: true });
+  await until(async () => (await state(api, "reading")).texts.length === 2);
+  expect(api.names.length).toBe(asked);
+  expect((await state(api, "reading")).texts[0].result.variant).toBe(made.reading[1]?.id);
+
+  // The course removed: its practice stays, there for it when it comes back.
+  await api.send("DELETE", `/api/courses/${FIXTURE_SERIES}/demo`, undefined);
+  expect(practice().reading).toHaveLength(2);
 });

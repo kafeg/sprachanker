@@ -138,6 +138,7 @@ test("writing: a task written and kept, a text on it checked and kept with its t
   expect(task.result).toEqual({
     ...TASK,
     words: 30,
+    variant: expect.any(String),
     message: {
       genre: "chat",
       setting: "Сообщение от Лены",
@@ -239,7 +240,7 @@ test("no message the generator stands behind: the task is set without one", asyn
   });
   await sendJson("POST", "/api/runs", START);
   const task = await sendJson("POST", "/api/llm/writing/task", IDS);
-  expect(task.result).toEqual({ ...TASK, words: 30 });
+  expect(task.result).toEqual({ ...TASK, words: 30, variant: expect.any(String) });
   const asked = bodies.find((b) => b.name === "writing_task");
   expect(asked?.messages[1]?.content).not.toContain("<message>");
 });

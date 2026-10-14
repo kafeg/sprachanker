@@ -13,6 +13,7 @@ export * from "./library.ts";
 export * from "./media-index.ts";
 export * from "./media-store.ts";
 export * from "./pool.ts";
+export * from "./practice.ts";
 export * from "./provider.ts";
 export * from "./remove.ts";
 export * from "./robots.ts";

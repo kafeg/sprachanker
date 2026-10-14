@@ -1429,7 +1429,9 @@
     "course_import_busy": "Berkas kursus lain sedang diimpor. Coba lagi setelah selesai.",
     "series_busy": "Kursus dari sumber ini sedang diunduh atau diimpor. Coba lagi setelah selesai.",
     "understanding_busy": "Sebuah teks untuk pelajaran ini sedang ditulis. Tunggu sebentar.",
-    "talk_busy": "Tugas pelajaran ini sedang disiapkan atau diperiksa. Tunggu."
+    "talk_busy": "Tugas pelajaran ini sedang disiapkan atau diperiksa. Tunggu.",
+    "practice_busy": "Latihan kursus sedang dibuat. Tunggu sampai selesai.",
+    "practice_needs_voice": "Teks untuk didengar dan bermain peran direkam dengan Qwen3-TTS. Atur di Pengaturan → Ucapan."
   },
   "exams": {
     "tabs": {

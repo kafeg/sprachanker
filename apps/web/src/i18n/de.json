@@ -1429,7 +1429,9 @@
     "course_import_busy": "Gerade wird eine andere Kursdatei importiert. Versuch es noch einmal, wenn sie fertig ist.",
     "series_busy": "Kurse aus dieser Quelle werden gerade heruntergeladen oder importiert. Versuch es noch einmal, wenn das fertig ist.",
     "understanding_busy": "Ein Text für diese Lektion wird gerade geschrieben. Warte darauf.",
-    "talk_busy": "Für diese Lektion wird gerade eine Aufgabe erstellt oder geprüft. Warte darauf."
+    "talk_busy": "Für diese Lektion wird gerade eine Aufgabe erstellt oder geprüft. Warte darauf.",
+    "practice_busy": "Die Übungen des Kurses werden gerade erstellt. Warte, bis sie fertig sind.",
+    "practice_needs_voice": "Hörtexte und Rollenspiele werden mit Qwen3-TTS aufgenommen. Richte es unter Einstellungen → Sprechen ein."
   },
   "exams": {
     "tabs": {

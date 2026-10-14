@@ -10,6 +10,7 @@ import { createApp } from "../src/app.ts";
 import { mediaBlob, openServerDb, profileFiles } from "../src/runtime/bun.ts";
 import { courseTransferFiles } from "../src/runtime/course-transfer.ts";
 import { apkgRuntime, deckFiles } from "../src/runtime/decks.ts";
+import { practiceFiles } from "../src/runtime/practice.ts";
 import { profileTransferFiles } from "../src/runtime/profile-transfer.ts";
 import type { CourseTransferFiles } from "../src/services/course-transfer.ts";
 import type { CourseInstaller } from "../src/services/downloads.ts";
@@ -68,6 +69,7 @@ export async function setup(
     apkg: apkgRuntime,
     transfers: options.transfers?.(root) ?? profileTransferFiles(root),
     courseTransfers: options.courseTransfers?.(root) ?? courseTransferFiles(root),
+    practice: practiceFiles(root),
     appVersion: "test",
     secretKey: new Uint8Array(32).fill(7),
     fetch: options.fetch,

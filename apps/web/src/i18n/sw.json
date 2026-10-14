@@ -1429,7 +1429,9 @@
     "course_import_busy": "Faili nyingine ya kozi inaingizwa sasa. Jaribu tena itakapokamilika.",
     "series_busy": "Kozi kutoka chanzo hiki zinapakuliwa au kuingizwa sasa hivi. Jaribu tena itakapokamilika.",
     "understanding_busy": "Maandishi ya somo hili yanaandikwa. Subiri.",
-    "talk_busy": "Kazi ya somo hili inaandaliwa au kukaguliwa. Subiri."
+    "talk_busy": "Kazi ya somo hili inaandaliwa au kukaguliwa. Subiri.",
+    "practice_busy": "Mazoezi ya kozi yanaandaliwa sasa. Subiri yakamilike.",
+    "practice_needs_voice": "Maandishi ya kusikiliza na michezo ya kuigiza hurekodiwa kwa Qwen3-TTS. Iweke katika Mipangilio → Sauti."
   },
   "exams": {
     "tabs": {

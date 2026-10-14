@@ -1429,7 +1429,9 @@
     "course_import_busy": "Şu anda başka bir kurs dosyası içe aktarılıyor. Bittiğinde yeniden dene.",
     "series_busy": "Bu kaynaktan kurslar şu anda indiriliyor ya da içe aktarılıyor. Bittiğinde yeniden dene.",
     "understanding_busy": "Bu ders için bir metin yazılıyor. Biraz bekle.",
-    "talk_busy": "Bu ders için bir görev hazırlanıyor ya da kontrol ediliyor. Bekle."
+    "talk_busy": "Bu ders için bir görev hazırlanıyor ya da kontrol ediliyor. Bekle.",
+    "practice_busy": "Kursun alıştırmaları şu anda hazırlanıyor. Bitmesini bekleyin.",
+    "practice_needs_voice": "Dinleme metinleri ve rol oyunları Qwen3-TTS ile kaydedilir. Ayarlar → Konuşma bölümünden kur."
   },
   "exams": {
     "tabs": {

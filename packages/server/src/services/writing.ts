@@ -1,9 +1,11 @@
-// Writing: the lesson's writing task — a situation with
-// three content points, written by the model at the course's level (`writing_task`) — and texts
-// written on it, checked by the model. A task and a check are `llm_verdict` events (`task:
-// writing_task`, `writing`, the check with the task it answered) of the lesson run the lesson shows —
-// like an explanation, a one-off verdict on the learner's work belongs to the run it was given in
-//; the lesson's tasks and earlier checks are read across its runs.
+// Writing: the lesson's writing task — a message to answer from the text generator and a situation
+// with three content points, written by the model at the course's level (`writing_task`) — and texts
+// written on it, checked by the model. Each task made goes into the course's practice
+// (practice.ts); the learner's step takes the next variant they have not had from there. A task
+// taken and a check are `llm_verdict` events (`task: writing_task` with its `variant`, `writing`, the
+// check with the task it answered) of the lesson run the lesson shows — like an explanation, a
+// one-off verdict on the learner's work belongs to the run it was given in —; the lesson's tasks and
+// earlier checks are read across its runs.
 import {
   checkWritingTask,
   cleanWritingCheck,
@@ -22,6 +24,7 @@ import { ServiceError } from "../errors.ts";
 import { createInFlight } from "./in-flight.ts";
 import type { LessonContexts } from "./lesson-context.ts";
 import type { Llm, PromptPreview } from "./llm.ts";
+import type { Practice } from "./practice.ts";
 import { HISTORY_LIMIT, type RunStore } from "./run-store.ts";
 import type { TextMaker } from "./text-maker.ts";
 import { keepVerdict, type Verdict, verdicts } from "./verdicts.ts";
@@ -47,6 +50,8 @@ export function createWriting(deps: {
   lessonContext: LessonContexts;
   /** The text generator: the message a task answers. */
   maker: TextMaker;
+  /** The course's practice: tasks made go there, a step takes its next from there. */
+  practice: Practice;
   random?: () => number;
   now?: () => number;
 }) {
@@ -69,6 +74,10 @@ export function createWriting(deps: {
     return shown.run;
   }
 
+  /** The course's practice tasks of the lesson, the latest three. */
+  const madeBefore = async (request: WritingTaskRequest) =>
+    ((await deps.practice.lesson(request))?.writing ?? []).slice(-3).map((v) => v.task);
+
   async function taskInput(request: WritingTaskRequest): Promise<WritingTaskInput> {
     const ctx = await deps.lessonContext.get(request.series, request.lessonKey, request.edition);
     return {
@@ -77,18 +86,17 @@ export function createWriting(deps: {
       rules: llm.rulesFor("writingTask", request.language, ctx.target),
       lesson: ctx.info,
       areas: pickAreas(5, random),
-      before: tasks(request.lessonKey)
-        .slice(0, 3)
-        .map((t) => t.result.situation),
+      before: (await madeBefore(request)).map((t) => t.situation),
     };
   }
 
-  /** The message a new task answers: drafted by the text generator in a genre one answers. */
+  /** The message a new task answers: drafted by the text generator in a genre one answers (not one
+   *  of the latest three of the lesson's practice). */
   async function messageFor(request: WritingTaskRequest): Promise<TaskMessage> {
     const input = await deps.maker.inputs(request);
-    const recent = tasks(request.lessonKey)
-      .slice(0, 3)
-      .flatMap((t) => (t.result.message?.genre ? [t.result.message.genre] : []));
+    const recent = (await madeBefore(request)).flatMap((t) =>
+      t.message?.genre ? [t.message.genre] : [],
+    );
     const genre = pickPurposeGenre(
       "reply",
       input.ctx.info.level,
@@ -103,6 +111,21 @@ export function createWriting(deps: {
       lines: draftLines(draft, genre).lines,
       glossary: [],
     };
+  }
+
+  /** A task written and added to the course's practice. */
+  async function make(request: WritingTaskRequest) {
+    const r = { ...request, language: deps.practice.language(request.edition) };
+    // No message the generator could stand behind: a task of the learner's own situation, as
+    // before messages (a course's first lesson's few words make one hard).
+    const message = await messageFor(r).catch((error: unknown) => {
+      console.warn(`writing: no message to answer: ${(error as Error).message}`);
+      return undefined;
+    });
+    const input = { ...(await taskInput(r)), ...(message && { message }) };
+    const { result, model } = await llm.structured(writingTaskTask(input));
+    const task = { ...writingTaskOf(result, input.lesson.level), ...(message && { message }) };
+    await deps.practice.add(r, { step: "writing", variant: { model, madeAt: now(), task } });
   }
 
   async function writingInput(request: WritingRequest): Promise<WritingInput> {
@@ -136,29 +159,40 @@ export function createWriting(deps: {
       };
     },
 
-    /** Writes a new task for the lesson and keeps it in the run the lesson shows: a message from the
-     *  text generator (a genre to answer, not the lesson's last ones), then the task of answering it
-     *  (its length the level's). Runs to its end even when the page that asked is gone. */
-    task(request: WritingTaskRequest): Promise<Verdict<"writing_task">> {
+    /** Writes `count` tasks for the lesson into the course's practice — each a message from the text
+     *  generator (a genre to answer, not the lesson's last ones), then the task of answering it (its
+     *  length the level's) —, then takes the step's next the learner has not had into the run the
+     *  lesson shows. Runs to its end even when the page that asked is gone. */
+    task(request: WritingTaskRequest, count = 1): Promise<Verdict<"writing_task">> {
       return busy.run(request.lessonKey, {}, async () => {
-        const run = await session(request.lessonKey);
-        const started = now();
-        // No message the generator could stand behind: a task of the learner's own situation, as
-        // before messages (a course's first lesson's few words make one hard).
-        const message = await messageFor(request).catch((error: unknown) => {
-          console.warn(`writing: no message to answer: ${(error as Error).message}`);
-          return undefined;
-        });
-        const input = { ...(await taskInput(request)), ...(message && { message }) };
-        const { result, model } = await llm.structured(writingTaskTask(input));
-        return keepVerdict(store, run.id, {
-          task: "writing_task",
-          input: "",
-          result: { ...writingTaskOf(result, input.lesson.level), ...(message && { message }) },
-          model,
-          latencyMs: Math.max(0, Math.round(now() - started)),
-        }).verdict;
+        await deps.practice.run(request.lessonKey);
+        for (let i = 0; i < count; i++) await make(request);
+        const taken = await deps.practice.take(request, "writing");
+        if (!taken) throw new ServiceError("no_such_item", 404);
+        return taken;
       });
+    },
+
+    /** Writes `count` tasks for the lesson into the course's practice, nothing taken. */
+    make(request: WritingTaskRequest, count = 1) {
+      return busy.run(request.lessonKey, {}, async () => {
+        for (let i = 0; i < count; i++) await make(request);
+      });
+    },
+
+    /** The lesson started: unless a task is being written or the latest has no text written on it
+     *  yet, the step's next task of the course's practice is taken — one is written first when none
+     *  is left and `makeIfNone`; a failure only logged. */
+    async prepare(request: WritingTaskRequest, makeIfNone: boolean) {
+      if (busy.get(request.lessonKey)) return;
+      const latest = tasks(request.lessonKey)[0];
+      if (latest && !attempts(request.lessonKey).some((a) => a.ts > latest.ts)) return;
+      try {
+        if (await deps.practice.take(request, "writing")) return;
+        if (makeIfNone) await this.task(request);
+      } catch (error) {
+        console.warn(`writing task made ahead: ${(error as Error).message}`);
+      }
     },
 
     /** Checks a text written on a task with the configured model and keeps the verdict, with the

@@ -1429,7 +1429,9 @@
     "course_import_busy": "Se importă deja alt fișier de curs. Încearcă din nou după ce se termină.",
     "series_busy": "Cursuri din această sursă se descarcă sau se importă chiar acum. Încearcă din nou după ce se termină.",
     "understanding_busy": "Se scrie un text pentru această lecție. Așteaptă.",
-    "talk_busy": "O sarcină pentru această lecție se pregătește sau se verifică. Așteaptă."
+    "talk_busy": "O sarcină pentru această lecție se pregătește sau se verifică. Așteaptă.",
+    "practice_busy": "Exercițiile cursului se pregătesc acum. Așteaptă să se termine.",
+    "practice_needs_voice": "Textele de ascultat și jocurile de rol sunt înregistrate cu Qwen3-TTS. Configurează-l în Setări → Vorbire."
   },
   "exams": {
     "tabs": {

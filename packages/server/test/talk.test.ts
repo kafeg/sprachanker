@@ -1,11 +1,14 @@
 // Speaking: a monologue card set at the lesson's level, its time the
 // app's; said and checked as a writing check is, said aloud; the next task a role-play — a
-// conversation the text generator drafted, the learner's lines given hints, the partner a voice of
-// their gender —, said line by line and checked once. Tasks and attempts kept in the lesson run, read
-// across its runs; made ahead as the lesson starts.
+// conversation the text generator drafted, the learner's lines given hints, the partner recorded by a
+// Qwen3-TTS voice of their gender into the course's practice —, said line by line and checked once.
+// Tasks taken from the course's practice into the lesson run, attempts kept there, read across its
+// runs; made ahead as the lesson starts.
 import { expect, test } from "bun:test";
 import { FIXTURE_SERIES } from "@sprachanker/course-fixture";
+import { writeWav } from "../src/services/wav.ts";
 import { setup } from "./setup.ts";
+import { qwen } from "./speech-fakes.ts";
 
 const LESSON = "sprachanker.fixture/demo/00-01";
 const START = { series: FIXTURE_SERIES, lessonKey: LESSON, edition: "ru-de" };
@@ -93,6 +96,8 @@ const TURNS = {
 function model(replies: Record<string, unknown[]>) {
   const bodies: Array<{ name: string; messages: Array<{ content: string }> }> = [];
   const fetch = (async (url: string, init: RequestInit) => {
+    // Qwen3-TTS on this machine (speech-fakes' engine): not the model's.
+    if (!url.startsWith("http://127.0.0.1:9/")) return globalThis.fetch(url, init);
     if (url.endsWith("/api/v1/models")) return Response.json({ models: [] });
     const body = JSON.parse(init.body as string);
     bodies.push({ ...body, name: body.response_format?.json_schema?.name });
@@ -112,8 +117,13 @@ async function withModel() {
     writing_check: [SPOKEN],
     talk_check: [TURNS],
   });
-  // The first of each draw: a monologue first, a conversation's genre.
-  const api = await setup({ fetch: m.fetch, random: () => 0 });
+  // The first of each draw: a monologue first, a conversation's genre. Qwen3-TTS here to record a
+  // role-play's partner.
+  const speech = qwen(
+    ["qwen-tokenizer-12hz-Q8_0.gguf", "qwen-talker-0.6b-customvoice-Q8_0.gguf"],
+    () => writeWav(new Int16Array(1600).fill(100), 16000),
+  );
+  const api = await setup({ fetch: m.fetch, random: () => 0, speech: speech.host });
   await api.send("PUT", "/api/llm/providers/custom", { baseUrl: "http://127.0.0.1:9/v1" });
   await api.send("PUT", "/api/llm/route", { provider: "custom", model: "m" });
   return { ...api, bodies: m.bodies };
@@ -122,7 +132,7 @@ async function withModel() {
 const names = (bodies: Array<{ name: string }>) => bodies.map((b) => b.name);
 
 test("speaking: a monologue card, said and checked as said aloud; then a role-play drafted, hinted, said line by line and checked; across the lesson's runs; the prompt", async () => {
-  const { send, sendJson, getJson, bodies } = await withModel();
+  const { send, sendJson, getJson, get, bodies } = await withModel();
   const state = () => getJson(`/api/llm/talk?lessonKey=${LESSON}`);
   expect(await state()).toEqual({
     task: null,
@@ -145,7 +155,12 @@ test("speaking: a monologue card, said and checked as said aloud; then a role-pl
 
   // The card: the model's, its kind and time the app's (A1: half a minute).
   const card = await sendJson("POST", "/api/llm/talk", IDS);
-  expect(card.result).toEqual({ kind: "monologue", ...CARD, seconds: 30 });
+  expect(card.result).toEqual({
+    kind: "monologue",
+    ...CARD,
+    seconds: 30,
+    variant: expect.any(String),
+  });
   expect(card.runId).toBe(run);
   const asked = bodies.at(-1) as (typeof bodies)[number];
   expect(asked.messages[1]?.content).toContain("Time to speak: about 30 seconds (about 60 words).");
@@ -193,6 +208,12 @@ test("speaking: a monologue card, said and checked as said aloud; then a role-pl
   });
   expect(play.result.lines).toHaveLength(5);
   expect(play.result.lines[1]).toEqual({ speaker: "Gast", text: "Einen Kaffee, bitte." });
+  // The partner's lines recorded into the course's practice, by line; the learner's none.
+  const recordings = play.result.recordings as Record<string, string>;
+  expect(Object.keys(recordings).sort()).toEqual(["0", "2", "4"]);
+  expect(play.result.voice.engine).toBe("qwen");
+  const heard = await get(`/library/${FIXTURE_SERIES}/${recordings["0"]}`);
+  expect([heard.status, heard.headers.get("content-type")]).toEqual([200, "audio/wav"]);
   expect(bodies.find((b) => b.name === "talk_cues")?.messages[1]?.content).toContain(
     'The learner plays "Gast": lines 1, 3.',
   );

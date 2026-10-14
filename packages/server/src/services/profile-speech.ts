@@ -1,7 +1,9 @@
 // A profile's speech: the server's engines — recognition, Piper, Qwen3-TTS — with the profile's
 // choices in its settings: recognition on or off and its model, the engine reading aloud, its voices,
 // speed and Qwen3-TTS's model — also the engine and voice a deck's words are read with.
+
 import { ServiceError } from "../errors.ts";
+import type { PracticeReader } from "./practice.ts";
 import type { QwenTts } from "./qwen-tts.ts";
 import type { ReadAloud } from "./read-aloud.ts";
 import type { Settings } from "./settings.ts";
@@ -97,6 +99,20 @@ export function createProfileSpeech(deps: {
       if (engine === "qwen" && qwenTts.voice(lang, undefined, qwenModel()))
         return { engine, voices: qwenTts.state().speakers };
       return undefined;
+    },
+
+    /** Qwen3-TTS reading `lang` for a course's practice (owner, 2026-10-14: the practice is recorded
+     *  by it alone, whatever the profile reads with), with its speakers and the profile's model;
+     *  none where it cannot read the language. At the usual speed, never kept in the readings' cache:
+     *  the recording is kept with the course. */
+    practiceReader(lang: string): PracticeReader | undefined {
+      const chosen = qwenTts.voice(lang, undefined, qwenModel());
+      if (!chosen) return undefined;
+      return {
+        engine: "qwen",
+        voices: qwenTts.state().speakers,
+        read: (text, voice) => qwenTts.say(text, lang, voice, chosen.model, { keep: false }),
+      };
     },
 
     /** The engine on this computer that reads a deck's words in `lang`, with its voice: the profile's
