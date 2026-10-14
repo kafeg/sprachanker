@@ -7,6 +7,7 @@ import { useTranslation } from "react-i18next";
 import { languageName } from "@/i18n/index.ts";
 import { CourseHtml } from "./course-html.tsx";
 import { panelClass } from "./panel.tsx";
+import { usePlayable } from "./playable.ts";
 import { claimPlayback, PlaybackRate, SpeedButton } from "./playback.tsx";
 import { useRequiredTargetLang } from "./target-lang.ts";
 import { cn } from "./utils.ts";
@@ -80,6 +81,7 @@ export function EpisodeVideo({
     video.playbackRate = rate;
     for (const track of Array.from(video.textTracks)) track.mode = captions ? "showing" : "hidden";
   }, [rate, captions, src]);
+  const film = usePlayable(src ? url(src) : undefined);
   if (!src) return null;
   const switchTo = (q: "sd" | "hd") => {
     const video = ref.current;
@@ -99,6 +101,8 @@ export function EpisodeVideo({
         ref={ref}
         key={src}
         controls
+        // Its subtitles load where the films come from another origin (the phone app's files).
+        crossOrigin="anonymous"
         preload="metadata"
         onPlay={(e) => {
           peek.play(e.currentTarget);
@@ -112,7 +116,7 @@ export function EpisodeVideo({
         onSeeked={(e) => peek.seeked(e.currentTarget)}
         onError={onHeard}
         className="aspect-video w-full rounded-2xl bg-black"
-        src={url(src)}
+        src={film}
         poster={poster && url(poster)}
       >
         {subtitles && (

@@ -1,7 +1,7 @@
 // Recordings kept: one sent, one nothing was heard in forgotten, where it plays from, how many
 // there are, all deleted.
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
-import { api, json, sendBinary } from "./client.ts";
+import { api, fileUrl, json, sendBinary } from "./client.ts";
 
 /** Keeps a recording (its bytes as the browser encoded them); its id. A binary body, so not through
  *  the RPC client. */
@@ -14,7 +14,7 @@ export const forgetRecording = (id: string) =>
   json(api.recordings[":id"].$delete({ param: { id } }));
 
 /** Where a kept recording plays from. */
-export const recordingUrl = (id: string) => `/api/recordings/${id}`;
+export const recordingUrl = (id: string) => fileUrl(`/api/recordings/${id}`);
 
 /** How many recordings are kept and their size. */
 export const useRecordingStats = () =>

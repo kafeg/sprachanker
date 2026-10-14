@@ -89,6 +89,34 @@ module.exports = {
     },
     onlyMayImport("cli-imports-server-only", "^apps/cli/", ["apps/cli", "packages/server"]),
     {
+      name: "mobile-imports-the-portable-server-only",
+      comment:
+        "apps/mobile runs the server's code in the phone's WebView: of the server only its portable entry (no Bun, no Node), of course-kit only the library read over a file system given.",
+      severity: "error",
+      from: { path: "^apps/mobile/src/" },
+      to: {
+        path: "^(packages|courses|apps)/",
+        pathNot:
+          "^(apps/mobile/|packages/server/src/portable\\.ts$|packages/course-kit/src/library-over\\.ts$)",
+      },
+    },
+    {
+      name: "mobile-runs-in-the-webview",
+      comment:
+        "apps/mobile/src runs in the phone's WebView: no Node or Bun built-ins (its build scripts run on the Mac).",
+      severity: "error",
+      from: { path: "^apps/mobile/src/" },
+      to: { dependencyTypes: ["core"] },
+    },
+    {
+      name: "course-kit-library-reading-node-free",
+      comment:
+        "library-view.ts and library-over.ts are read in app.ts's graph and in the phone's WebView: no Node built-ins.",
+      severity: "error",
+      from: { path: "^packages/course-kit/src/library-(view|over)\\.ts$" },
+      to: { dependencyTypes: ["core"] },
+    },
+    {
       name: "pure-modules-no-io",
       comment:
         "schema and engine run in the browser too, llm uses web-standard APIs only, anki-export takes SQLite and zstd from the caller: no Node/Bun built-ins in their sources.",
@@ -111,12 +139,12 @@ module.exports = {
     {
       name: "server-tables-through-stores",
       comment:
-        "The profile's tables are reached through their stores: runs and events through services/run-store.ts, cards through services/card-store.ts; settings, keys and model routes through their own services. Nothing else imports the table definitions.",
+        "The profile's tables are reached through their stores: runs and events through services/run-store.ts, cards through services/card-store.ts; settings, keys and model routes through their own services. Nothing else imports the table definitions (but what opens the database: runtime/, and portable.ts for the phone app).",
       severity: "error",
       from: {
         path: "^packages/server/src/",
         pathNot:
-          "^packages/server/src/(db/|runtime/|services/(run-store|card-store|settings|llm)\\.ts$)",
+          "^packages/server/src/(db/|runtime/|portable\\.ts$|services/(run-store|card-store|settings|llm)\\.ts$)",
       },
       to: { path: "^packages/server/src/db/profile/schema\\.ts$" },
     },

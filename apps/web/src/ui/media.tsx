@@ -7,6 +7,7 @@ import { useTranslation } from "react-i18next";
 import { Slider } from "./components/slider.tsx";
 import { clock } from "./format.ts";
 import { panelClass } from "./panel.tsx";
+import { usePlayable } from "./playable.ts";
 import { claimPlayback, PlaybackRate, SpeedButton, useClip } from "./playback.tsx";
 import { cn } from "./utils.ts";
 import { Episode, EpisodeVideo, isEpisode, peek } from "./video.tsx";
@@ -255,6 +256,7 @@ export function MediaBlock({
   onHeard?: () => void;
 }) {
   const episode = useContext(Episode);
+  const film = usePlayable(media?.video && url(media.video));
   if (!media) return null;
   const episodeVideo = isEpisode(episode, media.video);
   return (
@@ -265,7 +267,7 @@ export function MediaBlock({
         <video
           controls
           preload="metadata"
-          src={url(media.video)}
+          src={film}
           // Its own still, else a frame a moment in (`peek`).
           poster={media.poster && url(media.poster)}
           onPlay={(e) => {

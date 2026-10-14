@@ -83,6 +83,9 @@ export interface AppConfig {
   allowHosts?: string[];
   /** Where the server listens: the addresses the app is reached at are worked out from it. */
   listensOn: ListensOn;
+  /** The device's session also in a header, both ways: the phone app, whose page can neither take
+   *  nor send a cookie of its server in the page (routes/profiles.ts, SESSION_HEADER). */
+  sessionInHeader?: boolean;
   /** This machine's networks and Tailscale; without it, no tailnet and no local network addresses. */
   network?: NetworkHost;
 }
@@ -116,9 +119,9 @@ export function createApp(config: AppConfig) {
     .use("*", (c, next) => (FILE_ROUTES.test(c.req.path) ? next() : jsonBody(c, next)))
     .get("/health", (c) => c.json({ status: "ok" as const, version: config.appVersion }))
     // Who is studying, signing in and out: before the session check.
-    .route("/", sessionRoutes(svc))
+    .route("/", sessionRoutes(svc, { inHeader: config.sessionInHeader }))
     // Everything after it is a profile's: the device's session names it (401 without one).
-    .use("*", requireSession(svc))
+    .use("*", requireSession(svc, { inHeader: config.sessionInHeader }))
     .route("/", profileRoutes(svc))
     .route("/", networkRoutes(svc))
     .route("/", courseRoutes())

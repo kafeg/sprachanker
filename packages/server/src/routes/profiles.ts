@@ -18,6 +18,19 @@ import type { ProfileEnv } from "./env.ts";
 
 /** The device's sign-in token (HttpOnly: scripts never see it). */
 const DEVICE_COOKIE = "sprachanker_device";
+/** The same token where a page can neither take nor send it as a cookie — the phone app, its
+ *  server in its page (AppConfig.sessionInHeader) —: in this header both ways. Elsewhere the token is
+ *  only ever answered in the cookie, which scripts cannot read; and another site cannot send a
+ *  header of its own without CORS. */
+export const SESSION_HEADER = "x-sprachanker-session";
+
+/** How the session travels: also in SESSION_HEADER's answers (the phone app). */
+export interface SessionOptions {
+  inHeader?: boolean;
+}
+
+/** The device's session token, if it sent one. */
+const tokenOf = (c: Context) => getCookie(c, DEVICE_COOKIE) ?? c.req.header(SESSION_HEADER);
 
 const ProfileId = z.string().regex(/^[a-z0-9]{1,40}$/);
 /** A profile's name: never empty. */
@@ -28,7 +41,8 @@ const https = (c: Context<ProfileEnv>) =>
   new URL(c.req.url).protocol === "https:" ||
   (c.get("proxied") && c.req.header("x-forwarded-proto") === "https");
 
-function signedIn(c: Context<ProfileEnv>, token: string) {
+function signedIn(c: Context<ProfileEnv>, token: string, options: SessionOptions) {
+  if (options.inHeader) c.header(SESSION_HEADER, token);
   setCookie(c, DEVICE_COOKIE, token, {
     httpOnly: true,
     sameSite: "Strict",
@@ -39,10 +53,10 @@ function signedIn(c: Context<ProfileEnv>, token: string) {
 }
 
 /** Signing in and out: no session needed. */
-export function sessionRoutes(svc: Services) {
+export function sessionRoutes(svc: Services, options: SessionOptions = {}) {
   const { profiles, devices } = svc;
   const issue = async (c: Context<ProfileEnv>, profileId: string) =>
-    signedIn(c, await devices.issue(profileId, c.req.header("user-agent") ?? ""));
+    signedIn(c, await devices.issue(profileId, c.req.header("user-agent") ?? ""), options);
   return (
     new Hono<ProfileEnv>()
       .get("/profiles", (c) =>
@@ -69,7 +83,7 @@ export function sessionRoutes(svc: Services) {
         ),
       )
       .get("/session", async (c) => {
-        const device = await devices.resolve(getCookie(c, DEVICE_COOKIE));
+        const device = await devices.resolve(tokenOf(c));
         return c.json({ profile: device ? profiles.get(device.profileId) : null });
       })
       // Choosing a profile signs this device in to it.
@@ -81,7 +95,7 @@ export function sessionRoutes(svc: Services) {
       })
       // Signing this device out.
       .delete("/session", async (c) => {
-        const device = await devices.resolve(getCookie(c, DEVICE_COOKIE));
+        const device = await devices.resolve(tokenOf(c));
         if (device) devices.revoke(device.profileId, device.deviceId);
         deleteCookie(c, DEVICE_COOKIE, { path: "/" });
         return c.json({ ok: true as const });
@@ -90,12 +104,12 @@ export function sessionRoutes(svc: Services) {
 }
 
 /** The session check: the device's profile and its services for the routes after it; 401 without. */
-export function requireSession(svc: Services) {
+export function requireSession(svc: Services, options: SessionOptions = {}) {
   return async (c: Context<ProfileEnv>, next: () => Promise<void>) => {
-    const token = getCookie(c, DEVICE_COOKIE);
+    const token = tokenOf(c);
     const device = await svc.devices.resolve(token);
     if (!device) return c.json({ error: "no_session" }, 401);
-    if (device.refreshed && token) signedIn(c, token);
+    if (device.refreshed && token) signedIn(c, token, options);
     c.set("profileId", device.profileId);
     c.set("deviceId", device.deviceId);
     c.set("s", svc.of(device.profileId));

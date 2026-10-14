@@ -1,0 +1,20 @@
+{
+  "name": "@sprachanker/mobile",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "typecheck": "tsc -p .",
+    "build": "bun scripts/build.ts"
+  },
+  "dependencies": {
+    "@sprachanker/course-kit": "workspace:*",
+    "@sprachanker/schema": "workspace:*",
+    "@sprachanker/server": "workspace:*",
+    "drizzle-orm": "0.45.3",
+    "sql.js": "1.14.1"
+  },
+  "devDependencies": {
+    "@types/sql.js": "1.4.9"
+  }
+}

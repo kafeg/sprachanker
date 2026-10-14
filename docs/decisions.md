@@ -248,6 +248,7 @@ area is built is in its `CLAUDE.md`; work not built yet is in `docs/plan.md`.
 - Hono, with a typed client through Hono RPC (type-only `AppType`); no code generation.
 - zod 4 with its built-in `z.toJSONSchema` (`zod-to-json-schema` is deprecated).
 - SQLite via `bun:sqlite`, Drizzle ORM and drizzle-kit migrations, WAL.
+- The phone app: Tauri 2 (as the desktop), the server's code in its WebView over sql.js (SQLite in WebAssembly, the whole database written back after changes), its files and Whisper (whisper.cpp through a C shim) on the native side.
 - `ulid` ids, `ts-fsrs` scheduling, `yaml`, `sanitize-html` for importer HTML, `markdown-it` with `html: false`, `country-flag-icons` for flags.
 - `pdfjs-dist` (legacy build, in the importer's thread) reads PDFs; PNGs are written with `node:zlib`.
 - `fflate` reads `.apkg`. Profile files and course bundles use our own stored-entry zip (fflate has no ZIP64; a course exceeds 4 GB), read by its checked directory, never streamed: a recording can fake a signature.

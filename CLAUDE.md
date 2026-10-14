@@ -41,6 +41,8 @@ Encoded in `.dependency-cruiser.cjs`; `scripts/boundaries.test.ts` proves them o
 - `apps/web` → `schema`, `engine` (client-side checking), and a **type-only** import of the server's
   `AppType` for the Hono RPC client.
 - `apps/desktop` knows only the `sprachanker` binary and its CLI flags. `apps/cli` → `server` (and through it everything else).
+- `apps/mobile` → the server's portable entry (`packages/server/src/portable.ts`) and course-kit's
+  `library-over.ts` only; its `src/` runs in the WebView (no Node or Bun built-ins).
 - Nothing imports from `apps/*`. No cycles.
 
 ## Stack

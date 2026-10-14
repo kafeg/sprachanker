@@ -9,12 +9,18 @@ export const api = hc<AppType>("/", { headers: { ...CLIENT_HEADERS } }).api;
  *  prompts): a progress reset leaves them (their `meta`). */
 export const STATIC = { static: true } as const;
 
+/** Where a file the server serves is played from: the path itself, or what the phone app makes of
+ *  it (apps/mobile serves media and recordings from its own files: `sprachankerFileUrl`). */
+export const fileUrl = (path: string) =>
+  (globalThis as { sprachankerFileUrl?: (path: string) => string }).sprachankerFileUrl?.(path) ??
+  path;
+
 /** URL of a library media file. */
-export const mediaUrl = (series: string, path: string) => `/library/${series}/${path}`;
+export const mediaUrl = (series: string, path: string) => fileUrl(`/library/${series}/${path}`);
 
 /** URL of a card's media file: in its course's library, or in its imported deck's folder. */
 export const cardMediaUrl = (display: CardDisplay, path: string) =>
-  "deck" in display ? `/decks/${display.deck}/${path}` : mediaUrl(display.series, path);
+  "deck" in display ? fileUrl(`/decks/${display.deck}/${path}`) : mediaUrl(display.series, path);
 
 /** URL of a card's recording: its own, else its word read aloud for its deck (in a deck's folder),
  *  else the recording of the card's word where it was made. */
@@ -22,8 +28,8 @@ export const cardAudioUrl = (display: CardDisplay) =>
   display.audio
     ? cardMediaUrl(display, display.audio)
     : display.readAudio
-      ? `/decks/${display.readAudio}`
-      : display.recordingPath && `/${display.recordingPath}`;
+      ? fileUrl(`/decks/${display.readAudio}`)
+      : display.recordingPath && fileUrl(`/${display.recordingPath}`);
 
 export class ApiError extends Error {
   constructor(

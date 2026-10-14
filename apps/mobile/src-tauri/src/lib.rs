@@ -6,6 +6,8 @@ use std::time::Instant;
 
 use tauri::ipc::{InvokeBody, Request};
 
+mod files;
+
 #[cfg(target_os = "android")]
 mod whisper {
     use std::ffi::{c_char, c_int, c_void, CStr, CString};
@@ -99,7 +101,8 @@ fn load(asr: tauri::State<Asr>, path: String) -> Result<u128, String> {
     Ok(started.elapsed().as_millis())
 }
 
-/// What was said in German in the samples (the body), with the threads in the `threads` header.
+/// What was said in the samples (the body) in a language given (`lang`, German by default), with the
+/// threads in the `threads` header.
 #[tauri::command]
 fn transcribe(asr: tauri::State<Asr>, request: Request) -> Result<Heard, String> {
     // Raw where the platform's IPC carries bytes; a JSON array of them where it does not (Android).
@@ -123,7 +126,13 @@ fn transcribe(asr: tauri::State<Asr>, request: Request) -> Result<Heard, String>
     let mut guard = asr.0.lock().unwrap();
     let model = guard.as_mut().ok_or("no model loaded")?;
     let started = Instant::now();
-    let text = model.hear(&samples, threads, "de")?;
+    let lang = request
+        .headers()
+        .get("lang")
+        .and_then(|v| v.to_str().ok())
+        .unwrap_or("de")
+        .to_string();
+    let text = model.hear(&samples, threads, &lang)?;
     Ok(Heard { text, ms: started.elapsed().as_millis() })
 }
 
@@ -131,7 +140,17 @@ fn transcribe(asr: tauri::State<Asr>, request: Request) -> Result<Heard, String>
 pub fn run() {
     tauri::Builder::default()
         .manage(Asr::default())
-        .invoke_handler(tauri::generate_handler![load, transcribe])
+        .register_asynchronous_uri_scheme_protocol("media", |_ctx, request, responder| {
+            std::thread::spawn(move || responder.respond(files::serve(&request)));
+        })
+        .invoke_handler(tauri::generate_handler![
+            load,
+            transcribe,
+            files::fs_list,
+            files::fs_write,
+            files::fs_remove,
+            files::fs_root
+        ])
         .run(tauri::generate_context!())
         .expect("the app failed to start");
 }

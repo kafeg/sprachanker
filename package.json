@@ -7,6 +7,7 @@
     "packages/*",
     "apps/web",
     "apps/cli",
+    "apps/mobile",
     "courses/_fixture",
     "courses/bamf-lid",
     "courses/goethe",
