@@ -260,9 +260,14 @@ test("Settings' five tabs fit a phone in every interface language, nothing scrol
       await expect(page.getByRole("tab", { name: ai })).toHaveAttribute("aria-selected", "true");
       await page.evaluate(() => document.fonts.ready);
       const bar = page.getByRole("tablist");
-      expect(await bar.evaluate((e) => e.scrollWidth <= e.clientWidth)).toBe(true);
+      expect(await bar.evaluate((e) => e.scrollWidth <= e.clientWidth), `${lang}: the tabs`).toBe(
+        true,
+      );
       for (const tab of await bar.getByRole("tab").all())
-        expect(await tab.evaluate((e) => e.scrollWidth <= e.clientWidth)).toBe(true);
+        expect(
+          await tab.evaluate((e) => e.scrollWidth <= e.clientWidth),
+          `${lang}: ${await tab.textContent()}`,
+        ).toBe(true);
     }
   } finally {
     await put(request, "/api/settings", { key: "uiLanguage", value: "en" });

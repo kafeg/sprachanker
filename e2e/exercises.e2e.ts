@@ -136,7 +136,9 @@ test("typed gaps: the letter row types at the cursor; Enter goes to the next gap
   // A gap grows with what is typed beyond the room its exercise gives.
   const before = await second.evaluate((e) => e.getBoundingClientRect().width);
   await second.pressSequentially("Milch mit Zucker");
-  expect(await second.evaluate((e) => e.getBoundingClientRect().width)).toBeGreaterThan(before);
+  await expect
+    .poll(() => second.evaluate((e) => e.getBoundingClientRect().width))
+    .toBeGreaterThan(before);
   await second.fill("Milch");
   await second.press("Enter");
   // The result is read out (the card shows it on its edge).

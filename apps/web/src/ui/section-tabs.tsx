@@ -10,7 +10,7 @@ import { cn } from "./utils.ts";
 
 const BAR = "relative mb-6 flex gap-1 overflow-x-auto rounded-xl bg-muted p-1";
 const TAB = cn(
-  "flex min-h-10 flex-1 flex-col items-center justify-center whitespace-nowrap rounded-lg px-1.5 text-[13px] leading-tight font-medium text-muted-foreground outline-none hover:text-foreground focus-visible:ring-[3px] focus-visible:ring-ring/50 pointer-coarse:min-h-11 sm:flex-row sm:gap-1.5 sm:px-3 sm:text-sm",
+  "flex min-h-10 flex-1 flex-col items-center justify-center whitespace-nowrap rounded-lg px-1 text-[13px] leading-tight font-medium text-muted-foreground outline-none hover:text-foreground focus-visible:ring-[3px] focus-visible:ring-ring/50 pointer-coarse:min-h-11 sm:flex-row sm:gap-1.5 sm:px-3 sm:text-sm",
   // The current tab: a link's page, a tab's selection.
   "aria-[current=page]:bg-background aria-[current=page]:text-foreground aria-[current=page]:shadow-sm",
   "aria-selected:bg-background aria-selected:text-foreground aria-selected:shadow-sm",

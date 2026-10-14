@@ -140,6 +140,8 @@ test("a role-play by voice: the partner's lines read aloud as they come, each li
 test("a monologue typed where nothing hears: the card, the text kept, checked with a model answer", async ({
   page,
 }) => {
+  // A microphone here, recognition off: the only reason nothing hears.
+  await fakeMicrophone(page);
   await page.route("**/api/speech", async (route) => {
     const state = await (await route.fetch()).json();
     await route.fulfill({ json: { ...state, recognition: false } });

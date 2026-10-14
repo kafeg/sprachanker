@@ -21,7 +21,13 @@ export default defineConfig({
   forbidOnly: !!process.env.CI,
   retries: process.env.CI ? 1 : 0,
   reporter: process.env.CI ? "github" : "list",
-  use: { baseURL: `http://127.0.0.1:${PORT}`, locale: "en-US", trace: "retain-on-failure" },
+  // Animations cut short (the app's reduced motion): a sheet still sliding in is no click's target.
+  use: {
+    baseURL: `http://127.0.0.1:${PORT}`,
+    locale: "en-US",
+    reducedMotion: "reduce",
+    trace: "retain-on-failure",
+  },
   webServer: [
     {
       command: `"${binary}" serve --port ${PORT} --data "${E2E_DATA}"`,

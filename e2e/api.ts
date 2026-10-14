@@ -88,7 +88,8 @@ export async function goToStep(page: Page, step: string) {
 }
 
 /** A microphone for the page: a tone from WebAudio instead of a device (browsers under test have no
- *  reliable fake one), so recording runs the same in Chromium and WebKit. */
+ *  reliable fake one), so recording runs the same in Chromium and WebKit. Where the browser has no
+ *  MediaRecorder (Playwright's WebKit on Linux), one that hands over half a second of the tone as WAV. */
 export async function fakeMicrophone(page: Page) {
   // A script for the page (the e2e code has no DOM types). On the prototype: WebKit gives
   // `navigator.mediaDevices` only once the page is a secure one.
@@ -101,6 +102,30 @@ export async function fakeMicrophone(page: Page) {
         tone.connect(out);
         tone.start();
         return out.stream;
-      };`,
+      };
+    if (typeof MediaRecorder === "undefined") {
+      const tone = () => {
+        const rate = 16000, n = rate / 2, bytes = new DataView(new ArrayBuffer(44 + n * 2));
+        const text = (at, s) => [...s].forEach((c, i) => bytes.setUint8(at + i, c.charCodeAt(0)));
+        text(0, "RIFF"); bytes.setUint32(4, 36 + n * 2, true); text(8, "WAVEfmt ");
+        bytes.setUint32(16, 16, true); bytes.setUint16(20, 1, true); bytes.setUint16(22, 1, true);
+        bytes.setUint32(24, rate, true); bytes.setUint32(28, rate * 2, true);
+        bytes.setUint16(32, 2, true); bytes.setUint16(34, 16, true); text(36, "data");
+        bytes.setUint32(40, n * 2, true);
+        for (let i = 0; i < n; i++)
+          bytes.setInt16(44 + i * 2, Math.round(8000 * Math.sin((2 * Math.PI * 440 * i) / rate)), true);
+        return new Blob([bytes.buffer], { type: "audio/wav" });
+      };
+      globalThis.MediaRecorder = class {
+        static isTypeSupported() { return false; }
+        constructor(stream) { this.stream = stream; this.state = "inactive"; this.mimeType = "audio/wav"; }
+        start() { this.state = "recording"; }
+        stop() {
+          if (this.state === "inactive") return;
+          this.state = "inactive";
+          setTimeout(() => { this.ondataavailable?.({ data: tone() }); this.onstop?.(); });
+        }
+      };
+    }`,
   });
 }
