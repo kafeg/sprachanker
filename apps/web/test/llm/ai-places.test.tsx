@@ -6,10 +6,28 @@ import { useAiIn } from "../../src/llm/setup-api.ts";
 import { queryClient } from "../render.tsx";
 
 const MODEL = { provider: "custom", model: "m", providers: [] };
-const hook = <T,>(use: () => T, settings: Record<string, unknown>, llm: unknown = MODEL) => {
+const LESSON = {
+  series: "sprachanker.test",
+  lessonKey: "sprachanker.test/demo/01-01",
+  edition: "ru-de",
+};
+const hook = <T,>(
+  use: () => T,
+  settings: Record<string, unknown>,
+  llm: unknown = MODEL,
+  pack?: unknown,
+) => {
   const client = queryClient([
     [["llm"], llm],
     [["settings"], settings],
+    ...(pack
+      ? [
+          [["practice-lesson", LESSON.series, LESSON.lessonKey, LESSON.edition], pack] as [
+            unknown[],
+            unknown,
+          ],
+        ]
+      : []),
   ]);
   return renderHook(use, {
     wrapper: ({ children }) => (
@@ -18,8 +36,8 @@ const hook = <T,>(use: () => T, settings: Record<string, unknown>, llm: unknown 
   }).result.current;
 };
 
-test("a place turned off: its practice steps not there", () => {
-  const kinds = () => lessonAssistant.practice?.useKinds();
+test("a place turned off: its practice steps not there; without a model, those the course's practice has", () => {
+  const kinds = () => lessonAssistant.practice?.useKinds(LESSON);
   expect(hook(kinds, {})).toEqual(["reading", "listening", "writing", "speaking"]);
   expect(hook(kinds, { "llm.offIn": ["scene", "tutor"] })).toEqual([
     "reading",
@@ -27,7 +45,11 @@ test("a place turned off: its practice steps not there", () => {
     "writing",
   ]);
   expect(hook(kinds, { "llm.offIn": ["understanding"] })).toEqual(["writing", "speaking"]);
-  expect(hook(kinds, {}, { provider: null, model: null, providers: [] })).toEqual([]);
+  const none = { provider: null, model: null, providers: [] };
+  const pack = { reading: 1, listening: 0, writing: 2, speaking: 1 };
+  expect(hook(kinds, {}, none, pack)).toEqual(["reading", "writing", "speaking"]);
+  expect(hook(kinds, { "llm.offIn": ["scene"] }, none, pack)).toEqual(["reading", "writing"]);
+  expect(hook(kinds, {}, none, { reading: 0, listening: 0, writing: 0, speaking: 0 })).toEqual([]);
   expect(hook(() => useAiIn("explain"), { "llm.offIn": ["explain"] })).toBe(false);
   expect(hook(() => useAiIn("example"), { "llm.offIn": ["explain"] })).toBe(true);
 });

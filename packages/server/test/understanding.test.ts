@@ -6,7 +6,7 @@
 // answered, each answer checked by the engine and kept on the text; read back in the Notebook's pass;
 // made ahead as the lesson starts.
 import { expect, test } from "bun:test";
-import { readFileSync } from "node:fs";
+import { readFileSync, rmSync } from "node:fs";
 import { join } from "node:path";
 import { FIXTURE_SERIES } from "@sprachanker/course-fixture";
 import { ulid } from "ulid";
@@ -210,6 +210,13 @@ test("a text made: three drafts, rated, the best kept; questions asked and read 
   expect(
     (await api.get(`/api/llm/understanding/audio?lessonKey=${LESSON}&id=${ulid()}`)).status,
   ).toBe(404);
+  // A recording not here (a bundle without it): its lines read again.
+  rmSync(join(api.root, "library", FIXTURE_SERIES, r.recording));
+  const reread = await api.get(`/api/llm/understanding/audio?lessonKey=${LESSON}&id=${text.id}`);
+  expect(reread.status).toBe(200);
+  expect(readWav(new Uint8Array(await reread.arrayBuffer()))?.samples.length).toBe(
+    joined?.samples.length,
+  );
 
   // Answered: a choice wrong, an answer typed right; a question answered twice keeps its first.
   const answer = (question: number, value: unknown) =>

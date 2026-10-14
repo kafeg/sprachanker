@@ -24,12 +24,13 @@ export function SpeakButton({
 }) {
   const { t } = useTranslation();
   const speaker = useSpeaker();
-  const readable = parts.filter((p) => speaker.canRead(p.lang));
+  // A recording plays wherever nothing reads the language.
+  const readable = parts.filter((p) => p.src || speaker.canRead(p.lang));
   // Known by what it reads: a line read at once shows its button as reading.
   const id = readingId(readable);
   const reading = speaker.reading === id;
   useImperativeHandle(ref, () => ({ play: () => void speaker.say(id, readable) }));
-  if (!speaker.available || !readable.length) return null;
+  if ((!speaker.available && !readable.some((p) => p.src)) || !readable.length) return null;
   return (
     <button
       type="button"

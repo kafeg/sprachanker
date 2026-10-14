@@ -1,6 +1,7 @@
 // Speaking against the fake model (fake-llm.ts): a role-play
-// by voice with the fake microphone and a fixed recognition — the partner's lines read aloud as they
-// come by the device's (stubbed) voice, each of the learner's said from its hint and kept, then Check in
+// by voice with the fake microphone and a fixed recognition — the partner's lines played as they come
+// from their recordings (the course's practice, Qwen3-TTS on paper), each of the learner's said from
+// its hint and kept, then Check in
 // the step bar: each line's verdict, a correction, a good way to say it; and a monologue's card typed
 // where nothing hears, checked as a writing check, with a model answer.
 import { expect, type Page, test } from "@playwright/test";
@@ -88,7 +89,14 @@ test("a role-play by voice: the partner's lines read aloud as they come, each li
   page,
   request,
 }) => {
-  const said = await deviceVoices(page);
+  // The partner's lines are recorded with the course's practice (Qwen3-TTS on paper): fetched as
+  // they come.
+  const recordings: string[] = [];
+  page.on("response", (r) => {
+    if (r.ok() && /\/library\/sprachanker\.fixture\/practice\/.+\.wav$/.test(r.url()))
+      recordings.push(r.url());
+  });
+  await deviceVoices(page);
   await fakeMicrophone(page);
   await recognitionOn(page);
   await openStep(page, "Speaking");
@@ -109,11 +117,9 @@ test("a role-play by voice: the partner's lines read aloud as they come, each li
     await expect(check).toBeDisabled();
     await step.getByRole("button", { name: "Keep it" }).click();
     if (n === 1) {
-      // The partner answers, read aloud at once in German.
+      // The partner answers, its line's recording played at once.
       await expect(step.getByText("Hier bitte. Haben Sie auch Kaffee?")).toBeVisible();
-      await expect
-        .poll(said)
-        .toContainEqual({ text: "Hier bitte. Haben Sie auch Kaffee?", lang: "de-DE" });
+      await expect.poll(() => recordings.length).toBe(1);
     }
   }
   await expect(step.getByText(HEARD)).toHaveCount(3);

@@ -6,6 +6,7 @@ import { PRACTICE, type PracticeKind } from "@sprachanker/engine";
 import type { AiPlace } from "@sprachanker/schema";
 import { useSetting } from "@/api/settings.ts";
 import type { LessonSlots } from "@/lesson/slots.ts";
+import { usePracticeLesson } from "./api.ts";
 import { ExplainMistake } from "./explain.tsx";
 import { GoingOverSection } from "./going-over.tsx";
 import { useAiIn, useLlm } from "./setup-api.ts";
@@ -45,13 +46,23 @@ export const lessonAssistant: LessonSlots = {
     </In>
   ),
   practice: {
-    // Offered while a model is set up and their place is on; undefined while that is read (a run
-    // resumes onto a practice step only once it is known).
-    useKinds: () => {
+    // Offered while their place is on: every one with a model set up; without one, those the
+    // course's practice has work for in the lesson (taken without a model). Undefined while that
+    // is read (a run resumes onto a practice step only once it is known).
+    useKinds: ({ series, lessonKey, edition }) => {
       const llm = useLlm();
       const off = useSetting("llm.offIn");
+      const noModel = !llm.isPending && !llm.data?.model;
+      const pack = usePracticeLesson(
+        { series, lessonKey, edition: edition ?? "" },
+        noModel && !!edition,
+      );
       if (llm.isPending) return undefined;
-      return llm.data?.model ? PRACTICE.filter((kind) => !off.includes(PLACE_OF[kind])) : [];
+      const on = PRACTICE.filter((kind) => !off.includes(PLACE_OF[kind]));
+      if (!noModel) return on;
+      if (!pack.data) return pack.isError ? [] : undefined;
+      const counts = pack.data;
+      return on.filter((kind) => counts[kind] > 0);
     },
     step: (kind, { onDone, onStored, setPrimary, ...context }) =>
       kind === "reading" || kind === "listening" ? (

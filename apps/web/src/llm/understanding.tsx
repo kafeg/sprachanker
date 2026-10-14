@@ -49,6 +49,7 @@ import {
 } from "./api.ts";
 import { modelName } from "./assistant-label.tsx";
 import { ErrorLine, StartPrompt, Thinking } from "./parts.tsx";
+import { MoreButton } from "./practice-more.tsx";
 import { PromptButton } from "./prompt-view.tsx";
 import { useLlm } from "./setup-api.ts";
 
@@ -145,9 +146,24 @@ function Listen({
   const { t } = useTranslation();
   const lang = useRequiredTargetLang();
   const speaker = useSpeaker();
-  const onServer = !!speaker.serverVoices(lang);
+  // Recorded with the course's practice: played as it is, whatever reads aloud here.
+  const recorded = !!text.recording;
+  const onServer = recorded || !!speaker.serverVoices(lang);
   const audio = useUnderstandingAudio(lessonKey, id, onServer);
-  if (!onServer) return <DeviceListen id={id} text={text} lang={lang} />;
+  // A recording not here that the server cannot read again either: read on this device.
+  const deviceInstead = recorded && !speaker.serverVoices(lang) && !!audio.error;
+  if (!onServer || deviceInstead) return <DeviceListen id={id} text={text} lang={lang} />;
+  if (recorded)
+    return audio.data ? (
+      <div className="space-y-2">
+        <p className="text-sm text-muted-foreground">{t("practice.recorded")}</p>
+        <AudioPlayer src={audio.data} label={t("understanding.recording")} />
+      </div>
+    ) : audio.error ? (
+      <ErrorLine error={audio.error} onRetry={() => void audio.refetch()} />
+    ) : (
+      <Thinking label={t("understanding.preparingAudio")} className="text-sm" />
+    );
   const named = [...new Set(Object.values(serverVoicesOf(id, text, lang, speaker)))];
   return (
     <div className="space-y-2">
@@ -181,7 +197,7 @@ function CurrentText({
   text: Understood;
   ids: LessonSlotContext;
   preparing: boolean;
-  onNew(): void;
+  onNew(count: number): void;
   onDone?(): void;
   onStored?(): Promise<void> | void;
   setPrimary?(primary: PracticePrimary | null): void;
@@ -201,7 +217,7 @@ function CurrentText({
     (q, n) => given(n) || answerComplete(understandingExercise(q), 0, drafts[n]),
   ).length;
   const heard = heardFirst(r);
-  const canHear = speaker.canRead(lang);
+  const canHear = !!r.recording || speaker.canRead(lang);
   // Nothing here reads it aloud: the text heard first is read instead.
   const readInstead = heard && !canHear;
   // The text above the questions: a text to read, or one nothing here reads aloud; a text heard opens
@@ -262,9 +278,14 @@ function CurrentText({
         <PromptButton
           request={() => ({ understanding: { ...ids, language: i18n.language, step } })}
         />
-        <Button variant="outline" loading={preparing} disabled={preparing} onClick={onNew}>
-          {preparing ? t("understanding.writing") : t("understanding.new")}
-        </Button>
+        <MoreButton
+          label={t("understanding.new")}
+          busyLabel={t("understanding.writing")}
+          preparing={preparing}
+          edition={ids.edition}
+          needsVoice={step === "listening"}
+          onMake={onNew}
+        />
       </div>
       {heard && canHear && <Listen id={text.id} text={r} lessonKey={ids.lessonKey} />}
       {readInstead && (
@@ -363,12 +384,13 @@ export function UnderstandingStep({
   const llm = useLlm();
   const start = useStartUnderstanding(ids.lessonKey, step);
   const state = useUnderstanding(ids.lessonKey, step, start.isPending);
-  if (!llm.data?.model || !state.data) return null;
+  // A text of the course's practice is there without a model; making one needs it.
+  if (!state.data || (!llm.data?.model && !state.data.texts.length)) return null;
   const [current, ...past] = state.data.texts;
   // Asked from here, or still being written on the server since before this page was opened.
   const preparing = start.isPending || state.data.preparing;
-  const write = () => {
-    if (!preparing) start.mutate({ ...ids, language: i18n.language });
+  const write = (count = 1) => {
+    if (!preparing) start.mutate({ ...ids, language: i18n.language, count });
   };
   return (
     <div className="space-y-4">
@@ -392,7 +414,7 @@ export function UnderstandingStep({
           label={preparing ? t("understanding.writing") : t("understanding.start")}
           icon={step === "reading" ? BookOpenText : Headphones}
           loading={preparing}
-          onStart={write}
+          onStart={() => write()}
         />
       )}
       {preparing && (
@@ -403,7 +425,7 @@ export function UnderstandingStep({
       )}
       <ErrorLine
         error={busyMaking(start.error) ? null : start.error}
-        onRetry={preparing ? undefined : write}
+        onRetry={preparing ? undefined : () => write()}
       />
       <PastTexts texts={past} />
     </div>

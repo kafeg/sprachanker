@@ -26,6 +26,8 @@ packages/course-kit/src/
   library-view.ts      # LibraryView: what the app reads (courses, lessons, exams), NotInstalledError;
                        # no Node APIs: the server's app imports it alone (`@sprachanker/course-kit/view`)
   verify.ts            # a course's integrity and counts (LibraryView.check)
+  practice.ts          # a course's AI practice written: a lesson's variants added (merged by id), their
+                       # recordings beside it under the lesson's folder
   remove.ts            # removeCourse: a course's folders and the media no other course of its series
                        # names; media.json forgets them (gone when it names nothing), empty folders
                        # go, keys.json stays

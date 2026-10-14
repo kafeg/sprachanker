@@ -64,6 +64,7 @@ const attempt = (input: string, ts: number, withTask = true): WritingAttempt => 
 const step = (
   state: Record<string, unknown>,
   setPrimary: (p: PracticePrimary | null) => void = () => {},
+  model: [unknown[], unknown] = llm,
 ) =>
   renderApp(
     <TargetLang value="de">
@@ -72,7 +73,7 @@ const step = (
     {
       path: "/",
       data: [
-        llm,
+        model,
         [
           ["writing", ids.lessonKey, ids.edition],
           { task: null, words: [], attempts: [], checking: null, preparing: false, ...state },
@@ -176,5 +177,23 @@ test("a check from before tasks had points: no points, no model text", async () 
   expect(view.getByText("Say why and when.")).toBeTruthy();
   expect(view.queryByText("The task's points")).toBeNull();
   expect(view.queryByText("Model text")).toBeNull();
+  view.unmount();
+});
+
+test("a task of the course's practice without a model: written, Check off with why", async () => {
+  const bar: { primary: PracticePrimary | null } = { primary: null };
+  const view = await step(
+    { task },
+    (p) => {
+      bar.primary = p;
+    },
+    [["llm"], { provider: "custom", model: null }],
+  );
+  expect(view.getByText(TASK.situation)).toBeTruthy();
+  expect(view.getByText("Checking needs an AI model: Settings → AI assistant.")).toBeTruthy();
+  fireEvent.change(view.getByRole("textbox", { name: "Your text…" }), {
+    target: { value: "Hallo Lena!" },
+  });
+  await waitFor(() => expect(bar.primary?.disabled).toBe(true));
   view.unmount();
 });

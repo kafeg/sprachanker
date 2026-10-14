@@ -4,7 +4,7 @@
 // is first used.
 import type { ApkgRuntime } from "@sprachanker/anki-export";
 import type { LibraryView } from "@sprachanker/course-kit/view";
-import { lessonOrder, parseEditionId } from "@sprachanker/schema";
+import { type LessonKey, lessonOrder, parseEditionId } from "@sprachanker/schema";
 import type { ProfileDb } from "../db/profile/db.ts";
 import type { ServerDb } from "../db/server/db.ts";
 import { ServiceError } from "../errors.ts";
@@ -318,6 +318,15 @@ function profileServices(
     practicePrep,
     // The course's practice made in one go, by this profile's model and voices: its state, a job.
     practiceCourse: {
+      /** Whether this server records an edition's practice (Qwen3-TTS reads its language). */
+      voice: (edition: string) => !!reader(parseEditionId(edition).target),
+      /** How many variants of each step a lesson's practice has in an edition. */
+      async lesson(series: string, lessonKey: LessonKey, edition: string) {
+        const p = await practice.lesson({ series, lessonKey, edition });
+        return Object.fromEntries(
+          PRACTICE_STEPS.map((step) => [step, p?.[step].length ?? 0]),
+        ) as Record<PracticeStepName, number>;
+      },
       async state(series: string, course: string, edition: string) {
         const lessons = lessonOrder(await shared.content.courseIndex(series, course));
         const variants = { reading: 0, listening: 0, writing: 0, speaking: 0 };

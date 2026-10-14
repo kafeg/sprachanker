@@ -1728,5 +1728,26 @@
     "result": "{right, number} από {total, number} ατάκες ταιριάζουν",
     "modelAnswer": "Υπόδειγμα απάντησης",
     "restart": "Ξεκίνα ξανά"
+  },
+  "practice": {
+    "needsModel": "Για περισσότερα χρειάζεται ένα μοντέλο ΤΝ: Ρυθμίσεις → Βοηθός ΤΝ.",
+    "checkNeedsModel": "Για τον έλεγχο χρειάζεται ένα μοντέλο ΤΝ: Ρυθμίσεις → Βοηθός ΤΝ.",
+    "count": "Πόσα",
+    "times": "×{count, number}",
+    "recorded": "Ηχογραφήθηκε με το Qwen3-TTS.",
+    "course": {
+      "title": "Εξάσκηση με ΤΝ",
+      "intro": "Κείμενα, εργασίες και οι ηχογραφήσεις τους, φτιαγμένα μία φορά για κάθε μάθημα και αποθηκευμένα με το μάθημα: τα μαθήματα τα παίρνουν χωρίς μοντέλο και πάνε μαζί με το μάθημα στις άλλες σου συσκευές.",
+      "made": "{made, number} από {lessons, number} μαθήματα έχουν εξάσκηση.",
+      "variant": "{step}: {count, number}",
+      "progress": "{done, number} από {total, number}",
+      "current": "μάθημα {lesson}, {step}",
+      "failed": "{count, plural, one {# απέτυχε} other {# απέτυχαν}}",
+      "done": "Έτοιμο: φτιάχτηκαν {made, number} από {total, number}.",
+      "stopped": "Σταμάτησε: φτιάχτηκαν {made, number} από {total, number}.",
+      "stop": "Διακοπή",
+      "make": "Φτιάξε για όλα τα μαθήματα",
+      "steps": "Βήματα"
+    }
   }
 }

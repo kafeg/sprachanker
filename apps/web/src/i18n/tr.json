@@ -1728,5 +1728,26 @@
     "result": "{total, number} replikten {right, number} tanesi uygun",
     "modelAnswer": "Örnek cevap",
     "restart": "Baştan başla"
+  },
+  "practice": {
+    "needsModel": "Daha fazlası için bir yapay zekâ modeli gerekir: Ayarlar → Yapay zekâ asistanı.",
+    "checkNeedsModel": "Denetlemek için bir yapay zekâ modeli gerekir: Ayarlar → Yapay zekâ asistanı.",
+    "count": "Kaç tane",
+    "times": "×{count, number}",
+    "recorded": "Qwen3-TTS ile kaydedildi.",
+    "course": {
+      "title": "Yapay zekâ ile alıştırma",
+      "intro": "Her ders için bir kez yapılan ve kursla birlikte saklanan metinler, görevler ve kayıtları: dersler bunları modelsiz alır ve kursla birlikte diğer cihazlarına gider.",
+      "made": "{lessons, number} dersin {made, number} tanesinde alıştırma var.",
+      "variant": "{step}: {count, number}",
+      "progress": "{done, number} / {total, number}",
+      "current": "ders {lesson}, {step}",
+      "failed": "{count, plural, one {# başarısız} other {# başarısız}}",
+      "done": "Bitti: {total, number} içinden {made, number} yapıldı.",
+      "stopped": "Durduruldu: {total, number} içinden {made, number} yapıldı.",
+      "stop": "Durdur",
+      "make": "Tüm dersler için yap",
+      "steps": "Adımlar"
+    }
   }
 }

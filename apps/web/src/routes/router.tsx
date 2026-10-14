@@ -8,7 +8,7 @@ import {
   useNavigate,
 } from "@tanstack/react-router";
 import { MessageCircle } from "lucide-react";
-import { useEffect, useState } from "react";
+import { lazy, useEffect, useState } from "react";
 import { useSession } from "@/api/session.ts";
 import { usePlaybackRate, usePreferences } from "@/app/preferences.ts";
 import { AppShell, type ExtraSection } from "@/app/shell.tsx";
@@ -27,6 +27,10 @@ import { opening, page, RouteError } from "./page.tsx";
 import type { ReviewTab } from "./review.tsx";
 
 const CoursePage = page(() => import("./course.tsx").then((m) => m.CoursePage));
+// The course's AI practice on its page: loaded when a course is opened.
+const CoursePractice = lazy(() =>
+  import("@/llm/course-practice.tsx").then((m) => ({ default: m.CoursePractice })),
+);
 const ReviewPage = page(() => import("./review.tsx").then((m) => m.ReviewPage));
 const SettingsPage = page(() => import("./settings.tsx").then((m) => m.SettingsPage));
 const ExamPage = page(() => import("@/exams/page.tsx").then((m) => m.ExamPage));
@@ -151,7 +155,7 @@ const course = createRoute({ getParentRoute: () => shell, path: "/course/$series
 course.update({
   component: opening(CoursePage, function Course() {
     const params = course.useParams();
-    return <CoursePage series={params.series} course={params.course} />;
+    return <CoursePage series={params.series} course={params.course} extra={CoursePractice} />;
   }),
 });
 // Review in three tabs, each its own address.

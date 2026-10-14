@@ -1728,5 +1728,26 @@
     "result": "{right, number} z {total, number} kwestii pasuje",
     "modelAnswer": "Wzorcowa odpowiedź",
     "restart": "Zacznij od nowa"
+  },
+  "practice": {
+    "needsModel": "Aby zrobić więcej, potrzebny jest model AI: Ustawienia → Asystent AI.",
+    "checkNeedsModel": "Do sprawdzenia potrzebny jest model AI: Ustawienia → Asystent AI.",
+    "count": "Ile",
+    "times": "×{count, number}",
+    "recorded": "Nagrane przez Qwen3-TTS.",
+    "course": {
+      "title": "Ćwiczenia z AI",
+      "intro": "Teksty, zadania i ich nagrania, zrobione raz dla każdej lekcji i zapisane w kursie: lekcje biorą je bez modelu, a razem z kursem trafiają na twoje inne urządzenia.",
+      "made": "{made, number} z {lessons, number} lekcji ma ćwiczenia.",
+      "variant": "{step}: {count, number}",
+      "progress": "{done, number} z {total, number}",
+      "current": "lekcja {lesson}, {step}",
+      "failed": "{count, plural, one {# nieudany} few {# nieudane} many {# nieudanych} other {# nieudanych}}",
+      "done": "Gotowe: zrobiono {made, number} z {total, number}.",
+      "stopped": "Zatrzymano: zrobiono {made, number} z {total, number}.",
+      "stop": "Zatrzymaj",
+      "make": "Zrób dla wszystkich lekcji",
+      "steps": "Kroki"
+    }
   }
 }

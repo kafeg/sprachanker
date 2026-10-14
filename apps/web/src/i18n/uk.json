@@ -1728,5 +1728,26 @@
     "result": "{right, number} з {total, number} реплік підходять",
     "modelAnswer": "Зразок відповіді",
     "restart": "Почати знову"
+  },
+  "practice": {
+    "needsModel": "Щоб зробити ще, потрібна ШІ-модель: «Налаштування → Асистент ШІ».",
+    "checkNeedsModel": "Щоб перевірити, потрібна ШІ-модель: «Налаштування → Асистент ШІ».",
+    "count": "Скільки",
+    "times": "×{count, number}",
+    "recorded": "Озвучено Qwen3-TTS.",
+    "course": {
+      "title": "ШІ-практика",
+      "intro": "Тексти, завдання та їхня озвучка, зроблені один раз для кожного уроку й збережені в курсі: уроки беруть їх без моделі, і вони переїжджають разом із курсом на інші пристрої.",
+      "made": "Практика є в {made, number} з {lessons, number} уроків.",
+      "variant": "{step}: {count, number}",
+      "progress": "{done, number} з {total, number}",
+      "current": "урок {lesson}, {step}",
+      "failed": "{count, plural, one {# не вдався} few {# не вдалися} many {# не вдалися} other {# не вдалися}}",
+      "done": "Готово: зроблено {made, number} з {total, number}.",
+      "stopped": "Зупинено: зроблено {made, number} з {total, number}.",
+      "stop": "Зупинити",
+      "make": "Зробити для всіх уроків",
+      "steps": "Кроки"
+    }
   }
 }

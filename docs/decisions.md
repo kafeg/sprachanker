@@ -91,6 +91,10 @@ area is built is in its `CLAUDE.md`; work not built yet is in `docs/plan.md`.
 - Every practice text comes from one generator: Reading, Listening, the message Writing answers, and Speaking's role-play (owner, 2026-10-12).
 - Code, not the model, draws the genre and the areas of life, so texts vary across lessons.
 - Three drafts are written side by side and a judge rates them. The best passing draft is kept; otherwise one is rewritten with the judge's problems. The reason: single drafts did not hang together (owner, 2026-10-12).
+- A lesson's AI practice is made once into the course, not per profile (owner, 2026-10-14): it is stored in the library with the course, carried in its bundle and merged on import, and kept when the course is removed. A step takes the next variant the profile has not had, without a model, so a course is studied offline on a phone with only checking online.
+- One variant of each step by default. More are made into the course, 1–3 at a time, from the step's own button, from the course page for every lesson, and by `sprachanker practice`; all three run the same job (owner, 2026-10-14).
+- The practice is recorded with Qwen3-TTS only: Listening's texts and a role-play partner's lines. Without Qwen3-TTS, Listening is not made, and Speaking makes only monologue cards (owner, 2026-10-14).
+- Making a step's work in the background as a lesson starts stays a setting (`llm.preparePractice`); taking a variant already in the course needs none (owner, 2026-10-14).
 
 ## AI assistant
 

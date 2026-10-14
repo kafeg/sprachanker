@@ -1728,5 +1728,26 @@
     "result": "{right, number} répliques sur {total, number} conviennent",
     "modelAnswer": "Réponse modèle",
     "restart": "Recommencer"
+  },
+  "practice": {
+    "needsModel": "Pour en faire plus, il faut un modèle d’IA : Réglages → Assistant IA.",
+    "checkNeedsModel": "Pour vérifier, il faut un modèle d’IA : Réglages → Assistant IA.",
+    "count": "Combien",
+    "times": "×{count, number}",
+    "recorded": "Enregistré avec Qwen3-TTS.",
+    "course": {
+      "title": "Pratique avec l’IA",
+      "intro": "Textes, tâches et leurs enregistrements, faits une fois pour chaque leçon et gardés avec le cours : les leçons les prennent sans le modèle, et ils suivent le cours sur tes autres appareils.",
+      "made": "{made, number} leçons sur {lessons, number} ont de la pratique.",
+      "variant": "{step} : {count, number}",
+      "progress": "{done, number} sur {total, number}",
+      "current": "leçon {lesson}, {step}",
+      "failed": "{count, plural, one {# échec} other {# échecs}}",
+      "done": "Terminé : {made, number} sur {total, number} faits.",
+      "stopped": "Arrêté : {made, number} sur {total, number} faits.",
+      "stop": "Arrêter",
+      "make": "Faire pour toutes les leçons",
+      "steps": "Étapes"
+    }
   }
 }

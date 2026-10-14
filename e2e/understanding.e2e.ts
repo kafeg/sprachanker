@@ -1,8 +1,10 @@
 // Reading and Listening against the fake model
-// (fake-llm.ts, a draft in whatever form the genre drawn asks for), done as an exercise: what the text
-// is, Listening's text heard by the device's (stubbed) voices with the text hidden, the questions
-// answered and checked with the step bar's Check; then the title and the text with its glossed word
-// open; the step done; the text with its answers in the Notebook's pass. Reading's text shown at once.
+// (fake-llm.ts, a draft in whatever form the genre drawn asks for), made into the course's practice
+// and done as an exercise: what the text is, Listening's recording (Qwen3-TTS on paper) in the
+// course's player with the text hidden, the questions answered and checked with the step bar's Check;
+// then the title and the text with its glossed word open; the step done; the text with its answers in
+// the Notebook's pass. Reading's text shown at once. A recording that cannot be had: the text heard by
+// the device's (stubbed) voices.
 import { expect, type Page, test } from "@playwright/test";
 import { DEMO_LESSON, freshLessonRun, openStep, post, put } from "./api.ts";
 import { FAKE_LLM_PORT } from "./fake-llm.ts";
@@ -66,26 +68,31 @@ const LINES = [
   "Bitte sehr, schönen Tag noch!",
 ];
 
+/** The step's text: one of the course's practice opens with the lesson; none yet, one is written. */
+async function textOf(page: Page) {
+  const step = page.locator("article");
+  const write = step.getByRole("button", { name: "Write a text" });
+  const text = step.getByText("FAKE: at a bakery");
+  await expect(write.or(text)).toBeVisible({ timeout: 15_000 });
+  if (await write.isVisible()) await write.click();
+  await expect(text).toBeVisible({ timeout: 15_000 });
+  return step;
+}
+
 test("Listening: what it is, heard, the questions answered and checked; then what it was about and the text; kept and in the Notebook", async ({
   page,
   request,
 }) => {
-  const said = await deviceVoices(page);
   await openStep(page, "Listening");
-  const step = page.locator("article");
-  await step.getByRole("button", { name: "Write a text" }).click();
-  // What it is, nothing of what it says; who reads it; the text hidden.
+  const step = await textOf(page);
+  // What it is, nothing of what it says; the text hidden.
   await expect(step.getByText("FAKE: at a bakery")).toBeVisible();
   await expect(step.getByText("FAKE: Beim Bäcker")).toBeHidden();
-  await expect(step.getByText(/^Read by this device/)).toBeVisible();
   await expect(step.getByText(/Das macht 1,20 Euro/)).toBeHidden();
 
-  // Heard to the end, every line; played again from the start, as often as wanted.
-  await step.getByRole("button", { name: "Listen" }).click();
-  await expect(step.getByText("Heard once")).toBeVisible();
-  expect(((await said()) as Array<{ text: string }>).map((s) => s.text)).toEqual(LINES);
-  await step.getByRole("button", { name: "Listen" }).click();
-  await expect(step.getByText("Heard 2 times")).toBeVisible();
+  // Recorded with the course's practice (Qwen3-TTS on paper): played in the course's player.
+  await expect(step.getByText("Recorded with Qwen3-TTS.")).toBeVisible();
+  await expect(step.getByRole("button", { name: "Play: The recording" })).toBeVisible();
 
   // Answered: true/false wrong, the price typed (in digits), the time and what she buys chosen —
   // nothing checked until Check.
@@ -125,18 +132,20 @@ test("Listening: what it is, heard, the questions answered and checked; then wha
   // The pass in the Notebook: the text with its answers.
   const runId = (await lessonRun()).run.id;
   await page.goto(`/notebook/${DEMO_LESSON}?pass=${runId}`);
-  const text = page.locator("summary", { hasText: "FAKE: Beim Bäcker" });
-  await expect(text).toContainText("3 of 4 right");
+  // Reading's text is in the pass too: the lesson took it from the course's practice as it started.
+  const text = page.locator("summary", { hasText: "FAKE: Beim Bäcker · 3 of 4 right" });
+  await expect(text).toBeVisible();
   await text.click();
-  await expect(page.getByText("Wann gibt es wieder Kaffee?")).toBeVisible();
+  await expect(
+    page.locator("details", { has: text }).getByText("Wann gibt es wieder Kaffee?"),
+  ).toBeVisible();
 });
 
 test("Reading: the text shown at once with its questions, nothing to listen to; checked with Check", async ({
   page,
 }) => {
   await openStep(page, "Reading");
-  const step = page.locator("article");
-  await step.getByRole("button", { name: "Write a text" }).click();
+  const step = await textOf(page);
   await expect(step.getByText("FAKE: at a bakery")).toBeVisible();
   await expect(step.getByText(/Das macht 1,20 Euro/)).toBeVisible();
   await expect(step.getByRole("button", { name: "Listen" })).toBeHidden();
@@ -150,10 +159,8 @@ test("Reading: the text shown at once with its questions, nothing to listen to; 
 });
 
 test("a text written again is listed under the new one with its score", async ({ page }) => {
-  await deviceVoices(page);
   await openStep(page, "Listening");
-  const step = page.locator("article");
-  await step.getByRole("button", { name: "Write a text" }).click();
+  const step = await textOf(page);
   await step.getByRole("button", { name: "Falsch" }).click();
   await step.getByPlaceholder("in digits").fill("9");
   await step.getByRole("button", { name: "am Abend" }).click();
@@ -166,4 +173,23 @@ test("a text written again is listed under the new one with its score", async ({
   await earlier.click();
   await expect(earlier).toHaveAttribute("aria-expanded", "true");
   await expect(step.getByText(/Das macht 1,20 Euro/).first()).toBeVisible();
+});
+
+test("Listening whose recording cannot be had, nothing on the server to read it again: heard by the device's voices, line by line", async ({
+  page,
+}) => {
+  const said = await deviceVoices(page);
+  await page.route("**/api/llm/understanding/audio?*", (route) =>
+    route.fulfill({ status: 409, json: { error: "speech_unavailable" } }),
+  );
+  await openStep(page, "Listening");
+  const step = await textOf(page);
+  await expect(step.getByText(/^Read by this device/)).toBeVisible({ timeout: 15_000 });
+  await expect(step.getByText(/Das macht 1,20 Euro/)).toBeHidden();
+  // Heard to the end, every line; played again from the start, as often as wanted.
+  await step.getByRole("button", { name: "Listen" }).click();
+  await expect(step.getByText("Heard once")).toBeVisible();
+  expect(((await said()) as Array<{ text: string }>).map((s) => s.text)).toEqual(LINES);
+  await step.getByRole("button", { name: "Listen" }).click();
+  await expect(step.getByText("Heard 2 times")).toBeVisible();
 });

@@ -23,7 +23,8 @@ src/
                      # (whisper-server and Qwen3-TTS's tts-server), piper.ts (Piper's voices and
                      # runs), readings.ts (what was read aloud, kept in cache/tts; one asked twice
                      # made once, stopped once no request waits for it);
-                     # backup.ts (a copy of each database a day; a backup on request into a folder);
+                     # practice.ts (a course's practice written: course-kit's addPractice under the
+                     # series' lock); backup.ts (a copy of each database a day; a backup on request into a folder);
                      # transfers.ts (transfer folders: swept, room on the disk, a file received or
                      # saved, a zip streamed — course-kit's zip.ts); profile-transfer.ts (profile files
                      # in profiles/.transfers: a snapshot streamed as a zip, a file read by its zip
@@ -92,7 +93,10 @@ src/
                      #   at) shared; explain, text-maker (the text generator: drafts side by side, rated, written again),
                      #   understanding (Reading's and Listening's texts: questions read again, voices given, read ahead,
                      #   a recording joined by wav.ts), writing (a message answered: a task, a text checked), talk (Speaking:
-                     #   a monologue card or a role-play, what was said checked), practice-prep (made ahead as a lesson starts),
+                     #   a monologue card or a role-play, what was said checked); practice (a course's practice:
+                     #   variants made into it, the next untaken taken — keeping a verdict —, read by the
+                     #   steps above), practice-jobs (a course's edition made in one go: the server's
+                     #   jobs, stopped on request), practice-prep (taken, or made ahead, as a lesson starts),
                      #   going-over (the pass's mistakes by type, new items checked by the engine), speaking, tutor (+ tutor-tools,
                      #   courses-context), scene (the Dialogue: out of the lesson, its runs read), exam-rating, exam-conversation (a speaking part's script), examples
                      # - speech: speech (whisper-server; silence: a take's loudness, what is not speech of

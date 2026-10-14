@@ -1728,5 +1728,26 @@
     "result": "{right, number} از {total, number} جمله مناسب است",
     "modelAnswer": "پاسخ نمونه",
     "restart": "شروع دوباره"
+  },
+  "practice": {
+    "needsModel": "برای ساختن بیشتر یک مدل هوش مصنوعی لازم است: تنظیمات ← دستیار هوش مصنوعی.",
+    "checkNeedsModel": "برای بررسی یک مدل هوش مصنوعی لازم است: تنظیمات ← دستیار هوش مصنوعی.",
+    "count": "چند تا",
+    "times": "×{count, number}",
+    "recorded": "ضبط‌شده با Qwen3-TTS.",
+    "course": {
+      "title": "تمرین با هوش مصنوعی",
+      "intro": "متن‌ها، تکلیف‌ها و صدای آن‌ها، یک بار برای هر درس ساخته و در دوره نگه داشته می‌شوند: درس‌ها بدون مدل آن‌ها را برمی‌دارند و با دوره به دستگاه‌های دیگرت می‌روند.",
+      "made": "{made, number} از {lessons, number} درس تمرین دارند.",
+      "variant": "{step}: {count, number}",
+      "progress": "{done, number} از {total, number}",
+      "current": "درس {lesson}، {step}",
+      "failed": "{count, plural, one {# ناموفق} other {# ناموفق}}",
+      "done": "تمام: {made, number} از {total, number} ساخته شد.",
+      "stopped": "متوقف شد: {made, number} از {total, number} ساخته شد.",
+      "stop": "توقف",
+      "make": "ساختن برای همهٔ درس‌ها",
+      "steps": "مرحله‌ها"
+    }
   }
 }

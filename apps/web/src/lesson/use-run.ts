@@ -107,7 +107,9 @@ export function useRun(series: string, lessonKey: string, edition: string | unde
       : state.run.status === "active"
         ? "active"
         : "finished";
-  const resumePage = state?.events.length ? state.resumePage : -1;
+  // Resumed once the learner did something besides the AI's work kept in the run (a step's practice
+  // taken from the course's as the lesson started, a text checked): only exercise pages resume.
+  const resumePage = state?.events.some((e) => e.type !== "llm_verdict") ? state.resumePage : -1;
   /** The events as of now, for callers holding an older render (a model's answer arriving later). */
   const latest = useRef(events);
   latest.current = events;

@@ -2,7 +2,7 @@ import { tmpdir } from "node:os";
 import { resolve } from "node:path";
 import { defineConfig, devices } from "@playwright/test";
 import { FAKE_LLM_PORT } from "./fake-llm.ts";
-import { E2E_DATA, E2E_PIPER, SIGNED_IN } from "./paths.ts";
+import { E2E_DATA, E2E_PIPER, E2E_QWEN, SIGNED_IN } from "./paths.ts";
 
 const PORT = 4590;
 const ALL = !!process.env.CI || !!process.env.E2E_ALL;
@@ -32,8 +32,13 @@ export default defineConfig({
     {
       command: `"${binary}" serve --port ${PORT} --data "${E2E_DATA}"`,
       cwd: tmpdir(),
-      // Piper on paper (fixture-data.ts): a deck's words read aloud without the real engine.
-      env: { ...(process.env as Record<string, string>), SPRACHANKER_PIPER: E2E_PIPER },
+      // Piper and Qwen3-TTS on paper (fixture-data.ts): words read aloud, practice recorded, without
+      // the real engines.
+      env: {
+        ...(process.env as Record<string, string>),
+        SPRACHANKER_PIPER: E2E_PIPER,
+        SPRACHANKER_QWEN: E2E_QWEN,
+      },
       url: `http://127.0.0.1:${PORT}/api/health`,
       reuseExistingServer: !process.env.CI,
     },

@@ -161,10 +161,20 @@ export async function read(
   options: ReadOptions,
 ): Promise<boolean> {
   cancelRun();
-  const queue = parts.flatMap(({ text, lang, alt, voice }) => {
-    const way = options.wayFor(lang, alt, voice);
-    return way ? pieces(text).map((piece) => ({ text: piece, lang, way })) : [];
-  });
+  const queue = parts.flatMap(
+    ({
+      text,
+      lang,
+      alt,
+      voice,
+      src,
+    }): Array<{ text: string; lang: string; way: Way | { recording: string; instead?: Way } }> => {
+      const way = options.wayFor(lang, alt, voice);
+      // A recording, read by a voice instead where it cannot be had.
+      if (src) return [{ text, lang, way: { recording: src, ...(way && { instead: way }) } }];
+      return way ? pieces(text).map((piece) => ({ text: piece, lang, way })) : [];
+    },
+  );
   if (!queue.length) return false;
   // Another reading than the one asked for ahead (a word's "listen" while a text is listened to):
   // what was asked for ahead goes, but its own pieces.
@@ -224,7 +234,28 @@ export async function read(
       fetchAt(i);
       fetchAt(queue.findIndex((p, j) => j > i && "server" in p.way));
       const way = piece.way;
-      if ("server" in way) {
+      if ("recording" in way) {
+        const kept = await awaited(
+          fetch(way.recording, { signal: controller.signal })
+            .then((r) => (r.ok ? r.blob() : undefined))
+            .catch(() => undefined),
+        );
+        if (!live()) return false;
+        const instead = way.instead;
+        if (kept) await play(kept, stopped);
+        else if (instead && "server" in instead) {
+          const wav = await awaited(
+            sayOnServer(piece.text, piece.lang, {
+              ...instead.server,
+              signal: controller.signal,
+            }).catch(() => undefined),
+          );
+          if (!live()) return false;
+          if (wav) await play(wav, stopped);
+          else if (instead.fallback)
+            await sayOnDevice(piece.text, piece.lang, instead.fallback, stopped);
+        } else if (instead) await sayOnDevice(piece.text, piece.lang, instead, stopped);
+      } else if ("server" in way) {
         const wav = await awaited(fetched.get(i));
         if (!live()) return false;
         if (wav) await play(wav, stopped);

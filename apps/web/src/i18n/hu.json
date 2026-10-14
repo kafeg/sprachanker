@@ -1728,5 +1728,26 @@
     "result": "{total, number} mondatból {right, number} megfelel",
     "modelAnswer": "Mintaválasz",
     "restart": "Újrakezdés"
+  },
+  "practice": {
+    "needsModel": "Továbbiakhoz MI-modell kell: Beállítások → MI-asszisztens.",
+    "checkNeedsModel": "Az ellenőrzéshez MI-modell kell: Beállítások → MI-asszisztens.",
+    "count": "Hány",
+    "times": "×{count, number}",
+    "recorded": "Qwen3-TTS-sel felvéve.",
+    "course": {
+      "title": "Gyakorlás MI-vel",
+      "intro": "Szövegek, feladatok és felvételeik, minden leckéhez egyszer elkészítve és a kurzussal együtt tárolva: a leckék modell nélkül veszik elő őket, és a kurzussal együtt a többi eszközödre is átkerülnek.",
+      "made": "{lessons, number} leckéből {made, number} leckének van gyakorlása.",
+      "variant": "{step}: {count, number}",
+      "progress": "{done, number} / {total, number}",
+      "current": "{lesson}. lecke, {step}",
+      "failed": "{count, plural, one {# sikertelen} other {# sikertelen}}",
+      "done": "Kész: {total, number} közül {made, number} elkészült.",
+      "stopped": "Leállítva: {total, number} közül {made, number} elkészült.",
+      "stop": "Leállítás",
+      "make": "Elkészítés minden leckéhez",
+      "steps": "Lépések"
+    }
   }
 }

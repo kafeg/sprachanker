@@ -44,9 +44,14 @@ export interface LessonSlots {
   /** AI practice as steps of the plan (Reading, Listening, Writing, Speaking), while an assistant is
    *  set up. */
   practice?: {
-    /** The kinds offered now, undefined while that is not known yet (the player waits: the flow
-     *  resumes on a step only once it knows every step); a hook, called on every render. */
-    useKinds(): readonly PracticeKind[] | undefined;
+    /** The kinds offered now in the lesson, undefined while that is not known yet (the player
+     *  waits: the flow resumes on a step only once it knows every step; the edition, once chosen); a
+     *  hook, called on every render. */
+    useKinds(lesson: {
+      series: string;
+      lessonKey: string;
+      edition?: string;
+    }): readonly PracticeKind[] | undefined;
     /** A practice step's page in the run the lesson shows; `onDone` once the learner has done it (a
      *  text checked, a task said, every question answered); `onStored` once it kept an answer in the
      *  run — the run is read again, resolved once read (its mark follows it). */

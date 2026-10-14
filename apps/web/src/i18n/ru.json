@@ -1728,5 +1728,26 @@
     "result": "{right, number} из {total, number} реплик подходят",
     "modelAnswer": "Образец ответа",
     "restart": "Начать заново"
+  },
+  "practice": {
+    "needsModel": "Чтобы сделать ещё, нужна ИИ-модель: «Настройки → ИИ-помощник».",
+    "checkNeedsModel": "Чтобы проверить, нужна ИИ-модель: «Настройки → ИИ-помощник».",
+    "count": "Сколько",
+    "times": "×{count, number}",
+    "recorded": "Озвучено Qwen3-TTS.",
+    "course": {
+      "title": "ИИ-практика",
+      "intro": "Тексты, задания и их озвучка, сделанные один раз для каждого урока и хранящиеся в курсе: уроки берут их без модели, и они переезжают вместе с курсом на другие устройства.",
+      "made": "Практика есть в {made, number} из {lessons, number} уроков.",
+      "variant": "{step}: {count, number}",
+      "progress": "{done, number} из {total, number}",
+      "current": "урок {lesson}, {step}",
+      "failed": "{count, plural, one {# не удался} few {# не удались} many {# не удались} other {# не удались}}",
+      "done": "Готово: сделано {made, number} из {total, number}.",
+      "stopped": "Остановлено: сделано {made, number} из {total, number}.",
+      "stop": "Остановить",
+      "make": "Сделать для всех уроков",
+      "steps": "Шаги"
+    }
   }
 }

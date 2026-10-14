@@ -1728,5 +1728,26 @@
     "result": "{right, number} de {total, number} frases encajan",
     "modelAnswer": "Respuesta modelo",
     "restart": "Empezar de nuevo"
+  },
+  "practice": {
+    "needsModel": "Para hacer más se necesita un modelo de IA: Ajustes → Asistente de IA.",
+    "checkNeedsModel": "Para comprobar se necesita un modelo de IA: Ajustes → Asistente de IA.",
+    "count": "Cuántos",
+    "times": "×{count, number}",
+    "recorded": "Grabado con Qwen3-TTS.",
+    "course": {
+      "title": "Práctica con IA",
+      "intro": "Textos, tareas y sus grabaciones, hechos una vez para cada lección y guardados con el curso: las lecciones los toman sin el modelo y viajan con el curso a tus otros dispositivos.",
+      "made": "{made, number} de {lessons, number} lecciones tienen práctica.",
+      "variant": "{step}: {count, number}",
+      "progress": "{done, number} de {total, number}",
+      "current": "lección {lesson}, {step}",
+      "failed": "{count, plural, one {# falló} other {# fallaron}}",
+      "done": "Listo: {made, number} de {total, number} hechos.",
+      "stopped": "Detenido: {made, number} de {total, number} hechos.",
+      "stop": "Detener",
+      "make": "Hacer para todas las lecciones",
+      "steps": "Pasos"
+    }
   }
 }

@@ -1728,5 +1728,26 @@
     "result": "{total, number} 句中有 {right, number} 句合适",
     "modelAnswer": "参考答案",
     "restart": "重新开始"
+  },
+  "practice": {
+    "needsModel": "要制作更多，需要一个 AI 模型：设置 → AI 助手。",
+    "checkNeedsModel": "要检查，需要一个 AI 模型：设置 → AI 助手。",
+    "count": "数量",
+    "times": "×{count, number}",
+    "recorded": "由 Qwen3-TTS 录制。",
+    "course": {
+      "title": "AI 练习",
+      "intro": "为每课制作一次的文本、任务及其录音，随课程保存：各课无需模型即可取用，并随课程转到你的其他设备。",
+      "made": "{lessons, number} 课中有 {made, number} 课已有练习。",
+      "variant": "{step}：{count, number}",
+      "progress": "{done, number} / {total, number}",
+      "current": "第 {lesson} 课，{step}",
+      "failed": "{count, plural, other {# 个失败}}",
+      "done": "完成：已制作 {made, number} / {total, number}。",
+      "stopped": "已停止：已制作 {made, number} / {total, number}。",
+      "stop": "停止",
+      "make": "为所有课程制作",
+      "steps": "步骤"
+    }
   }
 }

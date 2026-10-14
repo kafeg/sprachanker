@@ -1728,5 +1728,26 @@
     "result": "{right, number} de {total, number} falas servem",
     "modelAnswer": "Resposta modelo",
     "restart": "Recomeçar"
+  },
+  "practice": {
+    "needsModel": "Para fazer mais, é preciso um modelo de IA: Configurações → Assistente de IA.",
+    "checkNeedsModel": "Para verificar, é preciso um modelo de IA: Configurações → Assistente de IA.",
+    "count": "Quantos",
+    "times": "×{count, number}",
+    "recorded": "Gravado com o Qwen3-TTS.",
+    "course": {
+      "title": "Prática com IA",
+      "intro": "Textos, tarefas e suas gravações, feitos uma vez para cada lição e guardados com o curso: as lições os pegam sem o modelo, e eles vão com o curso para seus outros dispositivos.",
+      "made": "{made, number} de {lessons, number} lições têm prática.",
+      "variant": "{step}: {count, number}",
+      "progress": "{done, number} de {total, number}",
+      "current": "lição {lesson}, {step}",
+      "failed": "{count, plural, one {# falhou} other {# falharam}}",
+      "done": "Pronto: {made, number} de {total, number} feitos.",
+      "stopped": "Parado: {made, number} de {total, number} feitos.",
+      "stop": "Parar",
+      "make": "Fazer para todas as lições",
+      "steps": "Etapas"
+    }
   }
 }

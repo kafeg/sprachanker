@@ -6,7 +6,7 @@
 // any text can be taken back into the editor to fix it and check it again; "New task" sets another.
 import { wordCount } from "@sprachanker/engine";
 import { type LessonKey, type WritingTask as Task, WRITING_MAX } from "@sprachanker/schema";
-import { NotebookPen, PenLine, RefreshCw } from "lucide-react";
+import { NotebookPen, PenLine } from "lucide-react";
 import { useEffect, useRef, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { languageName } from "@/i18n/index.ts";
@@ -31,6 +31,7 @@ import {
 } from "./api.ts";
 import { AssistantLabel, modelName } from "./assistant-label.tsx";
 import { ErrorLine, StartPrompt, Thinking } from "./parts.tsx";
+import { MoreButton } from "./practice-more.tsx";
 import { PromptButton } from "./prompt-view.tsx";
 import { useLlm } from "./setup-api.ts";
 
@@ -281,21 +282,26 @@ export function WritingTask({
   // Check in the step bar while a text is written (waiting while it is checked); Next otherwise.
   const ready = !!text.trim() && !!state.data?.task && !state.data.preparing;
   const busy = check.isPending || !!state.data?.checking;
+  // A task of the course's practice is done without a model; checking it needs one.
+  const noModel = !llm.isPending && !llm.data?.model;
   useEffect(() => {
     setPrimary?.(
-      ready ? { label: t("writing.check"), disabled: busy, run: () => submit.current() } : null,
+      ready
+        ? { label: t("writing.check"), disabled: busy || noModel, run: () => submit.current() }
+        : null,
     );
-  }, [setPrimary, ready, busy, t]);
+  }, [setPrimary, ready, busy, noModel, t]);
   useEffect(() => () => setPrimary?.(null), [setPrimary]);
-  if (!llm.data?.model || !state.data) return null;
+  // A task of the course's practice is there without a model; making one, and checking, need it.
+  if (!state.data || (!llm.data?.model && !state.data.task)) return null;
   const { task, words, attempts } = state.data;
   const [latest, ...past] = attempts;
   const ids = { series, lessonKey, edition, language: i18n.language };
   // Asked from here, or still running on the server since before this page was opened.
   const checking = check.isPending ? check.variables.text : state.data.checking;
   const preparing = newTask.isPending || state.data.preparing;
-  const write = () => {
-    if (!preparing && !checking) newTask.mutate(ids);
+  const write = (count = 1) => {
+    if (!preparing && !checking) newTask.mutate({ ...ids, count });
   };
   // A text back in the editor, to fix it after the corrections and check it again.
   const rewrite = (attempt: WritingAttempt) => {
@@ -318,18 +324,19 @@ export function WritingTask({
             <p className="me-auto font-medium">
               {t("writing.task", { language: languageName(lang, i18n.language) })}
             </p>
-            <Button
-              variant="outline"
-              size="sm"
-              loading={preparing}
-              disabled={preparing || !!checking}
-              onClick={write}
-            >
-              {!preparing && <RefreshCw className="size-4" />}
-              {preparing ? t("writing.preparing") : t("writing.newTask")}
-            </Button>
+            <MoreButton
+              label={t("writing.newTask")}
+              busyLabel={t("writing.preparing")}
+              preparing={preparing}
+              disabled={!!checking}
+              edition={edition}
+              onMake={write}
+            />
           </div>
           <TaskText task={task.result} />
+          {noModel && (
+            <p className="text-sm text-muted-foreground">{t("practice.checkNeedsModel")}</p>
+          )}
           {words.length > 0 && (
             <div className="flex flex-wrap gap-1.5">
               {words.slice(0, 14).map((w) => (
@@ -385,7 +392,7 @@ export function WritingTask({
             label={preparing ? t("writing.preparing") : t("writing.start")}
             icon={NotebookPen}
             loading={preparing}
-            onStart={write}
+            onStart={() => write()}
           />
           <div className="flex flex-wrap items-center gap-2">
             <PromptButton request={() => ({ writing: { ...ids, text: "" } })} />
@@ -394,7 +401,7 @@ export function WritingTask({
           {preparing && <Thinking label={t("writing.step.task")} className="text-sm" />}
           <ErrorLine
             error={busyMaking(newTask.error) ? null : newTask.error}
-            onRetry={preparing ? undefined : write}
+            onRetry={preparing ? undefined : () => write()}
           />
         </Panel>
       )}

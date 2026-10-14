@@ -340,24 +340,26 @@ export function createUnderstanding(deps: {
       return texts(request.lessonKey).find((t) => t.id === request.id) as Understood;
     },
 
-    /** A text's recording: the one made with the course's practice; a text before it, its lines
-     *  read by its people's voices with pauses between, one WAV (the server's engine reads the
-     *  language, else 409). */
+    /** A text's recording: the one made with the course's practice — not here (a bundle without
+     *  it), read again as it was made —; a text before it, its lines read by its people's voices
+     *  with pauses between, one WAV (the server's engine reads the language, else 409). */
     async audio(lessonKey: LessonKey, id: string): Promise<Uint8Array<ArrayBuffer>> {
       const event = store.event(id);
       const run = event && store.get(event.runId, "lesson", lessonKey);
       if (!run?.edition || event?.type !== "llm_verdict" || event.payload.task !== "understanding")
         throw new ServiceError("no_such_item", 404);
       const text = event.payload.result;
+      const lang = parseEditionId(run.edition).target;
+      const reader = text.recording ? deps.reader?.(lang) : undefined;
       if (text.recording) {
         const series = parseLessonKey(lessonKey).course.split("/")[0] as string;
         const kept = await deps.recording?.(series, text.recording);
-        if (!kept) throw new ServiceError("no_such_item", 404);
-        return new Uint8Array(kept);
+        if (kept) return new Uint8Array(kept);
       }
-      const lang = parseEditionId(run.edition).target;
-      const say = deps.say;
-      const here = deps.voices?.(lang);
+      const say = reader
+        ? (piece: string, _: string, voice?: string) => reader.read(piece, voice ?? "")
+        : deps.say;
+      const here = reader ? { engine: reader.engine, voices: reader.voices } : deps.voices?.(lang);
       if (!say || !here) throw new ServiceError("speech_unavailable", 409);
       const parts: Array<{ wav: Uint8Array; pauseMs: number }> = [];
       for (const { piece, voice, pauseMs } of pieces(id, text, here))

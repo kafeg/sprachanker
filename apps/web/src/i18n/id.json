@@ -1728,5 +1728,26 @@
     "result": "{right, number} dari {total, number} kalimat pas",
     "modelAnswer": "Contoh jawaban",
     "restart": "Mulai lagi"
+  },
+  "practice": {
+    "needsModel": "Untuk membuat lebih banyak perlu model AI: Pengaturan → Asisten AI.",
+    "checkNeedsModel": "Untuk memeriksa perlu model AI: Pengaturan → Asisten AI.",
+    "count": "Berapa",
+    "times": "×{count, number}",
+    "recorded": "Direkam dengan Qwen3-TTS.",
+    "course": {
+      "title": "Latihan AI",
+      "intro": "Teks, tugas, dan rekamannya, dibuat sekali untuk tiap pelajaran dan disimpan bersama kursus: pelajaran memakainya tanpa model, dan semuanya ikut kursus ke perangkatmu yang lain.",
+      "made": "{made, number} dari {lessons, number} pelajaran punya latihan.",
+      "variant": "{step}: {count, number}",
+      "progress": "{done, number} dari {total, number}",
+      "current": "pelajaran {lesson}, {step}",
+      "failed": "{count, plural, other {# gagal}}",
+      "done": "Selesai: {made, number} dari {total, number} dibuat.",
+      "stopped": "Dihentikan: {made, number} dari {total, number} dibuat.",
+      "stop": "Hentikan",
+      "make": "Buat untuk semua pelajaran",
+      "steps": "Langkah"
+    }
   }
 }

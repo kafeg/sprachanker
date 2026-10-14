@@ -49,7 +49,7 @@ export function LessonPlayer({
   const data = useLesson(series, key, edition);
   const map = useCourseMap(series, course, edition);
   const run = useRun(series, key, edition);
-  const practice = slots.practice?.useKinds();
+  const practice = slots.practice?.useKinds({ series, lessonKey: key, edition });
   const explains = slots.explain?.useOn() ?? false;
   const flow = useLessonFlow({
     lesson: data.data?.lesson,

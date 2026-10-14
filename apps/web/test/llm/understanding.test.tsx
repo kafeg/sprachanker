@@ -102,6 +102,8 @@ const step = (
         [["settings"], { "speech.readEngine": "piper" }],
         [["piper-voices"], voices],
         [["understanding", ids.lessonKey, which], { texts, preparing: false }],
+        // The server records a Listening text (Qwen3-TTS reads the language).
+        [["practice-voice", ids.edition], { voice: true }],
         // The recording, made by the server (as a URL for the player).
         [["understanding-audio", "01K7A0Z8ZQ4J1V2W3X4Y5Z6A70"], "blob:recording"],
       ],

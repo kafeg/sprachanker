@@ -1728,5 +1728,26 @@
     "result": "{right, number} din {total, number} replici se potrivesc",
     "modelAnswer": "Răspuns model",
     "restart": "Începe din nou"
+  },
+  "practice": {
+    "needsModel": "Pentru mai mult e nevoie de un model AI: Setări → Asistent AI.",
+    "checkNeedsModel": "Pentru verificare e nevoie de un model AI: Setări → Asistent AI.",
+    "count": "Câte",
+    "times": "×{count, number}",
+    "recorded": "Înregistrat cu Qwen3-TTS.",
+    "course": {
+      "title": "Exersare cu AI",
+      "intro": "Texte, sarcini și înregistrările lor, făcute o dată pentru fiecare lecție și păstrate cu cursul: lecțiile le iau fără model, iar ele merg cu cursul pe celelalte dispozitive ale tale.",
+      "made": "{made, number} din {lessons, number} lecții au exersare.",
+      "variant": "{step}: {count, number}",
+      "progress": "{done, number} din {total, number}",
+      "current": "lecția {lesson}, {step}",
+      "failed": "{count, plural, one {# eșuat} few {# eșuate} other {# eșuate}}",
+      "done": "Gata: făcute {made, number} din {total, number}.",
+      "stopped": "Oprit: făcute {made, number} din {total, number}.",
+      "stop": "Oprește",
+      "make": "Fă pentru toate lecțiile",
+      "steps": "Pași"
+    }
   }
 }

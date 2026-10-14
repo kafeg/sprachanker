@@ -12,6 +12,8 @@ export interface SpokenPart {
   /** A server voice to read it with, by its id (a text's person's): where the server reads the
    *  language; elsewhere `alt` says which other voice. */
   voice?: string;
+  /** Its recording, made with the course's practice: played as it is, read by no voice. */
+  src?: string;
 }
 export type { Alt };
 

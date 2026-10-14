@@ -670,3 +670,64 @@ export const useCardExamples = (cardId: string, deck: string, enabled = true) =>
     enabled,
     queryFn: () => json(api.cards[":id"].examples.$get({ param: { id: cardId }, query: { deck } })),
   });
+
+type PracticeCourse = { series: string; course: string; edition: string };
+type PracticeStart = Parameters<typeof api.llm.practice.$post>[0]["json"];
+const practiceKey = ({ series, course, edition }: PracticeCourse) => [
+  "practice",
+  series,
+  course,
+  edition,
+];
+
+/** A course's practice: how much of each step there is, the job making it — asked again while one
+ *  runs. */
+export const usePracticeCourse = (what: PracticeCourse) =>
+  useQuery({
+    queryKey: practiceKey(what),
+    queryFn: () => json(api.llm.practice.$get({ query: what })),
+    refetchInterval: (query) =>
+      query.state.data?.job?.state === "running" || query.state.data?.job?.state === "stopping"
+        ? WHILE_BUSY
+        : false,
+  });
+
+/** Starts making a course's practice; its state read again. */
+export function useStartPracticeCourse() {
+  const client = useQueryClient();
+  return useMutation({
+    mutationFn: (request: PracticeStart) => json(api.llm.practice.$post({ json: request })),
+    onSettled: (_job, _error, request) =>
+      client.invalidateQueries({ queryKey: practiceKey(request) }),
+  });
+}
+
+/** Stops making a course's practice after the step being made. */
+export function useStopPracticeCourse() {
+  const client = useQueryClient();
+  return useMutation({
+    mutationFn: (request: PracticeCourse) => json(api.llm.practice.stop.$post({ json: request })),
+    onSettled: (_job, _error, request) =>
+      client.invalidateQueries({ queryKey: practiceKey(request) }),
+  });
+}
+
+/** Whether the server records an edition's practice (Qwen3-TTS reads its language); asked only
+ *  where it matters (`enabled`). */
+/** How many variants of each step a lesson's practice has in the course. */
+export const usePracticeLesson = (
+  what: { series: string; lessonKey: string; edition: string },
+  enabled = true,
+) =>
+  useQuery({
+    queryKey: ["practice-lesson", what.series, what.lessonKey, what.edition],
+    enabled,
+    queryFn: () => json(api.llm.practice.lesson.$get({ query: what })),
+  });
+
+export const usePracticeVoice = (edition: string, enabled = true) =>
+  useQuery({
+    queryKey: ["practice-voice", edition],
+    enabled,
+    queryFn: () => json(api.llm.practice.voice.$get({ query: { edition } })),
+  });

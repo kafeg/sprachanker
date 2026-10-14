@@ -333,6 +333,28 @@ test("a piece the server cannot say is said by the device's voice", async () => 
   }
 });
 
+test("a recording that cannot be had: its line said by a voice instead", async () => {
+  const realFetch = globalThis.fetch;
+  const asked: string[] = [];
+  globalThis.fetch = (async (input: RequestInfo | URL) => {
+    asked.push(String(input));
+    return new Response(null, { status: 404 });
+  }) as unknown as typeof fetch;
+  try {
+    const view = await renderApp(
+      <SpeakButton
+        parts={[{ text: "Hier bitte.", lang: "de", src: "/library/s/practice/x/1.wav" }]}
+        label="x"
+      />,
+    );
+    fireEvent.click(view.getByRole("button", { name: "Read aloud: x" }));
+    await waitFor(() => expect(said.map((s) => s.text)).toEqual(["Hier bitte."]));
+    expect(asked).toEqual(["/library/s/practice/x/1.wav"]);
+  } finally {
+    globalThis.fetch = realFetch;
+  }
+});
+
 test("Settings with Qwen3-TTS: its models (the one in use), each language's speaker; a language it lacks said so", async () => {
   const view = await renderApp(<ReadAloud />, {
     data: [

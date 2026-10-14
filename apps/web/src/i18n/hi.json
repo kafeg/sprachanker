@@ -1728,5 +1728,26 @@
     "result": "{total, number} में से {right, number} वाक्य ठीक हैं",
     "modelAnswer": "आदर्श उत्तर",
     "restart": "फिर से शुरू करें"
+  },
+  "practice": {
+    "needsModel": "और बनाने के लिए एक AI मॉडल चाहिए: सेटिंग्स → AI सहायक।",
+    "checkNeedsModel": "जाँचने के लिए एक AI मॉडल चाहिए: सेटिंग्स → AI सहायक।",
+    "count": "कितने",
+    "times": "×{count, number}",
+    "recorded": "Qwen3-TTS से रिकॉर्ड किया गया।",
+    "course": {
+      "title": "AI अभ्यास",
+      "intro": "हर पाठ के लिए एक बार बनाए गए और कोर्स के साथ रखे गए पाठ, काम और उनकी रिकॉर्डिंग: पाठ इन्हें बिना मॉडल के लेते हैं, और ये कोर्स के साथ तुम्हारे दूसरे डिवाइस पर जाते हैं।",
+      "made": "{lessons, number} में से {made, number} पाठों में अभ्यास है।",
+      "variant": "{step}: {count, number}",
+      "progress": "{total, number} में से {done, number}",
+      "current": "पाठ {lesson}, {step}",
+      "failed": "{count, plural, one {# विफल} other {# विफल}}",
+      "done": "हो गया: {total, number} में से {made, number} बने।",
+      "stopped": "रोका गया: {total, number} में से {made, number} बने।",
+      "stop": "रोको",
+      "make": "सभी पाठों के लिए बनाओ",
+      "steps": "चरण"
+    }
   }
 }

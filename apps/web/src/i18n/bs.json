@@ -1728,5 +1728,26 @@
     "result": "{right, number} od {total, number} replika odgovara",
     "modelAnswer": "Uzorak odgovora",
     "restart": "Počni ponovo"
+  },
+  "practice": {
+    "needsModel": "Za više je potreban AI model: Postavke → AI asistent.",
+    "checkNeedsModel": "Za provjeru je potreban AI model: Postavke → AI asistent.",
+    "count": "Koliko",
+    "times": "×{count, number}",
+    "recorded": "Snimljeno pomoću Qwen3-TTS.",
+    "course": {
+      "title": "AI vježbe",
+      "intro": "Tekstovi, zadaci i njihovi snimci, napravljeni jednom za svaku lekciju i čuvani uz kurs: lekcije ih uzimaju bez modela, a s kursom idu i na tvoje druge uređaje.",
+      "made": "{made, number} od {lessons, number} lekcija ima vježbe.",
+      "variant": "{step}: {count, number}",
+      "progress": "{done, number} od {total, number}",
+      "current": "lekcija {lesson}, {step}",
+      "failed": "{count, plural, one {# nije uspio} few {# nisu uspjela} other {# nije uspjelo}}",
+      "done": "Gotovo: napravljeno {made, number} od {total, number}.",
+      "stopped": "Zaustavljeno: napravljeno {made, number} od {total, number}.",
+      "stop": "Zaustavi",
+      "make": "Napravi za sve lekcije",
+      "steps": "Koraci"
+    }
   }
 }

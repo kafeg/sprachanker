@@ -16,3 +16,7 @@ export const E2E_DECK = join(tmpdir(), "sprachanker-e2e-deck.apkg");
 export const E2E_PIPER = join(tmpdir(), "sprachanker-e2e-piper.sh");
 /** The voice it reads German with, "installed" in the e2e data root. */
 export const E2E_VOICE = "de_DE-thorsten-medium";
+
+/** Qwen3-TTS's tts-server on paper (written by fixture-data.ts, named to the server by
+ *  SPRACHANKER_QWEN): a short silent WAV for any text; its small model "installed" beside it. */
+export const E2E_QWEN = join(tmpdir(), "sprachanker-e2e-qwen.ts");

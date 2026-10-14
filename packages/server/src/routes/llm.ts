@@ -365,6 +365,17 @@ export function llmRoutes() {
           return c.json(job);
         },
       )
+      .get(
+        "/practice/lesson",
+        zod("query", z.object({ series: SeriesKey, lessonKey: LessonKey, edition: EditionId })),
+        async (c) => {
+          const { series, lessonKey, edition } = c.req.valid("query");
+          return c.json(await c.var.s.practiceCourse.lesson(series, lessonKey, edition));
+        },
+      )
+      .get("/practice/voice", zod("query", z.object({ edition: EditionId })), (c) =>
+        c.json({ voice: c.var.s.practiceCourse.voice(c.req.valid("query").edition) }),
+      )
       .post("/practice/stop", zod("json", PracticeCourse), (c) => {
         const { series, course, edition } = c.req.valid("json");
         return c.json(c.var.s.practiceCourse.stop(series, course, edition));

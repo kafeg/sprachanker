@@ -68,12 +68,16 @@ test("explain a mistake, ask the tutor, check a text", async ({ page, request })
   await tutor.getByRole("tab", { name: "Conversation" }).click();
   await page.keyboard.press("Escape");
 
-  // With an assistant the plan has the AI practice steps. Writing: a task asked for — a situation,
-  // three points, the length of the course's level (the fixture names none: a beginner's) —, a text
-  // on it checked: each point rated, the corrections, a model text.
+  // With an assistant the plan has the AI practice steps. Writing: a task — the course's practice
+  // has one once a project has asked for it, else it is asked for —: a situation, three points, the
+  // length of the course's level (the fixture names none: a beginner's); a text on it checked: each
+  // point rated, the corrections, a model text.
   await goToStep(page, "Writing");
-  await page.getByRole("button", { name: "Get a task" }).click();
-  await expect(page.getByText("FAKE: You are meeting Lena at the café.")).toBeVisible();
+  const task = page.getByText("FAKE: You are meeting Lena at the café.");
+  const ask = page.getByRole("button", { name: "Get a task" });
+  await expect(ask.or(task)).toBeVisible({ timeout: 15_000 });
+  if (await ask.isVisible()) await ask.click();
+  await expect(task).toBeVisible();
   await expect(page.getByText("FAKE: say when you come")).toBeVisible();
   await expect(page.getByText("About 30 words.")).toBeVisible();
   const writing = page.getByPlaceholder("Your text…");

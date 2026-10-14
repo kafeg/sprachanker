@@ -1728,5 +1728,26 @@
     "result": "Sentensi {right, number} kati ya {total, number} zinafaa",
     "modelAnswer": "Jibu la mfano",
     "restart": "Anza upya"
+  },
+  "practice": {
+    "needsModel": "Kutengeneza zaidi kunahitaji modeli ya AI: Mipangilio → Msaidizi wa AI.",
+    "checkNeedsModel": "Kukagua kunahitaji modeli ya AI: Mipangilio → Msaidizi wa AI.",
+    "count": "Ngapi",
+    "times": "×{count, number}",
+    "recorded": "Imerekodiwa kwa Qwen3-TTS.",
+    "course": {
+      "title": "Mazoezi ya AI",
+      "intro": "Maandishi, kazi na rekodi zake, zilizotengenezwa mara moja kwa kila somo na kuhifadhiwa pamoja na kozi: masomo huzichukua bila modeli, na huenda pamoja na kozi kwenye vifaa vyako vingine.",
+      "made": "Masomo {made, number} kati ya {lessons, number} yana mazoezi.",
+      "variant": "{step}: {count, number}",
+      "progress": "{done, number} kati ya {total, number}",
+      "current": "somo {lesson}, {step}",
+      "failed": "{count, plural, one {# imeshindwa} other {# zimeshindwa}}",
+      "done": "Imekamilika: {made, number} kati ya {total, number} zimetengenezwa.",
+      "stopped": "Imesimamishwa: {made, number} kati ya {total, number} zimetengenezwa.",
+      "stop": "Simamisha",
+      "make": "Tengeneza kwa masomo yote",
+      "steps": "Hatua"
+    }
   }
 }

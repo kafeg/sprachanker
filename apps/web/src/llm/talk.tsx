@@ -10,6 +10,7 @@ import type { MonologueCard, Roleplay, RoleplayCheck, WritingCheck } from "@spra
 import { Check, Mic, X } from "lucide-react";
 import { useEffect, useRef, useState } from "react";
 import { useTranslation } from "react-i18next";
+import { mediaUrl } from "@/api/client.ts";
 import type { SpokenPart } from "@/audio/speak.ts";
 import { SpeakButton } from "@/audio/speak-button.tsx";
 import { useSpeaker } from "@/audio/speaker.ts";
@@ -29,6 +30,7 @@ import {
 } from "./api.ts";
 import { DialogueLine } from "./dialogue-line.tsx";
 import { ErrorLine, StartPrompt, Thinking } from "./parts.tsx";
+import { MoreButton } from "./practice-more.tsx";
 import { PromptButton } from "./prompt-view.tsx";
 import { useLlm } from "./setup-api.ts";
 import { CheckResult } from "./writing.tsx";
@@ -62,19 +64,22 @@ function Monologue({
   task,
   attempt,
   busy,
+  checkOff,
   onCheck,
   setPrimary,
 }: {
   task: MonologueCard;
   attempt?: TalkAttemptVerdict;
   busy: boolean;
+  /** Check unavailable (no model to check with); saying stays open. */
+  checkOff: boolean;
   onCheck(said: Said[]): void;
   setPrimary?(p: PracticePrimary | null): void;
 }) {
   const { t } = useTranslation();
   const lang = useRequiredTargetLang();
   const [said, setSaid] = useState<Said>();
-  useCheckButton(setPrimary, !!said && !attempt, busy, () => said && onCheck([said]));
+  useCheckButton(setPrimary, !!said && !attempt, busy || checkOff, () => said && onCheck([said]));
   return (
     <div className="space-y-4">
       <Panel className="space-y-3">
@@ -144,34 +149,45 @@ function Monologue({
   );
 }
 
-/** A role-play's partner line read aloud by the partner's voice: the server's they were given where the
- *  profile reads with that engine, else another of their gender. */
+/** A role-play's partner line (`n`) read aloud: its recording made with the course's practice, else
+ *  by the partner's voice — the server's they were given where the profile reads with that engine,
+ *  else another of their gender. */
 const partnerPart = (
   task: Roleplay,
-  text: string,
+  n: number,
   lang: string,
   engine: string | undefined,
-): SpokenPart => ({
-  text,
-  lang,
-  alt: task.partner.gender,
-  ...(task.voice && task.voice.engine === engine && { voice: task.voice.id }),
-});
+  series: string,
+): SpokenPart => {
+  const recording = task.recordings?.[String(n)];
+  return {
+    text: task.lines[n]?.text ?? "",
+    lang,
+    alt: task.partner.gender,
+    ...(task.voice && task.voice.engine === engine && { voice: task.voice.id }),
+    ...(recording && { src: mediaUrl(series, recording) }),
+  };
+};
 
 /** A role-play: the partner's lines as they come (read aloud), the learner's said from their hints,
  *  then Check; checked, each line's verdict, its corrections and a good way to say it. */
 function RolePlay({
   task,
   id,
+  series,
   attempt,
   busy,
+  checkOff,
   onCheck,
   setPrimary,
 }: {
   task: Roleplay;
   id: string;
+  series: string;
   attempt?: TalkAttemptVerdict;
   busy: boolean;
+  /** Check unavailable (no model to check with); saying stays open. */
+  checkOff: boolean;
   onCheck(said: Said[]): void;
   setPrimary?(p: PracticePrimary | null): void;
 }) {
@@ -191,17 +207,17 @@ function RolePlay({
   const heard = useRef(-1);
   useEffect(() => {
     if (attempt || upTo <= heard.current + 1) return;
-    const lines = task.lines
-      .slice(heard.current + 1, upTo)
-      .filter((l) => l.speaker !== task.learner);
+    const lines = task.lines.flatMap((l, n) =>
+      n > heard.current && n < upTo && l.speaker !== task.learner ? [n] : [],
+    );
     heard.current = upTo - 1;
     if (said.length && lines.length)
       void speaker.say(
         `${id}-${upTo}`,
-        lines.map((l) => partnerPart(task, l.text, lang, engine)),
+        lines.map((n) => partnerPart(task, n, lang, engine, series)),
       );
-  }, [attempt, upTo, said.length, task, id, lang, engine, speaker]);
-  useCheckButton(setPrimary, next === undefined && !attempt, busy, () => onCheck(said));
+  }, [attempt, upTo, said.length, task, id, lang, engine, speaker, series]);
+  useCheckButton(setPrimary, next === undefined && !attempt, busy || checkOff, () => onCheck(said));
   return (
     <div className="space-y-4">
       <Panel className="space-y-1">
@@ -266,7 +282,10 @@ function RolePlay({
                       <span className="font-semibold">{l.speaker}: </span>
                       {l.text}
                     </p>
-                    <SpeakButton parts={[partnerPart(task, l.text, lang, engine)]} label={l.text} />
+                    <SpeakButton
+                      parts={[partnerPart(task, n, lang, engine, series)]}
+                      label={l.text}
+                    />
                   </div>
                 )}
               </div>
@@ -336,13 +355,15 @@ export function TalkStep({
   const start = useStartTalk(ids.lessonKey);
   const state = useTalk(ids.lessonKey, start.isPending);
   const check = useCheckTalk(ids.lessonKey, onDone);
-  if (!llm.data?.model || !state.data) return null;
+  // A task of the course's practice is there without a model; making one, and checking, need it.
+  if (!state.data || (!llm.data?.model && !state.data.task)) return null;
   const { task, attempts } = state.data;
   const preparing = start.isPending || state.data.preparing;
   const checking = check.isPending || state.data.checking;
+  const noModel = !llm.isPending && !llm.data?.model;
   const request = { ...ids, language: i18n.language };
-  const make = () => {
-    if (!preparing && !checking) start.mutate(request);
+  const make = (count = 1) => {
+    if (!preparing && !checking) start.mutate({ ...request, count });
   };
   const attempt = task ? attempts.find((a) => a.ts > task.ts) : undefined;
   const send = (current: TalkTaskVerdict) => (said: Said[]) =>
@@ -353,21 +374,25 @@ export function TalkStep({
         <>
           <div className="flex flex-wrap items-center justify-end gap-2">
             <PromptButton request={() => ({ talk: request })} />
-            <Button
-              variant="outline"
-              loading={preparing}
-              disabled={preparing || checking}
-              onClick={make}
-            >
-              {preparing ? t("talk.preparing") : t("talk.new")}
-            </Button>
+            <MoreButton
+              label={t("talk.new")}
+              busyLabel={t("talk.preparing")}
+              preparing={preparing}
+              disabled={checking}
+              edition={ids.edition}
+              onMake={make}
+            />
           </div>
+          {noModel && (
+            <p className="text-sm text-muted-foreground">{t("practice.checkNeedsModel")}</p>
+          )}
           {task.result.kind === "monologue" ? (
             <Monologue
               key={task.id}
               task={task.result}
               attempt={attempt}
               busy={checking || preparing}
+              checkOff={noModel}
               onCheck={send(task)}
               setPrimary={setPrimary}
             />
@@ -376,8 +401,10 @@ export function TalkStep({
               key={task.id}
               task={task.result}
               id={task.id}
+              series={ids.series}
               attempt={attempt}
               busy={checking || preparing}
+              checkOff={noModel}
               onCheck={send(task)}
               setPrimary={setPrimary}
             />
@@ -389,7 +416,7 @@ export function TalkStep({
           label={preparing ? t("talk.preparing") : t("talk.start")}
           icon={Mic}
           loading={preparing}
-          onStart={make}
+          onStart={() => make()}
         />
       )}
       {(preparing || checking) && (
@@ -400,7 +427,9 @@ export function TalkStep({
       )}
       <ErrorLine
         error={busyMaking(start.error) ? null : (check.error ?? start.error)}
-        onRetry={check.error ? () => check.variables && check.mutate(check.variables) : make}
+        onRetry={
+          check.error ? () => check.variables && check.mutate(check.variables) : () => make()
+        }
       />
     </div>
   );

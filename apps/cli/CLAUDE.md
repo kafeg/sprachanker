@@ -9,7 +9,9 @@ src/main.ts         # serve, import, verify, profiles (the server's profile matt
                     # on|off, delete; a profile exported to a file, a file imported — the server's
                     # refusals in words), courses (those installed; one exported to a file, or
                     # every one with --all: a file a group, checked that each course is in one; a file
-                    # imported, each course of it said; one removed — the server's refusals in words), backup, version; main(argv, embedded?) — also
+                    # imported, each course of it said; one removed — the server's refusals in words), practice
+                    # (a course's AI practice made for every lesson by a profile's model: steps,
+                    # count 1–3; --status), backup, version; main(argv, embedded?) — also
                     # runs from sources
 install.sh          # the installer published with each release (curl … | bash): Apple Silicon only; the
                     # program into ~/SprachAnker/bin, a LaunchAgent, a backup before an update

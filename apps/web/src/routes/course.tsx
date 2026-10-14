@@ -1,8 +1,10 @@
 // Course map: the course head (course-info) over a timeline of units, each with its lesson cards
 // and their status.
+
 import { lessonOrder, parseLessonKey } from "@sprachanker/schema";
 import { Link } from "@tanstack/react-router";
 import { Check, CheckCircle2, CircleDot } from "lucide-react";
+import { Suspense } from "react";
 import { useTranslation } from "react-i18next";
 import { mediaUrl } from "@/api/client.ts";
 import { useCourseMap } from "@/api/courses.ts";
@@ -74,7 +76,18 @@ function LessonCard({
   );
 }
 
-export function CoursePage({ series, course }: { series: string; course: string }) {
+/** What an optional feature adds to a course's page (the AI assistant: the course's practice). */
+export type CourseExtra = React.ComponentType<{ series: string; course: string; edition: string }>;
+
+export function CoursePage({
+  series,
+  course,
+  extra: Extra,
+}: {
+  series: string;
+  course: string;
+  extra?: CourseExtra;
+}) {
   const { t } = useTranslation();
   const { courses, info, edition } = useCourseEdition(series, course);
   const map = useCourseMap(series, course, edition);
@@ -101,6 +114,11 @@ export function CoursePage({ series, course }: { series: string; course: string 
           next={next ? { key: next, title: titles[next] ?? next } : undefined}
           started={!!info?.started}
         />
+        {Extra && edition && (
+          <Suspense fallback={null}>
+            <Extra series={series} course={course} edition={edition} />
+          </Suspense>
+        )}
         <ol className="relative space-y-8 before:absolute before:top-2 before:bottom-2 before:start-[15px] before:w-0.5 before:bg-border">
           {index.units.map((unit) => {
             const number = Number(unit.key.slice(-2));

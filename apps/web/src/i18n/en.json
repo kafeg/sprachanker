@@ -1728,5 +1728,26 @@
     "result": "{right, number} of {total, number} lines fit",
     "modelAnswer": "A model answer",
     "restart": "Start again"
+  },
+  "practice": {
+    "needsModel": "Making more needs an AI model: Settings → AI assistant.",
+    "checkNeedsModel": "Checking needs an AI model: Settings → AI assistant.",
+    "count": "How many",
+    "times": "×{count, number}",
+    "recorded": "Recorded with Qwen3-TTS.",
+    "course": {
+      "title": "AI practice",
+      "intro": "Texts, tasks and their recordings made once for every lesson and kept with the course: lessons take them without the model, and they go with the course to your other devices.",
+      "made": "{made, number} of {lessons, number} lessons have practice.",
+      "variant": "{step}: {count, number}",
+      "progress": "{done, number} of {total, number}",
+      "current": "lesson {lesson}, {step}",
+      "failed": "{count, plural, one {# failed} other {# failed}}",
+      "done": "Done: {made, number} of {total, number} made.",
+      "stopped": "Stopped: {made, number} of {total, number} made.",
+      "stop": "Stop",
+      "make": "Make for every lesson",
+      "steps": "Steps"
+    }
   }
 }

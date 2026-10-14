@@ -1728,5 +1728,26 @@
     "result": "{right, number} von {total, number} Sätzen passen",
     "modelAnswer": "Musterantwort",
     "restart": "Von vorn"
+  },
+  "practice": {
+    "needsModel": "Für mehr braucht es ein KI-Modell: Einstellungen → KI-Assistent.",
+    "checkNeedsModel": "Zum Prüfen braucht es ein KI-Modell: Einstellungen → KI-Assistent.",
+    "count": "Wie viele",
+    "times": "×{count, number}",
+    "recorded": "Mit Qwen3-TTS aufgenommen.",
+    "course": {
+      "title": "KI-Übungen",
+      "intro": "Texte, Aufgaben und ihre Aufnahmen, einmal für jede Lektion erstellt und im Kurs gespeichert: Die Lektionen nehmen sie ohne Modell, und sie gehen mit dem Kurs auf deine anderen Geräte.",
+      "made": "{made, number} von {lessons, number} Lektionen haben Übungen.",
+      "variant": "{step}: {count, number}",
+      "progress": "{done, number} von {total, number}",
+      "current": "Lektion {lesson}, {step}",
+      "failed": "{count, plural, one {# fehlgeschlagen} other {# fehlgeschlagen}}",
+      "done": "Fertig: {made, number} von {total, number} erstellt.",
+      "stopped": "Angehalten: {made, number} von {total, number} erstellt.",
+      "stop": "Anhalten",
+      "make": "Für alle Lektionen erstellen",
+      "steps": "Schritte"
+    }
   }
 }

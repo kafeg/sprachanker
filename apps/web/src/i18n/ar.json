@@ -1728,5 +1728,26 @@
     "result": "{right, number} من {total, number} جمل مناسبة",
     "modelAnswer": "إجابة نموذجية",
     "restart": "ابدأ من جديد"
+  },
+  "practice": {
+    "needsModel": "لصنع المزيد يلزم نموذج ذكاء اصطناعي: الإعدادات ← مساعد الذكاء الاصطناعي.",
+    "checkNeedsModel": "للتحقق يلزم نموذج ذكاء اصطناعي: الإعدادات ← مساعد الذكاء الاصطناعي.",
+    "count": "كم",
+    "times": "×{count, number}",
+    "recorded": "مُسجَّل بواسطة Qwen3-TTS.",
+    "course": {
+      "title": "تدريب بالذكاء الاصطناعي",
+      "intro": "نصوص ومهام وتسجيلاتها، تُصنع مرة واحدة لكل درس وتُحفظ مع الدورة: تأخذها الدروس دون النموذج، وتنتقل مع الدورة إلى أجهزتك الأخرى.",
+      "made": "لدى {made, number} من {lessons, number} درسًا تدريب.",
+      "variant": "{step}: {count, number}",
+      "progress": "{done, number} من {total, number}",
+      "current": "الدرس {lesson}، {step}",
+      "failed": "{count, plural, zero {لم يفشل شيء} one {فشل #} two {فشل #} few {فشل #} many {فشل #} other {فشل #}}",
+      "done": "تم: صُنع {made, number} من {total, number}.",
+      "stopped": "أُوقف: صُنع {made, number} من {total, number}.",
+      "stop": "إيقاف",
+      "make": "اصنع لكل الدروس",
+      "steps": "الخطوات"
+    }
   }
 }
