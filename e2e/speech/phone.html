@@ -1,0 +1,186 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Whisper on this phone</title>
+<style>
+  :root { color-scheme: light dark; --line: #8884; --ok: #2a7d3c; --bad: #b3261e; }
+  body { font: 15px/1.4 system-ui, sans-serif; margin: 0; padding: 12px 14px 40px; }
+  h1 { font-size: 20px; margin: 0 0 6px; }
+  .info { font-size: 13px; opacity: .75; margin-bottom: 10px; word-break: break-word; }
+  .runs { display: flex; flex-wrap: wrap; gap: 6px; margin: 10px 0; }
+  button { font: inherit; padding: 9px 12px; border-radius: 10px; border: 1px solid var(--line); background: #8881; }
+  button:disabled { opacity: .45; }
+  #status { min-height: 1.4em; font-weight: 600; margin: 6px 0; }
+  table { border-collapse: collapse; width: 100%; font-size: 13px; }
+  td, th { border-top: 1px solid var(--line); padding: 5px 4px; vertical-align: top; text-align: left; }
+  th { font-weight: 600; }
+  .num { text-align: right; white-space: nowrap; font-variant-numeric: tabular-nums; }
+  .ok { color: var(--ok); } .bad { color: var(--bad); }
+  .run { margin-top: 18px; }
+  .run h2 { font-size: 15px; margin: 0 0 4px; }
+  .heard { opacity: .8; }
+</style>
+</head>
+<body>
+<h1>Whisper on this phone</h1>
+<div class="info" id="info">…</div>
+<div class="runs" id="runs"></div>
+<div class="runs">
+  <button type="button" id="all">Run all</button>
+  <button type="button" id="mic" disabled>Record and hear (last model)</button>
+</div>
+<div id="status"></div>
+<div id="out"></div>
+<script type="module">
+import { env, pipeline } from "https://cdn.jsdelivr.net/npm/@huggingface/transformers@4.3.0";
+
+env.allowLocalModels = false;
+const $ = (id) => document.getElementById(id);
+const status = (s) => { $("status").textContent = s; };
+
+const gpu = navigator.gpu ? await navigator.gpu.requestAdapter().catch(() => null) : null;
+const device = [
+  navigator.userAgent,
+  `cores ${navigator.hardwareConcurrency ?? "?"}`,
+  `memory ${navigator.deviceMemory ?? "?"} GB`,
+  `isolated ${crossOriginIsolated}`,
+  `WebGPU ${gpu ? "yes" : "no"}`,
+].join(" · ");
+$("info").textContent = device;
+
+const phrases = await (await fetch("/phrases.json")).json();
+/** 16-bit PCM WAV → Float32 samples. */
+function samplesOf(buf) {
+  const v = new DataView(buf);
+  let at = 12;
+  while (at < v.byteLength) {
+    const id = String.fromCharCode(v.getUint8(at), v.getUint8(at + 1), v.getUint8(at + 2), v.getUint8(at + 3));
+    const size = v.getUint32(at + 4, true);
+    if (id === "data") {
+      const out = new Float32Array(size / 2);
+      for (let i = 0; i < out.length; i++) out[i] = v.getInt16(at + 8 + i * 2, true) / 32768;
+      return out;
+    }
+    at += 8 + size;
+  }
+  throw new Error("no data chunk");
+}
+const audio = {};
+for (const p of phrases) audio[p.id] = samplesOf(await (await fetch(`/audio/${p.id}.wav`)).arrayBuffer());
+
+const GPU_DTYPE = { encoder_model: "fp32", decoder_model_merged: "q4" };
+const COMBOS = [
+  { model: "whisper-tiny", backend: "wasm", dtype: "q8" },
+  { model: "whisper-base", backend: "wasm", dtype: "q8" },
+  { model: "whisper-small", backend: "wasm", dtype: "q8" },
+  { model: "whisper-base", backend: "webgpu", dtype: GPU_DTYPE },
+  { model: "whisper-small", backend: "webgpu", dtype: GPU_DTYPE },
+].filter((c) => c.backend !== "webgpu" || gpu);
+
+const words = (s) => s.toLowerCase().normalize("NFC").replace(/[^\p{L}\p{N}\s]/gu, " ").split(/\s+/).filter(Boolean);
+/** The share of the reference's words heard, in order (a rough look; the Mac scores it properly). */
+function match(ref, got) {
+  const a = words(ref), b = words(got);
+  const dp = Array.from({ length: a.length + 1 }, () => new Array(b.length + 1).fill(0));
+  for (let i = 1; i <= a.length; i++)
+    for (let j = 1; j <= b.length; j++)
+      dp[i][j] = a[i - 1] === b[j - 1] ? dp[i - 1][j - 1] + 1 : Math.max(dp[i - 1][j], dp[i][j - 1]);
+  return a.length ? dp[a.length][b.length] / a.length : 1;
+}
+const pct = (x) => `${Math.round(x * 100)}%`;
+const label = (c) => `${c.model.replace("whisper-", "")} · ${c.backend === "webgpu" ? "GPU" : "CPU"}`;
+
+let asr;
+let busy = false;
+async function run(c) {
+  if (busy) return;
+  busy = true;
+  for (const b of document.querySelectorAll("button")) b.disabled = true;
+  const box = document.createElement("div");
+  box.className = "run";
+  box.innerHTML = `<h2>${label(c)} <span class="heard">(${typeof c.dtype === "string" ? c.dtype : "fp32+q4"})</span></h2>`;
+  $("out").prepend(box);
+  const result = { device, model: c.model, backend: c.backend, dtype: JSON.stringify(c.dtype), loadMs: 0, rows: [] };
+  try {
+    if (asr) { await asr.dispose(); asr = undefined; }
+    const files = {};
+    const t0 = performance.now();
+    asr = await pipeline("automatic-speech-recognition", `onnx-community/${c.model}`, {
+      device: c.backend,
+      dtype: c.dtype,
+      progress_callback: (p) => {
+        if (p.status !== "progress" || !p.total) return;
+        files[p.file] = [p.loaded, p.total];
+        const [got, all] = Object.values(files).reduce((s, [l, t]) => [s[0] + l, s[1] + t], [0, 0]);
+        status(`${label(c)}: loading ${Math.round(got / 1e6)} of ${Math.round(all / 1e6)} MB`);
+      },
+    });
+    result.loadMs = Math.round(performance.now() - t0);
+    const table = document.createElement("table");
+    table.innerHTML = `<tr><th>s</th><th class="num">ms</th><th class="num">×</th><th class="num">Mac ms</th><th class="num">words</th><th>heard</th></tr>`;
+    box.append(`loaded in ${(result.loadMs / 1000).toFixed(1)} s`, table);
+    for (const p of phrases) {
+      status(`${label(c)}: ${p.id} (${p.seconds} s)…`);
+      const t = performance.now();
+      const out = await asr(audio[p.id], { language: "german", task: "transcribe" });
+      const ms = Math.round(performance.now() - t);
+      const text = (out.text ?? "").trim();
+      result.rows.push({ id: p.id, ms, text });
+      const m = match(p.text, text);
+      const tr = document.createElement("tr");
+      tr.innerHTML = `<td class="num">${p.seconds}</td><td class="num">${ms}</td><td class="num">${(ms / 1000 / p.seconds).toFixed(2)}</td><td class="num">${p.mac.ms}</td><td class="num ${m > 0.9 ? "ok" : "bad"}">${pct(m)}</td><td></td>`;
+      tr.lastChild.textContent = text;
+      table.append(tr);
+    }
+    status(`${label(c)}: done`);
+    $("mic").dataset.ready = "1";
+  } catch (e) {
+    result.error = String(e?.message ?? e);
+    box.append(` failed: ${result.error}`);
+    status(`${label(c)}: failed`);
+  }
+  await fetch("/results", { method: "POST", headers: { "content-type": "application/json" }, body: JSON.stringify(result) }).catch(() => {});
+  busy = false;
+  for (const b of document.querySelectorAll("button")) b.disabled = false;
+  $("mic").disabled = !$("mic").dataset.ready;
+}
+
+for (const c of COMBOS) {
+  const b = document.createElement("button");
+  b.textContent = label(c);
+  b.onclick = () => run(c);
+  $("runs").append(b);
+}
+$("all").onclick = async () => { for (const c of COMBOS) await run(c); };
+
+// One's own voice with the model loaded last: recorded, made 16 kHz, heard.
+let recorder;
+$("mic").onclick = async () => {
+  if (recorder) { recorder.stop(); return; }
+  const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
+  const chunks = [];
+  recorder = new MediaRecorder(stream);
+  recorder.ondataavailable = (e) => chunks.push(e.data);
+  recorder.onstop = async () => {
+    for (const t of stream.getTracks()) t.stop();
+    recorder = undefined;
+    $("mic").textContent = "Record and hear (last model)";
+    const ctx = new AudioContext({ sampleRate: 16000 });
+    const decoded = await ctx.decodeAudioData(await new Blob(chunks).arrayBuffer());
+    const samples = decoded.getChannelData(0);
+    const t = performance.now();
+    const out = await asr(samples, { language: "german", task: "transcribe" });
+    const ms = Math.round(performance.now() - t);
+    const p = document.createElement("p");
+    p.textContent = `Your take, ${(samples.length / 16000).toFixed(1)} s: ${ms} ms — ${(out.text ?? "").trim()}`;
+    $("out").prepend(p);
+  };
+  recorder.start();
+  $("mic").textContent = "Stop";
+};
+status(`${phrases.length} phrases ready. Pick a model, or Run all.`);
+</script>
+</body>
+</html>

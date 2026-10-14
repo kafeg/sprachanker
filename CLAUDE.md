@@ -109,6 +109,9 @@ alternatives without updating that list.
 - `bun run speech:mic` — answers read aloud played as Chromium's microphone into the page's recorder
   (at once, and after a Mac's 1.3 s of start-up silence): the first word heard, "recording" shown
   only once the microphone is live (the Mac, models in `~/SprachAnker/models`)
+- `bun run speech:android` — Whisper on an Android phone over adb as the app would run it (whisper.cpp
+  built with the NDK; `SPEECH_MODELS`, `SPEECH_THREADS`, `SPEECH_WINDOWS`) · `bun run speech:phone` —
+  Whisper in a phone's browser (a page; Android over `adb reverse`); the phrases: `e2e/speech/phrases.ts`
 - `bun run build:speech` — builds whisper-server, sherpa-onnx-offline-tts (Piper) and tts-server (Qwen3-TTS)
   for this machine (native/, needs cmake; seconds once built); part of build:cli
 - `bun run cli -- <command>` — the CLI from sources (`serve` uses the last `bun run build:web` output)

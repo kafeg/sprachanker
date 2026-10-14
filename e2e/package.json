@@ -10,6 +10,8 @@
     "speech:check": "bun speech/roundtrip.ts",
     "speech:levels": "bun speech/levels.ts",
     "speech:mic": "bun speech/mic.ts",
+    "speech:phone": "bun speech/phone.ts",
+    "speech:android": "bun speech/android.ts",
     "practice:texts": "bun ai/texts.ts",
     "practice:walk": "bun ai/walk.ts"
   },
