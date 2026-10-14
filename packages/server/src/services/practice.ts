@@ -22,8 +22,9 @@ import { ServiceError } from "../errors.ts";
 import type { RunStore } from "./run-store.ts";
 import { keepVerdict, type Verdict, verdicts } from "./verdicts.ts";
 
-/** The steps a course's practice holds. */
-export type PracticeStepName = "reading" | "listening" | "writing" | "speaking";
+/** The steps a course's practice holds, in a lesson's order. */
+export const PRACTICE_STEPS = ["reading", "listening", "writing", "speaking"] as const;
+export type PracticeStepName = (typeof PRACTICE_STEPS)[number];
 
 /** A variant to add, its id and time still to be given. */
 export type PracticeAdd =

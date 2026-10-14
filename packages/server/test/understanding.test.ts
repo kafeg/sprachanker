@@ -433,3 +433,42 @@ test("the course's practice: texts made gather in the course, the step takes the
   await api.send("DELETE", `/api/courses/${FIXTURE_SERIES}/demo`, undefined);
   expect(practice().reading).toHaveLength(2);
 });
+
+test("a course's practice made in one go: each lesson's step in course order, a job a course's edition at a time; Listening needs Qwen3-TTS", async () => {
+  const api = await withModel({
+    ...REPLIES,
+    understanding_check: [SETTLES_ALL],
+    blind: [{ answers: [] }],
+  });
+  const COURSE = { series: FIXTURE_SERIES, course: "demo", edition: "ru-de" };
+  const query = `series=${FIXTURE_SERIES}&course=demo&edition=ru-de`;
+  const before = await api.getJson(`/api/llm/practice?${query}`);
+  expect(before).toMatchObject({ made: 0, voice: false, job: null });
+  expect(before.variants).toEqual({ reading: 0, listening: 0, writing: 0, speaking: 0 });
+
+  // Listening without Qwen3-TTS here: refused before anything is made.
+  const deaf = await api.send("POST", "/api/llm/practice", { ...COURSE, steps: ["listening"] });
+  expect([deaf.status, ((await deaf.json()) as { error: string }).error]).toEqual([
+    409,
+    "practice_needs_voice",
+  ]);
+
+  const job = await api.sendJson("POST", "/api/llm/practice", {
+    ...COURSE,
+    steps: ["reading"],
+    count: 1,
+  });
+  expect(job).toMatchObject({
+    state: "running",
+    steps: ["reading"],
+    count: 1,
+    total: before.lessons,
+  });
+  // One a course's edition at a time.
+  const twice = await api.send("POST", "/api/llm/practice", { ...COURSE, steps: ["reading"] });
+  expect(((await twice.json()) as { error: string }).error).toBe("practice_busy");
+  await until(async () => (await api.getJson(`/api/llm/practice?${query}`)).job.state === "done");
+  const after = await api.getJson(`/api/llm/practice?${query}`);
+  expect(after.job).toMatchObject({ done: before.lessons, failed: [], current: null });
+  expect([after.made, after.variants.reading]).toEqual([before.lessons, before.lessons]);
+});

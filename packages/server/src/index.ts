@@ -28,6 +28,9 @@ import { speechHost } from "./runtime/speech.ts";
 import { createCardStore } from "./services/card-store.ts";
 import { createContent } from "./services/content.ts";
 import { createCourseTransfer } from "./services/course-transfer.ts";
+import { createServices } from "./services/index.ts";
+import type { PracticeStepName } from "./services/practice.ts";
+import type { PracticeJob } from "./services/practice-jobs.ts";
 import { contentUsed, createProfileTransfer } from "./services/profile-transfer.ts";
 import { createProfiles } from "./services/profiles.ts";
 import { createRunStore } from "./services/run-store.ts";
@@ -52,29 +55,36 @@ export interface ServerConfig {
   profileDbWorker?: string;
 }
 
+/** The runtime adapters over a data root: what the app and the command line's services run on. */
+function runtimeOf(dataRoot: string, appVersion: string, profileDbWorker?: string) {
+  return {
+    library: openLibrary(join(dataRoot, "library")),
+    server: openServerDb(join(dataRoot, "server.sqlite")),
+    profiles: profileFiles(dataRoot),
+    mediaBlob,
+    decks: deckFiles(dataRoot),
+    apkg: apkgRuntime,
+    transfers: profileTransferFiles(dataRoot, { worker: profileDbWorker }),
+    courseTransfers: courseTransferFiles(dataRoot),
+    practice: practiceFiles(dataRoot),
+    appVersion,
+    // Outside the data root, so a copied data folder does not carry usable API keys.
+    secretKey: secretKey(join(appDataDir(), "secret.key")),
+    lmStudio: lmStudioHost(),
+    cli: cliHost(),
+    installer: courseInstaller(dataRoot),
+    speech: speechHost(dataRoot),
+    piper: piperHost(dataRoot),
+    readings: readingCache(dataRoot),
+  };
+}
+
 /** Starts the HTTP server: JSON API under /api, library and deck media and the built web app. */
 export function startServer(config: ServerConfig): Listening {
   holdDataRoot(config.dataRoot);
   const app = createApp({
     webAssets: config.webAssets,
-    library: openLibrary(join(config.dataRoot, "library")),
-    server: openServerDb(join(config.dataRoot, "server.sqlite")),
-    profiles: profileFiles(config.dataRoot),
-    mediaBlob,
-    decks: deckFiles(config.dataRoot),
-    apkg: apkgRuntime,
-    transfers: profileTransferFiles(config.dataRoot, { worker: config.profileDbWorker }),
-    courseTransfers: courseTransferFiles(config.dataRoot),
-    practice: practiceFiles(config.dataRoot),
-    appVersion: config.appVersion,
-    // Outside the data root, so a copied data folder does not carry usable API keys.
-    secretKey: secretKey(join(appDataDir(), "secret.key")),
-    lmStudio: lmStudioHost(),
-    cli: cliHost(),
-    installer: courseInstaller(config.dataRoot),
-    speech: speechHost(config.dataRoot),
-    piper: piperHost(config.dataRoot),
-    readings: readingCache(config.dataRoot),
+    ...runtimeOf(config.dataRoot, config.appVersion, config.profileDbWorker),
     // The machine's own names: its host name, the one the server was told to listen on, those it was
     // given (`--allow-host`); its tailnet name is read from Tailscale (`network`).
     hosts: [hostname(), `${hostname()}.local`, config.hostname],
@@ -89,6 +99,48 @@ export function startServer(config: ServerConfig): Listening {
 export { resolveDataRoot } from "./config.ts";
 export { type ImportRequest, importCourse, providerIds } from "./providers.ts";
 export { ENGINES as speechEngines, triple as targetTriple } from "./runtime/engines.ts";
+
+/**
+ * A course's practice made from the command line (`sprachanker practice`), by a profile's model and
+ * voices, as the course page's button makes it: the services over the data root without the HTTP
+ * server — also while one runs (the series' lock keeps their writes apart).
+ */
+export function practiceAdmin(dataRoot: string, appVersion = "") {
+  const runtime = runtimeOf(dataRoot, appVersion);
+  const svc = createServices({
+    ...runtime,
+    fetch,
+    now: Date.now,
+    random: Math.random,
+    listensOn: { hostname: "127.0.0.1", port: 0 },
+  });
+  return {
+    profiles: () => svc.profiles.list(),
+    courses: () => runtime.library.courses(),
+    state: (profileId: string, series: string, course: string, edition: string) =>
+      svc.of(profileId).practiceCourse.state(series, course, edition),
+    /** Makes a course's practice, `progress` told every few seconds: the job at its end. */
+    async make(
+      profileId: string,
+      what: { series: string; course: string; edition: string },
+      options: { steps: PracticeStepName[]; count: number },
+      progress: (job: PracticeJob) => void,
+    ) {
+      const s = svc.of(profileId).practiceCourse;
+      const { job, ended } = await s.start(what.series, what.course, what.edition, options);
+      const timer = setInterval(() => progress(job), PROGRESS_MS);
+      try {
+        await ended;
+      } finally {
+        clearInterval(timer);
+      }
+      return job;
+    },
+    stop: (profileId: string, series: string, course: string, edition: string) =>
+      svc.of(profileId).practiceCourse.stop(series, course, edition),
+  };
+}
+const PROGRESS_MS = 5000;
 
 /** Checks every installed course of the data root (course-kit verify). */
 export const verifyData = (dataRoot: string) =>

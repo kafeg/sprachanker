@@ -9,6 +9,7 @@ import {
   directoryAssets,
   fileAssets,
   importCourse,
+  practiceAdmin,
   profileAdmin,
   providerIds,
   resolveDataRoot,
@@ -51,6 +52,11 @@ Commands:
                                    differs; progress kept), then verified
   courses remove <series/course>   a course or exam removed from this computer: its files and the
                                    media no other course uses (progress kept; download it again)
+  practice <series/course> [--edition ru-de] [--steps reading,listening,writing,speaking]
+           [--count 1-3] [--profile <name|id>] [--data <dir>]
+         a course's AI practice made by a profile's model and voices, as the course page's button
+         makes it: each lesson's steps, as many variants each as --count, added to what the course has
+         (Listening and role-plays recorded by Qwen3-TTS); --status: how much there is
   version
          the version of this binary
   backup [--data <dir>] --to <folder>
@@ -420,6 +426,82 @@ async function coursesCommand(args: string[]): Promise<void> {
   }
 }
 
+const PRACTICE_STEPS = ["reading", "listening", "writing", "speaking"] as const;
+
+async function practiceCommand(args: string[]): Promise<void> {
+  const { values, positionals } = parseArgs({
+    args,
+    allowPositionals: true,
+    options: {
+      data: { type: "string" },
+      edition: { type: "string" },
+      steps: { type: "string" },
+      count: { type: "string" },
+      profile: { type: "string" },
+      status: { type: "boolean", default: false },
+    },
+  });
+  const admin = practiceAdmin(resolveDataRoot(values.data), pkg.version);
+  const [key] = positionals;
+  const listed = "(sprachanker courses lists them)";
+  const course = admin.courses().find((c) => `${c.series}/${c.course}` === key);
+  if (!course) throw new Error(`which course? ${listed}`);
+  const edition = values.edition ?? (course.editions.length === 1 ? course.editions[0] : undefined);
+  if (!edition || !course.editions.includes(edition as never))
+    throw new Error(`which edition? --edition ${course.editions.join(" | ")}`);
+  const profiles = admin.profiles();
+  const wanted = values.profile?.toLocaleLowerCase();
+  const profile = wanted
+    ? profiles.find((p) => p.id === values.profile || p.name.toLocaleLowerCase() === wanted)
+    : profiles.length === 1
+      ? profiles[0]
+      : undefined;
+  if (!profile)
+    throw new Error(
+      `whose model and voices? --profile ${profiles.map((p) => p.name).join(" | ") || "(no profile)"}`,
+    );
+  const what = { series: course.series, course: course.course, edition };
+  if (values.status) {
+    const state = await admin.state(profile.id, what.series, what.course, edition);
+    console.log(
+      `${key} [${edition}]: ${state.made} of ${state.lessons} lessons; reading ${state.variants.reading}, listening ${state.variants.listening}, writing ${state.variants.writing}, speaking ${state.variants.speaking}`,
+    );
+    return;
+  }
+  const steps = (list(values.steps) ?? [...PRACTICE_STEPS]) as Array<
+    (typeof PRACTICE_STEPS)[number]
+  >;
+  const unknown = steps.filter((s) => !PRACTICE_STEPS.includes(s));
+  if (unknown.length)
+    throw new Error(`no step ${unknown.join(", ")}: ${PRACTICE_STEPS.join(", ")}`);
+  const count = Number(values.count ?? 1);
+  if (![1, 2, 3].includes(count)) throw new Error("--count is 1, 2 or 3");
+  const job = await admin
+    .make(profile.id, what, { steps, count }, (j) =>
+      console.log(
+        `${j.done}/${j.total}${j.current ? ` ${j.current.lessonKey} ${j.current.step}` : ""}${j.failed.length ? `, ${j.failed.length} failed` : ""}`,
+      ),
+    )
+    .catch((error: unknown) => {
+      throw inWords(error, PRACTICE_ERRORS);
+    });
+  for (const f of job.failed) console.log(`  failed: ${f.lessonKey} ${f.step}: ${f.error}`);
+  console.log(
+    `${key} [${edition}]: ${job.done - job.failed.length} of ${job.total} made (${steps.join(", ")}, ${count} each)`,
+  );
+  if (job.failed.length) process.exitCode = 1;
+  // The speech engines it started go with it.
+  process.exit();
+}
+
+const PRACTICE_ERRORS: Record<string, string> = {
+  practice_busy:
+    "this course's practice is being made already (the app, or another command): wait for it",
+  practice_needs_voice:
+    "Listening is recorded with Qwen3-TTS: set it up in the app (Settings → Speech) for the profile",
+  llm_not_configured: "the profile has no AI model set up (the app: Settings → AI assistant)",
+} as const;
+
 function backupCommand(args: string[]): void {
   const { values } = parseArgs({
     args,
@@ -474,6 +556,9 @@ async function run(argv: string[], embedded?: Embedded): Promise<void> {
       break;
     case "backup":
       backupCommand(rest);
+      break;
+    case "practice":
+      await practiceCommand(rest);
       break;
     case "version":
       console.log(pkg.version);

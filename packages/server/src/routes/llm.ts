@@ -11,6 +11,7 @@ import {
   MESSAGE_MAX,
   PracticeStep,
   SeriesKey,
+  Slug,
   STREAM_ERROR,
   Ulid,
   WRITING_MAX,
@@ -74,6 +75,10 @@ const TalkBody = LessonRequest.extend({
 
 /** A text of Reading or Listening asked for. */
 const TextRequest = LessonRequest.extend({ step: PracticeStep });
+
+/** A course's practice in an edition. */
+const PracticeCourse = z.object({ series: SeriesKey, course: Slug, edition: EditionId });
+const PracticeStepName = z.enum(["reading", "listening", "writing", "speaking"]);
 
 /** How many variants a step's button makes into the course's practice (owner, 2026-10-14: 1–3),
  *  before the next the learner has not had is taken. */
@@ -337,6 +342,33 @@ export function llmRoutes() {
       .post("/understanding/prompt", zod("json", TextRequest), async (c) =>
         c.json(await c.var.s.understanding.prompt(c.req.valid("json"))),
       )
+      // A course's practice made in one go (owner, 2026-10-14): how much there is of each step, the
+      // job making it (one a course's edition), a job started by this profile, stopped.
+      .get("/practice", zod("query", PracticeCourse), async (c) => {
+        const { series, course, edition } = c.req.valid("query");
+        return c.json(await c.var.s.practiceCourse.state(series, course, edition));
+      })
+      .post(
+        "/practice",
+        zod(
+          "json",
+          PracticeCourse.extend({ steps: z.array(PracticeStepName).min(1).max(4) }).extend(
+            Count.shape,
+          ),
+        ),
+        async (c) => {
+          const { series, course, edition, steps, count } = c.req.valid("json");
+          const { job } = await c.var.s.practiceCourse.start(series, course, edition, {
+            steps,
+            count: count ?? 1,
+          });
+          return c.json(job);
+        },
+      )
+      .post("/practice/stop", zod("json", PracticeCourse), (c) => {
+        const { series, course, edition } = c.req.valid("json");
+        return c.json(c.var.s.practiceCourse.stop(series, course, edition));
+      })
       // Speaking: the lesson's latest task and attempts; a task made (kept in the lesson run), what
       // was said on it checked and kept, the prompt a card would send.
       .get("/talk", zod("query", z.object({ lessonKey: LessonKey })), (c) =>

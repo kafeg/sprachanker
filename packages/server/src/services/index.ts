@@ -4,8 +4,10 @@
 // is first used.
 import type { ApkgRuntime } from "@sprachanker/anki-export";
 import type { LibraryView } from "@sprachanker/course-kit/view";
+import { lessonOrder, parseEditionId } from "@sprachanker/schema";
 import type { ProfileDb } from "../db/profile/db.ts";
 import type { ServerDb } from "../db/server/db.ts";
+import { ServiceError } from "../errors.ts";
 import { secretBox } from "../security/secrets.ts";
 import { createCardStore } from "./card-store.ts";
 import { createCards } from "./cards.ts";
@@ -36,7 +38,13 @@ import type { ReadingCache, SpeechHost } from "./local-engines.ts";
 import { createMistakes } from "./mistakes.ts";
 import { createNetwork, type ListensOn, type NetworkHost } from "./network.ts";
 import { createNotebook } from "./notebook.ts";
-import { createPractice, type PracticeFiles } from "./practice.ts";
+import {
+  createPractice,
+  PRACTICE_STEPS,
+  type PracticeFiles,
+  type PracticeStepName,
+} from "./practice.ts";
+import { createPracticeJobs, type PracticeJobs } from "./practice-jobs.ts";
 import { createPracticePrep } from "./practice-prep.ts";
 import { createProfileSpeech } from "./profile-speech.ts";
 import { contentUsed, createProfileTransfer, type TransferFiles } from "./profile-transfer.ts";
@@ -109,6 +117,7 @@ function profileServices(
     speech: Speech;
     readAloud: ReadAloud;
     qwenTts: QwenTts;
+    practiceJobs: PracticeJobs;
   },
   db: ProfileDb,
   recordingFiles: RecordingFiles,
@@ -307,6 +316,53 @@ function profileServices(
     understanding,
     writing,
     practicePrep,
+    // The course's practice made in one go, by this profile's model and voices: its state, a job.
+    practiceCourse: {
+      async state(series: string, course: string, edition: string) {
+        const lessons = lessonOrder(await shared.content.courseIndex(series, course));
+        const variants = { reading: 0, listening: 0, writing: 0, speaking: 0 };
+        let made = 0;
+        for (const lessonKey of lessons) {
+          const p = await practice.lesson({ series, lessonKey, edition });
+          if (!p) continue;
+          made++;
+          for (const step of PRACTICE_STEPS) variants[step] += p[step].length;
+        }
+        return {
+          lessons: lessons.length,
+          made,
+          variants,
+          voice: !!reader(parseEditionId(edition).target),
+          job: shared.practiceJobs.get(series, course, edition),
+        };
+      },
+      async start(
+        series: string,
+        course: string,
+        edition: string,
+        options: { steps: PracticeStepName[]; count: number },
+      ) {
+        if (options.steps.includes("listening") && !reader(parseEditionId(edition).target))
+          throw new ServiceError("practice_needs_voice", 409);
+        const lessons = lessonOrder(await shared.content.courseIndex(series, course));
+        const steps = PRACTICE_STEPS.filter((s) => options.steps.includes(s));
+        const units = lessons.flatMap((lessonKey) => steps.map((step) => ({ lessonKey, step })));
+        const language = practice.language(edition);
+        return shared.practiceJobs.start(
+          { series, course, edition, steps, count: options.count },
+          units,
+          async ({ lessonKey, step }) => {
+            const request = { series, lessonKey, edition, language };
+            if (step === "reading" || step === "listening")
+              await understanding.make({ ...request, step }, options.count);
+            else if (step === "writing") await writing.make(request, options.count);
+            else await talk.make(request, options.count);
+          },
+        );
+      },
+      stop: (series: string, course: string, edition: string) =>
+        shared.practiceJobs.stop(series, course, edition),
+    },
     talk,
     goingOver,
     scenes,
@@ -373,6 +429,7 @@ export function createServices(config: ServicesConfig) {
     console.error("sweeping deck folders:", error);
   }
   // Cards take the audio read aloud for their decks' words.
+  const practiceJobs = createPracticeJobs({ now });
   const deckAudio = createDeckAudio({
     extras: deckExtras,
     onRead: async () => {
@@ -450,6 +507,7 @@ export function createServices(config: ServicesConfig) {
             courseTransfer,
             speech,
             readAloud,
+            practiceJobs,
             qwenTts,
           },
           config.profiles.open(profileId),

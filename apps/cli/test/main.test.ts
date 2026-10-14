@@ -219,3 +219,22 @@ test("an unknown command prints the usage and fails; help succeeds", async () =>
   const help = await cli("help");
   expect([help.out.startsWith("Usage: sprachanker"), help.code]).toEqual([true, 0]);
 });
+
+test("practice: a course's practice by a profile's model, its status; the course, the profile and the count asked", async () => {
+  const data = withCourse();
+  expect((await cli("practice", "nope/none", "--data", data)).out).toContain("which course?");
+  // No profile yet: whose model is it to be?
+  const none = await cli("practice", "sprachanker.cli/mini", "--status", "--data", data);
+  expect([none.code, none.out]).toEqual([
+    1,
+    "sprachanker: whose model and voices? --profile (no profile)",
+  ]);
+  profileAdmin(data).create({ name: "Mila" });
+  const status = await cli("practice", "sprachanker.cli/mini", "--status", "--data", data);
+  expect([status.code, status.out]).toEqual([
+    0,
+    "sprachanker.cli/mini [ru-de]: 0 of 0 lessons; reading 0, listening 0, writing 0, speaking 0",
+  ]);
+  const four = await cli("practice", "sprachanker.cli/mini", "--count", "4", "--data", data);
+  expect([four.code, four.out]).toEqual([1, "sprachanker: --count is 1, 2 or 3"]);
+});
