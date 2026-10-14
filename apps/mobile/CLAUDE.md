@@ -23,6 +23,9 @@ src/                   # runs in the WebView, before the web app (bundled into d
 scripts/
   build.ts             # dist/: the web app's build, boot.js before it, sql.js's wasm, whisper.html
   dev.ts               # dist/ on this Mac with the native side played over a folder (a browser test)
+  phone.ts             # the phone looked after over adb: install (build + adb install), course (a
+                       # course of this Mac's library pushed), practice (its AI practice brought up
+                       # to date), models (Whisper's q8_0)
 www/                   # the Whisper test page (dist/whisper.html; www/phrases: made by
                        # e2e/speech/phrases.ts, not committed)
 src-tauri/
@@ -47,6 +50,8 @@ src-tauri/
 - `ANDROID_HOME`, `NDK_HOME` and `JAVA_HOME` (17) set, from `apps/mobile`: `bun scripts/build.ts`,
   `cargo tauri android build --debug --apk --target aarch64`, then
   `adb install -r src-tauri/gen/android/app/build/outputs/apk/universal/debug/app-universal-debug.apk`.
+- `bun scripts/phone.ts install|course|practice|models` does the above (`ANDROID_SERIAL`: which phone).
+  The app lists its files as it starts: files pushed show after it is started again.
 - The data root is `/sdcard/Android/data/app.sprachanker.mobile/files/` (`adb push` reaches it):
   `library/<series>/` as on the Mac (a course bundle unpacked), `models/` (q8_0 on Android),
   `profiles/`, `server.sqlite`, `secret.key`.

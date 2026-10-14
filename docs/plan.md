@@ -48,15 +48,16 @@ and mockups: the owner's page "Goethe в SprachAnker"; background: `docs/researc
   `scene` tasks are kept for it).
 
 ### 4. Phone app (owner, 2026-10-14)
-- Built (a proof, `apps/mobile`): Whisper in the app on Android — small q8_0 heard in 3–5 s, 98 % of
-  the words, on a Snapdragon 860.
-- Next: the web app and the server's code inside the WebView (sqlite-wasm, the library's files
-  served by the app), a course with its practice installed from its bundle and studied offline; the
-  LLM through the Mac's server.
-- Then: iOS (Xcode with an Apple ID, developer mode; Metal / Core ML), the weekly re-sign over Wi-Fi,
-  sync with the Mac's server.
-- **Accept:** a Nicos Weg lesson done on the phone offline — its films and practice audio, an answer
-  said and heard on the phone.
+- Built on Android (`apps/mobile`): the web app and the server's code in the app (sql.js over the
+  phone's files), a course and its practice studied offline — films, practice recordings, exercises,
+  the steps' work from the course's practice, Review, the Notebook —, an answer said and heard by
+  Whisper in the app (small q8_0, 3–5 s), Back and the system bars as an app has them.
+- Next: putting a course on the phone from the app (now `adb push` of a bundle unpacked); pairing
+  with the Mac's server (its address and a profile), then the LLM through it — checking Writing and
+  Speaking —, and sync (`docs/decisions.md`); an update of the app over Wi-Fi from the Mac.
+- Then: iOS (Xcode with an Apple ID, developer mode; Metal / Core ML), the weekly re-sign.
+- Open: reading aloud on the phone — Android's WebView has no voices (`speechSynthesis`); words
+  without a recording are silent there.
 
 ## Open items in built areas
 Taken along when an item above touches the area, or on request.

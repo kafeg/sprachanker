@@ -3,6 +3,7 @@
 // works) and reading aloud (read-aloud-settings.tsx). The recordings kept are in General → Storage.
 import { useEffect, useState } from "react";
 import { useTranslation } from "react-i18next";
+import { inPhoneApp } from "@/api/client.ts";
 import { useSetSetting, useSetting } from "@/api/settings.ts";
 import { useSpeechModels, useSpeechState } from "@/api/speech.ts";
 import { CheckRow } from "@/ui/check-row.tsx";
@@ -136,32 +137,35 @@ function Recognition() {
               title={t("speech.settings.recognitionOn")}
             />
             <ul className="space-y-2">
-              {(data?.models ?? []).map((m) => {
-                const chosen = data?.model === m.id;
-                return (
-                  <DownloadRow
-                    key={m.id}
-                    title={t(`speech.model.${m.id}`)}
-                    item={m}
-                    removeLabel={t("speech.settings.removeModel")}
-                    onDownload={() => models.download.mutate(m.id)}
-                    onRemove={() => models.remove.mutate(m.id)}
-                    starting={models.download.isPending && models.download.variables === m.id}
-                    marked={chosen && on}
-                  >
-                    {chosen && on && <InUse />}
-                    {!chosen && (
-                      <Button
-                        variant="outline"
-                        size="sm"
-                        onClick={() => set.mutate({ key: "speech.model", value: m.id })}
-                      >
-                        {t("speech.settings.use")}
-                      </Button>
-                    )}
-                  </DownloadRow>
-                );
-              })}
+              {/* The phone app's models come with its setup: only those there. */}
+              {(data?.models ?? [])
+                .filter((m) => !inPhoneApp || m.installed)
+                .map((m) => {
+                  const chosen = data?.model === m.id;
+                  return (
+                    <DownloadRow
+                      key={m.id}
+                      title={t(`speech.model.${m.id}`)}
+                      item={m}
+                      removeLabel={t("speech.settings.removeModel")}
+                      onDownload={() => models.download.mutate(m.id)}
+                      onRemove={() => models.remove.mutate(m.id)}
+                      starting={models.download.isPending && models.download.variables === m.id}
+                      marked={chosen && on}
+                    >
+                      {chosen && on && <InUse />}
+                      {!chosen && (
+                        <Button
+                          variant="outline"
+                          size="sm"
+                          onClick={() => set.mutate({ key: "speech.model", value: m.id })}
+                        >
+                          {t("speech.settings.use")}
+                        </Button>
+                      )}
+                    </DownloadRow>
+                  );
+                })}
             </ul>
           </>
         )}
@@ -192,7 +196,8 @@ export function SpeechSetup() {
     <div className="space-y-6">
       <Microphone />
       <Recognition />
-      <ReadAloud />
+      {/* The phone's WebView has no voices to read with; the courses' and practice's own play. */}
+      {!inPhoneApp && <ReadAloud />}
       <HowSpeaking />
     </div>
   );
