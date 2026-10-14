@@ -1,0 +1,7 @@
+{
+  "$schema": "../gen/schemas/mobile-schema.json",
+  "identifier": "default",
+  "description": "The app's own page: the core and its commands.",
+  "windows": ["main"],
+  "permissions": ["core:default"]
+}

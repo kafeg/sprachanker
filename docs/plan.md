@@ -47,6 +47,17 @@ and mockups: the owner's page "Goethe в SprachAnker"; background: `docs/researc
 - A live conversation with the model in the Tutor section (`apps/web/src/llm/dialogue.tsx` and the
   `scene` tasks are kept for it).
 
+### 4. Phone app (owner, 2026-10-14)
+- Built (a proof, `apps/mobile`): Whisper in the app on Android — small q8_0 heard in 3–5 s, 98 % of
+  the words, on a Snapdragon 860.
+- Next: the web app and the server's code inside the WebView (sqlite-wasm, the library's files
+  served by the app), a course with its practice installed from its bundle and studied offline; the
+  LLM through the Mac's server.
+- Then: iOS (Xcode with an Apple ID, developer mode; Metal / Core ML), the weekly re-sign over Wi-Fi,
+  sync with the Mac's server.
+- **Accept:** a Nicos Weg lesson done on the phone offline — its films and practice audio, an answer
+  said and heard on the phone.
+
 ## Open items in built areas
 Taken along when an item above touches the area, or on request.
 - Library: a key map for the providers that still number by position (DW and the providers using

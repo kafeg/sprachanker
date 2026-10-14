@@ -220,7 +220,8 @@ module.exports = {
   ],
   options: {
     doNotFollow: { path: "node_modules" },
-    exclude: { path: "(^|/)dist/|^scripts/fixtures/" },
+    // Tauri's builds and generated projects (apps/*/src-tauri) hold no code of ours to check.
+    exclude: { path: "(^|/)dist/|^scripts/fixtures/|/src-tauri/(target|gen)/" },
     // swc parses TypeScript itself and marks type-only imports, so this tool does not depend on
     // the TypeScript compiler API or pin the TypeScript version.
     parser: "swc",

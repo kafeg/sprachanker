@@ -22,6 +22,7 @@ for the area you touch (the owner's decisions and why, invariants of stored data
 | `packages/anki-export` | `.apkg` packages: reading one (notes, fields, media) and its notes as a deck's words; export planned. | `packages/anki-export/CLAUDE.md` |
 | `apps/web` | React UI for desktop and phone screens (installable PWA), components and exercise renderers. i18n: a catalog per language (`src/i18n/<code>.json`), right to left for Arabic and Persian. | `apps/web/CLAUDE.md` |
 | `apps/desktop` | Tauri 2 shell (planned): window, tray, starts the server binary, updates. | `apps/desktop/CLAUDE.md` |
+| `apps/mobile` | The phone app (Tauri 2; a proof): Whisper in its own process on Android. | `apps/mobile/CLAUDE.md` |
 | `apps/cli` | The `sprachanker` binary: `serve` (starts the server), `import`, `verify`, `profiles`. Compiled with the web build embedded. | `apps/cli/CLAUDE.md` |
 | `native` | Builds of whisper.cpp (`whisper-server`), sherpa-onnx (`sherpa-onnx-offline-tts`, Piper voices) and qwentts.cpp (`tts-server`, Qwen3-TTS). | `native/CLAUDE.md` |
 | `e2e` | Playwright end-to-end tests against the compiled binary. | — |

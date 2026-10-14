@@ -1,0 +1,103 @@
+<!doctype html>
+<html lang="ru">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>SprachAnker — Whisper</title>
+<style>
+  :root { color-scheme: light dark; --line: #8884; --ok: #2a7d3c; --bad: #b3261e; }
+  body { font: 15px/1.4 system-ui, sans-serif; margin: 0; padding: max(14px, env(safe-area-inset-top)) 14px 40px; }
+  h1 { font-size: 20px; margin: 0 0 8px; }
+  .row { display: flex; flex-wrap: wrap; gap: 6px; margin: 8px 0; align-items: center; }
+  button, select, input { font: inherit; padding: 9px 12px; border-radius: 10px; border: 1px solid var(--line); background: #8881; }
+  input { width: 4em; }
+  #status { font-weight: 600; min-height: 1.4em; margin: 8px 0; }
+  table { border-collapse: collapse; width: 100%; font-size: 13px; }
+  td, th { border-top: 1px solid var(--line); padding: 5px 4px; vertical-align: top; text-align: left; }
+  .num { text-align: right; white-space: nowrap; font-variant-numeric: tabular-nums; }
+  .ok { color: var(--ok); } .bad { color: var(--bad); }
+  h2 { font-size: 15px; margin: 16px 0 4px; }
+</style>
+</head>
+<body>
+<h1>Whisper в приложении</h1>
+<div class="row">
+  <select id="model">
+    <option>ggml-small-q8_0.bin</option>
+    <option>ggml-base-q8_0.bin</option>
+  </select>
+  <label>потоки <input id="threads" type="number" min="1" max="8" value="4"></label>
+  <button type="button" id="run">Прогнать фразы</button>
+</div>
+<div id="status"></div>
+<div id="out"></div>
+<script>
+const DIR = "/sdcard/Android/data/app.sprachanker.mobile/files/";
+const { invoke } = window.__TAURI__.core;
+const $ = (id) => document.getElementById(id);
+const status = (s) => { $("status").textContent = s; };
+
+/** 16-bit PCM WAV → Float32 samples. */
+function samplesOf(buf) {
+  const v = new DataView(buf);
+  for (let at = 12; at < v.byteLength; ) {
+    const id = String.fromCharCode(v.getUint8(at), v.getUint8(at + 1), v.getUint8(at + 2), v.getUint8(at + 3));
+    const size = v.getUint32(at + 4, true);
+    if (id === "data") {
+      const out = new Float32Array(size / 2);
+      for (let i = 0; i < out.length; i++) out[i] = v.getInt16(at + 8 + i * 2, true) / 32768;
+      return out;
+    }
+    at += 8 + size;
+  }
+  throw new Error("no data chunk");
+}
+const words = (s) => s.toLowerCase().replace(/[^\p{L}\p{N}\s]/gu, " ").split(/\s+/).filter(Boolean);
+function match(ref, got) {
+  const a = words(ref), b = words(got);
+  const dp = Array.from({ length: a.length + 1 }, () => new Array(b.length + 1).fill(0));
+  for (let i = 1; i <= a.length; i++)
+    for (let j = 1; j <= b.length; j++)
+      dp[i][j] = a[i - 1] === b[j - 1] ? dp[i - 1][j - 1] + 1 : Math.max(dp[i - 1][j], dp[i][j - 1]);
+  return a.length ? dp[a.length][b.length] / a.length : 1;
+}
+
+$("run").onclick = async () => {
+  $("run").disabled = true;
+  const model = $("model").value;
+  const threads = $("threads").value;
+  try {
+    const phrases = await (await fetch("phrases/phrases.json")).json();
+    status(`${model}: загрузка…`);
+    const loadMs = await invoke("load", { path: DIR + model });
+    const box = document.createElement("div");
+    box.innerHTML = `<h2>${model} · ${threads} потока · загрузка ${(loadMs / 1000).toFixed(1)} с</h2>`;
+    const table = document.createElement("table");
+    table.innerHTML = `<tr><th class="num">с</th><th class="num">whisper мс</th><th class="num">всего мс</th><th class="num">слова</th><th>услышано</th></tr>`;
+    box.append(table);
+    $("out").prepend(box);
+    // Warmed by one answer first, as the app's first one after start.
+    const first = samplesOf(await (await fetch(`phrases/${phrases[1].id}.wav`)).arrayBuffer());
+    await invoke("transcribe", new Uint8Array(first.buffer), { headers: { threads } });
+    for (const p of phrases) {
+      status(`${model}: ${p.id} (${p.seconds} с)…`);
+      const samples = samplesOf(await (await fetch(`phrases/${p.id}.wav`)).arrayBuffer());
+      const t0 = performance.now();
+      const heard = await invoke("transcribe", new Uint8Array(samples.buffer), { headers: { threads } });
+      const all = Math.round(performance.now() - t0);
+      const m = match(p.text, heard.text);
+      const tr = document.createElement("tr");
+      tr.innerHTML = `<td class="num">${p.seconds}</td><td class="num">${heard.ms}</td><td class="num">${all}</td><td class="num ${m > 0.9 ? "ok" : "bad"}">${Math.round(m * 100)}%</td><td></td>`;
+      tr.lastChild.textContent = heard.text;
+      table.append(tr);
+    }
+    status(`${model}: готово`);
+  } catch (e) {
+    status(`ошибка: ${e}`);
+  }
+  $("run").disabled = false;
+};
+status("Выберите модель и прогоните фразы.");
+</script>
+</body>
+</html>
