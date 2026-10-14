@@ -1,4 +1,8 @@
-# SprachAnker
+<p align="center">
+  <img src="apps/web/public/favicon.svg" alt="SprachAnker icon: a speech bubble with an anchor" width="128" height="128">
+</p>
+
+<h1 align="center">SprachAnker</h1>
 
 **A self-hosted language tutor built around real courses.** Download published courses and exam
 catalogues into a library on your own machine, then study them in one interface: lessons
