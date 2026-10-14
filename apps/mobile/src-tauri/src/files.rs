@@ -57,7 +57,7 @@ fn walk(dir: &Path, base: &Path, out: &mut Vec<Entry>) {
 }
 
 /// Every file under a folder of the root (its path relative to the root), its size and time.
-#[tauri::command]
+#[tauri::command(async)]
 pub fn fs_list(path: String) -> Result<Vec<Entry>, String> {
     let dir = under(&path).ok_or("outside the app's files")?;
     let mut out = Vec::new();
@@ -66,7 +66,7 @@ pub fn fs_list(path: String) -> Result<Vec<Entry>, String> {
 }
 
 /// A file written whole (base64), through a part file renamed into place.
-#[tauri::command]
+#[tauri::command(async)]
 pub fn fs_write(path: String, base64: String) -> Result<(), String> {
     let file = under(&path).ok_or("outside the app's files")?;
     let bytes = base64::engine::general_purpose::STANDARD.decode(base64).map_err(|e| e.to_string())?;
@@ -79,7 +79,7 @@ pub fn fs_write(path: String, base64: String) -> Result<(), String> {
 }
 
 /// A file or a folder removed (nothing when it is not there).
-#[tauri::command]
+#[tauri::command(async)]
 pub fn fs_remove(path: String) -> Result<(), String> {
     let file = under(&path).ok_or("outside the app's files")?;
     if file.is_dir() {
@@ -116,16 +116,26 @@ fn media_type(path: &Path) -> &'static str {
     }
 }
 
+/** The app's own page: the only origin the files are answered to (another page in the WebView must
+ *  not read the profiles' databases or the key that seals their API keys). */
+const APP_ORIGIN: &str = "http://tauri.localhost";
+
 fn answer(status: StatusCode, body: Vec<u8>) -> Response<Vec<u8>> {
     Response::builder()
         .status(status)
-        .header(header::ACCESS_CONTROL_ALLOW_ORIGIN, "*")
+        .header(header::ACCESS_CONTROL_ALLOW_ORIGIN, APP_ORIGIN)
         .body(body)
         .unwrap()
 }
 
 /// A file of the root as the `media` scheme serves it: whole, or the range asked.
 pub fn serve(request: &Request<Vec<u8>>) -> Response<Vec<u8>> {
+    // A request another page makes (its origin said) is refused outright.
+    if let Some(origin) = request.headers().get(header::ORIGIN).and_then(|v| v.to_str().ok()) {
+        if origin != APP_ORIGIN {
+            return answer(StatusCode::FORBIDDEN, Vec::new());
+        }
+    }
     let path = percent_decode(request.uri().path());
     // A recording of a profile's by its id alone (`/recording/<id>`): the file named so, any type.
     let file = match path.strip_prefix("/recording/") {
@@ -148,7 +158,7 @@ pub fn serve(request: &Request<Vec<u8>>) -> Response<Vec<u8>> {
             Some((start, end.min(size.saturating_sub(1))))
         });
     match range {
-        Some((start, end)) if start < size => {
+        Some((start, end)) if start < size && start <= end => {
             // To the end asked, whole: Android's WebView plays nothing from a range answered in part.
             let mut body = vec![0; (end - start + 1) as usize];
             if f.seek(SeekFrom::Start(start)).is_err() || f.read_exact(&mut body).is_err() {
@@ -156,7 +166,7 @@ pub fn serve(request: &Request<Vec<u8>>) -> Response<Vec<u8>> {
             }
             Response::builder()
                 .status(StatusCode::PARTIAL_CONTENT)
-                .header(header::ACCESS_CONTROL_ALLOW_ORIGIN, "*")
+                .header(header::ACCESS_CONTROL_ALLOW_ORIGIN, APP_ORIGIN)
                 .header(header::CONTENT_TYPE, kind)
                 .header(header::ACCEPT_RANGES, "bytes")
                 .header(header::CONTENT_RANGE, format!("bytes {start}-{end}/{size}"))
@@ -165,7 +175,7 @@ pub fn serve(request: &Request<Vec<u8>>) -> Response<Vec<u8>> {
         }
         Some(_) => Response::builder()
             .status(StatusCode::RANGE_NOT_SATISFIABLE)
-            .header(header::ACCESS_CONTROL_ALLOW_ORIGIN, "*")
+            .header(header::ACCESS_CONTROL_ALLOW_ORIGIN, APP_ORIGIN)
             .header(header::CONTENT_RANGE, format!("bytes */{size}"))
             .body(Vec::new())
             .unwrap(),
@@ -176,7 +186,7 @@ pub fn serve(request: &Request<Vec<u8>>) -> Response<Vec<u8>> {
             }
             Response::builder()
                 .status(StatusCode::OK)
-                .header(header::ACCESS_CONTROL_ALLOW_ORIGIN, "*")
+                .header(header::ACCESS_CONTROL_ALLOW_ORIGIN, APP_ORIGIN)
                 .header(header::CONTENT_TYPE, kind)
                 .header(header::ACCEPT_RANGES, "bytes")
                 .body(body)

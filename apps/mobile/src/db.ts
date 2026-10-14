@@ -112,7 +112,13 @@ export function makeDb(files: Files, rel: string, migrations: Migration[], bytes
       const bytes = db.export();
       pragmas(db);
       seen = 0;
-      await files.write(rel, bytes);
+      // A write that fails is tried again at the next tick (the chain itself never fails).
+      try {
+        await files.write(rel, bytes);
+      } catch (error) {
+        seen = -1;
+        console.error(`${rel} not written: ${error}`);
+      }
     });
     return writing;
   };

@@ -112,7 +112,8 @@ export function libraryOver(
   };
   /** A file of the series under `folder`, never outside it (`..` resolved first). */
   const inside = (series: string, folder: string, path: string) => {
-    if (!SeriesKey.safeParse(series).success) return undefined;
+    // A backslash is a separator on Windows: a path with one could leave the folder there.
+    if (!SeriesKey.safeParse(series).success || path.includes("\\")) return undefined;
     const base = `${joinPath(seriesDir(series), folder)}/`;
     const file = joinPath(seriesDir(series), path);
     return file.startsWith(base) && fs.exists(file) ? file : undefined;

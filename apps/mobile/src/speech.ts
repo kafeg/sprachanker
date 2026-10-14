@@ -33,8 +33,15 @@ export function phoneSpeech(files: Files) {
       binary: () => "in-app",
       spawn(_binary, { model }) {
         loading = native.loadModel(model);
-        loading.catch((error: unknown) => console.error(`Whisper: ${error}`));
-        return { exited: new Promise<number>(() => {}), kill() {} };
+        // A model that does not load ends "the process" at once (the supervisor stops waiting).
+        const exited = loading.then(
+          () => new Promise<number>(() => {}),
+          (error: unknown) => {
+            console.error(`Whisper: ${error}`);
+            return 1;
+          },
+        );
+        return { exited, kill() {} };
       },
     },
   };

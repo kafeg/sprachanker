@@ -93,7 +93,7 @@ struct Heard {
 }
 
 /// Loads a model file: how long it took.
-#[tauri::command]
+#[tauri::command(async)]
 fn load(asr: tauri::State<Asr>, path: String) -> Result<u128, String> {
     let started = Instant::now();
     let model = whisper::Model::load(&path)?;
@@ -103,7 +103,7 @@ fn load(asr: tauri::State<Asr>, path: String) -> Result<u128, String> {
 
 /// What was said in the samples (the body) in a language given (`lang`, German by default), with the
 /// threads in the `threads` header.
-#[tauri::command]
+#[tauri::command(async)]
 fn transcribe(asr: tauri::State<Asr>, request: Request) -> Result<Heard, String> {
     // Raw where the platform's IPC carries bytes; a JSON array of them where it does not (Android).
     let bytes: Vec<u8> = match request.body() {
@@ -139,6 +139,16 @@ fn transcribe(asr: tauri::State<Asr>, request: Request) -> Result<Heard, String>
 #[cfg_attr(mobile, tauri::mobile_entry_point)]
 pub fn run() {
     tauri::Builder::default()
+        // The WebView stays on the app's own pages: a link out goes nowhere (no other site's page
+        // runs beside the app's files).
+        .plugin(
+            tauri::plugin::Builder::<tauri::Wry>::new("stay")
+                .on_navigation(|_, url| {
+                    matches!(url.host_str(), Some("tauri.localhost") | Some("localhost"))
+                        || url.scheme() == "tauri"
+                })
+                .build(),
+        )
         .manage(Asr::default())
         .register_asynchronous_uri_scheme_protocol("media", |_ctx, request, responder| {
             std::thread::spawn(move || responder.respond(files::serve(&request)));

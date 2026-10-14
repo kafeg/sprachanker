@@ -24,6 +24,21 @@ setNetFetch(netFetch);
 // The web app knows it runs in the phone app (what it does not have here, it does not offer).
 (globalThis as { sprachankerPhone?: boolean }).sprachankerPhone = true;
 
+/** A file's Blob whose bytes are read only when asked for as a whole (`arrayBuffer`, `bytes`): what
+ *  the server reads of a practice recording. A Blob, as what takes one checks; its own data is none,
+ *  so what serialises it (a form sent on) sends nothing. */
+class FileBlob extends Blob {
+  constructor(private readonly read: () => Promise<Uint8Array<ArrayBuffer> | undefined>) {
+    super([]);
+  }
+  override async arrayBuffer() {
+    return ((await this.read()) ?? new Uint8Array()).buffer as ArrayBuffer;
+  }
+  override async bytes() {
+    return (await this.read()) ?? new Uint8Array();
+  }
+}
+
 /** What the phone's server answers when asked for what it does not have; at the start, nothing. */
 const EMPTY: Record<string, unknown> = {
   sweep: () => {},
@@ -76,15 +91,7 @@ async function start() {
     profiles,
     // Media are played from the native side's scheme; the server reads one only whole (a practice
     // recording it hands on), read from the files when it does.
-    mediaBlob: (file) => {
-      const read = async () => (await files.read(file)) ?? new Uint8Array();
-      return {
-        size: files.fs.stat(file)?.size ?? 0,
-        type: "",
-        arrayBuffer: async () => (await read()).buffer,
-        bytes: read,
-      } as unknown as MediaBlob;
-    },
+    mediaBlob: (file) => new FileBlob(() => files.read(file)) as MediaBlob,
     decks: notOnPhone("decks"),
     apkg: notOnPhone("decks"),
     transfers: notOnPhone("profile files"),
@@ -124,7 +131,7 @@ globalThis.fetch = (async (input: RequestInfo | URL, init?: RequestInit) => {
   const request = new Request(input, init);
   const url = new URL(request.url);
   if (url.origin !== location.origin || !/^\/(api|library|decks)\//.test(url.pathname))
-    return netFetch(input, init);
+    return netFetch(request);
   const app = await ready;
   const token = session.get();
   let asked = request;

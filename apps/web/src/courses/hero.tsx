@@ -87,14 +87,17 @@ export function CourseHero(props: CourseHeroProps) {
               <span className={chip}>{t(`course.licence.${source.licence}`)}</span>
             </>
           )}
-          <button
-            type="button"
-            onClick={() => setOpen((o) => !o)}
-            aria-expanded={open}
-            className={cn(chip, "hover:bg-accent pointer-coarse:min-h-11", checkTone(r))}
-          >
-            <CheckState check={check} />
-          </button>
+          {/* No check (one that failed, or none on the phone): no chip. */}
+          {!(check.isError && !check.isFetching) && (
+            <button
+              type="button"
+              onClick={() => setOpen((o) => !o)}
+              aria-expanded={open}
+              className={cn(chip, "hover:bg-accent pointer-coarse:min-h-11", checkTone(r))}
+            >
+              <CheckState check={check} />
+            </button>
+          )}
         </>
       }
       line={
