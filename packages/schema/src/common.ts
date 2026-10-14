@@ -18,6 +18,15 @@ export const MediaPath = LibraryPath.regex(/^media\/[^/]+\/.+$/).meta({
 });
 export type MediaPath = z.infer<typeof MediaPath>;
 
+/** A variant of a course's practice (practice.ts): its id, unique in its lesson's practice. */
+export const PracticeId = z.string().regex(/^[a-z0-9]{8,32}$/);
+
+/** A recording of a course's practice made beforehand: a WAV in its lesson's folder of the series'
+ *  practice, `practice/<edition>/<course>/<unit>-<lesson>/<name>.wav`. */
+export const PracticeRecording = LibraryPath.regex(
+  /^practice\/[a-z]{2,3}-[a-z]{2,3}\/[a-z0-9]+(?:-[a-z0-9]+)*\/\d{2,}-\d{2,}\/[a-z0-9]+(?:-[a-z0-9]+)*\.wav$/,
+);
+
 /** Text per learner language, e.g. `{ en: "…", ru: "…" }`. */
 export const LocalizedText = z.record(Lang, z.string());
 export type LocalizedText = z.infer<typeof LocalizedText>;

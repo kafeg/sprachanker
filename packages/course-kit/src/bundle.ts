@@ -31,10 +31,14 @@ import {
   LocaleExam,
   LocaleLesson,
   MediaIndex,
+  mergePractice,
+  PracticeLesson,
+  practiceRecordings,
   SeriesKey,
   Slug,
 } from "@sprachanker/schema";
 import type { z } from "zod";
+import { prettyJson } from "./canonical-json.ts";
 import { hashFile, linkOrCopy, writeFileAtomic } from "./files.ts";
 import { NotInstalledError, openLibrary } from "./library.ts";
 import { type LibraryFile, libraryFile } from "./provider.ts";
@@ -47,7 +51,12 @@ export interface BundleFile {
 }
 
 /** A bundle's library JSON files: what the content versions and the schema checks cover. */
-const isLibraryJson = (path: string) => path.startsWith("canonical/") || path.startsWith("locale/");
+const isLibraryJson = (path: string) =>
+  path.startsWith("canonical/") ||
+  path.startsWith("locale/") ||
+  (path.startsWith("practice/") && path.endsWith(".json"));
+/** A practice's lesson file (not one of its recordings). */
+const isPracticeJson = (path: string) => path.startsWith("practice/") && path.endsWith(".json");
 
 /** Paths of the files under `dir` (a course's folder), as series paths under `prefix`, that a bundle
  *  may hold (a temporary file an import left is none). */
@@ -128,6 +137,15 @@ async function courseContent(
         const file = fileOf(path);
         return file ? [{ path, file }] : [];
       });
+  // Each edition's practice made for the course, and the recordings it names.
+  const practice = chosen.flatMap((e) =>
+    filesUnder(seriesDir, `practice/${e}/${courseId}`).filter(isPracticeJson),
+  );
+  const recorded = new Set<string>();
+  for (const path of practice) {
+    const lesson = PracticeLesson.safeParse(await readJson(join(seriesDir, path)));
+    for (const r of lesson.success ? practiceRecordings(lesson.data) : []) recorded.add(r);
+  }
   const lessons = index.units.some((u) => u.lessons.length);
   return {
     course: index.key,
@@ -135,9 +153,12 @@ async function courseContent(
     editions: chosen,
     source: index.source ?? null,
     titles,
-    json,
+    json: [...json, ...practice],
     media: present(named, (p) => library.mediaFile(series, p)),
-    copies: present(raw, (p) => library.rawFile(series, p)),
+    copies: [
+      ...present(raw, (p) => library.rawFile(series, p)),
+      ...present(recorded, (p) => library.practiceFile(series, p)),
+    ],
   };
 }
 
@@ -243,17 +264,22 @@ function versionOf(files: ReadonlyArray<{ path: string; sha256: string }>) {
   return hash.digest("hex");
 }
 
-/** A course's content versions from its files: of its canonical files, and of each
- *  edition's locale files. */
+/** A course's content versions from its files: of its canonical files, of each edition's locale
+ *  files, and of each edition's practice there is (its lessons and recordings). */
 export function contentVersions(
   courseId: string,
   editions: readonly string[],
   files: ReadonlyArray<{ path: string; sha256: string }>,
 ) {
-  const of = (prefix: string) => versionOf(files.filter((f) => f.path.startsWith(prefix)));
+  const under = (prefix: string) => files.filter((f) => f.path.startsWith(prefix));
+  const of = (prefix: string) => versionOf(under(prefix));
+  const practiced = editions.filter((e) => under(`practice/${e}/${courseId}/`).length);
   return {
     canonical: of(`canonical/${courseId}/`),
     editions: Object.fromEntries(editions.map((e) => [e, of(`locale/${e}/${courseId}/`)])),
+    ...(practiced.length && {
+      practice: Object.fromEntries(practiced.map((e) => [e, of(`practice/${e}/${courseId}/`)])),
+    }),
   };
 }
 
@@ -353,6 +379,7 @@ function kindOf(path: string): {
   schema: z.ZodType;
   file: (value: never) => LibraryFile;
 } {
+  if (isPracticeJson(path)) return { schema: PracticeLesson, file: libraryFile.practice };
   const locale = path.startsWith("locale/");
   if (path.endsWith("/course.json"))
     return locale
@@ -394,6 +421,7 @@ export async function checkBundle(files: string, manifest: CourseBundleManifest)
   const ids = new Set(manifest.courses.map((c) => courseIdOf(c.course)));
   const named = new Set<string>();
   const raw = new Set<string>();
+  const recorded = new Set<string>();
   const paths = new Set(manifest.files.map((f) => f.path));
   for (const path of paths) {
     if (problems.length >= 20) break;
@@ -416,9 +444,14 @@ export async function checkBundle(files: string, manifest: CourseBundleManifest)
     if (
       kind.file(parsed.data as never).path !== path ||
       !course ||
-      (path.startsWith("locale/") && !course.editions.includes(owner.edition ?? ""))
+      ((path.startsWith("locale/") || isPracticeJson(path)) &&
+        !course.editions.includes(owner.edition ?? ""))
     ) {
       problems.push(`${path}: not where its keys put it in the bundle's courses`);
+      continue;
+    }
+    if (isPracticeJson(path)) {
+      for (const r of practiceRecordings(parsed.data as PracticeLesson)) recorded.add(r);
       continue;
     }
     mediaPaths(parsed.data, named);
@@ -440,6 +473,8 @@ export async function checkBundle(files: string, manifest: CourseBundleManifest)
     if (of !== undefined && !ids.has(of)) problems.push(`${path}: not of the bundle's courses`);
     if (path.startsWith("raw/") && !raw.has(path))
       problems.push(`${path}: a copy no exam's sources name`);
+    if (path.startsWith("practice/") && !isPracticeJson(path) && !recorded.has(path))
+      problems.push(`${path}: a recording no practice names`);
   }
   // A line of media.json is believed by the next download of the series (a URL stored is not
   // fetched again): each says what the bundle holds — its file, of its kind, size and content — of
@@ -466,6 +501,7 @@ export async function checkBundle(files: string, manifest: CourseBundleManifest)
     const versions = contentVersions(courseIdOf(c.course), c.editions, manifest.files);
     if (
       versions.canonical !== c.content.canonical ||
+      sorted(versions.practice) !== sorted(c.content.practice) ||
       Object.keys(c.content.editions).sort().join() !== [...c.editions].sort().join() ||
       c.editions.some((e) => versions.editions[e] !== c.content.editions[e])
     )
@@ -473,6 +509,10 @@ export async function checkBundle(files: string, manifest: CourseBundleManifest)
   }
   return problems.slice(0, 20);
 }
+
+/** A record's entries in key order, as text: two records compared whatever order they were made in. */
+const sorted = (record: Record<string, string> | undefined) =>
+  JSON.stringify(Object.entries(record ?? {}).sort());
 
 /** Moves a file or folder into place, its folder made first. */
 function moveInto(from: string, to: string) {
@@ -491,7 +531,13 @@ interface InstallJournal {
   folders: Array<{ prefix: string; had: boolean }>;
   /** The series' files it rewrites (media.json, keys.json): each kept aside as it was, if it was. */
   state: string[];
+  /** Lessons' practice it merges into (`had`: there before; the old one kept aside). */
+  practice: Array<{ path: string; had: boolean }>;
 }
+
+/** How many variants a lesson's practice holds. */
+const variants = (p: PracticeLesson | undefined) =>
+  p ? p.reading.length + p.listening.length + p.writing.length + p.speaking.length : 0;
 
 /**
  * A checked bundle, unpacked into `files`, installed into the library — the caller holds the series'
@@ -499,11 +545,13 @@ interface InstallJournal {
  * nothing of it is changed before. Then, all or nothing: its media and source copies moved (or
  * linked) into place, its courses' folders — canonical and each edition's — replaced whole where
  * their content version differs, and last the series' media index given the lines it lacks and the
- * key map its courses' scopes (replaced: the bundle's are the courses'). What it changes is written to
+ * key map its courses' scopes (replaced: the bundle's are the courses'); each lesson's practice merged
+ * with the one here — every variant of either, each once, so variants made on two machines gather.
+ * What it changes is written to
  * `aside` first, with the old folders and files kept there: an error midway undoes it here, a process
  * stopped midway is undone by `undoInstall` (the server's start). Other editions of a course stay as
  * they are. Each course: `same` when nothing of its content differed, `added` when it was not here,
- * else `replaced`.
+ * else `replaced`; and the practice variants it brought that were not here.
  */
 export async function installBundle(options: {
   libraryRoot: string;
@@ -563,6 +611,23 @@ export async function installBundle(options: {
   ].filter((r) => JSON.stringify(r.value) !== JSON.stringify(r.was));
   const changed = courses.flatMap((c) => c.folders.filter((f) => f.was !== f.now));
   const placed = [...[...plan.unpack].filter((p) => !isLibraryJson(p)), ...plan.link.keys()];
+  // Each lesson's practice merged with the one here; the variants it brings, by course.
+  const practice: Array<{ path: string; had: boolean; value: PracticeLesson }> = [];
+  const brought = new Map<string, number>();
+  for (const f of manifest.files) {
+    if (!isPracticeJson(f.path)) continue;
+    const theirs = PracticeLesson.parse(await readJson(join(files, f.path)));
+    const target = join(seriesDir, f.path);
+    const ours = existsSync(target)
+      ? PracticeLesson.safeParse(await readJson(target)).data
+      : undefined;
+    const value = ours ? mergePractice(ours, theirs) : theirs;
+    const added = variants(value) - variants(ours);
+    if (!added && ours) continue;
+    practice.push({ path: f.path, had: !!ours, value });
+    const course = `${series}/${bundlePathCourse(f.path)}`;
+    brought.set(course, (brought.get(course) ?? 0) + added);
+  }
 
   // What it changes, first; the series' files as they were kept beside it.
   const kept = join(aside, series);
@@ -575,7 +640,13 @@ export async function installBundle(options: {
     placed,
     folders: changed.map((f) => ({ prefix: f.prefix, had: existsSync(join(seriesDir, f.prefix)) })),
     state: rewrites.map((r) => r.name),
+    practice: practice.map(({ path, had }) => ({ path, had })),
   };
+  for (const p of practice)
+    if (p.had) {
+      mkdirSync(dirname(join(kept, p.path)), { recursive: true });
+      copyFileSync(join(seriesDir, p.path), join(kept, p.path));
+    }
   await writeFileAtomic(join(aside, JOURNAL), JSON.stringify(journal));
   try {
     for (const path of plan.unpack)
@@ -588,6 +659,10 @@ export async function installBundle(options: {
       const target = join(seriesDir, f.prefix);
       if (f.had) moveInto(target, join(kept, f.prefix));
       moveInto(join(files, f.prefix), target);
+    }
+    for (const p of practice) {
+      mkdirSync(dirname(join(seriesDir, p.path)), { recursive: true });
+      await writeFileAtomic(join(seriesDir, p.path), prettyJson(p.value));
     }
     for (const r of rewrites)
       await writeFileAtomic(join(seriesDir, r.name), `${JSON.stringify(r.value, null, 1)}\n`);
@@ -607,6 +682,8 @@ export async function installBundle(options: {
         : c.folders.some((f) => f.was !== f.now)
           ? ("replaced" as const)
           : ("same" as const),
+      /** Practice variants it brought that were not here. */
+      variants: brought.get(c.course) ?? 0,
     })),
     /** Media files placed (unpacked or linked), and those the library had already. */
     media: { added: unpackedMedia + plan.link.size, kept: plan.skip.size },
@@ -643,6 +720,11 @@ export function undoInstall(libraryRoot: string, aside: string) {
     if (f.had && !existsSync(old)) continue;
     rmSync(target, { recursive: true, force: true });
     if (f.had) moveInto(old, target);
+  }
+  for (const p of journal.practice ?? []) {
+    const old = join(kept, p.path);
+    if (p.had && existsSync(old)) renameSync(old, join(seriesDir, p.path));
+    else if (!p.had) rmSync(join(seriesDir, p.path), { force: true });
   }
   for (const name of journal.state) {
     const old = join(kept, name);

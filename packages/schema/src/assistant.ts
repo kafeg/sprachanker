@@ -2,6 +2,7 @@
 // result stored in an `llm_verdict` or a scene run's plan. Read back with these schemas; the tasks in
 // packages/llm ask the models for them.
 import { z } from "zod";
+import { PracticeId, PracticeRecording } from "./common.ts";
 
 /** A mistake in the learner's text and its fix (a writing check, a scene line). */
 export const Correction = z.object({
@@ -69,6 +70,8 @@ export type TaskMessage = z.infer<typeof TaskMessage>;
  *  a chat, an ad), or a situation alone (tasks before the message); kept as an `llm_verdict` (`task:
  *  writing_task`) in the lesson run, the texts written on it checked against it. */
 export const WritingTask = z.object({
+  /** The variant of the course's practice it is (none: made before practice was kept in courses). */
+  variant: PracticeId.optional(),
   /** Who the learner writes to and why, one or two sentences. */
   situation: z.string().min(1).max(400),
   /** The three things the text must do ("say why you are late"). */
@@ -271,6 +274,8 @@ export type TextRating = z.infer<typeof TextRating>;
  *  `practice_answered` events on it. Texts before Reading and Listening have no `step` (a text to
  *  read is `kind: reading`), nor people, voices or rating. */
 export const UnderstandingText = z.object({
+  /** The variant of the course's practice it is (none: made before practice was kept in courses). */
+  variant: PracticeId.optional(),
   kind: z.enum(["dialogue", "announcement", "reading"]),
   /** The step it is for; none: a text before the two steps. */
   step: PracticeStep.optional(),
@@ -290,6 +295,9 @@ export const UnderstandingText = z.object({
   voices: z
     .object({ engine: z.enum(["piper", "qwen"]), by: z.record(z.string(), z.string()) })
     .optional(),
+  /** Its recording made with the course's practice (a text to hear): played as it is, read aloud by
+   *  no engine. */
+  recording: PracticeRecording.optional(),
   /** The text in the target language, a line each — a speaker's turn (with the speaker's name), a
    *  paragraph, a line of a menu. */
   lines: z
@@ -489,6 +497,8 @@ export type MistakesReview = z.infer<typeof MistakesReview>;
  *  three things to say in the target language —, about how long to speak, and a model answer. */
 export const MonologueCard = z.object({
   kind: z.literal("monologue"),
+  /** The variant of the course's practice it is (none: made before practice was kept in courses). */
+  variant: PracticeId.optional(),
   setting: z.string().max(120),
   instruction: z.string().min(1).max(300),
   topic: z.string().min(1).max(120),
@@ -511,6 +521,8 @@ export const RoleplayCue = z.object({
  *  model —, the partner read aloud by their voice. */
 export const Roleplay = z.object({
   kind: z.literal("roleplay"),
+  /** The variant of the course's practice it is (none: made before practice was kept in courses). */
+  variant: PracticeId.optional(),
   /** The text generator's genre of the conversation (a talk, a phone call). */
   genre: z.string().max(40).optional(),
   setting: z.string().max(120),
@@ -521,6 +533,9 @@ export const Roleplay = z.object({
   partner: TextPerson,
   /** The partner's server voice, chosen when it was made. */
   voice: z.object({ engine: z.enum(["piper", "qwen"]), id: z.string() }).optional(),
+  /** The partner's lines recorded with the course's practice, by the line's index: played as they
+   *  are, read aloud by no engine. */
+  recordings: z.record(z.string().regex(/^\d+$/), PracticeRecording).optional(),
   lines: z.array(TextLine).min(2).max(30),
   cues: z.array(RoleplayCue).min(1).max(15),
   glossary: z.array(TextGloss).max(10),

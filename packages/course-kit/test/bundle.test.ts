@@ -22,6 +22,7 @@ import {
   courseIdOf,
   type ExamSources,
   MediaIndex,
+  type PracticeLesson,
 } from "@sprachanker/schema";
 import {
   bundleGroups,
@@ -174,7 +175,7 @@ test("a bundle installed into another library: verified whole, the series' state
   const otherSeries = join(other, MINI_SERIES);
   put(join(otherSeries, "keys.json"), JSON.stringify({ [`${MINI_SERIES}/x/u00`]: { "1": 1 } }));
   const first = await install(other, await bundled(root, ["ru-de"]));
-  expect(first.courses).toEqual([{ course: COURSE, status: "added" }]);
+  expect(first.courses).toEqual([{ course: COURSE, status: "added", variants: 0 }]);
   expect(first.media).toEqual({ added: 2, kept: 0 });
   const report = await openLibrary(other).check(MINI_SERIES, "basic");
   expect(report.problems).toEqual([]);
@@ -190,11 +191,11 @@ test("a bundle installed into another library: verified whole, the series' state
     [`${COURSE}/u00`]: { "11": 1 },
   });
   const again = await install(other, await bundled(root, ["ru-de"]));
-  expect(again.courses).toEqual([{ course: COURSE, status: "same" }]);
+  expect(again.courses).toEqual([{ course: COURSE, status: "same", variants: 0 }]);
   expect(again.media).toEqual({ added: 0, kept: 3 });
   // Another edition of it: added beside, the course's files the same.
   const en = await install(other, await bundled(root, ["en-de"]));
-  expect(en.courses).toEqual([{ course: COURSE, status: "replaced" }]);
+  expect(en.courses).toEqual([{ course: COURSE, status: "replaced", variants: 0 }]);
   expect(openLibrary(other).courses()[0]?.editions).toEqual(["en-de", "ru-de"]);
 });
 
@@ -208,7 +209,7 @@ test("a bundle whose content differs replaces the course's folders whole; editio
   const title = join(series, "locale/ru-de/basic/course.json");
   writeFileSync(title, readFileSync(title, "utf8").replace('"Mini"', '"Mini 2"'));
   const changed = await install(other, await bundled(root, ["ru-de"]));
-  expect(changed.courses).toEqual([{ course: COURSE, status: "replaced" }]);
+  expect(changed.courses).toEqual([{ course: COURSE, status: "replaced", variants: 0 }]);
   expect(existsSync(stale)).toBe(false);
   const installed = openLibrary(other);
   expect((await installed.localeCourse(MINI_SERIES, "basic", "ru-de"))?.title).toBe("Mini 2");
@@ -452,8 +453,8 @@ test("a bundle of two courses sharing media: each media file once, both checked 
   await install(other, await bundled(root, undefined, ["basic"]));
   const done = await install(other, bundle);
   expect(done.courses).toEqual([
-    { course: COURSE, status: "same" },
-    { course: TWIN, status: "added" },
+    { course: COURSE, status: "same", variants: 0 },
+    { course: TWIN, status: "added", variants: 0 },
   ]);
   // Its two media files and basic's exam's copy, there already.
   expect(done.media).toEqual({ added: 0, kept: 3 });
@@ -493,4 +494,87 @@ test("a series' courses grouped for bundles: those sharing most of their media's
     "media/audio/level.mp3",
     "media/image/frage.png",
   ]);
+});
+
+/** A lesson's practice in ru-de with the variants given (by id), each a text to hear recorded. */
+function practice(series: string, ids: string[]) {
+  const lesson = `${MINI_SERIES}/basic/00-01`;
+  const value: PracticeLesson = {
+    format: 1,
+    lesson: lesson as PracticeLesson["lesson"],
+    edition: "ru-de",
+    language: "ru",
+    reading: [],
+    listening: ids.map((id, i) => ({
+      id,
+      model: "m",
+      madeAt: i + 1,
+      text: {
+        kind: "dialogue",
+        step: "listening",
+        title: "Im Café",
+        situation: "Двое в кафе.",
+        lines: [{ speaker: "Anna", text: "Hallo!" }],
+        glossary: [],
+        questions: [{ phase: "listening", question: "Кто?", options: ["Анна", "Ник"], answer: 0 }],
+        recording: `practice/ru-de/basic/00-01/${id}.wav`,
+      },
+    })),
+    writing: [],
+    speaking: [],
+  };
+  put(join(series, "practice/ru-de/basic/00-01.json"), prettyJson(value));
+  for (const id of ids) put(join(series, `practice/ru-de/basic/00-01/${id}.wav`), `wav of ${id}`);
+}
+
+test("a course's practice travels in its bundle with its recordings; installed, a lesson's variants gather", async () => {
+  const { root, series } = await library();
+  practice(series, ["aaaaaaaa", "bbbbbbbb"]);
+  const bundle = await bundled(root);
+  const paths = bundle.manifest.files.map((f) => f.path);
+  expect(paths).toContain("practice/ru-de/basic/00-01.json");
+  expect(paths).toContain("practice/ru-de/basic/00-01/aaaaaaaa.wav");
+  expect(Object.keys(only(bundle).content.practice ?? {})).toEqual(["ru-de"]);
+
+  // Another library made a variant of its own of the lesson, and one the bundle has too.
+  const other = dir();
+  await install(other, await bundled((await library()).root));
+  practice(join(other, MINI_SERIES), ["aaaaaaaa", "cccccccc"]);
+  const done = await install(other, bundle);
+  expect(done.courses).toEqual([{ course: COURSE, status: "same", variants: 1 }]);
+  const merged = await openLibrary(other).practice(
+    MINI_SERIES,
+    `${MINI_SERIES}/basic/00-01` as never,
+    "ru-de",
+  );
+  expect(merged?.listening.map((v) => v.id).sort()).toEqual(["aaaaaaaa", "bbbbbbbb", "cccccccc"]);
+  expect(
+    openLibrary(other).practiceFile(MINI_SERIES, "practice/ru-de/basic/00-01/bbbbbbbb.wav"),
+  ).toBeTruthy();
+  expect(openLibrary(other).practiceLessons(MINI_SERIES, "basic", "ru-de")).toEqual(["00-01"]);
+  // The same again brings nothing.
+  expect((await install(other, bundle)).courses).toEqual([
+    { course: COURSE, status: "same", variants: 0 },
+  ]);
+});
+
+test("a bundle's practice is checked: a recording no variant names, an edition it does not carry", async () => {
+  const { root, series } = await library();
+  practice(series, ["aaaaaaaa"]);
+  const bundle = await bundled(root, ["ru-de"]);
+  put(join(bundle.files, "practice/ru-de/basic/00-01/stray.wav"), "x");
+  const stray = {
+    ...bundle.manifest,
+    files: [
+      ...bundle.manifest.files,
+      { path: "practice/ru-de/basic/00-01/stray.wav", size: 1, sha256: "0".repeat(64) },
+    ],
+  };
+  expect((await checkBundle(bundle.files, stray)).join()).toContain(
+    "a recording no practice names",
+  );
+  const en = { ...bundle.manifest, courses: [{ ...only(bundle), editions: ["en-de"] }] };
+  expect((await checkBundle(bundle.files, en)).join()).toContain(
+    "practice/ru-de/basic/00-01.json: not where its keys put it",
+  );
 });

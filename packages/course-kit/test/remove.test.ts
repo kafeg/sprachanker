@@ -95,3 +95,15 @@ test("the series' only course removed: no empty folder nor a media index naming 
   expect(readdirSync(series).sort()).toEqual([SERIES_LOCK, `${SERIES_LOCK}.4242-1`, "keys.json"]);
   expect(openLibrary(root).courses()).toEqual([]);
 });
+
+test("a course removed keeps its practice made by the model: the course downloaded again has it", async () => {
+  const root = mkdtempSync(join(tmpdir(), "sprachanker-remove-"));
+  const series = await writeMiniLibrary(root);
+  mkdirSync(join(series, "practice/ru-de/basic/00-01"), { recursive: true });
+  writeFileSync(join(series, "practice/ru-de/basic/00-01.json"), "{}");
+  writeFileSync(join(series, "practice/ru-de/basic/00-01/aaaaaaaa.wav"), "wav");
+  await removeCourse(root, MINI_SERIES, "basic");
+  expect(existsSync(join(series, "canonical/basic"))).toBe(false);
+  expect(readFileSync(join(series, "practice/ru-de/basic/00-01/aaaaaaaa.wav"), "utf8")).toBe("wav");
+  expect(existsSync(join(series, "practice/ru-de/basic/00-01.json"))).toBe(true);
+});

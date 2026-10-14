@@ -15,6 +15,8 @@ import {
   LocaleCourse,
   LocaleExam,
   LocaleLesson,
+  PracticeLesson,
+  PracticeRecording,
   parseExamKey,
   parseLessonKey,
   SeriesKey,
@@ -139,6 +141,35 @@ export function openLibrary(root: string): LibraryView {
       const base = join(seriesDir(series), "raw") + sep;
       const file = normalize(join(seriesDir(series), path));
       return file.startsWith(base) && existsSync(file) ? file : undefined;
+    },
+    async practice(series, key, edition) {
+      const { courseId, name } = parseLessonKey(key);
+      const file = join(
+        seriesDir(series),
+        "practice",
+        named(EditionId, edition),
+        courseId,
+        `${name}.json`,
+      );
+      return existsSync(file) ? read(PracticeLesson, file) : undefined;
+    },
+    practiceLessons(series, course, edition) {
+      const dir = join(
+        seriesDir(series),
+        "practice",
+        named(EditionId, edition),
+        named(Slug, course),
+      );
+      return (existsSync(dir) ? readdirSync(dir) : [])
+        .filter((f) => /^\d{2,}-\d{2,}\.json$/.test(f))
+        .map((f) => f.slice(0, -".json".length))
+        .sort();
+    },
+    practiceFile(series, path) {
+      if (!SeriesKey.safeParse(series).success || !PracticeRecording.safeParse(path).success)
+        return undefined;
+      const file = join(seriesDir(series), path);
+      return existsSync(file) ? file : undefined;
     },
     mediaFile(series, path) {
       if (!SeriesKey.safeParse(series).success) return undefined;

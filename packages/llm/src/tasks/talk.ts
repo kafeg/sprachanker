@@ -77,7 +77,7 @@ const lessonLines = (lesson: LessonInfo) => {
 };
 
 /** A monologue card as the model writes it: the length is the app's. */
-const MonologueReply = MonologueCard.omit({ kind: true, seconds: true });
+const MonologueReply = MonologueCard.omit({ kind: true, seconds: true, variant: true });
 type MonologueReply = z.infer<typeof MonologueReply>;
 
 export function talkCardRules(

@@ -12,6 +12,7 @@ import type {
   LocaleExam,
   LocaleLesson,
   MediaPath,
+  PracticeLesson,
 } from "@sprachanker/schema";
 
 /** A course, lesson or file that is not in the library (a stale link, a course removed). */
@@ -47,6 +48,12 @@ export interface LibraryView {
   rawFile(series: string, path: string): string | undefined;
   /** Absolute file of a media path, or undefined when it does not exist or leaves the media folder. */
   mediaFile(series: string, path: MediaPath | string): string | undefined;
+  /** A lesson's practice made once in an edition (`practice/…`), if there is one. */
+  practice(series: string, key: LessonKey, edition: string): Promise<PracticeLesson | undefined>;
+  /** The lessons of a course an edition's practice was made for (`<unit>-<lesson>`, sorted). */
+  practiceLessons(series: string, course: string, edition: string): string[];
+  /** Absolute file of a practice recording, or undefined when it does not exist or is none. */
+  practiceFile(series: string, path: string): string | undefined;
   /** Verifies one installed course: integrity and counts (verify.ts). */
   check(series: string, course: string): Promise<CourseReport>;
 }

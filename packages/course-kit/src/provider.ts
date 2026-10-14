@@ -13,6 +13,7 @@ import {
   LocaleCourse,
   LocaleExam,
   LocaleLesson,
+  PracticeLesson,
   parseExamKey,
   parseLessonKey,
 } from "@sprachanker/schema";
@@ -145,6 +146,14 @@ export const libraryFile = {
     schema: LocaleExam,
     value,
   }),
+  practice: (value: PracticeLesson): LibraryFile => {
+    const { courseId, name } = parseLessonKey(value.lesson);
+    return {
+      path: `practice/${value.edition}/${courseId}/${name}.json`,
+      schema: PracticeLesson,
+      value,
+    };
+  },
   examSources: (value: ExamSources): LibraryFile => ({
     path: `canonical/${examSourcesFile(value.exam)}`,
     schema: ExamSources,

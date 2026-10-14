@@ -2,7 +2,8 @@
 // exams' source copies, and the media its files name that no other course of its series names (media
 // are one file per content in a series, shared — a course's videos may be its other editions' too).
 // The media index forgets the files removed (a download fetches them again); the key map stays, so a
-// course installed again keeps its keys and the learner's progress meets it. The series' lock is the
+// course installed again keeps its keys and the learner's progress meets it, and so does its practice
+// made by the model (`practice/`). The series' lock is the
 // caller's.
 import { existsSync, readdirSync, readFileSync, rmdirSync, rmSync, statSync } from "node:fs";
 import { join } from "node:path";
@@ -47,8 +48,11 @@ export async function removeCourse(
     for (const f of content?.files ?? []) used.add(f.path);
   }
   const media = own.files.filter((f) => f.path.startsWith("media/"));
+  // Its practice stays (as the key map): made over hours, it is the course's again once it is back.
   const gone = own.files.filter(
-    (f) => !f.path.startsWith("media/") || (!unknown && !used.has(f.path)),
+    (f) =>
+      !f.path.startsWith("practice/") &&
+      (!f.path.startsWith("media/") || (!unknown && !used.has(f.path))),
   );
   let bytes = 0;
   for (const f of gone) bytes += statSync(f.file, { throwIfNoEntry: false })?.size ?? 0;

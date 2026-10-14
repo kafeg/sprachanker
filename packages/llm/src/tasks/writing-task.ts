@@ -61,7 +61,7 @@ export const WRITING_EXAM: Partial<Record<Lang, { task: string; rating: string }
 };
 
 /** The model's part of a task: the length is the app's. */
-export const WritingTaskReply = WritingTask.omit({ words: true, message: true });
+export const WritingTaskReply = WritingTask.omit({ words: true, message: true, variant: true });
 export type WritingTaskReply = z.infer<typeof WritingTaskReply>;
 
 export interface WritingTaskInput extends RulesInput {

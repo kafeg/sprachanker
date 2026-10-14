@@ -30,12 +30,14 @@ const PLACES = new RegExp(
   `^(?:canonical/${SLUG}/(?:course\\.json|${LESSON_FILE}|${EXAM_FILE}|sources/${SLUG}\\.json)` +
     `|locale/${EDITION}/${SLUG}/(?:course\\.json|${LESSON_FILE}|${EXAM_FILE})` +
     "|media/[^/]+/[^/]+" +
-    `|raw/${EDITION}/${SLUG}(?:/[^/]+)+)$`,
+    `|raw/${EDITION}/${SLUG}(?:/[^/]+)+` +
+    `|practice/${EDITION}/${SLUG}/(?:\\d{2,}-\\d{2,}\\.json|\\d{2,}-\\d{2,}/${SLUG}\\.wav))$`,
 );
 
 /** A file a bundle may hold, as its path in the series folder: a course's canonical files, an
  *  edition's locale files, a media file the media store could keep (its kind's extensions only), a
- *  source copy kept in `raw/<edition>/<course>/`. Nothing else: every name
+ *  source copy kept in `raw/<edition>/<course>/`, an edition's practice made once and its recordings
+ *  (`practice/<edition>/<course>/`). Nothing else: every name
  *  portable (no `..`, nothing a disk refuses), no folder of another kind. */
 export const CourseBundlePath = z
   .string()
@@ -48,11 +50,13 @@ export const CourseBundlePath = z
   );
 
 /** The course a bundle path is of (its id): its folder under `canonical/`, `locale/<edition>/`,
- *  `raw/<edition>/` (undefined for a media file: the series'). */
+ *  `raw/<edition>/`, `practice/<edition>/` (undefined for a media file: the series'). */
 export const bundlePathCourse = (path: string) => {
   const parts = path.split("/");
   if (parts[0] === "canonical") return parts[1];
-  return parts[0] === "locale" || parts[0] === "raw" ? parts[2] : undefined;
+  return parts[0] === "locale" || parts[0] === "raw" || parts[0] === "practice"
+    ? parts[2]
+    : undefined;
 };
 
 /** A course a bundle holds. */
@@ -67,7 +71,12 @@ export const CourseBundleCourse = z.strictObject({
   titles: z.record(EditionId, z.string().max(400)),
   /** Content versions: a hash of its canonical files, and of each edition's locale files (each a
    *  sha256 over the files' paths and hashes, in path order). */
-  content: z.strictObject({ canonical: Sha256, editions: z.record(EditionId, Sha256) }),
+  content: z.strictObject({
+    canonical: Sha256,
+    editions: z.record(EditionId, Sha256),
+    /** Each edition's practice made once that the bundle holds (none: none made). */
+    practice: z.record(EditionId, Sha256).optional(),
+  }),
 });
 export type CourseBundleCourse = z.infer<typeof CourseBundleCourse>;
 
