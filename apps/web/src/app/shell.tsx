@@ -13,6 +13,7 @@ import {
 } from "lucide-react";
 import { useTranslation } from "react-i18next";
 import { useDecks } from "@/api/cards.ts";
+import { inPhoneApp } from "@/api/client.ts";
 import { useDownloads, useDownloadsWatch } from "@/api/downloads.ts";
 import { cn } from "@/ui/utils.ts";
 import { useWindowBusy } from "@/ui/window-title.ts";
@@ -92,7 +93,7 @@ export function AppShell({ extra }: { extra?: ExtraSection }) {
         <div className="mt-auto space-y-3 px-1">
           <div>
             <ProfileChip />
-            <OnPhoneButton />
+            {!inPhoneApp && <OnPhoneButton />}
           </div>
           <div className="px-2">
             <AboutLine />
