@@ -37,8 +37,10 @@ src-tauri/
   tauri.conf.json      # app.sprachanker.mobile; the page from dist/
   capabilities/        # what the page may call
   icons/               # from apps/web/public/icon-512.png (`cargo tauri icon`)
-  gen/android/         # the Android project Tauri generated, MainActivity's insets and microphone
-                       # added (its build outputs ignored)
+  gen/android/         # the Android project Tauri generated, MainActivity's insets, microphone and
+                       # Back added (its build outputs ignored)
+  gen/apple/           # the iOS project Tauri generated (`cargo tauri ios init`; needs xcodegen and
+                       # CocoaPods)
 ```
 
 ## Build and run (Android)
@@ -60,6 +62,18 @@ src-tauri/
 - The debug build's WebView is open to Chrome's DevTools: `adb forward tcp:9334
   localabstract:webview_devtools_remote_<pid>`.
 
+## Build and run (iOS simulator)
+
+- `bun scripts/build.ts`, `cargo tauri ios build --debug --target aarch64-sim`, then
+  `xcrun simctl install <device> src-tauri/gen/apple/build/arm64-sim/SprachAnker.app` and
+  `xcrun simctl launch <device> app.sprachanker.mobile`.
+- The data root is the app's Documents (`xcrun simctl get_app_container <device>
+  app.sprachanker.mobile data`): a library copied there (`cp -c`: an APFS clone).
+- iOS names the schemes, not hosts: the page is `tauri://localhost`, the files `media://localhost`.
+- Its WKWebView answers the WebKit inspector: `ios_webkit_debug_proxy -s
+  unix:<the simulator's webinspectord_sim.socket>` (Homebrew), then `Target.sendMessageToTarget`.
+- Whisper is not in the iOS build yet: recognition is off there (`asr_built`).
+
 ## Rules
 
 - whisper.cpp is the server's version, linked through `src-tauri/native/asr.c`: no second copy of Whisper
@@ -72,5 +86,5 @@ src-tauri/
 ## Planned
 
 - A course installed in the app (from a bundle), the LLM through the Mac's server.
-- iOS: whisper.cpp with Metal / Core ML, the same commands.
+- iOS on an iPhone: whisper.cpp with Metal / Core ML (`asr_built`), signing with an Apple ID.
 - Sync with the Mac's server (`docs/decisions.md`).

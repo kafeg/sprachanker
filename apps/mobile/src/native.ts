@@ -4,7 +4,9 @@
 /** Where the native side serves the app's files (and a learner's recordings, by id); the desktop
  *  harness (scripts/dev.ts) serves them elsewhere. */
 export const FILES =
-  (globalThis as { sprachankerFiles?: string }).sprachankerFiles ?? "http://media.localhost";
+  (globalThis as { sprachankerFiles?: string }).sprachankerFiles ??
+  // iOS names a scheme of the app's as its own (`media://localhost`); Android as a host.
+  (location.protocol === "tauri:" ? "media://localhost" : "http://media.localhost");
 
 type Invoke = <T>(
   cmd: string,
@@ -56,6 +58,8 @@ export const native = {
   write: (path: string, bytes: Uint8Array) =>
     invoke<void>("fs_write", { path, base64: toBase64(bytes) }),
   remove: (path: string) => invoke<void>("fs_remove", { path }),
+  /** Whether Whisper is built into this app (Android so far). */
+  asrBuilt: () => invoke<boolean>("asr_built").catch(() => false),
   /** Loads a Whisper model file (absolute path): how long it took, in ms. */
   loadModel: (path: string) => invoke<number>("load", { path }),
   /** What was said in 16 kHz samples, in a language given. */

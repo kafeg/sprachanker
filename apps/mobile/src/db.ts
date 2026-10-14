@@ -21,7 +21,7 @@ const sqlJs = () => {
 let SQL: Awaited<ReturnType<typeof initSqlJs>>;
 
 /** How soon after a change the database is written. */
-const WRITE_AFTER_MS = 1000;
+const WRITE_AFTER_MS = 300;
 
 /** A transaction begun inside another (the run store's own inside a service's — Bun's SQLite nests
  *  them itself) made a savepoint: drizzle's sql.js session sends a plain `begin`, `commit`,

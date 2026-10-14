@@ -15,7 +15,7 @@ import { drizzle } from "drizzle-orm/sql-js";
 import pkg from "../package.json" with { type: "json" };
 import { flushAll, openDb } from "./db.ts";
 import { openFiles } from "./files.ts";
-import { FILES, setNetFetch } from "./native.ts";
+import { FILES, native, setNetFetch } from "./native.ts";
 import { profileFiles } from "./profiles.ts";
 import { phoneSpeech } from "./speech.ts";
 
@@ -76,7 +76,7 @@ async function start() {
   const sqlite = await openDb(files, "server.sqlite", serverMigrations);
   const server = drizzle(sqlite.db, { schema: serverSchema }) as ServerDb;
   const profiles = await profileFiles(files);
-  const speech = phoneSpeech(files);
+  const speech = phoneSpeech(files, await native.asrBuilt());
   let secretKey = await files.read("secret.key");
   if (secretKey?.length !== 32) {
     secretKey = crypto.getRandomValues(new Uint8Array(32));
@@ -130,8 +130,9 @@ ready.catch((error: unknown) => {
 globalThis.fetch = (async (input: RequestInfo | URL, init?: RequestInit) => {
   const request = new Request(input, init);
   const url = new URL(request.url);
-  if (url.origin !== location.origin || !/^\/(api|library|decks)\//.test(url.pathname))
-    return netFetch(request);
+  // Scheme and host compared (a custom scheme's origin is "null": iOS's tauri://localhost).
+  const own = url.protocol === location.protocol && url.host === location.host;
+  if (!own || !/^\/(api|library|decks)\//.test(url.pathname)) return netFetch(request);
   const app = await ready;
   const token = session.get();
   let asked = request;

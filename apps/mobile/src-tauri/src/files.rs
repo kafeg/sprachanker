@@ -15,7 +15,12 @@ pub fn root() -> PathBuf {
     {
         PathBuf::from("/sdcard/Android/data/app.sprachanker.mobile/files")
     }
-    #[cfg(not(target_os = "android"))]
+    // The app's own Documents (its sandbox's home): the Files app and Finder reach it.
+    #[cfg(target_os = "ios")]
+    {
+        PathBuf::from(std::env::var("HOME").unwrap_or_default()).join("Documents")
+    }
+    #[cfg(not(any(target_os = "android", target_os = "ios")))]
     {
         std::env::temp_dir().join("sprachanker-mobile")
     }
@@ -118,7 +123,10 @@ fn media_type(path: &Path) -> &'static str {
 
 /** The app's own page: the only origin the files are answered to (another page in the WebView must
  *  not read the profiles' databases or the key that seals their API keys). */
+#[cfg(not(target_os = "ios"))]
 const APP_ORIGIN: &str = "http://tauri.localhost";
+#[cfg(target_os = "ios")]
+const APP_ORIGIN: &str = "tauri://localhost";
 
 fn answer(status: StatusCode, body: Vec<u8>) -> Response<Vec<u8>> {
     Response::builder()

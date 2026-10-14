@@ -92,6 +92,12 @@ struct Heard {
     ms: u128,
 }
 
+/// Whether Whisper is built into this app (Android so far).
+#[tauri::command]
+fn asr_built() -> bool {
+    cfg!(target_os = "android")
+}
+
 /// Loads a model file: how long it took.
 #[tauri::command(async)]
 fn load(asr: tauri::State<Asr>, path: String) -> Result<u128, String> {
@@ -154,6 +160,7 @@ pub fn run() {
             std::thread::spawn(move || responder.respond(files::serve(&request)));
         })
         .invoke_handler(tauri::generate_handler![
+            asr_built,
             load,
             transcribe,
             files::fs_list,

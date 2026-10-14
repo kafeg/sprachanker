@@ -15,7 +15,7 @@ const PHONE_MODEL: Record<string, string> = {
   "ggml-small-q5_1.bin": "ggml-small-q8_0.bin",
 };
 
-export function phoneSpeech(files: Files) {
+export function phoneSpeech(files: Files, built: boolean) {
   let loading: Promise<unknown> = Promise.reject(new Error("no model loaded"));
   loading.catch(() => {});
 
@@ -30,7 +30,7 @@ export function phoneSpeech(files: Files) {
       remove() {},
     },
     whisper: {
-      binary: () => "in-app",
+      binary: () => (built ? "in-app" : undefined),
       spawn(_binary, { model }) {
         loading = native.loadModel(model);
         // A model that does not load ends "the process" at once (the supervisor stops waiting).

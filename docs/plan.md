@@ -55,7 +55,8 @@ and mockups: the owner's page "Goethe в SprachAnker"; background: `docs/researc
 - Next: putting a course on the phone from the app (now `adb push` of a bundle unpacked); pairing
   with the Mac's server (its address and a profile), then the LLM through it — checking Writing and
   Speaking —, and sync (`docs/decisions.md`); an update of the app over Wi-Fi from the Mac.
-- Then: iOS (Xcode with an Apple ID, developer mode; Metal / Core ML), the weekly re-sign.
+- iOS: the same app runs in the simulator (a course offline, films, practice); next on an iPhone —
+  Xcode with an Apple ID, developer mode, whisper.cpp with Metal / Core ML —, the weekly re-sign.
 - Open: reading aloud on the phone — Android's WebView has no voices (`speechSynthesis`); words
   without a recording are silent there.
 
