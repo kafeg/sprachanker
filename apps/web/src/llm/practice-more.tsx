@@ -4,12 +4,18 @@
 import { RefreshCw } from "lucide-react";
 import { useState } from "react";
 import { useTranslation } from "react-i18next";
+import { inPhoneApp } from "@/api/client.ts";
 import { Choice } from "@/ui/choice.tsx";
 import { Button } from "@/ui/components/button.tsx";
 import { usePracticeVoice } from "./api.ts";
 import { useLlm } from "./setup-api.ts";
 
-export function MoreButton({
+type MoreProps = Parameters<typeof MoreControls>[0];
+
+/** None in the phone app: the practice is made on the computer and comes with the course. */
+export const MoreButton = (props: MoreProps) => (inPhoneApp ? null : <MoreControls {...props} />);
+
+function MoreControls({
   label,
   busyLabel,
   preparing,

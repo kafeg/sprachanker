@@ -5,6 +5,7 @@
 import { Sparkles } from "lucide-react";
 import { useState } from "react";
 import { useTranslation } from "react-i18next";
+import { inPhoneApp } from "@/api/client.ts";
 import { Choice } from "@/ui/choice.tsx";
 import { Button } from "@/ui/components/button.tsx";
 import { Checkbox } from "@/ui/components/checkbox.tsx";
@@ -55,7 +56,8 @@ export function CoursePractice({
           ).join(" · ")}
         </span>
       </p>
-      {running && job ? (
+      {/* Made on the computer, never on the phone: there, only how much the course has. */}
+      {inPhoneApp ? null : running && job ? (
         <div className="space-y-2" aria-live="polite">
           <progress className="w-full" value={job.done} max={job.total} />
           <p className="text-sm">
