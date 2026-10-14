@@ -185,6 +185,9 @@ area is built is in its `CLAUDE.md`; work not built yet is in `docs/plan.md`.
 - Backups keep what cannot be fetched again: `server.sqlite`, `profiles/`, `decks/`, `secret.key`; library, `models/`, `cache/` are disposable (owner, 2026-10-11). `secret.key` stays in app-data, outside the data root.
 - A profile's daily copies live in its folder, so deleting the profile leaves nothing of the person behind.
 - A profile file is for one's own machines only, and importing always makes a new profile, never replacing one (owner, 2026-10-11).
+- Profiles sync through the Mac's server (owner, 2026-10-14): the phone app keeps its own copy of a profile and, when the server is reachable (home network or tailnet), sends its new events and takes the others' since its last sync; the server's copy is the main one. On the phone the learner sets the server's address and which of its profiles this one syncs with. The browser app (PWA) works on the server itself and needs no sync.
+- Two devices with an active run of the same lesson after a sync: the newer one (by its latest event) stays active, the other ends `abandoned`.
+- Before the phone app: card ids derived from their natural key, deletions (progress reset, a chat deleted, a deck left) kept as events, events numbered in the order the server got them, settings with the time they changed — so a sync merges without guessing.
 
 ## Server, security and devices
 
