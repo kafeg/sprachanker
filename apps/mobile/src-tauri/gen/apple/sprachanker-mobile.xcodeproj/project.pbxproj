@@ -16,6 +16,7 @@
 		A0335A81B229AFC93BC09ADF /* main.mm in Sources */ = {isa = PBXBuildFile; fileRef = 24B60C0BA4A4032B10203296 /* main.mm */; };
 		A56EC4DF16FAA3E9764BE7D2 /* QuartzCore.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = D4F7D94CE64580624C4E3ADB /* QuartzCore.framework */; };
 		AB3A39A9CF82421DE8507964 /* CoreGraphics.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = CA67310523E6A7502EB09BA0 /* CoreGraphics.framework */; };
+		BC61CE93C15F6F68FC365507 /* Accelerate.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 6DE2478AC00BDECE7FF33A01 /* Accelerate.framework */; };
 		C6967166FF7B13AC8AF65EF3 /* libapp.a in Frameworks */ = {isa = PBXBuildFile; fileRef = BF81E3C137688510D67A0CDB /* libapp.a */; };
 		D2CB5F4C73B4D5650935EC41 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = FEA442ABD52CC481FA3FCD18 /* Assets.xcassets */; };
 		D67463C0EDE8A258B2D88296 /* LaunchScreen.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = C2AC0B1C28858017E9706DB8 /* LaunchScreen.storyboard */; };
@@ -30,6 +31,7 @@
 		4E5D5BB2C4628CE84ED2E129 /* bindings.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = bindings.h; sourceTree = "<group>"; };
 		5DB15B7F6E19339A296757E4 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist; path = Info.plist; sourceTree = "<group>"; };
 		634D1E5F4A6932AD3AEB9F76 /* sprachanker-mobile_iOS.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = "sprachanker-mobile_iOS.entitlements"; sourceTree = "<group>"; };
+		6DE2478AC00BDECE7FF33A01 /* Accelerate.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Accelerate.framework; path = System/Library/Frameworks/Accelerate.framework; sourceTree = SDKROOT; };
 		70FBCD36BF88FB51B66731E1 /* WebKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = WebKit.framework; path = System/Library/Frameworks/WebKit.framework; sourceTree = SDKROOT; };
 		A36FD86CA2BCA821DC129974 /* MetalKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = MetalKit.framework; path = System/Library/Frameworks/MetalKit.framework; sourceTree = SDKROOT; };
 		BF81E3C137688510D67A0CDB /* libapp.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; path = libapp.a; sourceTree = "<group>"; };
@@ -49,6 +51,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				C6967166FF7B13AC8AF65EF3 /* libapp.a in Frameworks */,
+				BC61CE93C15F6F68FC365507 /* Accelerate.framework in Frameworks */,
 				AB3A39A9CF82421DE8507964 /* CoreGraphics.framework in Frameworks */,
 				68FF1306A56E2B065552B9E2 /* Metal.framework in Frameworks */,
 				37A62375A69D77FB1873EE5D /* MetalKit.framework in Frameworks */,
@@ -140,6 +143,7 @@
 		C853486A93A6B425F1F35953 /* Frameworks */ = {
 			isa = PBXGroup;
 			children = (
+				6DE2478AC00BDECE7FF33A01 /* Accelerate.framework */,
 				CA67310523E6A7502EB09BA0 /* CoreGraphics.framework */,
 				BF81E3C137688510D67A0CDB /* libapp.a */,
 				E1CA4983404EA73AC40A835C /* Metal.framework */,
@@ -150,6 +154,20 @@
 				70FBCD36BF88FB51B66731E1 /* WebKit.framework */,
 			);
 			name = Frameworks;
+			sourceTree = "<group>";
+		};
+		"TEMP_50726D0F-5239-4223-B2D4-1C92DD8C6864" /* x86_64 */ = {
+			isa = PBXGroup;
+			children = (
+			);
+			path = x86_64;
+			sourceTree = "<group>";
+		};
+		"TEMP_94323A88-CB08-4DB7-A3BC-80F736F2EEFA" /* arm64 */ = {
+			isa = PBXGroup;
+			children = (
+			);
+			path = arm64;
 			sourceTree = "<group>";
 		};
 /* End PBXGroup section */

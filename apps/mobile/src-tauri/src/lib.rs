@@ -8,12 +8,12 @@ use tauri::ipc::{InvokeBody, Request};
 
 mod files;
 
-#[cfg(target_os = "android")]
+#[cfg(any(target_os = "android", target_os = "ios"))]
 mod whisper {
     use std::ffi::{c_char, c_int, c_void, CStr, CString};
 
     extern "C" {
-        fn sa_whisper_load(path: *const c_char) -> *mut c_void;
+        fn sa_whisper_load(path: *const c_char, gpu: c_int) -> *mut c_void;
         fn sa_whisper_hear(
             ctx: *mut c_void,
             samples: *const f32,
@@ -33,7 +33,9 @@ mod whisper {
     impl Model {
         pub fn load(path: &str) -> Result<Self, String> {
             let c = CString::new(path).map_err(|e| e.to_string())?;
-            let ctx = unsafe { sa_whisper_load(c.as_ptr()) };
+            // The iOS simulator's Metal cannot hold a model: its CPU there.
+            let gpu = !cfg!(target_abi = "sim");
+            let ctx = unsafe { sa_whisper_load(c.as_ptr(), gpu as c_int) };
             if ctx.is_null() {
                 return Err(format!("{path}: the model did not load"));
             }
@@ -68,16 +70,16 @@ mod whisper {
     }
 }
 
-#[cfg(not(target_os = "android"))]
+#[cfg(not(any(target_os = "android", target_os = "ios")))]
 mod whisper {
-    /// Whisper is built into the app for Android only so far.
+    /// Whisper is built into the app for the phones only.
     pub struct Model;
     impl Model {
         pub fn load(_: &str) -> Result<Self, String> {
-            Err("Whisper is in the Android build only".into())
+            Err("Whisper is in the phones' builds only".into())
         }
         pub fn hear(&mut self, _: &[f32], _: i32, _: &str) -> Result<String, String> {
-            Err("Whisper is in the Android build only".into())
+            Err("Whisper is in the phones' builds only".into())
         }
     }
 }
@@ -92,10 +94,10 @@ struct Heard {
     ms: u128,
 }
 
-/// Whether Whisper is built into this app (Android so far).
+/// Whether Whisper is built into this app (Android, iOS).
 #[tauri::command]
 fn asr_built() -> bool {
-    cfg!(target_os = "android")
+    cfg!(any(target_os = "android", target_os = "ios"))
 }
 
 /// Loads a model file: how long it took.

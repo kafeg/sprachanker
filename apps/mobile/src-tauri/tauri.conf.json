@@ -8,11 +8,20 @@
   },
   "app": {
     "withGlobalTauri": true,
-    "windows": [{ "title": "SprachAnker" }],
-    "security": { "csp": null }
+    "windows": [
+      {
+        "title": "SprachAnker"
+      }
+    ],
+    "security": {
+      "csp": null
+    }
   },
   "bundle": {
     "active": true,
-    "icon": ["icons/32x32.png", "icons/128x128.png", "icons/icon.png"]
+    "icon": ["icons/32x32.png", "icons/128x128.png", "icons/icon.png"],
+    "iOS": {
+      "frameworks": ["Accelerate"]
+    }
   }
 }

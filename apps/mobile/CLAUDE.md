@@ -32,8 +32,9 @@ src-tauri/
   src/lib.rs           # commands `load` (a model) and `transcribe` (16 kHz f32 samples)
   src/files.rs         # the data root (Android: /sdcard/Android/data/<id>/files): fs_* commands and the
                        # `media` scheme (files whole or by range; a recording by its id)
-  native/asr.c         # whisper.cpp's C API for Rust: a model, an answer heard (greedy, temperature 0)
-  build.rs             # on Android: asr.c compiled, whisper.cpp's static libraries linked
+  native/asr.c         # whisper.cpp's C API for Rust: a model (on the GPU or not), an answer heard
+                       # (greedy, temperature 0)
+  build.rs             # on Android and iOS: asr.c compiled, whisper.cpp's static libraries linked
   tauri.conf.json      # app.sprachanker.mobile; the page from dist/
   capabilities/        # what the page may call
   icons/               # from apps/web/public/icon-512.png (`cargo tauri icon`)
@@ -72,7 +73,11 @@ src-tauri/
 - iOS names the schemes, not hosts: the page is `tauri://localhost`, the files `media://localhost`.
 - Its WKWebView answers the WebKit inspector: `ios_webkit_debug_proxy -s
   unix:<the simulator's webinspectord_sim.socket>` (Homebrew), then `Target.sendMessageToTarget`.
-- Whisper is not in the iOS build yet: recognition is off there (`asr_built`).
+- Whisper for iOS: whisper.cpp's static libraries with Metal (and Accelerate), built from the same
+  sources into `build-ios-sim` (`-DCMAKE_SYSTEM_NAME=iOS -DCMAKE_OSX_SYSROOT=iphonesimulator
+  -DCMAKE_OSX_ARCHITECTURES=arm64 -DGGML_METAL=ON -DGGML_METAL_EMBED_LIBRARY=ON -DGGML_BLAS=OFF`;
+  `build-ios` for a device: `iphoneos`); the model in Documents/models. The simulator's Metal cannot
+  hold a model: there it runs on the CPU (`target_abi = "sim"`).
 
 ## Rules
 
@@ -86,5 +91,5 @@ src-tauri/
 ## Planned
 
 - A course installed in the app (from a bundle), the LLM through the Mac's server.
-- iOS on an iPhone: whisper.cpp with Metal / Core ML (`asr_built`), signing with an Apple ID.
+- iOS on an iPhone: whisper.cpp built for `iphoneos` (Metal), signing with an Apple ID.
 - Sync with the Mac's server (`docs/decisions.md`).

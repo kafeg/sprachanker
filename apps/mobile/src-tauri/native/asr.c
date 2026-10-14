@@ -4,8 +4,11 @@
 #include <string.h>
 #include "whisper.h"
 
-struct whisper_context * sa_whisper_load(const char * path) {
+/** A model loaded; on the GPU when `gpu` (Metal on an iPhone; never in the iOS simulator, whose Metal
+ *  cannot take a model's buffers). */
+struct whisper_context * sa_whisper_load(const char * path, int gpu) {
     struct whisper_context_params params = whisper_context_default_params();
+    params.use_gpu = gpu != 0;
     return whisper_init_from_file_with_params(path, params);
 }
 
