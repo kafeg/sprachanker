@@ -21,6 +21,8 @@ import { phoneSpeech } from "./speech.ts";
 
 const netFetch = globalThis.fetch.bind(globalThis);
 setNetFetch(netFetch);
+// The web app knows it runs in the phone app (what it does not have here, it does not offer).
+(globalThis as { sprachankerPhone?: boolean }).sprachankerPhone = true;
 
 /** What the phone's server answers when asked for what it does not have; at the start, nothing. */
 const EMPTY: Record<string, unknown> = {
@@ -72,8 +74,17 @@ async function start() {
     ),
     server,
     profiles,
-    // Media are played from the native side's scheme, never through the server here.
-    mediaBlob: () => new Blob([]) as MediaBlob,
+    // Media are played from the native side's scheme; the server reads one only whole (a practice
+    // recording it hands on), read from the files when it does.
+    mediaBlob: (file) => {
+      const read = async () => (await files.read(file)) ?? new Uint8Array();
+      return {
+        size: files.fs.stat(file)?.size ?? 0,
+        type: "",
+        arrayBuffer: async () => (await read()).buffer,
+        bytes: read,
+      } as unknown as MediaBlob;
+    },
     decks: notOnPhone("decks"),
     apkg: notOnPhone("decks"),
     transfers: notOnPhone("profile files"),

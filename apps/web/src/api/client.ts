@@ -9,6 +9,10 @@ export const api = hc<AppType>("/", { headers: { ...CLIENT_HEADERS } }).api;
  *  prompts): a progress reset leaves them (their `meta`). */
 export const STATIC = { static: true } as const;
 
+/** In the phone app (apps/mobile sets `sprachankerPhone`): what moves files between machines —
+ *  courses' and profiles' files, decks imported, a course's upkeep — is not there yet. */
+export const inPhoneApp = !!(globalThis as { sprachankerPhone?: boolean }).sprachankerPhone;
+
 /** Where a file the server serves is played from: the path itself, or what the phone app makes of
  *  it (apps/mobile serves media and recordings from its own files: `sprachankerFileUrl`). */
 export const fileUrl = (path: string) =>

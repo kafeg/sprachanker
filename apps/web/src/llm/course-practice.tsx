@@ -33,7 +33,7 @@ export function CoursePractice({
   const stop = useStopPracticeCourse();
   const [steps, setSteps] = useState<Step[]>([...STEPS]);
   const [count, setCount] = useState("1");
-  if (!state.data || !state.data.lessons) return null;
+  if (!state.data?.lessons) return null;
   const { lessons, made, variants, voice, job } = state.data;
   const running = job?.state === "running" || job?.state === "stopping";
   const chosen = steps.filter((s) => voice || s !== "listening");

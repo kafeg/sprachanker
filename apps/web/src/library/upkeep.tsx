@@ -46,6 +46,8 @@ export const checkTone = (r: Report | undefined) =>
 export function CheckState({ check }: { check: Check }) {
   const { t } = useTranslation();
   const r = check.data;
+  // Not checked (a check that failed, or none on this device: the phone app): nothing said.
+  if (check.isError && !check.isFetching) return null;
   if (!r || check.isFetching)
     return (
       <>

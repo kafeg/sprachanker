@@ -3,6 +3,7 @@
 import { LogOut, Trash2 } from "lucide-react";
 import { useState } from "react";
 import { useTranslation } from "react-i18next";
+import { inPhoneApp } from "@/api/client.ts";
 import {
   useDeleteProfile,
   useDevices,
@@ -46,7 +47,7 @@ export function ProfileSettings() {
         </div>
       </Panel>
       <DevicesPanel />
-      <ProfileExport />
+      {!inPhoneApp && <ProfileExport />}
       <Button
         variant="outline"
         size="lg"

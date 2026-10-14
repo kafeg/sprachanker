@@ -10,6 +10,7 @@ import { Play, Trash2 } from "lucide-react";
 import { useEffect, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { useDeckActions, useDeckOffers, useDecks } from "@/api/cards.ts";
+import { inPhoneApp } from "@/api/client.ts";
 import { useDeleteDeck } from "@/api/decks.ts";
 import { useSetSetting, useSettings } from "@/api/settings.ts";
 import { DeckAudio } from "@/study/deck-audio.tsx";
@@ -276,7 +277,7 @@ function DeckOffers() {
       {actions.take.isError && (
         <p className="mb-3 text-sm text-wrong">{errorText(t, actions.take.error)}</p>
       )}
-      <DeckImport />
+      {!inPhoneApp && <DeckImport />}
       <ConfirmDialog
         open={!!removing}
         onOpenChange={(o) => {

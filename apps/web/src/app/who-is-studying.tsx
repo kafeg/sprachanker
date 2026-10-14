@@ -7,6 +7,7 @@
 import { ChevronLeft, ChevronRight, Plus } from "lucide-react";
 import { useEffect, useState } from "react";
 import { useTranslation } from "react-i18next";
+import { inPhoneApp } from "@/api/client.ts";
 import { useProfiles, useSignIn } from "@/api/session.ts";
 import { Avatar } from "@/ui/avatar.tsx";
 import { Button } from "@/ui/components/button.tsx";
@@ -115,7 +116,7 @@ export function WhoIsStudying({ onNew }: { onNew(): void }) {
       {signIn.isError && (
         <p className="text-center text-sm text-wrong">{errorText(t, signIn.error)}</p>
       )}
-      {(profiles.data.registration || !list.length) && <ProfileImport />}
+      {(profiles.data.registration || !list.length) && !inPhoneApp && <ProfileImport />}
     </main>
   );
 }

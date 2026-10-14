@@ -4,6 +4,8 @@ import android.Manifest
 import android.content.pm.PackageManager
 import android.os.Bundle
 import android.view.View
+import android.webkit.WebView
+import androidx.activity.OnBackPressedCallback
 import androidx.activity.enableEdgeToEdge
 import androidx.core.view.ViewCompat
 import androidx.core.view.WindowInsetsCompat
@@ -27,5 +29,17 @@ class MainActivity : TauriActivity() {
       view.setPadding(room.left, room.top, room.right, room.bottom)
       WindowInsetsCompat.CONSUMED
     }
+  }
+
+  // Back goes back through the app's pages (the router's history: its index in `history.state`), and
+  // from the first one puts the app away as Home does.
+  override fun onWebViewCreate(webView: WebView) {
+    onBackPressedDispatcher.addCallback(this, object : OnBackPressedCallback(true) {
+      override fun handleOnBackPressed() {
+        webView.evaluateJavascript(
+          "(history.state && history.state.__TSR_index > 0) ? (history.back(), 'back') : 'first'",
+        ) { answer -> if (answer != "\"back\"") moveTaskToBack(true) }
+      }
+    })
   }
 }

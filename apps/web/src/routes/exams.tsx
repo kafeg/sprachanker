@@ -2,6 +2,7 @@
 // library's tab page) — My exams (begun), Downloaded (installed: exam courses and the exams of courses)
 // and Available (exams a provider offers that are not here yet).
 import { useTranslation } from "react-i18next";
+import { inPhoneApp } from "@/api/client.ts";
 import { useCatalog } from "@/api/courses.ts";
 import { useEdition } from "@/api/edition.ts";
 import { type ExamRow, useExams } from "@/api/exams.ts";
@@ -74,7 +75,9 @@ export function ExamsPage({ tab }: { tab: ExamsTab }) {
             />,
           )}
           {/* An exam exported on another computer. */}
-          <CourseImport hidden={(series, course) => !shown("exams", series, course)} />
+          {!inPhoneApp && (
+            <CourseImport hidden={(series, course) => !shown("exams", series, course)} />
+          )}
         </>
       )}
       {tab === "available" &&

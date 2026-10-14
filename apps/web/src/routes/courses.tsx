@@ -3,6 +3,7 @@
 // the pair and course filters. A course teaches one language to speakers of one language (its edition);
 // another pair of the same source course is a course of its own.
 import { useTranslation } from "react-i18next";
+import { inPhoneApp } from "@/api/client.ts";
 import { useCatalog, useCourses } from "@/api/courses.ts";
 import { useSettings } from "@/api/settings.ts";
 import { offersOf, useShown } from "@/app/experimental.ts";
@@ -139,7 +140,9 @@ function Downloaded() {
         />
       )}
       {/* A course exported on another computer. */}
-      <CourseImport hidden={(series, course) => !shown("courses", series, course)} />
+      {!inPhoneApp && (
+        <CourseImport hidden={(series, course) => !shown("courses", series, course)} />
+      )}
     </>
   );
 }
