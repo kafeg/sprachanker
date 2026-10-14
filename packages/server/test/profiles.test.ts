@@ -182,3 +182,26 @@ test("a profile always has a name: none to create one, none to keep, none to end
   const named = await read(send("PUT", "/api/profile", { name: "  Vitaly ", onboarded: true }));
   expect(named.profile).toMatchObject({ name: "Vitaly", onboarded: true });
 });
+
+test("the session in a header, where a page can send no cookie (the phone app): given there only when asked, taken there always", async () => {
+  const token = (cookie: string) => cookie.split("=")[1] ?? "";
+  // This computer's server: the token only in the cookie, never answered in a header.
+  const mac = await setup();
+  expect(mac.signedIn.headers.get("x-sprachanker-session")).toBeNull();
+  const fromCookie = token((mac.signedIn.headers.get("set-cookie") ?? "").split(";")[0] ?? "");
+  // The header is read as the cookie is: without it, no session.
+  expect((await mac.anonymous("GET", "/api/courses")).status).toBe(401);
+  const viaHeader = await mac.anonymous("GET", "/api/courses", undefined, {
+    "x-sprachanker-session": fromCookie,
+  });
+  expect(viaHeader.status).toBe(200);
+
+  // The phone app's: answered in the header too, taken from it, gone on signing out.
+  const phone = await setup({ sessionInHeader: true });
+  const given = phone.signedIn.headers.get("x-sprachanker-session") ?? "";
+  expect(given.length).toBeGreaterThan(20);
+  const headers = { "x-sprachanker-session": given };
+  expect((await phone.anonymous("GET", "/api/courses", undefined, headers)).status).toBe(200);
+  expect((await phone.anonymous("DELETE", "/api/session", undefined, headers)).status).toBe(200);
+  expect((await phone.anonymous("GET", "/api/courses", undefined, headers)).status).toBe(401);
+});

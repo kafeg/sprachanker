@@ -5,7 +5,8 @@
   "type": "module",
   "scripts": {
     "typecheck": "tsc -p .",
-    "build": "bun scripts/build.ts"
+    "build": "bun scripts/build.ts",
+    "test": "bun test --isolate test"
   },
   "dependencies": {
     "@sprachanker/course-kit": "workspace:*",

@@ -9,8 +9,13 @@ import type { Files } from "./files.ts";
 /** sql.js, loaded once when the first database opens (no top-level await: the app's start must
  *  replace `fetch` before the web app runs). */
 let loaded: ReturnType<typeof initSqlJs> | undefined;
+/** Where sql.js's WebAssembly is: beside the page (tests give the package's file). */
+let wasm = "/sql-wasm.wasm";
+export const sqlJsWasmAt = (path: string) => {
+  wasm = path;
+};
 const sqlJs = () => {
-  loaded ??= initSqlJs({ locateFile: () => "/sql-wasm.wasm" });
+  loaded ??= initSqlJs({ locateFile: () => wasm });
   return loaded;
 };
 let SQL: Awaited<ReturnType<typeof initSqlJs>>;

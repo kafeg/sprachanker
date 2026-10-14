@@ -52,6 +52,8 @@ export async function setup(
     /** The lesson's AI practice made ahead as it starts, as the app does (off here unless asked:
      *  a test's model answers what the test asks, in order). */
     prepare?: boolean;
+    /** The session also in a header both ways, as the phone app runs the server. */
+    sessionInHeader?: boolean;
   } = {},
 ) {
   const root = mkdtempSync(join(tmpdir(), "sprachanker-data-"));
@@ -84,6 +86,7 @@ export async function setup(
     allowHosts: options.allowHosts,
     now: () => (clock += 1000),
     random: options.random,
+    sessionInHeader: options.sessionInHeader,
   });
   const json = { "content-type": "application/json", ...CLIENT_HEADERS };
   // The first profile, signed in on this "device".
@@ -93,6 +96,8 @@ export async function setup(
     body: JSON.stringify({ name: "Test" }),
   });
   const cookie = (made.headers.get("set-cookie") ?? "").split(";")[0] ?? "";
+  /** The first sign-in's answer (its headers: where the session was given). */
+  const signedIn = made;
   const profile = profiles.open("local");
   const withCookie = (init: RequestInit = {}) => ({
     ...init,
@@ -124,5 +129,18 @@ export async function setup(
   const advance = (ms: number) => {
     clock += ms;
   };
-  return { app, root, profile, profiles, cookie, get, send, getJson, sendJson, anonymous, advance };
+  return {
+    signedIn,
+    app,
+    root,
+    profile,
+    profiles,
+    cookie,
+    get,
+    send,
+    getJson,
+    sendJson,
+    anonymous,
+    advance,
+  };
 }
