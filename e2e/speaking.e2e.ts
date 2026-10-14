@@ -168,12 +168,13 @@ test("a monologue typed where nothing hears: the card, the text kept, checked wi
   await expect(step.getByText("FAKE: Ich heiße Mara. Ich komme aus Polen.")).toBeVisible();
 });
 
-test("the voices in Settings: each language read aloud with its best one", async ({ page }) => {
-  await deviceVoices(page);
+test("reading aloud in Settings: Qwen3-TTS alone, each language's speaker", async ({ page }) => {
   await page.goto("/settings#speech");
-  await expect(page.getByText("This device's voices")).toBeVisible();
-  // The languages read aloud (the courses' here and the interface's): the best voice of each.
-  await expect(page.getByRole("combobox", { name: "Voice for English" })).toHaveText(
-    "Automatic — Samantha",
+  // Qwen3-TTS on paper, its small model there; no other engine to choose.
+  await expect(page.getByText("Ready: a model downloaded")).toBeVisible();
+  await expect(page.getByText("This device's voices")).toHaveCount(0);
+  // The languages read aloud (the courses' here and the interface's): the default speaker of each.
+  await expect(page.getByRole("combobox", { name: "Voice for German" })).toHaveText(
+    "Automatic — Ryan",
   );
 });

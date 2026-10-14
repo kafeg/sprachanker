@@ -1256,11 +1256,7 @@
       "readHint": "Une voix lit les textes dans une langue : les répliques des dialogues, l’exemple d’un mot et les mots sans enregistrement. Chaque langue a sa propre voix.",
       "engine": {
         "device": "Voix de cet appareil",
-        "deviceLine": "{count, plural, one {# voix} many {# de voix} other {# voix}}, rien à installer",
-        "deviceNone": "Ce navigateur n’a aucune voix pour lire.",
         "piper": "Piper sur cet ordinateur",
-        "piperMissing": "Absent de cette version : l’appli a été compilée sans ses moteurs vocaux",
-        "piperLine": "{count, plural, =0 {pas encore de voix : télécharges-en une ci-dessous} one {# voix téléchargée} many {# de voix téléchargées} other {# voix téléchargées}}",
         "qwen": "Qwen3-TTS sur cet ordinateur",
         "qwenMissing": "Absent de cette version : l’appli a été compilée sans ses moteurs vocaux",
         "qwenReady": "Prêt : un modèle téléchargé",
@@ -1268,21 +1264,6 @@
       },
       "voiceFor": "Voix en {language}",
       "voiceAuto": "Automatique — {name}",
-      "noVoice": "Cet appareil n’a pas de voix en {language}.",
-      "betterVoices": "Sur un Mac, de meilleures voix (Premium, Améliorée) se téléchargent dans Réglages Système → Accessibilité → Contenu énoncé → Voix du système → Gérer les voix.",
-      "readRate": "Vitesse : {rate}×",
-      "readRateLabel": "Vitesse de lecture",
-      "piperNone": "Pas encore de voix en {language} : télécharges-en une ci-dessous.",
-      "piperNoLanguage": "Piper n’a pas de voix en {language} : les voix de l’appareil s’en chargent.",
-      "piperHint": "Les voix de Piper font environ 60 à 120 Mo chacune et restent sur cet ordinateur ; une langue sans voix Piper est lue par les voix de l’appareil.",
-      "removeVoice": "Supprimer la voix {voice}",
-      "allVoices": "Toutes les voix ({count, number})",
-      "quality": {
-        "x_low": "qualité minimale",
-        "low": "qualité basse",
-        "medium": "qualité moyenne",
-        "high": "haute qualité"
-      },
       "qwenModel": {
         "small": "Petit modèle (0.6B) : plus rapide",
         "large": "Grand modèle (1.7B) : plus naturel, plus lent"

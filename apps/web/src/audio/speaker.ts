@@ -344,12 +344,13 @@ export function useSpeaker() {
   const piper = piperQuery.data;
   const qwen = qwenQuery.data;
   // Qwen3-TTS takes seconds to load: started as soon as something here may read with it.
+  const qwenReady = engine === "qwen" && !!qwen?.engine && qwen.models.some((m) => m.installed);
   useEffect(() => {
-    if (engine === "qwen" && Date.now() - qwenWarmedAt > WARM_AGAIN_MS) {
+    if (qwenReady && Date.now() - qwenWarmedAt > WARM_AGAIN_MS) {
       qwenWarmedAt = Date.now();
       void warmQwen();
     }
-  }, [engine]);
+  }, [qwenReady]);
   const current = useSyncExternalStore(
     (l) => {
       listeners.add(l);

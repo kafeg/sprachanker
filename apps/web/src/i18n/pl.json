@@ -1256,11 +1256,7 @@
       "readHint": "Głos czyta teksty w jednym języku: kwestie dialogów, przykład do słowa i słowa bez nagrania. Każdy język ma swój głos.",
       "engine": {
         "device": "Głosy tego urządzenia",
-        "deviceLine": "{count, plural, one {# głos} few {# głosy} many {# głosów} other {# głosu}}, nic do instalowania",
-        "deviceNone": "Ta przeglądarka nie ma głosów do czytania.",
         "piper": "Piper na tym komputerze",
-        "piperMissing": "Brak w tej wersji: aplikację zbudowano bez silników mowy",
-        "piperLine": "{count, plural, =0 {brak głosów: pobierz któryś poniżej} one {pobrano # głos} few {pobrano # głosy} many {pobrano # głosów} other {pobrano # głosu}}",
         "qwen": "Qwen3-TTS na tym komputerze",
         "qwenMissing": "Brak w tej wersji: aplikację zbudowano bez silników mowy",
         "qwenReady": "Gotowe: model pobrany",
@@ -1268,21 +1264,6 @@
       },
       "voiceFor": "Głos dla języka: {language}",
       "voiceAuto": "Automatycznie — {name}",
-      "noVoice": "To urządzenie nie ma głosu dla języka: {language}.",
-      "betterVoices": "Na Macu lepsze głosy (Premium, Rozszerzone) pobiera się w Ustawienia systemowe → Dostępność → Mowa → Głos systemowy → Zarządzaj głosami.",
-      "readRate": "Tempo: {rate}×",
-      "readRateLabel": "Tempo czytania",
-      "piperNone": "Nie ma jeszcze głosu dla języka: {language}. Pobierz któryś poniżej.",
-      "piperNoLanguage": "Piper nie ma głosu dla języka: {language}. Czytają go głosy urządzenia.",
-      "piperHint": "Głosy Piper mają ok. 60–120 MB każdy i zostają na tym komputerze; język bez takiego głosu czytają głosy urządzenia.",
-      "removeVoice": "Usuń głos {voice}",
-      "allVoices": "Wszystkie głosy ({count, number})",
-      "quality": {
-        "x_low": "najniższa jakość",
-        "low": "niska jakość",
-        "medium": "średnia jakość",
-        "high": "wysoka jakość"
-      },
       "qwenModel": {
         "small": "Mały model (0.6B): szybszy",
         "large": "Duży model (1.7B): bardziej naturalny, wolniejszy"

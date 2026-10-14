@@ -44,8 +44,6 @@ and mockups: the owner's page "Goethe в SprachAnker"; background: `docs/researc
 - Going over mistakes across lessons: a Notebook section gathering the mistakes that come back — the
   exercises', Writing's and Speaking's corrections — by type, with new items, offered once enough
   have gathered.
-- Reading aloud: only Qwen3-TTS in Settings (Piper and the device's voices hidden), as the owner
-  asked. Open: on a phone without Qwen3-TTS, a word's audio needs the device's voices.
 - A live conversation with the model in the Tutor section (`apps/web/src/llm/dialogue.tsx` and the
   `scene` tasks are kept for it).
 

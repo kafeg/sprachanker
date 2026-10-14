@@ -1256,11 +1256,7 @@
       "readHint": "O voce citește textele într-o limbă: replicile dialogurilor, exemplul unui cuvânt și cuvintele fără înregistrare. Fiecare limbă are vocea ei.",
       "engine": {
         "device": "Vocile acestui dispozitiv",
-        "deviceLine": "{count, plural, one {# voce} few {# voci} other {# de voci}}, nimic de instalat",
-        "deviceNone": "Acest browser nu are voci cu care să citească.",
         "piper": "Piper pe acest computer",
-        "piperMissing": "Nu e în această versiune: aplicația a fost compilată fără motoarele de vorbire",
-        "piperLine": "{count, plural, =0 {încă nicio voce: descarcă una mai jos} one {# voce descărcată} few {# voci descărcate} other {# de voci descărcate}}",
         "qwen": "Qwen3-TTS pe acest computer",
         "qwenMissing": "Nu e în această versiune: aplicația a fost compilată fără motoarele de vorbire",
         "qwenReady": "Gata: un model descărcat",
@@ -1268,21 +1264,6 @@
       },
       "voiceFor": "Voce pentru {language}",
       "voiceAuto": "Automat — {name}",
-      "noVoice": "Acest dispozitiv nu are nicio voce pentru {language}.",
-      "betterVoices": "Pe un Mac, voci mai bune (Premium, Îmbunătățită) se descarcă în Configurări sistem → Accesibilitate → Conținut vorbit → Voce sistem → Gestionează vocile.",
-      "readRate": "Viteză: {rate}×",
-      "readRateLabel": "Viteza de citire",
-      "piperNone": "Încă nicio voce pentru {language}: descarcă una mai jos.",
-      "piperNoLanguage": "Piper nu are nicio voce pentru {language}: o citesc vocile dispozitivului.",
-      "piperHint": "Vocile Piper au circa 60–120 MB fiecare și rămân pe acest computer; o limbă fără voce Piper este citită de vocile dispozitivului.",
-      "removeVoice": "Elimină vocea {voice}",
-      "allVoices": "Toate vocile ({count, number})",
-      "quality": {
-        "x_low": "calitate minimă",
-        "low": "calitate scăzută",
-        "medium": "calitate medie",
-        "high": "calitate înaltă"
-      },
       "qwenModel": {
         "small": "Model mic (0.6B): mai rapid",
         "large": "Model mare (1.7B): mai natural, mai lent"

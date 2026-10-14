@@ -1256,11 +1256,7 @@
       "readHint": "Una voz lee textos en un idioma: frases de diálogos, el ejemplo de una palabra y palabras sin grabación. Cada idioma tiene su propia voz.",
       "engine": {
         "device": "Voces de este dispositivo",
-        "deviceLine": "{count, plural, one {# voz} other {# voces}}, nada que instalar",
-        "deviceNone": "Este navegador no tiene voces para leer.",
         "piper": "Piper en esta computadora",
-        "piperMissing": "No incluido en esta versión: la aplicación se compiló sin sus motores de voz",
-        "piperLine": "{count, plural, =0 {aún no hay voces: descarga una abajo} one {# voz descargada} other {# voces descargadas}}",
         "qwen": "Qwen3-TTS en esta computadora",
         "qwenMissing": "No incluido en esta versión: la aplicación se compiló sin sus motores de voz",
         "qwenReady": "Listo: hay un modelo descargado",
@@ -1268,21 +1264,6 @@
       },
       "voiceFor": "Voz para {language}",
       "voiceAuto": "Automática: {name}",
-      "noVoice": "Este dispositivo no tiene voz para {language}.",
-      "betterVoices": "En un Mac, las voces mejores (Premium, Mejorada) se descargan en Ajustes del Sistema → Accesibilidad → Contenido leído → Voz del sistema → Gestionar voces.",
-      "readRate": "Velocidad: {rate}×",
-      "readRateLabel": "Velocidad de lectura",
-      "piperNone": "Aún no hay voz para {language}: descarga una abajo.",
-      "piperNoLanguage": "Piper no tiene voz para {language}: lo leen las voces del dispositivo.",
-      "piperHint": "Las voces de Piper ocupan unos 60–120 MB cada una y se quedan en esta computadora; un idioma sin voz lo leen las voces del dispositivo.",
-      "removeVoice": "Quitar la voz {voice}",
-      "allVoices": "Todas las voces ({count, number})",
-      "quality": {
-        "x_low": "calidad mínima",
-        "low": "calidad baja",
-        "medium": "calidad media",
-        "high": "calidad alta"
-      },
       "qwenModel": {
         "small": "Modelo pequeño (0.6B): más rápido",
         "large": "Modelo grande (1.7B): más natural, más lento"

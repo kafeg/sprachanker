@@ -5,6 +5,7 @@ import { piper } from "./speech-fakes.ts";
 test("reading aloud with Piper: the voices offered, one downloaded; a text said as a WAV with the best voice or the profile's", async () => {
   const p = piper(["de_DE-thorsten-medium"]);
   const { getJson, send, sendJson } = await setup({ piper: p.host, readings: p.readings });
+  await send("PUT", "/api/settings", { key: "speech.readEngine", value: "piper" });
   const state = await getJson("/api/speech/voices");
   expect(state.engine).toBe(true);
   const thorsten = state.voices.find((v: { id: string }) => v.id === "de_DE-thorsten-medium");

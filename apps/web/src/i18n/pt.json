@@ -1256,11 +1256,7 @@
       "readHint": "Uma voz lê textos num idioma: falas de diálogos, o exemplo de uma palavra e palavras sem gravação. Cada idioma tem a sua própria voz.",
       "engine": {
         "device": "Vozes deste dispositivo",
-        "deviceLine": "{count, plural, =0 {# vozes} one {# voz} other {# vozes}}, nada a instalar",
-        "deviceNone": "Este navegador não tem vozes para ler.",
         "piper": "Piper neste computador",
-        "piperMissing": "Não incluído nesta versão: o app foi compilado sem os mecanismos de fala",
-        "piperLine": "{count, plural, =0 {nenhuma voz ainda: baixe uma abaixo} one {# voz baixada} other {# vozes baixadas}}",
         "qwen": "Qwen3-TTS neste computador",
         "qwenMissing": "Não incluído nesta versão: o app foi compilado sem os mecanismos de fala",
         "qwenReady": "Pronto: há um modelo baixado",
@@ -1268,21 +1264,6 @@
       },
       "voiceFor": "Voz para {language}",
       "voiceAuto": "Automática: {name}",
-      "noVoice": "Este dispositivo não tem voz para {language}.",
-      "betterVoices": "No Mac, vozes melhores (Premium, Aprimorada) são baixadas em Ajustes do Sistema → Acessibilidade → Conteúdo Falado → Voz do sistema → Gerenciar Vozes.",
-      "readRate": "Velocidade: {rate}×",
-      "readRateLabel": "Velocidade de leitura",
-      "piperNone": "Ainda não há voz para {language}: baixe uma abaixo.",
-      "piperNoLanguage": "O Piper não tem voz para {language}: as vozes do dispositivo leem esse idioma.",
-      "piperHint": "As vozes do Piper têm cerca de 60–120 MB cada e ficam neste computador; um idioma sem voz é lido pelas vozes do dispositivo.",
-      "removeVoice": "Remover a voz {voice}",
-      "allVoices": "Todas as vozes ({count, number})",
-      "quality": {
-        "x_low": "qualidade mínima",
-        "low": "qualidade baixa",
-        "medium": "qualidade média",
-        "high": "qualidade alta"
-      },
       "qwenModel": {
         "small": "Modelo pequeno (0.6B): mais rápido",
         "large": "Modelo grande (1.7B): mais natural, mais lento"

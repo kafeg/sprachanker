@@ -243,12 +243,13 @@ test("the engine: none here says so and starts nothing; Qwen3-TTS when the profi
     "speech_unavailable",
   ]);
 
-  // Piper and Qwen3-TTS both here: Piper unless the profile reads with Qwen3-TTS.
+  // Piper and Qwen3-TTS both here: the profile's engine first.
   const q = qwen(["qwen-tokenizer-12hz-Q8_0.gguf", "qwen-talker-0.6b-customvoice-Q8_0.gguf"]);
   const both = await withDecks({ piper: piper([VOICE]).host, speech: q.host });
   const deckId = (await both.importDeck()).id;
   const scope = `deck:${deckId}`;
   await both.sendJson("POST", "/api/cards/decks/take", { deck: deckId });
+  await both.send("PUT", "/api/settings", { key: "speech.readEngine", value: "piper" });
   expect((await both.getJson(audio(scope))).reader.engine).toBe("piper");
   await both.send("PUT", "/api/settings", { key: "speech.readEngine", value: "qwen" });
   await both.send("PUT", "/api/settings", {

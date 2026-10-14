@@ -129,7 +129,7 @@ export const SETTING_DEFAULTS = {
   "llm.preparePractice": true,
   "experimental.on": [],
   "speech.recognition": true,
-  "speech.readEngine": "device",
+  "speech.readEngine": "qwen",
   "speech.readRate": 1,
   "srs.faces": ["recognition", "production"],
   "srs.newPerDay": 20,

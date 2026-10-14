@@ -140,7 +140,8 @@ area is built is in its `CLAUDE.md`; work not built yet is in `docs/plan.md`.
 - Course audio is used whenever it exists; reading aloud is for text without audio, mostly the AI's, and mainly for listening (owner, 2026-10-08, 2026-10-11).
 - A line is read on request only, never on opening. Exception: where the exercise is held by voice, a new partner line is read as it arrives (owner, 2026-10-11).
 - Each person in a generated text gets a server voice of their gender (and age where known), at random, no voice twice (owner, 2026-10-12: same voices, women read by men).
-- Read engines (owner, 2026-10-08/09): the device's voices by default; Piper and Qwen3-TTS run by us like Whisper. A language without a Piper voice falls back to the device's voices.
+- Read engines (owner, 2026-10-08/09): Piper and Qwen3-TTS run by us like Whisper; the device's voices read what neither can.
+- Settings offer Qwen3-TTS alone, the default engine (owner, 2026-10-14: the others come nowhere near it). Where it cannot read a language — not downloaded, a language it lacks — the device's voices read, with no choice in Settings. The setting keeps its other values (device, Piper) without a place in Settings.
 
 ## Review
 

@@ -1256,11 +1256,7 @@
       "readHint": "一个声音朗读一种语言的文本：对话的台词、单词的例句以及没有录音的单词。每种语言都有自己的声音。",
       "engine": {
         "device": "本设备的声音",
-        "deviceLine": "{count, plural, other {#个声音}}，无需安装",
-        "deviceNone": "此浏览器没有可用于朗读的声音。",
         "piper": "本机上的Piper",
-        "piperMissing": "此版本中没有：应用构建时未包含语音引擎",
-        "piperLine": "{count, plural, =0 {还没有声音：请从下方下载} other {已下载#个声音}}",
         "qwen": "本机上的Qwen3-TTS",
         "qwenMissing": "此版本中没有：应用构建时未包含语音引擎",
         "qwenReady": "就绪：已下载模型",
@@ -1268,21 +1264,6 @@
       },
       "voiceFor": "{language}的声音",
       "voiceAuto": "自动：{name}",
-      "noVoice": "本设备没有{language}的声音。",
-      "betterVoices": "在Mac上，可以在“系统设置 → 辅助功能 → 朗读内容 → 系统声音 → 管理声音”中下载更好的声音（优化音质、高音质）。",
-      "readRate": "语速：{rate}×",
-      "readRateLabel": "朗读语速",
-      "piperNone": "还没有{language}的声音：请从下方下载。",
-      "piperNoLanguage": "Piper没有{language}的声音：将由设备的声音朗读。",
-      "piperHint": "Piper的每个声音约60–120MB，保存在这台电脑上；没有Piper声音的语言由设备的声音朗读。",
-      "removeVoice": "移除声音{voice}",
-      "allVoices": "所有声音（{count, number}）",
-      "quality": {
-        "x_low": "最低音质",
-        "low": "低音质",
-        "medium": "中等音质",
-        "high": "高音质"
-      },
       "qwenModel": {
         "small": "小模型（0.6B）：更快",
         "large": "大模型（1.7B）：更自然，较慢"
