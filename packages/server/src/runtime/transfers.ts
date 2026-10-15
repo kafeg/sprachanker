@@ -20,9 +20,11 @@ const ID = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/;
 const KEPT_MS = 60 * 60_000;
 /** How often a transfer in use marks its folder's time (another process's sweep goes by it). */
 const TOUCH_MS = 60_000;
-/** Room a transfer leaves free on the data root's disk beyond what it writes: the larger of 1 GB and
- *  5 % of the disk (the server and the learners' own work go on beside it). */
-const dataRootMargin = (diskBytes: number) => Math.max(1024 ** 3, 0.05 * diskBytes);
+/** Room a transfer leaves free on the data root's disk beyond what it writes: 5 % of the disk, at
+ *  least 1 GB and at most 10 GB (the server and the learners' own work go on beside it; a large disk
+ *  nearly full still takes a course). */
+const dataRootMargin = (diskBytes: number) =>
+  Math.min(10 * 1024 ** 3, Math.max(1024 ** 3, 0.05 * diskBytes));
 /** Room left free beyond a file written elsewhere (a file saved where the command was told). */
 const FILE_MARGIN = 16 * 1024 * 1024;
 

@@ -26,6 +26,7 @@ import { practiceFiles } from "./runtime/practice.ts";
 import { profileTransferFiles } from "./runtime/profile-transfer.ts";
 import { readingCache } from "./runtime/readings.ts";
 import { speechHost } from "./runtime/speech.ts";
+import type { TransferOptions } from "./runtime/transfers.ts";
 import { createCardStore } from "./services/card-store.ts";
 import { createContent } from "./services/content.ts";
 import { createCourseTransfer } from "./services/course-transfer.ts";
@@ -235,10 +236,11 @@ export function profileAdmin(
  * imported, one removed — also while a server runs on the
  * data root (the series' import lock keeps them apart; the server reads the files anew).
  */
-export function courseAdmin(dataRoot: string, appVersion = "") {
+export function courseAdmin(dataRoot: string, appVersion = "", disk?: TransferOptions["disk"]) {
   const library = openLibrary(join(dataRoot, "library"));
   const transfer = createCourseTransfer({
     files: courseTransferFiles(dataRoot, {
+      disk,
       // A server running on the data root keeps its transfers: they are its to sweep.
       sweeps: () => !serverOn(dataRoot),
     }),
