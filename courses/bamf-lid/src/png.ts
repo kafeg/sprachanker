@@ -1,6 +1,7 @@
 // Pictures taken out of the catalogue PDF, saved as PNG files: decoded pixels (pdf.ts) scaled down to
-// a size a screen shows and encoded losslessly (zlib, no image library).
-import { deflateSync } from "node:zlib";
+// a size a screen shows and encoded losslessly (zlib by fflate, the same on every runtime; no image
+// library).
+import { zlibSync } from "fflate";
 import type { Pixels } from "./pdf.ts";
 
 /** The longest side a picture is kept at (the PDF has photos of almost 3000 pixels). */
@@ -91,7 +92,7 @@ export function encodePng(pixels: Pixels): Uint8Array {
   const parts = [
     new Uint8Array([0x89, 0x50, 0x4e, 0x47, 0x0d, 0x0a, 0x1a, 0x0a]),
     chunk("IHDR", header),
-    chunk("IDAT", deflateSync(raw, { level: 9 })),
+    chunk("IDAT", zlibSync(raw, { level: 9 })),
     chunk("IEND", new Uint8Array()),
   ];
   const out = new Uint8Array(parts.reduce((n, p) => n + p.length, 0));

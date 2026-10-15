@@ -3,9 +3,8 @@
 // at the source shifts no other key, so answers, mistakes and cards stay on what they were about. A
 // new one takes the number of its place when that is free in its scope, else the next free number.
 // Kept per series in `keys.json` (the normaliser's own state, beside media.json).
-import { readFile } from "node:fs/promises";
-import { join } from "node:path";
 import { KeyMapFile } from "@sprachanker/schema";
+import { type DataFs, joinPath } from "./data-fs.ts";
 import { writeFileAtomic } from "./files.ts";
 
 export interface KeyMap {
@@ -15,14 +14,11 @@ export interface KeyMap {
   save(): Promise<void>;
 }
 
-export async function openKeyMap(seriesDir: string): Promise<KeyMap> {
-  const file = join(seriesDir, "keys.json");
+export async function openKeyMap(fs: DataFs, seriesDir: string): Promise<KeyMap> {
+  const file = joinPath(seriesDir, "keys.json");
   // None yet: a series normalised the first time. One that does not read stops the normaliser: numbering
   // afresh would give kept keys to other lessons and exercises.
-  const text = await readFile(file, "utf8").catch((error: NodeJS.ErrnoException) => {
-    if (error.code === "ENOENT") return undefined;
-    throw error;
-  });
+  const text = fs.readText(file);
   const stored: KeyMapFile = text === undefined ? {} : KeyMapFile.parse(JSON.parse(text));
   let changed = false;
   return {
@@ -39,7 +35,7 @@ export async function openKeyMap(seriesDir: string): Promise<KeyMap> {
     },
     async save() {
       if (!changed) return;
-      await writeFileAtomic(file, `${JSON.stringify(stored, null, 1)}\n`);
+      await writeFileAtomic(fs, file, `${JSON.stringify(stored, null, 1)}\n`);
       changed = false;
     },
   };

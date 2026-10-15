@@ -1,8 +1,7 @@
 // Normalisation of one downloaded course edition: raw pages → canonical/ and locale/ files (offline).
-import { existsSync } from "node:fs";
-import { readFile } from "node:fs/promises";
-import { join } from "node:path";
 import {
+  type DataFs,
+  joinPath,
   libraryFile,
   libraryWriter,
   type NormaliseResult,
@@ -22,18 +21,21 @@ import { normaliseLesson } from "./lesson.ts";
 export async function normaliseCourse(
   seriesDir: string,
   dw: DwCourse,
-  options: { log: (line: string) => void },
+  options: { fs: DataFs; log: (line: string) => void },
 ): Promise<NormaliseResult> {
-  const { log } = options;
+  const { fs, log } = options;
   const rawDir = rawDirOf(dw);
-  const read = async (file: string): Promise<ApolloState> =>
-    JSON.parse(await readFile(join(seriesDir, rawDir, file), "utf8"));
+  const read = async (file: string): Promise<ApolloState> => {
+    const text = fs.readText(joinPath(seriesDir, rawDir, file));
+    if (text === undefined) throw new Error(`${rawDir}/${file}: not downloaded`);
+    return JSON.parse(text);
+  };
 
-  const ctx = createContext(await readMediaIndex(seriesDir), dw.edition);
+  const ctx = createContext(await readMediaIndex(fs, seriesDir), dw.edition);
   const course = courseKey(seriesId(dw.series), dw.id);
-  const writer = libraryWriter(seriesDir, log);
+  const writer = libraryWriter(fs, seriesDir, log);
   const courseState = await read("course.json");
-  const keys = await openKeyMap(seriesDir);
+  const keys = await openKeyMap(fs, seriesDir);
   const all = courseLessons(course, courseState, keys);
   const titles = new Map<LessonKey, string>();
   const goals = new Map<LessonKey, Record<GoalKey, string>>();
@@ -46,9 +48,9 @@ export async function normaliseCourse(
     const exercises = new Map<number, ApolloState>();
     // A page the source no longer serves was not stored: the lesson goes on without it.
     for (const id of exerciseIds(lesson, entry.sourceId))
-      if (existsSync(join(seriesDir, rawDir, `e-${id}.json`)))
+      if (fs.stat(joinPath(seriesDir, rawDir, `e-${id}.json`)))
         exercises.set(id, await read(`e-${id}.json`));
-    const downloads = existsSync(join(seriesDir, rawDir, `le-${entry.sourceId}.json`))
+    const downloads = fs.stat(joinPath(seriesDir, rawDir, `le-${entry.sourceId}.json`))
       ? await read(`le-${entry.sourceId}.json`)
       : {};
     const out = normaliseLesson(ctx, {

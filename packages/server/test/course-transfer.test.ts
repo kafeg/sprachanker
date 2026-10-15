@@ -21,10 +21,9 @@ import { CLIENT_HEADERS } from "@sprachanker/schema";
 import { strFromU8, strToU8, unzipSync, zipSync } from "fflate";
 import { ulid } from "ulid";
 import { courseAdmin } from "../src/index.ts";
-import { withSeriesLock } from "../src/providers.ts";
-import { courseTransferFiles } from "../src/runtime/course-transfer.ts";
 import { bundleName } from "../src/services/course-transfer.ts";
 import { setup } from "./setup.ts";
+import { courseTransferFiles, withSeriesLock } from "./storage.ts";
 import { until } from "./until.ts";
 
 const LESSON = "sprachanker.fixture/demo/00-01";

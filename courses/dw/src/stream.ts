@@ -1,9 +1,8 @@
-// Fallback for videos whose direct MP4 is missing (404): remux the HLS stream variant to MP4 with
-// ffmpeg (stream copy, no re-encoding). Needs ffmpeg on PATH.
-import { spawn } from "node:child_process";
-import { mkdir } from "node:fs/promises";
-import { dirname } from "node:path";
-import { FetchFailedError, IMPORTER_USER_AGENT, type PoliteFetcher } from "@sprachanker/course-kit";
+// Fallback for videos whose direct MP4 is missing (404): the HLS stream's variant of the same size
+// made one MP4 (remux.ts: H.264 and AAC copied, nothing encoded again) — in TypeScript, so the phone
+// app does it as the desktop does.
+import { type DataFs, FetchFailedError, type PoliteFetcher } from "@sprachanker/course-kit";
+import { demuxSegment, type Frame, mp4Header, newDemuxer } from "./remux.ts";
 
 export interface StreamSource {
   /** HLS master playlist. */
@@ -21,29 +20,52 @@ export function variantUrl(master: string, resolution: string): string | undefin
   return i >= 0 ? lines[i + 1] : undefined;
 }
 
-/** Remuxes the variant into an MP4 at `target` (written by ffmpeg there, moved into place by the caller). */
+/** The segments of a variant playlist, as absolute URLs. */
+export const segmentUrls = (playlist: string, base: string) =>
+  playlist
+    .split("\n")
+    .map((line) => line.trim())
+    .filter((line) => line && !line.startsWith("#"))
+    .map((line) => new URL(line, base).href);
+
+/** Remuxes the variant into an MP4 at `target` (moved into place by the caller): the frames go to a
+ *  file beside it as each segment is read, then the MP4's head and they are written as one. */
 export async function remuxStream(
   fetcher: PoliteFetcher,
+  fs: DataFs,
   source: StreamSource,
   target: string,
 ): Promise<void> {
   const master = await fetcher.text(source.master);
   const variant = variantUrl(master, source.resolution);
   if (!variant) throw new FetchFailedError(source.master, "network");
-  await mkdir(dirname(target), { recursive: true });
-  // The importer's identity, as every request of it.
-  const args = ["-loglevel", "error", "-y", "-user_agent", IMPORTER_USER_AGENT, "-i", variant];
-  args.push("-c", "copy", "-bsf:a", "aac_adtstoasc");
-  // The target has no .mp4 extension (a temporary name): say the format.
-  args.push("-movflags", "+faststart", "-f", "mp4", target);
-  const ffmpeg = spawn("ffmpeg", args, { stdio: ["ignore", "ignore", "pipe"] });
-  let stderr = "";
-  ffmpeg.stderr.on("data", (chunk: Buffer) => {
-    stderr += chunk.toString();
-  });
-  const code = await new Promise<number | null>((resolve, reject) => {
-    ffmpeg.on("error", reject);
-    ffmpeg.on("close", resolve);
-  });
-  if (code !== 0) throw new Error(`ffmpeg failed for ${variant}: ${stderr.trim()}`);
+  const variantHref = new URL(variant, source.master).href;
+  const segments = segmentUrls(await fetcher.text(variantHref), variantHref);
+  if (!segments.length) throw new FetchFailedError(variantHref, "network");
+  const [width, height] = source.resolution.split("x").map(Number) as [number, number];
+  const demuxer = newDemuxer(width, height);
+  const order: Frame["kind"][] = [];
+  let dataBytes = 0;
+  const frames = `${target}.frames`;
+  async function* data() {
+    for (const url of segments) {
+      for (const frame of demuxSegment(demuxer, (await fetcher.bytes(url)).bytes)) {
+        order.push(frame.kind);
+        dataBytes += frame.bytes.length;
+        yield frame.bytes;
+      }
+    }
+  }
+  try {
+    await fs.write(frames, data());
+    if (!demuxer.video?.samples.length) throw new Error(`${variantHref}: no video in the stream`);
+    const head = mp4Header(demuxer, order, dataBytes);
+    async function* whole() {
+      yield head;
+      yield* fs.stream(frames);
+    }
+    await fs.write(target, whole());
+  } finally {
+    fs.remove(frames);
+  }
 }

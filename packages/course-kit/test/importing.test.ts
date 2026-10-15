@@ -4,6 +4,7 @@ import { tmpdir } from "node:os";
 import { join } from "node:path";
 import { emptyReport, importReport, rawPages } from "../src/importing.ts";
 import { mediaRef } from "../src/media-index.ts";
+import { nodeFs } from "../src/node-fs.ts";
 import type { ImportProgress } from "../src/provider.ts";
 
 const dir = () => mkdtempSync(join(tmpdir(), "sprachanker-raw-"));
@@ -13,23 +14,27 @@ test("raw pages: fetched once and kept, read from there after, counted each time
   const progress: ImportProgress[] = [];
   let fetched = 0;
   const fetch = async () => `page ${++fetched}`;
-  const pages = rawPages(root, { progress: (p) => progress.push(p) });
+  const pages = rawPages(root, { fs: nodeFs, progress: (p) => progress.push(p) });
   expect(await pages.text("raw/x/a.html", fetch)).toBe("page 1");
   expect(await pages.text("raw/x/a.html", fetch)).toBe("page 1");
   expect(readFileSync(join(root, "raw/x/a.html"), "utf8")).toBe("page 1");
   // Asked to fetch again.
   expect(await pages.text("raw/x/a.html", fetch, true)).toBe("page 2");
-  expect(await rawPages(root, { refresh: true }).text("raw/x/a.html", fetch)).toBe("page 3");
+  expect(await rawPages(root, { fs: nodeFs, refresh: true }).text("raw/x/a.html", fetch)).toBe(
+    "page 3",
+  );
   expect(progress).toEqual([1, 2, 3].map((done) => ({ phase: "pages", done })));
 });
 
 test("raw pages: bytes kept as they are; the newest kept page's time", async () => {
   const root = dir();
-  const pages = rawPages(root, {});
+  const pages = rawPages(root, { fs: nodeFs });
   expect(pages.readAt()).toBe(0);
   const bytes = new Uint8Array([0, 1, 255]);
   expect(await pages.bytes("raw/c.pdf", async () => bytes)).toEqual(bytes);
-  expect(await rawPages(root, {}).bytes("raw/c.pdf", async () => new Uint8Array())).toEqual(bytes);
+  expect(
+    await rawPages(root, { fs: nodeFs }).bytes("raw/c.pdf", async () => new Uint8Array()),
+  ).toEqual(bytes);
   await pages.text("raw/b.html", async () => "b");
   utimesSync(join(root, "raw/c.pdf"), 1, 1);
   utimesSync(join(root, "raw/b.html"), 2, 2);

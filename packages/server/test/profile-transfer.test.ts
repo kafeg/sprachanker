@@ -20,10 +20,10 @@ import { FIXTURE_SERIES } from "@sprachanker/course-fixture";
 import { CLIENT_HEADERS } from "@sprachanker/schema";
 import { strFromU8, strToU8, unzipSync, zipSync } from "fflate";
 import { ulid } from "ulid";
-import { profileTransferFiles } from "../src/runtime/profile-transfer.ts";
 import type { TransferFiles } from "../src/services/profile-transfer.ts";
 import { PREPARED_MS } from "../src/services/transfers.ts";
 import { setup } from "./setup.ts";
+import { profileTransferFiles } from "./storage.ts";
 import { until } from "./until.ts";
 
 const LESSON = "sprachanker.fixture/demo/00-01";

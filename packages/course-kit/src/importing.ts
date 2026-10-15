@@ -1,9 +1,7 @@
 // What every import does: raw pages kept once and counted, and the report it returns. A provider
 // states only what is its own (which pages, which media, how it normalises).
-import { existsSync, statSync } from "node:fs";
-import { readFile } from "node:fs/promises";
-import { join } from "node:path";
 import type { MediaIndex } from "@sprachanker/schema";
+import { joinPath, readAll } from "./data-fs.ts";
 import { writeFileAtomic } from "./files.ts";
 import { failedMedia, goneMedia } from "./media-index.ts";
 import type { ImportOptions, ImportReport, NormaliseResult } from "./provider.ts";
@@ -36,12 +34,13 @@ export interface RawPages {
 /** Raw pages kept in `seriesDir`, each one read or fetched counted for the progress (`pages`). */
 export function rawPages(
   seriesDir: string,
-  options: Pick<ImportOptions, "refresh" | "progress">,
+  options: Pick<ImportOptions, "fs" | "refresh" | "progress">,
 ): RawPages {
+  const { fs } = options;
   let done = 0;
   const read = new Set<string>();
   const kept = (path: string) => {
-    read.add(join(seriesDir, path));
+    read.add(joinPath(seriesDir, path));
     options.progress?.({ phase: "pages", done: ++done });
   };
   async function stored<T extends string | Uint8Array>(
@@ -50,21 +49,22 @@ export function rawPages(
     fetch: () => Promise<T>,
     refresh = options.refresh,
   ): Promise<T> {
-    const file = join(seriesDir, path);
+    const file = joinPath(seriesDir, path);
     let data: T;
-    if (!refresh && existsSync(file)) data = await load(file);
+    if (!refresh && fs.stat(file)) data = await load(file);
     else {
       data = await fetch();
       // Whole or not at all: a page cut off by a crash would be taken as kept.
-      await writeFileAtomic(file, data);
+      await writeFileAtomic(fs, file, data);
     }
     kept(path);
     return data;
   }
   return {
-    text: (path, fetch, refresh) => stored(path, (f) => readFile(f, "utf8"), fetch, refresh),
-    bytes: (path, fetch) => stored(path, async (f) => new Uint8Array(await readFile(f)), fetch),
+    text: (path, fetch, refresh) =>
+      stored(path, async (f) => new TextDecoder().decode(await readAll(fs, f)), fetch, refresh),
+    bytes: (path, fetch) => stored(path, (f) => readAll(fs, f), fetch),
     kept,
-    readAt: () => Math.round(Math.max(0, ...[...read].map((f) => statSync(f).mtimeMs))),
+    readAt: () => Math.round(Math.max(0, ...[...read].map((f) => fs.stat(f)?.mtimeMs ?? 0))),
   };
 }

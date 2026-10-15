@@ -1,17 +1,16 @@
 // Profile files on disk: each export or import in a transfer folder of its own,
-// `profiles/.transfers/<id>/` (transfers.ts). An export's snapshot — the database copied with
-// `VACUUM INTO` and its secrets emptied, the recordings linked — streamed as a zip of stored entries
+// `profiles/.transfers/<id>/` (transfers.ts). An export's snapshot — the database copied whole by the
+// runtime and its secrets emptied, the recordings linked — streamed as a zip of stored entries
 // (course-kit's zip); a received file read by its zip directory, unpacked streaming and hashed, its
-// database checked and moved into place.
-import { Database } from "bun:sqlite";
-import { mkdirSync, readdirSync, renameSync, rmSync, statSync, writeFileSync } from "node:fs";
-import { dirname, join } from "node:path";
+// database checked (profile-db.ts, by the runtime: a Worker on the desktop) and moved into place.
 import {
   bytesEntry,
-  entryBytes,
+  dirName,
   entryStream,
+  entryText,
   fileEntry,
   fileSums,
+  joinPath,
   linkOrCopy,
   writeChunks,
   zipEntries,
@@ -20,9 +19,22 @@ import {
 } from "@sprachanker/course-kit";
 import { PROFILE_FILE_MAX_FILES, ProfileFilePath } from "@sprachanker/schema";
 import type { ProfileFileEntry, TransferFiles } from "../services/profile-transfer.ts";
-import { BUSY_MS, profileDbFile, profileMigrationTags, vacuumInto } from "./bun.ts";
-import { editEndpoints, type Settled } from "./profile-db.ts";
+import { editEndpoints, type Settled, type SqlDb } from "./profile-db.ts";
+import { type DataRoot, under } from "./root.ts";
 import { type TransferOptions, transferFolders } from "./transfers.ts";
+
+/** What a profile file needs of the runtime's SQLite. */
+export interface ProfileSql {
+  /** The migrations this app's profile databases may have, in order. */
+  migrations: readonly string[];
+  /** A whole, consistent copy of a profile's database written to `file` (the live one goes on). */
+  copy(profileId: string, file: string): void | Promise<void>;
+  /** A database file opened to be changed (the copy: its secrets emptied). */
+  open(file: string): SqlDb;
+  /** A received database made ready (profile-db.ts), apart from the server's work where the runtime
+   *  can; "damaged" once it takes longer than `ms`. */
+  settle(file: string, endpoints: readonly string[], ms: number): Promise<Settled>;
+}
 
 const MANIFEST = "manifest.json";
 /** A manifest is small: a line per file. */
@@ -34,22 +46,16 @@ const RECORDING = /^[0-9A-HJKMNP-TV-Z]{26}\.[a-z0-9]{1,8}$/;
 const SETTLE_MS = 30 * 60_000;
 /** A profile file's zip: its files and manifest, names short (`recordings/<ulid>.<ext>`). */
 const ZIP_LIMITS = zipLimits(PROFILE_FILE_MAX_FILES + 1, 256, 64);
-/** The Worker that makes an imported profile's database ready, from sources; the compiled binary names its own
- *  (apps/cli/scripts/build.ts adds it as an entry). */
-export const PROFILE_DB_WORKER = join(import.meta.dir, "profile-db-worker.ts");
-
 export function profileTransferFiles(
-  dataRoot: string,
-  options: TransferOptions & {
-    /** The Worker of profile-db-worker.ts: the compiled binary's own, else PROFILE_DB_WORKER. */
-    worker?: string;
-    settleMs?: number;
-  } = {},
+  data: DataRoot,
+  sql: ProfileSql,
+  options: TransferOptions & { settleMs?: number } = {},
 ): TransferFiles {
-  const root = join(dataRoot, "profiles", ".transfers");
-  const t = transferFolders(root, options);
-  const unpacked = (id: string) => join(t.folder(id), "profile");
-  const received = (id: string) => join(t.folder(id), "received");
+  const { fs } = data;
+  const root = under(data, "profiles", ".transfers");
+  const t = transferFolders(fs, root, options);
+  const unpacked = (id: string) => joinPath(t.folder(id), "profile");
+  const received = (id: string) => joinPath(t.folder(id), "received");
   /** Each snapshot's files with their size and CRC-32 (the zip's), until it is streamed. */
   const sums = new Map<string, Map<string, { size: number; crc32: number }>>();
   const discard = (id: string) => {
@@ -59,7 +65,7 @@ export function profileTransferFiles(
   /** The entries of a profile file, its manifest apart; each name allowed and once. */
   const entriesOf = (id: string, file: string) => t.once(id, file, () => parseEntries(file));
   const parseEntries = (file: string) => {
-    const entries = zipEntries(file, ZIP_LIMITS);
+    const entries = zipEntries(fs, file, ZIP_LIMITS);
     if (!entries) return undefined;
     const names = new Set(entries.map((e) => e.name));
     const manifest = entries.find((e) => e.name === MANIFEST);
@@ -81,45 +87,38 @@ export function profileTransferFiles(
       ...paths.map((path) => {
         const sum = of?.get(path);
         if (!sum) throw new Error(`${path} is not in transfer ${id}`);
-        return fileEntry(path, join(unpacked(id), path), sum);
+        return fileEntry(fs, path, joinPath(unpacked(id), path), sum);
       }),
     ];
   };
 
   const self: TransferFiles = {
-    migrations: profileMigrationTags,
+    migrations: sql.migrations,
     sweep: t.sweep,
     begin: t.begin,
     async snapshot(profileId) {
-      const source = profileDbFile(dataRoot, profileId);
+      const folder = under(data, "profiles", profileId);
+      const source = joinPath(folder, "profile.sqlite");
       const id = t.begin();
       try {
-        const copy = join(unpacked(id), "profile.sqlite");
-        mkdirSync(dirname(copy), { recursive: true });
-        const wal = statSync(`${source}-wal`, { throwIfNoEntry: false })?.size ?? 0;
-        t.room(root, statSync(source).size + wal);
-        const live = new Database(source, { readwrite: true });
-        try {
-          live.exec(`PRAGMA busy_timeout = ${BUSY_MS}`);
-          vacuumInto(live, copy);
-        } finally {
-          live.close();
-        }
+        const copy = joinPath(unpacked(id), "profile.sqlite");
+        fs.mkdir(dirName(copy));
+        const wal = fs.stat(`${source}-wal`)?.size ?? 0;
+        t.room(root, (fs.stat(source)?.size ?? 0) + wal);
+        await sql.copy(profileId, copy);
         // The copy without the sealed API keys — emptied, then vacuumed so their pages go too — nor a
         // user name or password in an endpoint's address.
-        const db = new Database(copy);
+        const db = sql.open(copy);
         let migrations: string[];
         let apiKeys: string[];
         const endpointLogins: string[] = [];
         try {
           migrations = db
-            .query<{ tag: string }, []>("SELECT tag FROM _migrations ORDER BY rowid")
-            .all()
-            .map((r) => r.tag);
+            .all("SELECT tag FROM _migrations ORDER BY rowid")
+            .map((r) => String(r.tag));
           apiKeys = db
-            .query<{ provider_id: string }, []>("SELECT provider_id FROM secrets ORDER BY 1")
-            .all()
-            .map((r) => r.provider_id);
+            .all("SELECT provider_id FROM secrets ORDER BY 1")
+            .map((r) => String(r.provider_id));
           db.exec("DELETE FROM secrets");
           editEndpoints(db, (endpoints) => {
             for (const [provider, address] of Object.entries(endpoints)) {
@@ -139,20 +138,18 @@ export function profileTransferFiles(
         }
         // The recordings as they are now: linked (a take deleted meanwhile stays in the file), copied
         // where the disk has no hard links.
-        const recordings = join(dirname(source), "recordings");
-        const names = statSync(recordings, { throwIfNoEntry: false })?.isDirectory()
-          ? readdirSync(recordings).filter((name) => RECORDING.test(name))
-          : [];
-        if (names.length) mkdirSync(join(unpacked(id), "recordings"));
+        const recordings = joinPath(folder, "recordings");
+        const names = fs.list(recordings).filter((name) => RECORDING.test(name));
+        if (names.length) fs.mkdir(joinPath(unpacked(id), "recordings"));
         for (const name of names.sort()) {
-          const from = join(recordings, name);
-          const to = join(unpacked(id), "recordings", name);
-          linkOrCopy(from, to);
+          const from = joinPath(recordings, name);
+          const to = joinPath(unpacked(id), "recordings", name);
+          linkOrCopy(fs, from, to);
         }
         const files: ProfileFileEntry[] = [];
         const summed = new Map<string, { size: number; crc32: number }>();
         for (const path of ["profile.sqlite", ...names.map((n) => `recordings/${n}`)]) {
-          const { sha256, size, crc32 } = await fileSums(join(unpacked(id), path));
+          const { sha256, size, crc32 } = await fileSums(fs, joinPath(unpacked(id), path));
           files.push({ path, size, sha256 });
           summed.set(path, { size, crc32 });
         }
@@ -176,7 +173,7 @@ export function profileTransferFiles(
       const entries = entriesOf(id, file);
       if (!entries) return undefined;
       return {
-        manifest: entryBytes(file, entries.manifest).toString("utf8"),
+        manifest: entryText(fs, file, entries.manifest),
         entries: entries.others.map((e) => ({ path: e.name, size: e.size })),
       };
     },
@@ -190,56 +187,48 @@ export function profileTransferFiles(
         entries.others.reduce((n, e) => n + e.size, database),
       );
       for (const e of entries.others) {
-        const written = await writeChunks(join(unpacked(id), e.name), entryStream(file, e), e.size);
+        const written = await writeChunks(
+          fs,
+          joinPath(unpacked(id), e.name),
+          entryStream(fs, file, e),
+          e.size,
+        );
         // The first file not as listed ends it.
         const want = listed.get(e.name);
         if (!written || written.size !== want?.size || written.sha256 !== want.sha256) return false;
       }
       return true;
     },
-    settle(id, endpoints) {
-      const file = join(unpacked(id), "profile.sqlite");
-      const worker = new Worker(options.worker ?? PROFILE_DB_WORKER);
-      return new Promise<Settled>((resolve) => {
-        const done = (settled: Settled) => {
-          clearTimeout(timer);
-          // A worker held inside SQLite itself is not stopped by this; nothing of the file's own SQL
-          // runs there (profile-db.ts), so only a fault of SQLite's could hold it.
-          void worker.terminate();
-          resolve(settled);
-        };
-        const timer = setTimeout(() => done("damaged"), options.settleMs ?? SETTLE_MS);
-        worker.onmessage = (event: MessageEvent<Settled>) => done(event.data);
-        worker.onerror = () => done("damaged");
-        worker.postMessage({ file, endpoints });
-      });
-    },
+    settle: (id, endpoints) =>
+      sql.settle(
+        joinPath(unpacked(id), "profile.sqlite"),
+        endpoints,
+        options.settleMs ?? SETTLE_MS,
+      ),
     unfinished(known) {
       if (!t.sweeps()) return;
-      const profiles = join(dataRoot, "profiles");
-      for (const name of statSync(profiles, { throwIfNoEntry: false })
-        ? readdirSync(profiles)
-        : []) {
-        const mark = join(profiles, name, ADOPTING);
-        if (name.startsWith(".") || !statSync(mark, { throwIfNoEntry: false })) continue;
-        rmSync(known(name) ? mark : join(profiles, name), { recursive: true, force: true });
+      const profiles = under(data, "profiles");
+      for (const name of fs.list(profiles)) {
+        const mark = joinPath(profiles, name, ADOPTING);
+        if (name.startsWith(".") || !fs.stat(mark)) continue;
+        fs.remove(known(name) ? mark : joinPath(profiles, name));
       }
     },
     adopt(id, profileId, register) {
-      const target = join(dataRoot, "profiles", profileId);
-      if (statSync(target, { throwIfNoEntry: false })) throw new Error(`${target} exists`);
+      const target = under(data, "profiles", profileId);
+      if (fs.stat(target)) throw new Error(`${target} exists`);
       // Marked until its row exists: a process stopped in between leaves no profile without one.
-      writeFileSync(join(unpacked(id), ADOPTING), "");
-      renameSync(unpacked(id), target);
+      fs.writeFile(joinPath(unpacked(id), ADOPTING), "");
+      fs.rename(unpacked(id), target);
       let made: ReturnType<typeof register>;
       try {
         made = register();
       } catch (error) {
         // Back into the transfer, which goes with it.
-        renameSync(target, unpacked(id));
+        fs.rename(target, unpacked(id));
         throw error;
       }
-      rmSync(join(target, ADOPTING), { force: true });
+      fs.remove(joinPath(target, ADOPTING));
       return made;
     },
     discard,

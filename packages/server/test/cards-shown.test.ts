@@ -5,6 +5,7 @@ import { mkdirSync, readFileSync, writeFileSync } from "node:fs";
 import { dirname, join } from "node:path";
 import { FIXTURE_SERIES } from "@sprachanker/course-fixture";
 import { openLibrary } from "@sprachanker/course-kit";
+import { nodeFs } from "@sprachanker/course-kit/node";
 import { Deck, type LessonKey } from "@sprachanker/schema";
 import { createCardStore } from "../src/services/card-store.ts";
 import { createCards } from "../src/services/cards.ts";
@@ -68,7 +69,7 @@ const bigDeck = (size: number): Deck =>
 async function withService(size = 0, read: Record<string, string> = {}) {
   const api = await setup();
   const other = copyCourse(api.root);
-  const content = createContent(openLibrary(join(api.root, "library")));
+  const content = createContent(openLibrary(nodeFs, join(api.root, "library")));
   const counted = { courses: 0, lessons: 0 };
   const deck = bigDeck(size);
   const store = createRunStore({ db: api.profile, now: Date.now, appVersion: "test" });

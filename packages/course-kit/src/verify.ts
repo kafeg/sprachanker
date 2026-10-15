@@ -2,8 +2,6 @@
 // schemas — and checked beyond them: keys that refer to each other, answers that refer to existing
 // options and gaps, fingerprints, locale texts per edition, and media files on disk. One report per
 // course; `problems` must be empty, `notes` are worth a look (e.g. exercises without locale texts).
-import { existsSync, readdirSync, statSync } from "node:fs";
-import { join } from "node:path";
 import {
   correctOptions,
   type Exam,
@@ -17,6 +15,7 @@ import {
   type LocaleLesson,
   questionExercise,
 } from "@sprachanker/schema";
+import { type DataFs, joinPath } from "./data-fs.ts";
 import { hashFile } from "./files.ts";
 import { fingerprint } from "./fingerprint.ts";
 import type { CourseProblem, CourseReport, LibraryView } from "./library-view.ts";
@@ -235,6 +234,7 @@ function examProblems(exam: Exam, key: string): CourseProblem[] {
  * not pass for every question.
  */
 async function sourcesProblems(
+  fs: DataFs,
   library: LibraryView,
   series: string,
   exam: Exam,
@@ -258,7 +258,7 @@ async function sourcesProblems(
       out.push(inconsistent(at, `the copy of ${d.id} (${d.raw}) is missing`));
       continue;
     }
-    if (d.sha256 && (await hashFile(file)).sha256 !== d.sha256)
+    if (d.sha256 && (await hashFile(fs, file)).sha256 !== d.sha256)
       out.push(inconsistent(at, `the copy of ${d.id} (${d.raw}) changed since it was read`));
   }
   for (const c of sources.checks)
@@ -284,15 +284,16 @@ function localeExamProblems(exam: Exam, locale: LocaleExam, edition: string): Co
   return out;
 }
 
-export async function verifyLibrary(library: LibraryView): Promise<CourseReport[]> {
+export async function verifyLibrary(fs: DataFs, library: LibraryView): Promise<CourseReport[]> {
   const reports: CourseReport[] = [];
   for (const { series, course, editions } of library.courses())
-    reports.push(await verifyCourse(library, series, course, editions));
+    reports.push(await verifyCourse(fs, library, series, course, editions));
   return reports;
 }
 
 /** Checks one installed course (see the file comment). */
 export async function verifyCourse(
+  fs: DataFs,
   library: LibraryView,
   series: string,
   course: string,
@@ -376,7 +377,8 @@ export async function verifyCourse(
     const sources = await guard(`${key} sources`, () =>
       library.examSources(series, key as ExamKey),
     );
-    if (sources) report.problems.push(...(await sourcesProblems(library, series, exam, sources)));
+    if (sources)
+      report.problems.push(...(await sourcesProblems(fs, library, series, exam, sources)));
     for (const edition of editions) {
       const locale = await guard(`${edition} ${key}`, () =>
         library.localeExam(series, key as ExamKey, edition),
@@ -397,8 +399,7 @@ export async function verifyCourse(
         report.notes.push(`${edition} ${unit.key}: no unit title`);
   }
   // Lesson files the course does not list are never shown.
-  const dir = join(library.root, series, "canonical", course, "lessons");
-  const files = existsSync(dir) ? readdirSync(dir) : [];
+  const files = fs.list(joinPath(library.root, series, "canonical", course, "lessons"));
   for (const file of files.filter((f) => f.endsWith(".json"))) {
     const key = `${series}/${course}/${file.slice(0, -5)}`;
     if (!listed.has(key))
@@ -414,7 +415,7 @@ export async function verifyCourse(
     const file = library.mediaFile(series, path);
     if (file) {
       counts.present++;
-      report.media.bytes += statSync(file).size;
+      report.media.bytes += fs.stat(file)?.size ?? 0;
     } else {
       counts.missing++;
       report.media.missing++;

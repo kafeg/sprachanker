@@ -35,6 +35,7 @@ import {
 import { prettyJson } from "../src/canonical-json.ts";
 import { hashFile } from "../src/files.ts";
 import { NotInstalledError, openLibrary } from "../src/library.ts";
+import { nodeFs } from "../src/node-fs.ts";
 import { MINI_AUDIO, MINI_EXAM, MINI_SERIES, writeMiniLibrary } from "./mini-library.ts";
 
 const COURSE = `${MINI_SERIES}/basic` as CourseKey;
@@ -51,7 +52,7 @@ const put = (file: string, data: string) => {
 async function library() {
   const root = dir();
   const series = await writeMiniLibrary(root);
-  const sha = async (path: string) => (await hashFile(join(series, path))).sha256;
+  const sha = async (path: string) => (await hashFile(nodeFs, join(series, path))).sha256;
   const entry = async (path: string, kind: string, mime: string) => ({
     kind,
     path,
@@ -98,12 +99,12 @@ async function library() {
 /** The bundle of courses (basic, unless others are named) as the server makes it, unpacked into a
  *  stage of its own (`files`, `aside`). */
 async function bundled(root: string, editions?: string[], courses = ["basic"]) {
-  const content = await courseBundleContent(root, MINI_SERIES, courses, editions);
+  const content = await courseBundleContent(nodeFs, root, MINI_SERIES, courses, editions);
   const stage = dir();
   const files: Array<{ path: string; sha256: string; size: number }> = [];
   for (const f of content.files) {
     cpSync(f.file, join(stage, "files", f.path));
-    files.push({ path: f.path, ...(await hashFile(f.file)) });
+    files.push({ path: f.path, ...(await hashFile(nodeFs, f.file)) });
   }
   const manifest = CourseBundleManifest.parse({
     format: COURSE_BUNDLE_FORMAT,
@@ -127,20 +128,20 @@ const only = (b: Awaited<ReturnType<typeof bundled>>) =>
   b.manifest.courses[0] as (typeof b.manifest.courses)[number];
 
 async function install(root: string, bundle: Awaited<ReturnType<typeof bundled>>) {
-  const plan = await planBundle(root, bundle.manifest);
+  const plan = await planBundle(nodeFs, root, bundle.manifest);
   expect(plan.clash).toEqual([]);
-  expect(await checkBundle(bundle.files, bundle.manifest)).toEqual([]);
-  return { plan, ...(await installBundle({ libraryRoot: root, ...bundle, plan })) };
+  expect(await checkBundle(nodeFs, bundle.files, bundle.manifest)).toEqual([]);
+  return { plan, ...(await installBundle({ fs: nodeFs, libraryRoot: root, ...bundle, plan })) };
 }
 
 test("a course's bundle: its files of the editions asked, the media they use, its exams' copies, its lines of media.json and keys.json", async () => {
   const { root } = await library();
-  const all = await courseBundleContent(root, MINI_SERIES, ["basic"]);
+  const all = await courseBundleContent(nodeFs, root, MINI_SERIES, ["basic"]);
   expect(all.courses.map((c) => c.course)).toEqual([COURSE]);
   expect(all.courses[0]?.editions).toEqual(["en-de", "ru-de"]);
   expect(all.courses[0]?.kind).toBe("course");
   expect(all.courses[0]?.titles).toEqual({ "en-de": "Mini", "ru-de": "Mini" });
-  const one = await courseBundleContent(root, MINI_SERIES, ["basic"], ["ru-de"]);
+  const one = await courseBundleContent(nodeFs, root, MINI_SERIES, ["basic"], ["ru-de"]);
   expect(one.files.map((f) => f.path)).toEqual([
     "canonical/basic/course.json",
     "canonical/basic/exams/quiz.json",
@@ -158,13 +159,13 @@ test("a course's bundle: its files of the editions asked, the media they use, it
     "https://example.org/hallo.mp3",
   ]);
   expect(one.keys).toEqual({ [`${COURSE}/u00`]: { "11": 1 } });
-  await expect(courseBundleContent(root, MINI_SERIES, ["basic"], ["fr-de"])).rejects.toBeInstanceOf(
+  await expect(
+    courseBundleContent(nodeFs, root, MINI_SERIES, ["basic"], ["fr-de"]),
+  ).rejects.toBeInstanceOf(NotInstalledError);
+  await expect(courseBundleContent(nodeFs, root, MINI_SERIES, ["nope"])).rejects.toBeInstanceOf(
     NotInstalledError,
   );
-  await expect(courseBundleContent(root, MINI_SERIES, ["nope"])).rejects.toBeInstanceOf(
-    NotInstalledError,
-  );
-  await expect(courseBundleContent(root, MINI_SERIES, [])).rejects.toBeInstanceOf(
+  await expect(courseBundleContent(nodeFs, root, MINI_SERIES, [])).rejects.toBeInstanceOf(
     NotInstalledError,
   );
 });
@@ -177,7 +178,7 @@ test("a bundle installed into another library: verified whole, the series' state
   const first = await install(other, await bundled(root, ["ru-de"]));
   expect(first.courses).toEqual([{ course: COURSE, status: "added", variants: 0 }]);
   expect(first.media).toEqual({ added: 2, kept: 0 });
-  const report = await openLibrary(other).check(MINI_SERIES, "basic");
+  const report = await openLibrary(nodeFs, other).check(MINI_SERIES, "basic");
   expect(report.problems).toEqual([]);
   expect(report.editions).toEqual(["ru-de"]);
   expect(report.media.missing).toBe(0);
@@ -196,7 +197,7 @@ test("a bundle installed into another library: verified whole, the series' state
   // Another edition of it: added beside, the course's files the same.
   const en = await install(other, await bundled(root, ["en-de"]));
   expect(en.courses).toEqual([{ course: COURSE, status: "replaced", variants: 0 }]);
-  expect(openLibrary(other).courses()[0]?.editions).toEqual(["en-de", "ru-de"]);
+  expect(openLibrary(nodeFs, other).courses()[0]?.editions).toEqual(["en-de", "ru-de"]);
 });
 
 test("a bundle whose content differs replaces the course's folders whole; editions it does not carry stay", async () => {
@@ -211,7 +212,7 @@ test("a bundle whose content differs replaces the course's folders whole; editio
   const changed = await install(other, await bundled(root, ["ru-de"]));
   expect(changed.courses).toEqual([{ course: COURSE, status: "replaced", variants: 0 }]);
   expect(existsSync(stale)).toBe(false);
-  const installed = openLibrary(other);
+  const installed = openLibrary(nodeFs, other);
   expect((await installed.localeCourse(MINI_SERIES, "basic", "ru-de"))?.title).toBe("Mini 2");
   expect((await installed.localeCourse(MINI_SERIES, "basic", "en-de"))?.title).toBe("Mini");
   expect((await installed.check(MINI_SERIES, "basic")).problems).toEqual([]);
@@ -241,19 +242,21 @@ test("media already in the library are not unpacked: the same name skipped, the 
       },
     }),
   );
-  const plan = await planBundle(other, bundle.manifest);
+  const plan = await planBundle(nodeFs, other, bundle.manifest);
   expect([...plan.skip]).toEqual(["media/image/frage.png"]);
   expect([...plan.link]).toEqual([[MINI_AUDIO, "media/audio/hallo-2.mp3"]]);
   expect([...plan.unpack].filter((p) => !p.endsWith(".json"))).toEqual([
     "raw/de-de/basic/quiz.pdf",
   ]);
-  const done = await installBundle({ libraryRoot: other, ...bundle, plan });
+  const done = await installBundle({ fs: nodeFs, libraryRoot: other, ...bundle, plan });
   expect(done.media).toEqual({ added: 1, kept: 1 });
   expect(readFileSync(join(otherSeries, MINI_AUDIO), "utf8")).toBe("sprachanker-mini:hallo");
 
   const clashing = dir();
   put(join(clashing, MINI_SERIES, "media/image/frage.png"), "another picture");
-  expect((await planBundle(clashing, bundle.manifest)).clash).toEqual(["media/image/frage.png"]);
+  expect((await planBundle(nodeFs, clashing, bundle.manifest)).clash).toEqual([
+    "media/image/frage.png",
+  ]);
 });
 
 test("a bundle's files are checked before anything is installed: schemas, places, the course's own, media it uses", async () => {
@@ -261,7 +264,7 @@ test("a bundle's files are checked before anything is installed: schemas, places
   const problemsOf = async (change: (b: Awaited<ReturnType<typeof bundled>>) => void) => {
     const b = await bundled(root, ["ru-de"]);
     change(b);
-    return checkBundle(b.files, b.manifest);
+    return checkBundle(nodeFs, b.files, b.manifest);
   };
   const lesson = "canonical/basic/lessons/00-01.json";
   expect(await problemsOf(() => {})).toEqual([]);
@@ -314,7 +317,7 @@ test("a bundle's lines of media.json say what it holds: its file, of that kind, 
   const problemsOf = async (change: (b: Awaited<ReturnType<typeof bundled>>) => void) => {
     const b = await bundled(root, ["ru-de"]);
     change(b);
-    return checkBundle(b.files, b.manifest);
+    return checkBundle(nodeFs, b.files, b.manifest);
   };
   const url = "https://example.org/hallo.mp3";
   const line = (b: Awaited<ReturnType<typeof bundled>>) =>
@@ -352,11 +355,13 @@ test("an install that fails midway is undone: media placed removed, the course's
   writeFileSync(index, `${readFileSync(index, "utf8")}\n`);
   const bundle = await bundled(root);
   const before = filesOf(other);
-  const plan = await planBundle(other, bundle.manifest);
-  expect(await checkBundle(bundle.files, bundle.manifest)).toEqual([]);
+  const plan = await planBundle(nodeFs, other, bundle.manifest);
+  expect(await checkBundle(nodeFs, bundle.files, bundle.manifest)).toEqual([]);
   // The new edition's folder cannot be moved in: after the picture and the course's index were.
   rmSync(join(bundle.files, "locale/en-de/basic"), { recursive: true });
-  await expect(installBundle({ libraryRoot: other, ...bundle, plan })).rejects.toThrow();
+  await expect(
+    installBundle({ fs: nodeFs, libraryRoot: other, ...bundle, plan }),
+  ).rejects.toThrow();
   expect(filesOf(other)).toEqual(before);
 });
 
@@ -365,7 +370,9 @@ test("a bundle replaces nothing of the library but its course's folders: a sourc
   const bundle = await bundled(root, ["ru-de"]);
   const other = dir();
   put(join(other, MINI_SERIES, "raw/de-de/basic/quiz.pdf"), "the quiz as read elsewhere");
-  expect((await planBundle(other, bundle.manifest)).clash).toEqual(["raw/de-de/basic/quiz.pdf"]);
+  expect((await planBundle(nodeFs, other, bundle.manifest)).clash).toEqual([
+    "raw/de-de/basic/quiz.pdf",
+  ]);
   // A copy in another course's folder, named by this course's exam sources.
   const theirs = "raw/de-de/other/quiz.pdf";
   cpSync(join(bundle.files, "raw/de-de/basic/quiz.pdf"), join(bundle.files, theirs));
@@ -375,7 +382,7 @@ test("a bundle replaces nothing of the library but its course's folders: a sourc
     readFileSync(sources, "utf8").replace("raw/de-de/basic/", "raw/de-de/other/"),
   );
   bundle.manifest.files.push({ path: theirs, size: 1, sha256: "0".repeat(64) });
-  expect(await checkBundle(bundle.files, bundle.manifest)).toContain(
+  expect(await checkBundle(nodeFs, bundle.files, bundle.manifest)).toContain(
     `${theirs}: not of the bundle's courses`,
   );
   // Nor is it exported.
@@ -388,7 +395,7 @@ test("a bundle replaces nothing of the library but its course's folders: a sourc
     ),
   );
   put(join(series, theirs), "another course's copy");
-  const content = await courseBundleContent(root, MINI_SERIES, ["basic"], ["ru-de"]);
+  const content = await courseBundleContent(nodeFs, root, MINI_SERIES, ["basic"], ["ru-de"]);
   expect(content.files.map((f) => f.path).filter((p) => p.startsWith("raw/"))).toEqual([]);
 });
 
@@ -412,7 +419,7 @@ test("the same content under another name is linked only when that file holds it
       },
     }),
   );
-  const plan = await planBundle(other, bundle.manifest);
+  const plan = await planBundle(nodeFs, other, bundle.manifest);
   expect([...plan.link]).toEqual([]);
   expect(plan.unpack.has(MINI_AUDIO)).toBe(true);
 });
@@ -458,7 +465,7 @@ test("a bundle of two courses sharing media: each media file once, both checked 
   ]);
   // Its two media files and basic's exam's copy, there already.
   expect(done.media).toEqual({ added: 0, kept: 3 });
-  const installed = openLibrary(other);
+  const installed = openLibrary(nodeFs, other);
   expect(installed.courses().map((c) => c.course)).toEqual(["basic", "twin"]);
   // Each finds its media (twin's fingerprints are basic's: a copy, not checked here).
   for (const id of ["basic", "twin"])
@@ -472,7 +479,7 @@ test("a bundle's file of a course its manifest does not list is refused", async 
   const bundle = await bundled(root, ["ru-de"], ["basic", "twin"]);
   // twin's files kept, twin taken off the manifest's courses.
   bundle.manifest.courses = bundle.manifest.courses.filter((c) => c.course === COURSE);
-  const problems = await checkBundle(bundle.files, bundle.manifest);
+  const problems = await checkBundle(nodeFs, bundle.files, bundle.manifest);
   expect(problems).toContain(
     "canonical/twin/course.json: not where its keys put it in the bundle's courses",
   );
@@ -487,9 +494,9 @@ test("a series' courses grouped for bundles: those sharing most of their media's
   twin(series, "twin");
   // level: a large recording of its own, basic's picture only shared.
   twin(series, "level", "b".repeat(1000));
-  expect(await bundleGroups(root, MINI_SERIES)).toEqual([["basic", "twin"], ["level"]]);
+  expect(await bundleGroups(nodeFs, root, MINI_SERIES)).toEqual([["basic", "twin"], ["level"]]);
   // Its own bundle holds the picture it shares too.
-  const level = await courseBundleContent(root, MINI_SERIES, ["level"]);
+  const level = await courseBundleContent(nodeFs, root, MINI_SERIES, ["level"]);
   expect(level.files.filter((f) => f.path.startsWith("media/")).map((f) => f.path)).toEqual([
     "media/audio/level.mp3",
     "media/image/frage.png",
@@ -542,16 +549,18 @@ test("a course's practice travels in its bundle with its recordings; installed, 
   practice(join(other, MINI_SERIES), ["aaaaaaaa", "cccccccc"]);
   const done = await install(other, bundle);
   expect(done.courses).toEqual([{ course: COURSE, status: "same", variants: 1 }]);
-  const merged = await openLibrary(other).practice(
+  const merged = await openLibrary(nodeFs, other).practice(
     MINI_SERIES,
     `${MINI_SERIES}/basic/00-01` as never,
     "ru-de",
   );
   expect(merged?.listening.map((v) => v.id).sort()).toEqual(["aaaaaaaa", "bbbbbbbb", "cccccccc"]);
   expect(
-    openLibrary(other).practiceFile(MINI_SERIES, "practice/ru-de/basic/00-01/bbbbbbbb.wav"),
+    openLibrary(nodeFs, other).practiceFile(MINI_SERIES, "practice/ru-de/basic/00-01/bbbbbbbb.wav"),
   ).toBeTruthy();
-  expect(openLibrary(other).practiceLessons(MINI_SERIES, "basic", "ru-de")).toEqual(["00-01"]);
+  expect(openLibrary(nodeFs, other).practiceLessons(MINI_SERIES, "basic", "ru-de")).toEqual([
+    "00-01",
+  ]);
   // The same again brings nothing.
   expect((await install(other, bundle)).courses).toEqual([
     { course: COURSE, status: "same", variants: 0 },
@@ -570,11 +579,11 @@ test("a bundle's practice is checked: a recording no variant names, an edition i
       { path: "practice/ru-de/basic/00-01/stray.wav", size: 1, sha256: "0".repeat(64) },
     ],
   };
-  expect((await checkBundle(bundle.files, stray)).join()).toContain(
+  expect((await checkBundle(nodeFs, bundle.files, stray)).join()).toContain(
     "a recording no practice names",
   );
   const en = { ...bundle.manifest, courses: [{ ...only(bundle), editions: ["en-de"] }] };
-  expect((await checkBundle(bundle.files, en)).join()).toContain(
+  expect((await checkBundle(nodeFs, bundle.files, en)).join()).toContain(
     "practice/ru-de/basic/00-01.json: not where its keys put it",
   );
 });

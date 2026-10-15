@@ -1,7 +1,6 @@
 // `sprachanker import goethe`: each level's module pages, the solution page of each Teil and the
 // pages holding a picture's or a writing task's text fetched once and kept as they are (raw/), every recording and
 // picture fetched into media, then normalised offline.
-import { join } from "node:path";
 import {
   createPoliteFetcher,
   emptyReport,
@@ -10,6 +9,7 @@ import {
   type ImportOptions,
   type ImportReport,
   importReport,
+  joinPath,
   type MediaRef,
   mediaPath,
   mediaRef,
@@ -34,8 +34,13 @@ export async function importGoethe(options: ImportOptions): Promise<ImportReport
   const { log } = options;
   const levels = LEVELS.filter((l) => wanted(options, EDITION, l.course));
   if (!levels.length) return emptyReport();
-  const seriesDir = join(options.libraryRoot, SERIES);
-  const fetcher = createPoliteFetcher({ userAgent: IMPORTER_USER_AGENT, intervalMs: INTERVAL_MS });
+  const seriesDir = joinPath(options.libraryRoot, SERIES);
+  const fetcher = createPoliteFetcher({
+    fs: options.fs,
+    fetch: options.fetch,
+    userAgent: IMPORTER_USER_AGENT,
+    intervalMs: INTERVAL_MS,
+  });
   const pages = rawPages(seriesDir, options);
   const page = (path: string, url: string) => pages.text(path, () => fetcher.text(url));
 
@@ -78,6 +83,7 @@ export async function importGoethe(options: ImportOptions): Promise<ImportReport
   }
 
   const index = await fetchMedia({
+    fs: options.fs,
     fetcher,
     seriesDir,
     refs: [...mediaRefs.values()],
@@ -97,7 +103,7 @@ export async function importGoethe(options: ImportOptions): Promise<ImportReport
       readAt,
     });
     for (const line of out.problems) log(`goethe ${line}`);
-    const problems = await writeLibraryFiles(seriesDir, out.files, log);
+    const problems = await writeLibraryFiles(options.fs, seriesDir, out.files, log);
     log(
       `goethe ${level.course} ${EDITION}: exam of ${out.questions} questions` +
         `${out.leftOut ? `, ${out.leftOut} left out` : ""}${problems ? `, ${problems} files failed validation` : ""}`,

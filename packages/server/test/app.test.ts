@@ -5,6 +5,7 @@ import { tmpdir } from "node:os";
 import { join } from "node:path";
 import { FIXTURE_SERIES, writeFixtureLibrary } from "@sprachanker/course-fixture";
 import { openLibrary, removeCourse } from "@sprachanker/course-kit";
+import { nodeFs } from "@sprachanker/course-kit/node";
 import { CLIENT_HEADERS, type LessonKey } from "@sprachanker/schema";
 import { ulid } from "ulid";
 import { directoryAssets, fileAssets } from "../src/runtime/bun.ts";
@@ -327,7 +328,7 @@ describe("runs", () => {
       },
     });
     writeFileSync(join(series, file), JSON.stringify(lesson));
-    const content = createContent(openLibrary(join(root, "library")));
+    const content = createContent(openLibrary(nodeFs, join(root, "library")));
     expect((await content.lesson(FIXTURE_SERIES, LESSON as LessonKey)).pages).toHaveLength(
       lesson.pages.length,
     );
@@ -680,7 +681,7 @@ describe("course check and downloads", () => {
   test("a course with a lesson under way is removed; the run waits for it (course_gone), its pass reads from snapshots, and the course downloaded again meets it", async () => {
     let library = "";
     const installer: CourseInstaller = {
-      remove: (series, course) => removeCourse(library, series, course),
+      remove: (series, course) => removeCourse(nodeFs, library, series, course),
       offers: () => [],
       run: async () => ({ failedMedia: [], goneMedia: [], normalised: {} }),
       unfinished: async () => [],
@@ -710,7 +711,7 @@ describe("course check and downloads", () => {
     const pass = await api.getJson(`/api/notebook/passes/${run.id}`);
     expect(pass.events[0].payload.snapshot.exercise.key).toBe(`${LESSON}/ex-01`);
     // Downloaded again: the events kept are stored in the same run.
-    await writeFixtureLibrary(library);
+    await writeFixtureLibrary(nodeFs, library);
     await api.sendJson("POST", `/api/runs/${run.id}/events`, later);
     const again = await api.getJson(`/api/runs/lesson?${query}`);
     expect(again.state.events.map((e: { type: string }) => e.type)).toEqual([

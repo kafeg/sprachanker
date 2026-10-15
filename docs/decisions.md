@@ -258,7 +258,9 @@ area is built is in its `CLAUDE.md`; work not built yet is in `docs/plan.md`.
 - SQLite via `bun:sqlite`, Drizzle ORM and drizzle-kit migrations, WAL.
 - The phone app: Tauri 2 (as the desktop), the server's code in its WebView over sql.js (SQLite in WebAssembly, the whole database written back after changes), its files and Whisper (whisper.cpp through a C shim) on the native side.
 - `ulid` ids, `ts-fsrs` scheduling, `yaml`, `sanitize-html` for importer HTML, `markdown-it` with `html: false`, `country-flag-icons` for flags.
-- `pdfjs-dist` (legacy build, in the importer's thread) reads PDFs; PNGs are written with `node:zlib`.
+- `pdfjs-dist` (legacy build, in the importer's thread) reads PDFs; PNGs are written with `fflate` (the same bytes on the desktop and the phone).
+- The shared code reaches files through course-kit's `DataFs` (Node's on the desktop, the phone app's own), hashes with its own SHA-256 and CRC-32 (`hash.ts`), never `node:*` or Bun outside `runtime/` and `node-fs.ts`.
+- DW's HLS fallback (a video whose MP4 is gone) is remuxed in TypeScript (`courses/dw/src/remux.ts`), not by ffmpeg: the same frames as ffmpeg's (decoded, byte for byte), the container laid out a little otherwise — files made before stay as they are.
 - `fflate` reads `.apkg`. Profile files and course bundles use our own stored-entry zip (fflate has no ZIP64; a course exceeds 4 GB), read by its checked directory, never streamed: a recording can fake a signature.
 - The runtime's own crypto and codecs: WebCrypto (AES-256-GCM, SHA-256; no adapter), `zstdDecompressSync` with capped output, `Database.deserialize` for `.apkg`.
 - `pino` once structured logs are needed; `console.error` until then.

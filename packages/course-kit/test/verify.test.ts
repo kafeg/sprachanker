@@ -4,6 +4,7 @@ import { mkdirSync, mkdtempSync, readFileSync, rmSync, writeFileSync } from "nod
 import { tmpdir } from "node:os";
 import { join } from "node:path";
 import { openLibrary } from "../src/library.ts";
+import { nodeFs } from "../src/node-fs.ts";
 import { verifyLibrary } from "../src/verify.ts";
 import { MINI_LESSON, writeMiniLibrary } from "./mini-library.ts";
 
@@ -14,7 +15,7 @@ async function fixture() {
 }
 
 test("a clean course verifies clean, with its counts", async () => {
-  const [report] = await verifyLibrary(openLibrary(await fixture()));
+  const [report] = await verifyLibrary(nodeFs, openLibrary(nodeFs, await fixture()));
   expect(report?.problems).toEqual([]);
   expect(report?.editions).toEqual(["en-de", "ru-de"]);
   expect(report?.lessons).toBe(1);
@@ -42,7 +43,7 @@ test("an exam that does not hold together is reported", async () => {
   writeFileSync(localeFile, JSON.stringify(locale));
   rmSync(join(root, "sprachanker.mini/locale/ru-de/basic/exams/quiz.json"));
 
-  const [report] = await verifyLibrary(openLibrary(root));
+  const [report] = await verifyLibrary(nodeFs, openLibrary(nodeFs, root));
   const problems = report?.problems.map((p) => p.text) ?? [];
   const quiz = "sprachanker.mini/basic/exam-quiz";
   expect(problems).toEqual(
@@ -69,7 +70,7 @@ test("an exam's modules, examples and pass marks over modules are checked", asyn
   exam.sections[0].examples = [exam.sections[0].pool[0]];
   exam.thresholds = [{ id: "pass", minPoints: 30, modules: ["hoeren", "sprechen"] }];
   writeFileSync(examFile, JSON.stringify(exam));
-  const [report] = await verifyLibrary(openLibrary(root));
+  const [report] = await verifyLibrary(nodeFs, openLibrary(nodeFs, root));
   const problems = report?.problems.map((p) => p.text) ?? [];
   expect(problems).toEqual(
     expect.arrayContaining([
@@ -98,7 +99,7 @@ test("broken data is reported: a wrong answer id, a missing medium, a stray loca
   locale.exercises[`${MINI_LESSON}/ex-99`] = { sourceId: "x", items: {} };
   writeFileSync(localeFile, JSON.stringify(locale));
 
-  const [report] = await verifyLibrary(openLibrary(root));
+  const [report] = await verifyLibrary(nodeFs, openLibrary(nodeFs, root));
   const problems = report?.problems.map((p) => p.text).join("\n") ?? "";
   expect(problems).toContain('answer names option "zz"');
   expect(problems).toContain("fingerprint does not match");
@@ -115,7 +116,7 @@ test("a lesson whose exercise key is met twice does not read: verify says so", a
   // A numbering that gave two tasks one number.
   lesson.pages.push(page);
   writeFileSync(lessonFile, JSON.stringify(lesson));
-  const [report] = await verifyLibrary(openLibrary(root));
+  const [report] = await verifyLibrary(nodeFs, openLibrary(nodeFs, root));
   expect(report?.problems.map((p) => p.text).join("\n")).toContain(
     `exercise key ${page.exercise.key} met twice`,
   );
@@ -151,7 +152,9 @@ test("an exam's sources: every question placed, the copies kept unchanged, every
   const file = join(series, "canonical/basic/sources/quiz.json");
   writeFileSync(file, JSON.stringify(sources));
   const problems = async () =>
-    ((await verifyLibrary(openLibrary(root)))[0]?.problems ?? []).map((p) => p.text);
+    ((await verifyLibrary(nodeFs, openLibrary(nodeFs, root)))[0]?.problems ?? []).map(
+      (p) => p.text,
+    );
   expect(await problems()).toEqual([]);
 
   // A copy changed since it was read, a question without its source, a check not passed.

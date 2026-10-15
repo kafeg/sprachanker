@@ -5,15 +5,19 @@ import { tmpdir } from "node:os";
 import { join } from "node:path";
 import { FIXTURE_SERIES, writeFixtureLibrary } from "@sprachanker/course-fixture";
 import { openLibrary } from "@sprachanker/course-kit";
+import { nodeFs } from "@sprachanker/course-kit/node";
 import { CLIENT_HEADERS } from "@sprachanker/schema";
 import { createApp } from "../src/app.ts";
 import { profileAdmin } from "../src/index.ts";
+import { apkgRuntime } from "../src/runtime/apkg.ts";
 import { mediaBlob, openProfileDb, openServerDb, profileFiles } from "../src/runtime/bun.ts";
-import { courseTransferFiles } from "../src/runtime/course-transfer.ts";
-import { deckTransferFiles } from "../src/runtime/deck-transfer.ts";
-import { apkgRuntime, deckFiles } from "../src/runtime/decks.ts";
-import { profileTransferFiles } from "../src/runtime/profile-transfer.ts";
 import { setup } from "./setup.ts";
+import {
+  courseTransferFiles,
+  deckFiles,
+  deckTransferFiles,
+  profileTransferFiles,
+} from "./storage.ts";
 
 const LESSON = "sprachanker.fixture/demo/00-01";
 // biome-ignore lint/suspicious/noExplicitAny: test responses are inspected structurally.
@@ -141,11 +145,11 @@ test("the server's matters: registration closed refuses new profiles; delete by 
 
 test("the single profile from before profiles existed becomes the first one, not yet onboarded", async () => {
   const root = mkdtempSync(join(tmpdir(), "sprachanker-data-"));
-  await writeFixtureLibrary(join(root, "library"));
+  await writeFixtureLibrary(nodeFs, join(root, "library"));
   openProfileDb(join(root, "profiles/local/profile.sqlite"));
   const app = createApp({
     webAssets: async () => undefined,
-    library: openLibrary(join(root, "library")),
+    library: openLibrary(nodeFs, join(root, "library")),
     server: openServerDb(join(root, "server.sqlite")),
     profiles: profileFiles(root),
     mediaBlob,

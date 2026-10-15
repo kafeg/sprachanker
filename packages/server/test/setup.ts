@@ -5,14 +5,11 @@ import { tmpdir } from "node:os";
 import { join } from "node:path";
 import { writeFixtureLibrary } from "@sprachanker/course-fixture";
 import { openLibrary } from "@sprachanker/course-kit";
+import { nodeFs } from "@sprachanker/course-kit/node";
 import { CLIENT_HEADERS } from "@sprachanker/schema";
 import { createApp } from "../src/app.ts";
+import { apkgRuntime } from "../src/runtime/apkg.ts";
 import { mediaBlob, openServerDb, profileFiles } from "../src/runtime/bun.ts";
-import { courseTransferFiles } from "../src/runtime/course-transfer.ts";
-import { deckTransferFiles } from "../src/runtime/deck-transfer.ts";
-import { apkgRuntime, deckFiles } from "../src/runtime/decks.ts";
-import { practiceFiles } from "../src/runtime/practice.ts";
-import { profileTransferFiles } from "../src/runtime/profile-transfer.ts";
 import type { CourseTransferFiles } from "../src/services/course-transfer.ts";
 import type { CourseInstaller } from "../src/services/downloads.ts";
 import type { CliHost, LmStudioHost } from "../src/services/llm.ts";
@@ -20,6 +17,13 @@ import type { ReadingCache, SpeechHost } from "../src/services/local-engines.ts"
 import type { ListensOn, NetworkHost } from "../src/services/network.ts";
 import type { TransferFiles } from "../src/services/profile-transfer.ts";
 import type { PiperHost } from "../src/services/read-aloud.ts";
+import {
+  courseTransferFiles,
+  deckFiles,
+  deckTransferFiles,
+  practiceFiles,
+  profileTransferFiles,
+} from "./storage.ts";
 
 const files: Record<string, Blob> = {
   "/index.html": new Blob(["<!doctype html>"], { type: "text/html" }),
@@ -55,13 +59,13 @@ export async function setup(
   } = {},
 ) {
   const root = mkdtempSync(join(tmpdir(), "sprachanker-data-"));
-  if (!options.empty) await writeFixtureLibrary(join(root, "library"));
+  if (!options.empty) await writeFixtureLibrary(nodeFs, join(root, "library"));
   options.editLibrary?.(join(root, "library"));
   let clock = 1_000;
   const profiles = profileFiles(root);
   const app = createApp({
     webAssets: async (path) => files[path],
-    library: openLibrary(join(root, "library")),
+    library: openLibrary(nodeFs, join(root, "library")),
     server: openServerDb(join(root, "server.sqlite")),
     profiles,
     mediaBlob,

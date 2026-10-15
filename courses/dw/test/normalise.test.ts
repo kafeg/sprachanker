@@ -4,6 +4,7 @@ import { mkdtempSync } from "node:fs";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
 import { openKeyMap } from "@sprachanker/course-kit";
+import { nodeFs } from "@sprachanker/course-kit/node";
 import { Exercise, exerciseKey, lessonKey, unitKey } from "@sprachanker/schema";
 import { createContext, html } from "../src/normalise/context.ts";
 import { normaliseExercise } from "../src/normalise/exercise.ts";
@@ -490,7 +491,7 @@ test("an exercise keeps its key by its source id when the source inserts one bef
   const dir = mkdtempSync(join(tmpdir(), "sprachanker-keys-"));
   const lesson = lessonKey("dw.nicos-weg/a1" as never, 0, 1);
   const keysOf = async (ids: number[], missing: number[] = []) => {
-    const keys = await openKeyMap(dir);
+    const keys = await openKeyMap(nodeFs, dir);
     const out = normaliseLesson(ctx, {
       key: lesson,
       unit: unitKey("dw.nicos-weg/a1" as never, 0),

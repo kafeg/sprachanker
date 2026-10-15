@@ -3,15 +3,16 @@
 // there (a job writing the deck meanwhile leaves the file whole), each summed, streamed as a zip
 // (course-kit); a received file read by its zip directory, unpacked streaming and hashed, then placed
 // into its deck's folder: a new folder beside it, swapped in whole (decks.ts's replaceFolder).
-import { existsSync, mkdirSync, readFileSync, rmSync, statSync, writeFileSync } from "node:fs";
-import { dirname, join } from "node:path";
 import {
   aliased,
   bytesEntry,
-  entryBytes,
+  chunksOf,
+  dirName,
   entryStream,
+  entryText,
   fileEntry,
   fileSums,
+  joinPath,
   linkOrCopy,
   writeChunks,
   zipEntries,
@@ -22,6 +23,7 @@ import { DECK_BUNDLE_MAX_FILES, DeckBundlePath, DeckFolder } from "@sprachanker/
 import type { BundleFileEntry } from "../services/course-transfer.ts";
 import type { DeckTransferFiles } from "../services/deck-transfer.ts";
 import { replaceFolder } from "./decks.ts";
+import { type DataRoot, under } from "./root.ts";
 import { type TransferOptions, transferFolders } from "./transfers.ts";
 
 const MANIFEST = "manifest.json";
@@ -32,20 +34,23 @@ const JSON_MAX = 64 * 1024 * 1024;
 /** A deck file's zip: its files and manifest, names short (`media/<name>`, at most 255 bytes). */
 const ZIP_LIMITS = zipLimits(DECK_BUNDLE_MAX_FILES + 1, 512, 128);
 
-const isFile = (path: string) => !!statSync(path, { throwIfNoEntry: false })?.isFile();
-
 export function deckTransferFiles(
-  dataRoot: string,
+  data: DataRoot,
   options: TransferOptions = {},
 ): DeckTransferFiles {
-  const decksRoot = join(dataRoot, "decks");
-  const root = join(decksRoot, ".transfers");
-  const t = transferFolders(root, options);
-  const filesOf = (id: string) => join(t.folder(id), "files");
-  const received = (id: string) => join(t.folder(id), "received");
+  const { fs } = data;
+  const isFile = (path: string) => {
+    const info = fs.stat(path);
+    return !!info && !info.dir;
+  };
+  const decksRoot = under(data, "decks");
+  const root = joinPath(decksRoot, ".transfers");
+  const t = transferFolders(fs, root, options);
+  const filesOf = (id: string) => joinPath(t.folder(id), "files");
+  const received = (id: string) => joinPath(t.folder(id), "received");
   const deckFolder = (folder: string) => {
     if (!DeckFolder.safeParse(folder).success) throw new Error(`bad deck folder ${folder}`);
-    return join(decksRoot, folder);
+    return joinPath(decksRoot, folder);
   };
   /** Each staged export's files with their size and CRC-32 (the zip's), until it is streamed. */
   const sums = new Map<string, Map<string, { size: number; crc32: number }>>();
@@ -57,7 +62,7 @@ export function deckTransferFiles(
    *  and once — also to a disk that does not tell case or Unicode forms apart. */
   const entriesOf = (id: string) =>
     t.once(id, received(id), () => {
-      const entries = zipEntries(received(id), ZIP_LIMITS);
+      const entries = zipEntries(fs, received(id), ZIP_LIMITS);
       if (!entries) return undefined;
       const manifest = entries.find((e) => e.name === MANIFEST);
       const others = entries.filter((e) => e !== manifest);
@@ -78,7 +83,7 @@ export function deckTransferFiles(
       ...paths.map((path) => {
         const sum = of?.get(path);
         if (!sum) throw new Error(`${path} is not in transfer ${id}`);
-        return fileEntry(path, join(filesOf(id), path), sum);
+        return fileEntry(fs, path, joinPath(filesOf(id), path), sum);
       }),
     ];
   };
@@ -92,13 +97,13 @@ export function deckTransferFiles(
         const files: BundleFileEntry[] = [];
         const summed = new Map<string, { size: number; crc32: number }>();
         for (const path of new Set(paths)) {
-          const file = join(from, path);
+          const file = joinPath(from, path);
           // One gone meanwhile (made audio removed), or one no deck file may hold, is not in it.
           if (!DeckBundlePath.safeParse(path).success || !isFile(file)) continue;
-          const to = join(filesOf(id), path);
-          mkdirSync(dirname(to), { recursive: true });
-          linkOrCopy(file, to, () => t.room(root, statSync(file).size));
-          const { sha256, size, crc32 } = await fileSums(to);
+          const to = joinPath(filesOf(id), path);
+          fs.mkdir(dirName(to));
+          linkOrCopy(fs, file, to, () => t.room(root, fs.stat(file)?.size ?? 0));
+          const { sha256, size, crc32 } = await fileSums(fs, to);
           files.push({ path, size, sha256 });
           summed.set(path, { size, crc32 });
         }
@@ -122,7 +127,7 @@ export function deckTransferFiles(
       const entries = entriesOf(id);
       if (!entries) return undefined;
       return {
-        manifest: entryBytes(received(id), entries.manifest).toString("utf8"),
+        manifest: entryText(fs, received(id), entries.manifest),
         entries: entries.others.map((e) => ({ path: e.name, size: e.size })),
       };
     },
@@ -134,8 +139,9 @@ export function deckTransferFiles(
         return "damaged";
       for (const e of entries.others) {
         const written = await writeChunks(
-          join(filesOf(id), e.name),
-          t.touching(id, entryStream(received(id), e)),
+          fs,
+          joinPath(filesOf(id), e.name),
+          t.touching(id, entryStream(fs, received(id), e)),
           e.size,
         );
         // The first file not as listed ends it.
@@ -144,25 +150,24 @@ export function deckTransferFiles(
           return "damaged";
       }
       // What it held is unpacked: the file itself is no longer needed while it waits.
-      rmSync(received(id), { force: true });
+      fs.remove(received(id));
       return "ok";
     },
-    text(id, path) {
-      const file = join(filesOf(id), path);
-      return isFile(file) ? readFileSync(file, "utf8") : undefined;
-    },
+    text: (id, path) => fs.readText(joinPath(filesOf(id), path)),
     async place(id, folder, written, media) {
       const target = deckFolder(folder);
-      await replaceFolder(decksRoot, target, async (fresh) => {
+      await replaceFolder(fs, decksRoot, target, async (fresh) => {
         for (const path of new Set(media)) {
           if (!DeckBundlePath.safeParse(path).success || !path.startsWith("media/")) continue;
-          const from = join(filesOf(id), path);
+          const from = joinPath(filesOf(id), path);
           // A file the folder has under the name stays; one the deck file does not hold is none.
-          if (existsSync(join(target, path)) || !isFile(from)) continue;
-          linkOrCopy(from, join(fresh, path), () => t.room(root, statSync(from).size));
+          if (fs.stat(joinPath(target, path)) || !isFile(from)) continue;
+          linkOrCopy(fs, from, joinPath(fresh, path), () => t.room(root, fs.stat(from)?.size ?? 0));
         }
-        if (written.extras !== undefined) writeFileSync(join(fresh, "extras.json"), written.extras);
-        if (written.deck !== undefined) writeFileSync(join(fresh, "deck.json"), written.deck);
+        if (written.extras !== undefined)
+          await fs.write(joinPath(fresh, "extras.json"), chunksOf(written.extras));
+        if (written.deck !== undefined)
+          await fs.write(joinPath(fresh, "deck.json"), chunksOf(written.deck));
       });
     },
     discard,

@@ -61,7 +61,7 @@ export interface DeckFiles {
    *  a day old goes); its id, or undefined past `max` bytes. */
   stage(body: ReadableStream<Uint8Array>, max: number): Promise<string | undefined>;
   /** An uploaded package's bytes; undefined when it is gone. */
-  staged(upload: string): Uint8Array | undefined;
+  staged(upload: string): Promise<Uint8Array | undefined>;
   /** Lets an uploaded package go; with `deck`, notes the deck it made (kept as an upload is). */
   unstage(upload: string, deck?: string): void;
   /** The deck an upload made; undefined when it made none (or it was long ago). */
@@ -122,8 +122,8 @@ export function createDecks(deps: {
     owner: deck.owner ?? null,
   });
 
-  function open(upload: string): Apkg {
-    const bytes = files.staged(upload);
+  async function open(upload: string): Promise<Apkg> {
+    const bytes = await files.staged(upload);
     if (!bytes) throw new ServiceError("deck_upload_gone", 404);
     return refused(() => readApkg(bytes, deps.apkg));
   }
@@ -326,7 +326,7 @@ export function createDecks(deps: {
       const upload = await files.stage(body, length);
       if (!upload) throw new ServiceError("deck_too_large", 413);
       try {
-        return previewOf(upload, open(upload));
+        return previewOf(upload, await open(upload));
       } catch (error) {
         files.unstage(upload);
         throw error;
@@ -352,7 +352,7 @@ export function createDecks(deps: {
         // Asked again after it ended: the deck it made (what it left out is no longer known).
         const done = made ? deckOf(made) : undefined;
         if (done) return summary(done);
-        const apkg = open(request.upload);
+        const apkg = await open(request.upload);
         const notes = noteWords(apkg.notes, request);
         // Where each audio file the notes name is kept in the deck's folder; those the words use.
         const named = notes.flatMap((n) => [n.sound, ...(n.examples ?? []).map((e) => e.sound)]);

@@ -3,12 +3,13 @@ import { mkdtempSync, readFileSync, writeFileSync } from "node:fs";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
 import { openLibrary } from "../src/library.ts";
+import { nodeFs } from "../src/node-fs.ts";
 import { MINI_LESSON, writeMiniLibrary } from "./mini-library.ts";
 
 async function library() {
   const root = mkdtempSync(join(tmpdir(), "sprachanker-lib-"));
   await writeMiniLibrary(root);
-  return openLibrary(root);
+  return openLibrary(nodeFs, root);
 }
 
 test("lists installed courses with their editions and reads validated files", async () => {

@@ -6,6 +6,7 @@
 //   bun scripts/phone.ts course dw.nicos-weg/a1-ru --editions ru-de
 //   bun scripts/phone.ts practice dw.nicos-weg/a1-ru --editions ru-de
 //   bun scripts/phone.ts models
+//   bun scripts/phone.ts page 'location.href' | @file.js   (an expression in the app's page, over DevTools)
 // `ANDROID_SERIAL` picks the phone; `SPRACHANKER_DATA` the Mac's data root (~/SprachAnker).
 import { execFileSync } from "node:child_process";
 import { existsSync, mkdirSync, readdirSync, rmSync } from "node:fs";
@@ -121,14 +122,62 @@ function models() {
   }
 }
 
+/** An expression evaluated in the app's page (its WebView's DevTools, forwarded over adb), its value
+ *  printed as JSON; a promise is waited for. */
+async function evaluate(expression: string) {
+  const pid = adb("shell", "pidof", "app.sprachanker.mobile").trim();
+  if (!pid) throw new Error("the app is not running");
+  const port = 9334;
+  adb("forward", `tcp:${port}`, `localabstract:webview_devtools_remote_${pid}`);
+  // The WebView's socket comes a moment after the app starts.
+  const list = async (): Promise<unknown> => {
+    for (let tries = 0; ; tries++)
+      try {
+        return await (await fetch(`http://127.0.0.1:${port}/json`)).json();
+      } catch (error) {
+        if (tries > 20) throw error;
+        await Bun.sleep(500);
+      }
+  };
+  const pages = (await list()) as Array<{
+    type: string;
+    webSocketDebuggerUrl: string;
+  }>;
+  const page = pages.find((p) => p.type === "page");
+  if (!page) throw new Error("no page in the app's WebView");
+  const ws = new WebSocket(page.webSocketDebuggerUrl);
+  await new Promise((resolve, reject) => {
+    ws.onopen = resolve;
+    ws.onerror = reject;
+  });
+  const answer = await new Promise<unknown>((resolve) => {
+    ws.onmessage = (event) => {
+      const message = JSON.parse(String(event.data));
+      if (message.id === 1) resolve(message.result);
+    };
+    ws.send(
+      JSON.stringify({
+        id: 1,
+        method: "Runtime.evaluate",
+        params: { expression, awaitPromise: true, returnByValue: true },
+      }),
+    );
+  });
+  ws.close();
+  const result = answer as { result?: { value?: unknown }; exceptionDetails?: unknown };
+  console.log(JSON.stringify(result.exceptionDetails ?? result.result?.value, null, 1));
+}
+
 const [what, arg] = process.argv.slice(2);
 if (what === "install") await install();
 else if (what === "course" && arg) await course(arg);
 else if (what === "practice" && arg) await practice(arg);
 else if (what === "models") models();
+else if (what === "page" && arg)
+  await evaluate(arg.startsWith("@") ? await Bun.file(arg.slice(1)).text() : arg);
 else {
   console.log(
-    "bun scripts/phone.ts install | course <series/course> [--editions e] | practice <series/course> [--editions e] | models",
+    "bun scripts/phone.ts install | course <series/course> [--editions e] | practice <series/course> [--editions e] | models | page <expression>",
   );
   process.exit(1);
 }

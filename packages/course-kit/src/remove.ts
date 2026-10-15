@@ -5,10 +5,9 @@
 // course installed again keeps its keys and the learner's progress meets it, and so does its practice
 // made by the model (`practice/`). The series' lock is the
 // caller's.
-import { existsSync, readdirSync, readFileSync, rmdirSync, rmSync, statSync } from "node:fs";
-import { join } from "node:path";
 import { EditionId, MediaIndex, SeriesKey, Slug } from "@sprachanker/schema";
 import { courseBundleContent } from "./bundle.ts";
+import { type DataFs, joinPath } from "./data-fs.ts";
 import { writeFileAtomic } from "./files.ts";
 import { NotInstalledError, openLibrary } from "./library.ts";
 
@@ -26,22 +25,23 @@ export interface RemovedCourse {
 }
 
 export async function removeCourse(
+  fs: DataFs,
   libraryRoot: string,
   series: string,
   courseId: string,
 ): Promise<RemovedCourse> {
   if (!SeriesKey.safeParse(series).success || !Slug.safeParse(courseId).success)
     throw new NotInstalledError(`${series}/${courseId}`);
-  const seriesDir = join(libraryRoot, series);
-  const own = await courseBundleContent(libraryRoot, series, [courseId]);
+  const seriesDir = joinPath(libraryRoot, series);
+  const own = await courseBundleContent(fs, libraryRoot, series, [courseId]);
   // What the series' other courses name; one that does not read keeps every media file.
-  const others = openLibrary(libraryRoot)
+  const others = openLibrary(fs, libraryRoot)
     .courses()
     .filter((c) => c.series === series && c.course !== courseId);
   const used = new Set<string>();
   let unknown = false;
   for (const other of others) {
-    const content = await courseBundleContent(libraryRoot, series, [other.course]).catch(
+    const content = await courseBundleContent(fs, libraryRoot, series, [other.course]).catch(
       () => undefined,
     );
     if (!content) unknown = true;
@@ -55,40 +55,41 @@ export async function removeCourse(
       (!f.path.startsWith("media/") || (!unknown && !used.has(f.path))),
   );
   let bytes = 0;
-  for (const f of gone) bytes += statSync(f.file, { throwIfNoEntry: false })?.size ?? 0;
+  for (const f of gone) bytes += fs.stat(f.file)?.size ?? 0;
 
   // The media index first: a file it names that is gone is fetched again; one it no longer names
   // that is still there is only left over.
   const removedMedia = new Set(gone.filter((f) => f.path.startsWith("media/")).map((f) => f.path));
-  const indexFile = join(seriesDir, "media.json");
-  if (removedMedia.size && existsSync(indexFile)) {
-    const index = MediaIndex.parse(JSON.parse(readFileSync(indexFile, "utf8")));
+  const indexFile = joinPath(seriesDir, "media.json");
+  const indexText = fs.readText(indexFile);
+  if (removedMedia.size && indexText !== undefined) {
+    const index = MediaIndex.parse(JSON.parse(indexText));
     const kept = Object.fromEntries(
       Object.entries(index).filter(([, e]) => !("path" in e) || !removedMedia.has(e.path)),
     );
-    await writeFileAtomic(indexFile, JSON.stringify(kept, null, 1));
+    await writeFileAtomic(fs, indexFile, JSON.stringify(kept, null, 1));
   }
-  for (const f of gone) rmSync(f.file, { force: true });
+  for (const f of gone) fs.remove(f.file);
   // The course's folders whole (a file a bundle would not hold, too), then the download's marker.
-  rmSync(join(seriesDir, "canonical", courseId), { recursive: true, force: true });
+  fs.remove(joinPath(seriesDir, "canonical", courseId));
   for (const edition of own.courses[0]?.editions ?? [])
     if (EditionId.safeParse(edition).success)
-      rmSync(join(seriesDir, "locale", edition, courseId), { recursive: true, force: true });
-  rmSync(join(seriesDir, ".downloads", `${courseId}.json`), { force: true });
+      fs.remove(joinPath(seriesDir, "locale", edition, courseId));
+  fs.remove(joinPath(seriesDir, ".downloads", `${courseId}.json`));
   // Nothing left behind empty: a media index naming nothing, folders holding nothing.
-  if (existsSync(indexFile) && !Object.keys(JSON.parse(readFileSync(indexFile, "utf8"))).length)
-    rmSync(indexFile);
-  removeEmpty(seriesDir);
+  const left = fs.readText(indexFile);
+  if (left !== undefined && !Object.keys(JSON.parse(left)).length) fs.remove(indexFile);
+  removeEmpty(fs, seriesDir);
   return { files: gone.length, bytes, shared: media.length - removedMedia.size };
 }
 
 /** Removes the empty folders under `dir` (the series folder itself stays: its key map), never the
  *  import lock's. */
-function removeEmpty(dir: string) {
-  for (const entry of readdirSync(dir, { withFileTypes: true })) {
-    if (!entry.isDirectory() || entry.name.startsWith(SERIES_LOCK)) continue;
-    const sub = join(dir, entry.name);
-    removeEmpty(sub);
-    if (!readdirSync(sub).length) rmdirSync(sub);
+function removeEmpty(fs: DataFs, dir: string) {
+  for (const name of fs.list(dir)) {
+    const sub = joinPath(dir, name);
+    if (!fs.stat(sub)?.dir || name.startsWith(SERIES_LOCK)) continue;
+    removeEmpty(fs, sub);
+    if (!fs.list(sub).length) fs.removeDir(sub);
   }
 }

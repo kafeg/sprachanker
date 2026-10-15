@@ -9,36 +9,45 @@ courses/*, llm, anki-export.
 src/
   index.ts           # startServer(config), importCourse: called by `apps/cli` (`serve`, `import`)
   config.ts          # app-data folder, data root (--data, $SPRACHANKER_DATA, <app-data>/data)
-  providers.ts       # content providers: offers, import, the installer behind downloads (marks on disk;
-                     # a course removed: removeInstalledCourse), the series' import lock (withSeriesLock:
-                     # an import, a course bundle installed, a course removed)
   app.ts             # createApp + AppType (runtime-agnostic; apps/web type-checks it via `@sprachanker/server/app`)
   web.ts             # serving the built web app: SPA fallback, cache headers
+  portable.ts        # what another runtime (the phone app) needs: createApp, schemas, migrations, the
+                     # storage adapters, the interfaces its own adapters implement — no Bun, no Node
+  storage/           # the data root's folders over course-kit's DataFs — the same code on the desktop
+                     # (Node's files) and the phone (its own): root.ts (DataRoot: the files, this
+                     # process's pid, the outbound fetch); installer.ts (content providers: offers,
+                     # import, the installer behind downloads — marks on disk; a course removed:
+                     # removeInstalledCourse —, the series' import lock: withSeriesLock); model-files.ts
+                     # (checked downloads into <data-root>/models); transfers.ts (transfer folders:
+                     # swept, room on the disk, a file received or saved, a zip streamed — course-kit's
+                     # zip.ts); profile-transfer.ts (profile files in profiles/.transfers: a snapshot
+                     # streamed as a zip, a file read by its zip directory, unpacked, its database made
+                     # ready by profile-db.ts over the runtime's SQLite — ProfileSql, SqlFiles — the
+                     # exact schema first); course-transfer.ts (course bundles in library/.transfers:
+                     # courses' files linked and streamed as a zip — one course, or every one by
+                     # bundleGroups (exportAll) —, a bundle read, what the library lacks unpacked,
+                     # checked and installed by course-kit's bundle.ts under the series' lock, then
+                     # verified; one stopped midway undone at the start); decks.ts (deck folders
+                     # written whole: replaceFolder; extras.json, media read aloud; .apkg uploads in
+                     # decks/.uploads, swept at the start); deck-transfer.ts (deck files in
+                     # decks/.transfers: zipped, read, unpacked, placed); practice.ts (a course's practice
+                     # written: course-kit's addPractice under the series' lock)
   runtime/           # Bun/Node adapters: listen, web assets, sqlite, secret key, data-root.ts (one server per
-                     # data root: server.pid); process-name.ts (`ps` names a pid: ours or not);
+                     # data root: server.pid; nodeDataRoot: the storage's DataRoot over Node's files);
+                     # process-name.ts (`ps` names a pid: ours or not);
                      # lmstudio.ts (detect, `lms server start`);
                      # speech engines: engines.ts (the engines built in native/ — also read by the
                      # build scripts —, where each is, their processes going with the server),
-                     # model-files.ts (checked downloads into <data-root>/models), speech.ts
+                     # model-files.ts (storage/model-files.ts over Node's files), speech.ts
                      # (whisper-server and Qwen3-TTS's tts-server), piper.ts (Piper's voices and
                      # runs), readings.ts (what was read aloud, kept in cache/tts; one asked twice
                      # made once, stopped once no request waits for it);
-                     # practice.ts (a course's practice written: course-kit's addPractice under the
-                     # series' lock); backup.ts (a copy of each database a day; a backup on request into a folder);
-                     # transfers.ts (transfer folders: swept, room on the disk, a file received or
-                     # saved, a zip streamed — course-kit's zip.ts); profile-transfer.ts (profile files
-                     # in profiles/.transfers: a snapshot streamed as a zip, a file read by its zip
-                     # directory, unpacked, its database checked in a Worker: profile-db-worker.ts over
-                     # profile-db.ts — the exact schema first); course-transfer.ts (course bundles in
-                     # library/.transfers: courses' files linked and streamed as a zip — one course, or every
-                     # one by bundleGroups (exportAll) —, a bundle read, what the library lacks unpacked,
-                     # checked and installed by course-kit's bundle.ts under the series' lock, then
-                     # verified; one stopped midway undone at the start); network.ts (the machine's IPv4
+                     # backup.ts (a copy of each database a day; a backup on request into a folder);
+                     # profile-sql.ts (ProfileSql over bun:sqlite: VACUUM INTO, a received database made
+                     # ready in a Worker — profile-db-worker.ts); network.ts (the machine's IPv4
                      # addresses, its `.local` name, `tailscale status` and `tailscale serve status` as JSON);
                      # cli.ts (runs `claude` / `codex` for the command-line LLM providers, in the run's environment);
-                     # decks.ts (deck folders written whole: replaceFolder; extras.json, media read aloud;
-                     # .apkg uploads in decks/.uploads, swept at the start; SQLite from bytes, zstd);
-                     # deck-transfer.ts (deck files in decks/.transfers: zipped, read, unpacked, placed)
+                     # apkg.ts (what an .apkg needs: SQLite from bytes, zstd)
   db/
     server/          # Drizzle schema + migrations for server.sqlite
     profile/         # Drizzle schema + migrations for profile.sqlite
@@ -157,8 +166,11 @@ test/                # bun test; integration tests call createApp.request — se
 - Keep Bun-specific APIs behind `src/runtime/` so a Node fallback stays possible.
 - `src/app.ts` and everything it imports stay free of Bun and Node imports and globals — of
   course-kit only `@sprachanker/course-kit/view`, no course (dependency-cruiser; those live
-  in `src/runtime/`, `config.ts`, `providers.ts` and `index.ts`): the web client type-checks that graph
-  without Bun or Node types.
+  in `src/runtime/`, `src/storage/`, `config.ts` and `index.ts`): the web client type-checks that graph
+  without Bun or Node types. It names the storage adapters by type only: the runtime hands them in.
+- `src/storage/` is the same code on every runtime: files through the DataRoot's DataFs (never
+  `node:fs`, `Bun.file`), requests to other hosts through its `fetch`, SQLite through an interface the
+  runtime implements (ProfileSql); what only Bun has stays in `src/runtime/`.
 - Speech: an explicit language always; the reference text never to the recogniser (only to `said`, after it).
 - Exports a programmatic API used by `apps/cli` (serve, import, verify, profiles — `profileAdmin` with
   export and import —, courses — `courseAdmin`: list, export, import —, backup).

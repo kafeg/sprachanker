@@ -1,7 +1,5 @@
 // The provider contract: what an importer gets, what it reports, and how normalised files are
 // written. Shared by every course provider so the server treats them alike.
-import { readdir, rm } from "node:fs/promises";
-import { join } from "node:path";
 import {
   CourseIndex,
   type CourseSource,
@@ -19,9 +17,14 @@ import {
 } from "@sprachanker/schema";
 import type { z } from "zod";
 import { prettyJson } from "./canonical-json.ts";
+import { type DataFs, joinPath, listFiles } from "./data-fs.ts";
 import { isTempFile, writeFileAtomic } from "./files.ts";
 
 export interface ImportOptions {
+  /** The data root's files (Node's on the desktop, the phone's own there). */
+  fs: DataFs;
+  /** Requests to the source (the runtime's own `fetch`; the phone's goes around the WebView's CORS). */
+  fetch?: typeof fetch;
   /** Library folder of the data root. */
   libraryRoot: string;
   /** Only these courses / editions, where the provider has several. */
@@ -187,7 +190,7 @@ function courseFolder(path: string): string | undefined {
  * normalisation no longer produced (a lesson the source dropped or renumbered), so the library holds
  * exactly what the source has now.
  */
-export function libraryWriter(seriesDir: string, log: (line: string) => void) {
+export function libraryWriter(fs: DataFs, seriesDir: string, log: (line: string) => void) {
   const written = new Set<string>();
   const courses = new Set<string>();
   let problems = 0;
@@ -201,7 +204,7 @@ export function libraryWriter(seriesDir: string, log: (line: string) => void) {
           problems++;
           log(`${file.path}: ${issuesText(result.error)}`);
         }
-        await writeFileAtomic(join(seriesDir, file.path), prettyJson(file.value));
+        await writeFileAtomic(fs, joinPath(seriesDir, file.path), prettyJson(file.value));
         written.add(file.path);
         const folder = courseFolder(file.path);
         if (folder) courses.add(folder);
@@ -217,12 +220,12 @@ export function libraryWriter(seriesDir: string, log: (line: string) => void) {
     async finish(): Promise<string[]> {
       const removed: string[] = [];
       for (const folder of courses) {
-        const dir = join(seriesDir, folder);
-        for (const name of await readdir(dir, { recursive: true })) {
+        const dir = joinPath(seriesDir, folder);
+        for (const name of listFiles(fs, dir)) {
           const path = `${folder}/${name}`;
           const stale = path.endsWith(".json") ? !written.has(path) : isTempFile(path);
           if (!stale) continue;
-          await rm(join(seriesDir, path), { force: true });
+          fs.remove(joinPath(seriesDir, path));
           removed.push(path);
         }
       }
@@ -235,11 +238,12 @@ export function libraryWriter(seriesDir: string, log: (line: string) => void) {
 /** Writes the files of a whole normalisation at once (`libraryWriter`); returns how many failed
  *  validation. */
 export async function writeLibraryFiles(
+  fs: DataFs,
   seriesDir: string,
   files: LibraryFile[],
   log: (line: string) => void,
 ): Promise<number> {
-  const writer = libraryWriter(seriesDir, log);
+  const writer = libraryWriter(fs, seriesDir, log);
   await writer.write(files);
   await writer.finish();
   return writer.problems;

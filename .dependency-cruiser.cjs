@@ -91,13 +91,13 @@ module.exports = {
     {
       name: "mobile-imports-the-portable-server-only",
       comment:
-        "apps/mobile runs the server's code in the phone's WebView: of the server only its portable entry (no Bun, no Node), of course-kit only the library read over a file system given.",
+        "apps/mobile runs the server's code in the phone's WebView: of the server only its portable entry (no Bun, no Node), of course-kit only the library read over a file system given and the file system's interface.",
       severity: "error",
       from: { path: "^apps/mobile/src/" },
       to: {
         path: "^(packages|courses|apps)/",
         pathNot:
-          "^(apps/mobile/|packages/server/src/portable\\.ts$|packages/course-kit/src/library-over\\.ts$)",
+          "^(apps/mobile/|packages/server/src/portable\\.ts$|packages/course-kit/src/(library-over|data-fs)\\.ts$)",
       },
     },
     {
@@ -109,11 +109,14 @@ module.exports = {
       to: { dependencyTypes: ["core"] },
     },
     {
-      name: "course-kit-library-reading-node-free",
+      name: "course-kit-and-courses-node-free",
       comment:
-        "library-view.ts and library-over.ts are read in app.ts's graph and in the phone's WebView: no Node built-ins.",
+        "course-kit and the providers run in the phone's WebView too (the same importers, bundles, library): files through a DataFs given, no Node or Bun built-ins — but node-fs.ts, the desktop's DataFs.",
       severity: "error",
-      from: { path: "^packages/course-kit/src/library-(view|over)\\.ts$" },
+      from: {
+        path: "^(packages/course-kit|courses/[^/]+)/src/",
+        pathNot: "^packages/course-kit/src/node-fs\\.ts$",
+      },
       to: { dependencyTypes: ["core"] },
     },
     {
@@ -227,7 +230,7 @@ module.exports = {
       severity: "error",
       from: {
         path: "^packages/server/src/",
-        pathNot: "^packages/server/src/(runtime/|index\\.ts$|config\\.ts$|providers\\.ts$)",
+        pathNot: "^packages/server/src/(runtime/|storage/|index\\.ts$|config\\.ts$|portable\\.ts$)",
       },
       to: {
         path: "^(packages/course-kit/src/(?!library-view\\.ts$)|courses/)",
@@ -235,13 +238,24 @@ module.exports = {
       },
     },
     {
-      name: "server-io-in-runtime-only",
+      name: "server-app-never-reaches-storage",
       comment:
-        "app.ts and everything it imports stay runtime-agnostic (the web type-checks that graph): Node/Bun APIs only in src/runtime/ and the entry files that wire it (index, config, providers).",
+        "The storage adapters (storage/: files over a DataFs, the providers) are handed to createApp by the runtime — the desktop's index.ts, the phone's boot —; app.ts's graph names them by type only.",
       severity: "error",
       from: {
         path: "^packages/server/src/",
-        pathNot: "^packages/server/src/(runtime/|index\\.ts$|config\\.ts$|providers\\.ts$)",
+        pathNot: "^packages/server/src/(runtime/|storage/|index\\.ts$|portable\\.ts$)",
+      },
+      to: { path: "^packages/server/src/storage/", dependencyTypesNot: ["type-only"] },
+    },
+    {
+      name: "server-io-in-runtime-only",
+      comment:
+        "app.ts and everything it imports, and the storage adapters, stay runtime-agnostic (the web type-checks that graph, the phone runs them): Node/Bun APIs only in src/runtime/ and the entry files that wire it (index, config).",
+      severity: "error",
+      from: {
+        path: "^packages/server/src/",
+        pathNot: "^packages/server/src/(runtime/|index\\.ts$|config\\.ts$)",
       },
       to: { dependencyTypes: ["core"] },
     },

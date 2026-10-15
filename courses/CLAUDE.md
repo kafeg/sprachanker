@@ -7,6 +7,11 @@ Research about sources: `docs/research/`.
 
 ```
 packages/course-kit/src/
+  data-fs.ts           # DataFs: what the shared code needs of a file system (small things synchronous, large
+                       # ones streamed; Node's error codes), POSIX paths joined (joinPath, dirName …)
+  node-fs.ts           # DataFs through Node (`@sprachanker/course-kit/node`): the desktop's, the tests'
+  memory-fs.ts         # DataFs kept in memory (tests: the shared code reaches files through it alone)
+  hash.ts              # SHA-256 and CRC-32 in TypeScript (fingerprints, a page's copy, a zip entry)
   provider.ts          # the provider contract: import options, report, progress, course offers, wanted,
                        # CourseProvider; libraryFile (a file by kind: its path from its keys, its schema;
                        # an exam's sources too), libraryWriter / writeLibraryFiles
@@ -56,7 +61,8 @@ courses/
   dw/                  # DW Learn German (series dw.nicos-weg, dw.deutschtrainer; CLI ids dw-<series>), a course
                        # per DW course and language (a1-ru, a1-en, …; raw pages by DW course): src/: catalog,
                        # apollo (a page's state), pages, media (DW's media URLs and names), stream (HLS
-                       # fallback), normalise/ (run, course, lesson, exercise, context, text, vocab,
+                       # fallback: the variant's segments fetched) over remux (MPEG-TS → MP4, H.264 and AAC
+                       # copied, in TypeScript), normalise/ (run, course, lesson, exercise, context, text, vocab,
                        # corrections: DW's own errors fixed by key, `corrections.json`), import
   coerll-dib/          # COERLL Deutsch im Blick (coerll.dib): vocabulary sections → lessons without pages;
                        # src/: catalog, parse (HTML), normalise (pure), import
@@ -96,6 +102,10 @@ courses/
   MUST satisfy the normalisation contract.
 - `course-kit` never imports a provider, its tests included: they write their own synthetic library
   (`packages/course-kit/test/mini-library.ts`).
+- course-kit and the providers run on the desktop and in the phone app alike: no Node or Bun API
+  (dependency-cruiser) — files through the `DataFs` an import is given (`ImportOptions.fs`, never
+  `node:fs`), requests through its `fetch` (the phone's goes around the WebView's CORS), hashes by
+  `hash.ts`, no programs run (DW's HLS fallback is remuxed in TypeScript, not by ffmpeg).
 - Import and normalisation are deterministic code over the source: no LLM, no generated content. A
   language pair of a source course is a course of its own.
 - **Never commit third-party content**: no texts, media, raw page JSON, PDFs — also not in fixtures.
@@ -116,7 +126,7 @@ courses/
 - Crawling: respect robots.txt, identifiable User-Agent, stop on 403/429; no fixed rate limit. Allowed:
   a `Referer` of the source's own page for its media when it refuses hotlinks (Lingust).
 - A provider's index exports its `CourseProvider` (course-kit: id, series folder, `stable` when ready
-  for learning, all its courses or those listed — without it a course is experimental —, offers, import; DW one per series); the server lists them (`packages/server/src/providers.ts`) and tests every one
+  for learning, all its courses or those listed — without it a course is experimental —, offers, import; DW one per series); the server lists them (`packages/server/src/storage/installer.ts`) and tests every one
   against the contract.
 - New provider = new folder exporting a `CourseProvider` (experimental until it declares `stable`), listed in the server's providers (the
   contract test covers it) + its own normaliser tests; no engine/UI changes

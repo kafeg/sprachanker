@@ -3,19 +3,6 @@
 // and keys.json, its content versions —, and a bundle unpacked beside the library checked and
 // installed into it. Zips and transfer folders are the server's; a bundle is untrusted input, so every
 // file is checked here before anything of it is moved into place.
-import { createHash } from "node:crypto";
-import {
-  copyFileSync,
-  existsSync,
-  mkdirSync,
-  readdirSync,
-  readFileSync,
-  renameSync,
-  rmSync,
-  statSync,
-} from "node:fs";
-import { readFile } from "node:fs/promises";
-import { dirname, join } from "node:path";
 import {
   bundlePathCourse,
   type CourseBundleManifest,
@@ -39,7 +26,9 @@ import {
 } from "@sprachanker/schema";
 import type { z } from "zod";
 import { prettyJson } from "./canonical-json.ts";
+import { type DataFs, dirName, joinPath, listFiles } from "./data-fs.ts";
 import { hashFile, linkOrCopy, writeFileAtomic } from "./files.ts";
+import { Sha256 } from "./hash.ts";
 import { NotInstalledError, openLibrary } from "./library.ts";
 import { type LibraryFile, libraryFile } from "./provider.ts";
 import { mediaPaths } from "./verify.ts";
@@ -60,32 +49,35 @@ const isPracticeJson = (path: string) => path.startsWith("practice/") && path.en
 
 /** Paths of the files under `dir` (a course's folder), as series paths under `prefix`, that a bundle
  *  may hold (a temporary file an import left is none). */
-function filesUnder(seriesDir: string, prefix: string) {
-  const dir = join(seriesDir, prefix);
-  if (!existsSync(dir)) return [];
-  return (readdirSync(dir, { recursive: true, withFileTypes: true }) as import("node:fs").Dirent[])
-    .filter((d) => d.isFile())
-    .map((d) => `${prefix}/${join(d.parentPath.slice(dir.length), d.name).replace(/^\//, "")}`)
+function filesUnder(fs: DataFs, seriesDir: string, prefix: string) {
+  return listFiles(fs, joinPath(seriesDir, prefix))
+    .map((path) => `${prefix}/${path}`)
     .filter((path) => CourseBundlePath.safeParse(path).success)
     .sort();
 }
 
 /** The editions of a course installed in a series folder. */
-function installedEditions(seriesDir: string, courseId: string) {
-  const locale = join(seriesDir, "locale");
-  return (existsSync(locale) ? readdirSync(locale) : [])
+function installedEditions(fs: DataFs, seriesDir: string, courseId: string) {
+  const locale = joinPath(seriesDir, "locale");
+  return fs
+    .list(locale)
     .filter((e) => EditionId.safeParse(e).success)
-    .filter((e) => existsSync(join(locale, e, courseId, "course.json")))
+    .filter((e) => fs.stat(joinPath(locale, e, courseId, "course.json")))
     .sort();
 }
 
-const readJson = async (file: string): Promise<unknown> => JSON.parse(await readFile(file, "utf8"));
+/** A JSON file read (one not there is an error, ENOENT). */
+const readJson = async (fs: DataFs, file: string): Promise<unknown> => {
+  const text = fs.readText(file);
+  if (text === undefined) throw Object.assign(new Error(`ENOENT: ${file}`), { code: "ENOENT" });
+  return JSON.parse(text);
+};
 
 /** A series' media index and key map, as stored (none yet: empty); one that does not read throws. */
-async function seriesState(seriesDir: string) {
+async function seriesState(fs: DataFs, seriesDir: string) {
   const read = async (name: string) => {
-    const file = join(seriesDir, name);
-    return existsSync(file) ? await readJson(file) : {};
+    const file = joinPath(seriesDir, name);
+    return fs.stat(file) ? await readJson(fs, file) : {};
   };
   return {
     media: MediaIndex.parse(await read("media.json")),
@@ -96,6 +88,7 @@ async function seriesState(seriesDir: string) {
 /** A course's part of a bundle: what it is, its library files, and what they name — media and the
  *  copies its exams were read from — on disk. */
 async function courseContent(
+  fs: DataFs,
   library: ReturnType<typeof openLibrary>,
   seriesDir: string,
   series: string,
@@ -104,7 +97,7 @@ async function courseContent(
 ) {
   if (!Slug.safeParse(courseId).success) throw new NotInstalledError(`${series}/${courseId}`);
   const index = await library.courseIndex(series, courseId);
-  const installed = installedEditions(seriesDir, courseId);
+  const installed = installedEditions(fs, seriesDir, courseId);
   const chosen = editions ?? installed;
   const absent = chosen.filter((e) => !installed.includes(e));
   if (!chosen.length || absent.length)
@@ -115,14 +108,14 @@ async function courseContent(
     if (locale) titles[edition] = locale.title;
   }
   const json = [
-    ...filesUnder(seriesDir, `canonical/${courseId}`),
-    ...chosen.flatMap((e) => filesUnder(seriesDir, `locale/${e}/${courseId}`)),
+    ...filesUnder(fs, seriesDir, `canonical/${courseId}`),
+    ...chosen.flatMap((e) => filesUnder(fs, seriesDir, `locale/${e}/${courseId}`)),
   ];
   // What the files name: media, and the copies an exam was read from.
   const named = new Set<string>();
   const raw = new Set<string>();
   for (const path of json) {
-    const value = await readJson(join(seriesDir, path));
+    const value = await readJson(fs, joinPath(seriesDir, path));
     mediaPaths(value, named);
     if (path.includes("/sources/"))
       for (const d of ExamSources.safeParse(value).data?.documents ?? []) if (d.raw) raw.add(d.raw);
@@ -139,11 +132,11 @@ async function courseContent(
       });
   // Each edition's practice made for the course, and the recordings it names.
   const practice = chosen.flatMap((e) =>
-    filesUnder(seriesDir, `practice/${e}/${courseId}`).filter(isPracticeJson),
+    filesUnder(fs, seriesDir, `practice/${e}/${courseId}`).filter(isPracticeJson),
   );
   const recorded = new Set<string>();
   for (const path of practice) {
-    const lesson = PracticeLesson.safeParse(await readJson(join(seriesDir, path)));
+    const lesson = PracticeLesson.safeParse(await readJson(fs, joinPath(seriesDir, path)));
     for (const r of lesson.success ? practiceRecordings(lesson.data) : []) recorded.add(r);
   }
   const lessons = index.units.some((u) => u.lessons.length);
@@ -170,6 +163,7 @@ async function courseContent(
  * its courses). NotInstalledError when a course or an edition asked is not here.
  */
 export async function courseBundleContent(
+  fs: DataFs,
   libraryRoot: string,
   series: string,
   courseIds: readonly string[],
@@ -177,14 +171,14 @@ export async function courseBundleContent(
 ) {
   if (!SeriesKey.safeParse(series).success || !courseIds.length)
     throw new NotInstalledError(`${series}/${courseIds.join(",")}`);
-  const library = openLibrary(libraryRoot);
-  const seriesDir = join(libraryRoot, series);
+  const library = openLibrary(fs, libraryRoot);
+  const seriesDir = joinPath(libraryRoot, series);
   const courses = [];
   for (const id of [...new Set(courseIds)].sort())
-    courses.push(await courseContent(library, seriesDir, series, id, editions));
+    courses.push(await courseContent(fs, library, seriesDir, series, id, editions));
   const media = new Map<string, BundleFile>();
   for (const c of courses) for (const m of c.media) media.set(m.path, m);
-  const state = await seriesState(seriesDir);
+  const state = await seriesState(fs, seriesDir);
   const prefixes = courses.map((c) => `${c.course}/`);
   return {
     courses: courses.map(({ course, kind, editions, source, titles }) => ({
@@ -201,7 +195,7 @@ export async function courseBundleContent(
       Object.entries(state.keys).filter(([scope]) => prefixes.some((p) => scope.startsWith(p))),
     ) as KeyMapFile,
     files: [
-      ...courses.flatMap((c) => c.json.map((path) => ({ path, file: join(seriesDir, path) }))),
+      ...courses.flatMap((c) => c.json.map((path) => ({ path, file: joinPath(seriesDir, path) }))),
       ...[...media.values()].sort((a, b) => (a.path < b.path ? -1 : 1)),
       ...courses.flatMap((c) => c.copies),
     ],
@@ -215,9 +209,9 @@ export async function courseBundleContent(
  * level's sound or picture another level uses too) stay apart, those files in each. Each group
  * sorted, the groups by their first course.
  */
-export async function bundleGroups(libraryRoot: string, series: string) {
-  const library = openLibrary(libraryRoot);
-  const seriesDir = join(libraryRoot, series);
+export async function bundleGroups(fs: DataFs, libraryRoot: string, series: string) {
+  const library = openLibrary(fs, libraryRoot);
+  const seriesDir = joinPath(libraryRoot, series);
   const ids = library
     .courses()
     .filter((c) => c.series === series)
@@ -225,13 +219,8 @@ export async function bundleGroups(libraryRoot: string, series: string) {
   // Each course's media with their sizes.
   const media = new Map<string, Map<string, number>>();
   for (const id of ids) {
-    const content = await courseContent(library, seriesDir, series, id);
-    media.set(
-      id,
-      new Map(
-        content.media.map((m) => [m.path, statSync(m.file, { throwIfNoEntry: false })?.size ?? 0]),
-      ),
-    );
+    const content = await courseContent(fs, library, seriesDir, series, id);
+    media.set(id, new Map(content.media.map((m) => [m.path, fs.stat(m.file)?.size ?? 0])));
   }
   const total = (m: Map<string, number>) => [...m.values()].reduce((n, b) => n + b, 0);
   // Union–find over courses, joined where they share most of their media.
@@ -258,10 +247,10 @@ export type CourseBundleContent = Awaited<ReturnType<typeof courseBundleContent>
 
 /** A content version: a sha256 over the files' paths and hashes, in path order. */
 function versionOf(files: ReadonlyArray<{ path: string; sha256: string }>) {
-  const hash = createHash("sha256");
+  const hash = new Sha256();
   for (const f of [...files].sort((a, b) => (a.path < b.path ? -1 : 1)))
     hash.update(`${f.path} ${f.sha256}\n`);
-  return hash.digest("hex");
+  return hash.hex();
 }
 
 /** A course's content versions from its files: of its canonical files, of each edition's locale
@@ -284,12 +273,17 @@ export function contentVersions(
 }
 
 /** The content versions of a course as installed (null where a folder is not there). */
-async function installedVersions(seriesDir: string, courseId: string, editions: string[]) {
+async function installedVersions(
+  fs: DataFs,
+  seriesDir: string,
+  courseId: string,
+  editions: string[],
+) {
   const of = async (prefix: string) => {
-    if (!existsSync(join(seriesDir, prefix, "course.json"))) return null;
+    if (!fs.stat(joinPath(seriesDir, prefix, "course.json"))) return null;
     const files = [];
-    for (const path of filesUnder(seriesDir, prefix))
-      files.push({ path, sha256: (await hashFile(join(seriesDir, path))).sha256 });
+    for (const path of filesUnder(fs, seriesDir, prefix))
+      files.push({ path, sha256: (await hashFile(fs, joinPath(seriesDir, path))).sha256 });
     return versionOf(files);
   };
   const editionVersions: Record<string, string | null> = {};
@@ -311,10 +305,15 @@ export interface BundlePlan {
 }
 
 /** Whether `file` holds `want` (the media index's word for it when it has one of that size). */
-async function holds(file: string, want: { sha256: string; size: number }, known?: string) {
-  const stat = statSync(file, { throwIfNoEntry: false });
-  if (!stat?.isFile() || stat.size !== want.size) return false;
-  return (known ?? (await hashFile(file)).sha256) === want.sha256;
+async function holds(
+  fs: DataFs,
+  file: string,
+  want: { sha256: string; size: number },
+  known?: string,
+) {
+  const stat = fs.stat(file);
+  if (!stat || stat.dir || stat.size !== want.size) return false;
+  return (known ?? (await hashFile(fs, file)).sha256) === want.sha256;
 }
 
 /**
@@ -324,11 +323,12 @@ async function holds(file: string, want: { sha256: string; size: number }, known
  * cannot be installed): nothing of the library is replaced by a bundle but the course's own folders.
  */
 export async function planBundle(
+  fs: DataFs,
   libraryRoot: string,
   manifest: CourseBundleManifest,
 ): Promise<BundlePlan> {
-  const seriesDir = join(libraryRoot, bundleSeries(manifest));
-  const { media } = await seriesState(seriesDir);
+  const seriesDir = joinPath(libraryRoot, bundleSeries(manifest));
+  const { media } = await seriesState(fs, seriesDir);
   const byPath = new Map<string, { sha256: string; size: number }>();
   const byHash = new Map<string, string>();
   for (const e of Object.values(media))
@@ -342,21 +342,21 @@ export async function planBundle(
       plan.unpack.add(f.path);
       continue;
     }
-    const file = join(seriesDir, f.path);
+    const file = joinPath(seriesDir, f.path);
     const known = byPath.get(f.path);
-    if (await holds(file, f, known?.size === f.size ? known.sha256 : undefined)) {
+    if (await holds(fs, file, f, known?.size === f.size ? known.sha256 : undefined)) {
       plan.skip.add(f.path);
       continue;
     }
     const isMedia = f.path.startsWith("media/");
-    if (existsSync(file)) {
+    if (fs.stat(file)) {
       plan.clash.push(f.path);
       continue;
     }
     // The file linked to is hashed: the index says what it held when it was fetched, and a link
     // makes the bundle's name hold whatever it holds now.
     const other = isMedia ? byHash.get(f.sha256) : undefined;
-    if (other && (await holds(join(seriesDir, other), f))) plan.link.set(f.path, other);
+    if (other && (await holds(fs, joinPath(seriesDir, other), f))) plan.link.set(f.path, other);
     else plan.unpack.add(f.path);
   }
   return plan;
@@ -413,7 +413,7 @@ function ownerOf(value: Record<string, unknown>): { course: string; edition?: st
  * source copy one an exam's sources name; the media index's lines are of media it holds and the key
  * map's of scopes under its courses. Returns the problems found (the first few).
  */
-export async function checkBundle(files: string, manifest: CourseBundleManifest) {
+export async function checkBundle(fs: DataFs, files: string, manifest: CourseBundleManifest) {
   const problems: string[] = [];
   const courses = new Map<string, (typeof manifest.courses)[number]>(
     manifest.courses.map((c) => [c.course, c]),
@@ -428,7 +428,7 @@ export async function checkBundle(files: string, manifest: CourseBundleManifest)
     if (!isLibraryJson(path)) continue;
     let value: unknown;
     try {
-      value = await readJson(join(files, path));
+      value = await readJson(fs, joinPath(files, path));
     } catch {
       problems.push(`${path}: not JSON`);
       continue;
@@ -515,9 +515,9 @@ const sorted = (record: Record<string, string> | undefined) =>
   JSON.stringify(Object.entries(record ?? {}).sort());
 
 /** Moves a file or folder into place, its folder made first. */
-function moveInto(from: string, to: string) {
-  mkdirSync(dirname(to), { recursive: true });
-  renameSync(from, to);
+function moveInto(fs: DataFs, from: string, to: string) {
+  fs.mkdir(dirName(to));
+  fs.rename(from, to);
 }
 
 /** What an install is changing, written in `aside` before it changes anything and removed once it is
@@ -554,36 +554,37 @@ const variants = (p: PracticeLesson | undefined) =>
  * else `replaced`; and the practice variants it brought that were not here.
  */
 export async function installBundle(options: {
+  fs: DataFs;
   libraryRoot: string;
   files: string;
   aside: string;
   manifest: CourseBundleManifest;
   plan: BundlePlan;
 }) {
-  const { manifest, plan, files, aside, libraryRoot } = options;
+  const { fs, manifest, plan, files, aside, libraryRoot } = options;
   const series = bundleSeries(manifest);
-  const seriesDir = join(libraryRoot, series);
+  const seriesDir = joinPath(libraryRoot, series);
   const listed = new Map(manifest.files.map((f) => [f.path, f]));
   // What must hold, checked again before anything changes: the files the plan found still there, of
   // their size (their content was found then; a stored name keeps its content) — a file linked
   // to hashed again (`hashed`).
   const still = (path: string, file: string, hashed = false) => {
     const want = listed.get(path) as { sha256: string; size: number };
-    return holds(join(seriesDir, file), want, hashed ? undefined : want.sha256);
+    return holds(fs, joinPath(seriesDir, file), want, hashed ? undefined : want.sha256);
   };
   for (const path of plan.skip)
     if (!(await still(path, path))) throw new Error(`${path} changed in the library meanwhile`);
   for (const [path, from] of plan.link)
-    if (existsSync(join(seriesDir, path)) || !(await still(path, from, true)))
+    if (fs.stat(joinPath(seriesDir, path)) || !(await still(path, from, true)))
       throw new Error(`${path} changed in the library meanwhile`);
   for (const path of plan.unpack)
-    if (!isLibraryJson(path) && existsSync(join(seriesDir, path)))
+    if (!isLibraryJson(path) && fs.stat(joinPath(seriesDir, path)))
       throw new Error(`${path} came into the library meanwhile`);
-  const state = await seriesState(seriesDir);
+  const state = await seriesState(fs, seriesDir);
   const courses = [];
   for (const c of manifest.courses) {
     const id = courseIdOf(c.course);
-    const before = await installedVersions(seriesDir, id, c.editions);
+    const before = await installedVersions(fs, seriesDir, id, c.editions);
     const folders = [
       { prefix: `canonical/${id}`, was: before.canonical, now: c.content.canonical },
       ...c.editions.map((e) => ({
@@ -616,10 +617,10 @@ export async function installBundle(options: {
   const brought = new Map<string, number>();
   for (const f of manifest.files) {
     if (!isPracticeJson(f.path)) continue;
-    const theirs = PracticeLesson.parse(await readJson(join(files, f.path)));
-    const target = join(seriesDir, f.path);
-    const ours = existsSync(target)
-      ? PracticeLesson.safeParse(await readJson(target)).data
+    const theirs = PracticeLesson.parse(await readJson(fs, joinPath(files, f.path)));
+    const target = joinPath(seriesDir, f.path);
+    const ours = fs.stat(target)
+      ? PracticeLesson.safeParse(await readJson(fs, target)).data
       : undefined;
     const value = ours ? mergePractice(ours, theirs) : theirs;
     const added = variants(value) - variants(ours);
@@ -630,49 +631,56 @@ export async function installBundle(options: {
   }
 
   // What it changes, first; the series' files as they were kept beside it.
-  const kept = join(aside, series);
-  mkdirSync(kept, { recursive: true });
+  const kept = joinPath(aside, series);
+  fs.mkdir(kept);
   for (const r of rewrites)
-    if (existsSync(join(seriesDir, r.name)))
-      copyFileSync(join(seriesDir, r.name), join(kept, r.name));
+    if (fs.stat(joinPath(seriesDir, r.name)))
+      fs.copy(joinPath(seriesDir, r.name), joinPath(kept, r.name));
   const journal: InstallJournal = {
     series,
     placed,
-    folders: changed.map((f) => ({ prefix: f.prefix, had: existsSync(join(seriesDir, f.prefix)) })),
+    folders: changed.map((f) => ({
+      prefix: f.prefix,
+      had: !!fs.stat(joinPath(seriesDir, f.prefix)),
+    })),
     state: rewrites.map((r) => r.name),
     practice: practice.map(({ path, had }) => ({ path, had })),
   };
   for (const p of practice)
     if (p.had) {
-      mkdirSync(dirname(join(kept, p.path)), { recursive: true });
-      copyFileSync(join(seriesDir, p.path), join(kept, p.path));
+      fs.mkdir(dirName(joinPath(kept, p.path)));
+      fs.copy(joinPath(seriesDir, p.path), joinPath(kept, p.path));
     }
-  await writeFileAtomic(join(aside, JOURNAL), JSON.stringify(journal));
+  await writeFileAtomic(fs, joinPath(aside, JOURNAL), JSON.stringify(journal));
   try {
     for (const path of plan.unpack)
-      if (!isLibraryJson(path)) moveInto(join(files, path), join(seriesDir, path));
+      if (!isLibraryJson(path)) moveInto(fs, joinPath(files, path), joinPath(seriesDir, path));
     for (const [path, from] of plan.link) {
-      mkdirSync(dirname(join(seriesDir, path)), { recursive: true });
-      linkOrCopy(join(seriesDir, from), join(seriesDir, path));
+      fs.mkdir(dirName(joinPath(seriesDir, path)));
+      linkOrCopy(fs, joinPath(seriesDir, from), joinPath(seriesDir, path));
     }
     for (const f of journal.folders) {
-      const target = join(seriesDir, f.prefix);
-      if (f.had) moveInto(target, join(kept, f.prefix));
-      moveInto(join(files, f.prefix), target);
+      const target = joinPath(seriesDir, f.prefix);
+      if (f.had) moveInto(fs, target, joinPath(kept, f.prefix));
+      moveInto(fs, joinPath(files, f.prefix), target);
     }
     for (const p of practice) {
-      mkdirSync(dirname(join(seriesDir, p.path)), { recursive: true });
-      await writeFileAtomic(join(seriesDir, p.path), prettyJson(p.value));
+      fs.mkdir(dirName(joinPath(seriesDir, p.path)));
+      await writeFileAtomic(fs, joinPath(seriesDir, p.path), prettyJson(p.value));
     }
     for (const r of rewrites)
-      await writeFileAtomic(join(seriesDir, r.name), `${JSON.stringify(r.value, null, 1)}\n`);
+      await writeFileAtomic(
+        fs,
+        joinPath(seriesDir, r.name),
+        `${JSON.stringify(r.value, null, 1)}\n`,
+      );
   } catch (error) {
-    undoInstall(libraryRoot, aside);
+    undoInstall(fs, libraryRoot, aside);
     throw error;
   }
   // Done: what was kept aside goes.
-  rmSync(join(aside, JOURNAL));
-  rmSync(aside, { recursive: true, force: true });
+  fs.remove(joinPath(aside, JOURNAL));
+  fs.remove(aside);
   const unpackedMedia = [...plan.unpack].filter((p) => p.startsWith("media/")).length;
   return {
     courses: courses.map((c) => ({
@@ -692,11 +700,9 @@ export async function installBundle(options: {
 
 /** The series an install that `aside` is the transfer folder of was changing, if it was stopped
  *  before it was done. */
-export function installing(aside: string): string | undefined {
-  const file = join(aside, JOURNAL);
-  return existsSync(file)
-    ? (JSON.parse(readFileSync(file, "utf8")) as InstallJournal).series
-    : undefined;
+export function installing(fs: DataFs, aside: string): string | undefined {
+  const file = joinPath(aside, JOURNAL);
+  return fs.stat(file) ? (JSON.parse(fs.readText(file) ?? "") as InstallJournal).series : undefined;
 }
 
 /**
@@ -705,50 +711,50 @@ export function installing(aside: string): string | undefined {
  * back (those it added removed), the series' files it rewrote as they were. Without its journal (it
  * was done, or an older app's): course folders left aside put back where nothing took their place.
  */
-export function undoInstall(libraryRoot: string, aside: string) {
-  const file = join(aside, JOURNAL);
-  if (!existsSync(file)) return restoreAside(libraryRoot, aside);
-  const journal = JSON.parse(readFileSync(file, "utf8")) as InstallJournal;
+export function undoInstall(fs: DataFs, libraryRoot: string, aside: string) {
+  const file = joinPath(aside, JOURNAL);
+  if (!fs.stat(file)) return restoreAside(fs, libraryRoot, aside);
+  const journal = JSON.parse(fs.readText(file) ?? "") as InstallJournal;
   if (!SeriesKey.safeParse(journal.series).success) throw new Error(`${file}: no series`);
-  const seriesDir = join(libraryRoot, journal.series);
-  const kept = join(aside, journal.series);
-  for (const path of journal.placed) rmSync(join(seriesDir, path), { force: true });
+  const seriesDir = joinPath(libraryRoot, journal.series);
+  const kept = joinPath(aside, journal.series);
+  for (const path of journal.placed) fs.remove(joinPath(seriesDir, path));
   for (const f of journal.folders) {
-    const target = join(seriesDir, f.prefix);
-    const old = join(kept, f.prefix);
+    const target = joinPath(seriesDir, f.prefix);
+    const old = joinPath(kept, f.prefix);
     // A folder it had not moved aside yet is the old one still.
-    if (f.had && !existsSync(old)) continue;
-    rmSync(target, { recursive: true, force: true });
-    if (f.had) moveInto(old, target);
+    if (f.had && !fs.stat(old)) continue;
+    fs.remove(target);
+    if (f.had) moveInto(fs, old, target);
   }
   for (const p of journal.practice ?? []) {
-    const old = join(kept, p.path);
-    if (p.had && existsSync(old)) renameSync(old, join(seriesDir, p.path));
-    else if (!p.had) rmSync(join(seriesDir, p.path), { force: true });
+    const old = joinPath(kept, p.path);
+    if (p.had && fs.stat(old)) fs.rename(old, joinPath(seriesDir, p.path));
+    else if (!p.had) fs.remove(joinPath(seriesDir, p.path));
   }
   for (const name of journal.state) {
-    const old = join(kept, name);
-    if (existsSync(old)) renameSync(old, join(seriesDir, name));
-    else rmSync(join(seriesDir, name), { force: true });
+    const old = joinPath(kept, name);
+    if (fs.stat(old)) fs.rename(old, joinPath(seriesDir, name));
+    else fs.remove(joinPath(seriesDir, name));
   }
-  rmSync(file);
+  fs.remove(file);
 }
 
 /** Course folders left in `aside` (`<aside>/<series>/<folder>`) put back where nothing took their
  *  place. */
-function restoreAside(libraryRoot: string, aside: string) {
-  const dirs = (dir: string) => (existsSync(dir) ? readdirSync(dir) : []);
+function restoreAside(fs: DataFs, libraryRoot: string, aside: string) {
+  const dirs = (dir: string) => fs.list(dir);
   for (const series of dirs(aside).filter((s) => SeriesKey.safeParse(s).success)) {
-    const base = join(aside, series);
+    const base = joinPath(aside, series);
     const prefixes = [
-      ...dirs(join(base, "canonical")).map((c) => `canonical/${c}`),
-      ...dirs(join(base, "locale")).flatMap((e) =>
-        dirs(join(base, "locale", e)).map((c) => `locale/${e}/${c}`),
+      ...dirs(joinPath(base, "canonical")).map((c) => `canonical/${c}`),
+      ...dirs(joinPath(base, "locale")).flatMap((e) =>
+        dirs(joinPath(base, "locale", e)).map((c) => `locale/${e}/${c}`),
       ),
     ];
     for (const prefix of prefixes) {
-      const target = join(libraryRoot, series, prefix);
-      if (!existsSync(target)) moveInto(join(base, prefix), target);
+      const target = joinPath(libraryRoot, series, prefix);
+      if (!fs.stat(target)) moveInto(fs, joinPath(base, prefix), target);
     }
   }
 }

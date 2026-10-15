@@ -4,6 +4,7 @@ import { mkdtempSync } from "node:fs";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
 import { openKeyMap } from "@sprachanker/course-kit";
+import { nodeFs } from "@sprachanker/course-kit/node";
 import {
   type CourseIndex,
   type Lesson,
@@ -271,7 +272,7 @@ test.each([
 });
 
 /** A series' key map of its own (a folder nobody else writes). */
-const keyMap = () => openKeyMap(mkdtempSync(join(tmpdir(), "voa-keys-")));
+const keyMap = () => openKeyMap(nodeFs, mkdtempSync(join(tmpdir(), "voa-keys-")));
 
 function course(): FetchedCourse {
   const landing = parseLanding(LANDING_2);
@@ -445,7 +446,7 @@ test("normalisation is deterministic", async () => {
 test("keys stay by source id: a lesson the source inserts moves no other key", async () => {
   const dir = mkdtempSync(join(tmpdir(), "voa-keys-"));
   const run = async (fetched: FetchedCourse) => {
-    const keys = await openKeyMap(dir);
+    const keys = await openKeyMap(nodeFs, dir);
     const { files } = normaliseCourse(fetched, index, keys);
     await keys.save();
     // Each lesson's source id with its key and its exercises' keys.

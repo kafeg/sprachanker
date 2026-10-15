@@ -5,6 +5,7 @@ import { mkdirSync, rmSync, truncateSync, writeFileSync } from "node:fs";
 import { join } from "node:path";
 import { buildApkg } from "@sprachanker/anki-export/testing";
 import { writeFixtureLibrary } from "@sprachanker/course-fixture";
+import { nodeFs } from "@sprachanker/course-kit/node";
 import { E2E_DATA, E2E_DECK, E2E_PIPER, E2E_QWEN, E2E_VOICE } from "./paths.ts";
 
 /** Piper as the server runs it (`--output-filename=<wav>` among its arguments): 0.2 s of silence,
@@ -44,7 +45,7 @@ const QWEN_FILES = [
 
 if (import.meta.main) {
   rmSync(E2E_DATA, { recursive: true, force: true });
-  await writeFixtureLibrary(join(E2E_DATA, "library"));
+  await writeFixtureLibrary(nodeFs, join(E2E_DATA, "library"));
   writeFileSync(E2E_PIPER, FAKE_PIPER, { mode: 0o755 });
   const voice = join(E2E_DATA, "models", "voices", E2E_VOICE);
   mkdirSync(voice, { recursive: true });

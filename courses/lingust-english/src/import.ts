@@ -1,6 +1,5 @@
 // `sprachanker import lingust-english`: fetch the index, the lesson pages and their recordings
 // (idempotent), then normalise.
-import { join } from "node:path";
 import {
   createPoliteFetcher,
   emptyReport,
@@ -9,6 +8,7 @@ import {
   type ImportOptions,
   type ImportReport,
   importReport,
+  joinPath,
   type MediaRef,
   mediaRef,
   openKeyMap,
@@ -25,25 +25,24 @@ import { parseLesson } from "./parse/lesson.ts";
 import { parseVerbTable } from "./parse/verbs.ts";
 
 /** The site's recordings answer only requests coming from its pages (hotlink protection). */
-const withReferer: typeof fetch = Object.assign(
-  (input: string | URL | Request, init?: RequestInit) => {
+const withReferer = (base: typeof fetch = fetch): typeof fetch =>
+  ((input: string | URL | Request, init?: RequestInit) => {
     const url = new URL(input instanceof Request ? input.url : input);
-    if (url.host !== HOST || !url.pathname.startsWith("/media/")) return fetch(input, init);
+    if (url.host !== HOST || !url.pathname.startsWith("/media/")) return base(input, init);
     const headers = new Headers(init?.headers);
     headers.set("Referer", MEDIA_REFERER);
-    return fetch(input, { ...init, headers });
-  },
-  { preconnect: fetch.preconnect },
-);
+    return base(input, { ...init, headers });
+  }) as typeof fetch;
 
 export async function importLingust(options: ImportOptions): Promise<ImportReport> {
   const { log } = options;
   if (!wanted(options, EDITION, COURSE)) return emptyReport();
-  const seriesDir = join(options.libraryRoot, SERIES);
+  const seriesDir = joinPath(options.libraryRoot, SERIES);
   const fetcher = createPoliteFetcher({
+    fs: options.fs,
+    fetch: withReferer(options.fetch),
     userAgent: IMPORTER_USER_AGENT,
     robotsHosts: [HOST],
-    fetch: withReferer,
   });
   const pages = rawPages(seriesDir, options);
   const page = (slug: string, file: string) =>
@@ -77,6 +76,7 @@ export async function importLingust(options: ImportOptions): Promise<ImportRepor
     if (lessons.length) units.push({ title: stage.title, lessons });
   }
   const index = await fetchMedia({
+    fs: options.fs,
     fetcher,
     seriesDir,
     refs: [...refs.values()],
@@ -86,9 +86,9 @@ export async function importLingust(options: ImportOptions): Promise<ImportRepor
 
   options.progress?.({ phase: "normalise" });
   // Keys stay by source id across normalisations: the series' key map, saved once written.
-  const keys = await openKeyMap(seriesDir);
+  const keys = await openKeyMap(options.fs, seriesDir);
   const { files, lessons, unknown } = normaliseLingust(units, index, keys);
-  const problems = await writeLibraryFiles(seriesDir, files, log);
+  const problems = await writeLibraryFiles(options.fs, seriesDir, files, log);
   await keys.save();
   log(
     `lingust ${EDITION}: ${lessons} lessons, ${unknown} unknown exercises` +

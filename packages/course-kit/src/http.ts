@@ -1,9 +1,7 @@
 // HTTP client for importers: robots.txt, retries with backoff, identifiable User-Agent, stop on
 // 403/429, optional minimum interval between request starts per host (none by default), and a limit on
 // silence (a stalled connection is retried, never waited on forever).
-import { createWriteStream } from "node:fs";
-import { mkdir } from "node:fs/promises";
-import { dirname } from "node:path";
+import type { DataFs } from "./data-fs.ts";
 import { isAllowed, parseRobots, type RobotsRules } from "./robots.ts";
 
 /** Silence allowed before a response starts and between chunks of its body. */
@@ -35,6 +33,8 @@ export class FetchFailedError extends Error {
 
 interface PoliteFetcherOptions {
   userAgent: string;
+  /** Where `file` writes (the data root's files). */
+  fs?: DataFs;
   /** Minimum time between the starts of two requests to the same host; 0 (default) = no limit. */
   intervalMs?: number;
   retries?: number;
@@ -218,8 +218,18 @@ export function createPoliteFetcher(options: PoliteFetcherOptions): PoliteFetche
 
   const body = async (res: Response, quiet: Quiet) => {
     const parts: Uint8Array[] = [];
-    for await (const part of chunks(res, quiet)) parts.push(part);
-    return Buffer.concat(parts);
+    let size = 0;
+    for await (const part of chunks(res, quiet)) {
+      parts.push(part);
+      size += part.byteLength;
+    }
+    const all = new Uint8Array(size);
+    let at = 0;
+    for (const part of parts) {
+      all.set(part, at);
+      at += part.byteLength;
+    }
+    return all;
   };
 
   function session(): BrowsingSession {
@@ -267,23 +277,15 @@ export function createPoliteFetcher(options: PoliteFetcherOptions): PoliteFetche
     session,
     bytes: (href) =>
       request(href, async (res, quiet) => ({
-        bytes: new Uint8Array(await body(res, quiet)),
+        bytes: await body(res, quiet),
         contentType: res.headers.get("content-type") ?? "",
       })),
     text: (href) =>
       request(href, async (res, quiet) => new TextDecoder().decode(await body(res, quiet))),
     file: (href, target) =>
       request(href, async (res, quiet) => {
-        await mkdir(dirname(target), { recursive: true });
-        const out = createWriteStream(target);
-        try {
-          for await (const part of chunks(res, quiet))
-            if (!out.write(part)) await new Promise((r) => out.once("drain", r));
-        } finally {
-          await new Promise<void>((resolve, reject) =>
-            out.end((error?: Error | null) => (error ? reject(error) : resolve())),
-          );
-        }
+        if (!options.fs) throw new Error("a fetcher without files writes none");
+        await options.fs.write(target, chunks(res, quiet));
         return { contentType: res.headers.get("content-type") ?? "" };
       }),
   };

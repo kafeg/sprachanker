@@ -5,9 +5,9 @@ import { buildApkg } from "@sprachanker/anki-export/testing";
 import { FIXTURE_SERIES } from "@sprachanker/course-fixture";
 import { CLIENT_HEADERS } from "@sprachanker/schema";
 import { ulid } from "ulid";
-import { deckFiles } from "../src/runtime/decks.ts";
 import { DECK_MAX_BYTES } from "../src/services/decks.ts";
 import { COURSE, deck, mediaPath, SOUND, study, withDecks } from "./deck-setup.ts";
+import { deckFiles } from "./storage.ts";
 import { until } from "./until.ts";
 
 test("a package previewed, imported as a deck with its audio; its media served from its folder alone", async () => {

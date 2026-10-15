@@ -21,6 +21,7 @@ import {
   Slug,
 } from "@sprachanker/schema";
 import type { z } from "zod";
+import { joinPath } from "./data-fs.ts";
 import { type CourseReport, type LibraryView, NotInstalledError } from "./library-view.ts";
 
 /** What reading the library needs of a file system (absolute POSIX paths). */
@@ -35,17 +36,7 @@ export interface LibraryFs {
   readText(path: string): Promise<string>;
 }
 
-/** Path parts joined, `.` and `..` resolved (POSIX). */
-export function joinPath(...parts: string[]) {
-  const absolute = parts[0]?.startsWith("/");
-  const out: string[] = [];
-  for (const part of parts.join("/").split("/")) {
-    if (!part || part === ".") continue;
-    if (part === "..") out.pop();
-    else out.push(part);
-  }
-  return `${absolute ? "/" : ""}${out.join("/")}`;
-}
+export { joinPath };
 
 export function libraryOver(
   root: string,

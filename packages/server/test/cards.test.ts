@@ -4,6 +4,7 @@ import { mkdirSync, readFileSync, writeFileSync } from "node:fs";
 import { dirname, join } from "node:path";
 import { FIXTURE_SERIES } from "@sprachanker/course-fixture";
 import { openLibrary } from "@sprachanker/course-kit";
+import { nodeFs } from "@sprachanker/course-kit/node";
 import { ulid } from "ulid";
 import { createCardStore } from "../src/services/card-store.ts";
 import { createCards } from "../src/services/cards.ts";
@@ -305,7 +306,7 @@ test("a card follows its word's lexeme when a course is normalised again; no sec
   const cards = createCards({
     cards: createCardStore(profile),
     store: createRunStore({ db: profile, now: Date.now, appVersion: "test" }),
-    content: createContent(openLibrary(join(root, "library"))),
+    content: createContent(openLibrary(nodeFs, join(root, "library"))),
     decks: { deck: () => undefined, list: () => [] },
     settings: createSettings(profile),
     session: async () => undefined,

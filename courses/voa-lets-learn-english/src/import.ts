@@ -1,7 +1,6 @@
 // `sprachanker import voa-lets-learn-english`: fetch the landing pages, lesson articles, their document
 // pages and quiz result pages (idempotent), then the media, then normalise. GET only: a quiz's
 // result page (`page=2k`) shows question k with its answer, no answer is submitted.
-import { join } from "node:path";
 import {
   createPoliteFetcher,
   emptyReport,
@@ -11,6 +10,7 @@ import {
   type ImportOptions,
   type ImportReport,
   importReport,
+  joinPath,
   openKeyMap,
   type PoliteFetcher,
   type RawPages,
@@ -38,9 +38,14 @@ const CONCURRENCY = 4;
 
 export async function importLetsLearnEnglish(options: ImportOptions): Promise<ImportReport> {
   const { log } = options;
-  const seriesDir = join(options.libraryRoot, SERIES);
+  const seriesDir = joinPath(options.libraryRoot, SERIES);
   if (!wanted({ ...options, courses: undefined }, EDITION)) return emptyReport();
-  const fetcher = createPoliteFetcher({ userAgent: IMPORTER_USER_AGENT, robotsHosts: [HOST] });
+  const fetcher = createPoliteFetcher({
+    fs: options.fs,
+    fetch: options.fetch,
+    userAgent: IMPORTER_USER_AGENT,
+    robotsHosts: [HOST],
+  });
   const defs = COURSES.filter((c) => wanted(options, EDITION, c.id));
 
   const pages = rawPages(seriesDir, options);
@@ -48,6 +53,7 @@ export async function importLetsLearnEnglish(options: ImportOptions): Promise<Im
   for (const def of defs) courses.push(await fetchCourse(fetcher, pages, def, log));
 
   const index = await fetchMedia({
+    fs: options.fs,
     fetcher,
     seriesDir,
     refs: courses.flatMap(mediaRefs),
@@ -57,11 +63,11 @@ export async function importLetsLearnEnglish(options: ImportOptions): Promise<Im
   const report = importReport(index);
 
   // Keys stay by source id across normalisations: the series' key map, saved once written.
-  const keys = await openKeyMap(seriesDir);
+  const keys = await openKeyMap(options.fs, seriesDir);
   for (const course of courses) {
     options.progress?.({ phase: "normalise" });
     const result = normaliseCourse(course, index, keys);
-    const problems = await writeLibraryFiles(seriesDir, result.files, log);
+    const problems = await writeLibraryFiles(options.fs, seriesDir, result.files, log);
     await keys.save();
     for (const line of result.unmapped) log(`unmapped: ${line}`);
     log(

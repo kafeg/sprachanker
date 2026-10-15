@@ -3,8 +3,7 @@
 // recording, how often it plays, its examples — and its questions as single-choice items whose right
 // option comes from the Teil's solution page. Pure: the pages, the pictures' texts and the media files
 // are given.
-import { createHash } from "node:crypto";
-import { escapeHtml, type LibraryFile, libraryFile } from "@sprachanker/course-kit";
+import { escapeHtml, type LibraryFile, libraryFile, sha256Hex } from "@sprachanker/course-kit";
 import {
   CANONICAL_FORMAT,
   type CourseIndex,
@@ -61,7 +60,7 @@ export interface LevelPages {
 export const rawPath = (level: Level, kind: "module" | "solution" | "text", name: string) =>
   `raw/${EDITION}/${level.course}/${kind === "module" ? "" : kind === "solution" ? "solutions/" : "texts/"}${name}${kind === "text" ? "" : ".html"}`;
 
-const sha256 = (text: string) => createHash("sha256").update(text).digest("hex");
+const sha256 = (text: string) => sha256Hex(text);
 
 export const MODULE_TITLES: Record<ModuleId, string> = {
   hoeren: "Hören",

@@ -19,6 +19,7 @@
     "@playwright/test": "1.63.0",
     "@sprachanker/anki-export": "workspace:*",
     "@sprachanker/course-fixture": "workspace:*",
+    "@sprachanker/course-kit": "workspace:*",
     "@sprachanker/engine": "workspace:*",
     "@sprachanker/schema": "workspace:*",
     "@types/node": "26.6.4"

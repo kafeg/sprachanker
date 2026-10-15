@@ -4,12 +4,13 @@ import { tmpdir } from "node:os";
 import { join } from "node:path";
 import { urlFileName } from "../src/media-index.ts";
 import { createMediaStore } from "../src/media-store.ts";
+import { nodeFs } from "../src/node-fs.ts";
 
 const bytes = (text: string) => new TextEncoder().encode(text);
 
 test("stores under the wanted name, once per content, with a suffix on name clashes", async () => {
   const dir = mkdtempSync(join(tmpdir(), "sprachanker-media-"));
-  const store = createMediaStore(dir);
+  const store = createMediaStore(nodeFs, dir);
   const first = await store.put("audio/word.mp3", bytes("one"));
   expect(first.path).toBe("media/audio/word.mp3" as never);
   expect(readFileSync(join(dir, "media/audio/word.mp3"), "utf8")).toBe("one");
@@ -27,7 +28,7 @@ test("media file names from URLs, optionally decoded", () => {
 });
 
 test("a media name that walks out of its folder is refused", async () => {
-  const store = createMediaStore(mkdtempSync(join(tmpdir(), "sprachanker-media-")));
+  const store = createMediaStore(nodeFs, mkdtempSync(join(tmpdir(), "sprachanker-media-")));
   for (const name of [
     "audio/../../x.mp3",
     "audio/a/b.mp3",
@@ -40,7 +41,7 @@ test("a media name that walks out of its folder is refused", async () => {
 
 test("only what browsers play or show is stored, under a name any disk takes; an extension lower-cased", async () => {
   const dir = mkdtempSync(join(tmpdir(), "sprachanker-media-"));
-  const store = createMediaStore(dir);
+  const store = createMediaStore(nodeFs, dir);
   for (const name of [
     "audio/page.html",
     "image/logo.svg",
@@ -63,7 +64,7 @@ test("only what browsers play or show is stored, under a name any disk takes; an
 
 test("two downloads of one name at once: one file, the other a numbered one or the same", async () => {
   const dir = mkdtempSync(join(tmpdir(), "sprachanker-media-"));
-  const store = createMediaStore(dir);
+  const store = createMediaStore(nodeFs, dir);
   const [a, b, c] = await Promise.all([
     store.put("audio/w.mp3", bytes("one")),
     store.put("audio/w.mp3", bytes("two")),

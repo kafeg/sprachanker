@@ -1,10 +1,11 @@
 import { hostname } from "node:os";
 import { join } from "node:path";
 import { openLibrary, verifyLibrary } from "@sprachanker/course-kit";
+import { nodeFs } from "@sprachanker/course-kit/node";
 import { Deck } from "@sprachanker/schema";
 import { createApp, type WebAssets } from "./app.ts";
 import { appDataDir } from "./config.ts";
-import { courseInstaller, removeInstalledCourse } from "./providers.ts";
+import { apkgRuntime } from "./runtime/apkg.ts";
 import { backUpTo, startDailyBackups } from "./runtime/backup.ts";
 import {
   type Listening,
@@ -15,15 +16,11 @@ import {
   secretKey,
 } from "./runtime/bun.ts";
 import { cliHost } from "./runtime/cli.ts";
-import { courseTransferFiles } from "./runtime/course-transfer.ts";
-import { holdDataRoot, portAnswers, serverOn } from "./runtime/data-root.ts";
-import { deckTransferFiles } from "./runtime/deck-transfer.ts";
-import { apkgRuntime, deckFiles } from "./runtime/decks.ts";
+import { holdDataRoot, nodeDataRoot, portAnswers, serverOn } from "./runtime/data-root.ts";
 import { lmStudioHost } from "./runtime/lmstudio.ts";
 import { networkHost } from "./runtime/network.ts";
 import { piperHost } from "./runtime/piper.ts";
-import { practiceFiles } from "./runtime/practice.ts";
-import { profileTransferFiles } from "./runtime/profile-transfer.ts";
+import { bunProfileSql } from "./runtime/profile-sql.ts";
 import { readingCache } from "./runtime/readings.ts";
 import { speechHost } from "./runtime/speech.ts";
 import { createCardStore } from "./services/card-store.ts";
@@ -36,10 +33,21 @@ import { contentUsed, createProfileTransfer } from "./services/profile-transfer.
 import { createProfiles } from "./services/profiles.ts";
 import { createRunStore } from "./services/run-store.ts";
 import { parseJson } from "./services/stored.ts";
+import { courseTransferFiles } from "./storage/course-transfer.ts";
+import { deckTransferFiles } from "./storage/deck-transfer.ts";
+import { deckFiles } from "./storage/decks.ts";
+import {
+  courseInstaller,
+  type ImportRequest,
+  importCourse as importInto,
+  removeInstalledCourse,
+} from "./storage/installer.ts";
+import { practiceFiles } from "./storage/practice.ts";
+import { profileTransferFiles } from "./storage/profile-transfer.ts";
 
 export type { AppType, WebAssets } from "./app.ts";
 export { directoryAssets, fileAssets, type Listening } from "./runtime/bun.ts";
-export { PROFILE_DB_WORKER } from "./runtime/profile-transfer.ts";
+export { PROFILE_DB_WORKER } from "./runtime/profile-sql.ts";
 
 export interface ServerConfig {
   hostname: string;
@@ -58,23 +66,24 @@ export interface ServerConfig {
 
 /** The runtime adapters over a data root: what the app and the command line's services run on. */
 function runtimeOf(dataRoot: string, appVersion: string, profileDbWorker?: string) {
+  const data = nodeDataRoot(dataRoot);
   return {
-    library: openLibrary(join(dataRoot, "library")),
+    library: openLibrary(nodeFs, join(dataRoot, "library")),
     server: openServerDb(join(dataRoot, "server.sqlite")),
     profiles: profileFiles(dataRoot),
     mediaBlob,
-    decks: deckFiles(dataRoot),
+    decks: deckFiles(data, mediaBlob),
     apkg: apkgRuntime,
-    transfers: profileTransferFiles(dataRoot, { worker: profileDbWorker }),
-    courseTransfers: courseTransferFiles(dataRoot),
-    deckTransfers: deckTransferFiles(dataRoot),
-    practice: practiceFiles(dataRoot),
+    transfers: profileTransferFiles(data, bunProfileSql(dataRoot, { worker: profileDbWorker })),
+    courseTransfers: courseTransferFiles(data),
+    deckTransfers: deckTransferFiles(data),
+    practice: practiceFiles(data),
     appVersion,
     // Outside the data root, so a copied data folder does not carry usable API keys.
     secretKey: secretKey(join(appDataDir(), "secret.key")),
     lmStudio: lmStudioHost(),
     cli: cliHost(),
-    installer: courseInstaller(dataRoot),
+    installer: courseInstaller(data),
     speech: speechHost(dataRoot),
     piper: piperHost(dataRoot),
     readings: readingCache(dataRoot),
@@ -102,7 +111,11 @@ export async function startServer(config: ServerConfig): Promise<Listening> {
   return listen(app.fetch, config);
 }
 export { resolveDataRoot } from "./config.ts";
-export { type ImportRequest, importCourse, providerIds } from "./providers.ts";
+export { type ImportRequest, providerIds } from "./storage/installer.ts";
+
+/** Runs a provider into `<dataRoot>/library` (the command line's `import`). */
+export const importCourse = (provider: string, request: ImportRequest & { dataRoot: string }) =>
+  importInto(nodeDataRoot(request.dataRoot), provider, request);
 export { ENGINES as speechEngines, triple as targetTriple } from "./runtime/engines.ts";
 
 /**
@@ -115,7 +128,9 @@ export function practiceAdmin(dataRoot: string, appVersion = "") {
   const svc = createServices({
     ...runtime,
     // A server running on the data root keeps its transfers: they are its to sweep.
-    deckTransfers: deckTransferFiles(dataRoot, { sweeps: () => !serverOn(dataRoot) }),
+    deckTransfers: deckTransferFiles(nodeDataRoot(dataRoot), {
+      sweeps: () => !serverOn(dataRoot),
+    }),
     fetch,
     now: Date.now,
     random: Math.random,
@@ -151,7 +166,7 @@ const PROGRESS_MS = 5000;
 
 /** Checks every installed course of the data root (course-kit verify). */
 export const verifyData = (dataRoot: string) =>
-  verifyLibrary(openLibrary(join(dataRoot, "library")));
+  verifyLibrary(nodeFs, openLibrary(nodeFs, join(dataRoot, "library")));
 
 /**
  * The server's profile matters for the `sprachanker profiles` command:
@@ -179,19 +194,21 @@ export function profileAdmin(
     now: Date.now,
   });
   profiles.adoptFirst();
-  const decks = deckFiles(dataRoot);
+  const data = nodeDataRoot(dataRoot);
+  const decks = deckFiles(data, mediaBlob);
   const transfer = createProfileTransfer({
-    files: profileTransferFiles(dataRoot, {
-      worker: options.profileDbWorker,
+    files: profileTransferFiles(
+      data,
+      bunProfileSql(dataRoot, { worker: options.profileDbWorker }),
       // A server running on the data root keeps its transfers: they are its to sweep.
-      sweeps: () => !serverOn(dataRoot),
-    }),
+      { sweeps: () => !serverOn(dataRoot) },
+    ),
     profiles,
     used: (id) => {
       const db = files.open(id);
       return contentUsed(createRunStore({ db, now: Date.now, appVersion }), createCardStore(db));
     },
-    content: createContent(openLibrary(join(dataRoot, "library"))),
+    content: createContent(openLibrary(nodeFs, join(dataRoot, "library"))),
     // The imported decks' titles, read as stored (none that does not read).
     decks: () =>
       decks.ids().flatMap((id) => {
@@ -236,9 +253,9 @@ export function profileAdmin(
  * data root (the series' import lock keeps them apart; the server reads the files anew).
  */
 export function courseAdmin(dataRoot: string, appVersion = "") {
-  const library = openLibrary(join(dataRoot, "library"));
+  const library = openLibrary(nodeFs, join(dataRoot, "library"));
   const transfer = createCourseTransfer({
-    files: courseTransferFiles(dataRoot, {
+    files: courseTransferFiles(nodeDataRoot(dataRoot), {
       // A server running on the data root keeps its transfers: they are its to sweep.
       sweeps: () => !serverOn(dataRoot),
     }),
@@ -253,7 +270,7 @@ export function courseAdmin(dataRoot: string, appVersion = "") {
     /** A course removed; `server`: the pid of a server running on the data root (it keeps what it
      *  read of the course until restarted). */
     remove: async (series: string, course: string) => ({
-      ...(await removeInstalledCourse(dataRoot, series, course)),
+      ...(await removeInstalledCourse(nodeDataRoot(dataRoot), series, course)),
       server: serverOn(dataRoot),
     }),
   };

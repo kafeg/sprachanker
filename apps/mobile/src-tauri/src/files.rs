@@ -154,6 +154,23 @@ pub fn serve(request: &Request<Vec<u8>>) -> Response<Vec<u8>> {
     let Ok(mut f) = fs::File::open(&file) else { return answer(StatusCode::NOT_FOUND, Vec::new()) };
     let size = f.metadata().map(|m| m.len()).unwrap_or(0);
     let kind = media_type(&file);
+    // A part read by the page's code (course-kit's DataFs: `?part=<start>-<end>`), answered whole:
+    // Android's WebView applies a Range header to the answer itself, skipping its start again.
+    let part = request.uri().query().and_then(|q| q.strip_prefix("part=")).and_then(|v| {
+        let (a, b) = v.split_once('-')?;
+        Some((a.parse::<u64>().ok()?, b.parse::<u64>().ok()?))
+    });
+    if let Some((start, end)) = part {
+        let end = end.min(size.saturating_sub(1));
+        if start > end {
+            return answer(StatusCode::OK, Vec::new());
+        }
+        let mut body = vec![0; (end - start + 1) as usize];
+        if f.seek(SeekFrom::Start(start)).is_err() || f.read_exact(&mut body).is_err() {
+            return answer(StatusCode::INTERNAL_SERVER_ERROR, Vec::new());
+        }
+        return answer(StatusCode::OK, body);
+    }
     let range = request
         .headers()
         .get(header::RANGE)

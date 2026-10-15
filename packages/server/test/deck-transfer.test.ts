@@ -13,10 +13,10 @@ import {
   DECK_BUNDLE_FORMAT,
   DECK_BUNDLE_VERSION,
 } from "@sprachanker/schema";
-import { removeInstalledCourse } from "../src/providers.ts";
 import { createCardStore } from "../src/services/card-store.ts";
 import { deck as apkg, COURSE, withDecks } from "./deck-setup.ts";
 import { piper } from "./speech-fakes.ts";
+import { removeInstalledCourse } from "./storage.ts";
 import { until } from "./until.ts";
 
 type Api = Awaited<ReturnType<typeof withDecks>>;

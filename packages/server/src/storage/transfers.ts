@@ -2,18 +2,15 @@
 // in a folder of its own — `profiles/.transfers/<id>/`, `library/.transfers/<id>/` — removed when it
 // ends, an hour old at most. What profile files and course bundles share: the folders and their sweep,
 // the room a transfer needs on the disk, a file received or saved, a zip streamed.
-import { randomUUID } from "node:crypto";
 import {
-  mkdirSync,
-  readdirSync,
-  renameSync,
-  rmSync,
-  statfsSync,
-  statSync,
-  utimesSync,
-} from "node:fs";
-import { dirname, join } from "node:path";
-import { writeChunks, type ZipSource, zipStream } from "@sprachanker/course-kit";
+  type DataFs,
+  type Disk,
+  dirName,
+  joinPath,
+  writeChunks,
+  type ZipSource,
+  zipStream,
+} from "@sprachanker/course-kit";
 
 const ID = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/;
 /** A transfer left this long (an export never downloaded, an import cut short) goes. */
@@ -26,17 +23,7 @@ const dataRootMargin = (diskBytes: number) => Math.max(1024 ** 3, 0.05 * diskByt
 /** Room left free beyond a file written elsewhere (a file saved where the command was told). */
 const FILE_MARGIN = 16 * 1024 * 1024;
 
-export type Disk = { free: number; size: number };
-
-/** The disk of `dir`: the bytes free for this user, and its size; null when the system does not say. */
-export function diskOf(dir: string): Disk | null {
-  try {
-    const disk = statfsSync(dir);
-    return { free: disk.bavail * disk.bsize, size: disk.blocks * disk.bsize };
-  } catch {
-    return null;
-  }
-}
+export type { Disk };
 
 /** A full disk, found before writing: the same error a write that runs out of room gives. */
 const noSpace = () => Object.assign(new Error("not enough free space"), { code: "ENOSPC" });
@@ -79,11 +66,12 @@ export interface TransferOptions {
 
 /** `beforeRemove`: what a transfer swept leaves to mend first (a course folder an install put aside). */
 export function transferFolders(
+  fs: DataFs,
   root: string,
   options: TransferOptions = {},
   beforeRemove?: (folder: string) => void,
 ) {
-  const diskAt = options.disk ?? diskOf;
+  const diskAt = options.disk ?? ((dir: string) => fs.disk(dir));
   /** This process's transfers in use: never swept. */
   const active = new Set<string>();
   /** A transfer's folder marked as in use for another process's sweep (its time), at most a minute
@@ -93,14 +81,13 @@ export function transferFolders(
   const known = new Map<string, { file: string; value: unknown }>();
   const folder = (id: string) => {
     if (!ID.test(id)) throw new Error(`bad transfer id ${id}`);
-    return join(root, id);
+    return joinPath(root, id);
   };
   const touch = (id: string) => {
     if (Date.now() - (touched.get(id) ?? 0) < TOUCH_MS) return;
     touched.set(id, Date.now());
-    const now = new Date();
     try {
-      utimesSync(folder(id), now, now);
+      fs.touch(folder(id));
     } catch {}
   };
   const self = {
@@ -110,23 +97,23 @@ export function transferFolders(
     /** Transfers an hour old go (never one this process is using). */
     sweep() {
       if (!self.sweeps()) return;
-      for (const name of statSync(root, { throwIfNoEntry: false }) ? readdirSync(root) : []) {
+      for (const name of fs.list(root)) {
         if (active.has(name)) continue;
-        const at = statSync(join(root, name), { throwIfNoEntry: false })?.mtimeMs;
+        const at = fs.stat(joinPath(root, name))?.mtimeMs;
         if (at === undefined || Date.now() - at <= KEPT_MS) continue;
-        beforeRemove?.(join(root, name));
-        rmSync(join(root, name), { recursive: true, force: true });
+        beforeRemove?.(joinPath(root, name));
+        fs.remove(joinPath(root, name));
       }
     },
     /** A new, empty transfer. */
     begin() {
-      const id = randomUUID();
-      mkdirSync(folder(id), { recursive: true });
+      const id = crypto.randomUUID();
+      fs.mkdir(folder(id));
       active.add(id);
       return id;
     },
     discard(id: string) {
-      rmSync(folder(id), { recursive: true, force: true });
+      fs.remove(folder(id));
       active.delete(id);
       touched.delete(id);
       known.delete(id);
@@ -168,7 +155,8 @@ export function transferFolders(
       self.room(root, need);
       return (
         (await writeChunks(
-          join(folder(id), file),
+          fs,
+          joinPath(folder(id), file),
           self.touching(id, timely(body, options.uploadIdleMs ?? UPLOAD_IDLE_MS)),
           length,
         )) !== undefined
@@ -177,14 +165,14 @@ export function transferFolders(
     /** A stream written whole to a file — its owner's only — (beside it, then renamed), its disk
      *  checked for `bytes` first. */
     async save(stream: ReadableStream<Uint8Array>, file: string, bytes: number) {
-      self.room(dirname(file), bytes, () => FILE_MARGIN);
+      self.room(dirName(file), bytes, () => FILE_MARGIN);
       const part = `${file}.part`;
       try {
-        rmSync(part, { force: true });
-        await writeChunks(part, stream, Number.POSITIVE_INFINITY, 0o600);
-        renameSync(part, file);
+        fs.remove(part);
+        await writeChunks(fs, part, stream, Number.POSITIVE_INFINITY, 0o600);
+        fs.rename(part, file);
       } catch (error) {
-        rmSync(part, { force: true });
+        fs.remove(part);
         throw error;
       }
     },

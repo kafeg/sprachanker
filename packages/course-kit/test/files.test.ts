@@ -14,6 +14,7 @@ import { z } from "zod";
 import { linkOrCopy, writeFileAtomic } from "../src/files.ts";
 import { HostRefusedError, type PoliteFetcher } from "../src/http.ts";
 import { failedMedia, fetchMedia, goneMedia } from "../src/media-index.ts";
+import { nodeFs } from "../src/node-fs.ts";
 import { libraryFile, libraryWriter, writeLibraryFiles } from "../src/provider.ts";
 
 const dir = () => mkdtempSync(join(tmpdir(), "sprachanker-files-"));
@@ -21,8 +22,8 @@ const dir = () => mkdtempSync(join(tmpdir(), "sprachanker-files-"));
 test("a file is replaced whole: no temporary file is left next to it", async () => {
   const root = dir();
   const file = join(root, "a/b/page.html");
-  await writeFileAtomic(file, "one");
-  await writeFileAtomic(file, "two");
+  await writeFileAtomic(nodeFs, file, "one");
+  await writeFileAtomic(nodeFs, file, "two");
   expect(readFileSync(file, "utf8")).toBe("two");
   expect(readdirSync(join(root, "a/b"))).toEqual(["page.html"]);
 });
@@ -31,11 +32,11 @@ test("a normalisation removes the files of its courses the source no longer has"
   const root = dir();
   const stale = join(root, "canonical/c1/lessons/09-09.json");
   const other = join(root, "canonical/c2/lessons/01-01.json");
-  for (const f of [stale, other]) await writeFileAtomic(f, "{}");
+  for (const f of [stale, other]) await writeFileAtomic(nodeFs, f, "{}");
   // A file one cut short was writing.
   const half = join(root, "canonical/c1/lessons/01-01.json.tmp-123-0a1b2c3d");
   writeFileSync(half, "{");
-  const writer = libraryWriter(root, () => {});
+  const writer = libraryWriter(nodeFs, root, () => {});
   await writer.write([{ path: "canonical/c1/lessons/01-01.json", schema: z.any(), value: {} }]);
   await writer.write([{ path: "canonical/c1/course.json", schema: Lesson, value: {} }]);
   expect(writer.problems).toBe(1);
@@ -65,14 +66,14 @@ test("media: each URL once; a stored file gone from the disk is fetched again", 
   const root = dir();
   const ref = { url: "https://cdn.test/a.mp3", kind: "audio" as const, name: "a.mp3" };
   const { fetcher, asked } = fetcherOf();
-  await fetchMedia({ fetcher, seriesDir: root, refs: [ref, ref], log: () => {} });
+  await fetchMedia({ fs: nodeFs, fetcher, seriesDir: root, refs: [ref, ref], log: () => {} });
   expect(asked).toEqual([ref.url]);
-  await fetchMedia({ fetcher, seriesDir: root, refs: [ref], log: () => {} });
+  await fetchMedia({ fs: nodeFs, fetcher, seriesDir: root, refs: [ref], log: () => {} });
   expect(asked).toHaveLength(1);
   // Deleted by hand: fetched again; a download an import cut short left goes.
   await Bun.file(join(root, "media/audio/a.mp3")).delete();
   writeFileSync(join(root, "media/.incoming/b.mp3.tmp-1-0a1b2c3d"), "half");
-  await fetchMedia({ fetcher, seriesDir: root, refs: [ref], log: () => {} });
+  await fetchMedia({ fs: nodeFs, fetcher, seriesDir: root, refs: [ref], log: () => {} });
   expect(asked).toHaveLength(2);
   expect(readdirSync(join(root, "media/.incoming"))).toEqual([]);
 });
@@ -85,12 +86,7 @@ test("media: a host that refuses leaves every file of it recorded as not fetched
     name: `${n}.mp3`,
   }));
   const { fetcher } = fetcherOf(() => new HostRefusedError("cdn.test", 429));
-  const index = await fetchMedia({
-    fetcher,
-    seriesDir: root,
-    refs,
-    log: () => {},
-  });
+  const index = await fetchMedia({ fs: nodeFs, fetcher, seriesDir: root, refs, log: () => {} });
   expect(Object.values(index)).toEqual(refs.map(() => ({ kind: "audio", error: "refused 429" })));
 });
 
@@ -128,12 +124,7 @@ test("media: the same content from several URLs under other names is one file", 
       return { contentType: "audio/mpeg" };
     },
   } as unknown as PoliteFetcher;
-  const index = await fetchMedia({
-    fetcher,
-    seriesDir: root,
-    refs,
-    log: () => {},
-  });
+  const index = await fetchMedia({ fs: nodeFs, fetcher, seriesDir: root, refs, log: () => {} });
   const paths = refs.map((r) => (index[r.url] as { path: string }).path);
   expect(paths[0]).toBe(paths[1] as string);
   expect(paths[2]).not.toBe(paths[0] as string);
@@ -166,7 +157,7 @@ test("media: URLs stored before as two files of the same content point to one af
     kind: "audio" as const,
     name: `${n}.mp3`,
   }));
-  const run = () => fetchMedia({ fetcher, seriesDir: root, refs, log: () => {} });
+  const run = () => fetchMedia({ fs: nodeFs, fetcher, seriesDir: root, refs, log: () => {} });
   const index = await run();
   expect(asked).toEqual([]);
   expect(Object.values(index).map((e) => (e as { path: string }).path)).toEqual([
@@ -188,7 +179,7 @@ test("a media.json that does not read stops the fetch (taken as empty, it would 
   const { fetcher, asked } = fetcherOf();
   const ref = { url: "https://a.test/a.mp3", kind: "audio" as const, name: "a.mp3" };
   await expect(
-    fetchMedia({ fetcher, seriesDir: root, refs: [ref], log: () => {} }),
+    fetchMedia({ fs: nodeFs, fetcher, seriesDir: root, refs: [ref], log: () => {} }),
   ).rejects.toThrow(/media\.json/);
   expect(asked).toEqual([]);
 });
@@ -211,7 +202,12 @@ test("library files by kind: each path from its keys, each checked against its k
   // A lesson whose value does not fit is written all the same, and counted.
   const bad = { ...lesson, typo: 1 } as typeof lesson;
   expect(
-    await writeLibraryFiles(root, [libraryFile.lesson(lesson), libraryFile.lesson(bad)], () => {}),
+    await writeLibraryFiles(
+      nodeFs,
+      root,
+      [libraryFile.lesson(lesson), libraryFile.lesson(bad)],
+      () => {},
+    ),
   ).toBe(1);
 });
 
@@ -219,10 +215,10 @@ test("a link never goes over a file there: copied only where the disk has no har
   const root = dir();
   writeFileSync(join(root, "a.mp3"), "a");
   writeFileSync(join(root, "b.mp3"), "b");
-  expect(() => linkOrCopy(join(root, "a.mp3"), join(root, "b.mp3"))).toThrow(
+  expect(() => linkOrCopy(nodeFs, join(root, "a.mp3"), join(root, "b.mp3"))).toThrow(
     expect.objectContaining({ code: "EEXIST" }),
   );
   expect(readFileSync(join(root, "b.mp3"), "utf8")).toBe("b");
-  linkOrCopy(join(root, "a.mp3"), join(root, "c.mp3"));
+  linkOrCopy(nodeFs, join(root, "a.mp3"), join(root, "c.mp3"));
   expect(readFileSync(join(root, "c.mp3"), "utf8")).toBe("a");
 });

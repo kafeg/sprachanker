@@ -12,6 +12,7 @@
   "dependencies": {
     "@sprachanker/course-kit": "workspace:*",
     "@sprachanker/schema": "workspace:*",
+    "fflate": "0.8.2",
     "pdfjs-dist": "6.4.299"
   }
 }

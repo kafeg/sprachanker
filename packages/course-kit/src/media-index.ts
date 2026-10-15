@@ -2,10 +2,8 @@
 // recorded in media.json with sha256 and size. Idempotent: stored files are skipped, failed ones —
 // and stored ones gone from the disk — are tried again on the next run; one failing file never stops
 // the import, and every file not fetched is in the index with why (a refused host included).
-import { existsSync } from "node:fs";
-import { mkdir, readFile, rm } from "node:fs/promises";
-import { join } from "node:path";
 import { issuesText, MediaIndex, type MediaKind, type MediaPath } from "@sprachanker/schema";
+import { type DataFs, joinPath } from "./data-fs.ts";
 import { tempFile, writeFileAtomic } from "./files.ts";
 import { FetchFailedError, HostRefusedError, type PoliteFetcher } from "./http.ts";
 import { createMediaStore } from "./media-store.ts";
@@ -22,7 +20,7 @@ export interface MediaRef {
 const WORKERS_PER_HOST = 8;
 
 /** A series' media index: `media.json` in its folder. */
-const indexFileOf = (seriesDir: string) => join(seriesDir, "media.json");
+const indexFileOf = (seriesDir: string) => joinPath(seriesDir, "media.json");
 
 /** A media reference of a URL, stored under its file name unless named otherwise. */
 export const mediaRef = (url: string, kind: MediaKind, name = urlFileName(url)): MediaRef => ({
@@ -33,6 +31,7 @@ export const mediaRef = (url: string, kind: MediaKind, name = urlFileName(url)):
 
 /** Fetches a series' media into its media store and index (`media.json`); returns the index. */
 export async function fetchMedia<R extends MediaRef>(options: {
+  fs: DataFs;
   fetcher: PoliteFetcher;
   seriesDir: string;
   refs: R[];
@@ -44,8 +43,8 @@ export async function fetchMedia<R extends MediaRef>(options: {
   download?: (ref: R, target: string) => Promise<{ mime: string }>;
   progress?: ProgressSink;
 }): Promise<MediaIndex> {
-  const { fetcher, log, progress } = options;
-  const store = createMediaStore(options.seriesDir);
+  const { fs, fetcher, log, progress } = options;
+  const store = createMediaStore(fs, options.seriesDir);
   const indexFile = indexFileOf(options.seriesDir);
   const download =
     options.download ??
@@ -55,14 +54,14 @@ export async function fetchMedia<R extends MediaRef>(options: {
   // Downloads land next to the media (same disk), then move into place. What an import cut short left
   // there goes (an import holds its series: nothing else downloads into it now).
   const incoming = store.file("media/.incoming" as MediaPath);
-  await rm(incoming, { recursive: true, force: true });
-  await mkdir(incoming, { recursive: true });
-  const index = await readMediaIndex(options.seriesDir);
+  fs.remove(incoming);
+  fs.mkdir(incoming);
+  const index = await readMediaIndex(fs, options.seriesDir);
   // One file per content: URLs whose files have the same content point to one of them (the first path
   // in order, so a run again gives the same), and content that comes again is not stored twice. Files
   // no URL points to any more stay: what was read before (a pass, a card) may still name them.
   const onDisk = Object.values(index).flatMap((e) =>
-    "path" in e && existsSync(store.file(e.path as MediaPath)) ? [e] : [],
+    "path" in e && fs.stat(store.file(e.path as MediaPath)) ? [e] : [],
   );
   let merged = 0;
   for (const same of Map.groupBy(onDisk, (e) => e.sha256).values()) {
@@ -77,13 +76,13 @@ export async function fetchMedia<R extends MediaRef>(options: {
   }
   if (merged) {
     log(`media: ${merged} URLs point to a file of the same content now`);
-    await writeFileAtomic(indexFile, JSON.stringify(index, null, 1));
+    await writeFileAtomic(fs, indexFile, JSON.stringify(index, null, 1));
   }
   // One fetch per URL (a source may name a file twice).
   const refs = [...new Map(options.refs.map((r) => [r.url, r])).values()];
   const stored = (ref: R) => {
     const entry = index[ref.url];
-    return !!entry && "path" in entry && existsSync(store.file(entry.path as MediaPath));
+    return !!entry && "path" in entry && !!fs.stat(store.file(entry.path as MediaPath));
   };
   const todo = refs.filter((ref) => !stored(ref));
   const byHost = Map.groupBy(todo, (ref) => new URL(ref.url).host);
@@ -92,20 +91,20 @@ export async function fetchMedia<R extends MediaRef>(options: {
   progress?.({ phase: "media", done, total: todo.length, bytes });
   let saving = Promise.resolve();
   const save = () => {
-    saving = saving.then(() => writeFileAtomic(indexFile, JSON.stringify(index, null, 1)));
+    saving = saving.then(() => writeFileAtomic(fs, indexFile, JSON.stringify(index, null, 1)));
     return saving;
   };
   log(`media: ${todo.length} to fetch of ${refs.length} (${[...byHost.keys()].join(", ")})`);
   const worker = async (host: string, queue: R[]) => {
     for (let ref = queue.shift(); ref; ref = queue.shift()) {
-      const target = tempFile(join(incoming, ref.name.replace(/[/\\]/g, "_")));
+      const target = tempFile(joinPath(incoming, ref.name.replace(/[/\\]/g, "_")));
       try {
         const { mime } = await download(ref, target);
         const put = await store.putFile(`${ref.kind}/${ref.name}`, target);
         index[ref.url] = { kind: ref.kind, ...put, mime };
         bytes += put.size;
       } catch (error) {
-        await rm(target, { force: true });
+        fs.remove(target);
         if (error instanceof HostRefusedError) {
           // This file and the host's others are not fetched this run: recorded, so the report and
           // the check see them missing.
@@ -136,10 +135,11 @@ export async function fetchMedia<R extends MediaRef>(options: {
 }
 
 /** A series' media index as stored so far (empty before the first fetch). */
-export async function readMediaIndex(seriesDir: string): Promise<MediaIndex> {
+export async function readMediaIndex(fs: DataFs, seriesDir: string): Promise<MediaIndex> {
   const indexFile = indexFileOf(seriesDir);
-  if (!existsSync(indexFile)) return {};
-  const read = MediaIndex.safeParse(JSON.parse(await readFile(indexFile, "utf8")));
+  const text = fs.readText(indexFile);
+  if (text === undefined) return {};
+  const read = MediaIndex.safeParse(JSON.parse(text));
   if (!read.success) throw new Error(`${indexFile}: ${issuesText(read.error, 2)}`);
   return read.data;
 }

@@ -6,7 +6,11 @@
   "exports": {
     ".": "./src/index.ts",
     "./view": "./src/library-view.ts",
-    "./library-over": "./src/library-over.ts"
+    "./library-over": "./src/library-over.ts",
+    "./data-fs": "./src/data-fs.ts",
+    "./hash": "./src/hash.ts",
+    "./memory-fs": "./src/memory-fs.ts",
+    "./node": "./src/node-fs.ts"
   },
   "scripts": {
     "typecheck": "tsc -p . && tsc -p tsconfig.dev.json"

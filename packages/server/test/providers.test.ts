@@ -10,10 +10,10 @@ import {
   PROVIDERS,
   providerIds,
   withSeriesLock,
-} from "../src/providers.ts";
+} from "./storage.ts";
 
 test("a series is written by one at a time in this process too: the second waits for the first", async () => {
-  const library = mkdtempSync(join(tmpdir(), "sprachanker-lock-"));
+  const library = join(mkdtempSync(join(tmpdir(), "sprachanker-lock-")), "library");
   const order: string[] = [];
   let release = () => {};
   const held = new Promise<void>((resolve) => {

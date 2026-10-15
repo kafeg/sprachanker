@@ -5,6 +5,8 @@
 import { existsSync, mkdirSync, readFileSync, rmSync, writeFileSync } from "node:fs";
 import { connect } from "node:net";
 import { join } from "node:path";
+import { nodeFs } from "@sprachanker/course-kit/node";
+import type { DataRoot } from "../storage/root.ts";
 import { processName } from "./process-name.ts";
 
 const pidFile = (dataRoot: string) => join(dataRoot, "server.pid");
@@ -23,6 +25,15 @@ export function sprachAnkerRuns(pid: number): boolean {
   if (process.platform === "win32") return true;
   return /sprachanker|\bbun\b/i.test(processName(pid) ?? "");
 }
+
+/** The data folder as the storage adapters reach it on this machine: Node's files, this process. */
+export const nodeDataRoot = (path: string): DataRoot => ({
+  fs: nodeFs,
+  path,
+  pid: process.pid,
+  runs: sprachAnkerRuns,
+  fetch: ((input, init) => fetch(input, init)) as typeof fetch,
+});
 
 /** The pid of the server running on this data folder, if one does (not this process, nor the one
  *  that started it: the desktop app, whose name says SprachAnker too, a stale file's pid given to it). */

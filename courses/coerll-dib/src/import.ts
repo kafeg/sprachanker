@@ -1,5 +1,4 @@
 // `sprachanker import coerll-dib`: fetch the chapter pages and media (idempotent), then normalise.
-import { join } from "node:path";
 import {
   createPoliteFetcher,
   emptyReport,
@@ -8,6 +7,7 @@ import {
   type ImportOptions,
   type ImportReport,
   importReport,
+  joinPath,
   mediaRef,
   rawPages,
   reportKey,
@@ -21,8 +21,10 @@ import { parseChapter, parseVocabulary } from "./parse.ts";
 export async function importDib(options: ImportOptions): Promise<ImportReport> {
   const { log } = options;
   if (!wanted(options, EDITION, COURSE)) return emptyReport();
-  const seriesDir = join(options.libraryRoot, SERIES);
+  const seriesDir = joinPath(options.libraryRoot, SERIES);
   const fetcher = createPoliteFetcher({
+    fs: options.fs,
+    fetch: options.fetch,
     userAgent: IMPORTER_USER_AGENT,
     robotsHosts: ["coerll.utexas.edu"],
   });
@@ -41,11 +43,18 @@ export async function importDib(options: ImportOptions): Promise<ImportReport> {
     ...c.sections.flatMap((s) => (s.audio ? [mediaRef(s.audio, "audio")] : [])),
     ...(c.pdf ? [mediaRef(chapterPdfUrl(c.pdf), "pdf")] : []),
   ]);
-  const index = await fetchMedia({ fetcher, seriesDir, refs, log, progress: options.progress });
+  const index = await fetchMedia({
+    fs: options.fs,
+    fetcher,
+    seriesDir,
+    refs,
+    log,
+    progress: options.progress,
+  });
 
   options.progress?.({ phase: "normalise" });
   const { files, lessons } = normaliseDib(chapters, index);
-  const problems = await writeLibraryFiles(seriesDir, files, log);
+  const problems = await writeLibraryFiles(options.fs, seriesDir, files, log);
   log(
     `dib ${EDITION}: ${lessons} lessons${problems ? `, ${problems} files failed validation` : ""}`,
   );

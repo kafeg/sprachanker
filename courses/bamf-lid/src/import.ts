@@ -1,8 +1,5 @@
 // `sprachanker import bamf-lid`: the catalogue PDF and the test centre's question pages fetched once and
 // kept as they are (raw/), the pictures taken out of the PDF into media, then normalised offline.
-import { createHash } from "node:crypto";
-import { existsSync, readFileSync } from "node:fs";
-import { join } from "node:path";
 import {
   createPoliteFetcher,
   emptyReport,
@@ -11,10 +8,12 @@ import {
   type ImportOptions,
   type ImportReport,
   importReport,
+  joinPath,
   type MediaRef,
   mediaPath,
   rawPages,
   reportKey,
+  sha256Hex,
   wanted,
   writeFileAtomic,
   writeLibraryFiles,
@@ -41,13 +40,18 @@ const INTERVAL_MS = 500;
 export async function importLid(options: ImportOptions): Promise<ImportReport> {
   const { log } = options;
   if (!wanted(options, EDITION, COURSE)) return emptyReport();
-  const seriesDir = join(options.libraryRoot, SERIES);
-  const fetcher = createPoliteFetcher({ userAgent: IMPORTER_USER_AGENT, intervalMs: INTERVAL_MS });
+  const seriesDir = joinPath(options.libraryRoot, SERIES);
+  const fetcher = createPoliteFetcher({
+    fs: options.fs,
+    fetch: options.fetch,
+    userAgent: IMPORTER_USER_AGENT,
+    intervalMs: INTERVAL_MS,
+  });
   const pages = rawPages(seriesDir, options);
 
   // The catalogue, as published.
   const pdf = await pages.bytes(PDF_RAW, async () => (await fetcher.bytes(CATALOGUE_PDF)).bytes);
-  const pdfSha256 = createHash("sha256").update(pdf).digest("hex");
+  const pdfSha256 = sha256Hex(pdf);
   const { lines, images } = await readPdf(pdf);
   const catalogue = parseCatalogue(lines, images);
   log(`lid: catalogue of ${catalogue.stand}, ${catalogue.questions.length} questions`);
@@ -57,15 +61,15 @@ export async function importLid(options: ImportOptions): Promise<ImportReport> {
   const pagePath = (state: FederalState | null, number: number) =>
     `raw/${EDITION}/${COURSE}/centre/${state ?? "general"}/${String(number).padStart(3, "0")}.html`;
   const pageFile = (state: FederalState | null, number: number) =>
-    join(seriesDir, pagePath(state, number));
+    joinPath(seriesDir, pagePath(state, number));
   const session = fetcher.session();
   const walk = async (state: FederalState | null, numbers: number[]) => {
-    const missing = numbers.filter((n) => options.refresh || !existsSync(pageFile(state, n)));
+    const missing = numbers.filter((n) => options.refresh || !options.fs.stat(pageFile(state, n)));
     for (const n of numbers) if (!missing.includes(n)) pages.kept(pagePath(state, n));
     // The general part is the same whichever state is chosen: Berlin's list is used.
     const centre = STATES.find((s) => s.code === (state ?? "be"))?.centre as string;
     await walkCentre(session, centre, missing, async (n, html) => {
-      await writeFileAtomic(pageFile(state, n), html);
+      await writeFileAtomic(options.fs, pageFile(state, n), html);
       pages.kept(pagePath(state, n));
     });
   };
@@ -76,8 +80,8 @@ export async function importLid(options: ImportOptions): Promise<ImportReport> {
   const answerOf = (state: FederalState | null, number: number) => {
     const file = pageFile(state, number);
     const key = `${state}:${number}`;
-    if (!answers.has(key) && existsSync(file))
-      answers.set(key, readQuestionPage(readFileSync(file, "utf8")));
+    const page = answers.has(key) ? undefined : options.fs.readText(file);
+    if (page !== undefined) answers.set(key, readQuestionPage(page));
     return answers.get(key);
   };
 
@@ -99,13 +103,14 @@ export async function importLid(options: ImportOptions): Promise<ImportReport> {
       }),
     );
   const index = await fetchMedia({
+    fs: options.fs,
     fetcher,
     seriesDir,
     refs: pictureRefs,
     log,
     progress: options.progress,
     download: async (ref, target) => {
-      await writeFileAtomic(target, encodePng(shrink(ref.image.pixels)));
+      await writeFileAtomic(options.fs, target, encodePng(shrink(ref.image.pixels)));
       return { mime: "image/png" };
     },
   });
@@ -132,7 +137,7 @@ export async function importLid(options: ImportOptions): Promise<ImportReport> {
     { sha256: pdfSha256, readAt: pages.readAt() },
   );
   for (const line of found) log(`lid: ${line}`);
-  const problems = await writeLibraryFiles(seriesDir, files, log);
+  const problems = await writeLibraryFiles(options.fs, seriesDir, files, log);
   log(
     `lid ${EDITION}: exam of ${questions} questions${leftOut ? `, ${leftOut} left out` : ""}` +
       `${problems ? `, ${problems} files failed validation` : ""}`,

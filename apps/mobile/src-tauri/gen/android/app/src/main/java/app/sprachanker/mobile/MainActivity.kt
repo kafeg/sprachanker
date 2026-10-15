@@ -34,6 +34,12 @@ class MainActivity : TauriActivity() {
   // Back goes back through the app's pages (the router's history: its index in `history.state`), and
   // from the first one puts the app away as Home does.
   override fun onWebViewCreate(webView: WebView) {
+    // The page's native side for the shared code: the app's files, requests to other hosts.
+    getExternalFilesDir(null)
+    webView.addJavascriptInterface(
+      Native(webView, "/sdcard/Android/data/$packageName/files"),
+      "sprachankerNativeBridge",
+    )
     onBackPressedDispatcher.addCallback(this, object : OnBackPressedCallback(true) {
       override fun handleOnBackPressed() {
         webView.evaluateJavascript(

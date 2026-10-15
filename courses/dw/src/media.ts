@@ -1,8 +1,9 @@
 // Fetch phase, media: every media URL referenced by the raw pages → media/<kind>/<name> + media.json.
-import { readdir, readFile } from "node:fs/promises";
-import { join } from "node:path";
 import {
+  type DataFs,
   FetchFailedError,
+  joinPath,
+  listFiles,
   type MediaRef,
   type PoliteFetcher,
   urlFileName,
@@ -120,11 +121,11 @@ export function mediaRefs(state: ApolloState): PageMedia[] {
 }
 
 /** Unique media of every raw page under `rawRoot`. */
-export async function collectMedia(rawRoot: string): Promise<PageMedia[]> {
+export async function collectMedia(fs: DataFs, rawRoot: string): Promise<PageMedia[]> {
   const byUrl = new Map<string, PageMedia>();
-  for (const file of await readdir(rawRoot, { recursive: true })) {
+  for (const file of listFiles(fs, rawRoot)) {
     if (!file.endsWith(".json")) continue;
-    const state = JSON.parse(await readFile(join(rawRoot, file), "utf8")) as ApolloState;
+    const state = JSON.parse(fs.readText(joinPath(rawRoot, file)) ?? "{}") as ApolloState;
     for (const ref of mediaRefs(state)) byUrl.set(ref.url, { ...byUrl.get(ref.url), ...ref });
   }
   return [...byUrl.values()].sort((a, b) => a.url.localeCompare(b.url));
@@ -132,12 +133,17 @@ export async function collectMedia(rawRoot: string): Promise<PageMedia[]> {
 
 /** The file at `ref.url` into `target`, or for a video whose direct file is missing, its remuxed HLS
  *  stream. */
-export async function download(fetcher: PoliteFetcher, ref: PageMedia & MediaRef, target: string) {
+export async function download(
+  fetcher: PoliteFetcher,
+  fs: DataFs,
+  ref: PageMedia & MediaRef,
+  target: string,
+) {
   try {
     return { mime: (await fetcher.file(ref.url, target)).contentType };
   } catch (error) {
     if (!(error instanceof FetchFailedError && error.status === 404 && ref.stream)) throw error;
-    await remuxStream(fetcher, ref.stream, target);
+    await remuxStream(fetcher, fs, ref.stream, target);
     return { mime: "video/mp4" };
   }
 }

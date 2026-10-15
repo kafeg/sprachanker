@@ -18,6 +18,7 @@ async function violations(): Promise<string[]> {
 
 test("boundary rules fire on deliberate violations and allow the type-only AppType import", async () => {
   expect(await violations()).toEqual([
+    "course-kit-and-courses-node-free: packages/course-kit/src/library.ts -> fs",
     "course-kit-never-imports-courses: packages/course-kit/test/uses-course.test.ts -> courses/lingust/src/index.ts",
     "courses-import-schema-and-course-kit: courses/dw/src/imports-other.ts -> courses/lingust/src/index.ts",
     "engine-folders-one-way: packages/engine/src/srs/reads-learner.ts -> packages/engine/src/learner/activity.ts",
@@ -26,6 +27,7 @@ test("boundary rules fire on deliberate violations and allow the type-only AppTy
     "pure-modules-no-io: packages/anki-export/src/uses-fs.ts -> fs",
     "pure-modules-no-io: packages/engine/src/uses-fs.ts -> fs",
     "pure-modules-no-io: packages/llm/src/uses-fs.ts -> fs",
+    "server-app-never-reaches-storage: packages/server/src/services/uses-storage.ts -> packages/server/src/storage/decks.ts",
     "server-app-reaches-course-kit-view-only: packages/server/src/services/uses-library.ts -> packages/course-kit/src/library.ts",
     "server-exams-apart: packages/server/src/services/exam-rating.ts -> packages/server/src/services/study.ts",
     "server-io-in-runtime-only: packages/server/src/services/uses-fs.ts -> fs",

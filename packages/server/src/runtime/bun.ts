@@ -3,6 +3,7 @@ import { Database } from "bun:sqlite";
 import { mkdirSync, readdirSync, readFileSync, rmSync, statSync, writeFileSync } from "node:fs";
 import { basename, dirname, join, resolve, sep } from "node:path";
 import { writeFileAtomic } from "@sprachanker/course-kit";
+import { nodeFs } from "@sprachanker/course-kit/node";
 import {
   COURSE_BUNDLE_MAX_BYTES,
   DECK_BUNDLE_MAX_BYTES,
@@ -139,7 +140,7 @@ function recordingFiles(dir: string): RecordingFiles {
   };
   return {
     // Whole or not at all: a take cut short (the server stopped) is never served as one.
-    write: (name, bytes) => writeFileAtomic(file(name), bytes),
+    write: (name, bytes) => writeFileAtomic(nodeFs, file(name), bytes),
     read: (name) =>
       statSync(file(name), { throwIfNoEntry: false })?.isFile() ? Bun.file(file(name)) : undefined,
     list: () =>

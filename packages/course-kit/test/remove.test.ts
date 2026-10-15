@@ -12,6 +12,7 @@ import {
 import { tmpdir } from "node:os";
 import { join } from "node:path";
 import { NotInstalledError, openLibrary } from "../src/library.ts";
+import { nodeFs } from "../src/node-fs.ts";
 import { removeCourse, SERIES_LOCK } from "../src/remove.ts";
 import { MINI_AUDIO, MINI_SERIES, writeMiniLibrary } from "./mini-library.ts";
 
@@ -52,7 +53,7 @@ test("a course removed: its folders, its copies and the media only it names go; 
     JSON.stringify({ [`${MINI_SERIES}/basic/u00`]: { "11": 1 } }),
   );
 
-  const removed = await removeCourse(root, MINI_SERIES, "basic");
+  const removed = await removeCourse(nodeFs, root, MINI_SERIES, "basic");
   expect(removed.shared).toBe(1);
   expect(existsSync(join(series, "canonical/basic"))).toBe(false);
   expect(existsSync(join(series, "locale/en-de/basic"))).toBe(false);
@@ -63,12 +64,14 @@ test("a course removed: its folders, its copies and the media only it names go; 
   ]);
   expect(existsSync(join(series, "keys.json"))).toBe(true);
   expect(
-    openLibrary(root)
+    openLibrary(nodeFs, root)
       .courses()
       .map((c) => c.course),
   ).toEqual(["other"]);
   // Gone: removing it again is no course here.
-  await expect(removeCourse(root, MINI_SERIES, "basic")).rejects.toBeInstanceOf(NotInstalledError);
+  await expect(removeCourse(nodeFs, root, MINI_SERIES, "basic")).rejects.toBeInstanceOf(
+    NotInstalledError,
+  );
 });
 
 test("the series' only course removed: no empty folder nor a media index naming nothing left, the key map kept", async () => {
@@ -91,9 +94,9 @@ test("the series' only course removed: no empty folder nor a media index naming 
   mkdirSync(join(series, SERIES_LOCK));
   writeFileSync(join(series, SERIES_LOCK, "pid"), "1");
   mkdirSync(join(series, `${SERIES_LOCK}.4242-1`));
-  await removeCourse(root, MINI_SERIES, "basic");
+  await removeCourse(nodeFs, root, MINI_SERIES, "basic");
   expect(readdirSync(series).sort()).toEqual([SERIES_LOCK, `${SERIES_LOCK}.4242-1`, "keys.json"]);
-  expect(openLibrary(root).courses()).toEqual([]);
+  expect(openLibrary(nodeFs, root).courses()).toEqual([]);
 });
 
 test("a course removed keeps its practice made by the model: the course downloaded again has it", async () => {
@@ -102,7 +105,7 @@ test("a course removed keeps its practice made by the model: the course download
   mkdirSync(join(series, "practice/ru-de/basic/00-01"), { recursive: true });
   writeFileSync(join(series, "practice/ru-de/basic/00-01.json"), "{}");
   writeFileSync(join(series, "practice/ru-de/basic/00-01/aaaaaaaa.wav"), "wav");
-  await removeCourse(root, MINI_SERIES, "basic");
+  await removeCourse(nodeFs, root, MINI_SERIES, "basic");
   expect(existsSync(join(series, "canonical/basic"))).toBe(false);
   expect(readFileSync(join(series, "practice/ru-de/basic/00-01/aaaaaaaa.wav"), "utf8")).toBe("wav");
   expect(existsSync(join(series, "practice/ru-de/basic/00-01.json"))).toBe(true);

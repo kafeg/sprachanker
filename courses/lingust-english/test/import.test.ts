@@ -4,6 +4,7 @@ import { mkdtempSync } from "node:fs";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
 import { openKeyMap } from "@sprachanker/course-kit";
+import { nodeFs } from "@sprachanker/course-kit/node";
 import {
   type CourseIndex,
   type Lesson,
@@ -219,7 +220,7 @@ test.each<[string, string[], string[], string, string]>([
 });
 
 /** A series' key map of its own (a folder nobody else writes). */
-const keyMap = () => openKeyMap(mkdtempSync(join(tmpdir(), "lingust-keys-")));
+const keyMap = () => openKeyMap(nodeFs, mkdtempSync(join(tmpdir(), "lingust-keys-")));
 
 test("normalisation: stages → units, exercises by mechanic, all files valid", async () => {
   const audio = (name: string) => ({
@@ -477,7 +478,7 @@ test("keys stay by source id: a lesson and a section the source inserts move no 
     page,
   });
   const keysOf = async (units: UnitSource[]) => {
-    const keys = await openKeyMap(dir);
+    const keys = await openKeyMap(nodeFs, dir);
     const { files } = normaliseLingust(units, {}, keys);
     await keys.save();
     lastFiles = files;
