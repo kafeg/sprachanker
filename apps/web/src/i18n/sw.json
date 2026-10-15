@@ -628,7 +628,8 @@
     "copied": "Imenakiliwa",
     "showQr": "Msimbo wa QR",
     "qrOf": "Msimbo wa QR wa {url}",
-    "scan": "Uchanganue kwa kamera ya simu."
+    "scan": "Uchanganue kwa kamera ya simu.",
+    "phone": "Vifaa vingine huunganishwa na SprachAnker kwenye kompyuta. Programu ya simu hii huweka seva yake ndani yake: hakuna kingine kinachoweza kuiunganisha, kwa hivyo hakuna anwani."
   },
   "progress": {
     "resetCourse": "Futa maendeleo ya kozi",

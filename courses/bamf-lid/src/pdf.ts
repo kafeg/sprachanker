@@ -58,7 +58,13 @@ export async function readPdf(
 ): Promise<{ lines: PdfLine[]; images: PdfImage[] }> {
   const { getDocument, OPS, Util } = await pdfjs();
   // pdf.js keeps the buffer it is given: a copy, so the caller's stays whole.
-  const doc = await getDocument({ data: bytes.slice(), verbosity: 0 }).promise;
+  // Pixels, not bitmaps: a browser (the phone app's page) would have pictures decoded into canvases.
+  const doc = await getDocument({
+    data: bytes.slice(),
+    verbosity: 0,
+    isOffscreenCanvasSupported: false,
+    isImageDecoderSupported: false,
+  }).promise;
   const lines: PdfLine[] = [];
   const images: PdfImage[] = [];
   try {

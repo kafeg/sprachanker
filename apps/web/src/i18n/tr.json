@@ -628,7 +628,8 @@
     "copied": "Kopyalandı",
     "showQr": "QR kodu",
     "qrOf": "{url} için QR kodu",
-    "scan": "Telefonun kamerasıyla tara."
+    "scan": "Telefonun kamerasıyla tara.",
+    "phone": "Diğer cihazlar SprachAnker'e bir bilgisayarda bağlanır. Bu telefondaki uygulama sunucusunu kendi içinde tutar: başka hiçbir şey ona bağlanamaz, bu yüzden adres yoktur."
   },
   "progress": {
     "resetCourse": "Kurs ilerlemesini sıfırla",

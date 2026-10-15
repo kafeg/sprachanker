@@ -628,7 +628,8 @@
     "copied": "Kopirano",
     "showQr": "QR kod",
     "qrOf": "QR kod za {url}",
-    "scan": "Skeniraj ga kamerom telefona."
+    "scan": "Skeniraj ga kamerom telefona.",
+    "phone": "Drugi uređaji se povezuju sa SprachAnkerom na računaru. Aplikacija na ovom telefonu drži svoj server u sebi: ništa drugo se ne može povezati s njim, pa nema adresa."
   },
   "progress": {
     "resetCourse": "Poništi napredak kursa",

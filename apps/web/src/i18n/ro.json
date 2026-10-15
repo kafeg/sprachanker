@@ -628,7 +628,8 @@
     "copied": "Copiat",
     "showQr": "Cod QR",
     "qrOf": "Cod QR pentru {url}",
-    "scan": "Scanează-l cu camera telefonului."
+    "scan": "Scanează-l cu camera telefonului.",
+    "phone": "Alte dispozitive se conectează la SprachAnker pe un computer. Aplicația de pe acest telefon își ține serverul în ea însăși: nimic altceva nu se poate conecta la el, așa că nu există adrese."
   },
   "progress": {
     "resetCourse": "Resetează progresul cursului",

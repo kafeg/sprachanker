@@ -172,3 +172,14 @@ test("a file written into a large folder asks for its own entry, never the folde
   expect(fs.stat(`${dir}/0.mp3`)).toBeUndefined();
   expect(fs.list(dir).length).toBe(299);
 });
+
+test("a folder known as not there is asked again once a file is written into it", async () => {
+  const fs = phoneFs(root, net);
+  const file = `${root}/later/deep/page.html`;
+  expect(fs.stat(file)).toBeUndefined();
+  expect(fs.readText(file)).toBeUndefined();
+  await fs.write(`${file}.tmp`, chunksOf("<p>"));
+  fs.rename(`${file}.tmp`, file);
+  expect(fs.readText(file)).toBe("<p>");
+  expect(fs.list(`${root}/later`)).toEqual(["deep"]);
+});

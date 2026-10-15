@@ -628,7 +628,8 @@
     "copied": "Copié",
     "showQr": "Code QR",
     "qrOf": "Code QR de {url}",
-    "scan": "Scanne-le avec l’appareil photo du téléphone."
+    "scan": "Scanne-le avec l’appareil photo du téléphone.",
+    "phone": "Les autres appareils se connectent à SprachAnker sur un ordinateur. L'application de ce téléphone garde son serveur en elle-même : rien d'autre ne peut s'y connecter, il n'y a donc pas d'adresses."
   },
   "progress": {
     "resetCourse": "Réinitialiser la progression du cours",

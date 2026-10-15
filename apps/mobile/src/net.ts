@@ -23,7 +23,14 @@ export const nativeFetch: typeof fetch = (async (input: RequestInfo | URL, init?
     request.method === "GET" || request.method === "HEAD"
       ? null
       : latin1(new Uint8Array(await request.arrayBuffer()));
-  const headers = [...request.headers].filter(([name]) => !OWN.has(name.toLowerCase()));
+  // The headers as given, not as the page's Request keeps them: it drops those a page may not set
+  // (Cookie, Referer, User-Agent), which the server's code sends (a session's cookies, a
+  // publisher's own page as Referer, the importer's name). The type of a body made (a form) stays.
+  const given = new Headers(input instanceof Request ? input.headers : undefined);
+  for (const [name, value] of new Headers(init?.headers)) given.set(name, value);
+  const type = request.headers.get("content-type");
+  if (type && !given.has("content-type")) given.set("content-type", type);
+  const headers = [...given].filter(([name]) => !OWN.has(name.toLowerCase()));
 
   let wake: (() => void) | undefined;
   let headOf: ((head: Head | { error: string }) => void) | undefined;

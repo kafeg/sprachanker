@@ -628,7 +628,8 @@
     "copied": "Tersalin",
     "showQr": "Kode QR",
     "qrOf": "Kode QR untuk {url}",
-    "scan": "Pindai dengan kamera ponsel."
+    "scan": "Pindai dengan kamera ponsel.",
+    "phone": "Perangkat lain terhubung ke SprachAnker di komputer. Aplikasi di ponsel ini menyimpan servernya di dalam dirinya: tidak ada yang lain bisa terhubung, jadi tidak ada alamat."
   },
   "progress": {
     "resetCourse": "Atur ulang progres kursus",

@@ -13,7 +13,7 @@ import { useSetSetting, useSetting } from "@/api/settings.ts";
 import { AboutSection } from "@/app/about.tsx";
 import { ExperimentalSettings } from "@/app/experimental-settings.tsx";
 import { LanguageSwitch } from "@/app/language-switch.tsx";
-import { OtherDevicesSection } from "@/app/other-devices.tsx";
+import { OtherDevicesOnPhone, OtherDevicesSection } from "@/app/other-devices.tsx";
 import { ProfileSettings } from "@/app/profile-settings.tsx";
 import { SpeechSetup } from "@/audio/speech-settings.tsx";
 import { AiPlaces, PromptsSettings } from "@/llm/prompts-info.tsx";
@@ -70,7 +70,7 @@ function General() {
           onChange={(value) => set.mutate({ key: "theme", value })}
         />
       </Panel>
-      {!inPhoneApp && <OtherDevicesSection />}
+      {inPhoneApp ? <OtherDevicesOnPhone /> : <OtherDevicesSection />}
       <StorageSection />
       <AboutSection />
       <ExperimentalSettings />

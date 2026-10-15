@@ -60,12 +60,18 @@ export function phoneFs(root: string, net: typeof fetch): DataFs {
       for (const dir of [...known.keys()])
         if (dir === path || dir.startsWith(`${path}/`)) known.delete(dir);
       for (let p = path; p.startsWith(`${root}/`); p = dirName(p)) {
-        const parent = known.get(dirName(p));
-        if (!known.has(dirName(p))) break;
+        const dir = dirName(p);
+        if (!known.has(dir)) break;
+        const parent = known.get(dir);
+        // A folder known as not there may be there now (made for this path): asked again when next
+        // needed, and so may the folders above it.
+        if (!parent) {
+          known.delete(dir);
+          continue;
+        }
         const name = p.slice(p.lastIndexOf("/") + 1);
-        const had = parent?.has(name);
+        const had = parent.has(name);
         const now = info(p);
-        if (!parent) break;
         if (now) parent.set(name, now);
         else parent.delete(name);
         // A folder above it known already: nothing more above changed.

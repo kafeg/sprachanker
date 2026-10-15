@@ -628,7 +628,8 @@
     "copied": "Copied",
     "showQr": "QR code",
     "qrOf": "QR code for {url}",
-    "scan": "Scan it with the phone's camera."
+    "scan": "Scan it with the phone's camera.",
+    "phone": "Other devices reach SprachAnker on a computer. This phone's app keeps its server inside itself: nothing else can connect to it, so there are no addresses to give."
   },
   "progress": {
     "resetCourse": "Reset course progress",

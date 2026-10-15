@@ -628,7 +628,8 @@
     "copied": "Kopiert",
     "showQr": "QR-Code",
     "qrOf": "QR-Code für {url}",
-    "scan": "Scanne ihn mit der Kamera des Handys."
+    "scan": "Scanne ihn mit der Kamera des Handys.",
+    "phone": "Andere Geräte verbinden sich mit SprachAnker auf einem Computer. Die App auf diesem Handy hat ihren Server in sich selbst: Nichts anderes kann sich mit ihm verbinden, daher gibt es keine Adressen."
   },
   "progress": {
     "resetCourse": "Kursfortschritt zurücksetzen",

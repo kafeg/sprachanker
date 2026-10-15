@@ -628,7 +628,8 @@
     "copied": "Másolva",
     "showQr": "QR-kód",
     "qrOf": "QR-kód ehhez: {url}",
-    "scan": "Olvasd be a telefon kamerájával."
+    "scan": "Olvasd be a telefon kamerájával.",
+    "phone": "Más eszközök egy számítógépen futó SprachAnkerhez csatlakoznak. A telefon alkalmazása a szerverét magában tartja: más nem csatlakozhat hozzá, ezért nincsenek címek."
   },
   "progress": {
     "resetCourse": "A kurzus haladásának törlése",

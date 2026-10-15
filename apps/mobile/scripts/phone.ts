@@ -61,7 +61,9 @@ async function install() {
     here,
     "src-tauri/gen/android/app/build/outputs/apk/universal/debug/app-universal-debug.apk",
   );
-  console.log(adb("install", "-r", apk).trim());
+  // `-d`: a build numbered below the one there (Tauri numbered 0.1.0 as 1000) replaces it, its data
+  // kept — never uninstalled: that would take the app's files (courses, profiles) with it.
+  console.log(adb("install", "-r", "-d", apk).trim());
 }
 
 /** A course's bundle exported from this Mac's library and unpacked: its folder (the series'). */

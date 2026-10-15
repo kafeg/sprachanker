@@ -22,6 +22,16 @@ export function OtherDevicesSection() {
   );
 }
 
+/** Settings → General on the phone app: why there are no addresses (its server is inside it). */
+export function OtherDevicesOnPhone() {
+  const { t } = useTranslation();
+  return (
+    <Panel id="other-devices" title={t("addresses.title")}>
+      <p className="mt-2 text-sm text-muted-foreground">{t("addresses.phone")}</p>
+    </Panel>
+  );
+}
+
 /** The side panel's button beside the profile: the same block in a sheet. */
 export function OnPhoneButton() {
   const { t } = useTranslation();
