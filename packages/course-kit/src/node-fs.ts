@@ -95,7 +95,13 @@ export const nodeFs: DataFs = {
         size += chunk.byteLength;
         if (size > max) return undefined;
         hash.update(chunk);
-        await handle.write(chunk);
+        // A write may take less than it is given (a full disk, a file size limit): the rest written
+        // until all is, or its error thrown — never a short file taken for a whole one.
+        for (let at = 0; at < chunk.byteLength; ) {
+          const { bytesWritten } = await handle.write(chunk, at, chunk.byteLength - at);
+          if (!bytesWritten) throw Object.assign(new Error(`ENOSPC: ${path}`), { code: "ENOSPC" });
+          at += bytesWritten;
+        }
       }
       if (sync) await handle.sync();
     } finally {

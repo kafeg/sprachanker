@@ -1,6 +1,6 @@
 // Where data lives: the OS app-data folder; the data root defaults to <app-data>/data.
 import { homedir, platform } from "node:os";
-import { join } from "node:path";
+import { join, resolve } from "node:path";
 
 /** $SPRACHANKER_APP_DATA, else the OS's app-data folder (tests set it: Bun's homedir ignores $HOME). */
 export function appDataDir(): string {
@@ -17,5 +17,6 @@ export function appDataDir(): string {
 export function resolveDataRoot(flag?: string): string {
   const value = flag ?? process.env.SPRACHANKER_DATA;
   if (!value) return join(appDataDir(), "data");
-  return value === "~" || value.startsWith("~/") ? join(homedir(), value.slice(1)) : value;
+  // Absolute: the storage joins paths as POSIX ones (course-kit's joinPath), a leading `..` dropped.
+  return resolve(value === "~" || value.startsWith("~/") ? join(homedir(), value.slice(1)) : value);
 }

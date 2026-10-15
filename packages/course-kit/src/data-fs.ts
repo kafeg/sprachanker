@@ -129,19 +129,21 @@ export function listFiles(fs: DataFs, dir: string): string[] {
 
 /** A file's bytes read whole through its stream (one too large to read at once on a phone). */
 export async function readAll(fs: DataFs, path: string): Promise<Uint8Array<ArrayBuffer>> {
-  const parts: Uint8Array[] = [];
-  let size = 0;
-  for await (const part of fs.stream(path)) {
-    parts.push(part);
-    size += part.byteLength;
-  }
-  const out = new Uint8Array(size);
+  const info = fs.stat(path);
+  if (!info || info.dir) throw fsError("ENOENT", path);
+  // One buffer of the file's size, filled as it is read (a package of hundreds of megabytes).
+  let out = new Uint8Array(info.size);
   let at = 0;
-  for (const part of parts) {
+  for await (const part of fs.stream(path)) {
+    if (at + part.byteLength > out.length) {
+      const grown = new Uint8Array(Math.max(out.length * 2, at + part.byteLength));
+      grown.set(out.subarray(0, at));
+      out = grown;
+    }
     out.set(part, at);
     at += part.byteLength;
   }
-  return out;
+  return at === out.length ? out : out.slice(0, at);
 }
 
 /** Bytes as chunks (what `write` takes). */
