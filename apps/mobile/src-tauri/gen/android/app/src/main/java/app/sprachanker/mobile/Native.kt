@@ -91,6 +91,12 @@ class Native(private val activity: Activity, private val webView: WebView, priva
       working = maxOf(0, working + if (on) 1 else -1)
       if (on && working == 1) WorkService.start(activity, text)
       if (!on && working == 0) WorkService.stop(activity)
+      // The page's renderer kept as important as the app while work goes on: else Android freezes it
+      // as soon as the app is put away (measured: the download stood still till the app came back).
+      if (Build.VERSION.SDK_INT >= 26 && (working == 0 || (on && working == 1))) {
+        val keep = working > 0
+        webView.post { webView.setRendererPriorityPolicy(WebView.RENDERER_PRIORITY_IMPORTANT, !keep) }
+      }
     }
   }
 
