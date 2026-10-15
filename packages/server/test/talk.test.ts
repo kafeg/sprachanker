@@ -3,7 +3,7 @@
 // conversation the text generator drafted, the learner's lines given hints, the partner recorded by a
 // Qwen3-TTS voice of their gender into the course's practice —, said line by line and checked once.
 // Tasks taken from the course's practice into the lesson run, attempts kept there, read across its
-// runs; made ahead as the lesson starts.
+// runs; the next taken as the lesson starts.
 import { expect, test } from "bun:test";
 import { FIXTURE_SERIES } from "@sprachanker/course-fixture";
 import { writeWav } from "../src/services/wav.ts";
@@ -254,7 +254,7 @@ test("several tasks at once: the kinds take turns, the role-plays among them fro
   const has = await getJson(
     `/api/llm/practice/lesson?series=${FIXTURE_SERIES}&lessonKey=${LESSON}&edition=ru-de`,
   );
-  expect(has.speaking).toBe(4);
+  expect(has.speaking).toEqual({ made: 4, left: 2 });
   expect(names(bodies).filter((n) => n === "understanding_draft")).toHaveLength(3);
   expect(names(bodies).filter((n) => n === "understanding_judge")).toHaveLength(1);
   expect(names(bodies).filter((n) => n === "talk_cues")).toHaveLength(2);

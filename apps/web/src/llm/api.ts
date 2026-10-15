@@ -322,15 +322,14 @@ export const useTutorContext = (request: ContextRequest, turns: number) =>
 
 type WritingRequest = Parameters<typeof api.llm.writing.$post>[0]["json"];
 type WritingPromptRequest = Parameters<typeof api.llm.writing.prompt.$post>[0]["json"];
-type WritingTaskRequest = Parameters<typeof api.llm.writing.task.$post>[0]["json"];
 type WritingState = Awaited<ReturnType<typeof fetchWriting>>;
 export type WritingAttempt = WritingState["attempts"][number];
 export type WritingTaskShown = NonNullable<WritingState["task"]>;
 const fetchWriting = (series: string, lessonKey: string, edition: string) =>
   json(api.llm.writing.$get({ query: { series, lessonKey, edition } }));
 
-/** While the server checks a text or writes a task (asked from here or before), asked again until
- *  its result is in. */
+/** While the server checks a text or makes a task (a course's job), asked again until its result
+ *  is in. */
 const WHILE_BUSY = 1500;
 
 /** The lesson's writing task, its words and earlier attempts. */
@@ -341,30 +340,6 @@ export const useWriting = (series: string, lessonKey: string, edition: string) =
     refetchInterval: (query) =>
       query.state.data?.checking || query.state.data?.preparing ? WHILE_BUSY : false,
   });
-
-/** The server busy making what was asked for already (made ahead as the lesson started): the page
- *  shows it being made, no error. */
-export const busyMaking = (error: unknown) =>
-  error instanceof ApiError &&
-  ["understanding_busy", "writing_busy", "talk_busy"].includes(error.message);
-
-/** Writes a new task for the lesson (shown at once, also when the page that asked is gone); one
- *  being made already (ahead): its state read again, so the page waits for it. */
-export function useWritingTask() {
-  const client = useQueryClient();
-  return useMutation({
-    mutationFn: (request: WritingTaskRequest) =>
-      json(api.llm.writing.task.$post({ json: request })),
-    onError: (error, request) => {
-      if (busyMaking(error))
-        void client.invalidateQueries({ queryKey: ["writing", request.lessonKey] });
-    },
-    onSuccess: (task, request) =>
-      client.setQueryData(["writing", request.lessonKey, request.edition], (old: WritingState) =>
-        old ? { ...old, task, preparing: false } : old,
-      ),
-  });
-}
 
 /** `onChecked` runs once the check is stored, also when the page that asked is gone meanwhile. */
 export function useCheckWriting(onChecked?: () => void) {
@@ -395,13 +370,12 @@ const understandingKey = (lessonKey: LessonKey, step: PracticeStep) => [
 ];
 
 /** A step's texts of the lesson (Reading's or Listening's) with their answers, newest first; asked
- *  again while one is being made — asked from here (`asked`) or before (made ahead) —, so its step
- *  shows. */
-export const useUnderstanding = (lessonKey: LessonKey, step: PracticeStep, asked = false) =>
+ *  again while one is being made (a course's job), so its step shows. */
+export const useUnderstanding = (lessonKey: LessonKey, step: PracticeStep) =>
   useQuery({
     queryKey: understandingKey(lessonKey, step),
     queryFn: () => fetchUnderstanding(lessonKey, step),
-    refetchInterval: (query) => (asked || query.state.data?.preparing ? WHILE_BUSY : false),
+    refetchInterval: (query) => (query.state.data?.preparing ? WHILE_BUSY : false),
   });
 
 /** Shows a text at once: on top when just made, in its place with an answer added — a poll on its
@@ -413,22 +387,6 @@ function useTextShown(lessonKey: LessonKey, step: PracticeStep) {
     await client.cancelQueries({ queryKey: key });
     client.setQueryData(key, (old: UnderstandingState | undefined) => withText(old, text));
   };
-}
-
-/** Makes a text for the lesson's step (shown on top at once, also when the page that asked is
- *  gone); one being made already (ahead): the step's state read again, so the page waits for it. */
-export function useStartUnderstanding(lessonKey: LessonKey, step: PracticeStep) {
-  const client = useQueryClient();
-  const shown = useTextShown(lessonKey, step);
-  return useMutation({
-    mutationFn: (request: Omit<UnderstandingRequest, "step">) =>
-      json(api.llm.understanding.$post({ json: { ...request, step } })),
-    onSuccess: shown,
-    onError: (error) => {
-      if (busyMaking(error))
-        void client.invalidateQueries({ queryKey: understandingKey(lessonKey, step) });
-    },
-  });
 }
 
 /** A Listening text's recording, made by the server from its lines (its people's voices), as a URL
@@ -457,7 +415,6 @@ export function useAnswerUnderstanding(lessonKey: LessonKey, step: PracticeStep)
   });
 }
 
-type TalkRequest = Parameters<typeof api.llm.talk.$post>[0]["json"];
 type TalkCheckRequest = Parameters<typeof api.llm.talk.check.$post>[0]["json"];
 type TalkState = Awaited<ReturnType<typeof fetchTalk>>;
 export type TalkTaskVerdict = NonNullable<TalkState["task"]>;
@@ -465,30 +422,14 @@ export type TalkAttemptVerdict = TalkState["attempts"][number];
 const fetchTalk = (lessonKey: LessonKey) => json(api.llm.talk.$get({ query: { lessonKey } }));
 
 /** Speaking's latest task of the lesson and its attempts, newest first; asked again while one is
- *  being made or checked — asked from here (`asked`) or before (made ahead) —, so its step shows. */
-export const useTalk = (lessonKey: LessonKey, asked = false) =>
+ *  being made (a course's job) or checked, so its step shows. */
+export const useTalk = (lessonKey: LessonKey) =>
   useQuery({
     queryKey: ["talk", lessonKey],
     queryFn: () => fetchTalk(lessonKey),
     refetchInterval: (query) =>
-      asked || query.state.data?.preparing || query.state.data?.checking ? WHILE_BUSY : false,
+      query.state.data?.preparing || query.state.data?.checking ? WHILE_BUSY : false,
   });
-
-/** Makes a Speaking task (shown at once, also when the page that asked is gone); one being made
- *  already (ahead): the state read again, so the page waits for it. */
-export function useStartTalk(lessonKey: LessonKey) {
-  const client = useQueryClient();
-  return useMutation({
-    mutationFn: (request: TalkRequest) => json(api.llm.talk.$post({ json: request })),
-    onSuccess: (task) =>
-      client.setQueryData(["talk", lessonKey], (old: TalkState | undefined) =>
-        old ? { ...old, task, preparing: false } : old,
-      ),
-    onError: (error) => {
-      if (busyMaking(error)) void client.invalidateQueries({ queryKey: ["talk", lessonKey] });
-    },
-  });
-}
 
 /** Checks what was said on a Speaking task; the attempt shown on top once kept. */
 export function useCheckTalk(lessonKey: LessonKey, onChecked?: () => void) {
@@ -712,9 +653,8 @@ export function useStopPracticeCourse() {
   });
 }
 
-/** Whether the server records an edition's practice (Qwen3-TTS reads its language); asked only
- *  where it matters (`enabled`). */
-/** How many variants of each step a lesson's practice has in the course. */
+/** How many variants of each step a lesson's practice has in the course, and how many of them the
+ *  learner has not had yet. */
 export const usePracticeLesson = (
   what: { series: string; lessonKey: string; edition: string },
   enabled = true,
@@ -725,9 +665,28 @@ export const usePracticeLesson = (
     queryFn: () => json(api.llm.practice.lesson.$get({ query: what })),
   });
 
-export const usePracticeVoice = (edition: string, enabled = true) =>
-  useQuery({
-    queryKey: ["practice-voice", edition],
-    enabled,
-    queryFn: () => json(api.llm.practice.voice.$get({ query: { edition } })),
+type PracticeNext = Parameters<typeof api.llm.practice.next.$post>[0]["json"];
+
+/** "Another version": the step's next variant of the course's practice taken into the lesson's run
+ *  (no model; `ifNone`: only while the step has no work yet); the step and the lesson's counts read
+ *  again, also after a failure (none left after all). */
+export function useNextVariant(what: Omit<PracticeNext, "step">, step: PracticeNext["step"]) {
+  const client = useQueryClient();
+  const stepKey =
+    step === "writing"
+      ? ["writing", what.lessonKey]
+      : step === "speaking"
+        ? ["talk", what.lessonKey]
+        : understandingKey(what.lessonKey as LessonKey, step);
+  return useMutation({
+    mutationFn: (ifNone: boolean) =>
+      json(api.llm.practice.next.$post({ json: { ...what, step, ifNone } })),
+    onSettled: () =>
+      Promise.all([
+        client.invalidateQueries({ queryKey: stepKey }),
+        client.invalidateQueries({
+          queryKey: ["practice-lesson", what.series, what.lessonKey, what.edition],
+        }),
+      ]),
   });
+}

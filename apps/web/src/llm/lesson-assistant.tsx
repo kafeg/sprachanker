@@ -9,7 +9,7 @@ import type { LessonSlots } from "@/lesson/slots.ts";
 import { usePracticeLesson } from "./api.ts";
 import { ExplainMistake } from "./explain.tsx";
 import { GoingOverSection } from "./going-over.tsx";
-import { useAiIn, useLlm } from "./setup-api.ts";
+import { useAiIn } from "./setup-api.ts";
 import { SpokenAnswerCheck } from "./spoken-check.tsx";
 import { TalkStep } from "./talk.tsx";
 import { LessonTutor } from "./tutor.tsx";
@@ -46,23 +46,15 @@ export const lessonAssistant: LessonSlots = {
     </In>
   ),
   practice: {
-    // Offered while their place is on: every one with a model set up; without one, those the
-    // course's practice has work for in the lesson (taken without a model). Undefined while that
-    // is read (a run resumes onto a practice step only once it is known).
+    // Offered while their place is on and the course's practice has work for them in the lesson
+    // (owner, 2026-10-15: a lesson makes none). Undefined while that is read (a run resumes onto a
+    // practice step only once it is known).
     useKinds: ({ series, lessonKey, edition }) => {
-      const llm = useLlm();
       const off = useSetting("llm.offIn");
-      const noModel = !llm.isPending && !llm.data?.model;
-      const pack = usePracticeLesson(
-        { series, lessonKey, edition: edition ?? "" },
-        noModel && !!edition,
-      );
-      if (llm.isPending) return undefined;
-      const on = PRACTICE.filter((kind) => !off.includes(PLACE_OF[kind]));
-      if (!noModel) return on;
+      const pack = usePracticeLesson({ series, lessonKey, edition: edition ?? "" }, !!edition);
       if (!pack.data) return pack.isError ? [] : undefined;
       const counts = pack.data;
-      return on.filter((kind) => counts[kind] > 0);
+      return PRACTICE.filter((kind) => !off.includes(PLACE_OF[kind]) && counts[kind].made > 0);
     },
     step: (kind, { onDone, onStored, setPrimary, ...context }) =>
       kind === "reading" || kind === "listening" ? (

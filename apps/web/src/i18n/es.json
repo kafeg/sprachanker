@@ -513,9 +513,7 @@
       "understanding": {
         "name": "Lectura y comprensión auditiva",
         "where": "dos pasos de la lección: un texto para leer y otro para escuchar, con preguntas"
-      },
-      "prepare": "Preparar la práctica con antelación",
-      "prepareHint": "Al empezar una lección, sus textos para leer y escuchar y su tarea de escritura se preparan en segundo plano, para que estén listos cuando llegues. Mientras tanto, el modelo trabaja."
+      }
     },
     "about": {
       "explain": "Explica una respuesta incorrecta bajo el ejercicio («¿Por qué está mal?»): cuál es el error y la regla que hay detrás, en tu idioma.",
@@ -542,10 +540,6 @@
   },
   "writing": {
     "task": "Tu tarea (escribe en {language}):",
-    "intro": "Un mensaje que responder por escrito — un e-mail de un amigo, un chat, un anuncio: tres puntos, tan largo como pide un examen de tu nivel. La IA lo revisa: los puntos, hasta tres correcciones y un texto modelo.",
-    "start": "Recibir una tarea",
-    "preparing": "Escribiendo la tarea…",
-    "newTask": "Nueva tarea",
     "length": "Unas {words, number} palabras.",
     "count": "{count, plural, one {# palabra} other {# palabras}} de unas {words, number}",
     "placeholder": "Tu texto…",
@@ -1616,9 +1610,6 @@
     }
   },
   "understanding": {
-    "start": "Escribir un texto",
-    "writing": "Escribiendo un texto…",
-    "new": "Texto nuevo",
     "kind": {
       "dialogue": "un diálogo para escuchar",
       "announcement": "un anuncio para escuchar",
@@ -1640,8 +1631,6 @@
       "choosing": "Eligiendo el mejor borrador…",
       "asking": "Escribiendo las preguntas…"
     },
-    "introReading": "Un texto breve sobre el tema de la lección, como los que se leen en la vida real: una carta, un chat, un aviso, una historia. Léelo y responde a las preguntas.",
-    "introListening": "Un texto breve sobre el tema de la lección, leído en voz alta: una conversación, un mensaje, un anuncio, una historia. Escucha y responde de oído; el texto se abre después.",
     "task": {
       "reading": "Lee el texto y responde a las preguntas.",
       "listening": "Escucha y responde a las preguntas. El texto se abre tras comprobarlas."
@@ -1689,10 +1678,6 @@
     }
   },
   "talk": {
-    "intro": "Habla en el idioma que aprendes: una charla breve a partir de una tarjeta o un papel en una conversación. Todo se revisa al final, sin esperas entre frases.",
-    "start": "Recibir una tarea",
-    "preparing": "Preparando la tarea…",
-    "new": "Nueva tarea",
     "step": {
       "writing": "Escribiendo la tarea…",
       "choosing": "Eligiendo el mejor borrador…",
@@ -1730,6 +1715,7 @@
       "make": "Hacer para todas las lecciones",
       "upTo": "Los pasos de cada lección se completan hasta el número elegido; si se inicia de nuevo, sigue donde se quedó.",
       "steps": "Pasos"
-    }
+    },
+    "another": "Otra versión"
   }
 }

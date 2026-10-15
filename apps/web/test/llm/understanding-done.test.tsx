@@ -10,6 +10,7 @@ import * as api from "../../src/llm/api.ts";
 import { TargetLang } from "../../src/ui/target-lang.ts";
 import { lesson } from "../lesson/lesson.ts";
 import { renderApp } from "../render.tsx";
+import { practiceLesson } from "./practice-lesson.ts";
 
 const TEXT: UnderstandingText = {
   kind: "reading",
@@ -85,6 +86,7 @@ test("answered, Check in the step bar: the answers sent, the run read again, the
       data: [
         [["llm"], { provider: "custom", model: "test-model" }],
         [["understanding", lesson.key, "reading"], { texts: [text([])], preparing: false }],
+        practiceLesson({ series: "sprachanker.test", lessonKey: lesson.key, edition: "en-de" }),
       ],
     },
   );

@@ -292,8 +292,9 @@ export function createUnderstanding(deps: {
     },
 
     /** Makes `count` texts for the lesson's step into the course's practice (none: only takes),
-     *  then takes the step's next the learner has not had into the run the lesson shows. Runs to its
-     *  end even when the page that asked is gone. */
+     *  then takes the step's next the learner has not had into the run the lesson shows (the
+     *  practice scripts and e2e; a lesson makes none). Runs to its end even when the page that asked
+     *  is gone. */
     start(request: UnderstandingRequest, count = 1): Promise<Understood> {
       return making.run(key(request.lessonKey, request.step), "writing", async () => {
         await deps.practice.run(request.lessonKey);
@@ -305,7 +306,7 @@ export function createUnderstanding(deps: {
     },
 
     /** Makes `count` texts for the lesson's step into the course's practice, nothing taken (a
-     *  course's practice made ahead). */
+     *  course's job). */
     make(request: UnderstandingRequest, count = 1) {
       return making.run(key(request.lessonKey, request.step), "writing", async () => {
         for (let done = 0; done < count; ) done += await make(request, count - done);
@@ -314,18 +315,18 @@ export function createUnderstanding(deps: {
 
     /** The lesson started: unless a text is being made or the step's latest is not answered through
      *  (untouched or half done: the learner's to finish), the step's next text of the course's
-     *  practice is taken — one is made first when none is left and `makeIfNone` (a model set up, the
-     *  setting on); a failure only logged. */
-    async prepare(request: UnderstandingRequest, makeIfNone: boolean) {
-      if (making.get(key(request.lessonKey, request.step))) return;
-      const latest = texts(request.lessonKey, request.step)[0];
-      const answered = (n: number) => !!latest?.answers.some((a) => a.question === n);
-      if (latest && understandingStage(latest.result, answered).stage !== "done") return;
+     *  practice is taken — none left: the latest stays; a failure only logged. */
+    async prepare(request: UnderstandingRequest) {
+      const done = () => {
+        if (making.get(key(request.lessonKey, request.step))) return false;
+        const latest = texts(request.lessonKey, request.step)[0];
+        const answered = (n: number) => !!latest?.answers.some((a) => a.question === n);
+        return !latest || understandingStage(latest.result, answered).stage === "done";
+      };
       try {
-        if (await take(request)) return;
-        if (makeIfNone) await this.start(request);
+        await deps.practice.take(request, request.step, done);
       } catch (error) {
-        console.warn(`${request.step} made ahead: ${(error as Error).message}`);
+        console.warn(`${request.step} taken as the lesson started: ${(error as Error).message}`);
       }
     },
 

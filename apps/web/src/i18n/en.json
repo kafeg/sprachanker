@@ -513,9 +513,7 @@
       "understanding": {
         "name": "Reading and listening",
         "where": "two steps of the lesson: a text to read and one to hear, with questions"
-      },
-      "prepare": "Prepare the practice ahead",
-      "prepareHint": "As a lesson starts, its texts to read and to hear and its writing task are made in the background, so they are ready when you get there. The model works meanwhile."
+      }
     },
     "about": {
       "explain": "Explains a wrong answer under the exercise (“Why is this wrong?”): what the mistake is and the rule behind it, in your language.",
@@ -542,10 +540,6 @@
   },
   "writing": {
     "task": "Your task (write in {language}):",
-    "intro": "A message to answer in writing — a friend's e-mail, a chat, an ad: three points to cover, about as long as an exam at your level asks. The AI checks it: the points covered, at most three corrections, and a model text.",
-    "start": "Get a task",
-    "preparing": "Writing a task…",
-    "newTask": "New task",
     "length": "About {words, number} words.",
     "count": "{count, plural, one {# word} other {# words}} of about {words, number}",
     "placeholder": "Your text…",
@@ -1616,9 +1610,6 @@
     }
   },
   "understanding": {
-    "start": "Write a text",
-    "writing": "Writing a text…",
-    "new": "New text",
     "kind": {
       "dialogue": "a dialogue to listen to",
       "announcement": "an announcement to listen to",
@@ -1640,8 +1631,6 @@
       "choosing": "Choosing the best draft…",
       "asking": "Writing the questions…"
     },
-    "introReading": "A short text on the lesson's topic, as people really read them — a letter, a chat, a notice, a story. Read it and answer the questions.",
-    "introListening": "A short text on the lesson's topic, read aloud — a conversation, a message, an announcement, a story. Listen and answer by ear; the text opens afterwards.",
     "task": {
       "reading": "Read the text and answer the questions.",
       "listening": "Listen and answer the questions. The text opens once they are checked."
@@ -1689,10 +1678,6 @@
     }
   },
   "talk": {
-    "intro": "Speak in the language you learn: a short talk from a card, or a part in a conversation. Everything is checked at the end, no waiting between lines.",
-    "start": "Get a task",
-    "preparing": "Making a task…",
-    "new": "New task",
     "step": {
       "writing": "Writing the task…",
       "choosing": "Choosing the best draft…",
@@ -1730,6 +1715,7 @@
       "make": "Make for every lesson",
       "upTo": "Each lesson's steps are filled up to the number chosen; started again, it goes on where it stopped.",
       "steps": "Steps"
-    }
+    },
+    "another": "Another version"
   }
 }

@@ -4,7 +4,7 @@
 // common sense, left out; asked again once when too few are left) —, a text to hear recorded by
 // Qwen3-TTS's voices by gender, added to the course's practice and taken into the lesson run;
 // answered, each answer checked by the engine and kept on the text; read back in the Notebook's pass;
-// made ahead as the lesson starts.
+// the next taken as the lesson starts.
 import { expect, test } from "bun:test";
 import { readFileSync, rmSync } from "node:fs";
 import { join } from "node:path";
@@ -340,63 +340,110 @@ test("too few questions settled: asked again once and the better kept; none sett
   expect(res.status).toBe(502);
 });
 
-test("made ahead as a new run starts: Reading and Listening's texts, the writing task and the speaking one; resumed, nothing; a step's untouched or half-done text never replaced", async () => {
-  const task = {
-    situation: "Вы пишете другу.",
-    points: ["Wann?", "Wo?", "Was?"],
-    words: 40,
-  };
+test("a run starts: nothing made by the model; Another version takes the step's next the learner has not had; none left: refused, the latest stays — a new run keeps it too", async () => {
   const api = await withModel(
-    {
-      ...REPLIES,
-      understanding_check: [SETTLES_ALL],
-      blind: [{ answers: [] }],
-      writing_task: [task],
-      talk_card: [
-        {
-          setting: "О себе",
-          instruction: "Расскажите о себе.",
-          topic: "Über mich",
-          points: ["Name?", "Woher?", "Hobby?"],
-          model: "Ich heiße Mara. Ich komme aus Polen. Ich lese gern.",
-        },
-      ],
-    },
+    { ...REPLIES, understanding_check: [SETTLES_ALL], blind: [{ answers: [] }] },
     { speech: QWEN().host },
   );
-  await api.send("PUT", "/api/settings", { key: "llm.preparePractice", value: true });
+  const counts = async () =>
+    (
+      await api.getJson(
+        `/api/llm/practice/lesson?series=${FIXTURE_SERIES}&lessonKey=${LESSON}&edition=ru-de`,
+      )
+    ).reading;
+  // No practice in the course: the run starts, nothing is made, nothing taken.
   await api.sendJson("POST", "/api/runs", START);
-  await until(async () => (await state(api, "listening")).texts.length === 1);
-  await until(
-    async () =>
-      !!(
-        await api.getJson(
-          `/api/llm/writing?series=${FIXTURE_SERIES}&lessonKey=${LESSON}&edition=ru-de`,
-        )
-      ).task,
-  );
-  await until(async () => !!(await api.getJson(`/api/llm/talk?lessonKey=${LESSON}`)).task);
-  const reading = await state(api, "reading");
-  expect(reading.texts[0].result.step).toBe("reading");
-  expect(reading.texts[0].result.kind).toBe("reading");
-  const asked = api.names.length;
-  // Resumed: nothing made ahead; started again: the texts and the task untouched, none made anew.
-  await api.sendJson("POST", "/api/runs", START);
-  await api.sendJson("POST", "/api/runs", { ...START, restart: true });
   await new Promise((r) => setTimeout(r, 50));
-  expect(api.names.length).toBe(asked);
-  // A text half answered is the learner's to finish: not replaced either.
-  const text = (await state(api, "listening")).texts[0];
-  await api.send("POST", "/api/llm/understanding/answer", {
+  expect(api.names).toEqual([]);
+  expect((await state(api, "reading")).texts).toEqual([]);
+  // Two in the course's practice, the first taken.
+  const first = await api.sendJson("POST", "/api/llm/understanding", {
     ...START,
     language: "ru",
-    id: text.id,
-    question: 0,
-    answer: { optionId: "b" },
+    step: "reading",
+    count: 2,
   });
+  expect(await counts()).toEqual({ made: 2, left: 1 });
+  const asked = api.names.length;
+  const NEXT = { ...START, step: "reading" };
+  const second = await api.sendJson("POST", "/api/llm/practice/next", NEXT);
+  expect(second.result.variant).not.toBe(first.result.variant);
+  expect(api.names.length).toBe(asked);
+  expect(await counts()).toEqual({ made: 2, left: 0 });
+  const none = await api.send("POST", "/api/llm/practice/next", NEXT);
+  expect(none.status).toBe(404);
   await api.sendJson("POST", "/api/runs", { ...START, restart: true });
   await new Promise((r) => setTimeout(r, 50));
+  const shown = (await state(api, "reading")).texts;
+  expect(shown).toHaveLength(2);
+  expect(shown[0].id).toBe(second.id);
   expect(api.names.length).toBe(asked);
+});
+
+test("a step's latest untouched or half done is the learner's to finish: a new run takes nothing for it, a resumed one nothing at all; done, the next is taken; a step opening empty takes once, however often asked", async () => {
+  const api = await withModel(
+    { ...REPLIES, understanding_check: [SETTLES_ALL], blind: [{ answers: [] }] },
+    { speech: QWEN().host },
+  );
+  const READING = { ...START, language: "ru", step: "reading" };
+  await api.sendJson("POST", "/api/runs", START);
+  const first = await api.sendJson("POST", "/api/llm/understanding", { ...READING, count: 3 });
+  const shown = async () => (await state(api, "reading")).texts;
+  const restart = async () => {
+    await api.sendJson("POST", "/api/runs", { ...START, restart: true });
+    await new Promise((r) => setTimeout(r, 50));
+  };
+  // Untouched: kept.
+  await restart();
+  expect((await shown()).map((t: { id: string }) => t.id)).toEqual([first.id]);
+  // Half done: kept.
+  await api.send("POST", "/api/llm/understanding/answer", {
+    ...READING,
+    id: first.id,
+    question: 0,
+    answer: { optionId: "a" },
+  });
+  await restart();
+  expect(await shown()).toHaveLength(1);
+  // Resumed (not restarted): nothing taken.
+  for (const [question, q] of (first.result.questions as Array<{ options?: string[] }>).entries())
+    if (question > 0)
+      await api.send("POST", "/api/llm/understanding/answer", {
+        ...READING,
+        id: first.id,
+        question,
+        answer: q.options ? { optionId: "a" } : { g1: "x" },
+      });
+  await api.sendJson("POST", "/api/runs", START);
+  await new Promise((r) => setTimeout(r, 50));
+  expect(await shown()).toHaveLength(1);
+  // Done: a new run takes the next.
+  await restart();
+  expect(await shown()).toHaveLength(2);
+  // Work there: "only while none" takes nothing, asked twice at once.
+  const NEXT = { ...START, step: "reading", ifNone: true };
+  const twice = await Promise.all([
+    api.sendJson("POST", "/api/llm/practice/next", NEXT),
+    api.sendJson("POST", "/api/llm/practice/next", NEXT),
+  ]);
+  expect(twice).toEqual([null, null]);
+  expect(await shown()).toHaveLength(2);
+  // No work of the step (progress reset; the lesson's start takes none: the place off): asked twice
+  // at once, one taken.
+  await api.send("PUT", "/api/settings", { key: "llm.offIn", value: ["understanding"] });
+  await api.sendJson("POST", "/api/progress/reset", {
+    series: FIXTURE_SERIES,
+    course: "demo",
+    lesson: LESSON,
+  });
+  await restart();
+  expect(await shown()).toEqual([]);
+  const once = await Promise.all([
+    api.sendJson("POST", "/api/llm/practice/next", NEXT),
+    api.sendJson("POST", "/api/llm/practice/next", NEXT),
+  ]);
+  expect(once.filter(Boolean)).toHaveLength(1);
+  expect(await shown()).toHaveLength(1);
 });
 
 test("the course's practice: texts made gather in the course, the step takes the next the learner has not had; a new run takes one without the model; a course removed keeps them", async () => {

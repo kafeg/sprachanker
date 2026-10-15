@@ -16,7 +16,7 @@ import {
   understandingExercise,
 } from "@sprachanker/engine";
 import type { UnderstandingText } from "@sprachanker/schema";
-import { BookOpenText, Headphones, Pause, Play, RotateCcw } from "lucide-react";
+import { Pause, Play, RotateCcw } from "lucide-react";
 import { useEffect, useRef, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { useListening } from "@/audio/listening.ts";
@@ -39,19 +39,16 @@ import { Panel, panelClass } from "@/ui/panel.tsx";
 import { useRequiredTargetLang } from "@/ui/target-lang.ts";
 import { cn } from "@/ui/utils.ts";
 import {
-  busyMaking,
   type PracticeStep,
   type Understood,
   useAnswerUnderstanding,
-  useStartUnderstanding,
   useUnderstanding,
   useUnderstandingAudio,
 } from "./api.ts";
 import { modelName } from "./assistant-label.tsx";
-import { ErrorLine, StartPrompt, Thinking } from "./parts.tsx";
-import { MoreButton } from "./practice-more.tsx";
+import { ErrorLine, Thinking } from "./parts.tsx";
+import { NextVariant } from "./practice-next.tsx";
 import { PromptButton } from "./prompt-view.tsx";
-import { useLlm } from "./setup-api.ts";
 
 /** A text's speakers in the order they first speak. */
 const speakersOf = (text: UnderstandingText) => [
@@ -187,8 +184,6 @@ function CurrentText({
   step,
   text,
   ids,
-  preparing,
-  onNew,
   onDone,
   onStored,
   setPrimary,
@@ -196,8 +191,6 @@ function CurrentText({
   step: PracticeStep;
   text: Understood;
   ids: LessonSlotContext;
-  preparing: boolean;
-  onNew(count: number): void;
   onDone?(): void;
   onStored?(): Promise<void> | void;
   setPrimary?(primary: PracticePrimary | null): void;
@@ -278,14 +271,7 @@ function CurrentText({
         <PromptButton
           request={() => ({ understanding: { ...ids, language: i18n.language, step } })}
         />
-        <MoreButton
-          label={t("understanding.new")}
-          busyLabel={t("understanding.writing")}
-          preparing={preparing}
-          edition={ids.edition}
-          needsVoice={step === "listening"}
-          onMake={onNew}
-        />
+        <NextVariant ids={ids} step={step} />
       </div>
       {heard && canHear && <Listen id={text.id} text={r} lessonKey={ids.lessonKey} />}
       {readInstead && (
@@ -364,8 +350,8 @@ function PastTexts({ texts }: { texts: Understood[] }) {
   );
 }
 
-/** The lesson's Reading or Listening step: the latest text (or a start; made ahead as the lesson
- *  started, it is there or on its way), then the earlier ones; `onDone` once a text's questions are
+/** The lesson's Reading or Listening step: the latest text (taken from the course's practice as
+ *  the lesson started), then the earlier ones; `onDone` once a text's questions are
  *  all answered, `onStored` once an answer is kept in the run. */
 export function UnderstandingStep({
   step,
@@ -380,18 +366,10 @@ export function UnderstandingStep({
   /** The step bar's main button while the questions wait for Check. */
   setPrimary?(primary: PracticePrimary | null): void;
 }) {
-  const { t, i18n } = useTranslation();
-  const llm = useLlm();
-  const start = useStartUnderstanding(ids.lessonKey, step);
-  const state = useUnderstanding(ids.lessonKey, step, start.isPending);
-  // A text of the course's practice is there without a model; making one needs it.
-  if (!state.data || (!llm.data?.model && !state.data.texts.length)) return null;
+  const { t } = useTranslation();
+  const state = useUnderstanding(ids.lessonKey, step);
+  if (!state.data) return null;
   const [current, ...past] = state.data.texts;
-  // Asked from here, or still being written on the server since before this page was opened.
-  const preparing = start.isPending || state.data.preparing;
-  const write = (count = 1) => {
-    if (!preparing) start.mutate({ ...ids, language: i18n.language, count });
-  };
   return (
     <div className="space-y-4">
       {current ? (
@@ -400,33 +378,19 @@ export function UnderstandingStep({
           step={step}
           text={current}
           ids={ids}
-          preparing={preparing}
-          onNew={write}
           onDone={onDone}
           onStored={onStored}
           setPrimary={setPrimary}
         />
       ) : (
-        <StartPrompt
-          intro={t(
-            step === "reading" ? "understanding.introReading" : "understanding.introListening",
-          )}
-          label={preparing ? t("understanding.writing") : t("understanding.start")}
-          icon={step === "reading" ? BookOpenText : Headphones}
-          loading={preparing}
-          onStart={() => write()}
-        />
+        <NextVariant ids={ids} step={step} empty />
       )}
-      {preparing && (
+      {state.data.preparing && (
         <Thinking
           label={t(`understanding.step.${state.data.step ?? "writing"}`)}
           className="text-sm"
         />
       )}
-      <ErrorLine
-        error={busyMaking(start.error) ? null : start.error}
-        onRetry={preparing ? undefined : () => write()}
-      />
       <PastTexts texts={past} />
     </div>
   );

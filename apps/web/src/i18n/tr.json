@@ -513,9 +513,7 @@
       "understanding": {
         "name": "Okuma ve dinleme",
         "where": "dersin iki adımı: okunacak ve dinlenecek birer metin, sorularla"
-      },
-      "prepare": "Pratiği önceden hazırla",
-      "prepareHint": "Bir ders başladığında okuma ve dinleme metinleri ile yazma görevi arka planda hazırlanır; oraya geldiğinde hazır olurlar. Model bu sırada çalışır."
+      }
     },
     "about": {
       "explain": "Alıştırmanın altında yanlış bir cevabı açıklar (“Bu neden yanlış?”): hatanın ne olduğunu ve arkasındaki kuralı, senin dilinde.",
@@ -542,10 +540,6 @@
   },
   "writing": {
     "task": "Görevin ({language} yaz):",
-    "intro": "Yazılı cevap vereceğin bir mesaj — bir arkadaşın e-postası, bir sohbet, bir ilan: üç madde, seviyendeki sınavın istediği uzunlukta. Yapay zekâ kontrol eder: maddeler, en fazla üç düzeltme ve bir örnek metin.",
-    "start": "Görev al",
-    "preparing": "Görev yazılıyor…",
-    "newTask": "Yeni görev",
     "length": "Yaklaşık {words, number} kelime.",
     "count": "yaklaşık {words, number} kelimeden {count, plural, one {# kelime} other {# kelime}}",
     "placeholder": "Metnin…",
@@ -1616,9 +1610,6 @@
     }
   },
   "understanding": {
-    "start": "Metin yaz",
-    "writing": "Metin yazılıyor…",
-    "new": "Yeni metin",
     "kind": {
       "dialogue": "dinlenecek bir diyalog",
       "announcement": "dinlenecek bir anons",
@@ -1640,8 +1631,6 @@
       "choosing": "En iyi taslak seçiliyor…",
       "asking": "Sorular yazılıyor…"
     },
-    "introReading": "Dersin konusunda, gerçek hayatta okunan türden kısa bir metin — bir mektup, bir sohbet, bir duyuru, bir hikâye. Oku ve soruları yanıtla.",
-    "introListening": "Dersin konusunda, sesli okunan kısa bir metin — bir konuşma, bir mesaj, bir anons, bir hikâye. Dinle ve duyduğuna göre yanıtla; metin sonra açılır.",
     "task": {
       "reading": "Metni oku ve soruları yanıtla.",
       "listening": "Dinle ve soruları yanıtla. Metin kontrolden sonra açılır."
@@ -1689,10 +1678,6 @@
     }
   },
   "talk": {
-    "intro": "Öğrendiğin dilde konuş: karta göre kısa bir konuşma ya da bir sohbette bir rol. Her şey sonunda kontrol edilir, replikler arasında bekleme yok.",
-    "start": "Görev al",
-    "preparing": "Görev hazırlanıyor…",
-    "new": "Yeni görev",
     "step": {
       "writing": "Görev yazılıyor…",
       "choosing": "En iyi taslak seçiliyor…",
@@ -1730,6 +1715,7 @@
       "make": "Tüm dersler için yap",
       "upTo": "Her dersin adımları seçilen sayıya kadar tamamlanır; yeniden başlatılırsa kaldığı yerden devam eder.",
       "steps": "Adımlar"
-    }
+    },
+    "another": "Başka bir sürüm"
   }
 }

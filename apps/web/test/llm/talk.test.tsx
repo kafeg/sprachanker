@@ -11,6 +11,7 @@ import { TalkStep } from "../../src/llm/talk.tsx";
 import { TargetLang } from "../../src/ui/target-lang.ts";
 import { lesson } from "../lesson/lesson.ts";
 import { renderApp } from "../render.tsx";
+import { practiceLesson, server } from "./practice-lesson.ts";
 
 const ids = { series: "sprachanker.test", lessonKey: lesson.key, edition: "en-de" };
 const llm: [unknown[], unknown] = [["llm"], { provider: "custom", model: "test-model" }];
@@ -61,6 +62,7 @@ const ROLEPLAY: Roleplay = {
 const step = (
   state: Record<string, unknown>,
   setPrimary: (p: PracticePrimary | null) => void = () => {},
+  left = 0,
 ) =>
   renderApp(
     <TargetLang value="de">
@@ -69,6 +71,7 @@ const step = (
     {
       data: [
         llm,
+        practiceLesson(ids, left),
         [
           ["talk", ids.lessonKey],
           { task: null, attempts: [], preparing: false, checking: false, step: null, ...state },
@@ -83,11 +86,24 @@ const say = (view: Awaited<ReturnType<typeof step>>, text: string) => {
   fireEvent.submit(view.getByPlaceholderText("Your line…").closest("form") as HTMLFormElement);
 };
 
-test("no task yet: what the step is and the way to get one", async () => {
-  const view = await step({});
-  expect(view.getByText(/Speak in the language you learn/)).toBeTruthy();
-  expect(view.getByRole("button", { name: "Get a task" })).toBeTruthy();
+/** The server after a task is taken: the step's state, the lesson's practice. */
+const answers = (path: string) =>
+  path.endsWith("/practice/lesson")
+    ? practiceLesson(ids)[1]
+    : { task: null, attempts: [], preparing: false, checking: false, step: null };
+
+test("no task yet: the course's next taken as the step opens; with a task, Another version while the course has more", async () => {
+  const asked = server(answers);
+  const view = await step({}, () => {}, 1);
+  await waitFor(() =>
+    expect(asked[0]).toBe(
+      `POST /api/llm/practice/next ${JSON.stringify({ ...ids, step: "speaking", ifNone: true })}`,
+    ),
+  );
   view.unmount();
+  const more = await step({ task: verdict("talk_task", CARD, 1) }, () => {}, 1);
+  expect(more.getByRole("button", { name: "Another version" })).toBeTruthy();
+  more.unmount();
 });
 
 test("a monologue: the card, a take kept, then Check in the step bar", async () => {

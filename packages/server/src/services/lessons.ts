@@ -92,7 +92,7 @@ export function createLessons({
 }: {
   store: RunStore;
   content: Content;
-  /** Told once a lesson's new run is started — not when one is resumed (its AI practice made ahead). */
+  /** Told once a lesson's new run is started — not when one is resumed (its AI practice's next variants taken). */
   started?: (lesson: LessonStart) => void;
 }) {
   /** A lesson run by id (the lesson endpoints take no other kind). */

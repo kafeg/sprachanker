@@ -513,9 +513,7 @@
       "understanding": {
         "name": "Lesen und Hören",
         "where": "zwei Schritte der Lektion: ein Text zum Lesen und einer zum Hören, mit Fragen"
-      },
-      "prepare": "Übungen im Voraus vorbereiten",
-      "prepareHint": "Sobald eine Lektion beginnt, werden ihre Texte zum Lesen und Hören und die Schreibaufgabe im Hintergrund erstellt, damit sie bereitstehen, wenn du dort ankommst. Das Modell arbeitet in der Zeit."
+      }
     },
     "about": {
       "explain": "Erklärt eine falsche Antwort unter der Übung („Warum ist das falsch?“): was der Fehler ist und welche Regel dahintersteht, in deiner Sprache.",
@@ -542,10 +540,6 @@
   },
   "writing": {
     "task": "Deine Aufgabe (schreib auf {language}):",
-    "intro": "Eine Nachricht, auf die du schriftlich antwortest — eine E-Mail von einem Freund, ein Chat, eine Anzeige: drei Punkte, etwa so lang wie in einer Prüfung deines Niveaus. Die KI prüft: die Punkte, höchstens drei Korrekturen und ein Mustertext.",
-    "start": "Aufgabe stellen lassen",
-    "preparing": "Aufgabe wird geschrieben…",
-    "newTask": "Neue Aufgabe",
     "length": "Etwa {words, number} Wörter.",
     "count": "{count, plural, one {# Wort} other {# Wörter}} von etwa {words, number}",
     "placeholder": "Dein Text…",
@@ -1616,9 +1610,6 @@
     }
   },
   "understanding": {
-    "start": "Text schreiben lassen",
-    "writing": "Text wird geschrieben…",
-    "new": "Neuer Text",
     "kind": {
       "dialogue": "ein Dialog zum Hören",
       "announcement": "eine Durchsage zum Hören",
@@ -1640,8 +1631,6 @@
       "choosing": "Der beste Entwurf wird gewählt…",
       "asking": "Fragen werden geschrieben…"
     },
-    "introReading": "Ein kurzer Text zum Thema der Lektion, wie man ihn im Alltag liest — ein Brief, ein Chat, ein Aushang, eine Geschichte. Lies ihn und beantworte die Fragen.",
-    "introListening": "Ein kurzer Text zum Thema der Lektion, vorgelesen — ein Gespräch, eine Nachricht, eine Durchsage, eine Geschichte. Hör zu und antworte nach dem Hören; der Text öffnet sich danach.",
     "task": {
       "reading": "Lies den Text und beantworte die Fragen.",
       "listening": "Hör zu und beantworte die Fragen. Der Text öffnet sich nach der Prüfung."
@@ -1689,10 +1678,6 @@
     }
   },
   "talk": {
-    "intro": "Sprich in der Sprache, die du lernst: ein kurzer Vortrag nach einer Karte oder eine Rolle in einem Gespräch. Geprüft wird am Ende, ohne Warten zwischen den Sätzen.",
-    "start": "Aufgabe holen",
-    "preparing": "Aufgabe wird erstellt…",
-    "new": "Neue Aufgabe",
     "step": {
       "writing": "Die Aufgabe wird geschrieben…",
       "choosing": "Der beste Entwurf wird gewählt…",
@@ -1730,6 +1715,7 @@
       "make": "Für alle Lektionen erstellen",
       "upTo": "Die Schritte jeder Lektion werden bis zur gewählten Zahl aufgefüllt; neu gestartet, geht es dort weiter, wo es aufgehört hat.",
       "steps": "Schritte"
-    }
+    },
+    "another": "Andere Variante"
   }
 }

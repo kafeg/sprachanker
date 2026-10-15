@@ -513,9 +513,7 @@
       "understanding": {
         "name": "Lecture et écoute",
         "where": "deux étapes de la leçon : un texte à lire et un à écouter, avec des questions"
-      },
-      "prepare": "Préparer la pratique à l'avance",
-      "prepareHint": "Dès qu'une leçon commence, ses textes à lire et à écouter et son sujet d'écriture sont préparés en arrière-plan, pour être prêts quand tu y arrives. Le modèle travaille pendant ce temps."
+      }
     },
     "about": {
       "explain": "Explique une réponse fausse sous l’exercice (« Pourquoi est-ce faux ? ») : en quoi consiste l’erreur et la règle qui est derrière, dans ta langue.",
@@ -542,10 +540,6 @@
   },
   "writing": {
     "task": "Ta tâche (écris en {language}) :",
-    "intro": "Un message auquel répondre par écrit — un e-mail d'ami, un chat, une annonce : trois points, aussi long qu'à l'examen de ton niveau. L'IA vérifie : les points, trois corrections au plus et un texte modèle.",
-    "start": "Recevoir une tâche",
-    "preparing": "Écriture de la tâche…",
-    "newTask": "Nouvelle tâche",
     "length": "Environ {words, number} mots.",
     "count": "{count, plural, one {# mot} other {# mots}} sur environ {words, number}",
     "placeholder": "Ton texte…",
@@ -1616,9 +1610,6 @@
     }
   },
   "understanding": {
-    "start": "Écrire un texte",
-    "writing": "Écriture du texte…",
-    "new": "Nouveau texte",
     "kind": {
       "dialogue": "un dialogue à écouter",
       "announcement": "une annonce à écouter",
@@ -1640,8 +1631,6 @@
       "choosing": "Choix du meilleur brouillon…",
       "asking": "Rédaction des questions…"
     },
-    "introReading": "Un court texte sur le thème de la leçon, comme on en lit dans la vie — une lettre, un chat, un avis, une histoire. Lis-le et réponds aux questions.",
-    "introListening": "Un court texte sur le thème de la leçon, lu à voix haute — une conversation, un message, une annonce, une histoire. Écoute et réponds à l'oreille ; le texte s'affiche ensuite.",
     "task": {
       "reading": "Lis le texte et réponds aux questions.",
       "listening": "Écoute et réponds aux questions. Le texte s'affiche après la vérification."
@@ -1689,10 +1678,6 @@
     }
   },
   "talk": {
-    "intro": "Parle dans la langue que tu apprends : un court exposé à partir d'une carte ou un rôle dans une conversation. Tout est vérifié à la fin, sans attente entre les répliques.",
-    "start": "Obtenir une tâche",
-    "preparing": "Préparation de la tâche…",
-    "new": "Nouvelle tâche",
     "step": {
       "writing": "Rédaction de la tâche…",
       "choosing": "Choix du meilleur brouillon…",
@@ -1730,6 +1715,7 @@
       "make": "Faire pour toutes les leçons",
       "upTo": "Les étapes de chaque leçon sont complétées jusqu’au nombre choisi ; relancé, il reprend là où il s’est arrêté.",
       "steps": "Étapes"
-    }
+    },
+    "another": "Une autre version"
   }
 }

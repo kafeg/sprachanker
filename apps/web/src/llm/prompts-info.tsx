@@ -198,13 +198,11 @@ function TaskPrompt({ task, prompt }: { task: PromptTaskId; prompt: Prompt }) {
   );
 }
 
-/** Where the assistant works: a place turned off is not shown — its button, its step of the lesson;
- *  then whether the lesson's practice is made ahead as it starts. */
+/** Where the assistant works: a place turned off is not shown — its button, its step of the lesson. */
 export function AiPlaces() {
   const { t } = useTranslation();
   const set = useSetSetting();
   const off = useSetting("llm.offIn");
-  const prepare = useSetting("llm.preparePractice");
   return (
     <Panel title={t("prompt.places.title")}>
       <p className="text-sm text-muted-foreground">{t("prompt.places.hint")}</p>
@@ -223,12 +221,6 @@ export function AiPlaces() {
             hint={t(`prompt.places.${place}.where`)}
           />
         ))}
-        <CheckRow
-          checked={prepare}
-          onChange={(value) => set.mutate({ key: "llm.preparePractice", value })}
-          title={t("prompt.places.prepare")}
-          hint={t("prompt.places.prepareHint")}
-        />
       </div>
     </Panel>
   );

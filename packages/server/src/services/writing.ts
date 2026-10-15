@@ -168,7 +168,8 @@ export function createWriting(deps: {
     /** Writes `count` tasks for the lesson into the course's practice — each a message from the text
      *  generator (a genre to answer, not the lesson's last ones), then the task of answering it (its
      *  length the level's) —, then takes the step's next the learner has not had into the run the
-     *  lesson shows. Runs to its end even when the page that asked is gone. */
+     *  lesson shows (the practice scripts and e2e; a lesson makes none). Runs to its end even when
+     *  the page that asked is gone. */
     task(request: WritingTaskRequest, count = 1): Promise<Verdict<"writing_task">> {
       return busy.run(request.lessonKey, {}, async () => {
         await deps.practice.run(request.lessonKey);
@@ -187,17 +188,18 @@ export function createWriting(deps: {
     },
 
     /** The lesson started: unless a task is being written or the latest has no text written on it
-     *  yet, the step's next task of the course's practice is taken — one is written first when none
-     *  is left and `makeIfNone`; a failure only logged. */
-    async prepare(request: WritingTaskRequest, makeIfNone: boolean) {
-      if (busy.get(request.lessonKey)) return;
-      const latest = tasks(request.lessonKey)[0];
-      if (latest && !attempts(request.lessonKey).some((a) => a.ts > latest.ts)) return;
+     *  yet, the step's next task of the course's practice is taken — none left: the latest stays; a
+     *  failure only logged. */
+    async prepare(request: WritingTaskRequest) {
+      const done = () => {
+        if (busy.get(request.lessonKey)) return false;
+        const latest = tasks(request.lessonKey)[0];
+        return !latest || attempts(request.lessonKey).some((a) => a.ts > latest.ts);
+      };
       try {
-        if (await deps.practice.take(request, "writing")) return;
-        if (makeIfNone) await this.task(request);
+        await deps.practice.take(request, "writing", done);
       } catch (error) {
-        console.warn(`writing task made ahead: ${(error as Error).message}`);
+        console.warn(`writing task taken as the lesson started: ${(error as Error).message}`);
       }
     },
 

@@ -28,6 +28,63 @@ export async function freshLessonRun(request: APIRequestContext, lessonKey = DEM
   await send(request, "post", "/api/runs", { series, lessonKey, edition: "en-de", restart: true });
 }
 
+type PracticeStep = "reading" | "listening" | "writing" | "speaking";
+const practiceIds = (lessonKey: string) => ({
+  series: lessonKey.split("/")[0] as string,
+  lessonKey,
+  edition: "en-de",
+});
+
+/** At least `count` variants of a lesson step in the course's practice (a lesson makes none — owner,
+ *  2026-10-15: the fake model makes them here, through a run of the lesson, which takes one). Before
+ *  the test's own reset and fresh run: those leave the lesson's start to take its first. */
+export async function fillPractice(
+  request: APIRequestContext,
+  step: PracticeStep,
+  count = 1,
+  lessonKey = DEMO_LESSON,
+) {
+  const ids = practiceIds(lessonKey);
+  const query = new URLSearchParams(ids).toString();
+  const made = (await (await request.get(`/api/llm/practice/lesson?${query}`)).json())[step].made;
+  if (made >= count) return;
+  await freshLessonRun(request, lessonKey);
+  const path =
+    step === "writing"
+      ? "/api/llm/writing/task"
+      : step === "speaking"
+        ? "/api/llm/talk"
+        : "/api/llm/understanding";
+  const body = { ...ids, language: "en", count: count - made };
+  await send(
+    request,
+    "post",
+    path,
+    step === "writing" || step === "speaking" ? body : { ...body, step },
+  );
+}
+
+/** The lesson's start has taken the step's first variant into its run. */
+export async function practiceTaken(
+  request: APIRequestContext,
+  step: PracticeStep,
+  lessonKey = DEMO_LESSON,
+) {
+  const query = new URLSearchParams(practiceIds(lessonKey)).toString();
+  const state =
+    step === "writing"
+      ? `/api/llm/writing?${query}`
+      : step === "speaking"
+        ? `/api/llm/talk?lessonKey=${lessonKey}`
+        : `/api/llm/understanding?lessonKey=${lessonKey}&step=${step}`;
+  await expect
+    .poll(async () => {
+      const shown = await (await request.get(state)).json();
+      return step === "writing" || step === "speaking" ? !!shown.task : shown.texts.length > 0;
+    })
+    .toBe(true);
+}
+
 /** A fresh event id: a ULID (Crockford's base 32, 26 characters) of now and random bits. */
 const eventId = () => {
   const ABC = "0123456789ABCDEFGHJKMNPQRSTVWXYZ";

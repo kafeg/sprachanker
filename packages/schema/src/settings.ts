@@ -63,9 +63,6 @@ export const LEARNER_SETTINGS = {
   "llm.debugPrompts": z.boolean(),
   /** The places the assistant is turned off in (none by default): they are not shown. */
   "llm.offIn": z.array(z.enum(AI_PLACES)).max(AI_PLACES.length),
-  /** The lesson's AI practice made ahead, as the lesson starts (on by default): its texts and the
-   *  writing task are there when their steps come. */
-  "llm.preparePractice": z.boolean(),
   /** What is experimental and turned on (Settings → General → Experimental; owner, 2026-10-10): a section
    *  (`courses`, `exams`) and within it each source by its series (`courses:coerll.dib`). */
   "experimental.on": z.array(z.string().min(1).max(120)).max(200),
@@ -126,7 +123,6 @@ export const SETTING_DEFAULTS = {
   audioRate: 1,
   "llm.debugPrompts": false,
   "llm.offIn": [],
-  "llm.preparePractice": true,
   "experimental.on": [],
   "speech.recognition": true,
   "speech.readEngine": "qwen",

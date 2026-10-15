@@ -15,12 +15,5 @@ setup("a profile, onboarded and signed in", async ({ request }) => {
     headers: { ...CLIENT_HEADERS },
   });
   expect(done.ok()).toBe(true);
-  // Nothing made ahead as a lesson starts: the tests ask for each text and task themselves, and both
-  // projects share the profile (made ahead: the server's tests).
-  const ahead = await request.put("/api/settings", {
-    data: { key: "llm.preparePractice", value: false },
-    headers: { ...CLIENT_HEADERS },
-  });
-  expect(ahead.ok()).toBe(true);
   await request.storageState({ path: SIGNED_IN });
 });

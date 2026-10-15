@@ -8,6 +8,7 @@ import { WritingTask } from "../../src/llm/writing.tsx";
 import { TargetLang } from "../../src/ui/target-lang.ts";
 import { lesson } from "../lesson/lesson.ts";
 import { renderApp } from "../render.tsx";
+import { practiceLesson } from "./practice-lesson.ts";
 
 const ids = { series: "sprachanker.test", lessonKey: lesson.key, edition: "en-de" };
 const llm: [unknown[], unknown] = [["llm"], { model: "test-model" }];
@@ -34,6 +35,7 @@ test("a text still being checked on the server says so on a page opened again", 
       path: "/",
       data: [
         llm,
+        practiceLesson(ids),
         [
           ["writing", ids.lessonKey, ids.edition],
           {
@@ -87,6 +89,7 @@ test("a long wait says what is being done beside its seconds: the text's questio
     {
       data: [
         llm,
+        practiceLesson(ids),
         [
           ["understanding", ids.lessonKey, "listening"],
           { texts: [], preparing: true, step: "checking" },
@@ -116,6 +119,7 @@ test("a long wait says what is being done beside its seconds: the text's questio
     {
       data: [
         llm,
+        practiceLesson(ids),
         [
           ["writing", ids.lessonKey, ids.edition],
           { task: null, words: [], attempts: [], checking: null, preparing: true },

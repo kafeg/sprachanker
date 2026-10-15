@@ -6,7 +6,7 @@
 // any text can be taken back into the editor to fix it and check it again; "New task" sets another.
 import { wordCount } from "@sprachanker/engine";
 import { type LessonKey, type WritingTask as Task, WRITING_MAX } from "@sprachanker/schema";
-import { NotebookPen, PenLine } from "lucide-react";
+import { PenLine } from "lucide-react";
 import { useEffect, useRef, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { languageName } from "@/i18n/index.ts";
@@ -22,16 +22,10 @@ import { HistoryList } from "@/ui/history.tsx";
 import { Panel } from "@/ui/panel.tsx";
 import { useRequiredTargetLang } from "@/ui/target-lang.ts";
 import { cn } from "@/ui/utils.ts";
-import {
-  busyMaking,
-  useCheckWriting,
-  useWriting,
-  useWritingTask,
-  type WritingAttempt,
-} from "./api.ts";
+import { useCheckWriting, useWriting, type WritingAttempt } from "./api.ts";
 import { AssistantLabel, modelName } from "./assistant-label.tsx";
-import { ErrorLine, StartPrompt, Thinking } from "./parts.tsx";
-import { MoreButton } from "./practice-more.tsx";
+import { ErrorLine, Thinking } from "./parts.tsx";
+import { NextVariant } from "./practice-next.tsx";
 import { PromptButton } from "./prompt-view.tsx";
 import { useLlm } from "./setup-api.ts";
 
@@ -274,7 +268,6 @@ export function WritingTask({
   const { t, i18n } = useTranslation();
   const llm = useLlm();
   const state = useWriting(series, lessonKey, edition);
-  const newTask = useWritingTask();
   const check = useCheckWriting(onDone);
   const [text, setText] = useState("");
   const editor = useRef<HTMLTextAreaElement>(null);
@@ -292,17 +285,13 @@ export function WritingTask({
     );
   }, [setPrimary, ready, busy, noModel, t]);
   useEffect(() => () => setPrimary?.(null), [setPrimary]);
-  // A task of the course's practice is there without a model; making one, and checking, need it.
-  if (!state.data || (!llm.data?.model && !state.data.task)) return null;
+  if (!state.data) return null;
   const { task, words, attempts } = state.data;
   const [latest, ...past] = attempts;
   const ids = { series, lessonKey, edition, language: i18n.language };
   // Asked from here, or still running on the server since before this page was opened.
   const checking = check.isPending ? check.variables.text : state.data.checking;
-  const preparing = newTask.isPending || state.data.preparing;
-  const write = (count = 1) => {
-    if (!preparing && !checking) newTask.mutate({ ...ids, count });
-  };
+  const preparing = state.data.preparing;
   // A text back in the editor, to fix it after the corrections and check it again.
   const rewrite = (attempt: WritingAttempt) => {
     setText(attempt.input);
@@ -324,13 +313,10 @@ export function WritingTask({
             <p className="me-auto font-medium">
               {t("writing.task", { language: languageName(lang, i18n.language) })}
             </p>
-            <MoreButton
-              label={t("writing.newTask")}
-              busyLabel={t("writing.preparing")}
-              preparing={preparing}
+            <NextVariant
+              ids={{ series, lessonKey, edition }}
+              step="writing"
               disabled={!!checking}
-              edition={edition}
-              onMake={write}
             />
           </div>
           <TaskText task={task.result} />
@@ -372,37 +358,17 @@ export function WritingTask({
             />
           )}
           <ErrorLine
-            error={check.error ?? newTask.error}
-            // Asked again as it was: the text checked (still in the editor), or a new task.
-            onRetry={
-              check.error
-                ? () =>
-                    check.variables &&
-                    check.mutate(check.variables, { onSuccess: () => setText("") })
-                : preparing
-                  ? undefined
-                  : write
+            error={check.error}
+            // Asked again as it was: the text checked (still in the editor).
+            onRetry={() =>
+              check.variables && check.mutate(check.variables, { onSuccess: () => setText("") })
             }
           />
         </Panel>
       ) : (
         <Panel className="space-y-3">
-          <StartPrompt
-            intro={t("writing.intro")}
-            label={preparing ? t("writing.preparing") : t("writing.start")}
-            icon={NotebookPen}
-            loading={preparing}
-            onStart={() => write()}
-          />
-          <div className="flex flex-wrap items-center gap-2">
-            <PromptButton request={() => ({ writing: { ...ids, text: "" } })} />
-            <AssistantLabel className="ms-auto" />
-          </div>
+          <NextVariant ids={{ series, lessonKey, edition }} step="writing" empty />
           {preparing && <Thinking label={t("writing.step.task")} className="text-sm" />}
-          <ErrorLine
-            error={busyMaking(newTask.error) ? null : newTask.error}
-            onRetry={preparing ? undefined : () => write()}
-          />
         </Panel>
       )}
       {latest && (

@@ -513,9 +513,7 @@
       "understanding": {
         "name": "Kusoma na kusikiliza",
         "where": "hatua mbili za somo: maandishi ya kusoma na ya kusikiliza, pamoja na maswali"
-      },
-      "prepare": "Andaa mazoezi mapema",
-      "prepareHint": "Somo linapoanza, maandishi yake ya kusoma na kusikiliza na kazi ya kuandika hutayarishwa chinichini, ili yawe tayari ukifika hapo. Modeli hufanya kazi wakati huo."
+      }
     },
     "about": {
       "explain": "Hueleza jibu lisilo sahihi chini ya zoezi (“Kwa nini si sahihi?”): kosa ni nini na kanuni iliyo nyuma yake, kwa lugha yako.",
@@ -542,10 +540,6 @@
   },
   "writing": {
     "task": "Kazi yako (andika kwa {language}):",
-    "intro": "Ujumbe wa kujibu kwa maandishi — barua pepe ya rafiki, gumzo, tangazo: hoja tatu, urefu kama mtihani wa kiwango chako. AI hukagua: hoja, marekebisho matatu zaidi na maandishi ya mfano.",
-    "start": "Pata kazi",
-    "preparing": "Kazi inaandikwa…",
-    "newTask": "Kazi mpya",
     "length": "Takriban maneno {words, number}.",
     "count": "{count, plural, one {neno #} other {maneno #}} kati ya takriban {words, number}",
     "placeholder": "Maandishi yako…",
@@ -1616,9 +1610,6 @@
     }
   },
   "understanding": {
-    "start": "Andika maandishi",
-    "writing": "Maandishi yanaandikwa…",
-    "new": "Maandishi mapya",
     "kind": {
       "dialogue": "mazungumzo ya kusikiliza",
       "announcement": "tangazo la kusikiliza",
@@ -1640,8 +1631,6 @@
       "choosing": "Ninachagua rasimu bora…",
       "asking": "Ninaandika maswali…"
     },
-    "introReading": "Maandishi mafupi kuhusu mada ya somo, kama yale watu husoma maishani — barua, gumzo, tangazo, hadithi. Yasome na ujibu maswali.",
-    "introListening": "Maandishi mafupi kuhusu mada ya somo, yanayosomwa kwa sauti — mazungumzo, ujumbe, tangazo, hadithi. Sikiliza na ujibu kwa kusikia; maandishi yanafunguka baadaye.",
     "task": {
       "reading": "Soma maandishi na ujibu maswali.",
       "listening": "Sikiliza na ujibu maswali. Maandishi yanafunguka baada ya kukaguliwa."
@@ -1689,10 +1678,6 @@
     }
   },
   "talk": {
-    "intro": "Zungumza kwa lugha unayojifunza: maelezo mafupi kwa kadi au nafasi katika mazungumzo. Yote hukaguliwa mwishoni, bila kusubiri kati ya sentensi.",
-    "start": "Pata kazi",
-    "preparing": "Ninaandaa kazi…",
-    "new": "Kazi mpya",
     "step": {
       "writing": "Ninaandika kazi…",
       "choosing": "Ninachagua rasimu bora…",
@@ -1730,6 +1715,7 @@
       "make": "Tengeneza kwa masomo yote",
       "upTo": "Hatua za kila somo hujazwa hadi idadi uliyochagua; ukianzisha tena, inaendelea pale ilipoishia.",
       "steps": "Hatua"
-    }
+    },
+    "another": "Toleo jingine"
   }
 }

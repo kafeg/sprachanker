@@ -6,7 +6,15 @@
 // the Notebook's pass. Reading's text shown at once. A recording that cannot be had: the text heard by
 // the device's (stubbed) voices.
 import { expect, type Page, test } from "@playwright/test";
-import { DEMO_LESSON, freshLessonRun, openStep, post, put } from "./api.ts";
+import {
+  DEMO_LESSON,
+  fillPractice,
+  freshLessonRun,
+  openStep,
+  post,
+  practiceTaken,
+  put,
+} from "./api.ts";
 import { FAKE_LLM_PORT } from "./fake-llm.ts";
 
 test.beforeEach(async ({ request }) => {
@@ -16,10 +24,16 @@ test.beforeEach(async ({ request }) => {
   await put(request, "/api/llm/route", { provider: "custom", model: "fake-model" });
   await put(request, "/api/settings", { key: "llm.offIn", value: [] });
   await put(request, "/api/settings", { key: "speech.readEngine", value: "device" });
-  // No texts of the lesson left from earlier tests (projects share the profile).
+  // The course's practice has texts of each step (two to hear: another version there).
+  await fillPractice(request, "reading");
+  await fillPractice(request, "listening", 2);
+  // No texts of the lesson left from earlier tests (projects share the profile); the lesson's start
+  // takes each step's first.
   const [series, course] = DEMO_LESSON.split("/");
   await post(request, "/api/progress/reset", { series, course, lesson: DEMO_LESSON });
   await freshLessonRun(request);
+  await practiceTaken(request, "reading");
+  await practiceTaken(request, "listening");
 });
 
 /** The device's voices, stubbed — two German ones: what the page asks to say, and by which voice,
@@ -68,14 +82,10 @@ const LINES = [
   "Bitte sehr, schönen Tag noch!",
 ];
 
-/** The step's text: one of the course's practice opens with the lesson; none yet, one is written. */
+/** The step's text: the course's practice's, taken into the lesson's run. */
 async function textOf(page: Page) {
   const step = page.locator("article");
-  const write = step.getByRole("button", { name: "Write a text" });
-  const text = step.getByText("FAKE: at a bakery");
-  await expect(write.or(text)).toBeVisible({ timeout: 15_000 });
-  if (await write.isVisible()) await write.click();
-  await expect(text).toBeVisible({ timeout: 15_000 });
+  await expect(step.getByText("FAKE: at a bakery")).toBeVisible({ timeout: 15_000 });
   return step;
 }
 
@@ -158,7 +168,9 @@ test("Reading: the text shown at once with its questions, nothing to listen to; 
   await expect(step.getByRole("heading", { name: "FAKE: Beim Bäcker" })).toBeVisible();
 });
 
-test("a text written again is listed under the new one with its score", async ({ page }) => {
+test("another version of the course's practice: the text before listed under it with its score", async ({
+  page,
+}) => {
   await openStep(page, "Listening");
   const step = await textOf(page);
   await step.getByRole("button", { name: "Falsch" }).click();
@@ -167,7 +179,7 @@ test("a text written again is listed under the new one with its score", async ({
   await step.getByRole("button", { name: "Kuchen", exact: true }).click();
   await step.getByRole("button", { name: "Check", exact: true }).click();
   await expect(step.getByText("1 of 4 right")).toBeVisible();
-  await step.getByRole("button", { name: "New text" }).click();
+  await step.getByRole("button", { name: "Another version" }).click();
   await expect(step.getByText("Earlier texts of this lesson")).toBeVisible();
   const earlier = step.getByRole("button", { name: /1 of 4 right/ });
   await earlier.click();

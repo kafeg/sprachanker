@@ -113,7 +113,6 @@ async function profile() {
   });
   state.cookie = (res.headers.get("set-cookie") ?? "").split(";")[0] ?? "";
   await send("PUT", "/api/llm/route", { provider: PROVIDER, model: MODEL });
-  await send("PUT", "/api/settings", { key: "llm.preparePractice", value: false });
   await send("PUT", "/api/settings", { key: "uiLanguage", value: "ru" });
   save();
 }

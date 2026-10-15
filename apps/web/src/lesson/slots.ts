@@ -41,8 +41,8 @@ export interface LessonSlots {
       onStored(event: TypedEvent): void;
     },
   ): ReactNode;
-  /** AI practice as steps of the plan (Reading, Listening, Writing, Speaking), while an assistant is
-   *  set up. */
+  /** AI practice as steps of the plan (Reading, Listening, Writing, Speaking), where the course's
+   *  practice has them. */
   practice?: {
     /** The kinds offered now in the lesson, undefined while that is not known yet (the player
      *  waits: the flow resumes on a step only once it knows every step; the edition, once chosen); a

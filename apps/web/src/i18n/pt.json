@@ -513,9 +513,7 @@
       "understanding": {
         "name": "Leitura e compreensão oral",
         "where": "duas etapas da lição: um texto para ler e outro para ouvir, com perguntas"
-      },
-      "prepare": "Preparar a prática com antecedência",
-      "prepareHint": "Quando uma lição começa, seus textos para ler e ouvir e a tarefa de escrita são preparados em segundo plano, para estarem prontos quando você chegar lá. O modelo trabalha enquanto isso."
+      }
     },
     "about": {
       "explain": "Explica uma resposta errada embaixo do exercício (“Por que está errado?”): qual é o erro e a regra por trás dele, no seu idioma.",
@@ -542,10 +540,6 @@
   },
   "writing": {
     "task": "Sua tarefa (escreva em {language}):",
-    "intro": "Uma mensagem para responder por escrito — um e-mail de amigo, um chat, um anúncio: três pontos, do tamanho que um exame do seu nível pede. A IA verifica: os pontos, até três correções e um texto modelo.",
-    "start": "Receber uma tarefa",
-    "preparing": "Escrevendo a tarefa…",
-    "newTask": "Nova tarefa",
     "length": "Cerca de {words, number} palavras.",
     "count": "{count, plural, one {# palavra} other {# palavras}} de cerca de {words, number}",
     "placeholder": "Seu texto…",
@@ -1616,9 +1610,6 @@
     }
   },
   "understanding": {
-    "start": "Escrever um texto",
-    "writing": "Escrevendo um texto…",
-    "new": "Novo texto",
     "kind": {
       "dialogue": "um diálogo para ouvir",
       "announcement": "um anúncio para ouvir",
@@ -1640,8 +1631,6 @@
       "choosing": "Escolhendo o melhor rascunho…",
       "asking": "Escrevendo as perguntas…"
     },
-    "introReading": "Um texto curto sobre o tema da lição, como os que se leem no dia a dia — uma carta, um chat, um aviso, uma história. Leia-o e responda às perguntas.",
-    "introListening": "Um texto curto sobre o tema da lição, lido em voz alta — uma conversa, uma mensagem, um aviso, uma história. Ouça e responda de ouvido; o texto aparece depois.",
     "task": {
       "reading": "Leia o texto e responda às perguntas.",
       "listening": "Ouça e responda às perguntas. O texto aparece depois da verificação."
@@ -1689,10 +1678,6 @@
     }
   },
   "talk": {
-    "intro": "Fale na língua que você aprende: uma fala curta a partir de um cartão ou um papel numa conversa. Tudo é verificado no fim, sem espera entre as falas.",
-    "start": "Receber uma tarefa",
-    "preparing": "Preparando a tarefa…",
-    "new": "Nova tarefa",
     "step": {
       "writing": "Escrevendo a tarefa…",
       "choosing": "Escolhendo o melhor rascunho…",
@@ -1730,6 +1715,7 @@
       "make": "Fazer para todas as lições",
       "upTo": "Os passos de cada lição são completados até o número escolhido; iniciado de novo, continua de onde parou.",
       "steps": "Etapas"
-    }
+    },
+    "another": "Outra versão"
   }
 }

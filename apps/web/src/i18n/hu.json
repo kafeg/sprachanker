@@ -513,9 +513,7 @@
       "understanding": {
         "name": "Olvasás és hallás",
         "where": "a lecke két lépése: egy olvasandó és egy meghallgatandó szöveg, kérdésekkel"
-      },
-      "prepare": "A gyakorlás előkészítése előre",
-      "prepareHint": "Amikor egy lecke elkezdődik, az olvasási és hallgatási szövegei és az írási feladata a háttérben elkészülnek, így készen állnak, mire odaérsz. A modell közben dolgozik."
+      }
     },
     "about": {
       "explain": "Elmagyarázza a feladat alatt a hibás választ („Miért hibás?”): mi a hiba, és milyen szabály áll mögötte, a te nyelveden.",
@@ -542,10 +540,6 @@
   },
   "writing": {
     "task": "A feladatod (a szöveg nyelve: {language}):",
-    "intro": "Egy üzenet, amelyre írásban válaszolsz — egy barát e-mailje, chat, hirdetés: három pont, olyan hosszú, mint a szinted vizsgáján. Az MI ellenőrzi: a pontokat, legfeljebb három javítást és egy mintaszöveget.",
-    "start": "Feladatot kérek",
-    "preparing": "Készül a feladat…",
-    "newTask": "Új feladat",
     "length": "Körülbelül {words, number} szó.",
     "count": "{count, plural, one {# szó} other {# szó}} a nagyjából {words, number}-ból",
     "placeholder": "A szöveged…",
@@ -1616,9 +1610,6 @@
     }
   },
   "understanding": {
-    "start": "Szöveg írása",
-    "writing": "Készül a szöveg…",
-    "new": "Új szöveg",
     "kind": {
       "dialogue": "meghallgatandó párbeszéd",
       "announcement": "meghallgatandó bemondás",
@@ -1640,8 +1631,6 @@
       "choosing": "A legjobb vázlat kiválasztása…",
       "asking": "A kérdések írása…"
     },
-    "introReading": "Rövid szöveg a lecke témájáról, olyan, amilyet az életben olvasunk — levél, chat, hirdetmény, történet. Olvasd el, és válaszolj a kérdésekre.",
-    "introListening": "Rövid szöveg a lecke témájáról, felolvasva — beszélgetés, üzenet, bemondás, történet. Hallgasd meg, és hallás után válaszolj; a szöveg utána jelenik meg.",
     "task": {
       "reading": "Olvasd el a szöveget, és válaszolj a kérdésekre.",
       "listening": "Hallgasd meg, és válaszolj a kérdésekre. A szöveg az ellenőrzés után jelenik meg."
@@ -1689,10 +1678,6 @@
     }
   },
   "talk": {
-    "intro": "Beszélj a tanult nyelven: rövid beszéd kártya alapján vagy szerep egy beszélgetésben. A végén ellenőrizzük, a mondatok között nincs várakozás.",
-    "start": "Feladat kérése",
-    "preparing": "A feladat készül…",
-    "new": "Új feladat",
     "step": {
       "writing": "A feladat írása…",
       "choosing": "A legjobb vázlat kiválasztása…",
@@ -1730,6 +1715,7 @@
       "make": "Elkészítés minden leckéhez",
       "upTo": "Minden lecke lépései a választott számig töltődnek fel; újraindítva ott folytatja, ahol abbahagyta.",
       "steps": "Lépések"
-    }
+    },
+    "another": "Másik változat"
   }
 }

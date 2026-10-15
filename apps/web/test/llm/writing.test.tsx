@@ -9,6 +9,7 @@ import { WritingTask } from "../../src/llm/writing.tsx";
 import { TargetLang } from "../../src/ui/target-lang.ts";
 import { lesson } from "../lesson/lesson.ts";
 import { renderApp } from "../render.tsx";
+import { practiceLesson, server } from "./practice-lesson.ts";
 
 const ids = { series: "sprachanker.test", lessonKey: lesson.key, edition: "en-de" };
 const llm: [unknown[], unknown] = [["llm"], { provider: "custom", model: "test-model" }];
@@ -65,6 +66,7 @@ const step = (
   state: Record<string, unknown>,
   setPrimary: (p: PracticePrimary | null) => void = () => {},
   model: [unknown[], unknown] = llm,
+  left = 0,
 ) =>
   renderApp(
     <TargetLang value="de">
@@ -74,6 +76,7 @@ const step = (
       path: "/",
       data: [
         model,
+        practiceLesson(ids, left),
         [
           ["writing", ids.lessonKey, ids.edition],
           { task: null, words: [], attempts: [], checking: null, preparing: false, ...state },
@@ -82,17 +85,25 @@ const step = (
     },
   );
 
-test("no task yet: what the step is and the way to get one; one being written keeps it waiting", async () => {
-  const none = await step({});
-  expect(none.getByText(/A message to answer in writing/)).toBeTruthy();
-  expect(none.getByRole("button", { name: "Get a task" })).toBeTruthy();
-  expect(none.queryByRole("textbox")).toBeNull();
-  none.unmount();
+/** The server after a task is taken: the step's state, the lesson's practice. */
+const answers = (path: string) =>
+  path.endsWith("/practice/lesson")
+    ? practiceLesson(ids)[1]
+    : { task: null, words: [], attempts: [], checking: null, preparing: false };
 
-  const waiting = await step({ preparing: true });
-  const button = waiting.getByRole("button", { name: /Writing a task…/ });
-  expect(button.hasAttribute("disabled")).toBe(true);
-  waiting.unmount();
+test("no task yet: the course's next taken as the step opens; none left, nothing asked", async () => {
+  const asked = server(answers);
+  const none = await step({}, () => {}, llm, 1);
+  expect(none.queryByRole("textbox")).toBeNull();
+  await waitFor(() =>
+    expect(asked[0]).toBe(
+      `POST /api/llm/practice/next ${JSON.stringify({ ...ids, step: "writing", ifNone: true })}`,
+    ),
+  );
+  none.unmount();
+  const all = await step({});
+  expect(all.queryByRole("button", { name: "Another version" })).toBeNull();
+  all.unmount();
 });
 
 test("a task: the message it answers, its situation, three points and length; the words counted as typed; Check in the step bar once a text is there", async () => {
@@ -120,7 +131,7 @@ test("a task: the message it answers, its situation, three points and length; th
     target: { value: "Hallo Lena, ich komme spät — sorry!" },
   });
   expect(view.getByText("6 words of about 30")).toBeTruthy();
-  expect(view.getByRole("button", { name: "New task" })).toBeTruthy();
+  expect(view.queryByRole("button", { name: "Another version" })).toBeNull();
   await waitFor(() => expect(bar.primary?.label).toBe("Check"));
   view.unmount();
 });

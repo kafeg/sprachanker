@@ -513,9 +513,7 @@
       "understanding": {
         "name": "Citire și ascultare",
         "where": "doi pași ai lecției: un text de citit și unul de ascultat, cu întrebări"
-      },
-      "prepare": "Pregătește exersarea din timp",
-      "prepareHint": "Când începe o lecție, textele ei de citit și de ascultat și sarcina de scriere se pregătesc în fundal, ca să fie gata când ajungi la ele. Modelul lucrează între timp."
+      }
     },
     "about": {
       "explain": "Explică un răspuns greșit sub exercițiu („De ce e greșit?”): care e greșeala și regula din spatele ei, în limba ta.",
@@ -542,10 +540,6 @@
   },
   "writing": {
     "task": "Sarcina ta (scrie în {language}):",
-    "intro": "Un mesaj la care răspunzi în scris — un e-mail de la un prieten, un chat, un anunț: trei puncte, cât cere un examen de nivelul tău. AI verifică: punctele, cel mult trei corecturi și un text model.",
-    "start": "Primește o sarcină",
-    "preparing": "Se scrie sarcina…",
-    "newTask": "Sarcină nouă",
     "length": "Cam {words, number} de cuvinte.",
     "count": "{count, plural, one {# cuvânt} few {# cuvinte} other {# de cuvinte}} din circa {words, number}",
     "placeholder": "Textul tău…",
@@ -1616,9 +1610,6 @@
     }
   },
   "understanding": {
-    "start": "Scrie un text",
-    "writing": "Se scrie textul…",
-    "new": "Text nou",
     "kind": {
       "dialogue": "un dialog de ascultat",
       "announcement": "un anunț de ascultat",
@@ -1640,8 +1631,6 @@
       "choosing": "Aleg cea mai bună ciornă…",
       "asking": "Scriu întrebările…"
     },
-    "introReading": "Un text scurt pe tema lecției, cum citim în viața de zi cu zi — o scrisoare, un chat, un anunț, o poveste. Citește-l și răspunde la întrebări.",
-    "introListening": "Un text scurt pe tema lecției, citit cu voce tare — o conversație, un mesaj, un anunț, o poveste. Ascultă și răspunde după ureche; textul se deschide după aceea.",
     "task": {
       "reading": "Citește textul și răspunde la întrebări.",
       "listening": "Ascultă și răspunde la întrebări. Textul se deschide după verificare."
@@ -1689,10 +1678,6 @@
     }
   },
   "talk": {
-    "intro": "Vorbește în limba pe care o înveți: o scurtă prezentare după un card sau un rol într-o conversație. Totul se verifică la final, fără așteptare între replici.",
-    "start": "Primește o sarcină",
-    "preparing": "Pregătesc sarcina…",
-    "new": "Sarcină nouă",
     "step": {
       "writing": "Scriu sarcina…",
       "choosing": "Aleg cea mai bună variantă…",
@@ -1730,6 +1715,7 @@
       "make": "Fă pentru toate lecțiile",
       "upTo": "Pașii fiecărei lecții sunt completați până la numărul ales; pornit din nou, continuă de unde s-a oprit.",
       "steps": "Pași"
-    }
+    },
+    "another": "Altă variantă"
   }
 }

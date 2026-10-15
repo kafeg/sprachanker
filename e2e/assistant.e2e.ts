@@ -8,10 +8,12 @@ import {
   beginCourse,
   DEMO_LESSON,
   fakeMicrophone,
+  fillPractice,
   freshLessonRun,
   goToStep,
   openStep,
   post,
+  practiceTaken,
   put,
 } from "./api.ts";
 import { FAKE_LLM_PORT, FAKE_TEXT } from "./fake-llm.ts";
@@ -22,11 +24,13 @@ test.beforeEach(async ({ request }) => {
   });
   await put(request, "/api/llm/route", { provider: "custom", model: "fake-model" });
   await put(request, "/api/settings", { key: "llm.offIn", value: [] });
+  await fillPractice(request, "writing");
   // No writing tasks or mistakes reviews of the lesson left from earlier tests (projects share the
-  // profile): each test asks for its own.
+  // profile): the lesson's start takes the course's task.
   const [series, course] = DEMO_LESSON.split("/");
   await post(request, "/api/progress/reset", { series, course, lesson: DEMO_LESSON });
   await freshLessonRun(request);
+  await practiceTaken(request, "writing");
 });
 
 test("explain a mistake, ask the tutor, check a text", async ({ page, request }) => {
@@ -68,16 +72,12 @@ test("explain a mistake, ask the tutor, check a text", async ({ page, request })
   await tutor.getByRole("tab", { name: "Conversation" }).click();
   await page.keyboard.press("Escape");
 
-  // With an assistant the plan has the AI practice steps. Writing: a task — the course's practice
-  // has one once a project has asked for it, else it is asked for —: a situation, three points, the
-  // length of the course's level (the fixture names none: a beginner's); a text on it checked: each
-  // point rated, the corrections, a model text.
+  // The plan has the AI practice steps the course's practice has. Writing: its task (taken into the
+  // run): a situation, three points, the length of the course's level (the fixture names none: a
+  // beginner's); a text on it checked: each point rated, the corrections, a model text.
   await goToStep(page, "Writing");
   const task = page.getByText("FAKE: You are meeting Lena at the café.");
-  const ask = page.getByRole("button", { name: "Get a task" });
-  await expect(ask.or(task)).toBeVisible({ timeout: 15_000 });
-  if (await ask.isVisible()) await ask.click();
-  await expect(task).toBeVisible();
+  await expect(task).toBeVisible({ timeout: 15_000 });
   await expect(page.getByText("FAKE: say when you come")).toBeVisible();
   await expect(page.getByText("About 30 words.")).toBeVisible();
   const writing = page.getByPlaceholder("Your text…");

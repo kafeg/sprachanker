@@ -513,9 +513,7 @@
       "understanding": {
         "name": "Membaca dan menyimak",
         "where": "dua langkah pelajaran: teks untuk dibaca dan teks untuk didengar, dengan pertanyaan"
-      },
-      "prepare": "Siapkan latihan lebih dulu",
-      "prepareHint": "Saat pelajaran dimulai, teks bacaan, teks simakan, dan tugas menulisnya dibuat di latar belakang, jadi sudah siap saat kamu sampai di sana. Model bekerja selama itu."
+      }
     },
     "about": {
       "explain": "Menjelaskan jawaban yang salah di bawah latihan (“Kenapa ini salah?”): apa kesalahannya dan aturan di baliknya, dalam bahasa kamu.",
@@ -542,10 +540,6 @@
   },
   "writing": {
     "task": "Tugasmu (tulis dalam bahasa {language}):",
-    "intro": "Pesan untuk dibalas secara tertulis — e-mail teman, obrolan, iklan: tiga poin, sepanjang yang diminta ujian di levelmu. AI memeriksa: poinnya, paling banyak tiga koreksi, dan contoh teks.",
-    "start": "Minta tugas",
-    "preparing": "Menulis tugas…",
-    "newTask": "Tugas baru",
     "length": "Sekitar {words, number} kata.",
     "count": "{count, plural, other {# kata}} dari sekitar {words, number}",
     "placeholder": "Teks kamu…",
@@ -1616,9 +1610,6 @@
     }
   },
   "understanding": {
-    "start": "Tulis teks",
-    "writing": "Menulis teks…",
-    "new": "Teks baru",
     "kind": {
       "dialogue": "dialog untuk didengar",
       "announcement": "pengumuman untuk didengar",
@@ -1640,8 +1631,6 @@
       "choosing": "Memilih draf terbaik…",
       "asking": "Menulis pertanyaan…"
     },
-    "introReading": "Teks pendek tentang topik pelajaran, seperti yang dibaca orang sehari-hari — surat, obrolan, pengumuman, cerita. Baca dan jawab pertanyaannya.",
-    "introListening": "Teks pendek tentang topik pelajaran yang dibacakan — percakapan, pesan, pengumuman, cerita. Dengarkan dan jawab berdasarkan apa yang didengar; teksnya muncul sesudahnya.",
     "task": {
       "reading": "Baca teksnya dan jawab pertanyaannya.",
       "listening": "Dengarkan dan jawab pertanyaannya. Teksnya muncul setelah diperiksa."
@@ -1689,10 +1678,6 @@
     }
   },
   "talk": {
-    "intro": "Berbicaralah dalam bahasa yang kamu pelajari: bicara singkat dari kartu atau satu peran dalam percakapan. Semua diperiksa di akhir, tanpa menunggu di antara kalimat.",
-    "start": "Ambil tugas",
-    "preparing": "Menyiapkan tugas…",
-    "new": "Tugas baru",
     "step": {
       "writing": "Menulis tugas…",
       "choosing": "Memilih draf terbaik…",
@@ -1730,6 +1715,7 @@
       "make": "Buat untuk semua pelajaran",
       "upTo": "Langkah setiap pelajaran diisi hingga jumlah yang dipilih; jika dimulai lagi, dilanjutkan dari tempat berhenti.",
       "steps": "Langkah"
-    }
+    },
+    "another": "Versi lain"
   }
 }

@@ -152,7 +152,7 @@ function profileServices(
   } catch (error) {
     console.error("removing unused recordings:", error);
   }
-  // The lesson's AI practice made ahead as it starts (the prep is made below, with the AI's services).
+  // The lesson's AI practice taken as it starts (the prep is made below, with the AI's services).
   let lessonStarted: (lesson: LessonStart) => void = () => {};
   const lessons = createLessons({ store, content, started: (lesson) => lessonStarted(lesson) });
   const exams = createExams({ store, content, settings, now });
@@ -235,7 +235,7 @@ function profileServices(
     reader,
     now,
   });
-  const practicePrep = createPracticePrep({ understanding, writing, talk, settings, llm });
+  const practicePrep = createPracticePrep({ understanding, writing, talk, settings });
   lessonStarted = practicePrep.lessonStarted;
   const goingOver = createGoingOver({ store, session: lessons.shown, llm, lessonContext });
   const scenes = createScenes({ store, llm, lessonContext });
@@ -323,14 +323,29 @@ function profileServices(
     practicePrep,
     // The course's practice made in one go, by this profile's model and voices: its state, a job.
     practiceCourse: {
-      /** Whether this server records an edition's practice (Qwen3-TTS reads its language). */
-      voice: (edition: string) => !!reader(parseEditionId(edition).target),
-      /** How many variants of each step a lesson's practice has in an edition. */
-      async lesson(series: string, lessonKey: LessonKey, edition: string) {
-        const p = await practice.lesson({ series, lessonKey, edition });
-        return Object.fromEntries(
-          PRACTICE_STEPS.map((step) => [step, p?.[step].length ?? 0]),
-        ) as Record<PracticeStepName, number>;
+      /** How many variants of each step a lesson's practice has in an edition, and how many of them
+       *  the learner has not had yet. */
+      lesson: (series: string, lessonKey: LessonKey, edition: string) =>
+        practice.counts({ series, lessonKey, edition }),
+      /** The step's next variant the learner has not had taken into the run the lesson shows (owner,
+       *  2026-10-15: "Another version", no model); none left: no_such_item. `ifNone`: only while the
+       *  learner has no work of the step yet (a step opening empty) — else null, nothing taken. */
+      async next(
+        series: string,
+        lessonKey: LessonKey,
+        edition: string,
+        step: PracticeStepName,
+        ifNone = false,
+      ) {
+        const r = { series, lessonKey, edition };
+        const taken = await practice.take(
+          r,
+          step,
+          () => !ifNone || !practice.worked(lessonKey, step),
+        );
+        if (taken) return taken;
+        if (ifNone && practice.worked(lessonKey, step)) return null;
+        throw new ServiceError("no_such_item", 404);
       },
       async state(series: string, course: string, edition: string) {
         const lessons = lessonOrder(await shared.content.courseIndex(series, course));

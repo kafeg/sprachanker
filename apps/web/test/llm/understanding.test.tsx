@@ -12,6 +12,7 @@ import { UnderstandingStep } from "../../src/llm/understanding.tsx";
 import { TargetLang } from "../../src/ui/target-lang.ts";
 import { lesson } from "../lesson/lesson.ts";
 import { renderApp } from "../render.tsx";
+import { practiceLesson, server } from "./practice-lesson.ts";
 
 const ids = { series: "sprachanker.test", lessonKey: lesson.key, edition: "en-de" };
 const llm: [unknown[], unknown] = [["llm"], { provider: "custom", model: "test-model" }];
@@ -91,6 +92,7 @@ const step = (
   voices: unknown = PIPER,
   which: "reading" | "listening" = "listening",
   setPrimary: (p: PracticePrimary | null) => void = () => {},
+  left = 0,
 ) =>
   renderApp(
     <TargetLang value="de">
@@ -102,8 +104,7 @@ const step = (
         [["settings"], { "speech.readEngine": "piper" }],
         [["piper-voices"], voices],
         [["understanding", ids.lessonKey, which], { texts, preparing: false }],
-        // The server records a Listening text (Qwen3-TTS reads the language).
-        [["practice-voice", ids.edition], { voice: true }],
+        practiceLesson(ids, left),
         // The recording, made by the server (as a URL for the player).
         [["understanding-audio", "01K7A0Z8ZQ4J1V2W3X4Y5Z6A70"], "blob:recording"],
       ],
@@ -219,14 +220,23 @@ test("nothing here reads the language: the step says what listening needs and sh
   view.unmount();
 });
 
-test("no text yet: what the step is and the way to write one; earlier texts listed with their scores", async () => {
-  const none = await step([]);
-  expect(none.getByText(/A short text on the lesson's topic, read aloud/)).toBeTruthy();
-  expect(none.getByRole("button", { name: "Write a text" })).toBeTruthy();
+/** The server after a text is taken: the step's texts, the lesson's practice. */
+const answers = (path: string) =>
+  path.endsWith("/practice/lesson")
+    ? practiceLesson(ids)[1]
+    : path.endsWith("/understanding")
+      ? { texts: [understood()], preparing: false }
+      : {};
+
+test("no text yet: the course's next taken as the step opens; earlier texts listed with their scores; Another version while the course has more", async () => {
+  const asked = server(answers);
+  const none = await step([], PIPER, "listening", () => {}, 2);
+  await waitFor(() =>
+    expect(asked[0]).toBe(
+      `POST /api/llm/practice/next ${JSON.stringify({ ...ids, step: "listening", ifNone: true })}`,
+    ),
+  );
   none.unmount();
-  const toRead = await step([], PIPER, "reading");
-  expect(toRead.getByText(/as people really read them/)).toBeTruthy();
-  toRead.unmount();
 
   const earlier = {
     ...understood([answer(0, { optionId: "a" }, "wrong")]),
@@ -235,6 +245,11 @@ test("no text yet: what the step is and the way to write one; earlier texts list
   const view = await step([understood(), earlier]);
   expect(view.getByText("Earlier texts of this lesson")).toBeTruthy();
   expect(view.getByText("0 of 3 right")).toBeTruthy();
-  expect(view.getByRole("button", { name: "New text" })).toBeTruthy();
+  expect(view.queryByRole("button", { name: "Another version" })).toBeNull();
   view.unmount();
+  const more = await step([understood()], PIPER, "listening", () => {}, 1);
+  const taken = server(answers);
+  fireEvent.click(more.getByRole("button", { name: "Another version" }));
+  await waitFor(() => expect(taken[0]).toStartWith("POST /api/llm/practice/next"));
+  more.unmount();
 });

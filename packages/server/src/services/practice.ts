@@ -106,6 +106,17 @@ export function createPractice(deps: {
     const taken = had(r.lessonKey, step);
     return (practice?.[step] ?? []).filter((v: { id: string }) => !taken.has(v.id));
   }
+  /** Takes of a lesson's step one after another: what one checks still holds when it keeps. */
+  const takes = new Map<string, Promise<unknown>>();
+  function oneAtATime<T>(key: string, work: () => Promise<T>): Promise<T> {
+    const done = (takes.get(key) ?? Promise.resolve()).then(work, work);
+    const settled = done.catch(() => undefined);
+    takes.set(key, settled);
+    void settled.then(() => {
+      if (takes.get(key) === settled) takes.delete(key);
+    });
+    return done;
+  }
   /** A new variant's id: drawn, a number after it where the lesson's practice has it already. */
   async function newId(r: PracticeRequest) {
     const drawn = Array.from({ length: 12 }, () => ID[Math.floor(deps.random() * ID.length)]).join(
@@ -122,6 +133,35 @@ export function createPractice(deps: {
     return id;
   }
   const language = (edition: string): Lang => parseEditionId(edition).source;
+
+  async function takeNow<S extends PracticeStepName>(
+    r: PracticeRequest,
+    step: S,
+    when: () => boolean,
+  ): Promise<Taken[S] | undefined> {
+    if (parseLessonKey(r.lessonKey).course.split("/")[0] !== r.series)
+      throw new ServiceError("no_such_item", 404);
+    if (!when()) return undefined;
+    const [next] = await left(r, step);
+    if (!next) return undefined;
+    const session = await deps.session(r.lessonKey);
+    if (!session) throw new ServiceError("no_lesson_run", 409);
+    const base = { input: "", model: next.model, latencyMs: 0 };
+    const runId = session.run.id;
+    if (step === "writing") {
+      const task: WritingTask = { ...(next as PracticeWriting).task, variant: next.id };
+      return keepVerdict(store, runId, { ...base, task: "writing_task", result: task })
+        .verdict as Taken[S];
+    }
+    if (step === "speaking") {
+      const task: TalkTask = { ...(next as PracticeSpeaking).task, variant: next.id };
+      return keepVerdict(store, runId, { ...base, task: "talk_task", result: task })
+        .verdict as Taken[S];
+    }
+    const text: UnderstandingText = { ...(next as PracticeText).text, variant: next.id };
+    return keepVerdict(store, runId, { ...base, task: "understanding", result: text })
+      .verdict as Taken[S];
+  }
 
   const self = {
     lesson,
@@ -158,33 +198,38 @@ export function createPractice(deps: {
       return id;
     },
 
-    /** Takes the step's next variant the learner has not had into the run the lesson shows, as the
-     *  step's work: its verdict, or undefined when none is left. */
-    async take<S extends PracticeStepName>(
-      r: PracticeRequest,
-      step: S,
-    ): Promise<Taken[S] | undefined> {
-      const [next] = await left(r, step);
-      if (!next) return undefined;
-      const session = await deps.session(r.lessonKey);
-      if (!session) throw new ServiceError("no_lesson_run", 409);
-      const base = { input: "", model: next.model, latencyMs: 0 };
-      const runId = session.run.id;
-      if (step === "writing") {
-        const task: WritingTask = { ...(next as PracticeWriting).task, variant: next.id };
-        return keepVerdict(store, runId, { ...base, task: "writing_task", result: task })
-          .verdict as Taken[S];
-      }
-      if (step === "speaking") {
-        const task: TalkTask = { ...(next as PracticeSpeaking).task, variant: next.id };
-        return keepVerdict(store, runId, { ...base, task: "talk_task", result: task })
-          .verdict as Taken[S];
-      }
-      const text: UnderstandingText = { ...(next as PracticeText).text, variant: next.id };
-      return keepVerdict(store, runId, { ...base, task: "understanding", result: text })
-        .verdict as Taken[S];
+    /** How many variants of each step the lesson's practice has, and how many the learner has not
+     *  had yet. */
+    async counts(r: PracticeRequest) {
+      const practice = await lesson(r);
+      return Object.fromEntries(
+        PRACTICE_STEPS.map((step) => {
+          const all: Array<{ id: string }> = practice?.[step] ?? [];
+          const taken = had(r.lessonKey, step);
+          return [step, { made: all.length, left: all.filter((v) => !taken.has(v.id)).length }];
+        }),
+      ) as Record<PracticeStepName, { made: number; left: number }>;
     },
 
+    /** Whether the learner has any work of the step in the lesson (any run, a variant or before). */
+    worked(lessonKey: LessonKey, step: PracticeStepName) {
+      const task =
+        step === "writing" ? "writing_task" : step === "speaking" ? "talk_task" : "understanding";
+      return verdicts(store, task, where(lessonKey)).some(
+        (v) => task !== "understanding" || (v.result as UnderstandingText).step === step,
+      );
+    },
+
+    /** Takes the step's next variant the learner has not had into the run the lesson shows, as the
+     *  step's work: its verdict, or undefined when none is left or `when` (asked as the take's turn
+     *  comes: one take of a step at a time) says no. */
+    take<S extends PracticeStepName>(
+      r: PracticeRequest,
+      step: S,
+      when: () => boolean = () => true,
+    ): Promise<Taken[S] | undefined> {
+      return oneAtATime(`${r.lessonKey}:${step}`, () => takeNow(r, step, when));
+    },
     /** The run the lesson shows, or no_lesson_run: asked before work is made for it. */
     async run(lessonKey: LessonKey) {
       const session = await deps.session(lessonKey);

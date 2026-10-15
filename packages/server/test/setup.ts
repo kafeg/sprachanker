@@ -49,9 +49,6 @@ export async function setup(
     editLibrary?: (libraryRoot: string) => void;
     /** What the AI practice draws (a text's genre, ideas, voices); Math.random unless given. */
     random?: () => number;
-    /** The lesson's AI practice made ahead as it starts, as the app does (off here unless asked:
-     *  a test's model answers what the test asks, in order). */
-    prepare?: boolean;
     /** The session also in a header both ways, as the phone app runs the server. */
     sessionInHeader?: boolean;
   } = {},
@@ -123,8 +120,6 @@ export async function setup(
   // biome-ignore lint/suspicious/noExplicitAny: test responses are inspected structurally.
   const sendJson = async (method: string, path: string, body: unknown): Promise<any> =>
     (await send(method, path, body)).json();
-  if (!options.prepare)
-    await send("PUT", "/api/settings", { key: "llm.preparePractice", value: false });
   /** Moves the server's clock on (each reading of it still adds a second). */
   const advance = (ms: number) => {
     clock += ms;

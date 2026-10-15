@@ -249,7 +249,10 @@ test("several tasks at once: their messages from one round of drafts, a task on 
   const { sendJson, getJson, bodies } = await withModel({ writing_task: [TASK] });
   await sendJson("POST", "/api/runs", START);
   await sendJson("POST", "/api/llm/writing/task", { ...IDS, count: 3 });
-  expect((await getJson(`/api/llm/practice/lesson?${query}`)).writing).toBe(3);
+  expect((await getJson(`/api/llm/practice/lesson?${query}`)).writing).toEqual({
+    made: 3,
+    left: 2,
+  });
   const asked = bodies.map((b) => b.name);
   expect(asked.filter((n) => n === "understanding_draft")).toHaveLength(3);
   expect(asked.filter((n) => n === "understanding_judge")).toHaveLength(1);

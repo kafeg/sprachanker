@@ -7,7 +7,7 @@
 // each line whether it does what its hint asks, at most two corrections, a good way to say it. Typed
 // where nothing can hear (DialogueLine says why). The kinds take turns; "New task" makes another.
 import type { MonologueCard, Roleplay, RoleplayCheck, WritingCheck } from "@sprachanker/schema";
-import { Check, Mic, X } from "lucide-react";
+import { Check, X } from "lucide-react";
 import { useEffect, useRef, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { mediaUrl } from "@/api/client.ts";
@@ -20,17 +20,10 @@ import { inLang } from "@/ui/direction.tsx";
 import { Panel } from "@/ui/panel.tsx";
 import { useRequiredTargetLang } from "@/ui/target-lang.ts";
 import { cn } from "@/ui/utils.ts";
-import {
-  busyMaking,
-  type TalkAttemptVerdict,
-  type TalkTaskVerdict,
-  useCheckTalk,
-  useStartTalk,
-  useTalk,
-} from "./api.ts";
+import { type TalkAttemptVerdict, type TalkTaskVerdict, useCheckTalk, useTalk } from "./api.ts";
 import { DialogueLine } from "./dialogue-line.tsx";
-import { ErrorLine, StartPrompt, Thinking } from "./parts.tsx";
-import { MoreButton } from "./practice-more.tsx";
+import { ErrorLine, Thinking } from "./parts.tsx";
+import { NextVariant } from "./practice-next.tsx";
 import { PromptButton } from "./prompt-view.tsx";
 import { useLlm } from "./setup-api.ts";
 import { CheckResult } from "./writing.tsx";
@@ -343,8 +336,8 @@ function RolePlay({
   );
 }
 
-/** The lesson's Speaking step: its latest task (or a start; made ahead as the lesson started, it is
- *  there or on its way) and what was said on it, checked. */
+/** The lesson's Speaking step: its latest task (taken from the course's practice as the lesson
+ *  started) and what was said on it, checked. */
 export function TalkStep({
   onDone,
   setPrimary,
@@ -352,19 +345,14 @@ export function TalkStep({
 }: LessonSlotContext & { onDone?(): void; setPrimary?(primary: PracticePrimary | null): void }) {
   const { t, i18n } = useTranslation();
   const llm = useLlm();
-  const start = useStartTalk(ids.lessonKey);
-  const state = useTalk(ids.lessonKey, start.isPending);
+  const state = useTalk(ids.lessonKey);
   const check = useCheckTalk(ids.lessonKey, onDone);
-  // A task of the course's practice is there without a model; making one, and checking, need it.
-  if (!state.data || (!llm.data?.model && !state.data.task)) return null;
+  if (!state.data) return null;
   const { task, attempts } = state.data;
-  const preparing = start.isPending || state.data.preparing;
+  const preparing = state.data.preparing;
   const checking = check.isPending || state.data.checking;
   const noModel = !llm.isPending && !llm.data?.model;
   const request = { ...ids, language: i18n.language };
-  const make = (count = 1) => {
-    if (!preparing && !checking) start.mutate({ ...request, count });
-  };
   const attempt = task ? attempts.find((a) => a.ts > task.ts) : undefined;
   const send = (current: TalkTaskVerdict) => (said: Said[]) =>
     check.mutate({ ...request, taskId: current.id, said });
@@ -374,14 +362,7 @@ export function TalkStep({
         <>
           <div className="flex flex-wrap items-center justify-end gap-2">
             <PromptButton request={() => ({ talk: request })} />
-            <MoreButton
-              label={t("talk.new")}
-              busyLabel={t("talk.preparing")}
-              preparing={preparing}
-              disabled={checking}
-              edition={ids.edition}
-              onMake={make}
-            />
+            <NextVariant ids={ids} step="speaking" disabled={checking} />
           </div>
           {noModel && (
             <p className="text-sm text-muted-foreground">{t("practice.checkNeedsModel")}</p>
@@ -411,13 +392,7 @@ export function TalkStep({
           )}
         </>
       ) : (
-        <StartPrompt
-          intro={t("talk.intro")}
-          label={preparing ? t("talk.preparing") : t("talk.start")}
-          icon={Mic}
-          loading={preparing}
-          onStart={() => make()}
-        />
+        <NextVariant ids={ids} step="speaking" empty />
       )}
       {(preparing || checking) && (
         <Thinking
@@ -426,10 +401,8 @@ export function TalkStep({
         />
       )}
       <ErrorLine
-        error={busyMaking(start.error) ? null : (check.error ?? start.error)}
-        onRetry={
-          check.error ? () => check.variables && check.mutate(check.variables) : () => make()
-        }
+        error={check.error}
+        onRetry={() => check.variables && check.mutate(check.variables)}
       />
     </div>
   );

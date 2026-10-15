@@ -1,8 +1,8 @@
 // A course's AI practice (owner, 2026-10-14): each lesson's Reading and Listening texts with their
 // questions, writing tasks with the message to answer and Speaking tasks, made by the text generator
 // and kept with the course in the library and its bundles — every variant ever made for a lesson, of
-// every step, so they gather: a course-wide run, a lesson's or a step's button and the command line
-// all add variants here. A learner's step takes the next variant they have not had; checking what
+// every step, so they gather: a course's job (its page) and the command line add
+// variants here; a lesson makes none. A learner's step takes the next variant they have not had; checking what
 // they write or say stays the model's. The texts to hear and the partners' lines are recorded when
 // made, so a course studies without a voice engine. Beside the course:
 // `practice/<edition>/<course>/<unit>-<lesson>.json`, its recordings in the lesson's folder there.

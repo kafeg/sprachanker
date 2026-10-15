@@ -513,9 +513,7 @@
       "understanding": {
         "name": "Czytanie i słuchanie",
         "where": "dwa kroki lekcji: tekst do czytania i tekst do słuchania, z pytaniami"
-      },
-      "prepare": "Przygotowuj ćwiczenia z wyprzedzeniem",
-      "prepareHint": "Gdy lekcja się zaczyna, jej teksty do czytania i słuchania oraz zadanie pisemne powstają w tle, więc są gotowe, gdy do nich dojdziesz. Model w tym czasie pracuje."
+      }
     },
     "about": {
       "explain": "Wyjaśnia błędną odpowiedź pod ćwiczeniem („Dlaczego to błąd?”): na czym polega błąd i jaka reguła za nim stoi, w twoim języku.",
@@ -542,10 +540,6 @@
   },
   "writing": {
     "task": "Twoje zadanie (język tekstu: {language}):",
-    "intro": "Wiadomość, na którą odpowiadasz pisemnie — e-mail od przyjaciela, czat, ogłoszenie: trzy punkty, długość jak na egzaminie twojego poziomu. AI sprawdzi: punkty, najwyżej trzy poprawki i tekst wzorcowy.",
-    "start": "Daj mi zadanie",
-    "preparing": "Piszę zadanie…",
-    "newTask": "Nowe zadanie",
     "length": "Około {words, number} słów.",
     "count": "{count, plural, one {# słowo} few {# słowa} many {# słów} other {# słowa}} z około {words, number}",
     "placeholder": "Twój tekst…",
@@ -1616,9 +1610,6 @@
     }
   },
   "understanding": {
-    "start": "Napisz tekst",
-    "writing": "Piszę tekst…",
-    "new": "Nowy tekst",
     "kind": {
       "dialogue": "dialog do słuchania",
       "announcement": "komunikat do słuchania",
@@ -1640,8 +1631,6 @@
       "choosing": "Wybieram najlepszą wersję…",
       "asking": "Układam pytania…"
     },
-    "introReading": "Krótki tekst na temat lekcji, jaki czyta się na co dzień — list, czat, ogłoszenie, opowiadanie. Przeczytaj go i odpowiedz na pytania.",
-    "introListening": "Krótki tekst na temat lekcji, czytany na głos — rozmowa, wiadomość, komunikat, opowiadanie. Słuchaj i odpowiadaj ze słuchu; tekst pojawi się potem.",
     "task": {
       "reading": "Przeczytaj tekst i odpowiedz na pytania.",
       "listening": "Posłuchaj i odpowiedz na pytania. Tekst pojawi się po sprawdzeniu."
@@ -1689,10 +1678,6 @@
     }
   },
   "talk": {
-    "intro": "Mów w języku, którego się uczysz: krótka wypowiedź według karty albo rola w rozmowie. Sprawdzenie na końcu, bez czekania między kwestiami.",
-    "start": "Pobierz zadanie",
-    "preparing": "Przygotowuję zadanie…",
-    "new": "Nowe zadanie",
     "step": {
       "writing": "Piszę zadanie…",
       "choosing": "Wybieram najlepszą wersję…",
@@ -1730,6 +1715,7 @@
       "make": "Zrób dla wszystkich lekcji",
       "upTo": "Kroki każdej lekcji są uzupełniane do wybranej liczby; uruchomione ponownie, kontynuuje tam, gdzie skończyło.",
       "steps": "Kroki"
-    }
+    },
+    "another": "Inny wariant"
   }
 }

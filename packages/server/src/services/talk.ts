@@ -239,8 +239,8 @@ export function createTalk(deps: {
     },
 
     /** Makes `count` tasks for the lesson into the course's practice, then takes the step's next
-     *  the learner has not had into the run the lesson shows. Runs to its end even when the page that
-     *  asked is gone. */
+     *  the learner has not had into the run the lesson shows (the practice scripts and e2e; a lesson
+     *  makes none). Runs to its end even when the page that asked is gone. */
     start(request: TextRequest, count = 1): Promise<Verdict<"talk_task">> {
       return busy.run(request.lessonKey, "writing", async () => {
         await deps.practice.run(request.lessonKey);
@@ -259,17 +259,18 @@ export function createTalk(deps: {
     },
 
     /** The lesson started: unless a task is being made or the latest has no attempt yet, the step's
-     *  next task of the course's practice is taken — one is made first when none is left and
-     *  `makeIfNone`; a failure only logged. */
-    async prepare(request: TextRequest, makeIfNone: boolean) {
-      if (busy.get(request.lessonKey)) return;
-      const latest = tasks(request.lessonKey)[0];
-      if (latest && !attempts(request.lessonKey).some((a) => a.ts > latest.ts)) return;
+     *  next task of the course's practice is taken — none left: the latest stays; a failure only
+     *  logged. */
+    async prepare(request: TextRequest) {
+      const done = () => {
+        if (busy.get(request.lessonKey)) return false;
+        const latest = tasks(request.lessonKey)[0];
+        return !latest || attempts(request.lessonKey).some((a) => a.ts > latest.ts);
+      };
       try {
-        if (await deps.practice.take(request, "speaking")) return;
-        if (makeIfNone) await this.start(request);
+        await deps.practice.take(request, "speaking", done);
       } catch (error) {
-        console.warn(`speaking made ahead: ${(error as Error).message}`);
+        console.warn(`speaking taken as the lesson started: ${(error as Error).message}`);
       }
     },
 

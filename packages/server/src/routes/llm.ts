@@ -80,8 +80,8 @@ const TextRequest = LessonRequest.extend({ step: PracticeStep });
 const PracticeCourse = z.object({ series: SeriesKey, course: Slug, edition: EditionId });
 const PracticeStepName = z.enum(["reading", "listening", "writing", "speaking"]);
 
-/** How many variants a step's button makes into the course's practice (owner, 2026-10-14: 1–3),
- *  before the next the learner has not had is taken. */
+/** How many variants of a step are made: a course's job fills each lesson's up to it, a step's
+ *  route (the practice scripts') makes that many before the next is taken (owner, 2026-10-14: 1–3). */
 const Count = z.object({ count: z.number().int().min(1).max(3).optional() });
 
 /** An answer to a question the assistant set — a Reading or Listening text's, a mistakes review's new
@@ -373,8 +373,25 @@ export function llmRoutes() {
           return c.json(await c.var.s.practiceCourse.lesson(series, lessonKey, edition));
         },
       )
-      .get("/practice/voice", zod("query", z.object({ edition: EditionId })), (c) =>
-        c.json({ voice: c.var.s.practiceCourse.voice(c.req.valid("query").edition) }),
+      // "Another one" in a lesson's step: its next variant of the course's practice, no model.
+      .post(
+        "/practice/next",
+        zod(
+          "json",
+          z.object({
+            series: SeriesKey,
+            lessonKey: LessonKey,
+            edition: EditionId,
+            step: PracticeStepName,
+            ifNone: z.boolean().optional(),
+          }),
+        ),
+        async (c) => {
+          const { series, lessonKey, edition, step, ifNone } = c.req.valid("json");
+          return c.json(
+            await c.var.s.practiceCourse.next(series, lessonKey, edition, step, ifNone),
+          );
+        },
       )
       .post("/practice/stop", zod("json", PracticeCourse), (c) => {
         const { series, course, edition } = c.req.valid("json");

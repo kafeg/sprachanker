@@ -5,7 +5,16 @@
 // the step bar: each line's verdict, a correction, a good way to say it; and a monologue's card typed
 // where nothing hears, checked as a writing check, with a model answer.
 import { expect, type Page, test } from "@playwright/test";
-import { DEMO_LESSON, fakeMicrophone, freshLessonRun, openStep, post, put } from "./api.ts";
+import {
+  DEMO_LESSON,
+  fakeMicrophone,
+  fillPractice,
+  freshLessonRun,
+  openStep,
+  post,
+  practiceTaken,
+  put,
+} from "./api.ts";
 import { FAKE_LLM_PORT } from "./fake-llm.ts";
 
 const HEARD = "Ja gern danke";
@@ -16,10 +25,14 @@ test.beforeEach(async ({ request }) => {
   });
   await put(request, "/api/llm/route", { provider: "custom", model: "fake-model" });
   await put(request, "/api/settings", { key: "llm.offIn", value: [] });
-  // No Speaking tasks of the lesson left from earlier tests (projects share the profile).
+  // The course's practice has both kinds: a card and a role-play (they take turns).
+  await fillPractice(request, "speaking", 2);
+  // No Speaking tasks of the lesson left from earlier tests (projects share the profile); the
+  // lesson's start takes the first.
   const [series, course] = DEMO_LESSON.split("/");
   await post(request, "/api/progress/reset", { series, course, lesson: DEMO_LESSON });
   await freshLessonRun(request);
+  await practiceTaken(request, "speaking");
 });
 
 /** The device's voices, stubbed: what the page asks to say is kept on the page. */
@@ -67,21 +80,20 @@ async function recognitionOn(page: Page) {
   );
 }
 
-/** The step's task of a kind: the one made ahead as the lesson started (or asked for), else the next
- *  — the kinds take turns. */
+/** The step's task of a kind: the course's practice's taken into the lesson's run, else another
+ *  version of it — the kinds take turns. */
 async function taskOf(page: Page, kind: "monologue" | "roleplay") {
   const step = page.locator("article");
   const card = step.getByText("Über mich");
   const play = step.getByText("You are: FAKE: a customer");
-  const start = step.getByRole("button", { name: "Get a task" });
-  await expect(card.or(play).or(start)).toBeVisible({ timeout: 15_000 });
-  if (await start.isVisible()) await start.click();
   await expect(card.or(play)).toBeVisible({ timeout: 15_000 });
   const wanted = kind === "monologue" ? card : play;
-  if (!(await wanted.isVisible())) {
-    await step.getByRole("button", { name: "New task" }).click();
-    await expect(wanted).toBeVisible({ timeout: 15_000 });
+  for (let i = 0; i < 6 && !(await wanted.isVisible()); i++) {
+    const taken = page.waitForResponse((r) => r.url().includes("/api/llm/talk?"));
+    await step.getByRole("button", { name: "Another version" }).click();
+    await taken;
   }
+  await expect(wanted).toBeVisible({ timeout: 15_000 });
   return step;
 }
 

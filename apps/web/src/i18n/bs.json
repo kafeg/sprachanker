@@ -513,9 +513,7 @@
       "understanding": {
         "name": "Čitanje i slušanje",
         "where": "dva koraka lekcije: tekst za čitanje i tekst za slušanje, s pitanjima"
-      },
-      "prepare": "Pripremaj vježbe unaprijed",
-      "prepareHint": "Kad lekcija počne, njeni tekstovi za čitanje i slušanje i zadatak za pisanje prave se u pozadini, pa su spremni kad stigneš do njih. Model za to vrijeme radi."
+      }
     },
     "about": {
       "explain": "Objašnjava pogrešan odgovor ispod vježbe („Zašto je ovo pogrešno?“): u čemu je greška i koje pravilo stoji iza nje, na tvom jeziku.",
@@ -542,10 +540,6 @@
   },
   "writing": {
     "task": "Tvoj zadatak (jezik teksta: {language}):",
-    "intro": "Poruka na koju odgovaraš pismeno — e-mail prijatelja, chat, oglas: tri tačke, dužina kao na ispitu tvog nivoa. AI provjerava: tačke, najviše tri ispravke i uzorak teksta.",
-    "start": "Daj mi zadatak",
-    "preparing": "Piše se zadatak…",
-    "newTask": "Novi zadatak",
     "length": "Oko {words, number} riječi.",
     "count": "{count, plural, one {# riječ} few {# riječi} other {# riječi}} od oko {words, number}",
     "placeholder": "Tvoj tekst…",
@@ -1616,9 +1610,6 @@
     }
   },
   "understanding": {
-    "start": "Napiši tekst",
-    "writing": "Piše se tekst…",
-    "new": "Novi tekst",
     "kind": {
       "dialogue": "dijalog za slušanje",
       "announcement": "obavještenje za slušanje",
@@ -1640,8 +1631,6 @@
       "choosing": "Biram najbolji nacrt…",
       "asking": "Sastavljam pitanja…"
     },
-    "introReading": "Kratak tekst o temi lekcije, kakav se čita u životu — pismo, chat, obavještenje, priča. Pročitaj ga i odgovori na pitanja.",
-    "introListening": "Kratak tekst o temi lekcije, pročitan naglas — razgovor, poruka, obavještenje, priča. Slušaj i odgovaraj po sluhu; tekst se otvara poslije.",
     "task": {
       "reading": "Pročitaj tekst i odgovori na pitanja.",
       "listening": "Poslušaj i odgovori na pitanja. Tekst se otvara nakon provjere."
@@ -1689,10 +1678,6 @@
     }
   },
   "talk": {
-    "intro": "Govori na jeziku koji učiš: kratak govor po kartici ili uloga u razgovoru. Provjera je na kraju, bez čekanja između replika.",
-    "start": "Dobij zadatak",
-    "preparing": "Pripremam zadatak…",
-    "new": "Novi zadatak",
     "step": {
       "writing": "Pišem zadatak…",
       "choosing": "Biram najbolji nacrt…",
@@ -1730,6 +1715,7 @@
       "make": "Napravi za sve lekcije",
       "upTo": "Koraci svake lekcije popunjavaju se do odabranog broja; pokrenuto ponovo, nastavlja gdje je stalo.",
       "steps": "Koraci"
-    }
+    },
+    "another": "Druga varijanta"
   }
 }
