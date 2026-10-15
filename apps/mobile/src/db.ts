@@ -19,6 +19,11 @@ const sqlJs = () => {
   return loaded;
 };
 let SQL: Awaited<ReturnType<typeof initSqlJs>>;
+/** sql.js as loaded by the first database opened (the app's start opens server.sqlite first). */
+export const sqlJsNow = () => {
+  if (!SQL) throw new Error("sql.js is not loaded yet");
+  return SQL;
+};
 
 /** How soon after a change the database is written. */
 const WRITE_AFTER_MS = 300;
@@ -133,6 +138,14 @@ export function makeDb(files: Files, rel: string, migrations: Migration[], bytes
   open.add(write);
   return {
     db,
+    /** The database's bytes as it is now (a profile exported); written again a moment later, as
+     *  sql.js's export opens it anew. */
+    snapshot() {
+      const bytes = db.export();
+      pragmas(db);
+      seen = -1;
+      return bytes;
+    },
     async close() {
       clearInterval(timer);
       await write();

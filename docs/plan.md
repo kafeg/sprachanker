@@ -53,9 +53,11 @@ and mockups: the owner's page "Goethe в SprachAnker"; background: `docs/researc
   phone's files), a course and its practice studied offline — films, practice recordings, exercises,
   the steps' work from the course's practice, Review, the Notebook —, an answer said and heard by
   Whisper in the app (small q8_0, 3–5 s), Back and the system bars as an app has them.
-- Next: putting a course on the phone from the app (now `adb push` of a bundle unpacked); pairing
-  with the Mac's server (its address and a profile), then the LLM through it — checking Writing and
-  Speaking —, and sync (`docs/decisions.md`); an update of the app over Wi-Fi from the Mac.
+- Stands alone on Android (owner, 2026-10-15): courses downloaded from their publishers and from
+  files, decks and .apkg, profile files, Whisper's models downloaded in Settings, all by the server's
+  own storage code over the phone's files (the native bridge).
+- Next: iOS's bridge in Swift (files, requests, Downloads: what Android's Native.kt does); sync
+  with the Mac's server (`docs/decisions.md`); an update of the app over Wi-Fi from the Mac.
 - iOS: the same app runs in the simulator (a course offline, films, practice); next on an iPhone —
   Xcode with an Apple ID, developer mode, whisper.cpp with Metal / Core ML —, the weekly re-sign.
 - Open: reading aloud on the phone — Android's WebView has no voices (`speechSynthesis`); words

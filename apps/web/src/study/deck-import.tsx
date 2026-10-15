@@ -66,7 +66,8 @@ export function DeckImport() {
       <input
         ref={input}
         type="file"
-        accept={`.apkg,${DECK_BUNDLE_EXTENSION},.zip`}
+        // Android's picker greys out a type it does not know: any file — the server checks it.
+        accept={`.apkg,${DECK_BUNDLE_EXTENSION},.zip,*/*`}
         className="hidden"
         aria-label={t("decks.import.button")}
         onChange={(e) => void choose(e.target.files?.[0])}

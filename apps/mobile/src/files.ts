@@ -1,6 +1,8 @@
 // The app's files as the server's code sees them: listed once at the start into a tree kept here
 // (the library's questions — is a file there, what is in a folder — are synchronous), read through
-// the native side, written and removed through it with the tree kept up to date.
+// the native side, written and removed through it with the tree kept up to date (iOS); on Android the
+// same over the shared code's DataFs (`filesOver`).
+import { type DataFs, isFile, libraryFs, readAll } from "@sprachanker/course-kit";
 import type { LibraryFs } from "@sprachanker/course-kit/library-over";
 import { native } from "./native.ts";
 
@@ -77,4 +79,32 @@ export async function openFiles() {
     },
   };
 }
-export type Files = Awaited<ReturnType<typeof openFiles>>;
+export type Files = Awaited<ReturnType<typeof openFiles>> & {
+  /** A file's bytes at once, where the files answer at once (Android). */
+  readNow?(path: string): Uint8Array | undefined;
+};
+
+/** The app's files over the shared code's DataFs (Android: the native bridge): one view of them for
+ *  the library, the databases and the storage adapters alike. */
+export function filesOver(dataFs: DataFs, root: string): Files {
+  const rel = (path: string) =>
+    path === root ? "" : path.startsWith(`${root}/`) ? path.slice(root.length + 1) : path;
+  const abs = (r: string) => (r.startsWith(`${root}/`) ? r : `${root}/${rel(r)}`);
+  return {
+    root,
+    fs: libraryFs(dataFs),
+    abs,
+    rel,
+    has: (path: string) => isFile(dataFs, abs(path)),
+    /** A file's bytes at once (a database put there since the start). */
+    readNow: (path: string) => dataFs.readBytes(abs(path)),
+    read: async (path: string) =>
+      isFile(dataFs, abs(path)) ? readAll(dataFs, abs(path)) : undefined,
+    async write(path: string, bytes: Uint8Array) {
+      dataFs.writeFile(abs(path), bytes);
+    },
+    async remove(path: string) {
+      dataFs.remove(abs(path));
+    },
+  };
+}

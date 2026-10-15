@@ -6,6 +6,7 @@
 /** The bridge's methods (Native.kt). */
 export interface NativeBridge {
   root(): string;
+  work(on: boolean, text: string): void;
   stat(path: string): string;
   list(path: string): string;
   walk(path: string): string;
@@ -26,7 +27,9 @@ export interface NativeBridge {
   append(handle: number, data: string): string;
   closeWrite(handle: number, sync: boolean): string;
   abortWrite(handle: number): void;
+  openDownload(name: string, mime: string): string;
   sums(id: number, path: string): void;
+  sumsNow(path: string): string;
   netOpen(id: number, url: string, init: string, body: string | null): void;
   netRead(id: number): string | null;
   netError(id: number): string;

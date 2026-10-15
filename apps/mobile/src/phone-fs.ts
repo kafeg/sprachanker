@@ -16,6 +16,9 @@ import { FILES } from "./native.ts";
 const READ_PART = 4 << 20;
 /** Bytes sent to the bridge at once. */
 const WRITE_PART = 1 << 20;
+/** A file this small is read and summed by the bridge at once: a request's or an answer's round trip
+ *  takes longer than the reading (a deck's thousands of sounds). */
+const SMALL = 512 << 10;
 
 /** The phone's DataFs over its data root (`root`: its absolute path), reading through `net` (the
  *  page's own fetch). */
@@ -43,13 +46,37 @@ export function phoneFs(root: string, net: typeof fetch): DataFs {
     known.set(dir, found);
     return found;
   };
-  /** A path changed here: its folder and all under it asked again. */
+  const info = (path: string): FileInfo | undefined => {
+    const s = b.stat(path);
+    if (!s) return undefined;
+    const [size, mtime, kind] = s.split(" ");
+    return { size: Number(size), mtimeMs: Number(mtime), dir: kind === "d" };
+  };
+  /** A path changed here: its own entry asked again in the folder kept (not the whole folder: a
+   *  deck's has thousands), the folders above it that did not know it, and what was kept under it
+   *  forgotten. */
   const changed = (...paths: string[]) => {
     for (const path of paths) {
-      known.delete(dirName(path));
       for (const dir of [...known.keys()])
         if (dir === path || dir.startsWith(`${path}/`)) known.delete(dir);
+      for (let p = path; p.startsWith(`${root}/`); p = dirName(p)) {
+        const parent = known.get(dirName(p));
+        if (!known.has(dirName(p))) break;
+        const name = p.slice(p.lastIndexOf("/") + 1);
+        const had = parent?.has(name);
+        const now = info(p);
+        if (!parent) break;
+        if (now) parent.set(name, now);
+        else parent.delete(name);
+        // A folder above it known already: nothing more above changed.
+        if (p !== path && had) break;
+      }
     }
+  };
+  /** A change made: what it changed noted, then its failure thrown, if it failed. */
+  const after = (answer: string, ...paths: string[]) => {
+    changed(...paths);
+    check(answer);
   };
   const at = (path: string) => {
     const name = path.slice(path.lastIndexOf("/") + 1);
@@ -66,38 +93,18 @@ export function phoneFs(root: string, net: typeof fetch): DataFs {
       const got = b.readBytes(path, start, length ?? Math.max(0, info.size - start));
       return got == null ? undefined : fromLatin1(got);
     },
-    writeFile(path, data) {
-      changed(path);
-      check(typeof data === "string" ? b.writeText(path, data) : b.writeBytes(path, latin1(data)));
-    },
-    mkdir(path) {
-      changed(path);
-      check(b.mkdir(path));
-    },
-    rename(from, to) {
-      changed(from, to);
-      check(b.rename(from, to));
-    },
-    remove(path) {
-      changed(path);
-      check(b.remove(path));
-    },
-    removeDir(path) {
-      changed(path);
-      check(b.removeDir(path));
-    },
-    link(from, to) {
-      changed(to);
-      check(b.link(from, to));
-    },
-    copy(from, to) {
-      changed(to);
-      check(b.copy(from, to));
-    },
-    touch(path) {
-      changed(path);
-      check(b.touch(path));
-    },
+    writeFile: (path, data) =>
+      after(
+        typeof data === "string" ? b.writeText(path, data) : b.writeBytes(path, latin1(data)),
+        path,
+      ),
+    mkdir: (path) => after(b.mkdir(path), path),
+    rename: (from, to) => after(b.rename(from, to), from, to),
+    remove: (path) => after(b.remove(path), path),
+    removeDir: (path) => after(b.removeDir(path), path),
+    link: (from, to) => after(b.link(from, to), to),
+    copy: (from, to) => after(b.copy(from, to), to),
+    touch: (path) => after(b.touch(path), path),
     disk(path) {
       const d = b.disk(path);
       if (!d) return null;
@@ -106,6 +113,13 @@ export function phoneFs(root: string, net: typeof fetch): DataFs {
     },
     async *stream(path, start = 0, end) {
       const last = end ?? (fs.stat(path)?.size ?? 0) - 1;
+      if (last - start < SMALL) {
+        if (last < start) return;
+        const got = b.readBytes(path, start, last - start + 1);
+        if (got == null) throw Object.assign(new Error(`ENOENT: ${path}`), { code: "ENOENT" });
+        yield fromLatin1(got);
+        return;
+      }
       for (let from = start; from <= last; from += READ_PART) {
         const to = Math.min(last, from + READ_PART - 1);
         // A part by the scheme's own query: a Range header Android's WebView applies again itself.
@@ -115,8 +129,8 @@ export function phoneFs(root: string, net: typeof fetch): DataFs {
       }
     },
     async write(path, chunks, { max = Number.POSITIVE_INFINITY, sync = false } = {}) {
-      changed(path);
       const opened = b.openWrite(path);
+      changed(path);
       if (opened.startsWith("!")) check(opened.slice(1));
       const handle = Number(opened);
       let size = 0;
@@ -125,6 +139,7 @@ export function phoneFs(root: string, net: typeof fetch): DataFs {
           size += chunk.byteLength;
           if (size > max) {
             b.abortWrite(handle);
+            changed(path);
             return undefined;
           }
           for (let from = 0; from < chunk.byteLength; from += WRITE_PART)
@@ -132,17 +147,20 @@ export function phoneFs(root: string, net: typeof fetch): DataFs {
         }
       } catch (error) {
         b.abortWrite(handle);
-        throw error;
-      } finally {
         changed(path);
+        throw error;
       }
       const closed = b.closeWrite(handle, sync);
+      changed(path);
       if (closed.startsWith("!")) check(closed.slice(1));
       const [sha256, bytes] = closed.split(" ");
       return { sha256: sha256 as string, size: Number(bytes) };
     },
     async sums(path) {
-      const got = await once<FileSums | { error: string }>((id) => b.sums(id, path));
+      const small = (fs.stat(path)?.size ?? 0) < SMALL;
+      const got: FileSums | { error: string } = small
+        ? JSON.parse(b.sumsNow(path))
+        : await once((id) => b.sums(id, path));
       if ("error" in got) check(got.error);
       return got as FileSums;
     },

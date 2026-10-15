@@ -1,21 +1,32 @@
 # apps/mobile
 
 The phone app (Tauri 2): the web app with the server's code running in its WebView over the phone's
-own files — a course and its practice offline —, Whisper in the app's process. Why native and which
-Whisper settings: `docs/decisions.md` (its lines on the phone app). What comes next: `docs/plan.md`,
-"Phone app".
+own files, Whisper in the app's process. It stands alone (docs/decisions.md): the same code as the
+computer's — the server's storage (`packages/server/src/storage/`), the importers, the web UI — over
+the phone's adapters: files (course-kit's DataFs), requests to other hosts, SQLite (sql.js), zstd.
+What comes next: `docs/plan.md`, "Phone app".
 
 ## Layout
 
 ```
 src/                   # runs in the WebView, before the web app (bundled into dist/boot.js)
-  boot.ts              # createApp over the phone's adapters; the web app's /api requests answered in
-                       # the page (the session in the server's header: a page sends no cookie); media
-                       # and recordings from the native scheme (`sprachankerFileUrl`), films whole as
-                       # blob URLs (`sprachankerPlayable`); what the phone lacks says so
-  native.ts            # the native side: files (listed, read through http://media.localhost, written,
-                       # removed), Whisper
-  files.ts             # the files as a tree kept in memory: the library's synchronous questions
+  boot.ts              # createApp over the phone's adapters and the server's storage (Android); the web
+                       # app's /api requests answered in the page (the session in the server's header:
+                       # a page sends no cookie); files in and out (`sprachankerTransfer`: a file chosen
+                       # sent as it is read, an export saved into Downloads); a download or a transfer
+                       # kept going while the app is put away (`work`); media and recordings from the
+                       # native scheme (`sprachankerFileUrl`), films whole as blob URLs
+                       # (`sprachankerPlayable`)
+  bridge.ts            # the native bridge (Native.kt): its methods, bytes as Latin-1, later answers
+  phone-fs.ts          # course-kit's DataFs over the bridge: folders' entries kept, a change noting its
+                       # own entry; parts read by the scheme's `?part=`, small files at once
+  net.ts               # `fetch` by the native side (no CORS): the server's code only, never the page's
+  sql.ts               # sql.js for the storage: an .apkg's database (zstd by fzstd), a profile file's
+                       # copied, opened, made ready (the server's profile-db.ts)
+  native.ts            # the native side's Tauri commands: files (listed, read through
+                       # http://media.localhost, written, removed: iOS), Whisper
+  files.ts             # the app's files as the server's ProfileFiles and the databases see them: over
+                       # the DataFs (Android, `filesOver`), or a tree kept in memory (iOS)
   db.ts                # sql.js databases: read, migrated (the server's migrate.ts), written back after
                        # changes; nested transactions as savepoints
   profiles.ts          # the server's ProfileFiles: profile databases, recordings
@@ -25,13 +36,13 @@ scripts/
   dev.ts               # dist/ on this Mac with the native side played over a folder (a browser test)
   phone.ts             # the phone looked after over adb: install (build + adb install), course (a
                        # course of this Mac's library pushed), practice (its AI practice brought up
-                       # to date), models (Whisper's q8_0)
+                       # to date), models (Whisper's q8_0), page (an expression in the app's WebView)
 www/                   # the Whisper test page (dist/whisper.html; www/phrases: made by
                        # e2e/speech/phrases.ts, not committed)
 src-tauri/
   src/lib.rs           # commands `load` (a model) and `transcribe` (16 kHz f32 samples)
   src/files.rs         # the data root (Android: /sdcard/Android/data/<id>/files): fs_* commands and the
-                       # `media` scheme (files whole or by range; a recording by its id)
+                       # `media` scheme (files whole, by range, a part by `?part=a-b`; a recording by its id)
   native/asr.c         # whisper.cpp's C API for Rust: a model (on the GPU or not), an answer heard
                        # (greedy, temperature 0)
   build.rs             # on Android and iOS: asr.c compiled, whisper.cpp's static libraries linked
@@ -39,7 +50,10 @@ src-tauri/
   capabilities/        # what the page may call
   icons/               # from apps/web/public/icon-512.png (`cargo tauri icon`)
   gen/android/         # the Android project Tauri generated, MainActivity's insets, microphone and
-                       # Back added (its build outputs ignored)
+                       # Back added (its build outputs ignored); Native.kt (the page's bridge: files —
+                       # small things at once —, requests to other hosts by HttpURLConnection, a file
+                       # into Downloads by MediaStore), WorkService.kt (a foreground service while work
+                       # goes on)
   gen/apple/           # the iOS project Tauri generated (`cargo tauri ios init`; needs xcodegen and
                        # CocoaPods)
 ```
@@ -86,10 +100,17 @@ src-tauri/
 - Keep the Rust small: what needs the platform (Whisper, files, the microphone's permission); the app
   itself is the web app and the server's code in the WebView.
 - Android's WebView plays nothing from a range answered by the app's scheme: films go to the player
-  whole (blob URLs); a page's Request and Response carry no cookie: the session goes in a header.
+  whole (blob URLs); it applies a Range header to the scheme's answer itself: parts are asked by
+  `?part=`; a page's Request and Response carry no cookie: the session goes in a header; a page's
+  Request drops Content-Length: a file sent sets it on the Headers boot.ts hands the server.
+- The shared code's files go through the DataFs (phone-fs.ts), never the tree or Tauri commands
+  (iOS only), so one view of the files is kept; its requests to other hosts through net.ts, the
+  page's own `fetch` stays the WebView's.
+- What the bridge answers at once blocks the page while it works: a call each for small things only;
+  a large file is read by the scheme, written in 1 MB parts, summed later (`sums`).
 
 ## Planned
 
-- A course installed in the app (from a bundle), the LLM through the Mac's server.
-- iOS on an iPhone: whisper.cpp built for `iphoneos` (Metal), signing with an Apple ID.
+- iOS: the bridge in Swift (files at once, requests, Downloads) — till then iOS has the course and
+  practice offline only; on an iPhone whisper.cpp built for `iphoneos` (Metal), signing with an Apple ID.
 - Sync with the Mac's server (`docs/decisions.md`).

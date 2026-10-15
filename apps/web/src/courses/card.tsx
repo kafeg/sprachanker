@@ -5,7 +5,6 @@ import { editionSetting, parseLessonKey } from "@sprachanker/schema";
 import { Link } from "@tanstack/react-router";
 import { ArrowRight, BookOpen } from "lucide-react";
 import { useTranslation } from "react-i18next";
-import { inPhoneApp } from "@/api/client.ts";
 import type { useCourses } from "@/api/courses.ts";
 import { useEdition } from "@/api/edition.ts";
 import { useSetSetting } from "@/api/settings.ts";
@@ -72,7 +71,7 @@ export function CourseCard({
           </>
         )}
       </p>
-      {upkeep && !inPhoneApp && (
+      {upkeep && (
         <CourseUpkeep series={course.series} course={course.course}>
           <CourseExport series={course.series} course={course.course} edition={edition} />
           <CourseRemove series={course.series} course={course.course} title={title} />

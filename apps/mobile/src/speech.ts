@@ -1,34 +1,23 @@
 // Recognition on the phone as the server's speech service knows it: a SpeechHost whose whisper-server
 // is Whisper in the app's process (the native side) — "started" by loading the model, reached at a
-// local address this module answers (`/health`, `/inference`) instead of the network. The models
-// are q8_0 on Android (docs/decisions.md): the phone's stands in for the file the service names.
+// local address this module answers (`/health`, `/inference`) instead of the network. Its models are
+// the server's own store over the phone's files (downloaded in the app, the service's list: q8_0 on
+// Android, docs/decisions.md).
 import type { SpeechHost } from "@sprachanker/server/portable";
-import type { Files } from "./files.ts";
 import { native } from "./native.ts";
 
 /** The address the service is given for "the engine": answered here, never on the network. */
 const ENGINE = "127.0.0.1:1";
 /** As many threads as a phone's big cores (docs/decisions.md). */
 const THREADS = 4;
-/** The service's model files → the phone's (q8_0). */
-const PHONE_MODEL: Record<string, string> = {
-  "ggml-small-q5_1.bin": "ggml-small-q8_0.bin",
-};
-
-export function phoneSpeech(files: Files, built: boolean) {
+export function phoneSpeech(models: SpeechHost["models"], built: boolean, android: boolean) {
   let loading: Promise<unknown> = Promise.reject(new Error("no model loaded"));
   loading.catch(() => {});
 
   const host: SpeechHost = {
+    ...(android && { platform: "android" as const }),
     freePort: async () => 1,
-    models: {
-      path(file) {
-        const phone = PHONE_MODEL[file];
-        return phone && files.has(`models/${phone}`) ? files.abs(`models/${phone}`) : undefined;
-      },
-      download: () => Promise.reject(new Error("models are put on the phone by the app's setup")),
-      remove() {},
-    },
+    models,
     whisper: {
       binary: () => (built ? "in-app" : undefined),
       spawn(_binary, { model }) {

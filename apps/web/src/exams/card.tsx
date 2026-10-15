@@ -8,7 +8,6 @@ import type { ExamKey } from "@sprachanker/schema";
 import { Link } from "@tanstack/react-router";
 import { ArrowRight } from "lucide-react";
 import { useTranslation } from "react-i18next";
-import { inPhoneApp } from "@/api/client.ts";
 import type { ExamRow } from "@/api/exams.ts";
 import { CourseExport } from "@/library/bundle.tsx";
 import { LibraryCard } from "@/library/card.tsx";
@@ -74,7 +73,7 @@ export function ExamCard({
           </span>
         </span>
       </Link>
-      {upkeep && !inPhoneApp && (
+      {upkeep && (
         <CourseUpkeep series={exam.series} course={exam.course}>
           <CourseExport series={exam.series} course={exam.course} edition={edition} exam />
           <CourseRemove series={exam.series} course={exam.course} title={title} exam />

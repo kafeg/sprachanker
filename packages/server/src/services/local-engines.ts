@@ -37,6 +37,8 @@ interface LocalEngine<Files> {
 /** What the runtime does for the engines the sidecar supervisor runs: whisper-server, Qwen3-TTS's
  *  tts-server (an engine left out is not built here). */
 export interface SpeechHost {
+  /** Android: a model's own file for it there (Whisper's q8_0, the speech service's list). */
+  platform?: "android";
   /** A free port on 127.0.0.1. */
   freePort(): Promise<number>;
   models: ModelStore;

@@ -9,19 +9,30 @@ import { createModelDownloads } from "./model-downloads.ts";
 import { loudness, said, silent } from "./silence.ts";
 
 /** The models offered, best first: the large turbo model (quantised), and a small one for slower
- *  machines. From ggerganov/whisper.cpp on Hugging Face at a fixed commit. */
-const WHISPER_MODELS: ModelFile[] = [
+ *  machines. From ggerganov/whisper.cpp on Hugging Face at a fixed commit. On Android the same model
+ *  is run quantised to q8_0 (ARM's int8 paths: docs/decisions.md): its file there. */
+const WHISPER_MODELS: Array<ModelFile & { android: Omit<ModelFile, "id"> }> = [
   {
     id: "large-v3-turbo-q5_0",
     file: "ggml-large-v3-turbo-q5_0.bin",
     bytes: 574_041_195,
     sha256: "394221709cd5ad1f40c46e6031ca61bce88931e6e088c188294c6d5a55ffa7e2",
+    android: {
+      file: "ggml-large-v3-turbo-q8_0.bin",
+      bytes: 874_188_075,
+      sha256: "317eb69c11673c9de1e1f0d459b253999804ec71ac4c23c17ecf5fbe24e259a1",
+    },
   },
   {
     id: "small-q5_1",
     file: "ggml-small-q5_1.bin",
     bytes: 190_085_487,
     sha256: "ae85e4a935d7a567bd102fe55afc16bb595bdb618e11b2fc7591bc08120411bb",
+    android: {
+      file: "ggml-small-q8_0.bin",
+      bytes: 264_464_607,
+      sha256: "49c8fb02b65e6049d5fa6c04f81f53b867b5ec9540406812c643f177317f779f",
+    },
   },
 ];
 const MODEL_URL =
@@ -38,13 +49,19 @@ export function createSpeech(deps: { host?: SpeechHost; fetch: typeof fetch }) {
   const { host } = deps;
   const binary = () => host?.whisper?.binary();
   const downloads = createModelDownloads();
-  const installed = (m: ModelFile) => !!host?.models.path(m.file, m.bytes);
+  /** The file of a model this machine runs. */
+  const ofHere = (m: (typeof WHISPER_MODELS)[number]): ModelFile =>
+    host?.platform === "android" ? { id: m.id, ...m.android } : m;
+  const installed = (m: (typeof WHISPER_MODELS)[number]) => {
+    const here = ofHere(m);
+    return !!host?.models.path(here.file, here.bytes);
+  };
   /** Course recordings heard, by model, language and recording; a failed hearing is not kept. */
   const heard = createOnce<string>({ keep: true });
 
   /** The model file of an installed model, to run the engine with. */
   const fileOf = (id: string) => {
-    const model = offered(WHISPER_MODELS, id);
+    const model = ofHere(offered(WHISPER_MODELS, id));
     const file = host?.models.path(model.file, model.bytes);
     if (!binary() || !file) throw new ServiceError("speech_unavailable", 409);
     return file;
@@ -101,7 +118,7 @@ export function createSpeech(deps: { host?: SpeechHost; fetch: typeof fetch }) {
         engine: !!binary(),
         models: WHISPER_MODELS.map((m) => ({
           id: m.id,
-          bytes: m.bytes,
+          bytes: ofHere(m).bytes,
           installed: installed(m),
           ...downloads.of(m.id),
         })),
@@ -116,9 +133,10 @@ export function createSpeech(deps: { host?: SpeechHost; fetch: typeof fetch }) {
 
     /** Starts downloading a model (once); its progress is in `state`. */
     download(id: string) {
-      const model = offered(WHISPER_MODELS, id);
+      const offer = offered(WHISPER_MODELS, id);
       if (!host) throw new ServiceError("speech_unavailable", 409);
-      if (installed(model)) return;
+      if (installed(offer)) return;
+      const model = ofHere(offer);
       downloads.start(id, (progress, signal) =>
         host.models.download(`${MODEL_URL}${model.file}`, model, progress, signal),
       );
@@ -126,7 +144,7 @@ export function createSpeech(deps: { host?: SpeechHost; fetch: typeof fetch }) {
 
     /** Removes a model (stopping a download of it, or the engine running it). */
     remove(id: string) {
-      const model = offered(WHISPER_MODELS, id);
+      const model = ofHere(offered(WHISPER_MODELS, id));
       downloads.cancel(id);
       if (engine.setup() === id) engine.stop();
       host?.models.remove(model.file);

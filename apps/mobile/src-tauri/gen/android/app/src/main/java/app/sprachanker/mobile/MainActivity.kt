@@ -37,7 +37,7 @@ class MainActivity : TauriActivity() {
     // The page's native side for the shared code: the app's files, requests to other hosts.
     getExternalFilesDir(null)
     webView.addJavascriptInterface(
-      Native(webView, "/sdcard/Android/data/$packageName/files"),
+      Native(this, webView, "/sdcard/Android/data/$packageName/files"),
       "sprachankerNativeBridge",
     )
     onBackPressedDispatcher.addCallback(this, object : OnBackPressedCallback(true) {

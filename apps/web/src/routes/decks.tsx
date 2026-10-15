@@ -10,7 +10,6 @@ import { ChevronDown, MoreHorizontal, Play } from "lucide-react";
 import { useEffect, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { useDeckActions, useDeckOffers, useDecks } from "@/api/cards.ts";
-import { inPhoneApp } from "@/api/client.ts";
 import { useDeleteDeck, useExportDeck } from "@/api/decks.ts";
 import { DeckAudio } from "@/study/deck-audio.tsx";
 import { DeckImport } from "@/study/deck-import.tsx";
@@ -197,10 +196,8 @@ export function DecksTab({
       {t("decks.more", { count: MORE })}
     </DropdownMenuItem>
   );
-  // A deck as a file: an imported one always, a course's once something was made for its words (not
-  // in the phone app: it keeps no files to give).
+  // A deck as a file: an imported one always, a course's once something was made for its words.
   const exportItem = (o: Offer) =>
-    !inPhoneApp &&
     (o.deck || ("made" in o && o.made)) && (
       <DropdownMenuItem onSelect={() => exported.mutate(o.scope)}>
         {t("decks.export")}
@@ -225,11 +222,9 @@ export function DecksTab({
 
   return (
     <div className="max-w-3xl space-y-8">
-      {!inPhoneApp && (
-        <div className="flex justify-end">
-          <DeckImport />
-        </div>
-      )}
+      <div className="flex justify-end">
+        <DeckImport />
+      </div>
       {!decks.data.decks.length && <EmptyState>{t("study.noCards")}</EmptyState>}
       {decks.data.decks.map((lang: Lang) => (
         <section key={lang.scope} className="space-y-3">

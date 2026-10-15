@@ -1,23 +1,37 @@
 // The phone app's start, before the web app runs: the server's code (createApp) run in the page over
 // the app's own files and databases, and the web app pointed at it — its requests to /api answered
 // in the page instead of the network (with the session's cookie kept here: a page may not set one),
-// its media and recordings played from the native side's scheme. What the phone does not have yet
-// (decks and deck files, profile and course files) says so.
+// its media and recordings played from the native side's scheme. On Android the server's storage —
+// decks, files in and out, course downloads, models — runs over the phone's files (the native bridge);
+// a phone without the bridge (iOS so far) says what it lacks.
+import { type DataFs, openLibrary, readAll } from "@sprachanker/course-kit";
 import { libraryOver } from "@sprachanker/course-kit/library-over";
 import {
+  courseInstaller,
+  courseTransferFiles,
   createApp,
+  type DataRoot,
+  deckFiles,
+  deckTransferFiles,
   type MediaBlob,
+  modelStore,
+  practiceFiles,
+  profileTransferFiles,
   type ServerDb,
   serverMigrations,
   serverSchema,
 } from "@sprachanker/server/portable";
 import { drizzle } from "drizzle-orm/sql-js";
 import pkg from "../package.json" with { type: "json" };
+import { bridge, check, latin1, needBridge } from "./bridge.ts";
 import { flushAll, openDb } from "./db.ts";
-import { openFiles } from "./files.ts";
+import { filesOver, openFiles } from "./files.ts";
 import { FILES, native, setNetFetch } from "./native.ts";
+import { nativeFetch } from "./net.ts";
+import { phoneFs } from "./phone-fs.ts";
 import { profileFiles } from "./profiles.ts";
 import { phoneSpeech } from "./speech.ts";
+import { phoneApkg, phoneProfileSql } from "./sql.ts";
 
 const netFetch = globalThis.fetch.bind(globalThis);
 setNetFetch(netFetch);
@@ -64,18 +78,69 @@ function notOnPhone<T>(what: string): T {
           : key in EMPTY
             ? EMPTY[key]
             : () => {
-                throw new Error(`${what}: not in the phone app yet`);
+                throw new Error(`${what}: not on this phone yet`);
               },
     },
   ) as T;
 }
 
+/** `work` kept going while the app is put away (Android: a foreground service, Native.kt `work`). */
+async function working<T>(text: string, work: () => Promise<T>): Promise<T> {
+  bridge?.work(true, text);
+  try {
+    return await work();
+  } finally {
+    bridge?.work(false, text);
+  }
+}
+
+/** The app's own folders over the shared code's files (Android): the same storage the desktop has —
+ *  decks, deck, course and profile files, course downloads from their publishers, Whisper's models
+ *  downloaded in the app. Requests to other hosts go through the native side (no CORS there). */
+function storageOver(
+  fs: DataFs,
+  root: string,
+  profiles: { live(id: string): Uint8Array | undefined },
+) {
+  const data: DataRoot = { fs, path: root, pid: 0, runs: () => false, fetch: nativeFetch };
+  const installer = courseInstaller(data);
+  const models = modelStore(fs, `${root}/models`, nativeFetch);
+  return {
+    library: openLibrary(fs, `${root}/library`),
+    decks: deckFiles(data, (file) => new FileBlob(() => readAll(fs, file)) as MediaBlob),
+    apkg: phoneApkg,
+    transfers: profileTransferFiles(data, phoneProfileSql(fs, profiles.live)),
+    courseTransfers: courseTransferFiles(data),
+    deckTransfers: deckTransferFiles(data),
+    practice: practiceFiles(data),
+    installer: {
+      ...installer,
+      run: (series, course, hooks) =>
+        working(`SprachAnker ↓ ${course}`, () => installer.run(series, course, hooks)),
+    } satisfies typeof installer,
+    models: {
+      ...models,
+      download: (url, model, onProgress, signal) =>
+        working(`SprachAnker ↓ ${model.file}`, () =>
+          models.download(url, model, onProgress, signal),
+        ),
+    } satisfies typeof models,
+  };
+}
+
 async function start() {
-  const files = await openFiles();
+  const root = bridge?.root();
+  const fs = root ? phoneFs(root, netFetch) : undefined;
+  const files = fs && root ? filesOver(fs, root) : await openFiles();
   const sqlite = await openDb(files, "server.sqlite", serverMigrations);
   const server = drizzle(sqlite.db, { schema: serverSchema }) as ServerDb;
   const profiles = await profileFiles(files);
-  const speech = phoneSpeech(files, await native.asrBuilt());
+  const storage = fs && root ? storageOver(fs, root, profiles) : undefined;
+  const speech = phoneSpeech(
+    storage?.models ?? notOnPhone("speech models"),
+    await native.asrBuilt(),
+    !!storage,
+  );
   let secretKey = await files.read("secret.key");
   if (secretKey?.length !== 32) {
     secretKey = crypto.getRandomValues(new Uint8Array(32));
@@ -83,22 +148,27 @@ async function start() {
   }
   const app = createApp({
     webAssets: async () => undefined,
-    library: libraryOver(files.abs("library"), files.fs, () =>
-      Promise.reject(new Error("checking a course: not in the phone app yet")),
-    ),
+    library:
+      storage?.library ??
+      libraryOver(files.abs("library"), files.fs, () =>
+        Promise.reject(new Error("checking a course: not on this phone yet")),
+      ),
     server,
     profiles,
     // Media are played from the native side's scheme; the server reads one only whole (a practice
     // recording it hands on), read from the files when it does.
     mediaBlob: (file) => new FileBlob(() => files.read(file)) as MediaBlob,
-    decks: notOnPhone("decks"),
-    apkg: notOnPhone("decks"),
-    transfers: notOnPhone("profile files"),
-    courseTransfers: notOnPhone("course files"),
-    deckTransfers: notOnPhone("deck files"),
+    decks: storage?.decks ?? notOnPhone("decks"),
+    apkg: storage?.apkg ?? notOnPhone("decks"),
+    transfers: storage?.transfers ?? notOnPhone("profile files"),
+    courseTransfers: storage?.courseTransfers ?? notOnPhone("course files"),
+    deckTransfers: storage?.deckTransfers ?? notOnPhone("deck files"),
+    practice: storage?.practice,
+    installer: storage?.installer,
     appVersion: pkg.version,
     secretKey,
-    fetch: speech.fetchVia(netFetch),
+    // An LLM provider's requests through the native side too (any address the learner sets).
+    fetch: speech.fetchVia(storage ? nativeFetch : netFetch),
     speech: speech.host,
     listensOn: { hostname: "127.0.0.1", port: 0 },
     sessionInHeader: true,
@@ -126,20 +196,24 @@ ready.catch((error: unknown) => {
   document.body.textContent = `SprachAnker could not start: ${error}`;
 });
 
-/** The app's own requests answered by its server here; any other goes to the network. */
-globalThis.fetch = (async (input: RequestInfo | URL, init?: RequestInit) => {
-  const request = new Request(input, init);
+/** A request to the app's server answered here, the device's session in its header; `length`: the
+ *  file's it sends (a page may not set Content-Length itself: the server reads it as announced). */
+async function serve(request: Request, length?: number) {
   const url = new URL(request.url);
-  // Scheme and host compared (a custom scheme's origin is "null": iOS's tauri://localhost).
-  const own = url.protocol === location.protocol && url.host === location.host;
-  if (!own || !/^\/(api|library|decks)\//.test(url.pathname)) return netFetch(request);
   const app = await ready;
   const token = session.get();
   let asked = request;
   if (token) {
     const headers = new Headers(request.headers);
     headers.set(SESSION_HEADER, token);
-    asked = new Request(request, { headers });
+    asked = new Request(request, { headers, duplex: "half" } as RequestInit);
+  }
+  if (length !== undefined) {
+    // A page's Request drops Content-Length; Headers made here keep it, put in place of its own (a
+    // file's route reads them as they are, nothing makes the request anew).
+    const headers = new Headers(asked.headers);
+    headers.set("content-length", String(length));
+    Object.defineProperty(asked, "headers", { value: headers });
   }
   const response = await app.fetch(asked);
   const given = response.headers.get(SESSION_HEADER);
@@ -152,7 +226,79 @@ globalThis.fetch = (async (input: RequestInfo | URL, init?: RequestInit) => {
   )
     session.clear();
   return response;
+}
+
+/** The app's own requests answered by its server here; any other goes to the network. */
+globalThis.fetch = (async (input: RequestInfo | URL, init?: RequestInit) => {
+  const request = new Request(input, init);
+  const url = new URL(request.url);
+  // Scheme and host compared (a custom scheme's origin is "null": iOS's tauri://localhost).
+  const own = url.protocol === location.protocol && url.host === location.host;
+  if (!own || !/^\/(api|library|decks)\//.test(url.pathname)) return netFetch(request);
+  return serve(request);
 }) as typeof fetch;
+
+/** Files in and out as the web app moves them (read by apps/web's api/files.ts): a file chosen sent to
+ *  the server here as it is read (never whole in memory), with its progress; a file the server makes
+ *  (an export) saved into the phone's Downloads as it comes. */
+(globalThis as { sprachankerTransfer?: unknown }).sprachankerTransfer = {
+  async upload(
+    url: string,
+    file: File,
+    headers: Record<string, string>,
+    onProgress: (sent: number) => void,
+  ) {
+    return working(`SprachAnker ↑ ${file.name}`, () => send(url, file, headers, onProgress));
+  },
+  save: (url: string, fileName: string) =>
+    working(`SprachAnker ↓ ${fileName}`, () => saveFile(url, fileName)),
+};
+
+async function send(
+  url: string,
+  file: File,
+  headers: Record<string, string>,
+  onProgress: (sent: number) => void,
+) {
+  let sent = 0;
+  const counted = file.stream().pipeThrough(
+    new TransformStream<Uint8Array, Uint8Array>({
+      transform(chunk, controller) {
+        sent += chunk.byteLength;
+        onProgress(file.size ? sent / file.size : 1);
+        controller.enqueue(chunk);
+      },
+    }),
+  );
+  const request = new Request(new URL(url, location.href), {
+    method: "POST",
+    headers,
+    body: counted,
+    duplex: "half",
+  } as RequestInit);
+  const response = await serve(request, file.size);
+  return { status: response.status, text: await response.text() };
+}
+
+async function saveFile(url: string, fileName: string) {
+  const response = await serve(new Request(new URL(url, location.href)));
+  if (!response.ok || !response.body) throw new Error(`${url}: ${response.status}`);
+  const b = needBridge();
+  // Its own type would make Android name it anew (a zip gets .zip): a file of bytes keeps its name.
+  const opened = b.openDownload(fileName, "application/octet-stream");
+  if (opened.startsWith("!")) throw new Error(opened.slice(1));
+  const handle = Number(opened);
+  try {
+    for await (const chunk of response.body as unknown as AsyncIterable<Uint8Array>)
+      for (let at = 0; at < chunk.byteLength; at += 1 << 20)
+        check(b.append(handle, latin1(chunk.subarray(at, at + (1 << 20)))));
+  } catch (error) {
+    b.abortWrite(handle);
+    throw error;
+  }
+  const closed = b.closeWrite(handle, false);
+  if (closed.startsWith("!")) throw new Error(closed.slice(1));
+}
 
 /** Where the web app plays a file from: the library's and decks' media and a learner's recordings
  *  from the native side (read by `fileUrl` in apps/web's api/client.ts). */

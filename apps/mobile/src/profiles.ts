@@ -17,7 +17,9 @@ type Opened = ReturnType<typeof makeDb>;
 
 const dbFile = (id: string) => `profiles/${id}/profile.sqlite`;
 
-export async function profileFiles(files: Files): Promise<ProfileFiles> {
+export async function profileFiles(
+  files: Files,
+): Promise<ProfileFiles & { live(id: string): Uint8Array | undefined }> {
   const opened = new Map<string, { sqlite: Opened; db: ProfileDb }>();
   const take = (id: string, sqlite: Opened) => {
     const entry = { sqlite, db: drizzle(sqlite.db, { schema: profileSchema }) as ProfileDb };
@@ -29,8 +31,14 @@ export async function profileFiles(files: Files): Promise<ProfileFiles> {
 
   return {
     exists: (id) => opened.has(id) || files.has(dbFile(id)),
-    // A new profile's database: made in memory at once, written a moment later.
-    open: (id) => (opened.get(id) ?? take(id, makeDb(files, dbFile(id), profileMigrations))).db,
+    // A new profile's database: made in memory at once, written a moment later; one put there
+    // since the start (a profile file imported) read as it is, where the files answer at once.
+    open: (id) =>
+      (
+        opened.get(id) ??
+        take(id, makeDb(files, dbFile(id), profileMigrations, files.readNow?.(dbFile(id))))
+      ).db,
+    live: (id) => opened.get(id)?.sqlite.snapshot(),
     remove(id) {
       const entry = opened.get(id);
       opened.delete(id);

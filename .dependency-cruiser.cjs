@@ -91,13 +91,13 @@ module.exports = {
     {
       name: "mobile-imports-the-portable-server-only",
       comment:
-        "apps/mobile runs the server's code in the phone's WebView: of the server only its portable entry (no Bun, no Node), of course-kit only the library read over a file system given and the file system's interface.",
+        "apps/mobile runs the server's code in the phone's WebView: of the server only its portable entry (no Bun, no Node), of course-kit all but Node's file system (node-fs.ts).",
       severity: "error",
       from: { path: "^apps/mobile/src/" },
       to: {
         path: "^(packages|courses|apps)/",
         pathNot:
-          "^(apps/mobile/|packages/server/src/portable\\.ts$|packages/course-kit/src/(library-over|data-fs)\\.ts$)",
+          "^(apps/mobile/|packages/server/src/portable\\.ts$|packages/course-kit/src/(?!node-fs\\.ts$))",
       },
     },
     {

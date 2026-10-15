@@ -137,35 +137,32 @@ function Recognition() {
               title={t("speech.settings.recognitionOn")}
             />
             <ul className="space-y-2">
-              {/* The phone app's models come with its setup: only those there. */}
-              {(data?.models ?? [])
-                .filter((m) => !inPhoneApp || m.installed)
-                .map((m) => {
-                  const chosen = data?.model === m.id;
-                  return (
-                    <DownloadRow
-                      key={m.id}
-                      title={t(`speech.model.${m.id}`)}
-                      item={m}
-                      removeLabel={t("speech.settings.removeModel")}
-                      onDownload={() => models.download.mutate(m.id)}
-                      onRemove={() => models.remove.mutate(m.id)}
-                      starting={models.download.isPending && models.download.variables === m.id}
-                      marked={chosen && on}
-                    >
-                      {chosen && on && <InUse />}
-                      {!chosen && (
-                        <Button
-                          variant="outline"
-                          size="sm"
-                          onClick={() => set.mutate({ key: "speech.model", value: m.id })}
-                        >
-                          {t("speech.settings.use")}
-                        </Button>
-                      )}
-                    </DownloadRow>
-                  );
-                })}
+              {(data?.models ?? []).map((m) => {
+                const chosen = data?.model === m.id;
+                return (
+                  <DownloadRow
+                    key={m.id}
+                    title={t(`speech.model.${m.id}`)}
+                    item={m}
+                    removeLabel={t("speech.settings.removeModel")}
+                    onDownload={() => models.download.mutate(m.id)}
+                    onRemove={() => models.remove.mutate(m.id)}
+                    starting={models.download.isPending && models.download.variables === m.id}
+                    marked={chosen && on}
+                  >
+                    {chosen && on && <InUse />}
+                    {!chosen && (
+                      <Button
+                        variant="outline"
+                        size="sm"
+                        onClick={() => set.mutate({ key: "speech.model", value: m.id })}
+                      >
+                        {t("speech.settings.use")}
+                      </Button>
+                    )}
+                  </DownloadRow>
+                );
+              })}
             </ul>
           </>
         )}

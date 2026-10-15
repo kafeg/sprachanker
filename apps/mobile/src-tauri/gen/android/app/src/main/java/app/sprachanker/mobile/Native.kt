@@ -1,6 +1,12 @@
 package app.sprachanker.mobile
 
+import android.app.Activity
+import android.content.ContentValues
+import android.os.Build
+import android.os.Environment
 import android.os.StatFs
+import android.provider.MediaStore
+import android.widget.Toast
 import android.system.ErrnoException
 import android.system.Os
 import android.system.OsConstants
@@ -9,6 +15,7 @@ import android.webkit.WebView
 import java.io.File
 import java.io.FileOutputStream
 import java.io.IOException
+import java.io.OutputStream
 import java.io.RandomAccessFile
 import java.net.HttpURLConnection
 import java.net.URL
@@ -32,7 +39,7 @@ import org.json.JSONObject
 // synchronous there; bytes as Latin-1 strings (one char a byte) — and requests to other hosts made
 // here, outside the WebView's CORS. Paths stay under the app's data root. A failure is "CODE message"
 // (Node's codes); work that takes long answers through `window.sprachankerNative.done`.
-class Native(private val webView: WebView, private val root: String) {
+class Native(private val activity: Activity, private val webView: WebView, private val root: String) {
   private val pool = Executors.newCachedThreadPool()
 
   private fun under(path: String): File {
@@ -74,6 +81,18 @@ class Native(private val webView: WebView, private val root: String) {
   }
 
   @JavascriptInterface fun root(): String = root
+
+  private var working = 0
+
+  /** Work begun (`on`) or ended that must go on while the app is put away — a download: a
+   *  foreground service while any runs (WorkService). */
+  @JavascriptInterface fun work(on: Boolean, text: String) {
+    synchronized(this) {
+      working = maxOf(0, working + if (on) 1 else -1)
+      if (on && working == 1) WorkService.start(activity, text)
+      if (!on && working == 0) WorkService.stop(activity)
+    }
+  }
 
   /** "" when nothing is there, else "<size> <mtime ms> <d|f>". */
   @JavascriptInterface fun stat(path: String): String {
@@ -165,7 +184,14 @@ class Native(private val webView: WebView, private val root: String) {
   } catch (e: Throwable) { "" }
 
   // Files written in parts: opened, each part appended, closed with their sha256.
-  private class Sink(val out: FileOutputStream, val hash: MessageDigest, var size: Long)
+  private class Sink(
+    val out: OutputStream,
+    val hash: MessageDigest,
+    var size: Long,
+    /** Once the file is whole (a download made visible), or let go. */
+    val finish: () -> Unit = {},
+    val drop: () -> Unit = {},
+  )
   private val sinks = ConcurrentHashMap<Int, Sink>()
   private var nextSink = 1
 
@@ -192,39 +218,74 @@ class Native(private val webView: WebView, private val root: String) {
   @JavascriptInterface fun closeWrite(handle: Int, sync: Boolean): String {
     val sink = sinks.remove(handle) ?: return "!EBADF no such file"
     return try {
-      if (sync) sink.out.fd.sync()
+      if (sync) (sink.out as? FileOutputStream)?.fd?.sync()
       sink.out.close()
+      sink.finish()
       "${sink.hash.digest().joinToString("") { "%02x".format(it) }} ${sink.size}"
     } catch (e: Throwable) { "!${failure(e)}" }
   }
 
   @JavascriptInterface fun abortWrite(handle: Int) {
-    try { sinks.remove(handle)?.out?.close() } catch (e: Throwable) {}
+    val sink = sinks.remove(handle) ?: return
+    try { sink.out.close() } catch (e: Throwable) {}
+    try { sink.drop() } catch (e: Throwable) {}
   }
+
+  /** A file saved into the phone's Downloads (a file exported: a course, a deck, a profile), written
+   *  as `openWrite`'s are; seen by other apps once closed, and said so. Its handle, or "!CODE message". */
+  @JavascriptInterface fun openDownload(name: String, mime: String): String = try {
+    val id = synchronized(this) { nextSink++ }
+    if (Build.VERSION.SDK_INT >= 29) {
+      val resolver = activity.contentResolver
+      val values = ContentValues().apply {
+        put(MediaStore.Downloads.DISPLAY_NAME, name)
+        put(MediaStore.Downloads.MIME_TYPE, mime)
+        put(MediaStore.Downloads.IS_PENDING, 1)
+      }
+      val uri = resolver.insert(MediaStore.Downloads.EXTERNAL_CONTENT_URI, values)
+        ?: throw IOException("EIO Downloads refused $name")
+      val out = resolver.openOutputStream(uri) ?: throw IOException("EIO Downloads refused $name")
+      sinks[id] = Sink(out, MessageDigest.getInstance("SHA-256"), 0, finish = {
+        resolver.update(uri, ContentValues().apply { put(MediaStore.Downloads.IS_PENDING, 0) }, null, null)
+        activity.runOnUiThread { Toast.makeText(activity, "↓ $name", Toast.LENGTH_LONG).show() }
+      }, drop = { resolver.delete(uri, null, null) })
+    } else {
+      @Suppress("DEPRECATION")
+      val dir = Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOWNLOADS)
+      dir.mkdirs()
+      val file = File(dir, name)
+      sinks[id] = Sink(FileOutputStream(file), MessageDigest.getInstance("SHA-256"), 0, finish = {
+        activity.runOnUiThread { Toast.makeText(activity, "↓ $name", Toast.LENGTH_LONG).show() }
+      }, drop = { file.delete() })
+    }
+    id.toString()
+  } catch (e: Throwable) { "!${failure(e)}" }
+
+  private fun sumsOf(path: String): String = try {
+    val hash = MessageDigest.getInstance("SHA-256")
+    val crc = CRC32()
+    var size = 0L
+    val buf = ByteArray(1 shl 20)
+    under(path).inputStream().use { input ->
+      while (true) {
+        val n = input.read(buf)
+        if (n < 0) break
+        hash.update(buf, 0, n)
+        crc.update(buf, 0, n)
+        size += n
+      }
+    }
+    JSONObject().put("sha256", hash.digest().joinToString("") { "%02x".format(it) })
+      .put("size", size).put("crc32", crc.value).toString()
+  } catch (e: Throwable) { JSONObject().put("error", failure(e)).toString() }
 
   /** A file's sha256, size and CRC-32, answered to `id`: {sha256, size, crc32} or {error}. */
   @JavascriptInterface fun sums(id: Int, path: String) {
-    pool.execute {
-      val json = try {
-        val hash = MessageDigest.getInstance("SHA-256")
-        val crc = CRC32()
-        var size = 0L
-        val buf = ByteArray(1 shl 20)
-        under(path).inputStream().use { input ->
-          while (true) {
-            val n = input.read(buf)
-            if (n < 0) break
-            hash.update(buf, 0, n)
-            crc.update(buf, 0, n)
-            size += n
-          }
-        }
-        JSONObject().put("sha256", hash.digest().joinToString("") { "%02x".format(it) })
-          .put("size", size).put("crc32", crc.value)
-      } catch (e: Throwable) { JSONObject().put("error", failure(e)) }
-      answer(id, json.toString())
-    }
+    pool.execute { answer(id, sumsOf(path)) }
   }
+
+  /** The same at once (a small file: the answer's round trip would take longer than the reading). */
+  @JavascriptInterface fun sumsNow(path: String): String = sumsOf(path)
 
   // Requests to other hosts: started here, their head answered to `id`, their body taken in parts.
   private class Pending(val connection: HttpURLConnection) {

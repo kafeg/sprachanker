@@ -13,6 +13,7 @@
     "@sprachanker/schema": "workspace:*",
     "@sprachanker/server": "workspace:*",
     "drizzle-orm": "0.45.3",
+    "fzstd": "0.1.1",
     "sql.js": "1.14.1"
   },
   "devDependencies": {
