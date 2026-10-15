@@ -1295,7 +1295,6 @@
       "listen": "朗读：{what}",
       "stop": "停止朗读"
     },
-    "aiCheck": "用AI检查",
     "readBy": "朗读：{engine, select, piper {Piper} qwen {Qwen3-TTS} other {本设备}} · {voice}",
     "readByEngine": "朗读：{engine, select, piper {Piper} qwen {Qwen3-TTS} other {本设备的声音}}",
     "readByNone": "这里没有可朗读{language}的声音：请在“设置 → 语音”中选择一个声音。",

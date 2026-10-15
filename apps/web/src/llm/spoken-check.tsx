@@ -1,14 +1,14 @@
-// An answer said aloud without a phrase to say, checked by the model from what was heard: asked
-// with "Check with AI" under it (owner, 2026-10-09), once for the same words; kept in the lesson run
-// and shown again without asking. Nothing is shown while no assistant is set up.
+// An answer said aloud without a phrase to say, checked by the model from what was heard: asked by
+// itself as the words are heard (owner, 2026-10-15; a button before), once for the same words; kept
+// in the lesson run and shown again without asking. Nothing is shown while no assistant is set up.
 import { type ExerciseKey, itemKey, type TypedEvent } from "@sprachanker/schema";
 import { Sparkles } from "lucide-react";
+import { useEffect, useRef } from "react";
 import { useTranslation } from "react-i18next";
 import { SpokenCheckView } from "@/ui/checked-text.tsx";
-import { Button } from "@/ui/components/button.tsx";
 import { type SpeakingRequest, useCheckSpoken, useSpokenChecks } from "./api.ts";
 import { modelName } from "./assistant-label.tsx";
-import { AnswerBox, ErrorLine } from "./parts.tsx";
+import { AnswerBox, ErrorLine, Thinking } from "./parts.tsx";
 import { PromptButton } from "./prompt-view.tsx";
 import { useLlm } from "./setup-api.ts";
 
@@ -30,20 +30,26 @@ export function SpokenAnswerCheck({
   );
   const request = { ...props, language: i18n.language };
   const ask = () => check.mutate(request, { onSuccess: ({ event }) => event && onStored(event) });
+  const askRef = useRef(ask);
+  askRef.current = ask;
 
-  // The check asked for these words (a new take is a new answer to ask about).
-  const asked = check.variables?.transcript === props.transcript && !check.isIdle;
+  // Asked by itself once for each words heard (a new take is a new answer); a failure waits for
+  // Try again.
+  const askedFor = useRef<string | null>(null);
+  const due = ready && !kept.isPending && !saved;
+  useEffect(() => {
+    if (!due || askedFor.current === props.transcript) return;
+    askedFor.current = props.transcript;
+    askRef.current();
+  }, [due, props.transcript]);
 
   if (!saved && (!ready || kept.isPending)) return null;
-  // Asked and not failed: waiting for the check (or for it to be shown kept); the button says so.
-  const waiting = asked && !check.isError;
-  if (!saved && (!asked || waiting))
+  // Not failed: waiting for the check (or for it to be shown kept).
+  if (!saved && !check.isError)
     return (
-      <div className="mt-2 flex items-center gap-1" aria-live="polite">
-        <Button variant="outline" size="sm" onClick={ask} loading={waiting}>
-          {!waiting && <Sparkles className="size-4" />}
-          {waiting ? t("speech.aiChecking") : t("speech.aiCheck")}
-        </Button>
+      <div className="mt-2 flex items-center gap-1 text-sm" aria-live="polite">
+        <Sparkles className="size-4 text-muted-foreground" />
+        <Thinking label={t("speech.aiChecking")} />
         <PromptButton request={{ speaking: request }} />
       </div>
     );

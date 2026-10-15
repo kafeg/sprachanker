@@ -1295,7 +1295,6 @@
       "listen": "Lire à voix haute : {what}",
       "stop": "Arrêter la lecture"
     },
-    "aiCheck": "Vérifier avec l’IA",
     "readBy": "Lu par {engine, select, piper {Piper} qwen {Qwen3-TTS} other {cet appareil}} · {voice}",
     "readByEngine": "Lu par {engine, select, piper {Piper} qwen {Qwen3-TTS} other {la voix de cet appareil}}",
     "readByNone": "Rien ici ne lit en {language} à voix haute : choisis une voix dans Réglages → Parole.",

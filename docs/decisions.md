@@ -78,7 +78,7 @@ area is built is in its `CLAUDE.md`; work not built yet is in `docs/plan.md`.
 
 - AI practice stays out of the lesson's score and its mistakes list; each AI step gets a mark from its first work in the run, like an exercise's first attempt (owner, 2026-10-12).
 - An AI step's main button is Check until the step is done, never Next; Skip passes it by (owner, 2026-10-12).
-- The Speaking step is switched by the AI place key `scene` (kept from the Dialogue it replaced); the place `speaking` is "Check with AI" on spoken answers.
+- The Speaking step is switched by the AI place key `scene` (kept from the Dialogue it replaced); the place `speaking` is the AI's check of spoken answers. That check is asked by itself as an answer is heard, once for the same words, with no button (owner, 2026-10-15).
 - Going over mistakes is in the summary, not a plan step (owner, 2026-10-12): a lesson's few mistakes, mostly slips, made a long lesson longer. Offered only while `hasMistakesToGoOver`.
 - Going over mistakes is structured, never a chat (owner, 2026-10-12): a chat dumped every mistake at once and missed one inside a long gap item.
 - Going over mistakes makes one model call per mistake type, side by side: a single call for all took up to three minutes.

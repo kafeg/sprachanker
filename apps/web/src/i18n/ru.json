@@ -1295,7 +1295,6 @@
       "listen": "Прослушать: {what}",
       "stop": "Остановить чтение"
     },
-    "aiCheck": "Проверить с ИИ",
     "readBy": "Голосом {engine, select, piper {Piper} qwen {Qwen3-TTS} other {этого устройства}} · {voice}",
     "readByEngine": "Голосом {engine, select, piper {Piper} qwen {Qwen3-TTS} other {этого устройства}}",
     "readByNone": "Здесь нет голоса для языка «{language}»: выберите его в «Настройки → Речь».",

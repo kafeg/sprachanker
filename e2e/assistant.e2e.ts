@@ -254,8 +254,7 @@ test("an answer said aloud is checked by the AI from what was heard on request, 
   await free.getByRole("button", { name: "Stop recording" }).click();
 
   await expect(free.getByText("Hallo gute Tag")).toBeVisible();
-  // Asked for, not on its own.
-  await free.getByRole("button", { name: "Check with AI" }).click();
+  // Checked by itself, nothing to press.
   await expect(free.getByText("Small mistakes")).toBeVisible();
   await expect(free.getByText("FAKE: nearly there.")).toBeVisible();
   await expect(free.getByText(/FAKE: der Tag → guten Tag/)).toBeVisible();

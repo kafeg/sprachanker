@@ -1295,7 +1295,6 @@
       "listen": "Ανάγνωση φωναχτά: {what}",
       "stop": "Διακοπή ανάγνωσης"
     },
-    "aiCheck": "Έλεγχος με AI",
     "readBy": "Εκφωνεί: {engine, select, piper {Piper} qwen {Qwen3-TTS} other {αυτή η συσκευή}} · {voice}",
     "readByEngine": "Εκφωνεί: {engine, select, piper {Piper} qwen {Qwen3-TTS} other {η φωνή αυτής της συσκευής}}",
     "readByNone": "Τίποτα εδώ δεν διαβάζει δυνατά τη γλώσσα: {language}. Επίλεξε φωνή στις Ρυθμίσεις → Ομιλία.",

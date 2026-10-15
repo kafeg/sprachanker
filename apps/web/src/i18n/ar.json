@@ -1295,7 +1295,6 @@
       "listen": "اقرأ بصوت عالٍ: {what}",
       "stop": "أوقف القراءة"
     },
-    "aiCheck": "تحقّق بالذكاء الاصطناعي",
     "readBy": "يقرؤها {engine, select, piper {Piper} qwen {Qwen3-TTS} other {هذا الجهاز}} · {voice}",
     "readByEngine": "يقرؤها {engine, select, piper {Piper} qwen {Qwen3-TTS} other {صوت هذا الجهاز}}",
     "readByNone": "لا شيء هنا يقرأ {language} بصوت عالٍ: اختر صوتًا في الإعدادات ← الكلام.",

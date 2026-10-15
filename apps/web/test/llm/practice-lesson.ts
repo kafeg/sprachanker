@@ -21,7 +21,7 @@ export function server(answer: (path: string) => unknown) {
     asked.push(
       `${request.method} ${url.pathname} ${request.method === "POST" ? await request.text() : ""}`.trim(),
     );
-    return Response.json(answer(url.pathname));
+    return Response.json(await answer(url.pathname));
   }) as typeof fetch;
   return asked;
 }

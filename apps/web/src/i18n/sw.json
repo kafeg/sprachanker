@@ -1295,7 +1295,6 @@
       "listen": "Soma kwa sauti: {what}",
       "stop": "Acha kusoma"
     },
-    "aiCheck": "Kagua kwa AI",
     "readBy": "Imesomwa na {engine, select, piper {Piper} qwen {Qwen3-TTS} other {kifaa hiki}} · {voice}",
     "readByEngine": "Imesomwa na {engine, select, piper {Piper} qwen {Qwen3-TTS} other {sauti ya kifaa hiki}}",
     "readByNone": "Hakuna kinachosoma {language} kwa sauti hapa: chagua sauti katika Mipangilio → Sauti.",

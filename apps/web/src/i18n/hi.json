@@ -1295,7 +1295,6 @@
       "listen": "जोर से पढ़कर सुनाओ: {what}",
       "stop": "पढ़ना रोको"
     },
-    "aiCheck": "AI से जांचो",
     "readBy": "{engine, select, piper {Piper} qwen {Qwen3-TTS} other {यह डिवाइस}} पढ़ता है · {voice}",
     "readByEngine": "{engine, select, piper {Piper} qwen {Qwen3-TTS} other {इस डिवाइस की आवाज़}} पढ़ती है",
     "readByNone": "यहां कुछ भी {language} पढ़कर नहीं सुनाता: सेटिंग्स → स्पीच में आवाज़ चुनें.",

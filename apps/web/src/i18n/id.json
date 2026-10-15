@@ -1295,7 +1295,6 @@
       "listen": "Bacakan: {what}",
       "stop": "Berhenti membacakan"
     },
-    "aiCheck": "Periksa dengan AI",
     "readBy": "Dibacakan oleh {engine, select, piper {Piper} qwen {Qwen3-TTS} other {perangkat ini}} · {voice}",
     "readByEngine": "Dibacakan oleh {engine, select, piper {Piper} qwen {Qwen3-TTS} other {suara perangkat ini}}",
     "readByNone": "Tidak ada yang membacakan bahasa {language} di sini: pilih suara di Pengaturan → Ucapan.",

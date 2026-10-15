@@ -1295,7 +1295,6 @@
       "listen": "Vorlesen: {what}",
       "stop": "Vorlesen beenden"
     },
-    "aiCheck": "Mit KI prüfen",
     "readBy": "Gelesen von {engine, select, piper {Piper} qwen {Qwen3-TTS} other {diesem Gerät}} · {voice}",
     "readByEngine": "Gelesen von {engine, select, piper {Piper} qwen {Qwen3-TTS} other {der Stimme dieses Geräts}}",
     "readByNone": "Für {language} gibt es hier keine Vorlesestimme: Wähle eine unter Einstellungen → Sprechen.",

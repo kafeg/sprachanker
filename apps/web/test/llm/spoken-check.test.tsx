@@ -1,8 +1,10 @@
 import { expect, test } from "bun:test";
 import type { ExerciseKey } from "@sprachanker/schema";
+import { waitFor } from "@testing-library/react";
 import { SpokenAnswerCheck } from "../../src/llm/spoken-check.tsx";
 import { TargetLang } from "../../src/ui/target-lang.ts";
 import { renderApp } from "../render.tsx";
+import { server } from "./practice-lesson.ts";
 
 const RUN = "01K00000000000000000000000";
 const props = {
@@ -60,13 +62,20 @@ test("without a model nothing is shown or asked", async () => {
   expect(view.container.textContent).toBe("");
 });
 
-test("other words heard: nothing asked until the learner asks for the check", async () => {
+test('other words heard: the check asked by itself, once, "checking" shown meanwhile', async () => {
+  const asked = server(() => new Promise(() => {}));
   const view = await renderApp(<SpokenAnswerCheck {...props} transcript="Guten Morgen" />, {
     data: [
       [["llm"], { provider: "custom", model: "m", providers: [] }],
       [["spoken", RUN], kept],
     ],
   });
-  // No request on its own (a request in a test fails it): the button is there to ask.
-  expect(view.getByRole("button", { name: "Check with AI" })).toBeTruthy();
+  await waitFor(() => expect(asked).toHaveLength(1));
+  expect(asked[0]).toStartWith("POST /api/llm/speaking ");
+  expect(JSON.parse((asked[0] as string).replace("POST /api/llm/speaking ", "")).transcript).toBe(
+    "Guten Morgen",
+  );
+  expect(view.getByText(/AI is checking/)).toBeTruthy();
+  await new Promise((r) => setTimeout(r, 20));
+  expect(asked).toHaveLength(1);
 });

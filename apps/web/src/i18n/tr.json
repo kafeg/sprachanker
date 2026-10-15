@@ -1295,7 +1295,6 @@
       "listen": "Sesli oku: {what}",
       "stop": "Okumayı durdur"
     },
-    "aiCheck": "Yapay zekâ ile kontrol et",
     "readBy": "Seslendiren: {engine, select, piper {Piper} qwen {Qwen3-TTS} other {bu cihaz}} · {voice}",
     "readByEngine": "Seslendiren: {engine, select, piper {Piper} qwen {Qwen3-TTS} other {bu cihazın sesi}}",
     "readByNone": "Burada {language} için sesli okuyan bir şey yok: Ayarlar → Konuşma’dan bir ses seç.",

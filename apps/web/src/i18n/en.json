@@ -1295,7 +1295,6 @@
       "listen": "Read aloud: {what}",
       "stop": "Stop reading"
     },
-    "aiCheck": "Check with AI",
     "readBy": "Read by {engine, select, piper {Piper} qwen {Qwen3-TTS} other {this device}} · {voice}",
     "readByEngine": "Read by {engine, select, piper {Piper} qwen {Qwen3-TTS} other {this device's voice}}",
     "readByNone": "Nothing here reads {language} aloud: choose a voice in Settings → Speech.",

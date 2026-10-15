@@ -1295,7 +1295,6 @@
       "listen": "Прочитати вголос: {what}",
       "stop": "Зупинити читання"
     },
-    "aiCheck": "Перевірити з ШІ",
     "readBy": "Озвучує {engine, select, piper {Piper} qwen {Qwen3-TTS} other {цей пристрій}} · {voice}",
     "readByEngine": "Озвучує {engine, select, piper {Piper} qwen {Qwen3-TTS} other {голос цього пристрою}}",
     "readByNone": "Тут ніщо не читає вголос мову «{language}»: оберіть голос у Налаштуваннях → Мовлення.",
