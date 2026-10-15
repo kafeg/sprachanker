@@ -117,7 +117,8 @@ export async function importCourse(
 }
 
 /** A course removed from `<dataRoot>/library` under its series' lock: its files no other course of
- *  the series uses, and its download's marker (course-kit's removeCourse). */
+ *  the series uses, and its download's marker (course-kit's removeCourse). What was made for its
+ *  words (its deck folder in `decks/`) stays, as its practice does. */
 export const removeInstalledCourse = (
   dataRoot: string,
   series: string,

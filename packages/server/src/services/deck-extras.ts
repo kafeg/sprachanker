@@ -85,11 +85,50 @@ export function failureOf(error: unknown): string {
   return typeof code === "string" ? code : String(error).slice(0, 200);
 }
 
+/** extras.json read entry by entry: one that does not read is left out (logged) and kept as it is
+ *  (`unread`: a newer version's, written back as it was); entries an earlier version keyed by note go
+ *  (made again, the files they name are found there); a text that is no JSON reads as none. `where`:
+ *  what the log calls it. */
+export function readExtras(text: string | undefined, where: string) {
+  const book: DeckExtras = { format: DECK_EXTRAS_FORMAT, words: {} };
+  const unread: Record<string, unknown> = {};
+  if (text === undefined) return { book, unread };
+  const words = (parseJson(text) as { words?: unknown } | null | undefined)?.words;
+  if (!words || typeof words !== "object") {
+    console.error(`${where} do not read as stored; left out`);
+    return { book, unread };
+  }
+  for (const [key, entry] of Object.entries(words)) {
+    if (!LexemeKey.safeParse(key).success) continue;
+    const word = DeckExtrasWord.safeParse(entry);
+    if (word.success) book.words[key] = word.data;
+    else {
+      unread[key] = entry;
+      console.error(`${where}: ${key} does not read as stored; kept as it is`);
+    }
+  }
+  return { book, unread };
+}
+
+/** The media files a word's extras name: its readings'. */
+export const extrasMedia = (word: DeckExtrasWord) =>
+  [word.audio, ...(word.variants ?? [])].flatMap((r) => (r ? [r.path] : []));
+
+/** Two extras of a word as one: what `had` has stays — its readings (the first and the variants
+ *  together), its examples in each language —, what it lacks `came` gives. */
+function mergeWord(had: DeckExtrasWord | undefined, came: DeckExtrasWord): DeckExtrasWord {
+  if (!had) return came;
+  const reading = had.audio || had.variants ? had : came;
+  const examples = { ...came.examples, ...had.examples };
+  return {
+    ...(reading.audio && { audio: reading.audio }),
+    ...(reading.variants && { variants: reading.variants }),
+    ...(Object.keys(examples).length && { examples }),
+  };
+}
+
 export function createDeckExtras(deps: {
-  files: Pick<
-    DeckFiles,
-    "extras" | "writeExtras" | "media" | "writeMedia" | "removeMedia" | "folders" | "remove"
-  >;
+  files: Pick<DeckFiles, "extras" | "writeExtras" | "media" | "writeMedia" | "removeMedia">;
   decks: Pick<Decks, "deck">;
   /** The installed courses as the library lists them (a course whose files do not read is here too). */
   library: Pick<LibraryView, "courses">;
@@ -126,30 +165,8 @@ export function createDeckExtras(deps: {
   const courseFolders = () =>
     new Set(deps.library.courses().map((c) => courseDeckFolder(`${c.series}/${c.course}`)));
 
-  /** A folder's extras.json read entry by entry: one that does not read is left out (logged) and kept
-   *  as it is; entries an earlier version keyed by note go (made again, the files they name are found
-   *  there); a file that is no JSON reads as none. */
-  function read(folder: string) {
-    const book: DeckExtras = { format: DECK_EXTRAS_FORMAT, words: {} };
-    const unread: Record<string, unknown> = {};
-    const text = files.extras(folder);
-    if (text === undefined) return { book, unread };
-    const words = (parseJson(text) as { words?: unknown } | null | undefined)?.words;
-    if (!words || typeof words !== "object") {
-      console.error(`extras of ${folder} do not read as stored; left out`);
-      return { book, unread };
-    }
-    for (const [key, entry] of Object.entries(words)) {
-      if (!LexemeKey.safeParse(key).success) continue;
-      const word = DeckExtrasWord.safeParse(entry);
-      if (word.success) book.words[key] = word.data;
-      else {
-        unread[key] = entry;
-        console.error(`extras of ${folder}: ${key} does not read as stored; kept as it is`);
-      }
-    }
-    return { book, unread };
-  }
+  /** A folder's extras.json read entry by entry (`readExtras`). */
+  const read = (folder: string) => readExtras(files.extras(folder), `extras of ${folder}`);
 
   const stored = (folder: string) => {
     let kept = books.get(folder);
@@ -161,8 +178,15 @@ export function createDeckExtras(deps: {
   };
   /** A folder's extras as kept. */
   const book = (folder: string) => stored(folder).book;
+  /** A course's folder is written only while its course is installed: one removed meanwhile (from
+   *  the command line, its jobs still working here) is not made again. */
+  const writable = (folder: string) => {
+    if (folder.startsWith("course~") && !courseFolders().has(folder))
+      throw new ServiceError("no_such_deck", 404);
+  };
   /** Writes a folder's extras.json: its entries, those that did not read as they were. */
   const write = (folder: string) => {
+    writable(folder);
     const { book: words, unread } = stored(folder);
     files.writeExtras(
       folder,
@@ -253,6 +277,7 @@ export function createDeckExtras(deps: {
 
     /** Writes a file into a deck folder's media (a job's). */
     writeMedia(folder: string, path: string, bytes: Uint8Array) {
+      writable(folder);
       files.writeMedia(folder, path, bytes);
       present.get(folder)?.set(path, true);
     },
@@ -291,6 +316,9 @@ export function createDeckExtras(deps: {
           left > 0 && { leftMs: Math.round(((deps.now() - job.startedAt) / past) * left) }),
       };
     },
+
+    /** Whether any of a deck folder's jobs is working. */
+    busy: (folder: string) => [...jobs.values()].some((j) => j.folder === folder && going(j)),
 
     /** Whether a deck's job of a kind is working. */
     going: (kind: DeckJobKind, folder: string, lang?: string) =>
@@ -361,15 +389,27 @@ export function createDeckExtras(deps: {
       return cleared;
     },
 
-    /** Course folders whose course is no longer installed go (at the start); a course whose files
-     *  do not read keeps its folder. */
-    sweep() {
-      const here = courseFolders();
-      for (const folder of files.folders())
-        if (folder.startsWith("course~") && !here.has(folder)) {
-          forget(folder);
-          files.remove(folder);
-        }
+    /**
+     * A folder's extras with others merged in, by lexeme (a deck file imported): each word's
+     * extras here stay, what they lack the others give (`mergeWord`). Read from the disk and written
+     * nowhere — the folder is replaced whole by the caller, then forgotten —: its extras.json's text,
+     * the media its entries name, and how many words it has that it had not.
+     */
+    merged(folder: string, others: Record<string, DeckExtrasWord>) {
+      const { book: here, unread } = read(folder);
+      const words = { ...here.words };
+      let added = 0;
+      // An entry here that does not read (a newer version's) stays as it is.
+      for (const [key, word] of Object.entries(others)) {
+        if (key in unread) continue;
+        if (!words[key]) added++;
+        words[key] = mergeWord(words[key], word);
+      }
+      return {
+        text: `${JSON.stringify({ ...here, words: { ...unread, ...words } }, null, 2)}\n`,
+        media: Object.values(words).flatMap(extrasMedia),
+        added,
+      };
     },
   };
 }

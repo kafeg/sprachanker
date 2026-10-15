@@ -154,7 +154,7 @@ test("review: the guide explains the method beside; a course's deck with its pai
   await expect(guide.getByRole("img", { name: /forgetting curves/ })).toBeVisible();
 });
 
-test("a deck file imported in Decks, taken, studied as a course's deck; left and deleted after", async ({
+test("a deck file imported in Decks, taken, studied as a course's deck; exported with its audio and imported back; left and deleted after", async ({
   page,
   request,
 }) => {
@@ -217,6 +217,29 @@ test("a deck file imported in Decks, taken, studied as a course's deck; left and
   await expect(answer).toContainText(/I eat an apple\.|The pear is sweet\.|The table is new\./);
   await page.getByRole("button", { name: "Good", exact: true }).click();
   await expect(show).toBeVisible();
+
+  // Exported from its row's menu with the audio made for it, deleted, imported back from the file:
+  // the same deck, its audio there.
+  await page.goto("/review/decks");
+  const row = page.getByRole("listitem").filter({ hasText: "E2E Wörter" }).first();
+  await row.getByRole("button", { name: "More" }).click();
+  const downloading = page.waitForEvent("download");
+  await page.getByRole("menuitem", { name: "Export to a file" }).click();
+  const download = await downloading;
+  expect(download.suggestedFilename()).toMatch(/\.sprachanker-deck$/);
+  const file = test.info().outputPath(download.suggestedFilename());
+  await download.saveAs(file);
+  await clear();
+  await page.reload();
+  await page.locator("input[type=file]").setInputFiles(file);
+  await expect(sheet.getByRole("heading", { name: "Import a deck" })).toBeVisible();
+  await expect(sheet.getByText("E2E Wörter")).toBeVisible();
+  await expect(sheet.getByText("German · 3 words · 3 with audio · 3 with examples")).toBeVisible();
+  await sheet.getByRole("button", { name: "Import" }).click();
+  await expect(sheet).toHaveCount(0);
+  const back = page.getByRole("listitem").filter({ hasText: "E2E Wörter" });
+  await back.getByRole("button", { name: "Audio and examples" }).click();
+  await expect(back.getByText("Audio: 3 of 3")).toBeVisible();
   await clear();
 });
 

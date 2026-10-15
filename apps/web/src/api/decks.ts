@@ -1,27 +1,43 @@
 // Imported decks: the server's list, a deck file uploaded and previewed, its import by
-// the upload's id, a deck deleted; any deck's words read aloud by the server (polled while it reads).
-// Taking and leaving one is the profile's (cards.ts).
-import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
+// the upload's id, a deck deleted; any deck as a file (`.sprachanker-deck`): exported, previewed and
+// imported; any deck's words read aloud by the server (polled while it reads). Taking and leaving one
+// is the profile's (cards.ts).
+import { type QueryClient, useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import type { InferResponseType } from "hono/client";
 import { useEffect, useRef } from "react";
 import { DECK_AUDIO, readCardsAgain } from "./cards.ts";
 import { api, json, sendBinary } from "./client.ts";
+import { downloadReady, startDownload } from "./files.ts";
 
 export const useImportedDecks = () =>
   useQuery({ queryKey: ["imported-decks"], queryFn: () => json(api.decks.$get()) });
 
-export type DeckPreview = InferResponseType<typeof api.decks.preview.$post, 200>;
+/** What the server says of a deck file uploaded: an .apkg's deck (`DeckPreview`), or a deck file of
+ *  the app's own (`DeckFilePreview`: it has a `kind`) — told by its content. */
+type AnyPreview = InferResponseType<typeof api.decks.preview.$post, 200>;
+export type DeckPreview = Exclude<AnyPreview, { kind: unknown }>;
+export type DeckFilePreview = Extract<AnyPreview, { kind: unknown }>;
 export type ImportedDeck = InferResponseType<typeof api.decks.import.$post, 200>;
 
-/** A deck file uploaded (kept by the server until imported): its deck's name, words (with audio,
- *  with examples), the languages its fields are named by, the first words, the deck it updates. */
+/** A deck file uploaded (kept by the server until imported). An .apkg: its deck's name, words (with
+ *  audio, with examples), the languages its fields are named by, the first words, the deck it
+ *  updates. One of the app's own: its deck's kind, name, languages, words, whether it joins a deck
+ *  here and whether its course is not here yet. */
 export const previewDeck = (file: File) =>
-  sendBinary<DeckPreview>("/api/decks/preview", file, "application/octet-stream");
+  sendBinary<AnyPreview>("/api/decks/preview", file, "application/octet-stream");
 
 /** An uploaded deck file let go unimported (its sheet closed); a failure is no matter (a day later the
  *  server lets it go itself). */
 export const discardDeckUpload = (upload: string) =>
   json(api.decks.uploads[":upload"].$delete({ param: { upload } })).catch(() => undefined);
+
+/** After a deck was imported: the decks, the decks to take, their audio and the cards read anew. */
+const readDecksAgain = (client: QueryClient) =>
+  Promise.all([
+    client.invalidateQueries({ queryKey: ["imported-decks"] }),
+    client.invalidateQueries({ queryKey: [DECK_AUDIO] }),
+    readCardsAgain(client),
+  ]);
 
 /** An uploaded deck file imported; the decks and the decks to take read anew. */
 export function useImportDeck() {
@@ -29,12 +45,33 @@ export function useImportDeck() {
   return useMutation({
     mutationFn: (input: Parameters<typeof api.decks.import.$post>[0]["json"]) =>
       json(api.decks.import.$post({ json: input })),
-    onSuccess: () =>
-      Promise.all([
-        client.invalidateQueries({ queryKey: ["imported-decks"] }),
-        client.invalidateQueries({ queryKey: [DECK_AUDIO] }),
-        readCardsAgain(client),
-      ]),
+    onSuccess: () => readDecksAgain(client),
+  });
+}
+
+/** Where a deck's file made ready is downloaded (once). */
+export const deckExportUrl = (id: string) => `/api/decks/export/${id}`;
+
+/** A deck the learner sees (`course:<key>`, `deck:<id>`) as a file: made ready on the server, asked
+ *  after (one gone meanwhile is an error, never the server's answer saved as the file), then
+ *  downloaded under its own name. Its name and size. */
+export function useExportDeck(download = startDownload) {
+  return useMutation({
+    mutationFn: async (scope: string) => {
+      const ready = await json(api.decks.export.$post({ json: { scope } }));
+      await downloadReady(deckExportUrl(ready.id), "deck_export_gone");
+      return ready;
+    },
+    onSuccess: (ready) => download(deckExportUrl(ready.id), ready.fileName),
+  });
+}
+
+/** A deck file previewed imported; the decks read anew. */
+export function useImportDeckFile() {
+  const client = useQueryClient();
+  return useMutation({
+    mutationFn: (upload: string) => json(api.decks.file.import.$post({ json: { upload } })),
+    onSuccess: () => readDecksAgain(client),
   });
 }
 

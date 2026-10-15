@@ -17,6 +17,7 @@ import {
 import { cliHost } from "./runtime/cli.ts";
 import { courseTransferFiles } from "./runtime/course-transfer.ts";
 import { holdDataRoot, portAnswers, serverOn } from "./runtime/data-root.ts";
+import { deckTransferFiles } from "./runtime/deck-transfer.ts";
 import { apkgRuntime, deckFiles } from "./runtime/decks.ts";
 import { lmStudioHost } from "./runtime/lmstudio.ts";
 import { networkHost } from "./runtime/network.ts";
@@ -66,6 +67,7 @@ function runtimeOf(dataRoot: string, appVersion: string, profileDbWorker?: strin
     apkg: apkgRuntime,
     transfers: profileTransferFiles(dataRoot, { worker: profileDbWorker }),
     courseTransfers: courseTransferFiles(dataRoot),
+    deckTransfers: deckTransferFiles(dataRoot),
     practice: practiceFiles(dataRoot),
     appVersion,
     // Outside the data root, so a copied data folder does not carry usable API keys.
@@ -112,6 +114,8 @@ export function practiceAdmin(dataRoot: string, appVersion = "") {
   const runtime = runtimeOf(dataRoot, appVersion);
   const svc = createServices({
     ...runtime,
+    // A server running on the data root keeps its transfers: they are its to sweep.
+    deckTransfers: deckTransferFiles(dataRoot, { sweeps: () => !serverOn(dataRoot) }),
     fetch,
     now: Date.now,
     random: Math.random,

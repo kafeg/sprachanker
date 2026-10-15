@@ -92,6 +92,7 @@ async function withService(size = 0, read: Record<string, string> = {}) {
     session: async () => undefined,
     myCourses: async () => new Set(),
     readAudio: (folder, lexeme) => read[`${folder} ${lexeme}`],
+    madeFor: () => false,
     studiedBy: () => [],
     now: Date.now,
   });

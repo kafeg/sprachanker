@@ -39,35 +39,78 @@ function folders(extras: Record<string, string | undefined>) {
   };
 }
 
-test("at the start a course's folder goes only when its course is no longer installed; one whose files do not read keeps it", () => {
-  const { files, removed } = folders({
-    "course~dw.nicos-weg~a1": "{}",
-    "course~dw.nicos-weg~a2": "{}",
-    "course~gone.series~b1": "{}",
-    "mein-deck-3f9c2a": "{}",
-  });
-  // a2 is installed but its files do not read: the library lists it all the same.
-  const extras = createDeckExtras({
-    files,
-    decks: { deck: () => undefined },
-    library: {
-      courses: () => [
-        { series: "dw.nicos-weg", course: "a1", editions: [] },
-        { series: "dw.nicos-weg", course: "a2", editions: [] },
-      ],
-    },
-    now: () => 0,
-  });
-  extras.sweep();
-  expect(removed).toEqual(["course~gone.series~b1"]);
-});
-
 const audio = (text: string) => ({
   path: `media/read-${text}.wav`,
   engine: "piper" as const,
   voice: "v",
   text,
   made: 1,
+});
+
+test("a course's folder is never written while its course is not installed (removed meanwhile)", () => {
+  const { files, media } = folders({});
+  const extras = store(files);
+  expect(() =>
+    extras.writeMedia("course~gone.series~b1", "media/a.wav", new Uint8Array()),
+  ).toThrow();
+  expect(media.size).toBe(0);
+  extras.writeMedia("mein-deck-3f9c2a", "media/a.wav", new Uint8Array());
+  expect(media.has("mein-deck-3f9c2a/media/a.wav")).toBe(true);
+});
+
+test("another computer's extras merged by lexeme: each word's here stay, what they lack is added — read from the disk, written nowhere", () => {
+  const folder = "course~dw.nicos-weg~a1";
+  const examples = (sentence: string) => ({
+    items: [{ sentence, translation: "x" }],
+    model: "m",
+    made: 1,
+  });
+  const here = {
+    format: 2,
+    words: {
+      "lex:de:apfel:noun:m": { audio: audio("Apfel"), examples: { ru: examples("Ein Apfel.") } },
+      "lex:de:tisch:noun:m": { examples: { ru: examples("Ein Tisch.") } },
+      // A newer version's entry: it stays as it is.
+      "lex:de:stuhl:noun:m": { audio: audio("Stuhl"), images: ["media/stuhl.png"] },
+    },
+  };
+  const { files } = folders({ [folder]: JSON.stringify(here) });
+  const extras = store(files);
+  const other = {
+    "lex:de:apfel:noun:m": {
+      audio: audio("Apfel2"),
+      examples: { ru: examples("Zwei Äpfel."), en: examples("An apple.") },
+    },
+    "lex:de:tisch:noun:m": { audio: audio("Tisch"), variants: [audio("Tische")] },
+    "lex:de:haus:noun:n": { audio: audio("Haus") },
+    "lex:de:stuhl:noun:m": { audio: audio("Stuhl2") },
+  };
+  const merged = extras.merged(folder, other);
+  expect(JSON.parse(merged.text)).toEqual({
+    format: 2,
+    words: {
+      "lex:de:apfel:noun:m": {
+        audio: audio("Apfel"),
+        examples: { ru: examples("Ein Apfel."), en: examples("An apple.") },
+      },
+      "lex:de:tisch:noun:m": {
+        audio: audio("Tisch"),
+        variants: [audio("Tische")],
+        examples: { ru: examples("Ein Tisch.") },
+      },
+      "lex:de:haus:noun:n": { audio: audio("Haus") },
+      "lex:de:stuhl:noun:m": { audio: audio("Stuhl"), images: ["media/stuhl.png"] },
+    },
+  });
+  expect(merged.added).toBe(1);
+  expect(merged.media.sort()).toEqual([
+    "media/read-Apfel.wav",
+    "media/read-Haus.wav",
+    "media/read-Tisch.wav",
+    "media/read-Tische.wav",
+  ]);
+  // Nothing written: the folder's extras as they were.
+  expect(JSON.parse(files.extras(folder) as string)).toEqual(here);
 });
 
 const store = (files: ReturnType<typeof folders>["files"]) =>

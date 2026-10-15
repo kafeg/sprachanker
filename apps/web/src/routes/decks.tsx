@@ -1,8 +1,9 @@
 // Review → Decks (owner, 2026-10-15: one row a deck). Each language the profile studies, its counts
 // and Study, then its decks — a course's or an imported one —, each in a row: its counts, Study and a
-// menu (more new cards today, leave it, delete an imported one); how many of its words are cards
-// (the rest added); how its audio and examples stand in a line that opens what makes them. Below, the
-// decks to take — none of their words cards yet —, the same way; a deck file imported above all.
+// menu (more new cards today, leave it, export it to a file, delete an imported one); how many of its
+// words are cards (the rest added); how its audio and examples stand in a line that opens what makes
+// them. Below, the decks to take — none of their words cards yet —, the same way; a deck file
+// imported above all.
 
 import { useLocation } from "@tanstack/react-router";
 import { ChevronDown, MoreHorizontal, Play } from "lucide-react";
@@ -10,7 +11,7 @@ import { useEffect, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { useDeckActions, useDeckOffers, useDecks } from "@/api/cards.ts";
 import { inPhoneApp } from "@/api/client.ts";
-import { useDeleteDeck } from "@/api/decks.ts";
+import { useDeleteDeck, useExportDeck } from "@/api/decks.ts";
 import { DeckAudio } from "@/study/deck-audio.tsx";
 import { DeckImport } from "@/study/deck-import.tsx";
 import { deckAnchor } from "@/study/deck-link.tsx";
@@ -26,6 +27,7 @@ import {
 import { ConfirmDialog } from "@/ui/confirm.tsx";
 import { errorText } from "@/ui/error-text.ts";
 import { PairFlags, usePairName } from "@/ui/flags.tsx";
+import { useBytes } from "@/ui/format.ts";
 import { EmptyState, ErrorState, Loading } from "@/ui/page.tsx";
 import { panelClass } from "@/ui/panel.tsx";
 import { cn } from "@/ui/utils.ts";
@@ -145,12 +147,21 @@ type Asking =
   | { leave: { scope: string; lang: string; title: string } }
   | { remove: { id: string; title: string; studiedBy: string[] } };
 
-export function DecksTab({ open }: { open(scope: string): void }) {
+export function DecksTab({
+  open,
+  download,
+}: {
+  open(scope: string): void;
+  /** Tests give their own: a deck's file downloaded. */
+  download?: (url: string, fileName: string) => void;
+}) {
   const { t, i18n } = useTranslation();
   const decks = useDecks();
   const offers = useDeckOffers();
   const actions = useDeckActions();
   const remove = useDeleteDeck();
+  const exported = useExportDeck(download);
+  const bytes = useBytes();
   const name = useDeckName();
   const titleOf = useOfferTitle();
   const pairName = usePairName();
@@ -186,6 +197,15 @@ export function DecksTab({ open }: { open(scope: string): void }) {
       {t("decks.more", { count: MORE })}
     </DropdownMenuItem>
   );
+  // A deck as a file: an imported one always, a course's once something was made for its words (not
+  // in the phone app: it keeps no files to give).
+  const exportItem = (o: Offer) =>
+    !inPhoneApp &&
+    (o.deck || ("made" in o && o.made)) && (
+      <DropdownMenuItem onSelect={() => exported.mutate(o.scope)}>
+        {t("decks.export")}
+      </DropdownMenuItem>
+    );
   const removeItem = (o: Offer) =>
     o.deck && (
       <DropdownMenuItem
@@ -282,6 +302,7 @@ export function DecksTab({ open }: { open(scope: string): void }) {
                           >
                             {t("decks.leave")}
                           </DropdownMenuItem>
+                          {offer && exportItem(offer)}
                           {offer && removeItem(offer)}
                         </>,
                       )}
@@ -320,7 +341,13 @@ export function DecksTab({ open }: { open(scope: string): void }) {
                   >
                     {o.mine ? t("decks.takeRest", { count: o.words - o.mine }) : t("decks.take")}
                   </Button>
-                  {o.deck && menu(removeItem(o))}
+                  {(exportItem(o) || o.deck) &&
+                    menu(
+                      <>
+                        {exportItem(o)}
+                        {removeItem(o)}
+                      </>,
+                    )}
                 </div>
                 <DeckExtras offer={o} scope={o.scope} />
               </li>
@@ -330,6 +357,15 @@ export function DecksTab({ open }: { open(scope: string): void }) {
       )}
       {actions.take.isError && (
         <p className="text-sm text-wrong">{errorText(t, actions.take.error)}</p>
+      )}
+      {exported.isError && <p className="text-sm text-wrong">{errorText(t, exported.error)}</p>}
+      {exported.data && (
+        <p className="text-sm text-muted-foreground" role="status">
+          {t("bundle.export.started", {
+            file: exported.data.fileName,
+            size: bytes(exported.data.bytes),
+          })}
+        </p>
       )}
 
       <ConfirmDialog

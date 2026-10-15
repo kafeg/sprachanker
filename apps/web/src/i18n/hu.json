@@ -1046,7 +1046,7 @@
     "leaveTitle": "Elhagyod ezt a paklit: {deck}?",
     "leaveBody": "A kártyái a haladásukkal együtt eltűnnek. Azok a szavak, amelyek egy másik paklidban is megvannak, a haladásukkal együtt átkerülnek oda.",
     "import": {
-      "button": "Paklifájl importálása (.apkg)",
+      "button": "Paklifájl importálása",
       "title": "Pakli importálása",
       "hint": "A szavaiból pakli lesz, amelyet ezen a számítógépen minden profil felvehet, mint egy kurzusét; a hangja is jön velük.",
       "name": "Név",
@@ -1059,6 +1059,14 @@
       "unusable": "{count, plural, one {# jegyzet kimarad, mert a szava nem olvasható.} other {# jegyzet kimarad, mert a szava nem olvasható.}}",
       "joined": "{count, plural, one {Egy már meglévő szó # jegyzete hozzá van vonva, a fordítása hozzáadva.} other {Már meglévő szavak # jegyzete hozzájuk van vonva, a fordításaik hozzáadva.}}",
       "done": "Importálva: {deck}, {words, plural, one {# szó} other {# szó}}."
+    },
+    "export": "Exportálás fájlba",
+    "file": {
+      "new": "A szavai paklivá válnak, amelyet a számítógép bármelyik profilja felvehet, hanggal és példákkal együtt.",
+      "merges": "Ez a pakli már itt van: a hiányzó szavai bekerülnek, és a hang meg a példák is, amelyek nincsenek meg neki. Ami megvan, marad.",
+      "course": "A kurzus szavaihoz készült hang és példák. A kurzus kártyái itt lejátsszák és megmutatják őket; ami itt már elkészült, marad.",
+      "courseWaits": "A kurzus szavaihoz készült hang és példák. A kurzus még nincs ezen a számítógépen: megmaradnak neki, amíg le nem töltöd.",
+      "finds": "A gyűjtött szavaid: bekerülnek a saját Gyűjtött szavaid közé, és a kártyáid lesznek. Az ott már meglévő szavak maradnak, ahogy vannak."
     },
     "remove": "Pakli törlése",
     "removeTitle": "Törlöd ezt a paklit: {deck}?",
@@ -1393,6 +1401,11 @@
     "deck_unpacked_too_large": "Ez a paklifájl kicsomagolva több, mint amennyi egyszerre beolvasható.",
     "deck_same_languages": "A szavakhoz és a fordításaikhoz két különböző nyelv kell.",
     "deck_job_running": "A pakli szavain most folyik a munka: előbb állítsd le, vagy várd meg a végét.",
+    "deck_file_damaged": "Ez a paklifájl sérült, az exportálás után módosult, vagy nem a SprachAnker paklifájlja.",
+    "deck_file_too_large": "Ez a paklifájl túl nagy (legfeljebb 4 GB).",
+    "deck_file_from_newer_app": "Ez a paklifájl a SprachAnker egy újabb verziójából származik: előbb frissítsd itt az alkalmazást.",
+    "deck_file_clash": "Az itteni azonos nevű pakli nem tudja fogadni ennek a fájlnak a szavait: más nyelveken van, vagy egy másik profilé.",
+    "deck_export_gone": "Ez az exportálás már nincs meg: exportáld újra a paklit.",
     "find_no_language": "Még nem tudni, melyik nyelvet tanulod: előbb kezdj el egy tanfolyamot, vagy vegyél fel egy paklit.",
     "examples_without_word": "A modell mondataiban nem szerepelt a szó.",
     "length_required": "A fájl a mérete nélkül érkezett. Próbáld újra, vagy egy másik böngészőben.",

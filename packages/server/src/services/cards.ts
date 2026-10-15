@@ -13,6 +13,7 @@ import {
   type DeckWord,
   deckSourceKey,
   type EditionId,
+  isFindsDeck,
   type Lesson,
   type LessonKey,
   type LexemeKey,
@@ -62,6 +63,8 @@ export function createCards(deps: {
   /** A word's audio read aloud for its deck (deck-audio.ts) by its lexeme, while it is of the word
    *  as shown: `<folder>/media/<file>`. */
   readAudio: (folder: string, lexeme: string, target: string) => string | undefined;
+  /** Whether anything was made for a deck folder's words (audio read aloud, examples). */
+  madeFor: (folder: string) => boolean;
   /** The profiles studying an imported deck (it is deleted only when none does). */
   studiedBy: (deck: DeckId) => string[];
   now: () => number;
@@ -344,6 +347,28 @@ export function createCards(deps: {
       };
     },
 
+    /** Cards of a Finds deck that came here under another id — imported as this profile's own, its
+     *  cards from a profile file still naming the deck it was on the other computer — follow it:
+     *  their source and display name it now, each word by its key here (`keys`: the key it had there
+     *  to the key of its lexeme here; one not given keeps its key). The keys moved to. */
+    moveDeck(from: DeckId, to: DeckId, keys: ReadonlyMap<string, string>) {
+      if (from === to || !isFindsDeck(from) || !isFindsDeck(to)) return [];
+      const prefix = deckSourceKey(from, "");
+      const moving = cards.all().flatMap((n) => {
+        if (!n.sourceKey?.startsWith(prefix)) return [];
+        const was = n.sourceKey.slice(prefix.length);
+        return [{ ...n, key: keys.get(was) ?? was }];
+      });
+      cards.atomic(() => {
+        for (const n of moving)
+          cards.setNote(n.id, {
+            sourceKey: deckSourceKey(to, n.key),
+            displayCacheJson: JSON.stringify({ ...n.display, deck: to }),
+          });
+      });
+      return moving.map((n) => n.key);
+    },
+
     /**
      * Leaves a deck as Review lists it — a course under its words' language (`course:<key>`), or an
      * imported deck (`deck:<id>`): the cards made in it go, with their progress (their faces and every
@@ -519,6 +544,8 @@ export function createCards(deps: {
             title: c.titles[edition] ?? c.key,
             words: lexemes.size,
             mine: mineOf(lang, lexemes),
+            /** Something was made for its words: there is a deck file to export. */
+            made: deps.madeFor(courseDeckFolder(c.key)),
           });
         }
       const imported = decks.list().map((d) => {

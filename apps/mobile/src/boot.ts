@@ -2,7 +2,7 @@
 // the app's own files and databases, and the web app pointed at it — its requests to /api answered
 // in the page instead of the network (with the session's cookie kept here: a page may not set one),
 // its media and recordings played from the native side's scheme. What the phone does not have yet
-// (decks, profile and course files) says so.
+// (decks and deck files, profile and course files) says so.
 import { libraryOver } from "@sprachanker/course-kit/library-over";
 import {
   createApp,
@@ -46,7 +46,6 @@ const EMPTY: Record<string, unknown> = {
   unfinished: () => {},
   discard: () => {},
   ids: () => [],
-  folders: () => [],
   groups: async () => [],
   read: () => undefined,
   extras: () => undefined,
@@ -96,6 +95,7 @@ async function start() {
     apkg: notOnPhone("decks"),
     transfers: notOnPhone("profile files"),
     courseTransfers: notOnPhone("course files"),
+    deckTransfers: notOnPhone("deck files"),
     appVersion: pkg.version,
     secretKey,
     fetch: speech.fetchVia(netFetch),

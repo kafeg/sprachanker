@@ -21,7 +21,10 @@ browser ──localhost, a LAN name, the tailnet (tailscale serve)────�
                             │                             course bundles installed
                             ├─ library/.transfers/        a course bundle being exported or imported
                             ├─ decks/<id>/                imported .apkg decks: deck.json, extras.json, media/
-                            ├─ decks/course~<s>~<c>/      a course deck's words read aloud: extras.json, media/
+                            ├─ decks/course~<s>~<c>/      what is made for a course's words (audio read aloud,
+                            │                             examples): extras.json, media/; kept as practice is
+                            ├─ decks/finds-<profile>-…/   a profile's own deck (Finds): deck.json, extras.json, media/
+                            ├─ decks/.transfers/          a deck file being exported or imported
                             ├─ models/                    speech models, voices/ Piper's voices, engines.pid
                             ├─ cache/tts/                 texts read aloud by Piper and Qwen3-TTS
                             ├─ server.sqlite, server.pid  profiles, devices signed in; one server per root
@@ -36,7 +39,8 @@ its recordings, a manifest with a hash per file), imported as a new profile; `sp
 copies what cannot be fetched again. A downloaded course or exam moves the same way
 (`.sprachanker-course`: its files of the editions carried, the media they use, a manifest with a hash
 per file and its content versions), installed only once every file is checked, media already there
-not unpacked again.
+not unpacked again. A deck moves on its own (`.sprachanker-deck`: its folder — deck.json,
+extras.json, the media they name — and a manifest with a hash per file), merged into the deck there.
 
 Model calls go from the server to the provider the learner configured (LM Studio, OpenRouter, any
 OpenAI-compatible server, or a command-line agent); nothing else leaves the machine. The desktop app
@@ -93,7 +97,8 @@ gets the types through Hono RPC (`AppType`), no codegen.
   practice taken); review: `cards` (cards from a lesson's words, decks taken and left, relinking),
   `decks` (imported `.apkg` decks, the server's: preview, import, list, delete; their folders through
   `runtime/decks.ts`), `deck-extras` (what is made for a deck's words, kept in its folder:
-  extras.json read once, a job per deck and kind), `deck-audio` (a deck's words without audio read
+  extras.json read once, a job per deck and kind), `deck-transfer` (any deck as a file: exported,
+  previewed, merged in by lexeme; its files through `runtime/deck-transfer.ts`), `deck-audio` (a deck's words without audio read
   aloud by the server's engine), `deck-examples` (a deck's words given examples by the AI), `study` (Anki's decks, queue, ratings, undo, bury, suspend, flags, marks), `words` (My words); and
   across them `notebook` (the study days and the modules' standings, gathered), `progress` (reset over
   every module's runs, recordings in use), `settings`.

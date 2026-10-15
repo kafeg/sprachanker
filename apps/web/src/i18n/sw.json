@@ -1046,7 +1046,7 @@
     "leaveTitle": "Uache seti {deck}?",
     "leaveBody": "Kadi zake zinaondoka, pamoja na maendeleo yake. Maneno yaliyo katika seti yako nyingine yanahamia huko, pamoja na maendeleo yote.",
     "import": {
-      "button": "Ingiza faili la seti (.apkg)",
+      "button": "Ingiza faili la seti",
       "title": "Ingiza seti",
       "hint": "Maneno yake yanakuwa seti ambayo kila wasifu kwenye kompyuta hii unaweza kuichukua, kama ya kozi; sauti zake zinakuja pamoja nayo.",
       "name": "Jina",
@@ -1059,6 +1059,14 @@
       "unusable": "{count, plural, one {Ingizo # ambalo neno lake halisomeki limeachwa.} other {Maingizo # ambayo maneno yake hayasomeki yameachwa.}}",
       "joined": "{count, plural, one {Dokezo # la neno lililopo tayari limeunganishwa nalo, tafsiri yake imeongezwa.} other {Madokezo # ya maneno yaliyopo tayari yameunganishwa nayo, tafsiri zake zimeongezwa.}}",
       "done": "Imeingizwa {deck}: {words, plural, one {neno #} other {maneno #}}."
+    },
+    "export": "Hamisha kwenye faili",
+    "file": {
+      "new": "Maneno yake yanakuwa seti ambayo kila wasifu kwenye kompyuta hii unaweza kuchukua, pamoja na sauti na mifano yake.",
+      "merges": "Seti hii tayari iko hapa: maneno inayokosa yanaongezwa, pamoja na sauti na mifano isiyokuwa nayo. Ilicho nacho kinabaki.",
+      "course": "Sauti na mifano iliyotengenezwa kwa maneno ya kozi hii. Kadi zake hapa zitazicheza na kuzionyesha; kilichotengenezwa hapa tayari kinabaki.",
+      "courseWaits": "Sauti na mifano iliyotengenezwa kwa maneno ya kozi hii. Kozi bado haiko kwenye kompyuta hii: vinahifadhiwa kwa ajili yake hadi uipakue.",
+      "finds": "Vilivyopatikana vyako: vinaingia kwenye Vilivyopatikana vyako mwenyewe na kuwa kadi zako. Maneno yaliyopo tayari yanabaki kama yalivyo."
     },
     "remove": "Futa seti",
     "removeTitle": "Ufute seti {deck}?",
@@ -1393,6 +1401,11 @@
     "deck_unpacked_too_large": "Faili hili la seti likifunguliwa ni kubwa kuliko kinachoweza kusomwa kwa mara moja.",
     "deck_same_languages": "Maneno na tafsiri zake yanahitaji lugha mbili tofauti.",
     "deck_job_running": "Maneno ya seti yanashughulikiwa sasa: simamisha kwanza, au subiri hadi imalizike.",
+    "deck_file_damaged": "Faili hili la seti limeharibika, limebadilishwa baada ya kuhamishwa, au si faili la seti la SprachAnker.",
+    "deck_file_too_large": "Faili hili la seti ni kubwa mno (si zaidi ya GB 4).",
+    "deck_file_from_newer_app": "Faili hili la seti limetoka kwenye toleo jipya zaidi la SprachAnker: sasisha programu hapa kwanza.",
+    "deck_file_clash": "Seti yenye jina hilo hapa haiwezi kupokea maneno ya faili hili: iko katika lugha nyingine, au ni ya wasifu mwingine.",
+    "deck_export_gone": "Uhamishaji huu haupo tena: hamisha seti tena.",
     "find_no_language": "Bado haijulikani unajifunza lugha gani: anza kozi au chukua seti kwanza.",
     "examples_without_word": "Sentensi za modeli hazikutumia neno hilo.",
     "length_required": "Faili ilitumwa bila ukubwa wake. Jaribu tena, au kwenye kivinjari kingine.",

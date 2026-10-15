@@ -61,15 +61,6 @@ and mockups: the owner's page "Goethe в SprachAnker"; background: `docs/researc
 - Open: reading aloud on the phone — Android's WebView has no voices (`speechSynthesis`); words
   without a recording are silent there.
 
-### 5. Decks exported and imported on their own (owner, 2026-10-15)
-Every deck — a course's words, an imported deck, a profile's Finds — as one kind of file with what
-was made for its words (audio read aloud, AI examples), imported with the same button, merged into a
-deck already there; so the audio and examples made on one computer reach another and the phone.
-Today a course's bundle and a profile file carry neither; an imported profile's Finds cards keep
-their content but not their deck.
-- **Accept**: a deck with made audio and examples exported on one data folder, imported on a clean
-  one, its cards play and show them; Finds of a profile imported elsewhere is its deck there.
-
 ## Open items in built areas
 Taken along when an item above touches the area, or on request.
 - Library: a key map for the providers that still number by position (DW and the providers using
@@ -80,8 +71,8 @@ Taken along when an item above touches the area, or on request.
   re-import (the normaliser's revision in the course data, read by `verify` and the course page).
 - Server: structured logs.
 - Moving one's data: a profile file names its courses by key and edition, not yet by content version.
-  An imported deck is named by its id, which another machine's import of the same `.apkg` does not
-  share: its cards there keep their display but not their audio. Open for the owner: pruning media no
+  An imported deck is named by its id: a profile's cards meet it on another machine when the deck goes
+  there as a deck file (`.sprachanker-deck`), not when the same `.apkg` is imported there again. Open for the owner: pruning media no
   course uses.
 - Tutor section: no tools yet — what it knows is the summary of the courses; the lesson tutor's tools
   across every course of the chat's language when a summary proves too little.

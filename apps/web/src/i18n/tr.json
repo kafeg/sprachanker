@@ -1046,7 +1046,7 @@
     "leaveTitle": "{deck} destesinden ayrılmak istiyor musun?",
     "leaveBody": "Kartları ilerlemeleriyle birlikte gider. Başka bir destende de olan kelimeler, ilerlemeleriyle birlikte oraya taşınır.",
     "import": {
-      "button": "Deste dosyası içe aktar (.apkg)",
+      "button": "Deste dosyası içe aktar",
       "title": "Deste içe aktar",
       "hint": "Dosyanın kelimeleri, bu bilgisayardaki her profilin bir kursun destesi gibi alabileceği bir deste olur; sesleri de birlikte gelir.",
       "name": "Ad",
@@ -1059,6 +1059,14 @@
       "unusable": "{count, plural, one {Kelimesi okunamayan # not dışarıda bırakıldı.} other {Kelimeleri okunamayan # not dışarıda bırakıldı.}}",
       "joined": "{count, plural, one {Zaten olan bir kelimenin # notu o kelimeyle birleştirildi, çevirisi eklendi.} other {Zaten olan kelimelerin # notu o kelimelerle birleştirildi, çevirileri eklendi.}}",
       "done": "{deck} içe aktarıldı: {words, plural, one {# kelime} other {# kelime}}."
+    },
+    "export": "Dosyaya dışa aktar",
+    "file": {
+      "new": "Kelimeleri, bu bilgisayardaki her profilin alabileceği bir deste olur; sesleri ve örnekleriyle birlikte.",
+      "merges": "Bu deste burada zaten var: eksik kelimeleri ve sahip olmadığı sesler ile örnekler eklenir. Elindekiler kalır.",
+      "course": "Bu kursun kelimeleri için yapılan sesler ve örnekler. Buradaki kartları bunları çalar ve gösterir; burada daha önce yapılanlar kalır.",
+      "courseWaits": "Bu kursun kelimeleri için yapılan sesler ve örnekler. Kurs henüz bu bilgisayarda yok: sen onu indirene kadar onun için saklanır.",
+      "finds": "Bulduğun kelimeler: kendi Bulduklarım desteğine katılır ve kartların olur. Orada zaten olan kelimeler olduğu gibi kalır."
     },
     "remove": "Desteyi sil",
     "removeTitle": "{deck} destesi silinsin mi?",
@@ -1393,6 +1401,11 @@
     "deck_unpacked_too_large": "Bu deste dosyası açıldığında bir seferde okunabilecek olandan daha büyük oluyor.",
     "deck_same_languages": "Kelimeler ve çevirileri için iki farklı dil gerekir.",
     "deck_job_running": "Destenin kelimeleri üzerinde şu an çalışılıyor: önce durdur ya da bitmesini bekle.",
+    "deck_file_damaged": "Bu deste dosyası bozuk, dışa aktarıldıktan sonra değiştirilmiş ya da bir SprachAnker deste dosyası değil.",
+    "deck_file_too_large": "Bu deste dosyası çok büyük (en fazla 4 GB).",
+    "deck_file_from_newer_app": "Bu deste dosyası SprachAnker'in daha yeni bir sürümünden: önce buradaki uygulamayı güncelle.",
+    "deck_file_clash": "Buradaki aynı adlı deste bu dosyanın kelimelerini alamaz: başka dillerde ya da başka bir profilin.",
+    "deck_export_gone": "Bu dışa aktarma artık burada değil: desteyi yeniden dışa aktar.",
     "find_no_language": "Hangi dili öğrendiğin henüz bilinmiyor: önce bir kursa başla ya da bir deste al.",
     "examples_without_word": "Modelin cümleleri kelimeyi kullanmadı.",
     "length_required": "Dosya boyutu belirtilmeden gönderildi. Yeniden dene ya da başka bir tarayıcıda dene.",

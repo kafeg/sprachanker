@@ -1,11 +1,13 @@
 // /api/decks: imported decks, the server's as the library is — the list, a package
 // uploaded and previewed (the .apkg as the request body, kept until imported or let go), its import,
-// a deck deleted — and any deck's words, taken or not, read aloud or given examples by the AI (what was
-// made removed, or made again). Taking and leaving one is a profile's: /api/cards/decks.
+// a deck deleted —; any deck as a file (`.sprachanker-deck`): exported, uploaded and previewed, then
+// imported; and any deck's words, taken or not, read aloud or given examples by the AI (what was made
+// removed, or made again). Taking and leaving one is a profile's: /api/cards/decks.
 import { DeckId, EditionId, Lang } from "@sprachanker/schema";
 import { Hono } from "hono";
 import { z } from "zod";
-import { announcedLength } from "../media.ts";
+import { announcedLength, attachment } from "../media.ts";
+import { sniffDeckFile } from "../services/deck-transfer.ts";
 import { zod } from "../validate.ts";
 import type { ProfileEnv } from "./env.ts";
 import { TakenDeck } from "./params.ts";
@@ -20,9 +22,17 @@ export function deckRoutes() {
   return (
     new Hono<ProfileEnv>()
       .get("/", (c) => c.json({ decks: c.var.s.decks.list() }))
-      .post("/preview", async (c) =>
-        c.json(await c.var.s.decks.preview(c.req.raw.body, announcedLength(c.req.raw.headers))),
-      )
+      // A deck file uploaded and previewed — an .apkg, or one of the app's own (.sprachanker-deck),
+      // told by its content —, kept until imported by its upload's id or let go.
+      .post("/preview", async (c) => {
+        const length = announcedLength(c.req.raw.headers);
+        const { deckFile, body } = await sniffDeckFile(c.req.raw.body, length);
+        return c.json(
+          deckFile
+            ? await c.var.s.deckTransfer.preview(body, length)
+            : await c.var.s.decks.preview(body, length),
+        );
+      })
       .post(
         "/import",
         zod(
@@ -36,6 +46,22 @@ export function deckRoutes() {
           }),
         ),
         async (c) => c.json(await c.var.s.decks.import(c.req.valid("json"))),
+      )
+      // A deck the profile sees as a file: made ready (its name and size), then downloaded once,
+      // streamed (a HEAD — Hono answers it with the GET — asks whether it is still there).
+      .post("/export", zod("json", DeckScope), async (c) =>
+        c.json(await c.var.s.deckTransfer.prepare(c.req.valid("json").scope)),
+      )
+      .get("/export/:id", zod("param", z.object({ id: z.uuid() })), (c) => {
+        const { id } = c.req.valid("param");
+        if (c.req.method === "HEAD")
+          return c.body(null, 200, attachment(c.var.s.deckTransfer.ready(id)));
+        const file = c.var.s.deckTransfer.download(id);
+        return c.body(file.stream, 200, attachment(file));
+      })
+      // A deck file of the app's own previewed (/preview) imported by its upload's id.
+      .post("/file/import", zod("json", z.object({ upload: z.uuid() })), async (c) =>
+        c.json(await c.var.s.deckTransfer.import(c.req.valid("json").upload)),
       )
       // A deck's words read aloud (a course's or an imported one's): its counts and job, the job started
       // (with this profile's engine and voice; `again`: what was read removed first) or stopped, what was
@@ -82,7 +108,9 @@ export function deckRoutes() {
         return c.json(await c.var.s.examples.prompt(scope, edition));
       })
       .delete("/uploads/:upload", zod("param", z.object({ upload: z.uuid() })), (c) => {
-        c.var.s.decks.discard(c.req.valid("param").upload);
+        const { upload } = c.req.valid("param");
+        c.var.s.decks.discard(upload);
+        c.var.s.deckTransfer.discard(upload);
         return c.json({ ok: true as const });
       })
       .delete("/:id", zod("param", z.object({ id: DeckId })), (c) => {

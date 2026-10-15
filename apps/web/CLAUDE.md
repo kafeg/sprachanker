@@ -11,7 +11,7 @@ apps/web/src/
   fonts.css        # the faces bundled from @fontsource (Fira: Latin, Cyrillic, Greek; Arabic, Devanagari; Chinese: the system's)
   routes/          # router.tsx (code-based TanStack Router: the gate, then the pages, each but Courses and
                    # Exams loaded when first opened — page.tsx: lazy pages, a failed page's error): courses (/, /downloaded, /catalog), review (/review,
-                   # /review/decks — decks.tsx: a row a deck —, /review/words — words.tsx), exams (/exams, /exams/downloaded,
+                   # /review/decks — decks.tsx: a row a deck, its menu's "Export to a file" (made ready, then downloaded) —, /review/words — words.tsx), exams (/exams, /exams/downloaded,
                    # /exams/catalog), course (its map; an optional feature's button among its actions and the panel it opens: its `extra` slot), settings, storage (Settings → General's storage),
                    # runs (the lesson and exam runs with the assistant's slots)
   courses/         # course cards (on library/card), the pair and course filters (filterCourses, pure), the
@@ -25,7 +25,7 @@ apps/web/src/
   study/           # Anki's reviewer, shared by Review and the lesson's "Words" step: card (the card widget,
                    # its recording and autoplay, "Example"), session (counts, Show answer, ratings, undo; one action
                    # at a time; a rating with the time its card was shown), reviewer-keys (Anki's keys: a
-                   # pure mapping, tested), more-menu; decks (deck names), deck-import (a deck file previewed, named, its languages, imported), deck-audio (a deck's words
+                   # pure mapping, tested), more-menu; decks (deck names), deck-import (a deck file previewed — an .apkg named, its languages; one exported here, .sprachanker-deck — the server tells which —, what it holds and where it goes —, imported), deck-audio (a deck's words
                    # read aloud by the server: who reads them, generate, remove, regenerate, progress, stop; a deck taken: its line), examples (a word's own and the AI's: one line each, played; the card shows one at a time), deck-link (a card's way to its deck: audio, examples to make; an icon in its corner on a phone), word-sheet (a word with cards in full: forms, faces, answers), guide (how review
                    # works: the method, buttons, card types, actions, keys), review-settings (Settings →
                    # Review: daily limits, retention, card types, how it works); slots (what optional features add: a deck's AI examples on cards and under decks)
@@ -50,8 +50,8 @@ apps/web/src/
                    # reset-progress, exam-address, item-history (an item across passes), spoken-check,
                    # understanding-text (a text, its glossed words — glossed.ts —, its questions answered), mistakes-review (mistakes gone over by type), practice-item (an item the assistant set)
   api/             # client (Hono RPC, hono/client; no codegen) + TanStack Query hooks by area: settings
-                   # (the app and its addresses, the profile's settings), courses, downloads, cards, decks (imported; a deck's
-                   # words read aloud, polled while read), notebook,
+                   # (the app and its addresses, the profile's settings), courses, downloads, cards, decks (imported; deck files
+                   # exported and imported; a deck's words read aloud, polled while read), notebook,
                    # recordings, speech, exams, session (profiles, signing in and out, devices, a profile's file), files (sent with progress, downloaded); outbox (events in
                    # order, retried, a refused batch dropped; tested), run-events (a lesson's or exam's
                    # run's events over it: per profile, the server's outcomes, on page close); edition:

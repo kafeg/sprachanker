@@ -71,6 +71,12 @@ export const ERROR_CODES = [
   "deck_unpacked_too_large",
   "deck_same_languages",
   "deck_job_running",
+  // Deck files (.sprachanker-deck).
+  "deck_file_damaged",
+  "deck_file_too_large",
+  "deck_file_from_newer_app",
+  "deck_file_clash",
+  "deck_export_gone",
   // Words selected and translated (Finds): which language is learnt is not known.
   "find_no_language",
   // Settings.

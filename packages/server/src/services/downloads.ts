@@ -69,6 +69,8 @@ export function createDownloads(deps: {
   now: () => number;
   /** Called when a download ends (done or failed): the course's files may have changed. */
   onEnd?: (series: string, course: string) => void;
+  /** A course removed (what worked on it lets it go). */
+  onRemoved?: (series: string, course: string) => void;
 }) {
   const jobs = new Map<string, DownloadJob>();
   const queue: DownloadJob[] = [];
@@ -180,6 +182,7 @@ export function createDownloads(deps: {
         throw new ServiceError("course_busy", 409);
       // Another process importing the series (the CLI): `series_busy`.
       const removed = await guarded(() => installer.remove(series, course));
+      deps.onRemoved?.(series, course);
       deps.onEnd?.(series, course);
       return removed;
     },

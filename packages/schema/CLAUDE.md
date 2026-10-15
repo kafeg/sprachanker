@@ -16,7 +16,9 @@ src/
   deck.ts            # an imported deck (`decks/<id>/deck.json`): its id, words (with the deck's own
                      # examples), languages, source, owner (a profile's own: Finds — findsDeckId); a deck
                      # folder (a course's too) and its extras.json
-                     # (by word key: the audio read aloud)
+                     # (by word key: the audio read aloud); the audio extensions a deck's media may have
+  deck-bundle.ts     # a deck file (`.sprachanker-deck`): one deck's folder — a course's extras, an
+                     # imported deck, Finds —, its manifest, the paths it may hold, its size limit
   common.ts          # sha256, media paths, media, library paths, localized text, `format` literal
   canonical.ts       # course index, lesson, vocab entries, unmapped
   exam.ts            # exam, sections, pools, thresholds; a question as a one-item exercise, an exam's language

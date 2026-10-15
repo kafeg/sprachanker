@@ -1046,7 +1046,7 @@
     "leaveTitle": "Părăsești pachetul {deck}?",
     "leaveBody": "Cardurile lui dispar, cu tot cu progres. Cuvintele pe care le are și alt pachet al tău trec acolo, cu progres cu tot.",
     "import": {
-      "button": "Importă un fișier de pachet (.apkg)",
+      "button": "Importă un fișier de pachet",
       "title": "Importă un pachet",
       "hint": "Cuvintele lui devin un pachet pe care orice profil de pe acest computer îl poate lua, ca pe al unui curs; audio vine odată cu ele.",
       "name": "Nume",
@@ -1059,6 +1059,14 @@
       "unusable": "{count, plural, one {# notă al cărei cuvânt nu poate fi citit este omisă.} few {# note ale căror cuvinte nu pot fi citite sunt omise.} other {# de note ale căror cuvinte nu pot fi citite sunt omise.}}",
       "joined": "{count, plural, one {# notă a unui cuvânt deja prezent e unită cu el, traducerea ei adăugată.} few {# note ale unor cuvinte deja prezente sunt unite cu ele, traducerile lor adăugate.} other {# de note ale unor cuvinte deja prezente sunt unite cu ele, traducerile lor adăugate.}}",
       "done": "{deck} importat: {words, plural, one {# cuvânt} few {# cuvinte} other {# de cuvinte}}."
+    },
+    "export": "Exportă într-un fișier",
+    "file": {
+      "new": "Cuvintele lui devin un pachet pe care orice profil de pe acest computer îl poate lua, cu audio și exemple.",
+      "merges": "Acest pachet e deja aici: se adaugă cuvintele care îi lipsesc, precum și audio și exemplele pe care nu le are. Ce are rămâne.",
+      "course": "Audio și exemplele făcute pentru cuvintele acestui curs. Cardurile lui de aici le redau și le arată; ce s-a făcut deja aici rămâne.",
+      "courseWaits": "Audio și exemplele făcute pentru cuvintele acestui curs. Cursul nu e încă pe acest computer: sunt păstrate pentru el până îl descarci.",
+      "finds": "Descoperirile tale: se adaugă la propriile tale Descoperiri și devin cardurile tale. Cuvintele care sunt deja acolo rămân cum sunt."
     },
     "remove": "Șterge pachetul",
     "removeTitle": "Ștergi pachetul {deck}?",
@@ -1393,6 +1401,11 @@
     "deck_unpacked_too_large": "Dezarhivat, acest fișier de pachet e prea mare ca să fie citit dintr-odată.",
     "deck_same_languages": "Cuvintele și traducerile lor trebuie să fie în două limbi diferite.",
     "deck_job_running": "Cuvintele pachetului sunt prelucrate acum: oprește mai întâi sau așteaptă să se termine.",
+    "deck_file_damaged": "Acest fișier de pachet e deteriorat, a fost modificat după export sau nu e un fișier de pachet SprachAnker.",
+    "deck_file_too_large": "Acest fișier de pachet e prea mare (cel mult 4 GB).",
+    "deck_file_from_newer_app": "Acest fișier de pachet vine dintr-o versiune mai nouă a SprachAnker: actualizează mai întâi aplicația aici.",
+    "deck_file_clash": "Un pachet cu același nume de aici nu poate primi cuvintele din acest fișier: e în alte limbi sau aparține altui profil.",
+    "deck_export_gone": "Acest export nu mai este aici: exportă pachetul din nou.",
     "find_no_language": "Încă nu se știe ce limbă înveți: începe mai întâi un curs sau ia un pachet.",
     "examples_without_word": "Propozițiile modelului nu au folosit cuvântul.",
     "length_required": "Fișierul a fost trimis fără dimensiunea lui. Încearcă din nou sau în alt browser.",

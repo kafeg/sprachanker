@@ -3,7 +3,11 @@ import { Database } from "bun:sqlite";
 import { mkdirSync, readdirSync, readFileSync, rmSync, statSync, writeFileSync } from "node:fs";
 import { basename, dirname, join, resolve, sep } from "node:path";
 import { writeFileAtomic } from "@sprachanker/course-kit";
-import { COURSE_BUNDLE_MAX_BYTES, PROFILE_FILE_MAX_BYTES } from "@sprachanker/schema";
+import {
+  COURSE_BUNDLE_MAX_BYTES,
+  DECK_BUNDLE_MAX_BYTES,
+  PROFILE_FILE_MAX_BYTES,
+} from "@sprachanker/schema";
 import { drizzle } from "drizzle-orm/bun-sqlite";
 import { type Migration, migrate } from "../db/migrate.ts";
 import type { ProfileDb } from "../db/profile/db.ts";
@@ -47,7 +51,13 @@ export function listen(
     // A course bundle is the largest body taken (Bun's own limit is 128 MB); each route keeps its own
     // limit below it (app.ts).
     maxRequestBodySize:
-      Math.max(DECK_MAX_BYTES, PROFILE_FILE_MAX_BYTES, COURSE_BUNDLE_MAX_BYTES) + 1024 * 1024,
+      Math.max(
+        DECK_MAX_BYTES,
+        DECK_BUNDLE_MAX_BYTES,
+        PROFILE_FILE_MAX_BYTES,
+        COURSE_BUNDLE_MAX_BYTES,
+      ) +
+      1024 * 1024,
   });
   return { url: server.url.href, stop: () => server.stop() };
 }

@@ -1046,7 +1046,7 @@
     "leaveTitle": "Stapel {deck} entfernen?",
     "leaveBody": "Seine Karten gehen mit ihrem Fortschritt. Wörter, die ein anderer deiner Stapel hat, wandern mit allem Fortschritt dorthin.",
     "import": {
-      "button": "Stapeldatei importieren (.apkg)",
+      "button": "Stapeldatei importieren",
       "title": "Stapel importieren",
       "hint": "Seine Wörter werden ein Stapel, den jedes Profil auf diesem Computer übernehmen kann wie den eines Kurses; das Audio kommt mit.",
       "name": "Name",
@@ -1059,6 +1059,14 @@
       "unusable": "{count, plural, one {# Notiz, deren Wort sich nicht lesen lässt, wird ausgelassen.} other {# Notizen, deren Wort sich nicht lesen lässt, werden ausgelassen.}}",
       "joined": "{count, plural, one {# Notiz eines Worts, das schon darin ist, wird mit ihm zusammengeführt, ihre Übersetzung ergänzt.} other {# Notizen von Wörtern, die schon darin sind, werden mit ihnen zusammengeführt, ihre Übersetzungen ergänzt.}}",
       "done": "{deck} importiert: {words, plural, one {# Wort} other {# Wörter}}."
+    },
+    "export": "Als Datei exportieren",
+    "file": {
+      "new": "Seine Wörter werden ein Stapel, den jedes Profil auf diesem Computer übernehmen kann, mit Audio und Beispielen.",
+      "merges": "Diesen Stapel gibt es hier schon: Die Wörter, die ihm fehlen, kommen dazu, ebenso Audio und Beispiele, die er nicht hat. Was er hat, bleibt.",
+      "course": "Audio und Beispiele, die für die Wörter dieses Kurses gemacht wurden. Seine Karten hier spielen und zeigen sie; was hier schon gemacht wurde, bleibt.",
+      "courseWaits": "Audio und Beispiele, die für die Wörter dieses Kurses gemacht wurden. Der Kurs ist noch nicht auf diesem Computer: Sie werden für ihn aufbewahrt, bis du ihn herunterlädst.",
+      "finds": "Deine Fundstücke: Sie kommen zu deinen eigenen Fundstücken und werden deine Karten. Wörter, die schon dort sind, bleiben, wie sie sind."
     },
     "remove": "Stapel löschen",
     "removeTitle": "Stapel {deck} löschen?",
@@ -1393,6 +1401,11 @@
     "deck_unpacked_too_large": "Diese Stapeldatei entpackt sich zu mehr, als auf einmal gelesen werden kann.",
     "deck_same_languages": "Wörter und Übersetzungen brauchen zwei verschiedene Sprachen.",
     "deck_job_running": "An den Wörtern des Stapels wird gerade gearbeitet: halte es erst an oder warte, bis es fertig ist.",
+    "deck_file_damaged": "Diese Stapeldatei ist beschädigt, wurde nach dem Export verändert oder ist keine Stapeldatei von SprachAnker.",
+    "deck_file_too_large": "Diese Stapeldatei ist zu groß (höchstens 4 GB).",
+    "deck_file_from_newer_app": "Diese Stapeldatei stammt aus einer neueren Version von SprachAnker: Aktualisiere die App hier zuerst.",
+    "deck_file_clash": "Ein Stapel mit demselben Namen hier kann die Wörter dieser Datei nicht aufnehmen: Er ist in anderen Sprachen oder gehört einem anderen Profil.",
+    "deck_export_gone": "Dieser Export ist nicht mehr da: Exportiere den Stapel noch einmal.",
     "find_no_language": "Noch ist nicht bekannt, welche Sprache du lernst: beginne erst einen Kurs oder übernimm einen Stapel.",
     "examples_without_word": "Die Sätze des Modells enthielten das Wort nicht.",
     "length_required": "Die Datei wurde ohne ihre Größe gesendet. Versuch es noch einmal oder in einem anderen Browser.",

@@ -9,6 +9,7 @@ import { CLIENT_HEADERS } from "@sprachanker/schema";
 import { createApp } from "../src/app.ts";
 import { mediaBlob, openServerDb, profileFiles } from "../src/runtime/bun.ts";
 import { courseTransferFiles } from "../src/runtime/course-transfer.ts";
+import { deckTransferFiles } from "../src/runtime/deck-transfer.ts";
 import { apkgRuntime, deckFiles } from "../src/runtime/decks.ts";
 import { practiceFiles } from "../src/runtime/practice.ts";
 import { profileTransferFiles } from "../src/runtime/profile-transfer.ts";
@@ -68,6 +69,7 @@ export async function setup(
     apkg: apkgRuntime,
     transfers: options.transfers?.(root) ?? profileTransferFiles(root),
     courseTransfers: options.courseTransfers?.(root) ?? courseTransferFiles(root),
+    deckTransfers: deckTransferFiles(root),
     practice: practiceFiles(root),
     appVersion: "test",
     secretKey: new Uint8Array(32).fill(7),

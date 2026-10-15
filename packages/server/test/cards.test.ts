@@ -311,6 +311,7 @@ test("a card follows its word's lexeme when a course is normalised again; no sec
     session: async () => undefined,
     myCourses: async () => new Set(),
     readAudio: () => undefined,
+    madeFor: () => false,
     studiedBy: () => [],
     now: Date.now,
   });

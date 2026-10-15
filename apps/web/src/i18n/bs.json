@@ -1046,7 +1046,7 @@
     "leaveTitle": "Napustiti špil {deck}?",
     "leaveBody": "Njegove kartice odlaze, s napretkom. Riječi koje ima neki drugi tvoj špil prelaze tamo, sa cijelim napretkom.",
     "import": {
-      "button": "Uvezi datoteku špila (.apkg)",
+      "button": "Uvezi datoteku špila",
       "title": "Uvezi špil",
       "hint": "Njegove riječi postaju špil koji svaki profil na ovom računaru može uzeti, kao špil kursa; njegov audio dolazi s njima.",
       "name": "Naziv",
@@ -1059,6 +1059,14 @@
       "unusable": "{count, plural, one {# bilješka čija se riječ ne može pročitati je izostavljena.} few {# bilješke čije se riječi ne mogu pročitati su izostavljene.} other {# bilješki čije se riječi ne mogu pročitati je izostavljeno.}}",
       "joined": "{count, plural, one {# bilješka riječi koja već postoji spojena je s njom, njen prijevod dodan.} few {# bilješke riječi koje već postoje spojene su s njima, njihovi prijevodi dodani.} other {# bilješki riječi koje već postoje spojeno je s njima, njihovi prijevodi dodani.}}",
       "done": "Uvezen špil {deck}: {words, plural, one {# riječ} few {# riječi} other {# riječi}}."
+    },
+    "export": "Izvezi u datoteku",
+    "file": {
+      "new": "Njegove riječi postaju špil koji svaki profil na ovom računaru može uzeti, sa zvukom i primjerima.",
+      "merges": "Ovaj špil je već ovdje: dodaju se riječi koje mu nedostaju, kao i zvuk i primjeri koje nema. Ono što ima ostaje.",
+      "course": "Zvuk i primjeri napravljeni za riječi ovog kursa. Njegove kartice ovdje ih puštaju i prikazuju; ono što je ovdje već napravljeno ostaje.",
+      "courseWaits": "Zvuk i primjeri napravljeni za riječi ovog kursa. Kursa još nema na ovom računaru: čuvaju se za njega dok ga ne preuzmeš.",
+      "finds": "Tvoji nalazi: dodaju se tvojim Nalazima i postaju tvoje kartice. Riječi koje su već tamo ostaju kakve jesu."
     },
     "remove": "Obriši špil",
     "removeTitle": "Obrisati špil {deck}?",
@@ -1393,6 +1401,11 @@
     "deck_unpacked_too_large": "Ova datoteka špila se raspakuje u više nego što se odjednom može pročitati.",
     "deck_same_languages": "Za riječi i njihove prijevode trebaju dva različita jezika.",
     "deck_job_running": "Na riječima špila se upravo radi: prvo to zaustavi ili sačekaj da završi.",
+    "deck_file_damaged": "Ova datoteka špila je oštećena, promijenjena nakon izvoza ili nije datoteka špila SprachAnkera.",
+    "deck_file_too_large": "Ova datoteka špila je prevelika (najviše 4 GB).",
+    "deck_file_from_newer_app": "Ova datoteka špila potiče iz novije verzije SprachAnkera: prvo ažuriraj aplikaciju ovdje.",
+    "deck_file_clash": "Špil istog imena ovdje ne može primiti riječi iz ove datoteke: na drugim je jezicima ili pripada drugom profilu.",
+    "deck_export_gone": "Ovog izvoza više nema: izvezi špil ponovo.",
     "find_no_language": "Još se ne zna koji jezik učiš: prvo započni kurs ili uzmi špil.",
     "examples_without_word": "Rečenice modela nisu koristile tu riječ.",
     "length_required": "Datoteka je poslana bez svoje veličine. Pokušaj ponovo ili u drugom pregledniku.",

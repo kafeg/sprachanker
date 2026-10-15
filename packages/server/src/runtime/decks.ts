@@ -16,7 +16,7 @@ import {
   writeFileSync,
 } from "node:fs";
 import { mkdir, writeFile } from "node:fs/promises";
-import { dirname, join } from "node:path";
+import { basename, dirname, join } from "node:path";
 import { zstdDecompressSync } from "node:zlib";
 import type { ApkgRuntime } from "@sprachanker/anki-export";
 import type { DeckFiles } from "../services/decks.ts";
@@ -31,6 +31,7 @@ const UPLOAD_KEPT_MS = 24 * 60 * 60_000;
 const WRITING = /^\.(.+)\.tmp-[0-9a-f]{8}(\.old)?$/;
 /** What the server made for a deck's words (audio read aloud), beside deck.json. */
 const EXTRAS = "extras.json";
+const DECK = "deck.json";
 
 /** A file written whole: beside it, then renamed into place (its folder made). */
 function writeWhole(file: string, data: string | Uint8Array) {
@@ -40,12 +41,54 @@ function writeWhole(file: string, data: string | Uint8Array) {
   renameSync(part, file);
 }
 
+const isFile = (path: string) => !!path && !!statSync(path, { throwIfNoEntry: false })?.isFile();
+
 /** A file linked to another name, else copied (a disk without hard links: exFAT, a network share). */
 function linked(from: string, to: string) {
   try {
     linkSync(from, to);
   } catch {
     copyFileSync(from, to);
+  }
+}
+
+/**
+ * A deck folder (`target`, in `root`) written anew whole, or not at all: `fill` writes a fresh folder
+ * beside it; what of the folder as it was `fill` did not write stays, linked in — its media (a card
+ * of a word an update drops keeps its audio), extras.json, deck.json —; then the fresh folder is
+ * swapped into place, the folder as it was untouched until then.
+ */
+export async function replaceFolder(
+  root: string,
+  target: string,
+  fill: (fresh: string) => Promise<void>,
+) {
+  const id = basename(target);
+  const fresh = join(root, `.${id}.tmp-${randomUUID().slice(0, 8)}`);
+  try {
+    await mkdir(join(fresh, "media"), { recursive: true });
+    await fill(fresh);
+    const old = `${fresh}.old`;
+    const had = !!statSync(target, { throwIfNoEntry: false });
+    const earlier = join(target, "media");
+    if (had && statSync(earlier, { throwIfNoEntry: false })?.isDirectory())
+      for (const name of readdirSync(earlier))
+        if (!statSync(join(fresh, "media", name), { throwIfNoEntry: false }))
+          linked(join(earlier, name), join(fresh, "media", name));
+    for (const name of [EXTRAS, DECK])
+      if (isFile(join(target, name)) && !statSync(join(fresh, name), { throwIfNoEntry: false }))
+        linked(join(target, name), join(fresh, name));
+    if (had) renameSync(target, old);
+    try {
+      renameSync(fresh, target);
+    } catch (error) {
+      // The folder as it was stays.
+      if (had) renameSync(old, target);
+      throw error;
+    }
+    rmSync(old, { recursive: true, force: true });
+  } finally {
+    rmSync(fresh, { recursive: true, force: true });
   }
 }
 
@@ -58,7 +101,6 @@ export function deckFiles(dataRoot: string): DeckFiles {
   };
   const uploaded = (upload: string, ext = "apkg") =>
     UPLOAD.test(upload) ? join(uploads, `${upload}.${ext}`) : "";
-  const isFile = (path: string) => !!path && !!statSync(path, { throwIfNoEntry: false })?.isFile();
   /** Uploads a day old go (one gone meanwhile is no matter). */
   const sweepUploads = () => {
     for (const name of statSync(uploads, { throwIfNoEntry: false }) ? readdirSync(uploads) : []) {
@@ -78,38 +120,14 @@ export function deckFiles(dataRoot: string): DeckFiles {
     },
     writeDeck: (id, text) => writeWhole(join(folder(id), "deck.json"), text),
     async write(id, media, deck) {
-      const target = folder(id);
-      const fresh = join(root, `.${id}.tmp-${randomUUID().slice(0, 8)}`);
-      try {
-        await mkdir(join(fresh, "media"), { recursive: true });
+      await replaceFolder(root, folder(id), async (fresh) => {
         for (const batch of media)
           for (const [path, bytes] of batch) {
             if (!MEDIA.test(path)) throw new Error(`bad deck media path ${path}`);
             await writeFile(join(fresh, path), bytes);
           }
         await writeFile(join(fresh, "deck.json"), deck());
-        const old = `${fresh}.old`;
-        const had = !!statSync(target, { throwIfNoEntry: false });
-        // The deck's earlier media and extras stay, linked: the deck as it was is untouched until
-        // swapped.
-        const earlier = join(target, "media");
-        if (had && statSync(earlier, { throwIfNoEntry: false })?.isDirectory())
-          for (const name of readdirSync(earlier))
-            if (!statSync(join(fresh, "media", name), { throwIfNoEntry: false }))
-              linked(join(earlier, name), join(fresh, "media", name));
-        if (isFile(join(target, EXTRAS))) linked(join(target, EXTRAS), join(fresh, EXTRAS));
-        if (had) renameSync(target, old);
-        try {
-          renameSync(fresh, target);
-        } catch (error) {
-          // The deck as it was stays.
-          if (had) renameSync(old, target);
-          throw error;
-        }
-        rmSync(old, { recursive: true, force: true });
-      } finally {
-        rmSync(fresh, { recursive: true, force: true });
-      }
+      });
     },
     remove: (id) => rmSync(folder(id), { recursive: true, force: true }),
     media(id, path) {
@@ -129,12 +147,6 @@ export function deckFiles(dataRoot: string): DeckFiles {
     removeMedia(id, path) {
       if (MEDIA.test(path)) rmSync(join(folder(id), path), { force: true });
     },
-    folders: () =>
-      statSync(root, { throwIfNoEntry: false })?.isDirectory()
-        ? readdirSync(root).filter(
-            (name) => ID.test(name) && statSync(join(root, name)).isDirectory(),
-          )
-        : [],
     async stage(body, max) {
       mkdirSync(uploads, { recursive: true });
       sweepUploads();

@@ -36,9 +36,9 @@ src/
                      # verified; one stopped midway undone at the start); network.ts (the machine's IPv4
                      # addresses, its `.local` name, `tailscale status` and `tailscale serve status` as JSON);
                      # cli.ts (runs `claude` / `codex` for the command-line LLM providers, in the run's environment);
-                     # decks.ts (imported decks' folders, written whole; a deck folder's extras.json and
-                     # media read aloud — an imported deck's or a course's; packages uploaded, streamed to
-                     # decks/.uploads; swept at the start; SQLite from bytes and zstd for reading an .apkg)
+                     # decks.ts (deck folders written whole: replaceFolder; extras.json, media read aloud;
+                     # .apkg uploads in decks/.uploads, swept at the start; SQLite from bytes, zstd);
+                     # deck-transfer.ts (deck files in decks/.transfers: zipped, read, unpacked, placed)
   db/
     server/          # Drizzle schema + migrations for server.sqlite
     profile/         # Drizzle schema + migrations for profile.sqlite
@@ -53,8 +53,7 @@ src/
                      # (courses, catalog, downloads, a course removed, lesson content), lessons (lesson
                      # runs: /api/runs),
                      # progress (reset), exams, cards (a card's examples too), decks (imported: list,
-                     # preview, import, an upload let go, delete; any deck's words read aloud or given
-                     # examples), settings, notebook, recordings, speech, llm (removable as a whole; words
+                     # preview, import, an upload let go, delete; deck files; read aloud, examples), settings, notebook, recordings, speech, llm (removable as a whole; words
                      # selected kept in Finds: /api/llm/finds),
                      # network (the addresses the app is reached at); env.ts: what a profile's routes
                      # read (`c.var.s`, its services; `c.var.profileId`); params.ts: what several take
@@ -74,11 +73,12 @@ src/
                      #   marks; standing, a review day in full), words, decks (imported .apkg decks, server-wide: preview,
                      #   import — the same deck again updated —, list, delete while no profile uses it; a
                      #   profile's own deck — Finds, `owner` — grown a word at a time, seen by it alone: `of`,
-                     #   gone with it), finds (words selected anywhere: the model's card, read aloud, added
+                     #   gone with it; a deck file's deck merged in by lexeme), finds (words selected anywhere: the model's card, read aloud, added
                      #   to the profile's Finds and made a card — unless a card of the word is there),
                      #   deck-extras (what is made for a deck's words, kept in its folder by lexeme:
                      #   extras.json read once, a job per deck and kind — its media known while it works —,
-                     #   what was made removed, sweeping),
+                     #   what was made removed, a deck file's merged in; no course folder written while its course is not installed), deck-transfer (any deck as a file:
+                     #   made ready, previewed — told by content —, merged in; Finds the importer's own),
                      #   deck-audio (its words without audio read aloud: the engine and voice handed in by
                      #   index.ts from profile-speech, the deck's words — taken or not — from cards.ts),
                      #   deck-examples (its words given examples by a model handed in: five a call, a

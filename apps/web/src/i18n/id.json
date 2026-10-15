@@ -1046,7 +1046,7 @@
     "leaveTitle": "Tinggalkan dek {deck}?",
     "leaveBody": "Kartunya akan hilang beserta progresnya. Kata yang juga ada di dek kamu yang lain pindah ke sana, lengkap dengan progresnya.",
     "import": {
-      "button": "Impor berkas dek (.apkg)",
+      "button": "Impor berkas dek",
       "title": "Impor dek",
       "hint": "Kata-katanya menjadi dek yang bisa diambil setiap profil di komputer ini, seperti dek kursus; audionya ikut serta.",
       "name": "Nama",
@@ -1059,6 +1059,14 @@
       "unusable": "{count, plural, other {# catatan yang katanya tidak bisa dibaca tidak disertakan.}}",
       "joined": "{count, plural, other {# catatan dari kata yang sudah ada digabung dengan kata itu, terjemahannya ditambahkan.}}",
       "done": "{deck} diimpor: {words, plural, other {# kata}}."
+    },
+    "export": "Ekspor ke berkas",
+    "file": {
+      "new": "Kata-katanya menjadi dek yang bisa diambil setiap profil di komputer ini, beserta audio dan contohnya.",
+      "merges": "Dek ini sudah ada di sini: kata yang belum ada ditambahkan, juga audio dan contoh yang belum dimilikinya. Yang sudah ada tetap.",
+      "course": "Audio dan contoh yang dibuat untuk kata-kata kursus ini. Kartunya di sini memutar dan menampilkannya; yang sudah dibuat di sini tetap.",
+      "courseWaits": "Audio dan contoh yang dibuat untuk kata-kata kursus ini. Kursusnya belum ada di komputer ini: semuanya disimpan sampai kursus itu diunduh.",
+      "finds": "Temuanmu: masuk ke Temuan milikmu sendiri dan menjadi kartumu. Kata yang sudah ada di sana tetap seperti adanya."
     },
     "remove": "Hapus dek",
     "removeTitle": "Hapus dek {deck}?",
@@ -1393,6 +1401,11 @@
     "deck_unpacked_too_large": "Isi berkas dek ini terlalu besar untuk dibaca sekaligus.",
     "deck_same_languages": "Kata dan terjemahannya harus dalam dua bahasa yang berbeda.",
     "deck_job_running": "Kata-kata dek sedang dikerjakan: hentikan dulu, atau tunggu sampai selesai.",
+    "deck_file_damaged": "Berkas dek ini rusak, diubah setelah diekspor, atau bukan berkas dek SprachAnker.",
+    "deck_file_too_large": "Berkas dek ini terlalu besar (paling banyak 4 GB).",
+    "deck_file_from_newer_app": "Berkas dek ini berasal dari versi SprachAnker yang lebih baru: perbarui dulu aplikasinya di sini.",
+    "deck_file_clash": "Dek bernama sama di sini tidak bisa menerima kata-kata dari berkas ini: dek itu dalam bahasa lain atau milik profil lain.",
+    "deck_export_gone": "Ekspor ini sudah tidak ada: ekspor dek lagi.",
     "find_no_language": "Belum diketahui bahasa apa yang kamu pelajari: mulai kursus atau ambil dek dulu.",
     "examples_without_word": "Kalimat dari model tidak memakai kata tersebut.",
     "length_required": "Berkas dikirim tanpa ukurannya. Coba lagi, atau di peramban lain.",

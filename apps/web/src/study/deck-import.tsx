@@ -1,17 +1,22 @@
-// Importing a deck file (.apkg) in Review → Decks: the file chosen and uploaded once, the server's
-// preview of it, then a side panel to name the deck and say its languages — the words' (the first its
-// fields are named by, else the learner's decks', else German) and the translations' (of those the deck
-// has, the interface's when it is one) — with its first words, and Import by the upload's id.
+// Importing a deck file in Review → Decks: the file chosen and uploaded once, the server's preview of
+// it, then a side panel. An .apkg: to name the deck and say its languages — the words' (the first its
+// fields are named by, else the learner's decks', else German) and the translations' (of those the
+// deck has, the interface's when it is one) — with its first words, and Import by the upload's id. A
+// deck file of the app's own (.sprachanker-deck: a deck exported with its audio and examples): what
+// it holds and where it goes, and Import.
+
+import { DECK_BUNDLE_EXTENSION } from "@sprachanker/schema";
 import { Upload } from "lucide-react";
 import { useId, useRef, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { useDecks } from "@/api/cards.ts";
 import {
+  type DeckFilePreview,
   type DeckPreview,
   discardDeckUpload,
-  type ImportedDeck,
   previewDeck,
   useImportDeck,
+  useImportDeckFile,
 } from "@/api/decks.ts";
 import { languageName } from "@/i18n/index.ts";
 import { Button } from "@/ui/components/button.tsx";
@@ -24,11 +29,20 @@ import { SideSheet } from "@/ui/side-sheet.tsx";
 /** The languages offered: the interface's and those of the learner's decks, besides the common ones. */
 const COMMON = ["de", "en", "ru"];
 
+/** What an import made: the deck's name and words, and the notes of a package it left out. */
+type Imported = {
+  title: string;
+  words: number;
+  left?: { withoutWord: number; unusable?: number; joined?: number };
+};
+/** A file chosen and previewed: a package (.apkg), or a deck file of the app's own. */
+type Chosen = { file: File; preview: DeckPreview } | { file: File; deckFile: DeckFilePreview };
+
 export function DeckImport() {
   const { t } = useTranslation();
   const input = useRef<HTMLInputElement>(null);
-  const [chosen, setChosen] = useState<{ file: File; preview: DeckPreview }>();
-  const [imported, setImported] = useState<ImportedDeck>();
+  const [chosen, setChosen] = useState<Chosen>();
+  const [imported, setImported] = useState<Imported>();
   const [reading, setReading] = useState(false);
   const [error, setError] = useState<unknown>();
   const choose = async (file: File | undefined) => {
@@ -37,7 +51,9 @@ export function DeckImport() {
     setImported(undefined);
     setReading(true);
     try {
-      setChosen({ file, preview: await previewDeck(file) });
+      // Which kind of file it is the server tells by its content.
+      const preview = await previewDeck(file);
+      setChosen("kind" in preview ? { file, deckFile: preview } : { file, preview });
     } catch (e) {
       setError(e);
     } finally {
@@ -50,7 +66,7 @@ export function DeckImport() {
       <input
         ref={input}
         type="file"
-        accept=".apkg"
+        accept={`.apkg,${DECK_BUNDLE_EXTENSION},.zip`}
         className="hidden"
         aria-label={t("decks.import.button")}
         onChange={(e) => void choose(e.target.files?.[0])}
@@ -65,7 +81,16 @@ export function DeckImport() {
           {imported.left && <LeftOut left={imported.left} />}
         </p>
       )}
-      {chosen && (
+      {chosen && "deckFile" in chosen && (
+        <DeckFileSheet
+          preview={chosen.deckFile}
+          onClose={(result) => {
+            setChosen(undefined);
+            setImported(result);
+          }}
+        />
+      )}
+      {chosen && "preview" in chosen && (
         <DeckImportSheet
           file={chosen.file}
           preview={chosen.preview}
@@ -88,7 +113,7 @@ export function DeckImportSheet({
   file: File;
   preview: DeckPreview;
   /** Closed: with what was imported, or without (the uploaded file let go). */
-  onClose(imported?: ImportedDeck): void;
+  onClose(imported?: Imported): void;
 }) {
   const { t, i18n } = useTranslation();
   const known = (useDecks().data?.decks ?? []).map((d) => d.language);
@@ -211,6 +236,74 @@ export function DeckImportSheet({
           {t("decks.import.submit")}
         </Button>
       </form>
+    </SideSheet>
+  );
+}
+
+/** A deck file of the app's own: its deck's name, language and words (with audio, with examples),
+ *  what becomes of them here, and Import. */
+export function DeckFileSheet({
+  preview,
+  onClose,
+}: {
+  preview: DeckFilePreview;
+  /** Closed: with what was imported, or without (the uploaded file let go). */
+  onClose(imported?: Imported): void;
+}) {
+  const { t, i18n } = useTranslation();
+  const importFile = useImportDeckFile();
+  const title = preview.kind === "finds" ? t("decks.finds") : preview.title;
+  const what =
+    preview.kind === "course"
+      ? preview.waits
+        ? t("decks.file.courseWaits")
+        : t("decks.file.course")
+      : preview.kind === "finds"
+        ? t("decks.file.finds")
+        : preview.merges
+          ? t("decks.file.merges")
+          : t("decks.file.new");
+  return (
+    <SideSheet
+      open
+      onOpenChange={(open) => {
+        if (open) return;
+        void discardDeckUpload(preview.upload);
+        onClose();
+      }}
+      title={t("decks.import.title")}
+      className="overflow-y-auto sm:max-w-md"
+    >
+      <div className="space-y-4 px-4 pb-6">
+        <section>
+          <h3 className="font-semibold">
+            <bdi>{title}</bdi>
+          </h3>
+          <p className="text-sm text-muted-foreground">
+            {languageName(preview.lang, i18n.language, true)} ·{" "}
+            {t("decks.import.words", {
+              words: preview.words,
+              audio: preview.withAudio,
+              examples: preview.withExamples,
+            })}
+          </p>
+        </section>
+        <p className="text-sm text-muted-foreground">{what}</p>
+        {importFile.isError && (
+          <p className="text-sm text-wrong">{errorText(t, importFile.error)}</p>
+        )}
+        <Button
+          size="lg"
+          loading={importFile.isPending}
+          onClick={() =>
+            importFile.mutate(preview.upload, {
+              onSuccess: (result) => onClose({ title, words: result.words }),
+            })
+          }
+        >
+          {t("decks.import.submit")}
+        </Button>
+      </div>
     </SideSheet>
   );
 }

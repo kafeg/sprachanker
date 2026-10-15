@@ -1046,7 +1046,7 @@
     "leaveTitle": "Quitter le paquet {deck} ?",
     "leaveBody": "Ses cartes disparaissent, avec leur progression. Les mots qu’un autre de tes paquets contient y passent, avec leur progression.",
     "import": {
-      "button": "Importer un fichier de paquet (.apkg)",
+      "button": "Importer un fichier de paquet",
       "title": "Importer un paquet",
       "hint": "Ses mots deviennent un paquet que chaque profil de cet ordinateur peut prendre, comme celui d’un cours ; son audio les accompagne.",
       "name": "Nom",
@@ -1059,6 +1059,14 @@
       "unusable": "{count, plural, one {# note dont le mot est illisible est laissée de côté.} many {# de notes dont les mots sont illisibles sont laissées de côté.} other {# notes dont les mots sont illisibles sont laissées de côté.}}",
       "joined": "{count, plural, one {# note d’un mot déjà présent lui est jointe, sa traduction ajoutée.} other {# notes de mots déjà présents leur sont jointes, leurs traductions ajoutées.}}",
       "done": "{deck} importé : {words, plural, one {# mot} many {# de mots} other {# mots}}."
+    },
+    "export": "Exporter dans un fichier",
+    "file": {
+      "new": "Ses mots deviennent un paquet que chaque profil de cet ordinateur peut prendre, avec leur audio et leurs exemples.",
+      "merges": "Ce paquet est déjà ici : les mots qui lui manquent sont ajoutés, ainsi que l’audio et les exemples qu’il n’a pas. Ce qu’il a reste.",
+      "course": "L’audio et les exemples faits pour les mots de ce cours. Ses cartes ici les jouent et les montrent ; ce qui a déjà été fait ici reste.",
+      "courseWaits": "L’audio et les exemples faits pour les mots de ce cours. Le cours n’est pas encore sur cet ordinateur : ils sont gardés pour lui jusqu’à ce que tu le télécharges.",
+      "finds": "Tes trouvailles : elles rejoignent tes propres Trouvailles et deviennent tes cartes. Les mots déjà présents restent tels quels."
     },
     "remove": "Supprimer le paquet",
     "removeTitle": "Supprimer le paquet {deck} ?",
@@ -1393,6 +1401,11 @@
     "deck_unpacked_too_large": "Une fois décompressé, ce fichier de paquet est trop gros pour être lu d’un coup.",
     "deck_same_languages": "Les mots et leurs traductions doivent être dans deux langues différentes.",
     "deck_job_running": "Les mots du paquet sont en cours de traitement : arrêtez d’abord, ou attendez la fin.",
+    "deck_file_damaged": "Ce fichier de paquet est endommagé, a été modifié après l’export ou n’est pas un fichier de paquet SprachAnker.",
+    "deck_file_too_large": "Ce fichier de paquet est trop volumineux (4 Go au maximum).",
+    "deck_file_from_newer_app": "Ce fichier de paquet vient d’une version plus récente de SprachAnker : mets d’abord l’application à jour ici.",
+    "deck_file_clash": "Un paquet du même nom ici ne peut pas recevoir les mots de ce fichier : il est dans d’autres langues ou appartient à un autre profil.",
+    "deck_export_gone": "Cet export n’est plus là : exporte le paquet à nouveau.",
     "find_no_language": "On ne sait pas encore quelle langue tu apprends : commence d’abord un cours ou prends un paquet.",
     "examples_without_word": "Les phrases du modèle n’utilisaient pas le mot.",
     "length_required": "Le fichier a été envoyé sans sa taille. Réessaie, ou dans un autre navigateur.",

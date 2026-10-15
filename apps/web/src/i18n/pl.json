@@ -1046,7 +1046,7 @@
     "leaveTitle": "Opuścić talię {deck}?",
     "leaveBody": "Jej fiszki znikną razem z postępami. Słowa, które ma inna twoja talia, przejdą do niej razem z postępami.",
     "import": {
-      "button": "Importuj plik talii (.apkg)",
+      "button": "Importuj plik talii",
       "title": "Import talii",
       "hint": "Jej słowa staną się talią, którą każdy profil na tym komputerze może wziąć, tak jak talię kursu; nagrania przychodzą razem z nimi.",
       "name": "Nazwa",
@@ -1059,6 +1059,14 @@
       "unusable": "{count, plural, one {Pominięto # notatkę, której słowa nie da się odczytać.} few {Pominięto # notatki, których słów nie da się odczytać.} many {Pominięto # notatek, których słów nie da się odczytać.} other {Pominięto # notatki, których słów nie da się odczytać.}}",
       "joined": "{count, plural, one {# notatka słowa, które już jest, została z nim połączona — jej tłumaczenie dodano.} few {# notatki słów, które już są, połączono z nimi — ich tłumaczenia dodano.} many {# notatek słów, które już są, połączono z nimi — ich tłumaczenia dodano.} other {# notatki słów, które już są, połączono z nimi — ich tłumaczenia dodano.}}",
       "done": "Zaimportowano {deck}: {words, plural, one {# słowo} few {# słowa} many {# słów} other {# słowa}}."
+    },
+    "export": "Eksportuj do pliku",
+    "file": {
+      "new": "Jej słowa staną się talią, którą może wziąć każdy profil na tym komputerze, razem z audio i przykładami.",
+      "merges": "Ta talia już tu jest: brakujące w niej słowa zostaną dodane, a także audio i przykłady, których nie ma. To, co ma, zostaje.",
+      "course": "Audio i przykłady zrobione dla słów tego kursu. Jego karty tutaj będą je odtwarzać i pokazywać; to, co zrobiono tu wcześniej, zostaje.",
+      "courseWaits": "Audio i przykłady zrobione dla słów tego kursu. Tego kursu nie ma jeszcze na tym komputerze: zostaną zachowane, aż go pobierzesz.",
+      "finds": "Twoje znaleziska: trafią do twoich własnych Znalezisk i staną się twoimi kartami. Słowa, które już tam są, zostają bez zmian."
     },
     "remove": "Usuń talię",
     "removeTitle": "Usunąć talię {deck}?",
@@ -1393,6 +1401,11 @@
     "deck_unpacked_too_large": "Ten plik talii po rozpakowaniu jest większy, niż da się odczytać naraz.",
     "deck_same_languages": "Słowa i ich tłumaczenia muszą być w dwóch różnych językach.",
     "deck_job_running": "Słowa talii są teraz przetwarzane: najpierw to zatrzymaj albo poczekaj do końca.",
+    "deck_file_damaged": "Ten plik talii jest uszkodzony, został zmieniony po eksporcie albo nie jest plikiem talii SprachAnker.",
+    "deck_file_too_large": "Ten plik talii jest za duży (najwyżej 4 GB).",
+    "deck_file_from_newer_app": "Ten plik talii pochodzi z nowszej wersji SprachAnker: najpierw zaktualizuj tu aplikację.",
+    "deck_file_clash": "Talia o tej samej nazwie nie może tu przyjąć słów z tego pliku: jest w innych językach albo należy do innego profilu.",
+    "deck_export_gone": "Tego eksportu już nie ma: wyeksportuj talię jeszcze raz.",
     "find_no_language": "Nie wiadomo jeszcze, jakiego języka się uczysz: najpierw zacznij kurs albo weź talię.",
     "examples_without_word": "Zdania modelu nie zawierały tego słowa.",
     "length_required": "Plik został wysłany bez swojego rozmiaru. Spróbuj ponownie lub w innej przeglądarce.",

@@ -17,7 +17,16 @@ import {
   noteWords,
   readApkg,
 } from "@sprachanker/anki-export";
-import { DECK_FORMAT, Deck, DeckFolder, DeckId, DeckWord, type Lang } from "@sprachanker/schema";
+import {
+  DECK_AUDIO_EXTENSIONS,
+  DECK_FORMAT,
+  Deck,
+  DeckFolder,
+  DeckId,
+  DeckWord,
+  isFindsDeck,
+  type Lang,
+} from "@sprachanker/schema";
 import { ServiceError } from "../errors.ts";
 import type { MediaBlob } from "../media.ts";
 import { createOnce } from "../once.ts";
@@ -48,8 +57,6 @@ export interface DeckFiles {
   writeMedia(folder: string, path: string, bytes: Uint8Array): void;
   /** Removes a file of a deck folder's media (one not there is no matter). */
   removeMedia(folder: string, path: string): void;
-  /** Every deck folder's name: the imported decks' and the courses' (`course~…`). */
-  folders(): string[];
   /** Keeps an uploaded package — the request's body streamed to a file — until it is imported (one
    *  a day old goes); its id, or undefined past `max` bytes. */
   stage(body: ReadableStream<Uint8Array>, max: number): Promise<string | undefined>;
@@ -67,7 +74,7 @@ export interface DeckFiles {
 /** The largest package taken. */
 export const DECK_MAX_BYTES = 512 * 1024 * 1024;
 /** Media files taken: audio only (a page or a picture is never served from a deck). */
-const AUDIO = /\.(mp3|ogg|oga|opus|wav|m4a|aac|flac)$/i;
+const AUDIO = new RegExp(`\\.(${DECK_AUDIO_EXTENSIONS.join("|")})$`, "i");
 /** Words a preview shows. */
 const PREVIEW_WORDS = 5;
 /** Media files read from a package at once. */
@@ -140,11 +147,14 @@ export function createDecks(deps: {
     return files
       .ids()
       .flatMap((id) => deckOf(id) ?? [])
-      .filter((d) => {
-        if (d.owner) return false;
-        const shared = d.words.filter((w) => keys.has(w.key)).length;
-        return shared * 2 > d.words.length && shared * 2 > wordsIn(d);
-      });
+      .filter((d) => !d.owner && sameNotes(d, keys, wordsIn(d)));
+  };
+
+  /** Whether a deck here is the one of these notes (`keys`, making `words` words): most of its words
+   *  are of them, and most of them are its words. */
+  const sameNotes = (d: Deck, keys: Set<string>, words: number) => {
+    const shared = d.words.filter((w) => keys.has(w.key)).length;
+    return shared * 2 > d.words.length && shared * 2 > words;
   };
 
   /** A note's lexeme in a language; none when it has none a key can hold. */
@@ -475,6 +485,76 @@ export function createDecks(deps: {
       return added;
     },
 
+    /** The deck here (no learner's own) that a deck from another computer is — of its languages,
+     *  most of its notes the same, as an .apkg tells the deck it updates —, else the deck of its id
+     *  when that is of its languages too; none: it is a new deck here (`freeId`). */
+    sameAs(deck: Deck) {
+      const keys = new Set(deck.words.map((w) => w.key));
+      const pair = (d: Deck) =>
+        !d.owner && d.lang === deck.lang && d.translationLang === deck.translationLang;
+      const all = files.ids().flatMap((id) => deckOf(id) ?? []);
+      const byId = deckOf(deck.id);
+      return (
+        all.find((d) => pair(d) && sameNotes(d, keys, deck.words.length)) ??
+        (byId && pair(byId) ? byId : undefined)
+      );
+    },
+
+    /** An id no deck here has: `id`, else it with a number (`-2`, `-3`…). */
+    freeId(id: DeckId) {
+      const taken = (x: string) => files.ids().includes(x) || files.read(x) !== undefined;
+      for (let n = 1; ; n++) {
+        const free = DeckId.parse(n === 1 ? id : `${id.slice(0, 74)}-${n}`);
+        if (!taken(free)) return free;
+      }
+    },
+
+    /**
+     * A deck from a deck file merged into the deck of its id here — made with it when there is none
+     * —, after the additions to learners' own decks before it: the words here stay, the file's words
+     * of other lexemes (and keys) are added after them. Refused (`deck_file_clash`) when the deck here
+     * is another's own, in other languages, or does not read. `write` replaces the deck's folder with
+     * the merged deck.json's text (the deck's jobs stopped meanwhile). The deck as merged and the
+     * words added.
+     */
+    merge(
+      incoming: Deck,
+      write: (text: string, deck: Deck) => Promise<void>,
+    ): Promise<{ deck: Deck; added: DeckWord[] }> {
+      const merged = adding.then(async () => {
+        const { id } = incoming;
+        const was = deckOf(id);
+        const clash =
+          (!was && files.read(id) !== undefined) ||
+          (was &&
+            ((was.owner ?? null) !== (incoming.owner ?? null) ||
+              was.lang !== incoming.lang ||
+              was.translationLang !== incoming.translationLang));
+        if (clash) throw new ServiceError("deck_file_clash", 409);
+        const lexemes = new Set(was?.words.map((w) => w.lexeme));
+        const keys = new Set(was?.words.map((w) => w.key));
+        const added = incoming.words.filter((w) => {
+          if (lexemes.has(w.lexeme) || keys.has(w.key)) return false;
+          lexemes.add(w.lexeme);
+          keys.add(w.key);
+          return true;
+        });
+        const deck = Deck.parse({ ...(was ?? incoming), words: [...(was?.words ?? []), ...added] });
+        deps.onReplace?.(id);
+        try {
+          await write(`${JSON.stringify(deck, null, 2)}\n`, deck);
+        } finally {
+          // And again once swapped: what started meanwhile wrote into the folder replaced.
+          deps.onReplace?.(id);
+          read.delete(id);
+        }
+        deps.onImport?.();
+        return { deck, added };
+      });
+      adding = merged.catch(() => {});
+      return merged;
+    },
+
     /** Removes a profile's own decks with their files (the profile deleted). */
     removeOwned(owner: string) {
       for (const id of files.ids())
@@ -553,7 +633,7 @@ async function mediaPath(name: string) {
 
 /** A new deck's id: its title's slug and a short hash of its notes (`deutsch-a1-3f9c2a`). */
 async function newId(title: string, keys: string[], taken: string[]) {
-  const slug =
+  const name =
     title
       .normalize("NFKD")
       .toLowerCase()
@@ -561,6 +641,8 @@ async function newId(title: string, keys: string[], taken: string[]) {
       .replace(/^-+|-+$/g, "")
       .slice(0, 40)
       .replace(/-+$/, "") || "deck";
+  // A Finds deck's id is a profile's own (`isFindsDeck`): an imported deck's never begins so.
+  const slug = isFindsDeck(name) ? `deck-${name}` : name;
   const hash = await sha256Hex(keys.sort().join("\n"), 6);
   for (let n = 1; ; n++) {
     const id = DeckId.parse(`${slug}-${hash}${n === 1 ? "" : `-${n}`}`);

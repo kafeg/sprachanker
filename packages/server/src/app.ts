@@ -24,6 +24,7 @@ import { settingsRoutes } from "./routes/settings.ts";
 import { speechRoutes } from "./routes/speech.ts";
 import { hostGuard } from "./security/host.ts";
 import type { CourseTransferFiles } from "./services/course-transfer.ts";
+import type { DeckTransferFiles } from "./services/deck-transfer.ts";
 import type { DeckFiles } from "./services/decks.ts";
 import type { CourseInstaller } from "./services/downloads.ts";
 import { createServices } from "./services/index.ts";
@@ -54,6 +55,8 @@ export interface AppConfig {
   transfers: TransferFiles;
   /** Course bundles exported and imported (runtime adapter: `library/.transfers`). */
   courseTransfers: CourseTransferFiles;
+  /** Deck files exported and imported (runtime adapter: `decks/.transfers`). */
+  deckTransfers: DeckTransferFiles;
   /** A course's practice written (runtime adapter: `library/<series>/practice/`). */
   practice?: PracticeFiles;
   appVersion: string;

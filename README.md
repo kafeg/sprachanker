@@ -56,6 +56,8 @@ SprachAnker keeps the real course and adds what it lacks:
 **Review**
 - Cards from every lesson's words (meaning, word, by ear) and from imported Anki decks (`.apkg`),
   studied as in Anki, with FSRS scheduling.
+- Any deck — a course's words, an imported one, your Finds — moves to another computer as a file
+  (`.sprachanker-deck`) with the audio and examples made for its words.
 
 **Exams**
 - Goethe-Zertifikat A1–B1 model papers (A2 and B1 experimental) and the *Leben in Deutschland* test: mock exams under exam
@@ -129,7 +131,7 @@ What goes where:
 | Where | What |
 |---|---|
 | `~/SprachAnker/bin/` | the program: `sprachanker` (the server with the web app inside) and the speech engines beside it — `whisper-server` (recognition), `sherpa-onnx-offline-tts` (Piper voices), `tts-server` (Qwen3-TTS); `serve.log` |
-| `~/SprachAnker/` | your data: `library/` (downloaded courses and exams), `profiles/` (each learner's progress and recordings), `decks/` (imported Anki decks), `models/` (speech models and voices), `cache/`, `server.sqlite` with its daily copies |
+| `~/SprachAnker/` | your data: `library/` (downloaded courses and exams), `profiles/` (each learner's progress and recordings), `decks/` (imported Anki decks, your Finds, the audio and examples made for decks' words), `models/` (speech models and voices), `cache/`, `server.sqlite` with its daily copies |
 | `~/Library/Application Support/SprachAnker/secret.key` | the key your AI providers' API keys are stored encrypted with |
 | `~/Library/LaunchAgents/app.sprachanker.server.plist` | starts the server at login and again if it stops |
 | `~/SprachAnker-backups/` | a copy of your data made before each update (databases, recordings, decks, the key) |

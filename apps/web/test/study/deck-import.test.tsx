@@ -1,6 +1,7 @@
 import { expect, test } from "bun:test";
 import { fireEvent, waitFor } from "@testing-library/react";
-import { DeckImportSheet } from "../../src/study/deck-import.tsx";
+import { DeckFileSheet, DeckImport, DeckImportSheet } from "../../src/study/deck-import.tsx";
+import { server } from "../llm/practice-lesson.ts";
 import { renderApp } from "../render.tsx";
 
 const preview = {
@@ -99,4 +100,70 @@ test("a file of decks here: the first's name and languages kept, the sheet says 
   fireEvent.click(view.getByRole("combobox", { name: "Translations in" }));
   fireEvent.click(await view.findByRole("option", { name: "English" }));
   expect(view.getByText(/^This file updates the deck A1 \(en\) here/)).toBeTruthy();
+});
+
+const deckFile = {
+  upload: "7a1c2a3b-0000-4000-8000-000000000000",
+  kind: "imported" as "imported" | "course" | "finds",
+  title: "Mein Deck",
+  lang: "de" as never,
+  translationLangs: ["ru"] as never[],
+  course: null,
+  words: 4,
+  withAudio: 2,
+  withExamples: 1,
+  merges: false,
+  waits: false,
+};
+
+test("one button takes both kinds of deck file: a package (.apkg) and a deck exported here (.sprachanker-deck, zipped again too)", async () => {
+  const view = await renderApp(<DeckImport />, { data: [[["decks"], { decks: [] }]] });
+  const input = view.getByLabelText("Import a deck file") as HTMLInputElement;
+  expect(input.accept.split(",")).toEqual([".apkg", ".sprachanker-deck", ".zip"]);
+});
+
+test("a deck file exported here — the server tells it by its content —: what it holds and where it goes, then imported by its upload", async () => {
+  const asked = server((path) =>
+    path === "/api/decks/preview"
+      ? deckFile
+      : {
+          kind: "imported",
+          title: "Mein Deck",
+          course: null,
+          words: 4,
+          withAudio: 2,
+          withExamples: 1,
+        },
+  );
+  const view = await renderApp(<DeckImport />, { data: [[["decks"], { decks: [] }]] });
+  const input = view.getByLabelText("Import a deck file") as HTMLInputElement;
+  const chosen = new File([new Uint8Array([1, 2])], "mein-deck-3f9c2a-2026-10-15.zip");
+  Object.defineProperty(input, "files", { value: [chosen], configurable: true });
+  fireEvent.change(input);
+  expect(await view.findByText("Mein Deck")).toBeTruthy();
+  expect(view.getByText("German · 4 words · 2 with audio · 1 with examples")).toBeTruthy();
+  expect(view.getByText(/^Its words become a deck every profile/)).toBeTruthy();
+  // No name or languages to choose: the file says them.
+  expect(view.queryByLabelText("Name")).toBeNull();
+  fireEvent.click(view.getByRole("button", { name: "Import" }));
+  expect((await view.findByRole("status")).textContent).toBe(
+    "Imported \u2068Mein Deck\u2069: 4 words. ",
+  );
+  expect(asked[0]?.startsWith("POST /api/decks/preview")).toBe(true);
+  expect(asked).toContain(`POST /api/decks/file/import {"upload":"${deckFile.upload}"}`);
+});
+
+test("a deck file's sheet says what becomes of it: merged into the deck here, a course's waiting for its course, one's finds", async () => {
+  const sheet = (preview: Partial<typeof deckFile> & { kind?: string }) =>
+    renderApp(<DeckFileSheet preview={{ ...deckFile, ...preview } as never} onClose={() => {}} />, {
+      data: [[["decks"], { decks: [] }]],
+    });
+  expect((await sheet({ merges: true })).getByText(/^This deck is here already/)).toBeTruthy();
+  expect(
+    (await sheet({ kind: "course", course: "dw.nicos-weg/a1" as never, waits: true })).getByText(
+      /The course is not on this computer yet/,
+    ),
+  ).toBeTruthy();
+  const finds = await sheet({ kind: "finds", title: "Finds" });
+  expect(finds.getByText(/^Your finds: they join your own Finds/)).toBeTruthy();
 });

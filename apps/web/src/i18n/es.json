@@ -1046,7 +1046,7 @@
     "leaveTitle": "¿Dejar el mazo {deck}?",
     "leaveBody": "Sus tarjetas se van, con su progreso. Las palabras que estén en otro de tus mazos pasan a él, con progreso incluido.",
     "import": {
-      "button": "Importar un archivo de mazo (.apkg)",
+      "button": "Importar un archivo de mazo",
       "title": "Importar un mazo",
       "hint": "Sus palabras se convierten en un mazo que cualquier perfil de esta computadora puede tomar, como el de un curso; su audio viene con ellas.",
       "name": "Nombre",
@@ -1059,6 +1059,14 @@
       "unusable": "{count, plural, one {Se omite # nota cuya palabra no se puede leer.} other {Se omiten # notas cuyas palabras no se pueden leer.}}",
       "joined": "{count, plural, one {# nota de una palabra que ya está se une a ella, con su traducción añadida.} other {# notas de palabras que ya están se unen a ellas, con sus traducciones añadidas.}}",
       "done": "Importado {deck}: {words, plural, one {# palabra} other {# palabras}}."
+    },
+    "export": "Exportar a un archivo",
+    "file": {
+      "new": "Sus palabras se convierten en un mazo que cualquier perfil de este ordenador puede tomar, con su audio y sus ejemplos.",
+      "merges": "Este mazo ya está aquí: se añaden las palabras que le faltan, y el audio y los ejemplos que no tiene. Lo que tiene se queda.",
+      "course": "El audio y los ejemplos hechos para las palabras de este curso. Sus tarjetas aquí los reproducen y los muestran; lo que ya se hizo aquí se queda.",
+      "courseWaits": "El audio y los ejemplos hechos para las palabras de este curso. El curso aún no está en este ordenador: se guardan para él hasta que lo descargues.",
+      "finds": "Tus hallazgos: se suman a tus propios Hallazgos y se convierten en tus tarjetas. Las palabras que ya están allí se quedan como están."
     },
     "remove": "Eliminar mazo",
     "removeTitle": "¿Eliminar el mazo {deck}?",
@@ -1393,6 +1401,11 @@
     "deck_unpacked_too_large": "Este archivo de mazo, descomprimido, es más grande de lo que se puede leer de una vez.",
     "deck_same_languages": "Las palabras y sus traducciones necesitan dos idiomas distintos.",
     "deck_job_running": "Ahora se está trabajando en las palabras del mazo: detenlo primero o espera a que termine.",
+    "deck_file_damaged": "Este archivo de mazo está dañado, se modificó después de exportarlo o no es un archivo de mazo de SprachAnker.",
+    "deck_file_too_large": "Este archivo de mazo es demasiado grande (4 GB como máximo).",
+    "deck_file_from_newer_app": "Este archivo de mazo viene de una versión más reciente de SprachAnker: actualiza primero la aplicación aquí.",
+    "deck_file_clash": "Un mazo con el mismo nombre aquí no puede recibir las palabras de este archivo: está en otros idiomas o es de otro perfil.",
+    "deck_export_gone": "Esta exportación ya no está: vuelve a exportar el mazo.",
     "find_no_language": "Aún no se sabe qué idioma aprendes: empieza primero un curso o toma un mazo.",
     "examples_without_word": "Las frases del modelo no usaron la palabra.",
     "length_required": "El archivo se envió sin su tamaño. Inténtalo de nuevo o en otro navegador.",

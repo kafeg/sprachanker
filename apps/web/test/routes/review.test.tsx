@@ -1,6 +1,9 @@
 import { expect, test } from "bun:test";
 import { fireEvent, waitFor, within } from "@testing-library/react";
+import { DecksTab } from "../../src/routes/decks.tsx";
 import { ReviewPage } from "../../src/routes/review.tsx";
+import { deckAnchor } from "../../src/study/deck-link.tsx";
+import { server } from "../llm/practice-lesson.ts";
 import { renderApp } from "../render.tsx";
 
 const COURSE = "sprachanker.test/demo";
@@ -104,6 +107,69 @@ test("Decks: each deck one row under its language — counts, Study, a menu to l
   expect(view.getByRole("button", { name: "Leave deck" })).toBeTruthy();
 });
 
+/** The Decks tab alone, its downloads kept (`made`: what was made for the course's words). */
+function decksTab(made = false) {
+  const downloads: Array<[string, string]> = [];
+  const offers = { ...OFFERS, courses: OFFERS.courses.map((c) => ({ ...c, made })) };
+  const view = renderApp(
+    <DecksTab open={() => {}} download={(url, name) => downloads.push([url, name])} />,
+    {
+      path: "/review/decks",
+      data: [
+        [["decks"], DECKS],
+        [["deck-offers"], offers],
+        [["deck-audio", `course:${COURSE}`], audio(5, 0)],
+        [["deck-audio", "deck:mein-deck-abc123"], audio(0, 3)],
+        [["deck-audio", "deck:a1-words-def456"], audio(0, 5)],
+      ],
+    },
+  );
+  return { view, downloads };
+}
+
+test("Export: a deck's file made ready by the server from its row's menu, asked after, then downloaded under its name", async () => {
+  const asked = server((path) =>
+    path === "/api/decks/export"
+      ? {
+          id: "7a1c2a3b-0000-4000-8000-000000000000",
+          fileName: "mein-deck.sprachanker-deck",
+          bytes: 2048,
+        }
+      : {},
+  );
+  const { view: rendered, downloads } = decksTab();
+  const view = await rendered;
+  await waitFor(() => expect(view.getByRole("button", { name: "Mein Deck" })).toBeTruthy());
+  openMenu(view, document.getElementById("deck-deck-mein-deck-abc123") as HTMLElement);
+  fireEvent.click(await view.findByRole("menuitem", { name: "Export to a file" }));
+  await waitFor(() =>
+    expect(downloads).toEqual([
+      ["/api/decks/export/7a1c2a3b-0000-4000-8000-000000000000", "mein-deck.sprachanker-deck"],
+    ]),
+  );
+  expect(asked).toEqual([
+    'POST /api/decks/export {"scope":"deck:mein-deck-abc123"}',
+    "HEAD /api/decks/export/7a1c2a3b-0000-4000-8000-000000000000",
+  ]);
+  expect(view.getByRole("status").textContent).toBe(
+    "Downloading \u201cmein-deck.sprachanker-deck\u201d (2 kB).",
+  );
+});
+
+test("Export: a course's words' file only once audio or examples were made for them", async () => {
+  const before = await decksTab(false).view;
+  await waitFor(() => expect(before.getByText("Demo course")).toBeTruthy());
+  openMenu(before, document.getElementById(deckAnchor(`course:${COURSE}`)) as HTMLElement);
+  await before.findByRole("menuitem", { name: "Leave deck…" });
+  expect(before.queryByRole("menuitem", { name: "Export to a file" })).toBeNull();
+  fireEvent.keyDown(document.activeElement as HTMLElement, { key: "Escape" });
+  before.unmount();
+  const after = await decksTab(true).view;
+  await waitFor(() => expect(after.getByText("Demo course")).toBeTruthy());
+  openMenu(after, document.getElementById(deckAnchor(`course:${COURSE}`)) as HTMLElement);
+  expect(await after.findByRole("menuitem", { name: "Export to a file" })).toBeTruthy();
+});
+
 test("Decks to take: only those not taken, the rest of a deck added where some of its words are cards already, an imported one deleted; a deck file to import", async () => {
   const view = await page();
   await waitFor(() => expect(view.getByText("A1 words")).toBeTruthy());
@@ -118,9 +184,11 @@ test("Decks to take: only those not taken, the rest of a deck added where some o
   expect(view.getAllByRole("button", { name: /^(Take the deck|Add the other \d+)$/ })).toHaveLength(
     1,
   );
-  expect(view.getByRole("button", { name: "Import a deck file (.apkg)" })).toBeTruthy();
+  expect(view.getByRole("button", { name: "Import a deck file" })).toBeTruthy();
   const row = document.getElementById("deck-deck-a1-words-def456") as HTMLElement;
   openMenu(view, row);
+  // Exported as a file from its menu too.
+  expect(await view.findByRole("menuitem", { name: "Export to a file" })).toBeTruthy();
   fireEvent.click(await view.findByRole("menuitem", { name: "Delete deck…" }));
   expect(view.getByText("Delete the deck A1 words?")).toBeTruthy();
 });

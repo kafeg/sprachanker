@@ -27,6 +27,9 @@ export const findsDeckId = (profile: string, lang: string, translationLang: stri
     }-${translationLang}-${lang}`,
   );
 
+/** Whether a deck's id is a profile's Finds deck's (`findsDeckId`): no imported deck's begins so. */
+export const isFindsDeck = (id: string) => id.startsWith("finds-");
+
 /** A deck's folder in `<data-root>/decks/`: an imported deck's id, or a course's (its words' extras:
  *  `course~<series>~<course>`). */
 export const DeckFolder = z.union([
@@ -42,6 +45,19 @@ export const courseDeckFolder = (course: CourseKey | string) =>
 /** A card's source key for a deck's word: the deck and the note's guid (`deck:<id>/<guid>`), so two
  *  decks sharing a note never share a card's source. */
 export const deckSourceKey = (deck: DeckId, key: string) => `deck:${deck}/${key}`;
+
+/** The extensions a deck's media may have, lower case: audio only (a page or a picture is never
+ *  served from a deck). */
+export const DECK_AUDIO_EXTENSIONS: readonly string[] = [
+  "mp3",
+  "ogg",
+  "oga",
+  "opus",
+  "wav",
+  "m4a",
+  "aac",
+  "flac",
+];
 
 /** A file inside a deck's folder: its own media (`media/<name>`). */
 export const DeckMediaPath = z.string().regex(/^media\/[^/\\]+$/);

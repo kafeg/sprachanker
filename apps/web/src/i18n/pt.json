@@ -1046,7 +1046,7 @@
     "leaveTitle": "Sair do baralho {deck}?",
     "leaveBody": "Os cartões dele saem, com o progresso. As palavras que estão em outro baralho seu passam para ele, com progresso e tudo.",
     "import": {
-      "button": "Importar um arquivo de baralho (.apkg)",
+      "button": "Importar um arquivo de baralho",
       "title": "Importar um baralho",
       "hint": "As palavras dele viram um baralho que qualquer perfil deste computador pode pegar, como o de um curso; o áudio vem junto.",
       "name": "Nome",
@@ -1059,6 +1059,14 @@
       "unusable": "{count, plural, =0 {# notas cujas palavras não podem ser lidas foram deixadas de fora.} one {# nota cuja palavra não pode ser lida foi deixada de fora.} other {# notas cujas palavras não podem ser lidas foram deixadas de fora.}}",
       "joined": "{count, plural, one {# nota de uma palavra que já está nele é juntada a ela, com a tradução acrescentada.} other {# notas de palavras que já estão nele são juntadas a elas, com as traduções acrescentadas.}}",
       "done": "{deck} importado: {words, plural, =0 {# palavras} one {# palavra} other {# palavras}}."
+    },
+    "export": "Exportar para um arquivo",
+    "file": {
+      "new": "As palavras dele viram um baralho que qualquer perfil deste computador pode pegar, com o áudio e os exemplos.",
+      "merges": "Este baralho já está aqui: as palavras que faltam nele são adicionadas, junto com o áudio e os exemplos que ele não tem. O que ele tem fica.",
+      "course": "O áudio e os exemplos feitos para as palavras deste curso. Os cartões dele aqui vão tocá-los e mostrá-los; o que já foi feito aqui fica.",
+      "courseWaits": "O áudio e os exemplos feitos para as palavras deste curso. O curso ainda não está neste computador: eles ficam guardados até você baixá-lo.",
+      "finds": "Seus achados: eles entram nos seus próprios Achados e viram seus cartões. Palavras que já estão lá ficam como estão."
     },
     "remove": "Excluir baralho",
     "removeTitle": "Excluir o baralho {deck}?",
@@ -1393,6 +1401,11 @@
     "deck_unpacked_too_large": "Este arquivo de baralho, descompactado, é maior do que dá para ler de uma vez.",
     "deck_same_languages": "As palavras e as traduções precisam de dois idiomas diferentes.",
     "deck_job_running": "As palavras do baralho estão sendo processadas agora: pare primeiro ou espere terminar.",
+    "deck_file_damaged": "Este arquivo de baralho está danificado, foi alterado depois de exportado ou não é um arquivo de baralho do SprachAnker.",
+    "deck_file_too_large": "Este arquivo de baralho é grande demais (no máximo 4 GB).",
+    "deck_file_from_newer_app": "Este arquivo de baralho vem de uma versão mais nova do SprachAnker: atualize o app aqui primeiro.",
+    "deck_file_clash": "Um baralho com o mesmo nome aqui não pode receber as palavras deste arquivo: ele está em outros idiomas ou é de outro perfil.",
+    "deck_export_gone": "Esta exportação não está mais aqui: exporte o baralho de novo.",
     "find_no_language": "Ainda não se sabe qual idioma você aprende: comece primeiro um curso ou pegue um baralho.",
     "examples_without_word": "As frases do modelo não usaram a palavra.",
     "length_required": "O arquivo foi enviado sem o seu tamanho. Tente de novo, ou em outro navegador.",

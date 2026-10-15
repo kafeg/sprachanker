@@ -4,7 +4,13 @@
 // is first used.
 import type { ApkgRuntime } from "@sprachanker/anki-export";
 import type { LibraryView } from "@sprachanker/course-kit/view";
-import { editionSetting, type LessonKey, lessonOrder, parseEditionId } from "@sprachanker/schema";
+import {
+  courseDeckFolder,
+  editionSetting,
+  type LessonKey,
+  lessonOrder,
+  parseEditionId,
+} from "@sprachanker/schema";
 import type { ProfileDb } from "../db/profile/db.ts";
 import type { ServerDb } from "../db/server/db.ts";
 import { ServiceError } from "../errors.ts";
@@ -21,6 +27,7 @@ import { createCoursesContext } from "./courses-context.ts";
 import { createDeckAudio, type DeckAudio } from "./deck-audio.ts";
 import { createDeckExamples, type DeckExamples } from "./deck-examples.ts";
 import { createDeckExtras, type DeckExtrasStore } from "./deck-extras.ts";
+import { createDeckTransfer, type DeckTransfer, type DeckTransferFiles } from "./deck-transfer.ts";
 import { createDecks, type DeckFiles, type Decks } from "./decks.ts";
 import { createDevices } from "./devices.ts";
 import { type CourseInstaller, createDownloads, type Downloads } from "./downloads.ts";
@@ -92,6 +99,8 @@ export interface ServicesConfig {
   transfers: TransferFiles;
   /** Course bundles exported and imported (runtime adapter). */
   courseTransfers: CourseTransferFiles;
+  /** Deck files exported and imported (runtime adapter). */
+  deckTransfers: DeckTransferFiles;
   /** A course's practice written (runtime adapter); without it none is made. */
   practice?: PracticeFiles;
   /** The imported decks' folders, and what reading a package needs of the runtime. */
@@ -120,6 +129,7 @@ function profileServices(
     deckExamples: DeckExamples;
     downloads: Downloads;
     courseTransfer: CourseTransfer;
+    deckTransfer: DeckTransfer;
     speech: Speech;
     readAloud: ReadAloud;
     qwenTts: QwenTts;
@@ -170,6 +180,7 @@ function profileServices(
     myCourses: async () =>
       new Set((await lessons.courses()).filter((c) => c.started).map((c) => c.key)),
     readAudio: deckAudio.readAudio,
+    madeFor: (folder) => Object.keys(deckExtras.book(folder).words).length > 0,
     studiedBy: decks.studiedBy,
     now,
   });
@@ -340,6 +351,12 @@ function profileServices(
     },
     downloads,
     courseTransfer,
+    // Decks as files: those this profile sees exported, a Finds deck imported as its own and taken.
+    deckTransfer: shared.deckTransfer.of(profileId, (deck, from, keys, added) => {
+      const moved = cards.moveDeck(from, deck, keys);
+      // Only the words added and those moved: a word whose card the learner left stays without one.
+      return cards.takeDeck({ deck }, [...added, ...moved]);
+    }),
     settings,
     speech: speechOfProfile,
     recordings: {
@@ -479,6 +496,9 @@ export function createServices(config: ServicesConfig) {
     onEnd: () => {
       for (const s of open.values()) void relink(s);
     },
+    // A course removed: its deck folder's jobs stop, saving nothing more (deck-extras writes no
+    // course folder of a course not installed); what they made stays for the course's return.
+    onRemoved: (series, course) => deckExtras.forget(courseDeckFolder(`${series}/${course}`)),
   });
   const decks = createDecks({
     files: config.decks,
@@ -506,14 +526,8 @@ export function createServices(config: ServicesConfig) {
     onReplace: (id) => deckExtras.forget(id),
     now,
   });
-  // What the server makes for a deck's words (audio read aloud, examples), kept beside the deck; the
-  // folders of courses no longer here go.
+  // What the server makes for a deck's words (audio read aloud, examples), kept beside the deck.
   const deckExtras = createDeckExtras({ files: config.decks, decks, library: config.library, now });
-  try {
-    deckExtras.sweep();
-  } catch (error) {
-    console.error("sweeping deck folders:", error);
-  }
   // Cards take the audio read aloud for their decks' words.
   const practiceJobs = createPracticeJobs({ now });
   const deckAudio = createDeckAudio({
@@ -561,6 +575,32 @@ export function createServices(config: ServicesConfig) {
     },
   });
 
+  // Decks moved as files (the server's, as decks are); cards follow their words after one.
+  const deckTransfer = createDeckTransfer({
+    files: config.deckTransfers,
+    decks,
+    extras: deckExtras,
+    course: async (key) => {
+      const c = (await content.courses()).find((c) => c.key === key);
+      if (!c) return undefined;
+      const [first] = c.editions;
+      if (!first) return undefined;
+      const pairs = c.editions.map((e) =>
+        parseEditionId(e as Parameters<typeof parseEditionId>[0]),
+      );
+      return {
+        lang: pairs[0]?.target as string,
+        translationLangs: [...new Set(pairs.map((p) => p.source))],
+        title: c.titles[first] ?? key,
+      };
+    },
+    onImported: () => {
+      for (const s of open.values()) void relink(s);
+    },
+    appVersion: config.appVersion,
+    now,
+  });
+
   return {
     content,
     decks,
@@ -592,6 +632,7 @@ export function createServices(config: ServicesConfig) {
             deckExamples,
             downloads,
             courseTransfer,
+            deckTransfer,
             speech,
             readAloud,
             practiceJobs,

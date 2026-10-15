@@ -1046,7 +1046,7 @@
     "leaveTitle": "Leave the deck {deck}?",
     "leaveBody": "Its cards go, with their progress. Words that another of your decks has move there, progress and all.",
     "import": {
-      "button": "Import a deck file (.apkg)",
+      "button": "Import a deck file",
       "title": "Import a deck",
       "hint": "Its words become a deck every profile on this computer can take, as a course's; its audio comes with them.",
       "name": "Name",
@@ -1059,6 +1059,14 @@
       "unusable": "{count, plural, one {# note whose word cannot be read is left out.} other {# notes whose words cannot be read are left out.}}",
       "joined": "{count, plural, one {# note of a word already in it is joined to that word, its translation added.} other {# notes of words already in it are joined to those words, their translations added.}}",
       "done": "Imported {deck}: {words, plural, one {# word} other {# words}}."
+    },
+    "export": "Export to a file",
+    "file": {
+      "new": "Its words become a deck every profile on this computer can take, with their audio and examples.",
+      "merges": "This deck is here already: the words it lacks are added, with the audio and examples it has none of. What it has stays.",
+      "course": "The audio and examples made for this course's words. Its cards here play and show them; what was made here already stays.",
+      "courseWaits": "The audio and examples made for this course's words. The course is not on this computer yet: they are kept for it until it is downloaded.",
+      "finds": "Your finds: they join your own Finds and become your cards. Words already there stay as they are."
     },
     "remove": "Delete deck",
     "removeTitle": "Delete the deck {deck}?",
@@ -1393,6 +1401,11 @@
     "deck_unpacked_too_large": "This deck file unpacks to more than can be read at once.",
     "deck_same_languages": "The words and their translations need two different languages.",
     "deck_job_running": "The deck's words are being worked on now: stop it first, or wait until it ends.",
+    "deck_file_damaged": "This deck file is damaged, was changed after it was exported, or is not a SprachAnker deck file.",
+    "deck_file_too_large": "This deck file is too large (4 GB at most).",
+    "deck_file_from_newer_app": "This deck file comes from a newer version of SprachAnker: update the app here first.",
+    "deck_file_clash": "A deck here with the same name cannot take this file's words: it is in other languages, or another profile's.",
+    "deck_export_gone": "This export is no longer here: export the deck again.",
     "find_no_language": "Which language you are learning is not known yet: start a course or take a deck first.",
     "examples_without_word": "The model's sentences did not use the word.",
     "length_required": "The file was sent without its size. Try again, or in another browser.",
