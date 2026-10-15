@@ -4,11 +4,12 @@
 // "Listen" reading a text in the voice — a word, sentences, the learner's own (voice-pick.tsx). The first time the model and a course of the language are here, the first one
 // proposed is taken, so it works with nothing chosen. A recording is decoded here and sent as 24 kHz
 // WAV (wav.ts): the server has no decoder.
-import { useMutation, useQueryClient } from "@tanstack/react-query";
+import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { AudioLines } from "lucide-react";
 import { useEffect, useRef } from "react";
 import { useTranslation } from "react-i18next";
 import { mediaUrl } from "@/api/client.ts";
+import { useCourseEdition } from "@/api/edition.ts";
 import {
   type QwenState,
   sendWordVoice,
@@ -24,7 +25,7 @@ import { DownloadRow } from "./download-row.tsx";
 import { samplesOf, sampleWord } from "./samples.ts";
 import { useSpeaker } from "./speaker.ts";
 import { VoicePick } from "./voice-pick.tsx";
-import { toVoiceWav } from "./wav.ts";
+import { toVoiceWav, voiceGender } from "./wav.ts";
 
 export function WordVoices({ state, langs }: { state: QwenState; langs: string[] }) {
   const { t } = useTranslation();
@@ -103,7 +104,11 @@ function WordVoice({ lang, voice }: { lang: string; voice?: QwenState["words"][s
           listenId={id}
           phrases={[sampleWord(lang), ...samplesOf(lang)]}
           pick={{
-            options: options.map((c) => ({ id: keyOf(c), name: c.text })),
+            options: options.map((c) => ({
+              id: keyOf(c),
+              name: c.text,
+              detail: <RecordingDetail recording={c} />,
+            })),
             value: shown ? keyOf(shown) : "",
             label: t("speech.settings.words.recordingFor", { language: name }),
             inLang: true,
@@ -112,6 +117,7 @@ function WordVoice({ lang, voice }: { lang: string; voice?: QwenState["words"][s
               if (recording) mutate(recording);
             },
           }}
+          note={t("speech.settings.words.sample")}
           onListen={(text) => void speaker.say(id, [{ text, lang, words: true }])}
           beside={
             <>
@@ -138,6 +144,43 @@ function WordVoice({ lang, voice }: { lang: string; voice?: QwenState["words"][s
       )}
     </div>
   );
+}
+
+/** Decodings one at a time: a list of recordings is not decoded all at once. */
+let decoding: Promise<unknown> = Promise.resolve();
+const oneByOne = <T,>(job: () => Promise<T>) => {
+  const done = decoding.then(job);
+  decoding = done.catch(() => undefined);
+  return done;
+};
+
+/** Where a recording is met — its course, the lesson's number — and who says it, a man or a woman
+ *  (by its pitch: said only when clear). */
+function RecordingDetail({ recording }: { recording: WordCandidate }) {
+  const { t } = useTranslation();
+  const { info, edition } = useCourseEdition(recording.series, recording.course ?? "");
+  const gender = useQuery({
+    queryKey: ["voice-gender", recording.series, recording.path],
+    queryFn: () =>
+      oneByOne(async () => {
+        const res = await fetch(mediaUrl(recording.series, recording.path));
+        if (!res.ok) return null;
+        return (await voiceGender(await res.blob()).catch(() => undefined)) ?? null;
+      }),
+    staleTime: Number.POSITIVE_INFINITY,
+    retry: false,
+  });
+  const course = (edition && info?.titles[edition]) || info?.key;
+  const parts = [
+    course && recording.lesson
+      ? t("speech.settings.words.where", { course, lesson: recording.lesson })
+      : course,
+    gender.data &&
+      (gender.data === "male"
+        ? t("speech.settings.words.male")
+        : t("speech.settings.words.female")),
+  ].filter(Boolean);
+  return parts.length ? parts.join(" · ") : null;
 }
 
 /** The course's recording the voice is taken from, as it is. */

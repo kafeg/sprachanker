@@ -1289,7 +1289,11 @@
         "taking": "Stimme wird aus einer Kursaufnahme genommen…",
         "none": "Hier ist kein Kurs in dieser Sprache ({language}), aus dem sich eine Stimme nehmen lässt.",
         "recording": "Kursaufnahme",
-        "recordingFor": "Aufnahme für die Stimme: {language}"
+        "recordingFor": "Aufnahme für die Stimme: {language}",
+        "sample": "Stimmprobe: eine Aufnahme aus dem Kurs — das Modell übernimmt die Stimme des Sprechers.",
+        "where": "{course} · Lektion {lesson, number}",
+        "male": "Männerstimme",
+        "female": "Frauenstimme"
       }
     },
     "listening": "Wird erkannt …",

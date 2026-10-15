@@ -1289,7 +1289,11 @@
         "taking": "Głos jest brany z nagrania kursu…",
         "none": "Nie ma tu kursu w tym języku ({language}), z którego można wziąć głos.",
         "recording": "Posłuchaj nagrania",
-        "recordingFor": "Nagranie dla głosu: {language}"
+        "recordingFor": "Nagranie dla głosu: {language}",
+        "sample": "Próbka głosu: nagranie z kursu — model kopiuje z niego głos lektora.",
+        "where": "{course} · lekcja {lesson, number}",
+        "male": "głos męski",
+        "female": "głos kobiecy"
       }
     },
     "listening": "Słucham…",

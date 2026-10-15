@@ -1289,7 +1289,11 @@
         "taking": "Voix prise dans un enregistrement du cours…",
         "none": "Aucun cours dans cette langue ({language}) ici pour y prendre une voix.",
         "recording": "Écouter l’enregistrement",
-        "recordingFor": "Enregistrement pour la voix : {language}"
+        "recordingFor": "Enregistrement pour la voix : {language}",
+        "sample": "Échantillon de voix : un enregistrement du cours — le modèle en copie la voix du locuteur.",
+        "where": "{course} · leçon {lesson, number}",
+        "male": "voix d’homme",
+        "female": "voix de femme"
       }
     },
     "listening": "Écoute en cours…",

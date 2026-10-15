@@ -88,7 +88,7 @@ apps/web/src/
                    # the course's language), window-title, pointer (a finger or a mouse: the system's
                    # picker on touch), job-row (a server's job: progress, Stop, why it failed), direction, utils (cn)
   audio/           # recording oneself: recorder (MediaRecorder — what plays stopped as a take starts —, the microphone of this device, its
-                   # loudness), wav (a take as 16 kHz WAV; a course's recording as 24 kHz, its silence cut, for the voice for words),
+                   # loudness), wav (a take as 16 kHz WAV; a course's recording as 24 kHz, its silence cut, for the voice for words; a voice's pitch: a man's or a woman's),
                    # mic-button (disabled with the reason), dictate (a microphone beside a text box: what was heard goes into it), take-button,
                    # context (the speech host the router provides: save, src, recognition — renderers call no API; use-speech-host makes it),
                    # speech-settings (Settings → Speech; SpeechSetup is also the onboarding's step); reading aloud: speak.ts (what is said, by
@@ -97,7 +97,7 @@ apps/web/src/
                    # for words), listening (a text line by line: pause, on, again), speak-button, selection-menu (words selected anywhere: a bar by them that reads them aloud; an optional feature's actions beside, what they show in a line under them), read-by (who reads a language, named),
                    # read-aloud-settings (Qwen3-TTS alone: its state) with qwen-voices (models, each language's speaker; voice-pick: a language's voice, "Listen" and its text;
                    # voice-names: a server voice's name, pure; a voice's gender: the engine's speech/voices) and word-voice (the voice for words: its
-                   # Base model, in the speakers' row: a language's recording chosen from a list — the first proposed taken by itself —, heard as it is, "Listen"); download-row (a model
+                   # Base model, in the speakers' row: a language's sample recording chosen from a list — each with its course, lesson and a man's or woman's voice; the first proposed taken by itself —, heard as it is, "Listen"); download-row (a model
                    # or voice the server downloads), read-languages (the languages read aloud), samples ("Listen"'s sentences and words; pure), in-use (the in-use mark)
   word/            # a word as shown: gender colouring; tones (ratings and counts in our hues), time
                    # (intervals, next due)

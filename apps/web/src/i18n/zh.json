@@ -1289,7 +1289,11 @@
         "taking": "正在从课程录音中取声音…",
         "none": "这里还没有这种语言（{language}）的课程可以取声音。",
         "recording": "听录音",
-        "recordingFor": "用于声音的录音：{language}"
+        "recordingFor": "用于声音的录音：{language}",
+        "sample": "声音样本：课程中的一段录音——模型从中模仿说话人的声音。",
+        "where": "{course} · 第 {lesson, number} 课",
+        "male": "男声",
+        "female": "女声"
       }
     },
     "listening": "正在识别…",

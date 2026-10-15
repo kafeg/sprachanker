@@ -53,11 +53,12 @@ export function VoicePick({
   listenId = `listen:${lang}`,
   phrases = samplesFor(lang),
   beside,
+  note,
 }: {
   lang: string;
   /** The voices to choose from for this language. */
   pick: {
-    options: Array<{ id: string; name: string }>;
+    options: Array<{ id: string; name: string; detail?: ReactNode }>;
     value: string;
     /** The name of the voice "automatic" reads with; none: no automatic choice. */
     auto?: string;
@@ -73,6 +74,8 @@ export function VoicePick({
   phrases?: readonly string[];
   /** Beside "Listen": more about the voice chosen. */
   beside?: ReactNode;
+  /** A line under the choice: what is chosen. */
+  note?: string;
 }) {
   const { t, i18n } = useTranslation();
   const name = languageName(lang, i18n.language, true);
@@ -103,7 +106,7 @@ export function VoicePick({
             </SelectItem>
           )}
           {pick.options.map((v) => (
-            <SelectItem key={v.id} value={v.id} {...own}>
+            <SelectItem key={v.id} value={v.id} detail={v.detail} {...own}>
               {v.name}
             </SelectItem>
           ))}
@@ -124,6 +127,7 @@ export function VoicePick({
         </span>
       )}
       <div className="basis-full space-y-1 sm:ps-31">
+        {note && <p className="text-xs text-muted-foreground">{note}</p>}
         <Textarea
           lang={lang}
           dir="auto"

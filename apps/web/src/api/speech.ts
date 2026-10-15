@@ -68,8 +68,15 @@ export const [useQwenTts, useQwenModelActions] = downloadable(
   },
 );
 
-/** A course's recording the voice for words of a language can be taken from, with what it says. */
-export type WordCandidate = { series: string; path: string; text: string };
+/** A course's recording the voice for words of a language can be taken from, with what it says and
+ *  where it is met (the voice taken: none of that). */
+export type WordCandidate = {
+  series: string;
+  path: string;
+  text: string;
+  course?: string;
+  lesson?: number;
+};
 
 /** The courses' recordings the voice for words of `lang` can be taken from, in the server's order. */
 export const useWordCandidates = (lang: string, enabled = true) =>

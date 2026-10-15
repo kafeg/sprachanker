@@ -1289,7 +1289,11 @@
         "taking": "Glas se uzima iz snimka kursa…",
         "none": "Ovdje nema kursa na tom jeziku ({language}) iz kojeg bi se uzeo glas.",
         "recording": "Poslušaj snimak",
-        "recordingFor": "Snimak za glas: {language}"
+        "recordingFor": "Snimak za glas: {language}",
+        "sample": "Uzorak glasa: snimak iz kursa — model od njega preuzima glas govornika.",
+        "where": "{course} · lekcija {lesson, number}",
+        "male": "muški glas",
+        "female": "ženski glas"
       }
     },
     "listening": "Slušam…",

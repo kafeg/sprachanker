@@ -1289,7 +1289,11 @@
         "taking": "Se ia vocea dintr-o înregistrare a cursului…",
         "none": "Nu există aici niciun curs în această limbă ({language}) din care să se ia o voce.",
         "recording": "Ascultă înregistrarea",
-        "recordingFor": "Înregistrarea pentru voce: {language}"
+        "recordingFor": "Înregistrarea pentru voce: {language}",
+        "sample": "Mostră de voce: o înregistrare din curs — modelul copiază din ea vocea vorbitorului.",
+        "where": "{course} · lecția {lesson, number}",
+        "male": "voce de bărbat",
+        "female": "voce de femeie"
       }
     },
     "listening": "Se ascultă…",

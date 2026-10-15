@@ -1289,7 +1289,11 @@
         "taking": "A hang átvétele egy kurzusfelvételből…",
         "none": "Itt nincs ilyen nyelvű ({language}) kurzus, amelyből hangot lehetne venni.",
         "recording": "Felvétel meghallgatása",
-        "recordingFor": "Felvétel a hanghoz: {language}"
+        "recordingFor": "Felvétel a hanghoz: {language}",
+        "sample": "Hangminta: a tanfolyam egy felvétele — a modell erről másolja a beszélő hangját.",
+        "where": "{course} · {lesson, number}. lecke",
+        "male": "férfihang",
+        "female": "női hang"
       }
     },
     "listening": "Felismerés…",

@@ -1289,7 +1289,11 @@
         "taking": "Mengambil suara dari rekaman kursus…",
         "none": "Belum ada kursus dalam bahasa ini ({language}) untuk diambil suaranya.",
         "recording": "Dengarkan rekaman",
-        "recordingFor": "Rekaman untuk suara: {language}"
+        "recordingFor": "Rekaman untuk suara: {language}",
+        "sample": "Contoh suara: rekaman dari kursus — model meniru suara pembicaranya.",
+        "where": "{course} · pelajaran {lesson, number}",
+        "male": "suara pria",
+        "female": "suara wanita"
       }
     },
     "listening": "Mendengarkan…",

@@ -1289,7 +1289,11 @@
         "taking": "Sauti inachukuliwa kutoka rekodi ya kozi…",
         "none": "Hakuna kozi ya lugha hii ({language}) hapa ya kuchukua sauti.",
         "recording": "Sikiliza rekodi",
-        "recordingFor": "Rekodi ya sauti: {language}"
+        "recordingFor": "Rekodi ya sauti: {language}",
+        "sample": "Sampuli ya sauti: rekodi ya kozi — modeli inaiga sauti ya msemaji kutoka kwayo.",
+        "where": "{course} · somo {lesson, number}",
+        "male": "sauti ya mwanamume",
+        "female": "sauti ya mwanamke"
       }
     },
     "listening": "Inasikiliza…",

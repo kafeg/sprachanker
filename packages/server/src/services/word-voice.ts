@@ -14,11 +14,14 @@ import type { DeckReader } from "./deck-audio.ts";
 import type { VoiceStore } from "./local-engines.ts";
 import type { ClonedVoice, QwenTts } from "./qwen-tts.ts";
 
-/** A course's recording a voice can be taken from: where it is and what it says. */
+/** A course's recording a voice can be taken from: where it is, what it says, the course and the
+ *  lesson (its number in the course) it is met in. */
 export interface Candidate {
   series: string;
   path: string;
   text: string;
+  course: string;
+  lesson: number;
 }
 
 /** What is kept of a voice beside its recording. */
@@ -107,7 +110,7 @@ export function createWordVoice(deps: {
     const found = new Map<string, Candidate>();
     let inBand = 0;
     for (const c of courses)
-      for (const key of c.lessons) {
+      for (const [at, key] of c.lessons.entries()) {
         if (inBand >= ENOUGH) return order([...found.values()]);
         const lesson = await deps.library.lesson(c.series, key as LessonKey).catch(() => undefined);
         for (const { exercise } of lesson?.pages ?? []) {
@@ -120,7 +123,7 @@ export function createWordVoice(deps: {
             const text = typeof item.text === "string" ? item.text.trim() : "";
             const id = `${c.series}/${path}`;
             if (!path || !sayable(text) || found.has(id)) continue;
-            found.set(id, { series: c.series, path, text });
+            found.set(id, { series: c.series, path, text, course: c.course, lesson: at + 1 });
             if (text.length >= BAND.min && text.length <= BAND.max) inBand++;
           }
         }

@@ -1289,7 +1289,11 @@
         "taking": "Ses bir kurs kaydından alınıyor…",
         "none": "Burada bu dilde ({language}) ses alınacak bir kurs yok.",
         "recording": "Kaydı dinle",
-        "recordingFor": "Ses için kayıt: {language}"
+        "recordingFor": "Ses için kayıt: {language}",
+        "sample": "Ses örneği: kurstan bir kayıt — model konuşmacının sesini buradan kopyalar.",
+        "where": "{course} · ders {lesson, number}",
+        "male": "erkek sesi",
+        "female": "kadın sesi"
       }
     },
     "listening": "Dinleniyor…",

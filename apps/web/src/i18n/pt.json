@@ -1289,7 +1289,11 @@
         "taking": "Tirando a voz de uma gravação do curso…",
         "none": "Não há aqui nenhum curso nesta língua ({language}) de onde tirar uma voz.",
         "recording": "Ouvir a gravação",
-        "recordingFor": "Gravação para a voz: {language}"
+        "recordingFor": "Gravação para a voz: {language}",
+        "sample": "Amostra de voz: uma gravação do curso — o modelo copia dela a voz do locutor.",
+        "where": "{course} · lição {lesson, number}",
+        "male": "voz masculina",
+        "female": "voz feminina"
       }
     },
     "listening": "Ouvindo…",

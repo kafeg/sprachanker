@@ -70,9 +70,14 @@ test("the voice for words: the Base model downloaded beside the others; a course
   // The model practice is read with stays the one in use.
   expect(after.models.find((m: { inUse: boolean }) => m.inUse).id).toBe("0.6b");
 
-  // The course's sentences said after a recording, the longer of the short ones first.
+  // The course's sentences said after a recording, the longer of the short ones first; each with
+  // the course and the lesson it is met in.
   const { candidates } = await getJson("/api/speech/words/de/candidates");
-  expect(candidates).toEqual([
+  expect(candidates.map((c: { course: string; lesson: number }) => typeof c.lesson)).toEqual([
+    "number",
+    "number",
+  ]);
+  expect(candidates.map(({ course, lesson, ...c }: Record<string, unknown>) => c)).toEqual([
     { ...WIE_GEHT, text: "Wie geht es Ihnen?" },
     { series: FIXTURE_SERIES, path: "media/audio/guten-tag.mp3", text: "Guten Tag!" },
   ]);

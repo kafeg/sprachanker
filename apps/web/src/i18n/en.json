@@ -1289,7 +1289,11 @@
         "taking": "Taking the voice from a course's recording…",
         "none": "No course in {language} here to take a voice from.",
         "recording": "Course recording",
-        "recordingFor": "Recording for the {language} voice"
+        "recordingFor": "Recording for the {language} voice",
+        "sample": "Voice sample: a course's recording — the model copies the speaker's voice from it.",
+        "where": "{course} · lesson {lesson, number}",
+        "male": "man's voice",
+        "female": "woman's voice"
       }
     },
     "listening": "Listening to it…",

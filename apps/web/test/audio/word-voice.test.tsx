@@ -17,12 +17,32 @@ const KAFFEE = {
   series: "dw.nicos-weg",
   path: "media/audio/kaffee.mp3",
   text: "Ich nehme Kaffee mit Milch und wenig Zucker bitte.",
+  course: "a1",
+  lesson: 12,
 };
 const TISCH = {
   series: "dw.nicos-weg",
   path: "media/audio/tisch.mp3",
   text: "Der Tisch und die Stühle stehen in der Küche.",
+  course: "a1",
+  lesson: 3,
 };
+const courses: [unknown[], unknown] = [
+  ["courses"],
+  [
+    {
+      series: "dw.nicos-weg",
+      course: "a1",
+      key: "dw.nicos-weg/a1",
+      editions: ["en-de"],
+      titles: { "en-de": "Nicos Weg A1" },
+      lessons: [],
+      exams: [],
+      kind: "course",
+      source: null,
+    },
+  ],
+];
 const catalog: [unknown[], unknown] = [
   ["catalog"],
   [{ series: "dw.nicos-weg", edition: "en-de", installed: true }],
@@ -110,6 +130,7 @@ test("the voice for words of a language, in the speakers' row: its recording cho
     const view = await renderApp(<ReadAloud />, {
       data: [
         catalog,
+        courses,
         [["qwen-tts"], qwen(true, words)],
         [
           ["word-candidates", "de"],
@@ -142,10 +163,14 @@ test("the voice for words of a language, in the speakers' row: its recording cho
     // Another recording chosen from the list: taken as 24 kHz WAV.
     fireEvent.click(pick);
     const options = await view.findAllByRole("option");
-    expect(options.map((o) => [o.textContent, o.getAttribute("lang")])).toEqual([
-      [KAFFEE.text, "de"],
-      [TISCH.text, "de"],
-    ]);
+    expect(options.map((o) => o.getAttribute("lang"))).toEqual(["de", "de"]);
+    // Each with where it is met and who says it (its pitch).
+    await waitFor(() =>
+      expect(options.map((o) => o.textContent)).toEqual([
+        `${KAFFEE.text}Nicos Weg A1 · lesson 12 · woman's voice`,
+        `${TISCH.text}Nicos Weg A1 · lesson 3 · woman's voice`,
+      ]),
+    );
     fireEvent.click(view.getByRole("option", { name: TISCH.text }));
     await waitFor(() =>
       expect(asked).toContain(
@@ -168,6 +193,7 @@ test("no voice for words yet: the first recording proposed is taken by itself", 
   const view = await renderApp(<ReadAloud />, {
     data: [
       catalog,
+      courses,
       [["qwen-tts"], qwen(true)],
       [
         ["word-candidates", "de"],
@@ -197,6 +223,7 @@ test("a recording that cannot be taken: said so, and another one chosen from the
   const view = await renderApp(<ReadAloud />, {
     data: [
       catalog,
+      courses,
       [["qwen-tts"], qwen(true)],
       [
         ["word-candidates", "de"],
