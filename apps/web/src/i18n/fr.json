@@ -1295,7 +1295,8 @@
         "where": "{course} · leçon {lesson, number}",
         "male": "voix d’homme",
         "female": "voix de femme"
-      }
+      },
+      "readOnPhone": "La lecture à voix haute avec les voix de l'ordinateur est désactivée sur ce téléphone : Qwen3-TTS y mettait 10 à 42 s pour un mot ou une phrase (environ une seconde sur un ordinateur). Les enregistrements des cours et de la pratique sont lus ; un mot sans enregistrement reste muet."
     },
     "listening": "Écoute en cours…",
     "heardLater": "Pas encore reconnu — ton enregistrement est gardé ; ce qui a été entendu suit.",
@@ -1747,7 +1748,8 @@
       "stop": "Arrêter",
       "make": "Faire pour toutes les leçons",
       "upTo": "Les étapes de chaque leçon sont complétées jusqu’au nombre choisi ; relancé, il reprend là où il s’est arrêté.",
-      "steps": "Étapes"
+      "steps": "Étapes",
+      "onPhone": "La pratique se fait sur un ordinateur : son écoute demande la lecture à voix haute, que ce téléphone ne fait pas à temps. Ici, ce qui est venu avec le cours (son téléchargement ou son fichier)."
     },
     "another": "Une autre version"
   },

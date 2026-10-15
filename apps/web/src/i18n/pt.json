@@ -1295,7 +1295,8 @@
         "where": "{course} · lição {lesson, number}",
         "male": "voz masculina",
         "female": "voz feminina"
-      }
+      },
+      "readOnPhone": "A leitura em voz alta com as vozes do computador está desligada neste telemóvel: o Qwen3-TTS demorava aqui 10–42 s por palavra ou frase (num computador, cerca de um segundo). As gravações dos cursos e da prática tocam; uma palavra sem gravação fica em silêncio."
     },
     "listening": "Ouvindo…",
     "heardLater": "Ainda não reconhecido — sua gravação foi guardada; o que foi ouvido vem em seguida.",
@@ -1747,7 +1748,8 @@
       "stop": "Parar",
       "make": "Fazer para todas as lições",
       "upTo": "Os passos de cada lição são completados até o número escolhido; iniciado de novo, continua de onde parou.",
-      "steps": "Etapas"
+      "steps": "Etapas",
+      "onPhone": "A prática faz-se num computador: a sua audição precisa de leitura em voz alta, que este telemóvel não faz a tempo. Aqui tem o que veio com o curso (a transferência ou o ficheiro)."
     },
     "another": "Outra versão"
   },

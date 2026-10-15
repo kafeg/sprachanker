@@ -1295,7 +1295,8 @@
         "where": "{course} · somo {lesson, number}",
         "male": "sauti ya mwanamume",
         "female": "sauti ya mwanamke"
-      }
+      },
+      "readOnPhone": "Kusoma kwa sauti kwa sauti za kompyuta kumezimwa kwenye simu hii: Qwen3-TTS ilichukua sekunde 10–42 hapa kwa neno au sentensi (kwenye kompyuta takriban sekunde moja). Rekodi za kozi na mazoezi hucheza; neno lisilo na rekodi hubaki kimya."
     },
     "listening": "Inasikiliza…",
     "heardLater": "Bado haijatambuliwa — rekodi yako imehifadhiwa; kilichosikika kitafuata.",
@@ -1747,7 +1748,8 @@
       "stop": "Simamisha",
       "make": "Tengeneza kwa masomo yote",
       "upTo": "Hatua za kila somo hujazwa hadi idadi uliyochagua; ukianzisha tena, inaendelea pale ilipoishia.",
-      "steps": "Hatua"
+      "steps": "Hatua",
+      "onPhone": "Mazoezi hutengenezwa kwenye kompyuta: Kusikiliza kwake kunahitaji kusoma kwa sauti, jambo ambalo simu hii haiwezi kwa wakati. Hapa kuna kilichokuja na kozi (kwa kupakua au kwa faili)."
     },
     "another": "Toleo jingine"
   },

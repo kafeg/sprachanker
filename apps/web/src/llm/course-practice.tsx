@@ -98,8 +98,10 @@ export function CoursePractice({
             ).join(" · ")}
           </span>
         </p>
-        {/* Made on the computer, never on the phone: there, only how much the course has. */}
-        {inPhoneApp ? null : running && job ? (
+        {/* Made on a computer: a phone cannot read Listening's texts aloud in time (docs/decisions.md). */}
+        {inPhoneApp ? (
+          <p className="text-sm text-muted-foreground">{t("practice.course.onPhone")}</p>
+        ) : running && job ? (
           <div className="space-y-2" aria-live="polite">
             <progress className="w-full" value={job.done} max={job.total} />
             <p className="text-sm">

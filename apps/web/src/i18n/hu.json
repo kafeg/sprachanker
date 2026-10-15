@@ -1295,7 +1295,8 @@
         "where": "{course} · {lesson, number}. lecke",
         "male": "férfihang",
         "female": "női hang"
-      }
+      },
+      "readOnPhone": "A számítógép hangjaival való felolvasás ezen a telefonon ki van kapcsolva: a Qwen3-TTS itt 10–42 s alatt mondott ki egy szót vagy mondatot (számítógépen kb. egy másodperc). A kurzusok és a gyakorlás saját felvételei szólnak; a felvétel nélküli szó néma marad."
     },
     "listening": "Felismerés…",
     "heardLater": "Még nincs felismerve — a felvételed megmaradt, a felismert szöveg hamarosan jön.",
@@ -1747,7 +1748,8 @@
       "stop": "Leállítás",
       "make": "Elkészítés minden leckéhez",
       "upTo": "Minden lecke lépései a választott számig töltődnek fel; újraindítva ott folytatja, ahol abbahagyta.",
-      "steps": "Lépések"
+      "steps": "Lépések",
+      "onPhone": "A gyakorlás számítógépen készül: a hallásértéshez felolvasás kell, amit ez a telefon nem győz időben. Itt az van, ami a kurzussal jött (letöltéskor vagy fájlból)."
     },
     "another": "Másik változat"
   },

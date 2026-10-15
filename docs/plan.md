@@ -60,8 +60,9 @@ and mockups: the owner's page "Goethe в SprachAnker"; background: `docs/researc
   with the Mac's server (`docs/decisions.md`); an update of the app over Wi-Fi from the Mac.
 - iOS: the same app runs in the simulator (a course offline, films, practice); next on an iPhone —
   Xcode with an Apple ID, developer mode, whisper.cpp with Metal / Core ML —, the weekly re-sign.
-- Open: reading aloud on the phone — Android's WebView has no voices (`speechSynthesis`); words
-  without a recording are silent there.
+- Open: reading aloud on the phone — Android's WebView has no voices (`speechSynthesis`) and
+  Qwen3-TTS on its CPU is 10–40 times too slow (decisions.md); to try: Piper's voices (sherpa-onnx has
+  Android builds and is far lighter), Qwen3-TTS on the GPU (ggml's Vulkan).
 
 ## Open items in built areas
 Taken along when an item above touches the area, or on request.

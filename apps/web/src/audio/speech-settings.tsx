@@ -189,12 +189,19 @@ function HowSpeaking() {
 /** Hearing and speaking: the microphone, recognition and reading aloud — the onboarding's speech step
  *  and Settings → Speech. */
 export function SpeechSetup() {
+  const { t } = useTranslation();
   return (
     <div className="space-y-6">
       <Microphone />
       <Recognition />
-      {/* The phone's WebView has no voices to read with; the courses' and practice's own play. */}
-      {!inPhoneApp && <ReadAloud />}
+      {/* Measured too slow on a phone (docs/decisions.md): there, why it is off. */}
+      {inPhoneApp ? (
+        <Panel title={t("speech.settings.read")}>
+          <p className="mt-2 text-sm text-muted-foreground">{t("speech.settings.readOnPhone")}</p>
+        </Panel>
+      ) : (
+        <ReadAloud />
+      )}
       <HowSpeaking />
     </div>
   );

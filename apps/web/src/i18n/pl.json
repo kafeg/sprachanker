@@ -1295,7 +1295,8 @@
         "where": "{course} · lekcja {lesson, number}",
         "male": "głos męski",
         "female": "głos kobiecy"
-      }
+      },
+      "readOnPhone": "Czytanie na głos głosami komputera jest na tym telefonie wyłączone: Qwen3-TTS potrzebował tu 10–42 s na słowo lub zdanie (na komputerze około sekundy). Własne nagrania kursów i ćwiczeń grają; słowo bez nagrania pozostaje ciche."
     },
     "listening": "Słucham…",
     "heardLater": "Jeszcze nie rozpoznano — twoje nagranie jest zapisane; to, co usłyszano, pojawi się za chwilę.",
@@ -1747,7 +1748,8 @@
       "stop": "Zatrzymaj",
       "make": "Zrób dla wszystkich lekcji",
       "upTo": "Kroki każdej lekcji są uzupełniane do wybranej liczby; uruchomione ponownie, kontynuuje tam, gdzie skończyło.",
-      "steps": "Kroki"
+      "steps": "Kroki",
+      "onPhone": "Ćwiczenia powstają na komputerze: ich słuchanie wymaga czytania na głos, z którym ten telefon nie zdąża. Tu jest to, co przyszło z kursem (z pobierania lub z pliku)."
     },
     "another": "Inny wariant"
   },

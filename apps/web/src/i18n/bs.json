@@ -1295,7 +1295,8 @@
         "where": "{course} · lekcija {lesson, number}",
         "male": "muški glas",
         "female": "ženski glas"
-      }
+      },
+      "readOnPhone": "Čitanje naglas glasovima računara je na ovom telefonu isključeno: Qwen3-TTS je ovdje trebao 10–42 s za riječ ili rečenicu (na računaru oko sekunde). Vlastiti snimci kurseva i vježbe se puštaju; riječ bez snimka ostaje nijema."
     },
     "listening": "Slušam…",
     "heardLater": "Još nije prepoznato — tvoj snimak je sačuvan, a ono što je čuto stiže kasnije.",
@@ -1747,7 +1748,8 @@
       "stop": "Zaustavi",
       "make": "Napravi za sve lekcije",
       "upTo": "Koraci svake lekcije popunjavaju se do odabranog broja; pokrenuto ponovo, nastavlja gdje je stalo.",
-      "steps": "Koraci"
+      "steps": "Koraci",
+      "onPhone": "Vježba se pravi na računaru: njeno slušanje traži čitanje naglas, koje ovaj telefon ne stigne. Ovdje je ono što je došlo s kursom (preuzimanjem ili iz datoteke)."
     },
     "another": "Druga varijanta"
   },

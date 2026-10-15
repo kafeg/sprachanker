@@ -1295,7 +1295,8 @@
         "where": "{course} · Lektion {lesson, number}",
         "male": "Männerstimme",
         "female": "Frauenstimme"
-      }
+      },
+      "readOnPhone": "Vorlesen mit den Stimmen des Computers ist auf diesem Handy aus: Qwen3-TTS brauchte hier 10–42 s für ein Wort oder einen Satz (auf einem Computer etwa eine Sekunde). Die eigenen Aufnahmen der Kurse und der Übungen spielen; ein Wort ohne Aufnahme bleibt stumm."
     },
     "listening": "Wird erkannt …",
     "heardLater": "Noch nicht erkannt — deine Aufnahme ist gespeichert, was gehört wurde, kommt gleich.",
@@ -1747,7 +1748,8 @@
       "stop": "Anhalten",
       "make": "Für alle Lektionen erstellen",
       "upTo": "Die Schritte jeder Lektion werden bis zur gewählten Zahl aufgefüllt; neu gestartet, geht es dort weiter, wo es aufgehört hat.",
-      "steps": "Schritte"
+      "steps": "Schritte",
+      "onPhone": "Die Übungen entstehen auf einem Computer: Ihr Hören braucht Vorlesen, das dieses Handy nicht rechtzeitig schafft. Hier gibt es, was mit dem Kurs kam (beim Download oder aus der Datei)."
     },
     "another": "Andere Variante"
   },

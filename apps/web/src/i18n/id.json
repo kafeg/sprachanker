@@ -1295,7 +1295,8 @@
         "where": "{course} · pelajaran {lesson, number}",
         "male": "suara pria",
         "female": "suara wanita"
-      }
+      },
+      "readOnPhone": "Membaca keras dengan suara komputer dimatikan di ponsel ini: Qwen3-TTS di sini perlu 10–42 dtk untuk satu kata atau kalimat (di komputer sekitar satu detik). Rekaman kursus dan latihan tetap diputar; kata tanpa rekaman tetap diam."
     },
     "listening": "Mendengarkan…",
     "heardLater": "Belum dikenali — rekamanmu sudah disimpan; yang terdengar menyusul.",
@@ -1747,7 +1748,8 @@
       "stop": "Hentikan",
       "make": "Buat untuk semua pelajaran",
       "upTo": "Langkah setiap pelajaran diisi hingga jumlah yang dipilih; jika dimulai lagi, dilanjutkan dari tempat berhenti.",
-      "steps": "Langkah"
+      "steps": "Langkah",
+      "onPhone": "Latihan dibuat di komputer: bagian Menyimak perlu pembacaan keras, yang tidak sempat dilakukan ponsel ini. Di sini ada yang datang bersama kursus (dari unduhan atau berkasnya)."
     },
     "another": "Versi lain"
   },

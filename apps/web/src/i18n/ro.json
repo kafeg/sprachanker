@@ -1295,7 +1295,8 @@
         "where": "{course} · lecția {lesson, number}",
         "male": "voce de bărbat",
         "female": "voce de femeie"
-      }
+      },
+      "readOnPhone": "Citirea cu voce tare cu vocile computerului este oprită pe acest telefon: Qwen3-TTS a avut nevoie aici de 10–42 s pentru un cuvânt sau o frază (pe un computer, cam o secundă). Înregistrările proprii ale cursurilor și ale exersării se aud; un cuvânt fără înregistrare rămâne mut."
     },
     "listening": "Se ascultă…",
     "heardLater": "Încă nerecunoscut — înregistrarea ta e păstrată; ce s-a auzit vine imediat.",
@@ -1747,7 +1748,8 @@
       "stop": "Oprește",
       "make": "Fă pentru toate lecțiile",
       "upTo": "Pașii fiecărei lecții sunt completați până la numărul ales; pornit din nou, continuă de unde s-a oprit.",
-      "steps": "Pași"
+      "steps": "Pași",
+      "onPhone": "Exersarea se face pe un computer: ascultarea ei are nevoie de citire cu voce tare, pe care acest telefon nu o face la timp. Aici e ce a venit cu cursul (la descărcare sau din fișier)."
     },
     "another": "Altă variantă"
   },

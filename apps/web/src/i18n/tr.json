@@ -1295,7 +1295,8 @@
         "where": "{course} · ders {lesson, number}",
         "male": "erkek sesi",
         "female": "kadın sesi"
-      }
+      },
+      "readOnPhone": "Bilgisayarın sesleriyle sesli okuma bu telefonda kapalı: Qwen3-TTS burada bir kelime ya da cümle için 10–42 sn harcadı (bilgisayarda yaklaşık bir saniye). Kursların ve alıştırmaların kendi kayıtları çalar; kaydı olmayan kelime sessiz kalır."
     },
     "listening": "Dinleniyor…",
     "heardLater": "Henüz tanınmadı — kaydın saklandı; duyulan birazdan gelecek.",
@@ -1747,7 +1748,8 @@
       "stop": "Durdur",
       "make": "Tüm dersler için yap",
       "upTo": "Her dersin adımları seçilen sayıya kadar tamamlanır; yeniden başlatılırsa kaldığı yerden devam eder.",
-      "steps": "Adımlar"
+      "steps": "Adımlar",
+      "onPhone": "Alıştırmalar bilgisayarda hazırlanır: dinleme bölümü, bu telefonun zamanında yapamadığı sesli okumayı gerektirir. Burada kursla gelenler var (indirmeyle ya da dosyadan)."
     },
     "another": "Başka bir sürüm"
   },

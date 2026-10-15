@@ -1295,7 +1295,8 @@
         "where": "{course} · lección {lesson, number}",
         "male": "voz de hombre",
         "female": "voz de mujer"
-      }
+      },
+      "readOnPhone": "La lectura en voz alta con las voces del ordenador está desactivada en este teléfono: Qwen3-TTS tardaba aquí 10–42 s por palabra o frase (en un ordenador, alrededor de un segundo). Suenan las grabaciones propias de los cursos y de la práctica; una palabra sin grabación queda en silencio."
     },
     "listening": "Escuchando…",
     "heardLater": "Aún no se ha reconocido — tu grabación se ha guardado; lo que se oyó llegará enseguida.",
@@ -1747,7 +1748,8 @@
       "stop": "Detener",
       "make": "Hacer para todas las lecciones",
       "upTo": "Los pasos de cada lección se completan hasta el número elegido; si se inicia de nuevo, sigue donde se quedó.",
-      "steps": "Pasos"
+      "steps": "Pasos",
+      "onPhone": "La práctica se hace en un ordenador: su comprensión auditiva necesita lectura en voz alta, que este teléfono no hace a tiempo. Aquí está lo que vino con el curso (su descarga o su archivo)."
     },
     "another": "Otra versión"
   },

@@ -1295,7 +1295,8 @@
         "where": "{course} · lesson {lesson, number}",
         "male": "man's voice",
         "female": "woman's voice"
-      }
+      },
+      "readOnPhone": "Reading aloud with the computer's voices is off on this phone: Qwen3-TTS took 10–42 s here for a word or a sentence (about a second on a computer). The courses' and practice's own recordings play; a word without one stays silent."
     },
     "listening": "Listening to it…",
     "heardLater": "Not heard yet — your take is kept; what was heard follows.",
@@ -1747,7 +1748,8 @@
       "stop": "Stop",
       "make": "Make for every lesson",
       "upTo": "Each lesson's steps are filled up to the number chosen; started again, it goes on where it stopped.",
-      "steps": "Steps"
+      "steps": "Steps",
+      "onPhone": "Practice is made on a computer: its Listening needs reading aloud, which this phone cannot do in time. Here it has what came with the course (its download or file)."
     },
     "another": "Another version"
   },
