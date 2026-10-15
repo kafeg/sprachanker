@@ -9,8 +9,8 @@ catalogues into a library on your own machine, then study them in one interface:
 with exercises checked as you go, flashcards with spaced repetition, speaking checked by speech
 recognition, and practice set by any AI model you connect — a local one or a cloud one.
 
-> **Status:** used daily by its authors for German, in the browser on a Mac with Apple Silicon (the
-> only platform for now); phones over Tailscale work and are being tried out; the desktop app is planned. What comes next:
+> **Status:** used daily by its authors for German, in the Mac app or the browser on a Mac with Apple
+> Silicon (the only platform for now); phones over Tailscale work and are being tried out. What comes next:
 > [`docs/plan.md`](docs/plan.md). The decisions behind it: [`docs/decisions.md`](docs/decisions.md).
 
 ## Why
@@ -100,7 +100,20 @@ lessons, review and exams work without any model.
 ## Install
 
 **Macs with Apple Silicon (M1 and later), macOS 13 or later, only for now.** Linux, a Docker image and Windows come
-later ([`docs/plan.md`](docs/plan.md)). Open Terminal and run:
+later ([`docs/plan.md`](docs/plan.md)).
+
+**The app:** download `SprachAnker-<version>-macos-arm64.dmg` from the
+[latest release](https://github.com/kafeg/sprachanker/releases/latest), drag SprachAnker into
+Applications and open it. It is not notarised: the first time, and again after each update, macOS
+refuses — open System Settings → Privacy & Security and click **Open Anyway** next to SprachAnker; it
+asks for the microphone again after an update too. The app runs the server: it starts at
+login and stays in the menu bar when its window is closed (Quit there stops it), so phones reach it as
+below. It replaces the installer's server below if you had it;
+its log is `~/Library/Logs/SprachAnker/serve.log`. To update, quit it (menu bar icon → Quit) and
+install the newer release over it. To remove it, quit it, delete it from Applications and
+`~/Library/LaunchAgents/SprachAnker.plist` (its start at login); your data stays in `~/SprachAnker`.
+
+**Without a window** (a server only, not beside the app), open Terminal and run:
 
 ```bash
 curl -fsSL https://github.com/kafeg/sprachanker/releases/latest/download/install.sh | bash

@@ -1716,5 +1716,12 @@
       "steps": "Steps"
     },
     "another": "Another version"
+  },
+  "desktop": {
+    "open": "Open SprachAnker",
+    "browser": "Open in the browser",
+    "quit": "Quit SprachAnker",
+    "failed": "SprachAnker could not start. Its log: {path}",
+    "microphone": "SprachAnker hears your answers said aloud to check them, on this computer."
   }
 }

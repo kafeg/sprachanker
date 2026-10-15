@@ -35,8 +35,9 @@ and mockups: the owner's page "Goethe в SprachAnker"; background: `docs/researc
 - v0.1 for the owner's family (owner, 2026-10-12: Apple Silicon, macOS 13 and later): released.
   Remaining: the app saying when a newer version is out; tried on another, clean Mac.
 - v0.2: Linux builds and a Docker image (engines inside, data in a volume) for a home server.
-- v1.0: the desktop app (`apps/desktop`, Tauri), signed and notarised for macOS (an Apple Developer
-  ID), then Windows and Linux; automatic updates.
+- The desktop app (`apps/desktop`, Tauri): macOS built (owner, 2026-10-15; unsigned by choice).
+  Remaining: tried from a release on a clean Mac; Windows and Linux (the engines built there, the
+  e2e on their builds); updates from the app.
 - **Accept** (v0.1): a clean Mac goes from the install command to a lesson with speech checked.
 
 ### 3. AI practice: follow-ups

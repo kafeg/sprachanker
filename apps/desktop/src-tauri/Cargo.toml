@@ -1,0 +1,25 @@
+[package]
+name = "sprachanker-desktop"
+version = "0.1.0"
+edition = "2021"
+publish = false
+
+[[bin]]
+name = "sprachanker-desktop"
+path = "src/main.rs"
+
+[build-dependencies]
+tauri-build = { version = "=2.7.1", features = [] }
+serde_json = "1"
+
+[dependencies]
+tauri = { version = "=2.12.1", features = ["tray-icon"] }
+tauri-plugin-single-instance = "=2.5.2"
+tauri-plugin-autostart = "=2.7.0"
+tauri-plugin-opener = "=2.7.0"
+serde_json = "1"
+sys-locale = "0.3"
+
+[profile.release]
+strip = true
+lto = true

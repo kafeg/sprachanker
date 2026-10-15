@@ -16,7 +16,7 @@ import {
 } from "./runtime/bun.ts";
 import { cliHost } from "./runtime/cli.ts";
 import { courseTransferFiles } from "./runtime/course-transfer.ts";
-import { holdDataRoot, serverOn } from "./runtime/data-root.ts";
+import { holdDataRoot, portAnswers, serverOn } from "./runtime/data-root.ts";
 import { apkgRuntime, deckFiles } from "./runtime/decks.ts";
 import { lmStudioHost } from "./runtime/lmstudio.ts";
 import { networkHost } from "./runtime/network.ts";
@@ -79,8 +79,11 @@ function runtimeOf(dataRoot: string, appVersion: string, profileDbWorker?: strin
   };
 }
 
-/** Starts the HTTP server: JSON API under /api, library and deck media and the built web app. */
-export function startServer(config: ServerConfig): Listening {
+/** Starts the HTTP server: JSON API under /api, library and deck media and the built web app. A port
+ *  something answers on already is refused, whatever address that listens on. */
+export async function startServer(config: ServerConfig): Promise<Listening> {
+  if (await portAnswers(config.port))
+    throw new Error(`port ${config.port} is taken by another program: choose another (--port)`);
   holdDataRoot(config.dataRoot);
   const app = createApp({
     webAssets: config.webAssets,

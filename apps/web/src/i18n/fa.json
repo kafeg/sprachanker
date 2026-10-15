@@ -1716,5 +1716,12 @@
       "steps": "مرحله‌ها"
     },
     "another": "نسخهٔ دیگر"
+  },
+  "desktop": {
+    "open": "باز کردن SprachAnker",
+    "browser": "باز کردن در مرورگر",
+    "quit": "خروج از SprachAnker",
+    "failed": "SprachAnker اجرا نشد. گزارش آن: {path}",
+    "microphone": "SprachAnker پاسخ‌های گفتاری شما را برای بررسی، روی همین رایانه می‌شنود."
   }
 }

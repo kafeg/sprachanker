@@ -4,13 +4,14 @@ import {
   mkdirSync,
   mkdtempSync,
   readFileSync,
+  rmSync,
   utimesSync,
   writeFileSync,
 } from "node:fs";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
 import { profileAdmin } from "../src/index.ts";
-import { holdDataRoot, serverOn, sprachAnkerRuns } from "../src/runtime/data-root.ts";
+import { holdDataRoot, portAnswers, serverOn, sprachAnkerRuns } from "../src/runtime/data-root.ts";
 
 /** Another live SprachAnker (Bun running it), for as long as the test needs it. */
 const another = () => Bun.spawn(["bun", "-e", "setTimeout(() => {}, 60_000)"]);
@@ -67,4 +68,21 @@ test("the command line sweeps no transfer while a server runs on the folder: the
   // No server: an hour-old transfer is a stopped one's, and goes.
   profileAdmin(root);
   expect(existsSync(left)).toBe(false);
+});
+
+test("a port something answers on at 127.0.0.1 is known taken — whatever address it listens on", async () => {
+  for (const hostname of ["0.0.0.0", "127.0.0.1"]) {
+    const other = Bun.serve({ hostname, port: 0, fetch: () => new Response("") });
+    const port = other.port as number;
+    expect(await portAnswers(port)).toBe(true);
+    await other.stop(true);
+    expect(await portAnswers(port)).toBe(false);
+  }
+});
+
+test("the program that started this server (the desktop app) is never another server on its folder", () => {
+  const root = mkdtempSync(join(tmpdir(), "sa-parent-"));
+  writeFileSync(join(root, "server.pid"), String(process.ppid));
+  expect(serverOn(root)).toBeUndefined();
+  rmSync(root, { recursive: true, force: true });
 });

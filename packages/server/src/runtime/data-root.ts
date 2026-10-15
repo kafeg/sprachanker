@@ -3,6 +3,7 @@
 // a server runs (it holds the profiles' databases open). A pid file whose process is gone — or is no
 // SprachAnker any more: a pid the system gave another program after a restart — is stale.
 import { existsSync, mkdirSync, readFileSync, rmSync, writeFileSync } from "node:fs";
+import { connect } from "node:net";
 import { join } from "node:path";
 import { processName } from "./process-name.ts";
 
@@ -23,14 +24,35 @@ export function sprachAnkerRuns(pid: number): boolean {
   return /sprachanker|\bbun\b/i.test(processName(pid) ?? "");
 }
 
-/** The pid of the server running on this data folder, if one does (not this process). */
+/** The pid of the server running on this data folder, if one does (not this process, nor the one
+ *  that started it: the desktop app, whose name says SprachAnker too, a stale file's pid given to it). */
 export function serverOn(dataRoot: string): number | undefined {
   const file = pidFile(dataRoot);
   if (!existsSync(file)) return undefined;
   const pid = Number(readFileSync(file, "utf8").trim());
-  return Number.isInteger(pid) && pid > 0 && pid !== process.pid && sprachAnkerRuns(pid)
+  return Number.isInteger(pid) &&
+    pid > 0 &&
+    pid !== process.pid &&
+    pid !== process.ppid &&
+    sprachAnkerRuns(pid)
     ? pid
     : undefined;
+}
+
+/** Whether something answers on this machine's loopback at the port. A server listening on all
+ *  addresses and another on 127.0.0.1 may share a port: the second would take the first's local
+ *  callers (the desktop app's window) without an error. */
+export function portAnswers(port: number): Promise<boolean> {
+  return new Promise((resolve) => {
+    const socket = connect({ host: "127.0.0.1", port });
+    const done = (answers: boolean) => {
+      socket.destroy();
+      resolve(answers);
+    };
+    socket.once("connect", () => done(true));
+    socket.once("error", () => done(false));
+    socket.setTimeout(1000, () => done(false));
+  });
 }
 
 /** Marks the data folder as served by this process until it exits; refuses when another serves it.

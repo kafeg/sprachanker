@@ -1716,5 +1716,12 @@
       "steps": "Kroki"
     },
     "another": "Inny wariant"
+  },
+  "desktop": {
+    "open": "Otwórz SprachAnker",
+    "browser": "Otwórz w przeglądarce",
+    "quit": "Zakończ SprachAnker",
+    "failed": "Nie udało się uruchomić SprachAnker. Jego dziennik: {path}",
+    "microphone": "SprachAnker słucha Twoich odpowiedzi mówionych, aby je sprawdzić — na tym komputerze."
   }
 }

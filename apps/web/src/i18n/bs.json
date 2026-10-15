@@ -1716,5 +1716,12 @@
       "steps": "Koraci"
     },
     "another": "Druga varijanta"
+  },
+  "desktop": {
+    "open": "Otvori SprachAnker",
+    "browser": "Otvori u pregledniku",
+    "quit": "Zatvori SprachAnker",
+    "failed": "SprachAnker se nije mogao pokrenuti. Njegov zapisnik: {path}",
+    "microphone": "SprachAnker sluša vaše izgovorene odgovore da ih provjeri, na ovom računaru."
   }
 }

@@ -105,9 +105,14 @@ export function serveOptions(args: string[]) {
   return { hostname: values.host, port, dataRoot: resolveDataRoot(values.data), allowHosts };
 }
 
-function serve(args: string[], webAssets: WebAssets, profileDbWorker?: string): void {
+async function serve(args: string[], webAssets: WebAssets, profileDbWorker?: string) {
   const options = serveOptions(args);
-  const server = startServer({ ...options, webAssets, appVersion: pkg.version, profileDbWorker });
+  const server = await startServer({
+    ...options,
+    webAssets,
+    appVersion: pkg.version,
+    profileDbWorker,
+  });
   console.log(`SprachAnker is running at ${server.url} (data: ${options.dataRoot})`);
 }
 
@@ -533,7 +538,7 @@ async function run(argv: string[], embedded?: Embedded): Promise<void> {
   const [command, ...rest] = argv;
   switch (command) {
     case "serve":
-      serve(
+      await serve(
         rest,
         // From sources: the web build next to this app (`bun run build:web`).
         embedded

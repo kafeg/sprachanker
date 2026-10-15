@@ -24,6 +24,14 @@ if [[ "$(uname -s)" != Darwin || "$(uname -m)" != arm64 ]]; then
   exit 1
 fi
 
+# The desktop app runs the server itself: the two would fight over the port and the data folder.
+if [[ -d /Applications/SprachAnker.app || -d "$HOME/Applications/SprachAnker.app" ||
+  -f "$HOME/Library/LaunchAgents/SprachAnker.plist" ]]; then
+  echo "The SprachAnker app is installed and runs the server: update the app instead (a newer release's dmg)." >&2
+  echo "To use this installer, quit the app and delete it from Applications first." >&2
+  exit 1
+fi
+
 if [[ -n "${SPRACHANKER_VERSION:-}" ]]; then
   URL="https://github.com/$REPO/releases/download/$SPRACHANKER_VERSION/$ASSET"
 else

@@ -40,7 +40,7 @@ not unpacked again.
 
 Model calls go from the server to the provider the learner configured (LM Studio, OpenRouter, any
 OpenAI-compatible server, or a command-line agent); nothing else leaves the machine. The desktop app
-(planned) only starts the same binary and opens a window on it.
+(`apps/desktop`) only runs the same binary and shows a window on it.
 
 ## Modules and dependencies
 

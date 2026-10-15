@@ -65,19 +65,26 @@ test("messages are plain text: no Markdown backticks (they show as written)", ()
 // ---- Catalogs against the code: keys used, keys left over, translations missing ----
 
 const SRC = join(import.meta.dir, "../src");
-const sources = (dir: string): string[] =>
+/** The desktop shell takes its few words (`desktop.*`) from these catalogs too: its Rust (build.rs
+ *  embeds them) and its build script (the microphone's question, macOS's own). */
+const DESKTOP = join(import.meta.dir, "../../desktop");
+const sources = (dir: string, kinds = /\.(ts|tsx)$/): string[] =>
   readdirSync(dir).flatMap((name) => {
     const path = join(dir, name);
     return statSync(path).isDirectory()
-      ? sources(path)
-      : /\.(ts|tsx)$/.test(name)
+      ? sources(path, kinds)
+      : kinds.test(name)
         ? [readFileSync(path, "utf8")]
         : [];
   });
-const code = sources(SRC).join("\n");
+const rust = sources(join(DESKTOP, "src-tauri/src"), /\.rs$/).join("\n");
+const code = [...sources(SRC), rust, ...sources(join(DESKTOP, "scripts"))].join("\n");
 
-/** Keys the code asks for by name: `t("a.b")`, `t('a.b')`. */
-const asked = [...code.matchAll(/\bt\(\s*["']([a-zA-Z0-9_.-]+)["']/g)].map((m) => m[1] as string);
+/** Keys the code asks for by name: `t("a.b")`, `t('a.b')`; the shell's `text("desktop.x")`. */
+const asked = [
+  ...code.matchAll(/\bt\(\s*["']([a-zA-Z0-9_.-]+)["']/g),
+  ...rust.matchAll(/\btext\(\s*"([a-zA-Z0-9_.-]+)"/g),
+].map((m) => m[1] as string);
 /** Prefixes of keys built at run time: `t(\`speech.verdict.${…}\`)`. */
 const built = [...code.matchAll(/`([a-zA-Z0-9_]+(?:\.[a-zA-Z0-9_-]+)*\.)\$\{/g)].map(
   (m) => m[1] as string,

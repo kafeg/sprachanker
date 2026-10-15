@@ -1,5 +1,7 @@
 // Renders the app icons from public/favicon.svg (the master): PNGs for home screens and the PWA
-// manifest. Needs rsvg-convert (`brew install librsvg`). Usage: bun apps/web/scripts/icons.ts
+// manifest, and the desktop app's source (macOS's grid: the tile 824 of 1024, transparent around;
+// then `bun x tauri icon` in apps/desktop/src-tauri). Needs rsvg-convert (`brew install librsvg`).
+// Usage: bun apps/web/scripts/icons.ts
 import { spawnSync } from "node:child_process";
 import { readFileSync } from "node:fs";
 import { join, resolve } from "node:path";
@@ -24,6 +26,12 @@ const outputs: Array<[file: string, svg: string, size: number]> = [
   ["icon-192.png", master, 192],
   ["icon-512.png", master, 512],
   ["icon-maskable-512.png", square(0.8), 512],
+  // macOS: the rounded tile inside Apple's grid, as other apps' icons stand in the Dock.
+  [
+    "../../desktop/src-tauri/icons/app-icon.png",
+    `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1024 1024"><svg x="100" y="100" width="824" height="824" viewBox="0 0 64 64">${master.slice(master.indexOf(">") + 1, master.lastIndexOf("</svg>"))}</svg></svg>`,
+    1024,
+  ],
 ];
 for (const [file, svg, size] of outputs) {
   const r = spawnSync(

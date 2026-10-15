@@ -1716,5 +1716,12 @@
       "steps": "चरण"
     },
     "another": "दूसरा संस्करण"
+  },
+  "desktop": {
+    "open": "SprachAnker खोलें",
+    "browser": "ब्राउज़र में खोलें",
+    "quit": "SprachAnker बंद करें",
+    "failed": "SprachAnker शुरू नहीं हो सका। उसका लॉग: {path}",
+    "microphone": "SprachAnker आपके बोले गए उत्तर जाँचने के लिए इसी कंप्यूटर पर सुनता है।"
   }
 }

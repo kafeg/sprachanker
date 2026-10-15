@@ -1716,5 +1716,12 @@
       "steps": "Кроки"
     },
     "another": "Інший варіант"
+  },
+  "desktop": {
+    "open": "Відкрити SprachAnker",
+    "browser": "Відкрити в браузері",
+    "quit": "Вийти з SprachAnker",
+    "failed": "SprachAnker не запустився. Його журнал: {path}",
+    "microphone": "SprachAnker слухає ваші відповіді вголос, щоб перевірити їх, — на цьому комп’ютері."
   }
 }

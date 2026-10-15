@@ -1716,5 +1716,12 @@
       "steps": "Adımlar"
     },
     "another": "Başka bir sürüm"
+  },
+  "desktop": {
+    "open": "SprachAnker’ı aç",
+    "browser": "Tarayıcıda aç",
+    "quit": "SprachAnker’dan çık",
+    "failed": "SprachAnker başlatılamadı. Günlüğü: {path}",
+    "microphone": "SprachAnker, sesli yanıtlarınızı kontrol etmek için bu bilgisayarda dinler."
   }
 }

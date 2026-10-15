@@ -1,8 +1,9 @@
 name: Release
 
 # A tag vX.Y.Z (the version in apps/cli/package.json) builds the binary on a Mac with Apple Silicon,
-# the speech engines taken from their releases (the Engines workflow), runs the e2e against that build
-# and makes a draft release with the archive and the installer; the release skill writes its notes and publishes it. Run by hand (Actions → Release →
+# the speech engines taken from their releases (the Engines workflow), runs the e2e against that build,
+# puts that build into the desktop app (apps/desktop: a zip and a dmg, signed ad hoc) and makes a draft
+# release with the app, the archive and the installer; the release skill writes its notes and publishes it. Run by hand (Actions → Release →
 # Run workflow), the same build's archive is kept as the run's artifact instead.
 on:
   push:
@@ -12,7 +13,7 @@ on:
 jobs:
   macos-arm64:
     runs-on: macos-15
-    timeout-minutes: 45
+    timeout-minutes: 60
     permissions:
       contents: write
     steps:
@@ -41,6 +42,11 @@ jobs:
       - name: Archive
         working-directory: apps/cli/dist
         run: tar -czf ../sprachanker-macos-arm64.tar.gz sprachanker *-apple-darwin
+      - uses: Swatinem/rust-cache@v2
+        with:
+          workspaces: apps/desktop/src-tauri
+      - name: Desktop app
+        run: bun run --filter @sprachanker/desktop build
       - if: github.ref_type != 'tag'
         uses: actions/upload-artifact@v7
         with:
@@ -48,12 +54,15 @@ jobs:
           path: |
             apps/cli/sprachanker-macos-arm64.tar.gz
             apps/cli/install.sh
+            apps/desktop/dist/*.zip
+            apps/desktop/dist/*.dmg
       - name: Draft release
         if: github.ref_type == 'tag'
         env:
           GH_TOKEN: ${{ github.token }}
         run: >
           gh release create "$GITHUB_REF_NAME" --draft --title "$GITHUB_REF_NAME" --generate-notes
+          apps/desktop/dist/*.dmg apps/desktop/dist/*.zip
           apps/cli/sprachanker-macos-arm64.tar.gz apps/cli/install.sh
       - if: failure()
         uses: actions/upload-artifact@v7

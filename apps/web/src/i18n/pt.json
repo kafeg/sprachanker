@@ -1716,5 +1716,12 @@
       "steps": "Etapas"
     },
     "another": "Outra versão"
+  },
+  "desktop": {
+    "open": "Abrir o SprachAnker",
+    "browser": "Abrir no navegador",
+    "quit": "Sair do SprachAnker",
+    "failed": "O SprachAnker não conseguiu iniciar. O registo dele: {path}",
+    "microphone": "O SprachAnker ouve as suas respostas faladas para as verificar, neste computador."
   }
 }

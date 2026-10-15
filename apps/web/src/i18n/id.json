@@ -1716,5 +1716,12 @@
       "steps": "Langkah"
     },
     "another": "Versi lain"
+  },
+  "desktop": {
+    "open": "Buka SprachAnker",
+    "browser": "Buka di peramban",
+    "quit": "Keluar dari SprachAnker",
+    "failed": "SprachAnker tidak dapat dimulai. Lognya: {path}",
+    "microphone": "SprachAnker mendengarkan jawaban lisan Anda untuk memeriksanya, di komputer ini."
   }
 }

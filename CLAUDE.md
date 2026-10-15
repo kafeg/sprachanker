@@ -21,7 +21,7 @@ for the area you touch (the owner's decisions and why, invariants of stored data
 | `packages/llm` | LLM gateway, providers, tasks, prompts, structured outputs. | `packages/llm/CLAUDE.md` |
 | `packages/anki-export` | `.apkg` packages: reading one (notes, fields, media) and its notes as a deck's words; export planned. | `packages/anki-export/CLAUDE.md` |
 | `apps/web` | React UI for desktop and phone screens (installable PWA), components and exercise renderers. i18n: a catalog per language (`src/i18n/<code>.json`), right to left for Arabic and Persian. | `apps/web/CLAUDE.md` |
-| `apps/desktop` | Tauri 2 shell (planned): window, tray, starts the server binary, updates. | `apps/desktop/CLAUDE.md` |
+| `apps/desktop` | The desktop app (Tauri 2; macOS for now): window and tray around the server binary it bundles and runs. | `apps/desktop/CLAUDE.md` |
 | `apps/mobile` | The phone app (Tauri 2; a proof): Whisper in its own process on Android. | `apps/mobile/CLAUDE.md` |
 | `apps/cli` | The `sprachanker` binary: `serve` (starts the server), `import`, `verify`, `profiles`. Compiled with the web build embedded. | `apps/cli/CLAUDE.md` |
 | `native` | Builds of whisper.cpp (`whisper-server`), sherpa-onnx (`sherpa-onnx-offline-tts`, Piper voices) and qwentts.cpp (`tts-server`, Qwen3-TTS). | `native/CLAUDE.md` |
@@ -40,7 +40,8 @@ Encoded in `.dependency-cruiser.cjs`; `scripts/boundaries.test.ts` proves them o
 - `server` → `schema`, `engine`, `course-kit`, `courses/*`, `llm`, `anki-export`.
 - `apps/web` → `schema`, `engine` (client-side checking), and a **type-only** import of the server's
   `AppType` for the Hono RPC client.
-- `apps/desktop` knows only the `sprachanker` binary and its CLI flags. `apps/cli` → `server` (and through it everything else).
+- `apps/desktop` knows only the `sprachanker` binary, its CLI flags and what it leaves on disk
+  (`server.pid`, the installer's LaunchAgent); its words come from the web catalogs' `desktop` section. `apps/cli` → `server` (and through it everything else).
 - `apps/mobile` → the server's portable entry (`packages/server/src/portable.ts`) and course-kit's
   `library-over.ts` only; its `src/` runs in the WebView (no Node or Bun built-ins).
 - Nothing imports from `apps/*`. No cycles.
@@ -120,7 +121,8 @@ alternatives without updating that list.
 - `bun run cli -- <command>` — the CLI from sources (`serve` uses the last `bun run build:web` output)
 - `bun run cli -- import dw-nicos-weg --data ~/SprachAnker` · `bun run cli -- serve --data ~/SprachAnker`
 - `bun run cli -- verify --data ~/SprachAnker` — checks every installed course (run after an import)
-- `bun run build:desktop` (planned)
+- `bun run build:desktop` — the binary, then the desktop app (its dist folder: a zip and a dmg;
+  needs Rust and the engines built once)
 
 ## Skills (`.claude/skills/`)
 

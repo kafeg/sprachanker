@@ -1716,5 +1716,12 @@
       "steps": "الخطوات"
     },
     "another": "نسخة أخرى"
+  },
+  "desktop": {
+    "open": "فتح SprachAnker",
+    "browser": "فتح في المتصفح",
+    "quit": "إنهاء SprachAnker",
+    "failed": "تعذّر تشغيل SprachAnker. سجلّه: {path}",
+    "microphone": "يستمع SprachAnker إلى إجاباتك المنطوقة ليتحقق منها، على هذا الحاسوب."
   }
 }

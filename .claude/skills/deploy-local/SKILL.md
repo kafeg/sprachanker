@@ -9,6 +9,7 @@ Puts the current code into the owner's running app: build, copy, restart, health
 - Run it only after `bun run check` is green; after a phase, also after `bun run e2e` (it builds the binary anyway).
 - The data folder is `~/SprachAnker` (the owner's real data). Never point a test or a walk at it: use an APFS clone.
 - The server listens on all addresses (`--host 0.0.0.0`): phones reach it over the network and Tailscale.
+- The desktop app in `/Applications` runs the server: the script then builds the app too (~2 min more), quits it, replaces it and opens it.
 
 ## Procedure
 1. Deploy (builds the web app and the binary first):
@@ -24,8 +25,8 @@ Puts the current code into the owner's running app: build, copy, restart, health
 
 ## Gotchas
 - "no binary in apps/cli/dist" → the speech engines were never built → run `bun run build:cli` once.
-- Health never answers → read `~/SprachAnker/bin/serve.log` (a port taken by another process, a database newer than the binary).
-- Port or folder differ → set `PORT` or `SPRACHANKER_HOME` before the script.
+- Health never answers → read `~/SprachAnker/bin/serve.log`, or `~/Library/Logs/SprachAnker/serve.log` under the app (a port taken by another process, a database newer than the binary).
+- Port or folder differ → set `PORT` or `SPRACHANKER_HOME` before the script (not under the app: it keeps its own, `~/SprachAnker/desktop.json`).
 
 ## Boundaries
 - A version for others: `release`.

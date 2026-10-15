@@ -1716,5 +1716,12 @@
       "steps": "Hatua"
     },
     "another": "Toleo jingine"
+  },
+  "desktop": {
+    "open": "Fungua SprachAnker",
+    "browser": "Fungua kwenye kivinjari",
+    "quit": "Funga SprachAnker",
+    "failed": "SprachAnker haikuweza kuanza. Kumbukumbu yake: {path}",
+    "microphone": "SprachAnker husikiliza majibu yako ya sauti ili kuyakagua, kwenye kompyuta hii."
   }
 }
