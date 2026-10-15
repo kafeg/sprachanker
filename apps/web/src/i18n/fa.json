@@ -1726,5 +1726,9 @@
     "quit": "خروج از SprachAnker",
     "failed": "SprachAnker اجرا نشد. گزارش آن: {path}",
     "microphone": "SprachAnker پاسخ‌های گفتاری شما را برای بررسی، روی همین رایانه می‌شنود."
+  },
+  "selection": {
+    "label": "متن انتخاب‌شده",
+    "speak": "بلند بخوان"
   }
 }

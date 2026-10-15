@@ -1726,5 +1726,9 @@
     "quit": "SprachAnker’dan çık",
     "failed": "SprachAnker başlatılamadı. Günlüğü: {path}",
     "microphone": "SprachAnker, sesli yanıtlarınızı kontrol etmek için bu bilgisayarda dinler."
+  },
+  "selection": {
+    "label": "Seçili metin",
+    "speak": "Sesli oku"
   }
 }

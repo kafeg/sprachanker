@@ -1726,5 +1726,9 @@
     "quit": "Quit SprachAnker",
     "failed": "SprachAnker could not start. Its log: {path}",
     "microphone": "SprachAnker hears your answers said aloud to check them, on this computer."
+  },
+  "selection": {
+    "label": "Selected text",
+    "speak": "Read aloud"
   }
 }

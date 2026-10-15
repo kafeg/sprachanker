@@ -1726,5 +1726,9 @@
     "quit": "Zatvori SprachAnker",
     "failed": "SprachAnker se nije mogao pokrenuti. Njegov zapisnik: {path}",
     "microphone": "SprachAnker sluša vaše izgovorene odgovore da ih provjeri, na ovom računaru."
+  },
+  "selection": {
+    "label": "Označeni tekst",
+    "speak": "Pročitaj"
   }
 }

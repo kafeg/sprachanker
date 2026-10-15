@@ -102,11 +102,11 @@ test("choices: number keys answer the next item to answer; the answer spoken onc
   await openStep(page, "Lena at the café");
   const items = page.locator("ol > li");
   await page.keyboard.press("1");
-  await expect(items.nth(0).locator("button[aria-pressed=true]")).toHaveCount(1);
+  await expect(items.nth(0).locator("[role=button][aria-pressed=true]")).toHaveCount(1);
   // The first item is answered: the keys go on to the second.
   await page.keyboard.press("2");
-  await expect(items.nth(1).locator("button[aria-pressed=true]")).toHaveCount(1);
-  await expect(items.nth(0).locator("button[aria-pressed=true]")).toHaveCount(1);
+  await expect(items.nth(1).locator("[role=button][aria-pressed=true]")).toHaveCount(1);
+  await expect(items.nth(0).locator("[role=button][aria-pressed=true]")).toHaveCount(1);
   // The answer, spoken, is offered once checked: before, it would give it away.
   const hear = items.nth(0).getByRole("button", { name: "Hear the answer" });
   await expect(hear).toHaveCount(0);

@@ -57,7 +57,8 @@ async function answerRight(page: Page) {
   const main = page.locator("main");
   const text = (await main.textContent()) ?? "";
   if (text.includes("Wie viele Tage")) await main.getByRole("button", { name: "sieben" }).click();
-  else if (text.includes("Tasse")) await main.locator("button:has(img[src*='tasse'])").click();
+  else if (text.includes("Tasse"))
+    await main.locator("[role=button]:has(img[src*='tasse'])").click();
   else if (text.includes("Café")) await main.getByRole("button", { name: "rot" }).click();
   else await main.getByRole("button", { name: "Tee" }).click();
 }
@@ -98,7 +99,7 @@ test("a mock exam: a question at a time, the grid above, nothing marked; handed 
     await list.getByRole("button", { name: "Question 1" }).click();
   });
   await expect(page.getByText("Question 1 of 3")).toBeVisible();
-  await expect(page.locator("main button[aria-pressed='true']")).toHaveCount(1);
+  await expect(page.locator("main [role=button][aria-pressed='true']")).toHaveCount(1);
   await button(page, "Hand in").click();
 
   await expect(page.getByRole("heading", { name: "Passed" })).toBeVisible();
@@ -128,7 +129,7 @@ test("practice: a question at a time, each checked with Check as in a lesson; en
   // The question is on screen (one of three drawn) before its text is read.
   await main
     .getByRole("button", { name: /fünf|blau/ })
-    .or(main.locator("button:has(img[src*='kuchen'])"))
+    .or(main.locator("[role=button]:has(img[src*='kuchen'])"))
     .first()
     .waitFor();
   const text = (await main.textContent()) ?? "";
@@ -138,7 +139,7 @@ test("practice: a question at a time, each checked with Check as in a lesson; en
       ? "blau"
       : undefined;
   if (wrong) await main.getByRole("button", { name: wrong }).click();
-  else await main.locator("button:has(img[src*='kuchen'])").click();
+  else await main.locator("[role=button]:has(img[src*='kuchen'])").click();
   // Nothing checked until Check in the step bar, as in a lesson.
   await expect(main.getByRole("status").filter({ hasText: /^Wrong$/ })).toHaveCount(0);
   await button(page, "Check").click();
@@ -201,8 +202,8 @@ test("a language exam: a module alone, then the whole — each question with its
   await expect(page.getByRole("heading", { name: "Listening · Part 1" })).toBeVisible();
   await expect(page.getByText("Example")).toBeVisible();
   const answers: Array<(p: Page) => Promise<void>> = [
-    (p) => question(p).locator("button[aria-pressed]").first().click(),
-    (p) => question(p).locator("button[aria-pressed]").first().click(),
+    (p) => question(p).locator("[role=button][aria-pressed]").first().click(),
+    (p) => question(p).locator("[role=button][aria-pressed]").first().click(),
     (p) => question(p).getByRole("button", { name: "Richtig" }).click(),
     (p) => question(p).getByRole("button", { name: "Falsch" }).click(),
     (p) => question(p).getByRole("button", { name: "um drei Uhr" }).click(),

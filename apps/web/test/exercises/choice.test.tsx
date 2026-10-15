@@ -45,17 +45,17 @@ const layout = (view: Awaited<ReturnType<typeof card>>) =>
 
 test("text options each have their row, long or short, and keep it once checked", async () => {
   const open = await card();
-  const before = [...open.container.querySelectorAll("button[aria-pressed]")].map(
+  const before = [...open.container.querySelectorAll("[role=button][aria-pressed]")].map(
     (b) => b.className,
   );
   for (const c of before) expect(c).toContain("w-full");
-  expect(open.container.querySelector("button[aria-pressed]")?.parentElement?.className).toBe(
-    "grid gap-2",
-  );
+  expect(
+    open.container.querySelector("[role=button][aria-pressed]")?.parentElement?.className,
+  ).toBe("grid gap-2");
   open.unmount();
   const checked = await card({ result: "wrong", score: 0 });
   // The marks sit in the room each option keeps: no option changes size.
-  const marks = [...checked.container.querySelectorAll("button[aria-pressed] svg")];
+  const marks = [...checked.container.querySelectorAll("[role=button][aria-pressed] svg")];
   expect(marks.length).toBe(2);
   for (const m of marks) expect(m.getAttribute("class")).toContain("absolute");
   expect(layout(checked).every((c) => c.includes("w-full pe-11"))).toBe(true);

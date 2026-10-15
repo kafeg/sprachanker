@@ -1726,5 +1726,9 @@
     "quit": "Kilépés a SprachAnkerből",
     "failed": "A SprachAnker nem tudott elindulni. A naplója: {path}",
     "microphone": "A SprachAnker meghallgatja a kimondott válaszaidat, hogy ellenőrizze őket, ezen a számítógépen."
+  },
+  "selection": {
+    "label": "Kijelölt szöveg",
+    "speak": "Felolvasás"
   }
 }

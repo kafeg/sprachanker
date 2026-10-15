@@ -1726,5 +1726,9 @@
     "quit": "Închide SprachAnker",
     "failed": "SprachAnker nu a putut porni. Jurnalul lui: {path}",
     "microphone": "SprachAnker ascultă răspunsurile tale rostite ca să le verifice, pe acest calculator."
+  },
+  "selection": {
+    "label": "Text selectat",
+    "speak": "Citește"
   }
 }

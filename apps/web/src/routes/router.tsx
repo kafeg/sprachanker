@@ -14,6 +14,7 @@ import { usePlaybackRate, usePreferences } from "@/app/preferences.ts";
 import { AppShell, type ExtraSection } from "@/app/shell.tsx";
 import { WhoIsStudying } from "@/app/who-is-studying.tsx";
 import { SpeechProvider } from "@/audio/context.ts";
+import { SelectionMenu } from "@/audio/selection-menu.tsx";
 import { useSpeechHostValue } from "@/audio/use-speech-host.ts";
 import { useAiIn } from "@/llm/setup-api.ts";
 import type { LessonView } from "@/notebook/lesson.tsx";
@@ -96,6 +97,7 @@ function SignedIn() {
       <SpeechProvider value={useSpeechHostValue()}>
         <StudySlotsProvider value={examplesAssistant}>
           <Outlet />
+          <SelectionMenu />
         </StudySlotsProvider>
       </SpeechProvider>
     </PlaybackRate>

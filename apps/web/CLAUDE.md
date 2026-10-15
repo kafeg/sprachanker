@@ -98,7 +98,7 @@ apps/web/src/
                    # speech-settings (Settings → Speech; SpeechSetup is also the onboarding's step),
                    # reading aloud: speak.ts (what is said, by which voice; pure), speaker.ts (a part's recording as it is, else each part by
                    # the server's engine — Piper or Qwen3-TTS — or the device's voices, one text at a
-                   # time; a dialogue's second speaker by another voice), listening (a text line by line: pause, on, again), speak-button, read-by (who reads a language, named), read-aloud-settings (Qwen3-TTS alone: its
+                   # time; a dialogue's second speaker by another voice), listening (a text line by line: pause, on, again), speak-button, selection-menu (words selected anywhere: a bar by them that reads them aloud; an optional feature's actions beside), read-by (who reads a language, named), read-aloud-settings (Qwen3-TTS alone: its
                    # state) with qwen-voices (models, each language's speaker; voice-pick: a language's voice and
                    # "Listen"; voice-names: a server voice's name, pure; a voice's gender: the engine's
                    # speech/voices); download-row (a model or voice the server downloads), read-languages (the

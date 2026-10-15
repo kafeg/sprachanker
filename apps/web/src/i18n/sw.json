@@ -1726,5 +1726,9 @@
     "quit": "Funga SprachAnker",
     "failed": "SprachAnker haikuweza kuanza. Kumbukumbu yake: {path}",
     "microphone": "SprachAnker husikiliza majibu yako ya sauti ili kuyakagua, kwenye kompyuta hii."
+  },
+  "selection": {
+    "label": "Maandishi yaliyochaguliwa",
+    "speak": "Soma kwa sauti"
   }
 }

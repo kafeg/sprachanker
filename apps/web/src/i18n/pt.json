@@ -1726,5 +1726,9 @@
     "quit": "Sair do SprachAnker",
     "failed": "O SprachAnker não conseguiu iniciar. O registo dele: {path}",
     "microphone": "O SprachAnker ouve as suas respostas faladas para as verificar, neste computador."
+  },
+  "selection": {
+    "label": "Texto selecionado",
+    "speak": "Ler em voz alta"
   }
 }

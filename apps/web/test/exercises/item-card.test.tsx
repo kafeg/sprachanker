@@ -168,7 +168,7 @@ test("a picture tile chosen among several keeps its ticked box filled", async ()
     </TargetLang>,
   );
   const box = (pressed: string) =>
-    view.container.querySelector(`button[aria-pressed="${pressed}"] > span[aria-hidden]`)
+    view.container.querySelector(`[role=button][aria-pressed="${pressed}"] > span[aria-hidden]`)
       ?.className ?? "";
   expect(box("true")).toContain("bg-primary");
   expect(box("true")).not.toContain("bg-card");

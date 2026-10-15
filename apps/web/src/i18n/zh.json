@@ -1726,5 +1726,9 @@
     "quit": "退出 SprachAnker",
     "failed": "SprachAnker 无法启动。其日志：{path}",
     "microphone": "SprachAnker 会在这台电脑上听取你说出的回答，以便检查。"
+  },
+  "selection": {
+    "label": "选中的文字",
+    "speak": "朗读"
   }
 }

@@ -1726,5 +1726,9 @@
     "quit": "Выйти из SprachAnker",
     "failed": "SprachAnker не запустился. Его журнал: {path}",
     "microphone": "SprachAnker слушает ваши ответы вслух, чтобы проверить их, — на этом компьютере."
+  },
+  "selection": {
+    "label": "Выделенный текст",
+    "speak": "Озвучить"
   }
 }

@@ -228,13 +228,33 @@ export function OptionButton({
   multi?: boolean;
   fill?: boolean;
 }) {
+  // A role of a button, not one: WebKit lets nothing inside a <button> be selected, and an option's
+  // words are there to select (read aloud, translated, kept). A click that leaves words selected in
+  // it chooses nothing.
+  const choose = (e: React.SyntheticEvent<HTMLElement>) => {
+    if (disabled) return;
+    const selection = window.getSelection();
+    if (selection && !selection.isCollapsed && e.currentTarget.contains(selection.anchorNode))
+      return;
+    onClick();
+  };
   return (
-    <button
-      type="button"
+    // biome-ignore lint/a11y/useSemanticElements: WebKit selects nothing inside a <button> (above)
+    <div
+      role="button"
+      tabIndex={disabled ? -1 : 0}
       aria-pressed={selected}
-      disabled={disabled}
-      onClick={onClick}
+      aria-disabled={disabled || undefined}
+      data-disabled={disabled || undefined}
+      onClick={choose}
+      onKeyDown={(e) => {
+        if (e.key !== "Enter" && e.key !== " ") return;
+        e.preventDefault();
+        if (!disabled) onClick();
+      }}
       className={cn(
+        "cursor-pointer select-text outline-none focus-visible:ring-[3px] focus-visible:ring-ring/50",
+        disabled && "cursor-default",
         // A word longer than the screen breaks ("Oberbürgermeisterin/Oberbürgermeister").
         "relative flex min-h-12 max-w-full items-center gap-2 rounded-xl border-2 bg-card px-4 py-2 text-start text-lg text-pretty transition [overflow-wrap:anywhere]",
         // A text option has its row and keeps room for its mark: checking moves nothing.
@@ -274,7 +294,7 @@ export function OptionButton({
           aria-hidden
         />
       )}
-    </button>
+    </div>
   );
 }
 

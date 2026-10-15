@@ -1726,5 +1726,9 @@
     "quit": "SprachAnker बंद करें",
     "failed": "SprachAnker शुरू नहीं हो सका। उसका लॉग: {path}",
     "microphone": "SprachAnker आपके बोले गए उत्तर जाँचने के लिए इसी कंप्यूटर पर सुनता है।"
+  },
+  "selection": {
+    "label": "चुना गया पाठ",
+    "speak": "पढ़कर सुनाएँ"
   }
 }

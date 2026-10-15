@@ -76,7 +76,7 @@ async function answerItem(
   switch (type) {
     case "single_choice":
     case "multi_choice":
-      await card.locator("button[aria-pressed]").first().click();
+      await card.locator("[role=button][aria-pressed]").first().click();
       return true;
     case "gap_text":
       for (const field of await card.getByRole("textbox").all()) await field.fill("a");

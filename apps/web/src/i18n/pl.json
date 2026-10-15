@@ -1726,5 +1726,9 @@
     "quit": "Zakończ SprachAnker",
     "failed": "Nie udało się uruchomić SprachAnker. Jego dziennik: {path}",
     "microphone": "SprachAnker słucha Twoich odpowiedzi mówionych, aby je sprawdzić — na tym komputerze."
+  },
+  "selection": {
+    "label": "Zaznaczony tekst",
+    "speak": "Przeczytaj"
   }
 }

@@ -1726,5 +1726,9 @@
     "quit": "SprachAnker beenden",
     "failed": "SprachAnker konnte nicht starten. Sein Protokoll: {path}",
     "microphone": "SprachAnker hört deine gesprochenen Antworten, um sie zu prüfen – auf diesem Computer."
+  },
+  "selection": {
+    "label": "Markierter Text",
+    "speak": "Vorlesen"
   }
 }

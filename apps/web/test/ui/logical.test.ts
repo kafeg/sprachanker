@@ -33,8 +33,9 @@ test("no physical left/right utilities: the logical ones (ms/me, ps/pe, start/en
 /** A side in an inline style's property: `left`, `marginRight`, `paddingLeft`… (`insetInlineStart`,
  *  `marginInlineEnd` and the like are the logical ones). */
 const PHYSICAL_STYLE = /\b(?:left|right|(?:margin|padding|border)(?:Left|Right)\w*)\s*:/g;
-/** Inline styles kept physical on purpose, as `file:property` (none yet). */
-const KEPT_STYLE: string[] = [];
+/** Inline styles kept physical on purpose, as `file:property`: a place on the screen, measured there
+ *  (the selection's bar stands by the words, wherever the direction). */
+const KEPT_STYLE: string[] = ["/audio/selection-menu.tsx:left"];
 
 test("no physical left/right in inline styles (`style={{ … }}`)", () => {
   const found: string[] = [];

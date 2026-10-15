@@ -1726,5 +1726,9 @@
     "quit": "إنهاء SprachAnker",
     "failed": "تعذّر تشغيل SprachAnker. سجلّه: {path}",
     "microphone": "يستمع SprachAnker إلى إجاباتك المنطوقة ليتحقق منها، على هذا الحاسوب."
+  },
+  "selection": {
+    "label": "النص المحدد",
+    "speak": "اقرأ بصوت عالٍ"
   }
 }

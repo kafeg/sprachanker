@@ -221,6 +221,7 @@ area is built is in its `CLAUDE.md`; work not built yet is in `docs/plan.md`.
 
 ## Interface
 
+- Words selected anywhere in the app get a small bar by them (owner, 2026-10-15): read aloud in the language the page marks them with; translated and kept as cards in the learner's own deck "Finds" (both faces, its sentence as context, translated by the AI model — no model, no translation). No speaker button on each option: an option's words are selectable instead (a click that selects words chooses nothing).
 - A calm study tool: content first, large readable target-language text, motion only where it informs.
 - No streaks, hearts or other gamification that punishes.
 - Nothing moves when an answer is checked or revealed: options keep room for the mark, cards keep their size, and the review buttons share one height.

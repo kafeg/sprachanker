@@ -1726,5 +1726,9 @@
     "quit": "Quitter SprachAnker",
     "failed": "SprachAnker n’a pas pu démarrer. Son journal : {path}",
     "microphone": "SprachAnker écoute vos réponses à voix haute pour les vérifier, sur cet ordinateur."
+  },
+  "selection": {
+    "label": "Texte sélectionné",
+    "speak": "Lire à voix haute"
   }
 }
