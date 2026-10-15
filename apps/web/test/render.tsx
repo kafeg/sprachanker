@@ -9,7 +9,10 @@ import {
   RouterProvider,
 } from "@tanstack/react-router";
 import { render } from "@testing-library/react";
-import "../src/i18n/index.ts";
+import { i18nReady } from "../src/i18n/index.ts";
+
+await i18nReady;
+
 import { TooltipProvider } from "../src/ui/components/tooltip.tsx";
 
 /** A query client whose cache holds `data` by query key, and `failed` queries' errors; nothing goes

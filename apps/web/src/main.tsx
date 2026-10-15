@@ -3,7 +3,7 @@ import { RouterProvider } from "@tanstack/react-router";
 import { StrictMode } from "react";
 import { createRoot } from "react-dom/client";
 import { ApiError } from "./api/client.ts";
-import "./i18n/index.ts";
+import { i18nReady } from "./i18n/index.ts";
 import { router } from "./routes/router.tsx";
 import { TooltipProvider } from "./ui/components/tooltip.tsx";
 import { DirectionRoot } from "./ui/direction.tsx";
@@ -34,14 +34,17 @@ const queryClient: QueryClient = new QueryClient({
 });
 const root = document.getElementById("root");
 if (!root) throw new Error("#root element missing in index.html");
-createRoot(root).render(
-  <StrictMode>
-    <QueryClientProvider client={queryClient}>
-      <DirectionRoot>
-        <TooltipProvider>
-          <RouterProvider router={router} />
-        </TooltipProvider>
-      </DirectionRoot>
-    </QueryClientProvider>
-  </StrictMode>,
+// The start language's catalog first: the first render is in it.
+void i18nReady.then(() =>
+  createRoot(root).render(
+    <StrictMode>
+      <QueryClientProvider client={queryClient}>
+        <DirectionRoot>
+          <TooltipProvider>
+            <RouterProvider router={router} />
+          </TooltipProvider>
+        </DirectionRoot>
+      </QueryClientProvider>
+    </StrictMode>,
+  ),
 );

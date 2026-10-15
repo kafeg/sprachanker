@@ -122,23 +122,27 @@ const showLanguage = (language: string) => {
 };
 i18n.on("languageChanged", showLanguage);
 
-// The start language's catalog is there before the first render; one that did not load, English.
-const wish = startLanguage();
-const startCatalog = await readCatalog(wish);
-const start = startCatalog ? wish : "en";
-await i18n
-  .use(ICU)
-  .use(initReactI18next)
-  .init({
-    resources: {
-      en: { translation: en },
-      ...(startCatalog && { [start]: { translation: startCatalog } }),
-    },
-    partialBundledLanguages: true,
-    lng: start,
-    fallbackLng: "en",
-    supportedLngs: UI_LANGUAGES,
-    interpolation: { escapeValue: false },
-  });
+/** The start language's catalog loaded (English where it did not): main.tsx renders after it. A
+ *  promise, not a top-level await: an async module makes WebKit hand a lazy chunk's exports over
+ *  before they are set (`undefined` in place of a page). */
+export const i18nReady: Promise<void> = (async () => {
+  const wish = startLanguage();
+  const startCatalog = await readCatalog(wish);
+  const start = startCatalog ? wish : "en";
+  await i18n
+    .use(ICU)
+    .use(initReactI18next)
+    .init({
+      resources: {
+        en: { translation: en },
+        ...(startCatalog && { [start]: { translation: startCatalog } }),
+      },
+      partialBundledLanguages: true,
+      lng: start,
+      fallbackLng: "en",
+      supportedLngs: UI_LANGUAGES,
+      interpolation: { escapeValue: false },
+    });
+})();
 
 export default i18n;
