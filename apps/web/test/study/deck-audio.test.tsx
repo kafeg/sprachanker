@@ -9,6 +9,7 @@ const state = {
   words: 774,
   own: 0,
   read: 30,
+  other: 0,
   missing: 744,
   reader: { engine: "piper" as const, voice: "de_DE-thorsten-medium" },
   job: null,
@@ -80,6 +81,24 @@ test("nothing here reads the words' language: where to install a voice instead o
     name: "To generate it, install a voice for German in Settings → Speech",
   });
   expect(link.getAttribute("href")).toBe("/settings#speech");
+});
+
+test("the voice for words reads the deck now: the words read in another voice told apart, generated again by it", async () => {
+  const asked = server(running);
+  const clone = { engine: "qwen" as const, voice: "clone/abc123def456" };
+  const view = await renderApp(<DeckAudio scope={scope} />, {
+    data: [[["deck-audio", scope], { ...state, read: 0, other: 30, reader: clone }]],
+    path: "/review/decks",
+  });
+  expect(view.getByText("30 words read in another voice")).toBeTruthy();
+  expect(view.getByText(/^Read by Qwen3-TTS · the voice for words \(German\)/)).toBeTruthy();
+  fireEvent.click(view.getByRole("button", { name: "Generate audio" }));
+  await waitFor(() => expect(asked).toEqual([`POST /api/decks/audio {"scope":"${scope}"}`]));
+  // A deck taken: its line says so once no word is without audio.
+  const line = await renderApp(<DeckAudio scope={scope} status />, {
+    data: [[["deck-audio", scope], { ...state, read: 744, other: 30, missing: 0, reader: clone }]],
+  });
+  expect(line.container.textContent).toBe("30 words read in another voice");
 });
 
 test("a deck taken: how its audio stands, in a line — a quiet one once all were read, none when all are the deck's own", async () => {

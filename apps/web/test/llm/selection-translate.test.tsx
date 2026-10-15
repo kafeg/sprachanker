@@ -61,33 +61,68 @@ async function selected(model: { model: string | null; [key: string]: unknown })
   return view;
 }
 
-test("with a model the bar has one action, Translate: the model's card shown, said aloud, kept in Finds", async () => {
-  const asked = server(() => ({
-    target: "die Situation",
-    translation: "ситуация",
-    from: "target",
-    lang: "de",
-    audio: null,
-    added: true,
-  }));
-  const view = await selected(llm);
-  // One action: Translate reads the language learnt aloud itself.
-  expect(view.queryByText("Read aloud")).toBeNull();
-  fireEvent.click(view.getByRole("button", { name: /Translate/ }));
-  await view.findByText("Added to Finds");
-  expect(asked).toEqual([
-    `POST /api/llm/finds ${JSON.stringify({
-      text: "Situation",
-      context: "Das ist eine schwierige Situation.",
-      lang: "de",
-    })}`,
-  ]);
-  expect(view.getByText("die Situation").getAttribute("lang")).toBe("de");
-  expect(view.getByText(/— ситуация/)).toBeTruthy();
-  // Said once the device's voice is chosen (slower under a full run's load).
-  await waitFor(() => expect(said).toEqual([{ text: "die Situation", lang: "de-DE" }]), {
-    timeout: 3000,
+test("with a model the bar has one action, Translate: the card shown at once, kept in Finds; its audio made after (a spinner), then played by itself", async () => {
+  let made: (audio: string) => void = () => {};
+  const audio = new Promise<string>((resolve) => {
+    made = resolve;
   });
+  const asked = server(async (path) =>
+    path === "/api/llm/finds"
+      ? {
+          target: "die Situation",
+          translation: "ситуация",
+          from: "target",
+          lang: "de",
+          audio: null,
+          word: { deck: "finds-local-ru-de", key: "k1" },
+          added: true,
+        }
+      : path === "/api/llm/finds/audio"
+        ? { audio: await audio }
+        : {},
+  );
+  const played: string[] = [];
+  const realAudio = globalThis.Audio;
+  (globalThis as { Audio: unknown }).Audio = class {
+    onended?: () => void;
+    constructor(readonly src: string) {}
+    async play() {
+      played.push(this.src);
+      setTimeout(() => this.onended?.(), 0);
+    }
+    pause() {}
+  };
+  try {
+    const view = await selected(llm);
+    // One action: Translate reads the language learnt aloud itself.
+    expect(view.queryByText("Read aloud")).toBeNull();
+    fireEvent.click(view.getByRole("button", { name: /Translate/ }));
+    // The translation as soon as the model answered, its audio still being made.
+    await view.findByText("Added to Finds");
+    expect(view.getByText("die Situation").getAttribute("lang")).toBe("de");
+    expect(view.getByText(/— ситуация/)).toBeTruthy();
+    expect(view.getByRole("status", { name: "Audio being made" })).toBeTruthy();
+    expect(asked).toEqual([
+      `POST /api/llm/finds ${JSON.stringify({
+        text: "Situation",
+        context: "Das ist eine schwierige Situation.",
+        lang: "de",
+      })}`,
+      `POST /api/llm/finds/audio ${JSON.stringify({ deck: "finds-local-ru-de", key: "k1" })}`,
+    ]);
+    // Made: played once, by itself; the play button says it again.
+    made("/decks/finds-local-ru-de/media/find-1.wav");
+    await waitFor(() => expect(played).toHaveLength(1));
+    expect(asked).toContain("GET /decks/finds-local-ru-de/media/find-1.wav");
+    expect(said).toEqual([]);
+    await waitFor(() =>
+      expect(view.queryByRole("status", { name: "Audio being made" })).toBeNull(),
+    );
+    fireEvent.click(view.getByRole("button", { name: "Listen" }));
+    await waitFor(() => expect(played).toHaveLength(2));
+  } finally {
+    (globalThis as { Audio: unknown }).Audio = realAudio;
+  }
 });
 
 test("a word among the cards already: said so; a failure in words, with Try again", async () => {

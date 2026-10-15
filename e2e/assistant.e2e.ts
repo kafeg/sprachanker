@@ -162,6 +162,8 @@ test("words selected translated: the bar's Translate shows the card and keeps it
   // The fake model keeps the words as they are; a project before this one kept them already.
   await expect(bar.getByText("FAKE: Café")).toBeVisible();
   await expect(bar.getByText(/Added to Finds|Already in your cards/)).toBeVisible();
+  // Its audio made after (Qwen3-TTS on paper), then the play button.
+  await expect(bar.getByRole("button", { name: "Listen" })).toBeVisible();
   // Review → Decks: the learner's own deck, by its name.
   await page.goto("/review/decks");
   await expect(page.getByRole("button", { name: "Finds", exact: true })).toBeVisible();

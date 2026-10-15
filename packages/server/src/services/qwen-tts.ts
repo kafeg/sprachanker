@@ -1,10 +1,12 @@
 // Reading aloud with Qwen3-TTS on this machine: qwentts.cpp's `tts-server` (built in
 // native/qwen), run by the sidecar supervisor like whisper-server with a model — a talker and the
 // codec it shares with the others, GGUF from Hugging Face at a fixed commit, checked against their
-// sha256 — and asked for a text in a language with one of its named speakers. A reading is kept with
-// Piper's (one cache), so a text read again comes at once.
+// sha256 — and asked for a text in a language with one of its named speakers. Words are read by the
+// Base model in a voice cloned from a recording (word-voice.ts chooses it; owner, 2026-10-15): a
+// second process of its own, so reading a word never unloads the model practice is read with. A
+// reading is kept with Piper's (one cache), so a text read again comes at once.
 import { ServiceError } from "../errors.ts";
-import { sha256 } from "../security/encoding.ts";
+import { base64, sha256 } from "../security/encoding.ts";
 import {
   engineSidecar,
   keptIn,
@@ -67,6 +69,15 @@ const QWEN_MODELS: ModelFile[] = [
     sha256: "cab2cff67a0a557310febe558dc83076b28ed790e491867eb2751759f4cd89fa",
   },
 ];
+/** The Base model, which clones a voice from a recording: words read by a native voice (the named
+ *  speakers have no German one, and ran on with babble after single words). */
+const WORD_MODEL: ModelFile = {
+  id: "base",
+  file: "qwen-talker-1.7b-base-Q8_0.gguf",
+  bytes: 2_079_448_256,
+  sha256: "4b9a33a236908dd9435a42f7a396e38038329d053b704342a6413c08544c4fda",
+};
+const ALL_MODELS = [...QWEN_MODELS, WORD_MODEL];
 const MODEL_URL =
   "https://huggingface.co/Serveurperso/Qwen3-TTS-GGUF/resolve/b7ee2e8c7459c3bea99da23e3d178125a7d1713c/";
 
@@ -74,10 +85,40 @@ const MODEL_URL =
 const START_MS = 180_000;
 /** The engine stops after this long without a request (it holds about 3 GB). */
 const IDLE_MS = 10 * 60_000;
+/** The Base model reads a word now and then: let go sooner. */
+const WORDS_IDLE_MS = 3 * 60_000;
 /** A reply's piece is read in a few seconds; an engine that takes longer is stuck. */
 const SAY_MS = 120_000;
 /** Same text, same speech: sampling is seeded, so a reading kept is the one it would make again. */
 const SEED = 42;
+/** The engine's own limit of codec frames a reading makes. */
+const ENGINE_MAX_TOKENS = 2048;
+/** The codec's frames a second. */
+const FRAMES_PER_S = 12.5;
+
+/**
+ * The most codec frames a text may take: twice what it takes to say at an unhurried pace — 0.08 s a
+ * letter, 0.45 s a digit (said as a word), 0.3 s a character of the scripts whose characters are
+ * syllables or words — and 2 s more. A line is never cut; a word that runs on with babble stops after
+ * a few seconds, never half a minute (owner, 2026-10-15).
+ */
+export function maxTokens(text: string) {
+  const all = [...text].length;
+  const digits = text.match(/\p{Nd}/gu)?.length ?? 0;
+  const syllabic =
+    text.match(/[\p{Script=Han}\p{Script=Hiragana}\p{Script=Katakana}\p{Script=Hangul}]/gu)
+      ?.length ?? 0;
+  const said = 0.08 * (all - digits - syllabic) + 0.45 * digits + 0.3 * syllabic;
+  return Math.min(ENGINE_MAX_TOKENS, Math.ceil(FRAMES_PER_S * (2 + 2 * said)));
+}
+
+/** A voice cloned for words: its id (a new recording or transcript is a new voice), what the
+ *  recording says, the recording (24 kHz mono WAV). */
+export interface ClonedVoice {
+  id: string;
+  text: string;
+  wav: Uint8Array;
+}
 
 export function createQwenTts(deps: {
   host?: SpeechHost;
@@ -119,6 +160,14 @@ export function createQwenTts(deps: {
   const downloads = createModelDownloads();
   const there = (m: ModelFile) => host?.models.path(m.file, m.bytes);
   const installed = (m: ModelFile) => !!there(m) && !!there(CODEC);
+  /** The model's state as Settings shows it: its size (with the codec while that is missing too),
+   *  installed, its download. */
+  const stateOf = (m: ModelFile) => ({
+    id: m.id,
+    bytes: downloads.total(m.id) ?? m.bytes + (installed(m) || there(CODEC) ? 0 : CODEC.bytes),
+    installed: installed(m),
+    ...downloads.of(m.id),
+  });
   /** The model in use: the profile's choice when it is there, else the large one when it is there. */
   const inUse = (choice?: unknown) => {
     const ready = QWEN_MODELS.filter(installed);
@@ -138,21 +187,81 @@ export function createQwenTts(deps: {
     idleMs: IDLE_MS,
   });
   const ready = () => !!binary() && !!inUse();
+  /** The voices registered with the Base model's process running now (none after a start). */
+  let registered = new Map<string, Promise<void>>();
+  const wordEngine = engineSidecar(host, {
+    spawn: (h, _id, port) => {
+      const program = binary();
+      const talker = there(WORD_MODEL);
+      const codec = there(CODEC);
+      if (!h.qwen || !program || !talker || !codec)
+        throw new ServiceError("speech_unavailable", 409);
+      return h.qwen.spawn(program, { talker, codec }, port);
+    },
+    fetch: deps.fetch,
+    startMs: START_MS,
+    idleMs: WORDS_IDLE_MS,
+    started: () => {
+      registered = new Map();
+    },
+  });
+  /** The voice registered with the process at `url` (once a run: it forgets them when it stops). */
+  const register = (url: string, voice: ClonedVoice) => {
+    const name = voiceName(voice);
+    let done = registered.get(name);
+    if (!done) {
+      const mine = registered;
+      done = deps
+        .fetch(`${url}/v1/audio/voices`, {
+          method: "POST",
+          headers: { "content-type": "application/json" },
+          body: JSON.stringify({ name, ref_text: voice.text, wav_b64: base64(voice.wav) }),
+          signal: AbortSignal.timeout(SAY_MS),
+        })
+        .catch(() => undefined)
+        .then((res) => {
+          // The engine refused the recording: no fault of the engine, which stays loaded.
+          if (res && res.status >= 400 && res.status < 500)
+            throw new ServiceError("unsupported_audio", 422);
+          if (!res?.ok) throw new ServiceError("speech_engine_failed", 502);
+        });
+      // One that failed is asked again next time.
+      done.catch(() => mine.delete(name));
+      mine.set(name, done);
+    }
+    return done;
+  };
+  /** A text said by the process at `url` as a WAV: `body` its voice and language. */
+  const speak = async (url: string, text: string, body: object, stop?: AbortSignal) => {
+    const res = await deps
+      .fetch(`${url}/v1/audio/speech`, {
+        method: "POST",
+        headers: { "content-type": "application/json" },
+        body: JSON.stringify({
+          input: text,
+          ...body,
+          response_format: "wav",
+          seed: SEED,
+          max_new_tokens: maxTokens(text),
+        }),
+        signal: stop
+          ? AbortSignal.any([AbortSignal.timeout(SAY_MS), stop])
+          : AbortSignal.timeout(SAY_MS),
+      })
+      .catch(() => undefined);
+    if (!res?.ok) throw new ServiceError("speech_engine_failed", 502);
+    return new Uint8Array(await res.arrayBuffer());
+  };
 
   return {
     /** The engine (built or not), each model (installed, downloading, failed, the one in use with the
      *  profile's `choice`), what it speaks. */
     state(choice?: unknown) {
-      const codecMissing = there(CODEC) ? 0 : CODEC.bytes;
       return {
         engine: !!binary(),
-        models: QWEN_MODELS.map((m) => ({
-          id: m.id,
-          bytes: downloads.total(m.id) ?? m.bytes + (installed(m) ? 0 : codecMissing),
-          installed: installed(m),
-          inUse: inUse(choice)?.id === m.id,
-          ...downloads.of(m.id),
-        })),
+        models: QWEN_MODELS.map((m) => ({ ...stateOf(m), inUse: inUse(choice)?.id === m.id })),
+        /** The Base model, which reads words in a cloned voice. */
+        wordModel: stateOf(WORD_MODEL),
         languages: Object.keys(QWEN_LANGUAGES),
         speakers: [...QWEN_SPEAKERS],
         /** The speaker unless the learner picks one. */
@@ -161,9 +270,9 @@ export function createQwenTts(deps: {
     },
 
     /** Starts downloading a model with the codec when it is not there yet (once; the codec once for
-     *  both models); its progress is in `state`. */
+     *  all the models); its progress is in `state`. */
     download(id: string) {
-      const model = offered(QWEN_MODELS, id);
+      const model = offered(ALL_MODELS, id);
       if (!host) throw new ServiceError("speech_unavailable", 409);
       if (installed(model)) return;
       const withCodec = !there(CODEC);
@@ -196,11 +305,12 @@ export function createQwenTts(deps: {
     /** Removes a model (stopping a download of it, or the engine running it); the codec goes with the
      *  last one — kept while another model has its talker or is being downloaded. */
     remove(id: string) {
-      const model = offered(QWEN_MODELS, id);
+      const model = offered(ALL_MODELS, id);
       downloads.cancel(id);
       if (engine.setup() === id) engine.stop();
+      if (wordEngine.setup() === id) wordEngine.stop();
       host?.models.remove(model.file);
-      const needed = QWEN_MODELS.some((m) => m.id !== id && (!!there(m) || downloads.going(m.id)));
+      const needed = ALL_MODELS.some((m) => m.id !== id && (!!there(m) || downloads.going(m.id)));
       if (!needed) {
         codec?.controller.abort();
         host?.models.remove(CODEC.file);
@@ -211,6 +321,34 @@ export function createQwenTts(deps: {
     warm(choice?: unknown) {
       const model = inUse(choice);
       if (model && binary()) engine.warm(model.id);
+    },
+
+    /** Starts the Base model ahead of reading words (loading it takes seconds). */
+    warmWords() {
+      if (binary() && installed(WORD_MODEL)) wordEngine.warm(WORD_MODEL.id);
+    },
+
+    /** Whether words in a language can be read here in a cloned voice: the Base model there. */
+    canClone: (lang: string) => !!binary() && installed(WORD_MODEL) && lang in QWEN_LANGUAGES,
+
+    /** A WAV of a text in its one language said by the Base model in a cloned voice (registered with
+     *  its process as needed). Kept in the readings' cache unless `keep` is false. */
+    async sayCloned(
+      text: string,
+      lang: string,
+      voice: ClonedVoice,
+      { keep = true, signal }: { keep?: boolean; signal?: AbortSignal } = {},
+    ) {
+      const language = QWEN_LANGUAGES[lang];
+      if (!binary() || !installed(WORD_MODEL) || !language)
+        throw new ServiceError("speech_unavailable", 409);
+      const key = await sha256(`qwen-clone\n${voice.id}\n${language}\n${text}`);
+      const read = (stop?: AbortSignal) =>
+        wordEngine.use(WORD_MODEL.id, async (url) => {
+          await register(url, voice);
+          return speak(url, text, { voice: voiceName(voice), language }, stop);
+        });
+      return keep ? kept(key, read, signal) : read(signal);
     },
 
     /** Whether a language can be read with Qwen3-TTS here. */
@@ -241,28 +379,12 @@ export function createQwenTts(deps: {
       const speaker = speakerOf(choice);
       const key = await sha256(`qwen\n${model.id}\n${speaker}\n${language}\n${text}`);
       const read = (stop?: AbortSignal) =>
-        engine.use(model.id, async (url) => {
-          const res = await deps
-            .fetch(`${url}/v1/audio/speech`, {
-              method: "POST",
-              headers: { "content-type": "application/json" },
-              body: JSON.stringify({
-                input: text,
-                voice: speaker,
-                language,
-                response_format: "wav",
-                seed: SEED,
-              }),
-              signal: stop
-                ? AbortSignal.any([AbortSignal.timeout(SAY_MS), stop])
-                : AbortSignal.timeout(SAY_MS),
-            })
-            .catch(() => undefined);
-          if (!res?.ok) throw new ServiceError("speech_engine_failed", 502);
-          return new Uint8Array(await res.arrayBuffer());
-        });
+        engine.use(model.id, (url) => speak(url, text, { voice: speaker, language }, stop));
       return keep ? kept(key, read, signal) : read(signal);
     },
   };
 }
 export type QwenTts = ReturnType<typeof createQwenTts>;
+
+/** The name a cloned voice is registered by (the engine lowercases names). */
+const voiceName = (voice: ClonedVoice) => `words-${voice.id}`;

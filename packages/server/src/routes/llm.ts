@@ -5,6 +5,7 @@
 import { LlmError, LMSTUDIO_RECOMMENDED, PROMPT_TASKS, ProviderId } from "@sprachanker/llm";
 import {
   CHAT_ID_HEADER,
+  DeckId,
   EditionId,
   ExamItemKey,
   Lang,
@@ -84,6 +85,8 @@ const FindBody = z.object({
   context: z.string().max(600).optional(),
   lang: z.string().max(20).optional(),
 });
+/** A word of the profile's Finds, to read aloud. */
+const FindAudioBody = z.object({ deck: DeckId, key: z.string().min(1).max(100) });
 
 /** A course's practice in an edition. */
 const PracticeCourse = z.object({ series: SeriesKey, course: Slug, edition: EditionId });
@@ -233,6 +236,10 @@ export function llmRoutes() {
       // Words selected translated and kept in the learner's deck "Finds" (a card made of them).
       .post("/finds", zod("json", FindBody), async (c) =>
         c.json(await c.var.s.finds.add(c.req.valid("json"))),
+      )
+      // Its audio after: the translation is shown while it is read.
+      .post("/finds/audio", zod("json", FindAudioBody), async (c) =>
+        c.json(await c.var.s.finds.audio(c.req.valid("json"))),
       )
       .get("/models", zod("query", z.object({ provider: ProviderId })), async (c) =>
         c.json(await c.var.s.llm.models(c.req.valid("query").provider, c.req.raw.signal)),

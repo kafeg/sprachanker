@@ -13,6 +13,9 @@ import type { DeckExtrasStore, DeckJobSpec, DeckNote } from "./deck-extras.ts";
 export interface DeckReader {
   engine: DeckReadAudio["engine"];
   voice: string;
+  /** Its readings alone count: a word read by another engine or voice is read again (the voice for
+   *  words, which replaces them). */
+  sole?: boolean;
   read(text: string): Promise<Uint8Array>;
 }
 
@@ -68,15 +71,19 @@ export function createDeckAudio(deps: {
 }) {
   const { extras } = deps;
 
-  /** A headword's reading while it is of that text and its file is there. */
-  const readingOf = (folder: string, key: string, text: string) =>
+  /** A headword's reading while it is of that text and its file is there — made by `reader` when
+   *  only its own readings count. */
+  const readingOf = (folder: string, key: string, text: string, reader?: DeckReader) =>
     readingsOf(extras.book(folder).words[key]).find(
-      (r) => r.text === text && extras.has(folder, r.path),
+      (r) =>
+        r.text === text &&
+        extras.has(folder, r.path) &&
+        (!reader?.sole || (r.engine === reader.engine && r.voice === reader.voice)),
     );
 
-  /** A word read: every headword of it to read has its reading. */
-  const isRead = (folder: string, w: Word) =>
-    toRead(w).every((text) => readingOf(folder, w.key, text));
+  /** A word read (as `reader` counts it): every headword of it to read has its reading. */
+  const isRead = (folder: string, w: Word, reader?: DeckReader) =>
+    toRead(w).every((text) => readingOf(folder, w.key, text, reader));
 
   /** Reads one headword into the deck's folder (a file read before with this engine, voice and text
    *  is taken as it is); the word's readings of texts it is no longer given as go, their files too
@@ -127,7 +134,8 @@ export function createDeckAudio(deps: {
       return audio && `${folder}/${audio.path}`;
     },
 
-    /** A deck's words (taken or not) — with audio of their own, read aloud, without (a word with a
+    /** A deck's words (taken or not) — with audio of their own, read aloud, read by another voice
+     *  than the one that alone counts now (`other`: read again by it), without (a word with a
      *  headword neither has) — the engine that would read them (none: nothing here reads their
      *  language) and the deck's job, running or the latest. */
     async state(
@@ -139,14 +147,19 @@ export function createDeckAudio(deps: {
       const words = wordsOf(notes);
       const lang = notes[0]?.lang ?? "";
       const own = words.filter((w) => !toRead(w).length).length;
-      const read = words.filter((w) => toRead(w).length && isRead(folder, w)).length;
       const reader = lang ? readerOf(lang) : undefined;
+      const read = words.filter((w) => toRead(w).length && isRead(folder, w, reader)).length;
+      // Read, but by another voice than the one that reads alone now: read again by it.
+      const other = words.filter(
+        (w) => toRead(w).length && !isRead(folder, w, reader) && isRead(folder, w),
+      ).length;
       return {
         lang,
         words: words.length,
         own,
         read,
-        missing: words.length - own - read,
+        other,
+        missing: words.length - own - read - other,
         reader: reader ? { engine: reader.engine, voice: reader.voice } : null,
         job: extras.job("audio", folder),
       };
@@ -168,7 +181,7 @@ export function createDeckAudio(deps: {
       const steps = wordsOf(notes).flatMap((w) => {
         const keep = toRead(w);
         return keep
-          .filter((text) => !readingOf(folder, w.key, text))
+          .filter((text) => !readingOf(folder, w.key, text, reader))
           .map((text): Step[] => [{ key: w.key, text, keep }]);
       });
       extras.start("audio", folder, {

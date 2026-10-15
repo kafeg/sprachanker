@@ -27,6 +27,16 @@ export interface ModelStore {
   remove(file: string): void;
 }
 
+/** The voices words are read with (Qwen3-TTS's Base model clones them), one per language, in
+ *  <data-root>/models/word-voices: a recording as WAV, named by its id, and what is known of it (its
+ *  id, what it says, where it was taken from — read by its schema where it is used), written last:
+ *  what is known always names a recording written whole. */
+export interface VoiceStore {
+  get(lang: string): { wav: Uint8Array<ArrayBuffer>; about: unknown } | undefined;
+  /** Kept for the language, in place of the one there was. */
+  put(lang: string, voice: { id: string; wav: Uint8Array; about: unknown }): void;
+}
+
 /** An engine built in native/ and run on a local port with its model files. */
 interface LocalEngine<Files> {
   /** Its program, if it was built. */
@@ -40,6 +50,8 @@ export interface SpeechHost {
   /** A free port on 127.0.0.1. */
   freePort(): Promise<number>;
   models: ModelStore;
+  /** The voices taken for words (none: no voice for words is kept here). */
+  wordVoices?: VoiceStore;
   whisper?: LocalEngine<{ model: string }>;
   qwen?: LocalEngine<{ talker: string; codec: string }>;
 }
@@ -83,6 +95,7 @@ export function engineSidecar(
     fetch: typeof fetch;
     startMs: number;
     idleMs: number;
+    started?(url: string): void;
   },
 ) {
   const unavailable = () => new ServiceError("speech_unavailable", 409);
@@ -96,5 +109,6 @@ export function engineSidecar(
     failed: "speech_engine_failed" satisfies ErrorCode,
     startMs: options.startMs,
     idleMs: options.idleMs,
+    started: options.started,
   });
 }

@@ -1,5 +1,6 @@
 // A deck's words read aloud. Under a deck to take, all its words, taken or
-// not: how many have audio, "Generate audio" — read by the server's engine and kept, so its cards play
+// not: how many have audio — and how many were read in another voice than the one that reads them now
+// (the voice for words: generated again by it) —, "Generate audio" — read by the server's engine and kept, so its cards play
 // it on any device —, the audio generated removed or generated again (asked first), the engine and
 // voice that read (and where to choose another), its progress with Stop while it reads, why it failed,
 // or where to install a voice when nothing here reads the words' language. Under a deck taken, its
@@ -42,9 +43,11 @@ export function DeckAudio({
       ? t("decks.audio.reading", { done: running.done, total: running.total })
       : s.missing
         ? t("decks.audio.missing", { count: s.missing })
-        : s.read
-          ? t("decks.audio.all")
-          : null;
+        : s.other
+          ? t("decks.audio.otherVoice", { count: s.other })
+          : s.read
+            ? t("decks.audio.all")
+            : null;
     return line ? <p className={cn("text-sm text-muted-foreground", className)}>{line}</p> : null;
   }
   return <DeckAudioActions scope={scope} title={title ?? ""} state={s} className={className} />;
@@ -90,7 +93,12 @@ function DeckAudioActions({
           <span className="text-muted-foreground">
             {t("decks.audio.count", { done: s.own + s.read, total: s.words })}
           </span>
-          {s.reader && s.missing > 0 && (
+          {s.other > 0 && (
+            <span className="text-muted-foreground">
+              {t("decks.audio.otherVoice", { count: s.other })}
+            </span>
+          )}
+          {s.reader && s.missing + s.other > 0 && (
             <Button
               variant="outline"
               size="sm"
@@ -100,7 +108,7 @@ function DeckAudioActions({
               <Volume2 className="size-3.5" /> {t("decks.audio.generate")}
             </Button>
           )}
-          {s.reader && s.read > 0 && (
+          {s.reader && s.read + s.other > 0 && (
             <ConfirmButton
               title={t("decks.audio.regenerateTitle", { deck: title })}
               description={t("decks.audio.regenerateBody")}
@@ -112,7 +120,7 @@ function DeckAudioActions({
               <RefreshCw className="size-3.5" /> {t("decks.audio.regenerate")}
             </ConfirmButton>
           )}
-          {s.read > 0 && (
+          {s.read + s.other > 0 && (
             <ConfirmButton
               title={t("decks.audio.removeTitle", { deck: title })}
               description={t("decks.audio.removeBody")}
@@ -125,13 +133,15 @@ function DeckAudioActions({
             </ConfirmButton>
           )}
           {s.reader
-            ? (s.missing > 0 || s.read > 0) && (
+            ? s.missing + s.read + s.other > 0 && (
                 <span className="text-muted-foreground">
-                  {t("decks.audio.voice", {
-                    engine: s.reader.engine,
-                    voice: voiceName(s.reader.engine, s.reader.voice),
-                    language,
-                  })}{" "}
+                  {s.reader.voice.startsWith("clone/")
+                    ? t("decks.audio.voiceWords", { language })
+                    : t("decks.audio.voice", {
+                        engine: s.reader.engine,
+                        voice: voiceName(s.reader.engine, s.reader.voice),
+                        language,
+                      })}{" "}
                   <Link to="/settings" hash="speech" className={LINK}>
                     {t("decks.audio.chooseVoice")}
                   </Link>

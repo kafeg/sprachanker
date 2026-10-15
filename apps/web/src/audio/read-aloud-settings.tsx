@@ -1,11 +1,12 @@
 // Settings → Speech → Read aloud: Qwen3-TTS on this computer alone (owner, 2026-10-14) — its state,
-// its models and each language's speaker (qwen-voices). Where it cannot read a language, the device's
-// voices read without a choice here.
+// its models and each language's speaker (qwen-voices), and the voice for words (word-voice). Where it
+// cannot read a language, the device's voices read without a choice here.
 import { useTranslation } from "react-i18next";
 import { useQwenTts } from "@/api/speech.ts";
 import { Panel } from "@/ui/panel.tsx";
 import { QwenVoices } from "./qwen-voices.tsx";
 import { useReadLanguages } from "./read-languages.ts";
+import { WordVoices } from "./word-voice.tsx";
 
 export function ReadAloud() {
   const { t } = useTranslation();
@@ -25,6 +26,7 @@ export function ReadAloud() {
           </p>
         )}
         {qwen?.engine && <QwenVoices state={qwen} langs={langs} />}
+        {qwen?.engine && <WordVoices state={qwen} langs={langs} />}
       </div>
     </Panel>
   );

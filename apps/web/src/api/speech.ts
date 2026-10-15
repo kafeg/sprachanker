@@ -1,5 +1,6 @@
-// Speech on the server: recognition and its models, Piper's voices, Qwen3-TTS, a text said, a
-// recording heard.
+// Speech on the server: recognition and its models, Piper's voices, Qwen3-TTS (with the voice for
+// words: the recordings it can be taken from, one sent), a text said, a recording heard.
+import type { Lang } from "@sprachanker/schema";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { api, apiError, json, sendBinary } from "./client.ts";
 
@@ -53,31 +54,61 @@ export const [usePiperVoices] = downloadable(
   },
 );
 
-/** Qwen3-TTS on the server: the engine (built or not), its models, the languages it speaks and its
- *  speakers. */
+/** Qwen3-TTS on the server: the engine (built or not), its models — the Base model for words among
+ *  them —, the languages it speaks, its speakers, each language's voice for words. */
+const getQwen = () => json(api.speech.qwen.$get());
+export type QwenState = Awaited<ReturnType<typeof getQwen>>;
 export const [useQwenTts, useQwenModelActions] = downloadable(
   "qwen-tts",
-  () => json(api.speech.qwen.$get()),
-  (s) => s.models,
+  getQwen,
+  (s) => [...s.models, s.wordModel],
   {
     download: (id) => json(api.speech.qwen.models[":id"].$post({ param: { id } })),
     remove: (id) => json(api.speech.qwen.models[":id"].$delete({ param: { id } })),
   },
 );
 
+/** A course's recording the voice for words of a language can be taken from, with what it says. */
+export type WordCandidate = { series: string; path: string; text: string };
+
+/** The courses' recordings the voice for words of `lang` can be taken from, in the server's order. */
+export const useWordCandidates = (lang: string, enabled = true) =>
+  useQuery({
+    queryKey: ["word-candidates", lang],
+    queryFn: async () =>
+      (await json(api.speech.words[":lang"].candidates.$get({ param: { lang: lang as Lang } })))
+        .candidates,
+    enabled,
+  });
+
+/** A course's recording taken as the voice for words of `lang` (sent as 24 kHz WAV); Qwen3-TTS's
+ *  state after. */
+export const sendWordVoice = (
+  lang: string,
+  recording: WordCandidate,
+  wav: Uint8Array<ArrayBuffer>,
+) =>
+  sendBinary<QwenState>(
+    `/api/speech/words/${lang}?${new URLSearchParams({ series: recording.series, path: recording.path })}`,
+    wav,
+    "audio/wav",
+  );
+
 /** Starts Qwen3-TTS ahead of reading (loading its model takes seconds). */
 export const warmQwen = () => api.speech.qwen.warm.$post().catch(() => {});
 
-/** A text said by the server's voice for its language, as a WAV (the profile's voice and speed). */
+/** A text said by the server's voice for its language, as a WAV (the profile's voice and speed; a
+ *  word or phrase, `use: "words"`: the voice for words where there is one). */
 export async function sayOnServer(
   text: string,
   lang: string,
-  options: { voice?: string; signal?: AbortSignal } = {},
+  options: { voice?: string; use?: "words"; signal?: AbortSignal } = {},
 ): Promise<Blob> {
   const json = {
     text,
     lang,
     ...(options.voice && { voice: options.voice }),
+    ...(options.use && { use: options.use }),
   };
   const res = await api.speech.say.$post({ json }, { init: { signal: options.signal } });
   if (!res.ok) throw await apiError(res);

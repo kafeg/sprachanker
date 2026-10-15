@@ -1,6 +1,7 @@
 // Reading aloud: one text at a time, each part with the profile's engine — Piper on the server
 // when it has a voice for the part's language, else the device's voices (Web Speech API) — the voice
-// chosen for each language in the profile, else the best one there, at the profile's reading speed; a
+// chosen for each language in the profile, else the best one there, at the profile's reading speed (a
+// word or phrase marked `words`: the server's voice for words of its language where there is one); a
 // part marked `alt` (a dialogue's second speaker) by another voice of its language where there is one —
 // of the other gender where the server's voices say theirs. What starts playing (a recording, a video)
 // stops it, and it stops what plays; which text is being read is shared by every speaker button, so
@@ -24,12 +25,14 @@ const pieces = readingPieces;
 
 /** How a piece is read: with a device voice (none: the browser's for its language), or by the server. */
 type Device = { device: SpeechSynthesisVoice | undefined; rate: number };
-/** By the server (a Piper voice); `fallback`: the device's way, when the server cannot say it. */
-type Way = Device | { server: { voice?: string }; fallback?: Device };
+/** By the server (a voice named, or the voice for words); `fallback`: the device's way, when the
+ *  server cannot say it. */
+type Server = { voice?: string; use?: "words" };
+type Way = Device | { server: Server; fallback?: Device };
 interface ReadOptions {
-  /** How a language is read, by its voice, (`alt`) another one or (`voice`) a server's voice named
-   *  (undefined: it cannot be). */
-  wayFor(lang: string, alt?: Alt, voice?: string): Way | undefined;
+  /** How a language is read, by its voice, (`alt`) another one, (`voice`) a server's voice named or
+   *  (`words`) the voice for words (undefined: it cannot be). */
+  wayFor(lang: string, alt?: Alt, voice?: string, words?: boolean): Way | undefined;
 }
 
 /** What is being read, for the buttons; and the run reading it — a new run, even of the same text,
@@ -69,19 +72,20 @@ let asking: Promise<unknown> = Promise.resolve();
 /** The part the pieces asked for ahead begin with: a reading of it goes on with them (a text listened
  *  to line by line); any other reading interrupts them. */
 let aheadFrom: SpokenPart | undefined;
-const aheadKey = (text: string, lang: string, voice?: string) => `${lang}\n${voice ?? ""}\n${text}`;
+const aheadKey = (text: string, lang: string, server: Server) =>
+  `${lang}\n${server.voice ?? server.use ?? ""}\n${text}`;
 /** The next AHEAD of the server's pieces of `parts` asked for one after another, so each is ready when
  *  its turn comes; pieces asked before and no longer among them are let go. */
 function prepare(parts: SpokenPart[], options: ReadOptions) {
   const next = parts
-    .flatMap(({ text, lang, alt, voice }) => {
-      const way = options.wayFor(lang, alt, voice);
+    .flatMap(({ text, lang, alt, voice, words }) => {
+      const way = options.wayFor(lang, alt, voice, words);
       return way && "server" in way
         ? pieces(text).map((piece) => ({ piece, lang, server: way.server }))
         : [];
     })
     .slice(0, AHEAD);
-  const keys = next.map((p) => aheadKey(p.piece, p.lang, p.server.voice));
+  const keys = next.map((p) => aheadKey(p.piece, p.lang, p.server));
   aheadFrom = parts[0];
   letGoAhead(keys);
   next.forEach(({ piece, lang, server }, i) => {
@@ -168,8 +172,9 @@ export async function read(
       alt,
       voice,
       src,
+      words,
     }): Array<{ text: string; lang: string; way: Way | { recording: string; instead?: Way } }> => {
-      const way = options.wayFor(lang, alt, voice);
+      const way = options.wayFor(lang, alt, voice, words);
       // A recording, read by a voice instead where it cannot be had.
       if (src) return [{ text, lang, way: { recording: src, ...(way && { instead: way }) } }];
       return way ? pieces(text).map((piece) => ({ text: piece, lang, way })) : [];
@@ -180,9 +185,7 @@ export async function read(
   // what was asked for ahead goes, but its own pieces.
   if (parts[0] !== aheadFrom)
     letGoAhead(
-      queue.flatMap((p) =>
-        "server" in p.way ? [aheadKey(p.text, p.lang, p.way.server.voice)] : [],
-      ),
+      queue.flatMap((p) => ("server" in p.way ? [aheadKey(p.text, p.lang, p.way.server)] : [])),
     );
   const controller = new AbortController();
   let stopNow = () => {};
@@ -204,7 +207,7 @@ export async function read(
   const fetchAt = (i: number) => {
     const piece = queue[i];
     if (!piece || !("server" in piece.way) || fetched.has(i)) return;
-    const key = aheadKey(piece.text, piece.lang, piece.way.server.voice);
+    const key = aheadKey(piece.text, piece.lang, piece.way.server);
     const prepared = ahead.get(key);
     ahead.delete(key);
     // Taken by this reading: stopped with it.
@@ -340,7 +343,8 @@ export function useSpeaker() {
   const chosen = useSetting("speech.voices");
   const rate = useSetting("speech.readRate");
   const piperQuery = usePiperVoices(engine === "piper");
-  const qwenQuery = useQwenTts(engine === "qwen");
+  // Asked whatever the engine: the voice for words reads words for every engine.
+  const qwenQuery = useQwenTts();
   const piper = piperQuery.data;
   const qwen = qwenQuery.data;
   // Qwen3-TTS takes seconds to load: started as soon as something here may read with it.
@@ -366,6 +370,10 @@ export function useSpeaker() {
       : engine === "qwen" && qwen?.engine && qwen.models.some((m) => m.installed)
         ? qwen.languages
         : [],
+  );
+  /** Languages the server's voice for words reads (the Base model there, a voice taken). */
+  const wordLangs = new Set(
+    qwen?.engine && qwen.wordModel?.installed ? Object.keys(qwen.words ?? {}) : [],
   );
   /** The server's voice of a language: the profile's while it is there, else Piper's best or
    *  Qwen3-TTS's default speaker; `alt`: another of the language when there is one. */
@@ -396,7 +404,7 @@ export function useSpeaker() {
     }
     return undefined;
   };
-  const wayFor = (lang: string, alt?: Alt, named?: string): Way | undefined => {
+  const wayFor = (lang: string, alt?: Alt, named?: string, words?: boolean): Way | undefined => {
     const main = deviceVoice(voices, chosen?.device, lang);
     const device = voices.some((v) => speaks(voiceInfo(v), lang))
       ? {
@@ -412,6 +420,8 @@ export function useSpeaker() {
           rate,
         }
       : undefined;
+    if (words && !alt && !named && wordLangs.has(lang))
+      return { server: { use: "words" }, fallback: device };
     if (!serverLangs.has(lang)) return device;
     if (named)
       return { server: named === serverVoice(lang) ? {} : { voice: named }, fallback: device };

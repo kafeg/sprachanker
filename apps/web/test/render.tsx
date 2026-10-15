@@ -35,6 +35,8 @@ export function queryClient(
     languages: [],
     speakers: [],
     defaultSpeaker: "ryan",
+    wordModel: { id: "base", bytes: 2079448256, installed: false },
+    words: {},
   });
   for (const [key, value] of data) client.setQueryData(key, value);
   for (const [queryKey, error] of failed)

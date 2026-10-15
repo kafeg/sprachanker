@@ -40,14 +40,21 @@ export function piper(
 }
 
 /** A machine with Qwen3-TTS on paper: model files "there" by name, the engine a local HTTP server
- *  that answers its health check and says what it is asked as bytes — or what `say` makes of it (a
- *  WAV). */
+ *  that answers its health check, keeps the voices registered with it (`registered`, by the talker
+ *  that took them) and says what it is asked as bytes — or what `say` makes of it (a WAV); the voices
+ *  for words kept in memory (`kept`); `exitAll` ends the engine's processes. */
 export function qwen(
   files: string[] = [],
   say: (text: string) => Uint8Array = (text) => new TextEncoder().encode(text),
 ) {
   const asked: Array<Record<string, unknown>> = [];
+  const registered: Array<Record<string, unknown> & { talker: string }> = [];
+  const kept = new Map<string, { wav: Uint8Array<ArrayBuffer>; about: unknown }>();
   const talkers: string[] = [];
+  /** What a voice registered is answered with (a test sets 400: the engine refuses it). */
+  const voices = { status: 200 };
+  /** The processes running: each ended by its function (as one that exits). */
+  const running: Array<() => void> = [];
   let spawned = 0;
   const host: SpeechHost = {
     qwen: {
@@ -59,13 +66,27 @@ export function qwen(
         const server = Bun.serve({
           port,
           async fetch(req) {
-            if (new URL(req.url).pathname === "/health") return Response.json({ status: "ok" });
+            const path = new URL(req.url).pathname;
+            if (path === "/health") return Response.json({ status: "ok" });
             const body = (await req.json()) as Record<string, unknown>;
-            asked.push(body);
+            if (path === "/v1/audio/voices") {
+              registered.push({ ...body, talker });
+              return Response.json({ ok: voices.status === 200 }, { status: voices.status });
+            }
+            asked.push({ ...body, talker });
             return new Response(say(String(body.input)));
           },
         });
-        return { exited: new Promise<number>(() => {}), kill: () => void server.stop(true) };
+        let exit = (_code: number) => {};
+        const exited = new Promise<number>((resolve) => {
+          exit = resolve;
+        });
+        const end = () => {
+          void server.stop(true);
+          exit(0);
+        };
+        running.push(end);
+        return { exited, kill: end };
       },
     },
     freePort: async () => {
@@ -83,6 +104,14 @@ export function qwen(
         files.splice(files.indexOf(file), 1);
       },
     },
+    wordVoices: {
+      get: (lang) => kept.get(lang),
+      put: (lang, { wav, about }) => void kept.set(lang, { wav: new Uint8Array(wav), about }),
+    },
   };
-  return { host, asked, files, talkers, spawned: () => spawned };
+  /** Every engine process exits (a crash, or its idle stop). */
+  const exitAll = () => {
+    for (const end of running.splice(0)) end();
+  };
+  return { host, asked, registered, kept, files, talkers, exitAll, voices, spawned: () => spawned };
 }

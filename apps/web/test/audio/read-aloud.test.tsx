@@ -297,6 +297,8 @@ test("Settings: Qwen3-TTS alone — its models (the one in use), each language's
           languages: ["de", "en", "ru"],
           speakers: ["ryan", "serena"],
           defaultSpeaker: "ryan",
+          wordModel: { id: "base", bytes: 2079e6, installed: false },
+          words: {},
         },
       ],
     ],

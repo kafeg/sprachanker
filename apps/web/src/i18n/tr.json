@@ -1087,7 +1087,9 @@
       "install": "Ses oluşturmak için Ayarlar → Konuşma bölümünden {language} için bir ses yükle",
       "failed": "{count, plural, one {# kelime seslendirilemedi} other {# kelime seslendirilemedi}}",
       "voice": "Seslendiren: {engine, select, qwen {Qwen3-TTS} other {Piper}} · {voice} ({language})",
-      "chooseVoice": "Bir ses seç"
+      "chooseVoice": "Bir ses seç",
+      "voiceWords": "Qwen3-TTS okudu · kelimeler için ses ({language})",
+      "otherVoice": "{count, plural, one {# kelime başka bir sesle okundu} other {# kelime başka bir sesle okundu}}"
     },
     "why": "Neden: {reason}",
     "examples": {
@@ -1279,7 +1281,15 @@
       "howMic": "Cevabın sözlü verildiği yerlerde (bir sınavın konuşma bölümü) bir mikrofon vardır: kayda başlamak için dokun, durdurmak için yeniden dokun. Görevin yazılı olduğu yerlerde mikrofon yoktur.",
       "howPhrase": "Tekrar edilecek cümle ilk denemene kadar gizlidir; daha önce de gösterebilirsin.",
       "howRecordings": "Kayıtların, Defter’de yeniden dinleyebilmen için bu bilgisayarda saklanır; onları Genel → Depolama bölümünden silebilirsin.",
-      "how": "Nasıl çalışır?"
+      "how": "Nasıl çalışır?",
+      "words": {
+        "title": "Kelimeler için ses",
+        "hint": "Kelimeleri — bir destedekileri, Bulduklarım’da tutulanları ve seçtiklerini — ayrı bir temel model, o dildeki bir kursun kaydından alınan anadili konuşucusu sesiyle okur. Yukarıdaki modelin yanında çalışır ve okurken yaklaşık 3 GB daha bellek kullanır.",
+        "model": "Temel model (1.7B): kelimeler için anadili sesi",
+        "taking": "Ses bir kurs kaydından alınıyor…",
+        "none": "Burada bu dilde ({language}) ses alınacak bir kurs yok.",
+        "another": "Başka bir kayıt"
+      }
     },
     "listening": "Dinleniyor…",
     "heardLater": "Henüz tanınmadı — kaydın saklandı; duyulan birazdan gelecek.",
@@ -1747,6 +1757,8 @@
     "speak": "Sesli oku",
     "translate": "Çevir",
     "added": "Bulduklarım’a eklendi",
-    "had": "Zaten kartlarında var"
+    "had": "Zaten kartlarında var",
+    "audioMaking": "Ses hazırlanıyor",
+    "listen": "Dinle"
   }
 }

@@ -1,7 +1,10 @@
 // A take as the recogniser wants it: 16 kHz, mono, 16-bit PCM WAV, made in the browser (decoded
-// and resampled with WebAudio) so the server needs no converter.
+// and resampled with WebAudio) so the server needs no converter; a course's recording as the voice for
+// words is taken from (24 kHz, its silence at either end cut).
 
 const RATE = 16_000;
+/** What Qwen3-TTS clones a voice from. */
+const VOICE_RATE = 24_000;
 
 /** PCM samples (-1…1) as a WAV file. */
 export function encodeWav(samples: Float32Array, rate = RATE): Uint8Array<ArrayBuffer> {
@@ -29,19 +32,43 @@ export function encodeWav(samples: Float32Array, rate = RATE): Uint8Array<ArrayB
   return new Uint8Array(out.buffer);
 }
 
-/** A recording, decoded and resampled to 16 kHz mono, as WAV. */
-export async function toWav16k(blob: Blob): Promise<Uint8Array<ArrayBuffer>> {
+/** A recording decoded and resampled to `rate`, mono. */
+async function decode(blob: Blob, rate: number): Promise<Float32Array> {
   // Decoded offline: no audio device is opened (a realtime context may fail to start, and a page
   // may hold only a few).
-  const decoded = await new OfflineAudioContext(1, 1, RATE).decodeAudioData(
+  const decoded = await new OfflineAudioContext(1, 1, rate).decodeAudioData(
     await blob.arrayBuffer(),
   );
-  const length = Math.max(1, Math.ceil(decoded.duration * RATE));
-  const offline = new OfflineAudioContext(1, length, RATE);
+  const length = Math.max(1, Math.ceil(decoded.duration * rate));
+  const offline = new OfflineAudioContext(1, length, rate);
   const source = offline.createBufferSource();
   source.buffer = decoded;
   source.connect(offline.destination);
   source.start();
   const rendered = await offline.startRendering();
-  return encodeWav(rendered.getChannelData(0));
+  return rendered.getChannelData(0);
 }
+
+/** A recording, decoded and resampled to 16 kHz mono, as WAV. */
+export const toWav16k = async (blob: Blob) => encodeWav(await decode(blob, RATE));
+
+/** Below this a sample is silence (about -40 dB). */
+const QUIET = 0.01;
+/** Kept of the silence on either side of the speech. */
+const MARGIN_S = 0.15;
+
+/** The samples without the silence at either end (a course's recording pauses after the sentence
+ *  for the learner to repeat it), a little of it kept; all of them when nothing is louder. */
+export function trimSilence(samples: Float32Array, rate: number): Float32Array {
+  let start = 0;
+  let end = samples.length;
+  while (start < end && Math.abs(samples[start] ?? 0) < QUIET) start++;
+  while (end > start && Math.abs(samples[end - 1] ?? 0) < QUIET) end--;
+  if (start >= end) return samples;
+  const margin = Math.round(MARGIN_S * rate);
+  return samples.subarray(Math.max(0, start - margin), Math.min(samples.length, end + margin));
+}
+
+/** A course's recording as the voice for words is taken from: 24 kHz mono WAV, its silence cut. */
+export const toVoiceWav = async (blob: Blob) =>
+  encodeWav(trimSilence(await decode(blob, VOICE_RATE), VOICE_RATE), VOICE_RATE);

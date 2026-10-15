@@ -1087,7 +1087,9 @@
       "install": "Aby je wygenerować, zainstaluj w Ustawieniach → Mowa głos dla języka: {language}",
       "failed": "{count, plural, one {Nie udało się odczytać # słowa} few {Nie udało się odczytać # słów} many {Nie udało się odczytać # słów} other {Nie udało się odczytać # słowa}}",
       "voice": "Czyta {engine, select, qwen {Qwen3-TTS} other {Piper}} · {voice} ({language})",
-      "chooseVoice": "Wybierz głos"
+      "chooseVoice": "Wybierz głos",
+      "voiceWords": "Czyta Qwen3-TTS · głos do słów ({language})",
+      "otherVoice": "{count, plural, one {# słowo przeczytane innym głosem} few {# słowa przeczytane innym głosem} many {# słów przeczytanych innym głosem} other {# słowa przeczytanego innym głosem}}"
     },
     "why": "Przyczyna: {reason}",
     "examples": {
@@ -1279,7 +1281,15 @@
       "howMic": "Tam, gdzie odpowiedź jest ustna (część ustna egzaminu), jest mikrofon: stuknij, by zacząć nagrywanie, stuknij ponownie, by zatrzymać. Tam, gdzie zadanie jest pisemne, go nie ma.",
       "howPhrase": "Zdanie do powtórzenia jest ukryte do pierwszej próby; możesz je pokazać wcześniej.",
       "howRecordings": "Twoje nagrania są przechowywane na tym komputerze, by można było ich posłuchać w Zeszycie; usuniesz je w Ustawieniach → Ogólne → Dane.",
-      "how": "Jak to działa"
+      "how": "Jak to działa",
+      "words": {
+        "title": "Głos do słów",
+        "hint": "Słowa — z talii, zachowane w „Znaleziskach” i te, które zaznaczysz — czyta osobny model bazowy głosem rodzimego użytkownika języka, wziętym z nagrania kursu w tym języku. Działa obok modelu powyżej i podczas czytania zajmuje około 3 GB pamięci więcej.",
+        "model": "Model bazowy (1.7B): rodzimy głos do słów",
+        "taking": "Głos jest brany z nagrania kursu…",
+        "none": "Nie ma tu kursu w tym języku ({language}), z którego można wziąć głos.",
+        "another": "Inne nagranie"
+      }
     },
     "listening": "Słucham…",
     "heardLater": "Jeszcze nie rozpoznano — twoje nagranie jest zapisane; to, co usłyszano, pojawi się za chwilę.",
@@ -1747,6 +1757,8 @@
     "speak": "Przeczytaj",
     "translate": "Przetłumacz",
     "added": "Dodano do „Znalezisk”",
-    "had": "Już jest w twoich fiszkach"
+    "had": "Już jest w twoich fiszkach",
+    "audioMaking": "Dźwięk jest przygotowywany",
+    "listen": "Posłuchaj"
   }
 }

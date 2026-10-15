@@ -102,7 +102,7 @@ area is built is in its `CLAUDE.md`; work not built yet is in `docs/plan.md`.
 - The app has no LLM runtime of its own and stores no models. Local models run in LM Studio; cloud models use the user's key or a CLI subscription.
 - One route (provider and model) per profile serves every task. Per-task routes are deferred on purpose.
 - Command-line agents run in an empty folder with no tools, MCP, settings or saved session, so only the lesson context leaves the machine. Codex's sandbox can still read files, so recommend Claude Code where that matters.
-- CLI effort is `low` only for short checks. Teaching replies and conversations keep the default, because low effort made replies drift (owner, 2026-10-12, a Sonnet walkthrough). The checks of Writing and Speaking (monologue, role-play) run without thinking: the learner waits for them, and Claude spent two thirds of their 30 s thinking; without it 13 s, the corrections alike on six texts (owner, 2026-10-15).
+- CLI effort is `low` only for short checks. Teaching replies and conversations keep the default, because low effort made replies drift (owner, 2026-10-12, a Sonnet walkthrough). The checks of Writing and Speaking (monologue, role-play) run without thinking: the learner waits for them, and Claude spent two thirds of their 30 s thinking; without it 13 s, the corrections alike on six texts (owner, 2026-10-15). So does the selection bar's Translate, which the learner waits for too (owner, 2026-10-15).
 - An API key never reaches another origin: requests follow no redirect, and an endpoint URL with a login in it is refused (the key goes in the sealed key field).
 - Tasks that answer the learner live (explanations, tutor, turns) ask for no reasoning phase, because speed matters more there. Gemini is the exception, since it refuses this.
 - If a provider may use what is sent (Gemini's free tier), its settings card says so. User data goes only to providers the user configured.
@@ -143,6 +143,7 @@ area is built is in its `CLAUDE.md`; work not built yet is in `docs/plan.md`.
 - Each person in a generated text gets a server voice of their gender (and age where known), at random, no voice twice (owner, 2026-10-12: same voices, women read by men).
 - Read engines (owner, 2026-10-08/09): Piper and Qwen3-TTS run by us like Whisper; the device's voices read what neither can.
 - Settings offer Qwen3-TTS alone, the default engine (owner, 2026-10-14: the others come nowhere near it). Where it cannot read a language — not downloaded, a language it lacks — the device's voices read, with no choice in Settings. The setting keeps its other values (device, Piper) without a place in Settings.
+- Words — a deck's words read aloud, Finds, words selected — are read by Qwen3-TTS's Base model in a native voice cloned from a recording of an installed course in their language (one speaker's sentence, its exact text from the course), in a process of its own beside practice's model; AI practice keeps the named speakers. Measured on 20 German words: the default speaker got 8 right and ran on with babble for up to 33 s on 11; the cloned voice 20 of 20. Piper is no answer (owner, 2026-10-15). Every Qwen3-TTS reading is capped in proportion to its text. The recording stays in the data root, never in the repository.
 
 ## Review
 
@@ -224,7 +225,7 @@ area is built is in its `CLAUDE.md`; work not built yet is in `docs/plan.md`.
 
 ## Interface
 
-- Words selected anywhere in the app get a small bar by them (owner, 2026-10-15). With an AI model it has one action, Translate: whichever language the words are in, the language learnt is said aloud and the other shown, and the words become a card of the learner's own deck "Finds" by themselves (both faces, their sentence as context; no separate "add" button). Without a model the bar only reads the language learnt aloud. No speaker button on each option: an option's words are selectable instead (a click that selects words chooses nothing).
+- Words selected anywhere in the app get a small bar by them (owner, 2026-10-15). With an AI model it has one action, Translate: whichever language the words are in, the language learnt is said aloud and the other shown, and the words become a card of the learner's own deck "Finds" by themselves (both faces, their sentence as context; no separate "add" button). The translation shows as soon as the model answers; the words' audio is made after and plays by itself once there (owner, 2026-10-15). Without a model the bar only reads the language learnt aloud. No speaker button on each option: an option's words are selectable instead (a click that selects words chooses nothing).
 - Every deck is exported and imported on its own, as one kind of file: a course's words, an imported deck, Finds — each with what was made for its words (audio, examples) (owner, 2026-10-15).
 - A calm study tool: content first, large readable target-language text, motion only where it informs.
 - No streaks, hearts or other gamification that punishes.

@@ -14,12 +14,24 @@ export interface SpokenPart {
   voice?: string;
   /** Its recording, made with the course's practice: played as it is, read by no voice. */
   src?: string;
+  /** A word or phrase: read in the server's voice for words of its language where there is one. */
+  words?: boolean;
 }
 export type { Alt };
 
 /** A text in one language as parts to read: none while the language is not known. */
 export const said = (text: string, lang: string | undefined): SpokenPart[] =>
   lang && text.trim() ? [{ text: text.trim(), lang }] : [];
+
+/** The most words a text read in the voice for words has: a word or a phrase, not a sentence. */
+const WORDS_MAX = 5;
+
+/** Words selected or looked up, as parts to read: in the voice for words when they are a word or a
+ *  phrase. */
+export const wordsSaid = (text: string, lang: string | undefined): SpokenPart[] =>
+  said(text, lang).map((p) =>
+    p.text.split(/\s+/).length <= WORDS_MAX ? { ...p, words: true } : p,
+  );
 
 /** What a voice offers that choosing one needs (a `SpeechSynthesisVoice`, or a server's voice). */
 export interface VoiceInfo {

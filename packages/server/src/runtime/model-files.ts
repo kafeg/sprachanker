@@ -6,12 +6,14 @@ import {
   existsSync,
   mkdirSync,
   readdirSync,
+  readFileSync,
   renameSync,
   rmSync,
   statSync,
+  writeFileSync,
 } from "node:fs";
 import { join } from "node:path";
-import type { ModelStore } from "../services/local-engines.ts";
+import type { ModelStore, VoiceStore } from "../services/local-engines.ts";
 
 /** Downloads a file to `part`, its sha256 checked as it comes; a failed or wrong download leaves
  *  nothing behind. */
@@ -71,6 +73,44 @@ export function modelStore(dir: string): ModelStore {
     remove(file) {
       rmSync(join(dir, file), { force: true });
       rmSync(join(dir, `${file}.part`), { force: true });
+    },
+  };
+}
+
+/** The voices taken for words in `dir`, by language: `<lang>-<id>.wav` and `<lang>.json` (what is
+ *  known of it, its id among it), each written whole (a part renamed), the JSON last; a JSON whose
+ *  recording is not there is no voice. A voice put lets the language's earlier recordings go. */
+export function voiceStore(dir: string): VoiceStore {
+  removeParts(dir);
+  const check = (lang: string, id = "0") => {
+    if (!/^[a-z]{2,3}$/.test(lang) || !/^[0-9a-f]+$/.test(id))
+      throw new Error(`not a voice: ${lang} ${id}`);
+  };
+  const write = (path: string, data: string | Uint8Array) => {
+    writeFileSync(`${path}.part`, data);
+    renameSync(`${path}.part`, path);
+  };
+  return {
+    get(lang) {
+      try {
+        check(lang);
+        const about: unknown = JSON.parse(readFileSync(join(dir, `${lang}.json`), "utf8"));
+        const id = String((about as { id?: unknown }).id);
+        check(lang, id);
+        return { wav: new Uint8Array(readFileSync(join(dir, `${lang}-${id}.wav`))), about };
+      } catch {
+        return undefined;
+      }
+    },
+    put(lang, { id, wav, about }) {
+      check(lang, id);
+      mkdirSync(dir, { recursive: true });
+      const kept = `${lang}-${id}.wav`;
+      write(join(dir, kept), wav);
+      write(join(dir, `${lang}.json`), `${JSON.stringify(about, null, 2)}\n`);
+      for (const name of readdirSync(dir))
+        if (name.startsWith(`${lang}-`) && name.endsWith(".wav") && name !== kept)
+          rmSync(join(dir, name), { force: true });
     },
   };
 }

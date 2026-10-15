@@ -3,18 +3,21 @@
 // 16 kHz mono WAV in a language given (with the lines it was to say, if any: `expect`, one a line —
 // only to tell a line said from what Whisper makes of silence); reading aloud — Piper's voices and Qwen3-TTS's models
 // (download, remove; Qwen warmed ahead) and a text said as a WAV with the profile's engine, voice and
-// speed.
+// speed — a word or phrase in the voice for words —; the voice for words: the courses' recordings it
+// can be taken from, and one taken (sent as a 24 kHz WAV).
 import { Lang } from "@sprachanker/schema";
 import { Hono } from "hono";
 import { z } from "zod";
 import { audioBody } from "../media.ts";
 import { SAY_MAX } from "../services/read-aloud.ts";
+import { VOICE_MAX_BYTES } from "../services/word-voice.ts";
 import { zod } from "../validate.ts";
 import type { ProfileEnv } from "./env.ts";
 
 /** 30 s of 16 kHz 16-bit mono is under 1 MB. */
 const WAV_MAX_BYTES = 2_000_000;
 const ModelParam = z.object({ id: z.string().min(1).max(100) });
+const LangParam = z.object({ lang: Lang });
 
 export function speechRoutes() {
   return new Hono<ProfileEnv>()
@@ -49,6 +52,29 @@ export function speechRoutes() {
       c.var.s.speech.engines.qwen.remove(c.req.valid("param").id);
       return c.json(c.var.s.speech.qwen());
     })
+    .get("/words/:lang/candidates", zod("param", LangParam), async (c) =>
+      c.json({
+        candidates: await c.var.s.speech.engines.words.candidates(c.req.valid("param").lang),
+      }),
+    )
+    .post(
+      "/words/:lang",
+      zod("param", LangParam),
+      zod(
+        "query",
+        z.object({ series: z.string().min(1).max(100), path: z.string().min(1).max(300) }),
+      ),
+      audioBody(VOICE_MAX_BYTES),
+      async (c) => {
+        const wav = new Uint8Array(await c.req.arrayBuffer());
+        await c.var.s.speech.engines.words.choose(
+          c.req.valid("param").lang,
+          c.req.valid("query"),
+          wav,
+        );
+        return c.json(c.var.s.speech.qwen());
+      },
+    )
     .post("/qwen/warm", (c) => {
       c.var.s.speech.warmQwen();
       return c.json({ ok: true as const });
@@ -62,6 +88,8 @@ export function speechRoutes() {
           lang: Lang,
           /** A voice to hear instead of the profile's (Settings: "Listen"). */
           voice: z.string().min(1).max(100).optional(),
+          /** A word or phrase: read in the voice for words where there is one. */
+          use: z.literal("words").optional(),
         }),
       ),
       async (c) => {

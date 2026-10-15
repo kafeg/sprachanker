@@ -94,9 +94,9 @@ export interface AppConfig {
 }
 
 /** The routes that take a file, each with its own body limit: a recording, audio to hear, a deck file,
- *  a profile file, a course bundle. */
+ *  a profile file, a course bundle, a voice for words. */
 const FILE_ROUTES =
-  /^\/api\/(recordings|speech\/transcribe|decks\/preview|profiles\/import|courses\/import)$/;
+  /^\/api\/(recordings|speech\/transcribe|speech\/words\/[a-z]+|decks\/preview|profiles\/import|courses\/import)$/;
 const jsonBody = limitedBody(JSON_BODY_MAX, "request_too_large");
 
 export function createApp(config: AppConfig) {

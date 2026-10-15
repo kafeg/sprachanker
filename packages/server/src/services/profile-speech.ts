@@ -1,13 +1,16 @@
 // A profile's speech: the server's engines — recognition, Piper, Qwen3-TTS — with the profile's
 // choices in its settings: recognition on or off and its model, the engine reading aloud, its voices,
-// speed and Qwen3-TTS's model — also the engine and voice a deck's words are read with.
+// speed and Qwen3-TTS's model — also the engine and voice a deck's words are read with: the voice for
+// words (word-voice.ts) where it is there, the same for every profile.
 
 import { ServiceError } from "../errors.ts";
+import type { DeckReader } from "./deck-audio.ts";
 import type { PracticeReader } from "./practice.ts";
 import type { QwenTts } from "./qwen-tts.ts";
 import type { ReadAloud } from "./read-aloud.ts";
 import type { Settings } from "./settings.ts";
 import type { Speech } from "./speech.ts";
+import type { WordVoice } from "./word-voice.ts";
 
 /** The library's media files, for the course recordings the recogniser hears. */
 interface CourseMedia {
@@ -19,9 +22,10 @@ export function createProfileSpeech(deps: {
   speech: Speech;
   readAloud: ReadAloud;
   qwenTts: QwenTts;
+  wordVoice: WordVoice;
   settings: Settings;
 }) {
-  const { speech, readAloud, qwenTts, settings } = deps;
+  const { speech, readAloud, qwenTts, wordVoice, settings } = deps;
   /** The model the profile hears with: its choice while recognition is on and the model is
    *  installed. */
   const recogniser = () =>
@@ -33,7 +37,7 @@ export function createProfileSpeech(deps: {
 
   return {
     /** The server's engines, shared by the profiles: their models and voices (download, remove). */
-    engines: { whisper: speech, piper: readAloud, qwen: qwenTts },
+    engines: { whisper: speech, piper: readAloud, qwen: qwenTts, words: wordVoice },
     /** Recognition: the engine and its models, and whether the profile hears with one (which). */
     state() {
       const model = recogniser();
@@ -66,17 +70,29 @@ export function createProfileSpeech(deps: {
       };
     },
 
-    /** Qwen3-TTS's state with the profile's model marked. */
-    qwen: () => qwenTts.state(qwenModel()),
+    /** Qwen3-TTS's state with the profile's model marked, and the voice for words of each language
+     *  it speaks that has one. */
+    qwen: () => {
+      const state = qwenTts.state(qwenModel());
+      return { ...state, words: wordVoice.state(state.languages) };
+    },
     /** Starts Qwen3-TTS ahead of reading with the profile's model. */
     warmQwen: () => qwenTts.warm(qwenModel()),
+    /** Starts the voice for words of `lang` ahead of reading a word (a selection translated). */
+    warmWords: (lang: string) => wordVoice.warm(lang),
 
     /** A WAV of a text read by the profile's engine on this computer — Qwen3-TTS when chosen, else
      *  Piper — with the voice chosen for its one language (or `voice`, to hear one: Settings'
-     *  "Listen") and speed. `signal`: the request gone — the reading stops unless another request
-     *  waits for it too. */
-    say(input: { text: string; lang: string; voice?: string }, signal?: AbortSignal) {
+     *  "Listen") and speed; `use: "words"` (a word or phrase): the voice for words where it reads the
+     *  language. `signal`: the request gone — the reading stops unless another request waits for it
+     *  too. */
+    say(
+      input: { text: string; lang: string; voice?: string; use?: "words" },
+      signal?: AbortSignal,
+    ) {
       const { text, lang } = input;
+      const words = input.use === "words" ? wordVoice.say(text, lang, signal) : undefined;
+      if (words) return words;
       const engine = settings.value("speech.readEngine") === "qwen" ? "qwen" : "piper";
       const chosen = input.voice ?? settings.value("speech.voices")?.[engine]?.[lang];
       if (engine === "piper")
@@ -115,11 +131,14 @@ export function createProfileSpeech(deps: {
       };
     },
 
-    /** The engine on this computer that reads a deck's words in `lang`, with its voice: the profile's
-     *  (Piper or Qwen3-TTS) when it reads the language, else Piper with a voice for it, else
-     *  Qwen3-TTS; none when neither can. Read at the speed recorded (the audio is every profile's) and
-     *  kept in the deck's folder alone, never in the readings' cache. */
-    deckReader(lang: string) {
+    /** The engine on this computer that reads a deck's words in `lang`, with its voice: the voice for
+     *  words when it is there (owner, 2026-10-15), else the profile's (Piper or Qwen3-TTS) when it
+     *  reads the language, else Piper with a voice for it, else Qwen3-TTS; none when neither can. Read
+     *  at the speed recorded (the audio is every profile's) and kept in the deck's folder alone, never
+     *  in the readings' cache. */
+    deckReader(lang: string): DeckReader | undefined {
+      const words = wordVoice.reader(lang);
+      if (words) return words;
       const own = settings.value("speech.voices");
       const engines =
         settings.value("speech.readEngine") === "qwen"

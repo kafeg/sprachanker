@@ -1087,7 +1087,9 @@
       "install": "Para generarlo, instala una voz para {language} en Ajustes → Voz",
       "failed": "{count, plural, one {# palabra no se pudo leer en voz alta} other {# palabras no se pudieron leer en voz alta}}",
       "voice": "Leído por {engine, select, qwen {Qwen3-TTS} other {Piper}} · {voice} ({language})",
-      "chooseVoice": "Elegir una voz"
+      "chooseVoice": "Elegir una voz",
+      "voiceWords": "Leído por Qwen3-TTS · la voz para palabras ({language})",
+      "otherVoice": "{count, plural, one {# palabra leída con otra voz} other {# palabras leídas con otra voz}}"
     },
     "why": "Motivo: {reason}",
     "examples": {
@@ -1279,7 +1281,15 @@
       "howMic": "Donde una respuesta se dice en voz alta (la parte oral de un examen), hay un micrófono: tócalo para empezar a grabar y otra vez para detener. Donde la tarea es escribir, no hay.",
       "howPhrase": "La frase que repetir está oculta hasta tu primer intento; puedes mostrarla antes.",
       "howRecordings": "Tus grabaciones se guardan en esta computadora para volver a escucharlas en el Cuaderno; elimínalas en General → Almacenamiento.",
-      "how": "Cómo funciona"
+      "how": "Cómo funciona",
+      "words": {
+        "title": "Voz para palabras",
+        "hint": "Las palabras —las de un mazo, las guardadas en Hallazgos y las que selecciones— las lee un modelo base aparte con la voz de un hablante nativo tomada de una grabación de un curso en su idioma. Funciona junto al modelo de arriba y ocupa unos 3 GB más de memoria mientras lee.",
+        "model": "Modelo base (1.7B): una voz nativa para palabras",
+        "taking": "Tomando la voz de una grabación del curso…",
+        "none": "No hay aquí ningún curso en este idioma ({language}) del que tomar una voz.",
+        "another": "Otra grabación"
+      }
     },
     "listening": "Escuchando…",
     "heardLater": "Aún no se ha reconocido — tu grabación se ha guardado; lo que se oyó llegará enseguida.",
@@ -1747,6 +1757,8 @@
     "speak": "Leer en voz alta",
     "translate": "Traducir",
     "added": "Añadido a Hallazgos",
-    "had": "Ya está en tus tarjetas"
+    "had": "Ya está en tus tarjetas",
+    "audioMaking": "Preparando el audio",
+    "listen": "Escuchar"
   }
 }

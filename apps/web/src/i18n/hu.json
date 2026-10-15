@@ -1087,7 +1087,9 @@
       "install": "Ehhez telepíts hangot a Beállítások → Beszéd alatt ehhez a nyelvhez: {language}",
       "failed": "{count, plural, one {# szót nem sikerült felolvasni} other {# szót nem sikerült felolvasni}}",
       "voice": "Felolvassa: {engine, select, qwen {Qwen3-TTS} other {Piper}} · {voice} ({language})",
-      "chooseVoice": "Hang kiválasztása"
+      "chooseVoice": "Hang kiválasztása",
+      "voiceWords": "Felolvasta: Qwen3-TTS · hang a szavakhoz ({language})",
+      "otherVoice": "{count, plural, one {# szó más hangon felolvasva} other {# szó más hangon felolvasva}}"
     },
     "why": "Ok: {reason}",
     "examples": {
@@ -1279,7 +1281,15 @@
       "howMic": "Ahol a választ ki kell mondani (egy vizsga szóbeli része), ott mikrofon van: koppints a felvétel indításához, és újra a leállításhoz. Ahol írni kell, ott nincs.",
       "howPhrase": "Az ismétlendő mondat az első próbálkozásodig rejtve marad; előbb is megjelenítheted.",
       "howRecordings": "A felvételeid ezen a számítógépen maradnak, hogy a Füzetben újra meghallgathasd őket; törölni itt tudod: Általános → Tárhely.",
-      "how": "Hogyan működik"
+      "how": "Hogyan működik",
+      "words": {
+        "title": "Hang a szavakhoz",
+        "hint": "A szavakat — egy pakliét, a Találatokban őrzötteket és az általad kijelölteket — egy külön alapmodell olvassa fel egy anyanyelvi beszélő hangján, amelyet egy ilyen nyelvű kurzus felvételéből vesz. A fenti modell mellett fut, és olvasás közben körülbelül 3 GB-tal több memóriát foglal.",
+        "model": "Alapmodell (1.7B): anyanyelvi hang a szavakhoz",
+        "taking": "A hang átvétele egy kurzusfelvételből…",
+        "none": "Itt nincs ilyen nyelvű ({language}) kurzus, amelyből hangot lehetne venni.",
+        "another": "Másik felvétel"
+      }
     },
     "listening": "Felismerés…",
     "heardLater": "Még nincs felismerve — a felvételed megmaradt, a felismert szöveg hamarosan jön.",
@@ -1747,6 +1757,8 @@
     "speak": "Felolvasás",
     "translate": "Fordítás",
     "added": "Hozzáadva a Találatokhoz",
-    "had": "Már megvan a kártyáid között"
+    "had": "Már megvan a kártyáid között",
+    "audioMaking": "A hang készül",
+    "listen": "Meghallgatás"
   }
 }

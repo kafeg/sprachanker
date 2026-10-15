@@ -1087,7 +1087,9 @@
       "install": "Ca să-l generezi, instalează o voce pentru {language} în Setări → Vorbire",
       "failed": "{count, plural, one {# cuvânt nu a putut fi citit cu voce tare} few {# cuvinte nu au putut fi citite cu voce tare} other {# de cuvinte nu au putut fi citite cu voce tare}}",
       "voice": "Citit de {engine, select, qwen {Qwen3-TTS} other {Piper}} · {voice} ({language})",
-      "chooseVoice": "Alege o voce"
+      "chooseVoice": "Alege o voce",
+      "voiceWords": "Citit de Qwen3-TTS · vocea pentru cuvinte ({language})",
+      "otherVoice": "{count, plural, one {# cuvânt citit cu altă voce} few {# cuvinte citite cu altă voce} other {# de cuvinte citite cu altă voce}}"
     },
     "why": "Motiv: {reason}",
     "examples": {
@@ -1279,7 +1281,15 @@
       "howMic": "Acolo unde un răspuns se spune cu voce tare (proba orală a unui examen), un microfon: atinge ca să începi înregistrarea, atinge din nou ca s-o oprești. Unde sarcina e scrisă, nu există.",
       "howPhrase": "Fraza de repetat e ascunsă până la prima ta încercare; o poți afișa și mai devreme.",
       "howRecordings": "Înregistrările tale se păstrează pe acest computer ca să le reasculți în Caiet; le ștergi în General → Stocare.",
-      "how": "Cum funcționează"
+      "how": "Cum funcționează",
+      "words": {
+        "title": "Voce pentru cuvinte",
+        "hint": "Cuvintele — dintr-un pachet, cele păstrate în Descoperiri și cele pe care le selectezi — sunt citite de un model de bază separat, cu vocea unui vorbitor nativ luată dintr-o înregistrare a unui curs în limba lor. Rulează lângă modelul de mai sus și ocupă încă aproximativ 3 GB de memorie cât citește.",
+        "model": "Model de bază (1.7B): o voce nativă pentru cuvinte",
+        "taking": "Se ia vocea dintr-o înregistrare a cursului…",
+        "none": "Nu există aici niciun curs în această limbă ({language}) din care să se ia o voce.",
+        "another": "Altă înregistrare"
+      }
     },
     "listening": "Se ascultă…",
     "heardLater": "Încă nerecunoscut — înregistrarea ta e păstrată; ce s-a auzit vine imediat.",
@@ -1747,6 +1757,8 @@
     "speak": "Citește",
     "translate": "Tradu",
     "added": "Adăugat la Descoperiri",
-    "had": "E deja în cardurile tale"
+    "had": "E deja în cardurile tale",
+    "audioMaking": "Se pregătește sunetul",
+    "listen": "Ascultă"
   }
 }

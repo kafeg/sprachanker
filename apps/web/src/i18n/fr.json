@@ -1087,7 +1087,9 @@
       "install": "Pour le générer, installe une voix en {language} dans Réglages → Parole",
       "failed": "{count, plural, one {# mot n’a pas pu être lu à voix haute} many {# de mots n’ont pas pu être lus à voix haute} other {# mots n’ont pas pu être lus à voix haute}}",
       "voice": "Lu par {engine, select, qwen {Qwen3-TTS} other {Piper}} · {voice} ({language})",
-      "chooseVoice": "Choisir une voix"
+      "chooseVoice": "Choisir une voix",
+      "voiceWords": "Lu par Qwen3-TTS · la voix pour les mots ({language})",
+      "otherVoice": "{count, plural, one {# mot lu avec une autre voix} other {# mots lus avec une autre voix}}"
     },
     "why": "Raison : {reason}",
     "examples": {
@@ -1279,7 +1281,15 @@
       "howMic": "Là où une réponse se dit à voix haute (l’épreuve orale d’un examen), un micro : touche pour lancer l’enregistrement, touche à nouveau pour l’arrêter. Là où la tâche est écrite, il n’y en a pas.",
       "howPhrase": "La phrase à répéter reste masquée jusqu’à ton premier essai ; tu peux l’afficher avant.",
       "howRecordings": "Tes enregistrements sont conservés sur cet ordinateur pour les réécouter dans le Carnet ; supprime-les dans Général → Stockage.",
-      "how": "Comment ça marche"
+      "how": "Comment ça marche",
+      "words": {
+        "title": "Voix pour les mots",
+        "hint": "Les mots — ceux d’un paquet, ceux gardés dans Trouvailles et ceux que tu sélectionnes — sont lus par un modèle de base à part, avec la voix d’un locuteur natif prise dans un enregistrement d’un cours de leur langue. Il tourne à côté du modèle ci-dessus et occupe environ 3 Go de mémoire de plus pendant qu’il lit.",
+        "model": "Modèle de base (1.7B) : une voix native pour les mots",
+        "taking": "Voix prise dans un enregistrement du cours…",
+        "none": "Aucun cours dans cette langue ({language}) ici pour y prendre une voix.",
+        "another": "Autre enregistrement"
+      }
     },
     "listening": "Écoute en cours…",
     "heardLater": "Pas encore reconnu — ton enregistrement est gardé ; ce qui a été entendu suit.",
@@ -1747,6 +1757,8 @@
     "speak": "Lire à voix haute",
     "translate": "Traduire",
     "added": "Ajouté aux Trouvailles",
-    "had": "Déjà dans tes cartes"
+    "had": "Déjà dans tes cartes",
+    "audioMaking": "Audio en préparation",
+    "listen": "Écouter"
   }
 }

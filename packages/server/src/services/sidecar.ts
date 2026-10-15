@@ -24,6 +24,9 @@ interface SidecarOptions {
   startMs: number;
   idleMs: number;
   healthPath?: string;
+  /** A process ready (its health check answered), before any request uses it: what each run starts
+   *  without (voices registered with it) forgotten. */
+  started?(url: string): void;
 }
 
 interface Running {
@@ -83,7 +86,10 @@ export function createSidecar(options: SidecarOptions) {
           .fetch(`${url}${healthPath}`, { signal: AbortSignal.timeout(2000) })
           .then((r) => r.ok)
           .catch(() => false);
-        if (ok) return url;
+        if (ok) {
+          options.started?.(url);
+          return url;
+        }
         await new Promise((r) => setTimeout(r, 250));
       }
       // Why it did not start is in what it said.

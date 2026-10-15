@@ -1,5 +1,6 @@
 // Words selected anywhere in the app (owner, 2026-10-15) — an option, a task, a text, the tutor's
-// reply —: a small bar by them that reads them aloud, in the language the page marks them with
+// reply —: a small bar by them that reads them aloud (a word or phrase in the voice for words), in the
+// language the page marks them with
 // (`lang` of the nearest element: a course's text is its language's), and whatever an optional
 // feature adds (`extra`: translated, kept as cards — a line of its own under the actions). Above the
 // words with a mouse; under them on a touch screen, where the system's own menu takes the place above;
@@ -10,7 +11,7 @@ import { useCallback, useEffect, useRef, useState } from "react";
 import { createPortal } from "react-dom";
 import { useTranslation } from "react-i18next";
 import { Button } from "@/ui/components/button.tsx";
-import { said } from "./speak.ts";
+import { wordsSaid } from "./speak.ts";
 import { useSpeaker } from "./speaker.ts";
 
 /** The most a selection is taken as: a sentence or two, not a page. */
@@ -140,7 +141,7 @@ export function SelectionMenu({ extra }: { extra?: (picked: Picked) => React.Rea
         <Button
           variant="ghost"
           size="sm"
-          onClick={() => speaker.say(`selection:${now.text}`, said(now.text, now.lang))}
+          onClick={() => speaker.say(`selection:${now.text}`, wordsSaid(now.text, now.lang))}
         >
           <Volume2 /> {t("selection.speak")}
         </Button>

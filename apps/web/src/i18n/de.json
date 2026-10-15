@@ -1087,7 +1087,9 @@
       "install": "Installiere dafür eine Stimme für {language} unter Einstellungen → Sprechen",
       "failed": "{count, plural, one {# Wort konnte nicht vorgelesen werden} other {# Wörter konnten nicht vorgelesen werden}}",
       "voice": "Gelesen von {engine, select, qwen {Qwen3-TTS} other {Piper}} · {voice} ({language})",
-      "chooseVoice": "Stimme wählen"
+      "chooseVoice": "Stimme wählen",
+      "voiceWords": "Gelesen von Qwen3-TTS · Stimme für Wörter ({language})",
+      "otherVoice": "{count, plural, one {# Wort mit einer anderen Stimme gelesen} other {# Wörter mit einer anderen Stimme gelesen}}"
     },
     "why": "Grund: {reason}",
     "examples": {
@@ -1279,7 +1281,15 @@
       "howMic": "Wo man spricht (der Sprechteil einer Prüfung), ein Mikrofon: tippen, um die Aufnahme zu starten, nochmal tippen, um sie zu beenden. Wo geschrieben wird, gibt es keins.",
       "howPhrase": "Der Satz zum Nachsprechen bleibt bis zum ersten Versuch verborgen; du kannst ihn auch vorher zeigen.",
       "howRecordings": "Deine Aufnahmen bleiben auf diesem Computer, zum Nachhören im Notizbuch; löschen kannst du sie unter Allgemein → Speicher.",
-      "how": "So funktioniert es"
+      "how": "So funktioniert es",
+      "words": {
+        "title": "Stimme für Wörter",
+        "hint": "Wörter – die eines Decks, die in „Fundstücke“ und die du markierst – liest ein eigenes Basismodell mit einer Muttersprachlerstimme aus der Aufnahme eines Kurses in ihrer Sprache. Es läuft neben dem Modell oben und belegt beim Lesen etwa 3 GB mehr Speicher.",
+        "model": "Basismodell (1.7B): eine Muttersprachlerstimme für Wörter",
+        "taking": "Stimme wird aus einer Kursaufnahme genommen…",
+        "none": "Hier ist kein Kurs in dieser Sprache ({language}), aus dem sich eine Stimme nehmen lässt.",
+        "another": "Andere Aufnahme"
+      }
     },
     "listening": "Wird erkannt …",
     "heardLater": "Noch nicht erkannt — deine Aufnahme ist gespeichert, was gehört wurde, kommt gleich.",
@@ -1747,6 +1757,8 @@
     "speak": "Vorlesen",
     "translate": "Übersetzen",
     "added": "Zu „Fundstücke“ hinzugefügt",
-    "had": "Schon in deinen Karten"
+    "had": "Schon in deinen Karten",
+    "audioMaking": "Audio wird erstellt",
+    "listen": "Anhören"
   }
 }

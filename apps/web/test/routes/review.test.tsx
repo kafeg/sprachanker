@@ -63,6 +63,7 @@ const audio = (own: number, missing: number) => ({
   words: own + missing,
   own,
   read: 0,
+  other: 0,
   missing,
   reader: { engine: "piper", voice: "de_DE-thorsten-medium" },
   job: null,
