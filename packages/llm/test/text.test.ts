@@ -1,6 +1,6 @@
 import { expect, test } from "bun:test";
 import { writingTaskTask } from "../src/tasks/writing-task.ts";
-import { htmlToText, mixedWord, writtenIn } from "../src/text.ts";
+import { htmlToText, inOwnScripts, mixedWord, writtenIn } from "../src/text.ts";
 
 test("mixedWord: a word of two alphabets alike (a real explanation's «Вопрos»); names and words apart are no mix", () => {
   expect(
@@ -78,4 +78,12 @@ test("htmlToText: a table's row is one line of its cells, the header once, no st
       "* Manchmal: du wärest.",
     ].join("\n"),
   );
+});
+
+test("a text in its language's own scripts: a German sentence, not a caption in Greek; Japanese with kana", () => {
+  expect(inOwnScripts("Ich nehme Kaffee mit Milch.", "de")).toBe(true);
+  expect(inOwnScripts("Αναπαραγωγή ηχητικού υλικού", "de")).toBe(false);
+  expect(inOwnScripts("Доброе утро!", "ru")).toBe(true);
+  expect(inOwnScripts("Guten Morgen", "ru")).toBe(false);
+  expect(inOwnScripts("今日はいい天気ですね。", "ja")).toBe(true);
 });

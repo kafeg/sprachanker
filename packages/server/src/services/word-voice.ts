@@ -5,6 +5,7 @@
 // profile in <data-root>/models/word-voices, never with the course's files. A deck's words, Finds
 // and words selected are read with it where it is there (profile-speech.ts).
 import type { LibraryView } from "@sprachanker/course-kit/view";
+import { inOwnScripts } from "@sprachanker/llm";
 import { type LessonKey, parseEditionId } from "@sprachanker/schema";
 import { z } from "zod";
 import { ServiceError } from "../errors.ts";
@@ -38,7 +39,7 @@ const SAID = new Set(["speech_selfrate", "speech_repeat"]);
 /** A sentence of this many letters is read in about 5 to 12 s: enough of a voice to clone. */
 const BAND = { min: 50, max: 160 };
 /** Recordings proposed once this many are in the band (enough to choose from: the rest of a big
- *  series is not read). */
+ *  series is not read); the list holds at most this many. */
 const ENOUGH = 20;
 /** The recording sent: 24 kHz mono 16-bit, 1 to 30 s. */
 const RATE = 24_000;
@@ -46,12 +47,15 @@ const MIN_S = 1;
 const MAX_S = 30;
 export const VOICE_MAX_BYTES = 44 + RATE * 2 * MAX_S;
 
-/** A text that is one sentence or two of words a voice says as written: no gap, no list. */
-const sayable = (text: string) =>
+/** A text that is one sentence or two of words a voice says as written, in its language: no gap, no
+ *  list, no numbers (said otherwise than written), no alternatives ("Traumfrau/Traummann"), no
+ *  caption in another script. */
+const sayable = (text: string, lang: string) =>
   text.length <= 200 &&
   text.trim().split(/\s+/).length >= 2 &&
-  !/[\n…_]|\s[–—-]\s/.test(text) &&
-  /\p{L}/u.test(text);
+  !/[\n…_/:\d]|\s[–—-]\s/.test(text) &&
+  /\p{L}/u.test(text) &&
+  inOwnScripts(text, lang);
 
 /** The candidates in order: sentences in the band first, the shorter first; then shorter ones, the
  *  longer first. */
@@ -62,7 +66,7 @@ const order = (all: Candidate[]) => {
     ...all
       .filter((c) => !inBand(c) && c.text.length < BAND.min)
       .sort((a, b) => b.text.length - a.text.length),
-  ];
+  ].slice(0, ENOUGH);
 };
 
 /** Whether `wav` is what the engine is given: a PCM WAV of 24 kHz, mono, 16-bit, 1–30 s long. */
@@ -106,7 +110,7 @@ export function createWordVoice(deps: {
     return { courses, stamp };
   }
 
-  async function read(courses: Awaited<ReturnType<typeof coursesOf>>["courses"]) {
+  async function read(courses: Awaited<ReturnType<typeof coursesOf>>["courses"], lang: string) {
     const found = new Map<string, Candidate>();
     let inBand = 0;
     for (const c of courses)
@@ -122,7 +126,7 @@ export function createWordVoice(deps: {
             const path = item.media?.audio;
             const text = typeof item.text === "string" ? item.text.trim() : "";
             const id = `${c.series}/${path}`;
-            if (!path || !sayable(text) || found.has(id)) continue;
+            if (!path || !sayable(text, lang) || found.has(id)) continue;
             found.set(id, { series: c.series, path, text, course: c.course, lesson: at + 1 });
             if (text.length >= BAND.min && text.length <= BAND.max) inBand++;
           }
@@ -136,7 +140,7 @@ export function createWordVoice(deps: {
     const { courses, stamp } = await coursesOf(lang);
     const known = proposed.get(lang);
     if (known?.stamp === stamp) return known.list;
-    const list = read(courses);
+    const list = read(courses, lang);
     proposed.set(lang, { stamp, list });
     list.catch(() => proposed.delete(lang));
     return list;
