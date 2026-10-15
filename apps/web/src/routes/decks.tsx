@@ -39,6 +39,11 @@ type Counts = Lang["counts"];
 type Offers = NonNullable<ReturnType<typeof useDeckOffers>["data"]>;
 /** A deck to take: a course's words in a pair, or an imported deck. */
 type Offer = (Offers["courses"][number] | Offers["imported"][number]) & { deck?: string };
+/** What a deck to take is called: the learner's own (Finds) by the app's name. */
+const useOfferTitle = () => {
+  const { t } = useTranslation();
+  return (o: Offer) => ("own" in o && o.own ? t("decks.finds") : o.title);
+};
 
 /** New, learning and to review: each its colour, its name beside (short). */
 function CountLine({ counts, className }: { counts: Counts; className?: string }) {
@@ -66,6 +71,7 @@ function CountLine({ counts, className }: { counts: Counts; className?: string }
 function DeckExtras({ offer, scope }: { offer?: Offer; scope: string }) {
   const { t } = useTranslation();
   const slots = useStudySlots();
+  const titleOf = useOfferTitle();
   const [open, setOpen] = useState(false);
   const edition = offer?.edition;
   return (
@@ -87,8 +93,8 @@ function DeckExtras({ offer, scope }: { offer?: Offer; scope: string }) {
       </div>
       {open && offer && (
         <div className="space-y-3 rounded-lg bg-muted/50 p-3">
-          <DeckAudio scope={scope} title={offer.title} />
-          {edition && slots.deck?.({ scope, edition, title: offer.title })}
+          <DeckAudio scope={scope} title={titleOf(offer)} />
+          {edition && slots.deck?.({ scope, edition, title: titleOf(offer) })}
         </div>
       )}
     </div>
@@ -146,6 +152,7 @@ export function DecksTab({ open }: { open(scope: string): void }) {
   const actions = useDeckActions();
   const remove = useDeleteDeck();
   const name = useDeckName();
+  const titleOf = useOfferTitle();
   const pairName = usePairName();
   const [asking, setAsking] = useState<Asking>();
   // A card's way to its deck (the address's hash) in sight once the decks are there.
@@ -186,7 +193,7 @@ export function DecksTab({ open }: { open(scope: string): void }) {
           setAsking({
             remove: {
               id: o.deck as string,
-              title: o.title,
+              title: titleOf(o),
               studiedBy: "studiedBy" in o ? (o.studiedBy as string[]) : [],
             },
           })
@@ -301,7 +308,7 @@ export function DecksTab({ open }: { open(scope: string): void }) {
               >
                 <div className="flex flex-wrap items-center gap-x-3 gap-y-1">
                   <span data-deck-name className="min-w-0 flex-[1_1_14rem]">
-                    <span className="block font-semibold">{o.title}</span>
+                    <span className="block font-semibold">{titleOf(o)}</span>
                     <span className="text-sm text-muted-foreground">
                       {pairName(o.edition)} · {t("decks.words", { words: o.words, mine: o.mine })}
                     </span>

@@ -1100,7 +1100,8 @@
     "removeStudied": "{count, plural, one {Wasifu {profiles} unasoma seti hii.} other {Wasifu {profiles} zinasoma seti hii.}} Inaweza kufutwa baada ya kila wasifu kuiacha: Marudio → Seti → Acha seti….",
     "available": "Deki za kuchukua",
     "progress": "{mine, number} kati ya {words, plural, one {neno #} other {maneno #}}",
-    "extras": "Sauti na mifano"
+    "extras": "Sauti na mifano",
+    "finds": "Vilivyopatikana"
   },
   "guide": {
     "open": "Inavyofanya kazi",
@@ -1392,6 +1393,7 @@
     "deck_unpacked_too_large": "Faili hili la seti likifunguliwa ni kubwa kuliko kinachoweza kusomwa kwa mara moja.",
     "deck_same_languages": "Maneno na tafsiri zake yanahitaji lugha mbili tofauti.",
     "deck_job_running": "Maneno ya seti yanashughulikiwa sasa: simamisha kwanza, au subiri hadi imalizike.",
+    "find_no_language": "Bado haijulikani unajifunza lugha gani: anza kozi au chukua seti kwanza.",
     "examples_without_word": "Sentensi za modeli hazikutumia neno hilo.",
     "length_required": "Faili ilitumwa bila ukubwa wake. Jaribu tena, au kwenye kivinjari kingine.",
     "upload_stalled": "Faili limeacha kufika. Angalia muunganisho kisha ujaribu tena.",
@@ -1729,6 +1731,9 @@
   },
   "selection": {
     "label": "Maandishi yaliyochaguliwa",
-    "speak": "Soma kwa sauti"
+    "speak": "Soma kwa sauti",
+    "translate": "Tafsiri",
+    "added": "Imeongezwa kwenye Vilivyopatikana",
+    "had": "Tayari iko kwenye kadi zako"
   }
 }

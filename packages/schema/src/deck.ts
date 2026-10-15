@@ -1,6 +1,7 @@
 // An imported deck: `<data-root>/decks/<id>/deck.json`, its words in
 // deck order with the audio it brought in `media/` beside it. Server-wide, as the library: every
-// profile takes it as a course's deck. Beside it, and in a course's deck folder, `extras.json`: what
+// profile takes it as a course's deck — but a deck with an `owner` (a learner's own: Finds, the words
+// they selected and translated) is that profile's alone. Beside it, and in a course's deck folder, `extras.json`: what
 // the server made for the words (audio read aloud, examples).
 import { z } from "zod";
 import { format } from "./common.ts";
@@ -13,6 +14,18 @@ export const DECK_EXTRAS_FORMAT = 2;
 /** An imported deck's id: its title's slug and a short hash (`deutsch-a1-3f9c2a`); its folder's name. */
 export const DeckId = Slug.max(80).brand<"DeckId">();
 export type DeckId = z.infer<typeof DeckId>;
+
+/** A profile's Finds deck in a language pair (`finds-<profile>-<translation>-<lang>`): the words it
+ *  selected anywhere in the app and translated, made cards by themselves. */
+export const findsDeckId = (profile: string, lang: string, translationLang: string) =>
+  DeckId.parse(
+    `finds-${
+      profile
+        .toLowerCase()
+        .replace(/[^a-z0-9]+/g, "-")
+        .replace(/^-+|-+$/g, "") || "profile"
+    }-${translationLang}-${lang}`,
+  );
 
 /** A deck's folder in `<data-root>/decks/`: an imported deck's id, or a course's (its words' extras:
  *  `course~<series>~<course>`). */
@@ -69,8 +82,10 @@ export const Deck = z.strictObject({
   lang: Lang,
   /** The language their translations are in. */
   translationLang: Lang,
-  /** The file it was imported from, and when (epoch ms). */
+  /** The file it was imported from, and when (epoch ms); a learner's own deck: when it was made. */
   source: z.strictObject({ file: z.string().max(400), importedAt: z.number().int() }),
+  /** The profile whose own deck it is (Finds): no other profile sees it. None: every profile's. */
+  owner: z.string().min(1).max(80).optional(),
   words: z.array(DeckWord).min(1),
 });
 export type Deck = z.infer<typeof Deck>;

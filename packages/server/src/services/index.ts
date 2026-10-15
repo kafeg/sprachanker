@@ -4,7 +4,7 @@
 // is first used.
 import type { ApkgRuntime } from "@sprachanker/anki-export";
 import type { LibraryView } from "@sprachanker/course-kit/view";
-import { type LessonKey, lessonOrder, parseEditionId } from "@sprachanker/schema";
+import { editionSetting, type LessonKey, lessonOrder, parseEditionId } from "@sprachanker/schema";
 import type { ProfileDb } from "../db/profile/db.ts";
 import type { ServerDb } from "../db/server/db.ts";
 import { ServiceError } from "../errors.ts";
@@ -29,6 +29,7 @@ import { createExamRating } from "./exam-rating.ts";
 import { createExamples } from "./examples.ts";
 import { createExams } from "./exams.ts";
 import { createExplain } from "./explain.ts";
+import { createFinds } from "./finds.ts";
 import { createGoingOver } from "./going-over.ts";
 import { createLessonContext } from "./lesson-context.ts";
 import { createLessonJournal } from "./lesson-journal.ts";
@@ -124,11 +125,14 @@ function profileServices(
     qwenTts: QwenTts;
     practiceJobs: PracticeJobs;
   },
+  profileId: string,
   db: ProfileDb,
   recordingFiles: RecordingFiles,
 ) {
   const { now } = config;
-  const { content, decks, deckAudio, deckExtras, deckExamples, downloads, courseTransfer } = shared;
+  const { content, deckAudio, deckExtras, deckExamples, downloads, courseTransfer } = shared;
+  // The decks as this profile sees them: another profile's own (its Finds) left out.
+  const decks = shared.decks.of(profileId);
   const { speech, readAloud, qwenTts } = shared;
   const settings = createSettings(db);
   const speechOfProfile = createProfileSpeech({ speech, readAloud, qwenTts, settings });
@@ -268,6 +272,39 @@ function profileServices(
     lessonContext,
     llm,
   });
+  // Words selected anywhere, translated by this profile's model and kept in its own deck "Finds".
+  const finds = createFinds({
+    profile: profileId,
+    llm,
+    decks,
+    notes: () => cardStore.all(),
+    // The word as a card already, whatever the part of speech or gender its key was made with (the
+    // model's and the course's may differ): the same lemma in the same language.
+    hasCard: (lexeme, lang) => {
+      if (cardStore.byLexeme(lexeme, lang)) return true;
+      const lemma = lexeme.split(":").slice(0, 3).join(":");
+      return cardStore
+        .all()
+        .some(
+          (n) =>
+            n.translationLang === lang && n.lexemeKey?.split(":").slice(0, 3).join(":") === lemma,
+        );
+    },
+    take: (deck, keys) => cards.takeDeck({ deck }, keys),
+    // The edition each started course is shown in (the learner's choice of it), else its editions.
+    started: async () =>
+      (await lessons.courses())
+        .filter((c) => c.started)
+        .flatMap((c) => {
+          const chosen = settings.all()[editionSetting(c.series, c.course)];
+          return (typeof chosen === "string" ? [chosen] : c.editions).map((e) =>
+            parseEditionId(e as Parameters<typeof parseEditionId>[0]),
+          );
+        })
+        .map(({ source, target }) => ({ lang: target, translationLang: source })),
+    reader: speechOfProfile.deckReader,
+    uiLanguage: () => settings.value("uiLanguage"),
+  });
   // Every module reports its standing the same way; the Notebook gathers them.
   const notebook = createNotebook({
     store,
@@ -291,8 +328,15 @@ function profileServices(
         deckAudio.state(scope, await cards.sourceNotes(scope), speechOfProfile.deckReader),
       start: async (scope: string, again?: boolean) =>
         deckAudio.start(scope, await cards.sourceNotes(scope), speechOfProfile.deckReader, again),
-      stop: deckAudio.stop,
-      remove: deckAudio.remove,
+      // Only a deck this profile sees (another's Finds is none of it).
+      stop: async (scope: string) => {
+        await cards.sourceNotes(scope);
+        return deckAudio.stop(scope);
+      },
+      remove: async (scope: string) => {
+        await cards.sourceNotes(scope);
+        return deckAudio.remove(scope);
+      },
     },
     downloads,
     courseTransfer,
@@ -317,6 +361,7 @@ function profileServices(
     examRating,
     examConversation,
     examples,
+    finds,
     tutor,
     understanding,
     writing,
@@ -531,6 +576,7 @@ export function createServices(config: ServicesConfig) {
     removeProfile(profileId: string) {
       open.delete(profileId);
       profiles.remove(profileId);
+      decks.removeOwned(profileId);
     },
     /** A profile's services (its database opened and its cards relinked on first use). */
     of(profileId: string): ProfileServices {
@@ -551,6 +597,7 @@ export function createServices(config: ServicesConfig) {
             practiceJobs,
             qwenTts,
           },
+          profileId,
           config.profiles.open(profileId),
           config.profiles.recordings(profileId),
         );

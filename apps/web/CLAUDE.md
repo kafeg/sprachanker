@@ -67,7 +67,7 @@ apps/web/src/
   llm/             # AI assistant: settings (AssistantSetup: provider-cards, key-state, model-list over the
                    # pure model-filter; LM Studio), "Why is this wrong?", tutor (the chat view; the lesson's
                    # header panel — History: tutor-history), going-over (the run's mistakes, in the summary), tutor-section (the Tutor
-                   # section: its chats, a chat and its language — a new one's chosen in a SelectField), understanding (Reading and Listening, done as an exercise: what it is, the text or its recording in the course's player, Check in the step bar, then what it was about), writing (a message answered, Check in the step bar), talk (Speaking: a monologue card or a role-play said line by line, Check in the step bar), dialogue (the Dialogue: goal card, lines read aloud, summary — no step since Speaking, kept for the Tutor section, plan); practice-next (a step's "Another version": the course's next variant, none left: no button), course-practice (the course page's: a button among its actions opening what its lessons have, made for every lesson — a job's progress, Stop); dialogue-line: a line said and heard, or typed, spoken-check (the AI's check under an answer said aloud), word-examples (a deck's: on a card, under a deck — the slots); exam-assistant (an exam run's slots): exam-rating ("Propose a
+                   # section: its chats, a chat and its language — a new one's chosen in a SelectField), understanding (Reading and Listening, done as an exercise: what it is, the text or its recording in the course's player, Check in the step bar, then what it was about), writing (a message answered, Check in the step bar), talk (Speaking: a monologue card or a role-play said line by line, Check in the step bar), dialogue (the Dialogue: goal card, lines read aloud, summary — no step since Speaking, kept for the Tutor section, plan); practice-next (a step's "Another version": the course's next variant, none left: no button), course-practice (the course page's: a button among its actions opening what its lessons have, made for every lesson — a job's progress, Stop); dialogue-line: a line said and heard, or typed, spoken-check (the AI's check under an answer said aloud), word-examples (a deck's: on a card, under a deck — the slots); selection-translate (the selection bar's "Translate": the words learnt said aloud, shown with their translation, kept in Finds); exam-assistant (an exam run's slots): exam-rating ("Propose a
                    # rating"), exam-part (a speaking part said from its script: the examiner and the partner read aloud, the learner's places said in turn, hints in practice only);
                    # settings-section (Settings → AI assistant), lmstudio-section, prompts-info (where it
                    # works; the prompts under Advanced), prompt-view (a request as sent), context-meter
@@ -98,7 +98,7 @@ apps/web/src/
                    # speech-settings (Settings → Speech; SpeechSetup is also the onboarding's step),
                    # reading aloud: speak.ts (what is said, by which voice; pure), speaker.ts (a part's recording as it is, else each part by
                    # the server's engine — Piper or Qwen3-TTS — or the device's voices, one text at a
-                   # time; a dialogue's second speaker by another voice), listening (a text line by line: pause, on, again), speak-button, selection-menu (words selected anywhere: a bar by them that reads them aloud; an optional feature's actions beside), read-by (who reads a language, named), read-aloud-settings (Qwen3-TTS alone: its
+                   # time; a dialogue's second speaker by another voice), listening (a text line by line: pause, on, again), speak-button, selection-menu (words selected anywhere: a bar by them that reads them aloud; an optional feature's actions beside, what they show in a line under them), read-by (who reads a language, named), read-aloud-settings (Qwen3-TTS alone: its
                    # state) with qwen-voices (models, each language's speaker; voice-pick: a language's voice and
                    # "Listen"; voice-names: a server voice's name, pure; a voice's gender: the engine's
                    # speech/voices); download-row (a model or voice the server downloads), read-languages (the
@@ -143,7 +143,7 @@ shadcn components are added with `bunx --bun shadcn@<version> add <name>` (compo
 - Screen key handlers leave Space and Enter to a focused button, link or slider.
 - Model output is Markdown rendered with markdown-it (`html: false`), never raw HTML.
 - Optional features (today: `llm/`) live in their own folder; screens receive them as props/slots, so the
-  folder can be removed with its mount points: the settings page, the router (`examplesAssistant`, the course page's `extra`, the
+  folder can be removed with its mount points: the settings page, the router (`examplesAssistant`, the course page's `extra`, the selection bar's `extra`, the
   reviewer's and Decks': study/slots.ts; the Tutor section's pages and the shell's `extra` entry) and routes/runs.tsx (`lessonAssistant` as the player's slots, `examAssistant`
   as an exam run's: exams/slots.ts). Nothing in `lesson/`, `study/` or `exams/` imports `llm/`.
 - Feature folders (`lesson/`, `exams/`, `study/`, `courses/`, `notebook/`) never import each other:

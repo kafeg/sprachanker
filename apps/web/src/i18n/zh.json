@@ -1100,7 +1100,8 @@
     "removeStudied": "{count, plural, other {个人资料{profiles}正在学习此卡组。}}所有个人资料都退出后才能删除：复习 → 卡组 → 退出卡组…。",
     "available": "可添加的卡组",
     "progress": "{words, plural, other {# 个词}}中的 {mine, number} 个",
-    "extras": "音频和例句"
+    "extras": "音频和例句",
+    "finds": "收集的词"
   },
   "guide": {
     "open": "使用说明",
@@ -1392,6 +1393,7 @@
     "deck_unpacked_too_large": "此卡组文件解压后的内容超出了一次可读取的上限。",
     "deck_same_languages": "单词和翻译需要使用两种不同的语言。",
     "deck_job_running": "此卡组的单词正在处理中：请先停止，或等它结束。",
+    "find_no_language": "还不知道你在学哪种语言：请先开始一门课程或添加一个卡组。",
     "examples_without_word": "模型生成的句子没有用到该单词。",
     "length_required": "文件发送时没有附带其大小。请重试，或换一个浏览器。",
     "upload_stalled": "文件停止传输了。请检查网络连接后重试。",
@@ -1729,6 +1731,9 @@
   },
   "selection": {
     "label": "选中的文字",
-    "speak": "朗读"
+    "speak": "朗读",
+    "translate": "翻译",
+    "added": "已加入“发现”",
+    "had": "你的卡片里已有"
   }
 }

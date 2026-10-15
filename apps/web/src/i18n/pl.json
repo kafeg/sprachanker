@@ -1100,7 +1100,8 @@
     "removeStudied": "{count, plural, one {Profil {profiles} uczy się z tej talii.} few {Profile {profiles} uczą się z tej talii.} many {Profile {profiles} uczą się z tej talii.} other {Profile {profiles} uczą się z tej talii.}} Można ją usunąć, gdy wszystkie profile ją opuszczą: Powtórki → Talie → Opuść talię….",
     "available": "Do wzięcia",
     "progress": "{mine, number} z {words, plural, one {# słowa} few {# słów} many {# słów} other {# słowa}}",
-    "extras": "Nagrania i przykłady"
+    "extras": "Nagrania i przykłady",
+    "finds": "Znaleziska"
   },
   "guide": {
     "open": "Jak to działa",
@@ -1392,6 +1393,7 @@
     "deck_unpacked_too_large": "Ten plik talii po rozpakowaniu jest większy, niż da się odczytać naraz.",
     "deck_same_languages": "Słowa i ich tłumaczenia muszą być w dwóch różnych językach.",
     "deck_job_running": "Słowa talii są teraz przetwarzane: najpierw to zatrzymaj albo poczekaj do końca.",
+    "find_no_language": "Nie wiadomo jeszcze, jakiego języka się uczysz: najpierw zacznij kurs albo weź talię.",
     "examples_without_word": "Zdania modelu nie zawierały tego słowa.",
     "length_required": "Plik został wysłany bez swojego rozmiaru. Spróbuj ponownie lub w innej przeglądarce.",
     "upload_stalled": "Plik przestał docierać. Sprawdź połączenie i spróbuj ponownie.",
@@ -1729,6 +1731,9 @@
   },
   "selection": {
     "label": "Zaznaczony tekst",
-    "speak": "Przeczytaj"
+    "speak": "Przeczytaj",
+    "translate": "Przetłumacz",
+    "added": "Dodano do „Znalezisk”",
+    "had": "Już jest w twoich fiszkach"
   }
 }

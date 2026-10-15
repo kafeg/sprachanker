@@ -1100,7 +1100,8 @@
     "removeStudied": "{count, plural, =0 {Os perfis {profiles} estudam este baralho.} one {O perfil {profiles} estuda este baralho.} other {Os perfis {profiles} estudam este baralho.}} Ele pode ser excluído quando todos os perfis tiverem saído dele: Revisão → Baralhos → Sair do baralho….",
     "available": "Baralhos para pegar",
     "progress": "{mine, number} de {words, plural, one {# palavra} other {# palavras}}",
-    "extras": "Áudio e exemplos"
+    "extras": "Áudio e exemplos",
+    "finds": "Achados"
   },
   "guide": {
     "open": "Como funciona",
@@ -1392,6 +1393,7 @@
     "deck_unpacked_too_large": "Este arquivo de baralho, descompactado, é maior do que dá para ler de uma vez.",
     "deck_same_languages": "As palavras e as traduções precisam de dois idiomas diferentes.",
     "deck_job_running": "As palavras do baralho estão sendo processadas agora: pare primeiro ou espere terminar.",
+    "find_no_language": "Ainda não se sabe qual idioma você aprende: comece primeiro um curso ou pegue um baralho.",
     "examples_without_word": "As frases do modelo não usaram a palavra.",
     "length_required": "O arquivo foi enviado sem o seu tamanho. Tente de novo, ou em outro navegador.",
     "upload_stalled": "O arquivo parou de chegar. Verifique a conexão e tente de novo.",
@@ -1729,6 +1731,9 @@
   },
   "selection": {
     "label": "Texto selecionado",
-    "speak": "Ler em voz alta"
+    "speak": "Ler em voz alta",
+    "translate": "Traduzir",
+    "added": "Adicionado a Achados",
+    "had": "Já está nos seus cartões"
   }
 }

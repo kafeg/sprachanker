@@ -316,14 +316,18 @@ export function createCards(deps: {
      *  their order, as new cards (Anki: a deck taken); words with a card already keep it. */
     async takeDeck(
       request: { series: string; course: string; edition: string } | { deck: DeckId },
+      /** An imported deck's words by key: those alone (a word added to the learner's Finds). */
+      only?: string[],
     ) {
       if ("deck" in request) {
         const deck = deckOrFail(request.deck);
-        const words = deck.words.map((w) => ({
-          lexeme: w.lexeme,
-          sourceKey: deckSourceKey(deck.id, w.key),
-          display: deckDisplay(deck, w),
-        }));
+        const words = deck.words
+          .filter((w) => !only || only.includes(w.key))
+          .map((w) => ({
+            lexeme: w.lexeme,
+            sourceKey: deckSourceKey(deck.id, w.key),
+            display: deckDisplay(deck, w),
+          }));
         return { created: cards.atomic(() => make(deck.translationLang, words, null)) };
       }
       const map = await content.courseMap(request.series, request.course, request.edition);
@@ -524,6 +528,8 @@ export function createCards(deps: {
           deck: d.id,
           edition: `${d.translationLang}-${d.lang}`,
           title: d.title,
+          /** The learner's own deck (Finds): its name is the app's. */
+          own: !!d.owner,
           words: new Set(deck.words.map((w) => w.lexeme)).size,
           withAudio: d.withAudio,
           mine: mineOf(d.translationLang, new Set(deck.words.map((w) => w.lexeme))),

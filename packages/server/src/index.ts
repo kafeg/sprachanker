@@ -154,6 +154,15 @@ export const verifyData = (dataRoot: string) =>
  * list them, open or close registration, delete one, export one to a file or import one from a file
  *. Not in the app.
  */
+/** The profile a deck.json's deck is the own of (Finds); none: everyone's, or no deck that reads. */
+function ownerOf(text: string | undefined) {
+  try {
+    return Deck.safeParse(JSON.parse(text ?? "")).data?.owner;
+  } catch {
+    return undefined;
+  }
+}
+
 export function profileAdmin(
   dataRoot: string,
   appVersion = "",
@@ -208,6 +217,8 @@ export function profileAdmin(
       const pid = serverOn(dataRoot);
       if (pid) throw new Error(`a server (pid ${pid}) is running on ${dataRoot}: stop it first`);
       profiles.remove(id);
+      // Its own decks (Finds) go with it, as from the app.
+      for (const deck of decks.ids()) if (ownerOf(decks.read(deck)) === id) decks.remove(deck);
     },
     exportTo: transfer.exportTo,
     importFile: transfer.importFile,

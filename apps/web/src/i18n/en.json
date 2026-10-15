@@ -1100,7 +1100,8 @@
     "removeStudied": "{count, plural, one {The profile {profiles} studies this deck.} other {The profiles {profiles} study this deck.}} It can be deleted once every profile has left it: Review → Decks → Leave deck….",
     "available": "Decks to take",
     "progress": "{mine, number} of {words, plural, one {# word} other {# words}}",
-    "extras": "Audio and examples"
+    "extras": "Audio and examples",
+    "finds": "Finds"
   },
   "guide": {
     "open": "How it works",
@@ -1392,6 +1393,7 @@
     "deck_unpacked_too_large": "This deck file unpacks to more than can be read at once.",
     "deck_same_languages": "The words and their translations need two different languages.",
     "deck_job_running": "The deck's words are being worked on now: stop it first, or wait until it ends.",
+    "find_no_language": "Which language you are learning is not known yet: start a course or take a deck first.",
     "examples_without_word": "The model's sentences did not use the word.",
     "length_required": "The file was sent without its size. Try again, or in another browser.",
     "upload_stalled": "The file stopped arriving. Check the connection and try again.",
@@ -1729,6 +1731,9 @@
   },
   "selection": {
     "label": "Selected text",
-    "speak": "Read aloud"
+    "speak": "Read aloud",
+    "translate": "Translate",
+    "added": "Added to Finds",
+    "had": "Already in your cards"
   }
 }

@@ -61,6 +61,15 @@ and mockups: the owner's page "Goethe в SprachAnker"; background: `docs/researc
 - Open: reading aloud on the phone — Android's WebView has no voices (`speechSynthesis`); words
   without a recording are silent there.
 
+### 5. Decks exported and imported on their own (owner, 2026-10-15)
+Every deck — a course's words, an imported deck, a profile's Finds — as one kind of file with what
+was made for its words (audio read aloud, AI examples), imported with the same button, merged into a
+deck already there; so the audio and examples made on one computer reach another and the phone.
+Today a course's bundle and a profile file carry neither; an imported profile's Finds cards keep
+their content but not their deck.
+- **Accept**: a deck with made audio and examples exported on one data folder, imported on a clean
+  one, its cards play and show them; Finds of a profile imported elsewhere is its deck there.
+
 ## Open items in built areas
 Taken along when an item above touches the area, or on request.
 - Library: a key map for the providers that still number by position (DW and the providers using

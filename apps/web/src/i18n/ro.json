@@ -1100,7 +1100,8 @@
     "removeStudied": "{count, plural, one {Profilul {profiles} studiază acest pachet.} few {Profilurile {profiles} studiază acest pachet.} other {Profilurile {profiles} studiază acest pachet.}} Poate fi șters după ce toate profilurile l-au părăsit: Recapitulare → Pachete → Părăsește pachetul….",
     "available": "Pachete de luat",
     "progress": "{mine, number} din {words, plural, one {# cuvânt} few {# cuvinte} other {# de cuvinte}}",
-    "extras": "Audio și exemple"
+    "extras": "Audio și exemple",
+    "finds": "Descoperiri"
   },
   "guide": {
     "open": "Cum funcționează",
@@ -1392,6 +1393,7 @@
     "deck_unpacked_too_large": "Dezarhivat, acest fișier de pachet e prea mare ca să fie citit dintr-odată.",
     "deck_same_languages": "Cuvintele și traducerile lor trebuie să fie în două limbi diferite.",
     "deck_job_running": "Cuvintele pachetului sunt prelucrate acum: oprește mai întâi sau așteaptă să se termine.",
+    "find_no_language": "Încă nu se știe ce limbă înveți: începe mai întâi un curs sau ia un pachet.",
     "examples_without_word": "Propozițiile modelului nu au folosit cuvântul.",
     "length_required": "Fișierul a fost trimis fără dimensiunea lui. Încearcă din nou sau în alt browser.",
     "upload_stalled": "Fișierul a încetat să mai sosească. Verifică conexiunea și încearcă din nou.",
@@ -1729,6 +1731,9 @@
   },
   "selection": {
     "label": "Text selectat",
-    "speak": "Citește"
+    "speak": "Citește",
+    "translate": "Tradu",
+    "added": "Adăugat la Descoperiri",
+    "had": "E deja în cardurile tale"
   }
 }

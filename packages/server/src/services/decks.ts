@@ -4,7 +4,8 @@
 // is uploaded once: previewed (kept beside the decks), then imported by its upload's id. Importing a
 // deck again (most of its notes here, the same languages) updates it in place. A deck's words are
 // its lexemes, as its cards are: a note of a word already there joins it (its translation added). A
-// deck goes only while no profile has cards made from it.
+// deck goes only while no profile has cards made from it. A learner's own deck (Finds: an `owner`)
+// grows a word at a time and is seen by its profile alone (`of`); it goes with the profile.
 import {
   type Apkg,
   ApkgError,
@@ -28,6 +29,8 @@ export interface DeckFiles {
   ids(): string[];
   /** A deck's deck.json as text; undefined when there is none. */
   read(id: string): string | undefined;
+  /** Writes a deck's deck.json, whole (beside, then renamed into place; its folder made). */
+  writeDeck(id: string, text: string): void;
   /** Writes a deck's folder anew, whole or not at all: its media by path, a batch at a time (each
    *  read when the one before is written), then deck.json as `deck` gives it. Media of the deck as it
    *  was that this import does not bring stay (a card of a word an update drops keeps its audio), and
@@ -108,6 +111,8 @@ export function createDecks(deps: {
     withExamples: deck.words.filter((w) => w.examples?.length).length,
     file: deck.source.file,
     importedAt: deck.source.importedAt,
+    /** The profile whose own deck it is (Finds); null: every profile's. */
+    owner: deck.owner ?? null,
   });
 
   function open(upload: string): Apkg {
@@ -136,6 +141,7 @@ export function createDecks(deps: {
       .ids()
       .flatMap((id) => deckOf(id) ?? [])
       .filter((d) => {
+        if (d.owner) return false;
         const shared = d.words.filter((w) => keys.has(w.key)).length;
         return shared * 2 > d.words.length && shared * 2 > wordsIn(d);
       });
@@ -287,7 +293,10 @@ export function createDecks(deps: {
     };
   }
 
-  return {
+  /** Additions to learners' own decks, one after another (each reads the deck the one before wrote). */
+  let adding: Promise<unknown> = Promise.resolve();
+
+  const decks = {
     deck: deckOf,
 
     /** The decks here, by title. */
@@ -426,7 +435,72 @@ export function createDecks(deps: {
     /** A file of a deck folder's own media: an imported deck's, or a course's (audio read aloud). */
     media: (folder: string, path: string) =>
       DeckFolder.safeParse(folder).success ? files.media(folder, path) : undefined,
+
+    /** Adds a word to a profile's own deck — made with it when there is none —, with its audio
+     *  (`media/<name>`, written first); a word of a lexeme the deck has already is not added again.
+     *  The deck as it is now. */
+    addOwn(request: {
+      id: DeckId;
+      owner: string;
+      title: string;
+      lang: Lang;
+      translationLang: Lang;
+      word: DeckWord;
+      audio?: { path: string; bytes: Uint8Array };
+    }): Promise<Deck> {
+      const added = adding.then(() => {
+        const was = deckOf(request.id);
+        // A deck.json there that does not read (damaged, or a newer app's) is never written over: its
+        // finds would be lost.
+        if (!was && files.read(request.id) !== undefined)
+          throw new ServiceError("no_such_deck", 409);
+        if (was && was.owner !== request.owner) throw new ServiceError("no_such_deck", 404);
+        if (was?.words.some((w) => w.lexeme === request.word.lexeme)) return was;
+        const deck = Deck.parse({
+          format: DECK_FORMAT,
+          id: request.id,
+          title: was?.title ?? request.title,
+          lang: request.lang,
+          translationLang: request.translationLang,
+          source: was?.source ?? { file: "", importedAt: deps.now() },
+          owner: request.owner,
+          words: [...(was?.words ?? []), request.word],
+        });
+        if (request.audio) files.writeMedia(request.id, request.audio.path, request.audio.bytes);
+        files.writeDeck(request.id, `${JSON.stringify(deck, null, 2)}\n`);
+        read.set(request.id, deck);
+        return deck;
+      });
+      adding = added.catch(() => {});
+      return added;
+    },
+
+    /** Removes a profile's own decks with their files (the profile deleted). */
+    removeOwned(owner: string) {
+      for (const id of files.ids())
+        if (deckOf(id)?.owner === owner) {
+          deps.onReplace?.(id as DeckId);
+          files.remove(id);
+          read.delete(id);
+        }
+    },
   };
+
+  /** The decks as a profile sees them: every deck but another profile's own. */
+  function of(profile: string) {
+    const seen = (deck: Deck | undefined) =>
+      deck && (!deck.owner || deck.owner === profile) ? deck : undefined;
+    return {
+      ...decks,
+      deck: (id: string) => seen(deckOf(id)),
+      list: () => decks.list().filter((d) => !d.owner || d.owner === profile),
+      remove(id: DeckId) {
+        if (!seen(deckOf(id))) throw new ServiceError("no_such_deck", 404);
+        decks.remove(id);
+      },
+    };
+  }
+  return { ...decks, of };
 }
 export type Decks = ReturnType<typeof createDecks>;
 

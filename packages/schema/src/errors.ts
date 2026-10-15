@@ -71,6 +71,8 @@ export const ERROR_CODES = [
   "deck_unpacked_too_large",
   "deck_same_languages",
   "deck_job_running",
+  // Words selected and translated (Finds): which language is learnt is not known.
+  "find_no_language",
   // Settings.
   "unknown_setting",
   "invalid_setting",

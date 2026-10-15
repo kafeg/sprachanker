@@ -1100,7 +1100,8 @@
     "removeStudied": "{count, plural, one {{profiles} profili bu desteyi çalışıyor.} other {{profiles} profilleri bu desteyi çalışıyor.}} Tüm profiller desteden ayrıldığında silinebilir: Tekrar → Desteler → Desteden ayrıl…",
     "available": "Alınabilecek desteler",
     "progress": "{words, plural, one {# kelimeden} other {# kelimeden}} {mine, number}",
-    "extras": "Ses ve örnekler"
+    "extras": "Ses ve örnekler",
+    "finds": "Bulduklarım"
   },
   "guide": {
     "open": "Nasıl çalışır?",
@@ -1392,6 +1393,7 @@
     "deck_unpacked_too_large": "Bu deste dosyası açıldığında bir seferde okunabilecek olandan daha büyük oluyor.",
     "deck_same_languages": "Kelimeler ve çevirileri için iki farklı dil gerekir.",
     "deck_job_running": "Destenin kelimeleri üzerinde şu an çalışılıyor: önce durdur ya da bitmesini bekle.",
+    "find_no_language": "Hangi dili öğrendiğin henüz bilinmiyor: önce bir kursa başla ya da bir deste al.",
     "examples_without_word": "Modelin cümleleri kelimeyi kullanmadı.",
     "length_required": "Dosya boyutu belirtilmeden gönderildi. Yeniden dene ya da başka bir tarayıcıda dene.",
     "upload_stalled": "Dosyanın gelişi durdu. Bağlantıyı kontrol et ve yeniden dene.",
@@ -1729,6 +1731,9 @@
   },
   "selection": {
     "label": "Seçili metin",
-    "speak": "Sesli oku"
+    "speak": "Sesli oku",
+    "translate": "Çevir",
+    "added": "Bulduklarım’a eklendi",
+    "had": "Zaten kartlarında var"
   }
 }

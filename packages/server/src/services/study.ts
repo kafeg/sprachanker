@@ -309,14 +309,17 @@ export function createStudy(deps: {
             .sort()
             .map((from) => `${from}-${lang}`);
           const summary = installed.find((c) => `course:${c.key}` === scope);
+          const deck = scope.startsWith("deck:") ? decks.deck(scope.slice(5)) : undefined;
           decksIn.push({
             scope,
             /** Null when the course or deck is no longer here. */
             title: scope.startsWith("deck:")
-              ? (decks.deck(scope.slice(5))?.title ?? null)
+              ? (deck?.title ?? null)
               : summary
                 ? courseTitle(summary, editions)
                 : null,
+            /** The learner's own deck (Finds): its name is the app's. */
+            own: !!deck?.owner,
             editions,
             counts: (await queueOf(scope, data)).counts,
           });

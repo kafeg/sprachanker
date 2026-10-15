@@ -1100,7 +1100,8 @@
     "removeStudied": "{count, plural, other {Profil {profiles} sedang mempelajari dek ini.}} Dek bisa dihapus setelah semua profil meninggalkannya: Pengulangan → Dek → Tinggalkan dek….",
     "available": "Dek yang bisa diambil",
     "progress": "{mine, number} dari {words, plural, other {# kata}}",
-    "extras": "Audio dan contoh"
+    "extras": "Audio dan contoh",
+    "finds": "Temuan"
   },
   "guide": {
     "open": "Cara kerjanya",
@@ -1392,6 +1393,7 @@
     "deck_unpacked_too_large": "Isi berkas dek ini terlalu besar untuk dibaca sekaligus.",
     "deck_same_languages": "Kata dan terjemahannya harus dalam dua bahasa yang berbeda.",
     "deck_job_running": "Kata-kata dek sedang dikerjakan: hentikan dulu, atau tunggu sampai selesai.",
+    "find_no_language": "Belum diketahui bahasa apa yang kamu pelajari: mulai kursus atau ambil dek dulu.",
     "examples_without_word": "Kalimat dari model tidak memakai kata tersebut.",
     "length_required": "Berkas dikirim tanpa ukurannya. Coba lagi, atau di peramban lain.",
     "upload_stalled": "File berhenti terkirim. Periksa koneksi dan coba lagi.",
@@ -1729,6 +1731,9 @@
   },
   "selection": {
     "label": "Teks terpilih",
-    "speak": "Bacakan"
+    "speak": "Bacakan",
+    "translate": "Terjemahkan",
+    "added": "Ditambahkan ke Temuan",
+    "had": "Sudah ada di kartumu"
   }
 }

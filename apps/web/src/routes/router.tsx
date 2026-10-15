@@ -14,9 +14,9 @@ import { usePlaybackRate, usePreferences } from "@/app/preferences.ts";
 import { AppShell, type ExtraSection } from "@/app/shell.tsx";
 import { WhoIsStudying } from "@/app/who-is-studying.tsx";
 import { SpeechProvider } from "@/audio/context.ts";
-import { SelectionMenu } from "@/audio/selection-menu.tsx";
+import { type Picked, SelectionMenu } from "@/audio/selection-menu.tsx";
 import { useSpeechHostValue } from "@/audio/use-speech-host.ts";
-import { useAiIn } from "@/llm/setup-api.ts";
+import { useAiIn, useLlm } from "@/llm/setup-api.ts";
 import type { LessonView } from "@/notebook/lesson.tsx";
 import type { CardExample } from "@/study/examples.tsx";
 import { type DeckSlot, StudySlotsProvider } from "@/study/slots.ts";
@@ -89,15 +89,24 @@ const examplesAssistant = {
   deck: (props: DeckSlot) => <DeckExamples {...props} />,
 };
 
+// Words selected anywhere translated and kept (the selection bar's action while a model is set up),
+// loaded when first shown; a new selection starts it anew.
+const SelectionTranslate = page(
+  () => import("@/llm/selection-translate.tsx").then((m) => m.SelectionTranslate),
+  null,
+);
+const translate = (picked: Picked) => <SelectionTranslate key={picked.text} picked={picked} />;
+
 /** The app of a signed-in, onboarded profile: its preferences applied. */
 function SignedIn() {
   usePreferences();
+  const ai = !!useLlm().data?.model;
   return (
     <PlaybackRate value={usePlaybackRate()}>
       <SpeechProvider value={useSpeechHostValue()}>
         <StudySlotsProvider value={examplesAssistant}>
           <Outlet />
-          <SelectionMenu />
+          <SelectionMenu extra={ai ? translate : undefined} />
         </StudySlotsProvider>
       </SpeechProvider>
     </PlaybackRate>

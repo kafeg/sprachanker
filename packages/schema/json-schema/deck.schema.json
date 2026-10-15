@@ -45,6 +45,11 @@
       ],
       "additionalProperties": false
     },
+    "owner": {
+      "type": "string",
+      "minLength": 1,
+      "maxLength": 80
+    },
     "words": {
       "minItems": 1,
       "type": "array",

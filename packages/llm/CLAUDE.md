@@ -79,6 +79,9 @@ src/
                        # line judged; repeatedQuestion: a reply ending as the last one did asked again;
                        # cleanSceneTurn: remarks in place of corrections dropped), scene_summary
                        # (key corrections, model lines without the error); goal kinds by level (data)
+    translate-selection.ts # selection_translate: words selected anywhere in the app → which language they
+                       # are in, the words learnt as a card's front (a word's dictionary form), their
+                       # translation as their sentence uses them
     tutor-tools.ts     # the tutor's tool definitions (progress, mistakes, word, lesson) and prompt lines
     text-genres.ts     # the text generator's genres (data: what each is, its shape — people in turns,
                        # one voice, written —, its length at A1), areas of life as ideas; textWords (by

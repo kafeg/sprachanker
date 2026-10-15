@@ -1100,7 +1100,8 @@
     "removeStudied": "{count, plural, one {Le profil {profiles} étudie ce paquet.} many {Les profils {profiles} étudient ce paquet.} other {Les profils {profiles} étudient ce paquet.}} Il pourra être supprimé quand tous les profils l’auront quitté : Révision → Paquets → Quitter le paquet….",
     "available": "Paquets à prendre",
     "progress": "{mine, number} sur {words, plural, one {# mot} other {# mots}}",
-    "extras": "Audio et exemples"
+    "extras": "Audio et exemples",
+    "finds": "Trouvailles"
   },
   "guide": {
     "open": "Comment ça marche",
@@ -1392,6 +1393,7 @@
     "deck_unpacked_too_large": "Une fois décompressé, ce fichier de paquet est trop gros pour être lu d’un coup.",
     "deck_same_languages": "Les mots et leurs traductions doivent être dans deux langues différentes.",
     "deck_job_running": "Les mots du paquet sont en cours de traitement : arrêtez d’abord, ou attendez la fin.",
+    "find_no_language": "On ne sait pas encore quelle langue tu apprends : commence d’abord un cours ou prends un paquet.",
     "examples_without_word": "Les phrases du modèle n’utilisaient pas le mot.",
     "length_required": "Le fichier a été envoyé sans sa taille. Réessaie, ou dans un autre navigateur.",
     "upload_stalled": "Le fichier a cessé d'arriver. Vérifie la connexion et réessaie.",
@@ -1729,6 +1731,9 @@
   },
   "selection": {
     "label": "Texte sélectionné",
-    "speak": "Lire à voix haute"
+    "speak": "Lire à voix haute",
+    "translate": "Traduire",
+    "added": "Ajouté aux Trouvailles",
+    "had": "Déjà dans tes cartes"
   }
 }

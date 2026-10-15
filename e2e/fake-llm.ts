@@ -259,6 +259,18 @@ const wordExamples = (prompt: string) => {
   };
 };
 
+/** Words selected, kept as they are: the language learnt, translated as "FAKE: …". */
+const selectionTranslate = (prompt: string) => {
+  const text = /<selection>([\s\S]*?)<\/selection>/.exec(prompt)?.[1] ?? "";
+  return {
+    from: "target",
+    target: text,
+    translation: `FAKE: ${text}`,
+    pos: text.includes(" ") ? "phrase" : "other",
+    plural: "",
+  };
+};
+
 const SPOKEN_CHECK = {
   verdict: "minor_errors",
   corrected: "Hallo, guten Tag!",
@@ -379,7 +391,9 @@ if (import.meta.main) {
                             ? talkCues(body.messages.at(-1)?.content ?? "")
                             : task === "talk_check"
                               ? talkCheck(body.messages.at(-1)?.content ?? "")
-                              : (STRUCTURED[task] ?? WRITING_CHECK),
+                              : task === "selection_translate"
+                                ? selectionTranslate(body.messages.at(-1)?.content ?? "")
+                                : (STRUCTURED[task] ?? WRITING_CHECK),
             );
         return Response.json({ choices: [{ message: { role: "assistant", content } }] });
       }

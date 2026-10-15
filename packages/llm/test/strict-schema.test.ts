@@ -12,6 +12,7 @@ import { rateExamAnswerTask } from "../src/tasks/rate-exam-answer.ts";
 import { sceneSetupTask, sceneSummaryTask, sceneTurnTask } from "../src/tasks/scene.ts";
 import { talkCardTask, talkCheckTask, talkCuesTask } from "../src/tasks/talk.ts";
 import { TEXT_GENRES } from "../src/tasks/text-genres.ts";
+import { translateSelectionTask } from "../src/tasks/translate-selection.ts";
 import { understandingDraftTask, understandingJudgeTask } from "../src/tasks/understanding.ts";
 import { wordExamplesTask } from "../src/tasks/word-examples.ts";
 import { writingTaskTask } from "../src/tasks/writing-task.ts";
@@ -58,6 +59,7 @@ const TASKS: StructuredTask<unknown>[] = [
   sceneTurnTask({ ...RU_DE, lesson, setup, history: [], message: "Hallo" }),
   sceneSummaryTask({ ...RU_DE, lesson, setup, turns: [], goalsMet: [] }),
   wordExamplesTask({ ...RU_DE, words: [], known: [] }),
+  translateSelectionTask({ ...RU_DE, text: "Situation" }),
   talkCardTask({ ...RU_DE, lesson }),
   talkCuesTask({
     ...RU_DE,

@@ -1100,7 +1100,8 @@
     "removeStudied": "{count, plural, one {Profil {profiles} uči ovaj špil.} few {Profili {profiles} uče ovaj špil.} other {Profili {profiles} uče ovaj špil.}} Može se obrisati kad ga svi profili napuste: Ponavljanje → Špilovi → Napusti špil….",
     "available": "Može se uzeti",
     "progress": "{mine, number} od {words, plural, one {# riječi} few {# riječi} other {# riječi}}",
-    "extras": "Zvuk i primjeri"
+    "extras": "Zvuk i primjeri",
+    "finds": "Nalazi"
   },
   "guide": {
     "open": "Kako radi",
@@ -1392,6 +1393,7 @@
     "deck_unpacked_too_large": "Ova datoteka špila se raspakuje u više nego što se odjednom može pročitati.",
     "deck_same_languages": "Za riječi i njihove prijevode trebaju dva različita jezika.",
     "deck_job_running": "Na riječima špila se upravo radi: prvo to zaustavi ili sačekaj da završi.",
+    "find_no_language": "Još se ne zna koji jezik učiš: prvo započni kurs ili uzmi špil.",
     "examples_without_word": "Rečenice modela nisu koristile tu riječ.",
     "length_required": "Datoteka je poslana bez svoje veličine. Pokušaj ponovo ili u drugom pregledniku.",
     "upload_stalled": "Datoteka je prestala stizati. Provjeri vezu i pokušaj ponovo.",
@@ -1729,6 +1731,9 @@
   },
   "selection": {
     "label": "Označeni tekst",
-    "speak": "Pročitaj"
+    "speak": "Pročitaj",
+    "translate": "Prevedi",
+    "added": "Dodano u „Nalaze”",
+    "had": "Već je u tvojim karticama"
   }
 }

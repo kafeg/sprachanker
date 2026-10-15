@@ -1,17 +1,30 @@
 // The assistant's tasks in the API: explanations, the tutor, Understanding, writing, spoken
-// answers, scenes, a deck's words given examples (and a card's), exam ratings and conversations, and
-// the request each would send (the prompt viewer). Its setup — providers, models, LM Studio, the
-// prompts — is setup-api.ts.
+// answers, scenes, a deck's words given examples (and a card's), exam ratings and conversations,
+// words selected kept in Finds, and the request each would send (the prompt viewer). Its setup —
+// providers, models, LM Studio, the prompts — is setup-api.ts.
 import { CHAT_ID_HEADER, type LessonKey, STREAM_ERROR } from "@sprachanker/schema";
 import { useInfiniteQuery, useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import type { InferResponseType } from "hono/client";
 import { useEffect, useRef } from "react";
 import { withAttempt, withCheck, withReview, withScene, withText, withTurns } from "@/api/cache.ts";
-import { DECK_EXAMPLES } from "@/api/cards.ts";
+import { DECK_EXAMPLES, readDecksAgain } from "@/api/cards.ts";
 import { ApiError, api, apiError, errorOf, json } from "@/api/client.ts";
 import { runKey } from "@/api/exams.ts";
 
 export type ExplainRequest = Parameters<typeof api.llm.explain.$post>[0]["json"];
+
+/** Words selected anywhere translated and kept in the learner's deck "Finds": the decks read anew once
+ *  a card is made of them. */
+export function useFind() {
+  const client = useQueryClient();
+  return useMutation({
+    mutationFn: (request: Parameters<typeof api.llm.finds.$post>[0]["json"]) =>
+      json(api.llm.finds.$post({ json: request })),
+    onSuccess: (found) => {
+      if (found.added) void readDecksAgain(client);
+    },
+  });
+}
 
 /** What a streamed reply is read from: its status, its body, and its JSON when it failed. */
 type StreamedResponse = Pick<Response, "ok" | "status" | "body" | "json">;

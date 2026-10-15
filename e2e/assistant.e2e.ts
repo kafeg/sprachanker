@@ -1,6 +1,6 @@
 // The AI screens against the fake model (fake-llm.ts): "Why is this wrong?", the tutor, a writing check,
-// going over mistakes, a deck's words given examples, a rating proposed for an exam's written answer, a
-// speaking part held as a conversation.
+// going over mistakes, a deck's words given examples, words selected kept in Finds, a rating proposed
+// for an exam's written answer, a speaking part held as a conversation.
 import { expect, test } from "@playwright/test";
 import { MODELL } from "@sprachanker/course-fixture";
 import {
@@ -134,6 +134,37 @@ test("explain a mistake, ask the tutor, check a text", async ({ page, request })
   await goToStep(page, "Writing");
   await goToStep(page, "Summary");
   await expect(step.getByText("1 of 2 right")).toBeVisible();
+});
+
+test("words selected translated: the bar's Translate shows the card and keeps it in Finds", async ({
+  page,
+  request,
+}) => {
+  await put(request, "/api/settings", { key: "uiLanguage", value: "en" });
+  await openStep(page, "Lena at the café");
+  // "Café" of an option selected, as a learner's drag selects it.
+  await page.evaluate(() => {
+    const option = [...document.querySelectorAll("[role=button]")].find(
+      (e) => !!e.textContent?.includes("Im Café."),
+    );
+    const walker = document.createTreeWalker(option as Node, NodeFilter.SHOW_TEXT);
+    let text = walker.nextNode();
+    while (text && !text.textContent?.includes("Café")) text = walker.nextNode();
+    const at = text?.textContent?.indexOf("Café") ?? 0;
+    const range = document.createRange();
+    range.setStart(text as Node, at);
+    range.setEnd(text as Node, at + 4);
+    window.getSelection()?.removeAllRanges();
+    window.getSelection()?.addRange(range);
+  });
+  const bar = page.getByRole("toolbar", { name: "Selected text" });
+  await bar.getByRole("button", { name: "Translate" }).click();
+  // The fake model keeps the words as they are; a project before this one kept them already.
+  await expect(bar.getByText("FAKE: Café")).toBeVisible();
+  await expect(bar.getByText(/Added to Finds|Already in your cards/)).toBeVisible();
+  // Review → Decks: the learner's own deck, by its name.
+  await page.goto("/review/decks");
+  await expect(page.getByRole("button", { name: "Finds", exact: true })).toBeVisible();
 });
 
 test("going over mistakes is in the summary only once the pass has a mistake; no step of the plan", async ({

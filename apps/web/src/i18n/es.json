@@ -1100,7 +1100,8 @@
     "removeStudied": "{count, plural, one {El perfil {profiles} estudia este mazo.} other {Los perfiles {profiles} estudian este mazo.}} Se podrá eliminar cuando todos los perfiles lo hayan dejado: Repaso → Mazos → Dejar el mazo….",
     "available": "Mazos para tomar",
     "progress": "{mine, number} de {words, plural, one {# palabra} other {# palabras}}",
-    "extras": "Audio y ejemplos"
+    "extras": "Audio y ejemplos",
+    "finds": "Hallazgos"
   },
   "guide": {
     "open": "Cómo funciona",
@@ -1392,6 +1393,7 @@
     "deck_unpacked_too_large": "Este archivo de mazo, descomprimido, es más grande de lo que se puede leer de una vez.",
     "deck_same_languages": "Las palabras y sus traducciones necesitan dos idiomas distintos.",
     "deck_job_running": "Ahora se está trabajando en las palabras del mazo: detenlo primero o espera a que termine.",
+    "find_no_language": "Aún no se sabe qué idioma aprendes: empieza primero un curso o toma un mazo.",
     "examples_without_word": "Las frases del modelo no usaron la palabra.",
     "length_required": "El archivo se envió sin su tamaño. Inténtalo de nuevo o en otro navegador.",
     "upload_stalled": "El archivo dejó de llegar. Comprueba la conexión e inténtalo de nuevo.",
@@ -1729,6 +1731,9 @@
   },
   "selection": {
     "label": "Texto seleccionado",
-    "speak": "Leer en voz alta"
+    "speak": "Leer en voz alta",
+    "translate": "Traducir",
+    "added": "Añadido a Hallazgos",
+    "had": "Ya está en tus tarjetas"
   }
 }

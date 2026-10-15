@@ -14,7 +14,8 @@ src/
                      # one: a course's, a module's, a pass mark's), part of speech, gender, option ids;
                      # a headword's shape and a German noun's gender (the lexeme's rules: courses, decks)
   deck.ts            # an imported deck (`decks/<id>/deck.json`): its id, words (with the deck's own
-                     # examples), languages, source; a deck folder (a course's too) and its extras.json
+                     # examples), languages, source, owner (a profile's own: Finds — findsDeckId); a deck
+                     # folder (a course's too) and its extras.json
                      # (by word key: the audio read aloud)
   common.ts          # sha256, media paths, media, library paths, localized text, `format` literal
   canonical.ts       # course index, lesson, vocab entries, unmapped

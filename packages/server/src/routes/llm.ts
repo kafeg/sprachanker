@@ -1,5 +1,6 @@
-// /api/llm: provider setup, LM Studio, connection test, mistake explanations, the lesson tutor and the
-// AI practice of a lesson (Understanding, writing, the Dialogue).
+// /api/llm: provider setup, LM Studio, connection test, mistake explanations, the lesson tutor, the
+// AI practice of a lesson (Understanding, writing, the Dialogue) and words selected anywhere kept
+// (Finds).
 // Mounted by app.ts; removing this module and that mount removes the LLM features from the API.
 import { LlmError, LMSTUDIO_RECOMMENDED, PROMPT_TASKS, ProviderId } from "@sprachanker/llm";
 import {
@@ -75,6 +76,14 @@ const TalkBody = LessonRequest.extend({
 
 /** A text of Reading or Listening asked for. */
 const TextRequest = LessonRequest.extend({ step: PracticeStep });
+
+/** Words selected anywhere in the app: the sentence around them, the language the page marks them
+ *  with. */
+const FindBody = z.object({
+  text: z.string().trim().min(1).max(300),
+  context: z.string().max(600).optional(),
+  lang: z.string().max(20).optional(),
+});
 
 /** A course's practice in an edition. */
 const PracticeCourse = z.object({ series: SeriesKey, course: Slug, edition: EditionId });
@@ -220,6 +229,10 @@ export function llmRoutes() {
           await c.var.s.llm.setProvider(c.req.valid("param").id, c.req.valid("json"));
           return c.json(c.var.s.llm.state());
         },
+      )
+      // Words selected translated and kept in the learner's deck "Finds" (a card made of them).
+      .post("/finds", zod("json", FindBody), async (c) =>
+        c.json(await c.var.s.finds.add(c.req.valid("json"))),
       )
       .get("/models", zod("query", z.object({ provider: ProviderId })), async (c) =>
         c.json(await c.var.s.llm.models(c.req.valid("query").provider, c.req.raw.signal)),

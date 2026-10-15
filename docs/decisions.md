@@ -183,7 +183,7 @@ area is built is in its `CLAUDE.md`; work not built yet is in `docs/plan.md`.
 - Snapshots keep old runs readable after content changes or course removal; cards keep working from `display_cache_json`.
 - `card_state` is written in the same transaction as its `card_review` or `card_undo` and must stay recomputable from those events.
 - Migrations may be squashed into `0000_init` only until the first release; after a release, never.
-- One profile is one folder (backup, move, delete are folder operations); the library never holds learner data, profiles never hold course content.
+- One profile is one folder (backup, move, delete are folder operations); the library never holds learner data, profiles never hold course content. The one exception: a profile's own deck (Finds) is a deck folder in `decks/` like any deck, owned by the profile, so that every deck is exported alike (owner, 2026-10-15); it goes when the profile goes.
 - Backups keep what cannot be fetched again: `server.sqlite`, `profiles/`, `decks/`, `secret.key`; library, `models/`, `cache/` are disposable (owner, 2026-10-11). `secret.key` stays in app-data, outside the data root.
 - A profile's daily copies live in its folder, so deleting the profile leaves nothing of the person behind.
 - A profile file is for one's own machines only, and importing always makes a new profile, never replacing one (owner, 2026-10-11).
@@ -221,7 +221,8 @@ area is built is in its `CLAUDE.md`; work not built yet is in `docs/plan.md`.
 
 ## Interface
 
-- Words selected anywhere in the app get a small bar by them (owner, 2026-10-15): read aloud in the language the page marks them with; translated and kept as cards in the learner's own deck "Finds" (both faces, its sentence as context, translated by the AI model — no model, no translation). No speaker button on each option: an option's words are selectable instead (a click that selects words chooses nothing).
+- Words selected anywhere in the app get a small bar by them (owner, 2026-10-15). With an AI model it has one action, Translate: whichever language the words are in, the language learnt is said aloud and the other shown, and the words become a card of the learner's own deck "Finds" by themselves (both faces, their sentence as context; no separate "add" button). Without a model the bar only reads the language learnt aloud. No speaker button on each option: an option's words are selectable instead (a click that selects words chooses nothing).
+- Every deck is exported and imported on its own, as one kind of file: a course's words, an imported deck, Finds — each with what was made for its words (audio, examples) (owner, 2026-10-15).
 - A calm study tool: content first, large readable target-language text, motion only where it informs.
 - No streaks, hearts or other gamification that punishes.
 - Nothing moves when an answer is checked or revealed: options keep room for the mark, cards keep their size, and the review buttons share one height.

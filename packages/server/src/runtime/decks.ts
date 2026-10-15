@@ -76,6 +76,7 @@ export function deckFiles(dataRoot: string): DeckFiles {
       const file = join(folder(id), "deck.json");
       return isFile(file) ? readFileSync(file, "utf8") : undefined;
     },
+    writeDeck: (id, text) => writeWhole(join(folder(id), "deck.json"), text),
     async write(id, media, deck) {
       const target = folder(id);
       const fresh = join(root, `.${id}.tmp-${randomUUID().slice(0, 8)}`);

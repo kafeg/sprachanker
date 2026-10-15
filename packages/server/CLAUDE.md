@@ -54,7 +54,8 @@ src/
                      # runs: /api/runs),
                      # progress (reset), exams, cards (a card's examples too), decks (imported: list,
                      # preview, import, an upload let go, delete; any deck's words read aloud or given
-                     # examples), settings, notebook, recordings, speech, llm (removable as a whole),
+                     # examples), settings, notebook, recordings, speech, llm (removable as a whole; words
+                     # selected kept in Finds: /api/llm/finds),
                      # network (the addresses the app is reached at); env.ts: what a profile's routes
                      # read (`c.var.s`, its services; `c.var.profileId`); params.ts: what several take
                      # alike (a run's id in the path, a batch of events, a deck taken)
@@ -71,7 +72,10 @@ src/
                      # - review: cards (from lesson words or an imported deck; decks taken, left;
                      #   relinking; what a card shows in a deck: `shown`), study (Anki's decks, queue, ratings, undo, bury, suspend, flags,
                      #   marks; standing, a review day in full), words, decks (imported .apkg decks, server-wide: preview,
-                     #   import — the same deck again updated —, list, delete while no profile uses it),
+                     #   import — the same deck again updated —, list, delete while no profile uses it; a
+                     #   profile's own deck — Finds, `owner` — grown a word at a time, seen by it alone: `of`,
+                     #   gone with it), finds (words selected anywhere: the model's card, read aloud, added
+                     #   to the profile's Finds and made a card — unless a card of the word is there),
                      #   deck-extras (what is made for a deck's words, kept in its folder by lexeme:
                      #   extras.json read once, a job per deck and kind — its media known while it works —,
                      #   what was made removed, sweeping),
