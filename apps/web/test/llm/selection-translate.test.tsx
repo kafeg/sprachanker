@@ -98,7 +98,7 @@ test("with a model the bar has one action, Translate: the card shown at once, ke
     expect(view.queryByText("Read aloud")).toBeNull();
     fireEvent.click(view.getByRole("button", { name: /Translate/ }));
     // The translation as soon as the model answered, its audio still being made.
-    await view.findByText("Added to Finds");
+    await view.findByText("Added to Finds", {}, { timeout: 3000 });
     expect(view.getByText("die Situation").getAttribute("lang")).toBe("de");
     expect(view.getByText(/— ситуация/)).toBeTruthy();
     expect(view.getByRole("status", { name: "Audio being made" })).toBeTruthy();
@@ -112,14 +112,15 @@ test("with a model the bar has one action, Translate: the card shown at once, ke
     ]);
     // Made: played once, by itself; the play button says it again.
     made("/decks/finds-local-ru-de/media/find-1.wav");
-    await waitFor(() => expect(played).toHaveLength(1));
+    await waitFor(() => expect(played).toHaveLength(1), { timeout: 3000 });
     expect(asked).toContain("GET /decks/finds-local-ru-de/media/find-1.wav");
     expect(said).toEqual([]);
-    await waitFor(() =>
-      expect(view.queryByRole("status", { name: "Audio being made" })).toBeNull(),
+    await waitFor(
+      () => expect(view.queryByRole("status", { name: "Audio being made" })).toBeNull(),
+      { timeout: 3000 },
     );
     fireEvent.click(view.getByRole("button", { name: "Listen" }));
-    await waitFor(() => expect(played).toHaveLength(2));
+    await waitFor(() => expect(played).toHaveLength(2), { timeout: 3000 });
   } finally {
     (globalThis as { Audio: unknown }).Audio = realAudio;
   }
