@@ -43,6 +43,10 @@ export interface Frame {
 const PACKET = 188;
 const H264 = 0x1b;
 const AAC = 0x0f;
+/** MPEG-1/2 video, MPEG-4 part 2, HEVC. */
+const OTHER_VIDEO = [0x01, 0x02, 0x10, 0x24];
+/** MPEG audio, AAC in LATM, AC-3, E-AC-3. */
+const OTHER_AUDIO = [0x03, 0x04, 0x11, 0x81, 0x87];
 const CLOCK = 90_000;
 const AAC_RATES = [
   96000, 88200, 64000, 48000, 44100, 32000, 24000, 22050, 16000, 12000, 11025, 8000, 7350,
@@ -54,6 +58,10 @@ export interface Demuxer {
   audio?: AudioTrack;
   /** PIDs of the elementary streams, found in the PMT. */
   pids: { pmt?: number; video?: number; audio?: number };
+  /** The last timestamp read, unwrapped (33 bits wrap round about every 26.5 hours). */
+  last?: number;
+  /** An ADTS frame begun at the end of an audio PES, finished by the next: its bytes, its time. */
+  carry?: { bytes: Uint8Array; time: number };
 }
 
 export const newDemuxer = (
@@ -63,6 +71,19 @@ export const newDemuxer = (
   pids: {},
   size: [width, height],
 });
+
+const WRAP = 2 ** 33;
+
+/** A timestamp made continuous with the one before it across the 33-bit wrap. */
+function unwrap(d: Demuxer, ts: number) {
+  let t = ts;
+  if (d.last !== undefined) {
+    while (t < d.last - WRAP / 2) t += WRAP;
+    while (t > d.last + WRAP / 2) t -= WRAP;
+  }
+  d.last = t;
+  return t;
+}
 
 /** A PES's timestamp (33 bits, 90 kHz) at `at`. */
 const timestamp = (b: Uint8Array, at: number) =>
@@ -125,13 +146,22 @@ function readTable(d: Demuxer, pid: number, t: Uint8Array) {
     return;
   }
   const info = (((t[10] as number) & 0x0f) << 8) | (t[11] as number);
+  let otherVideo: number | undefined;
+  let otherAudio: number | undefined;
   for (let p = 12 + info; p + 5 <= end; ) {
     const type = t[p] as number;
     const es = (((t[p + 1] as number) & 0x1f) << 8) | (t[p + 2] as number);
     if (type === H264 && d.pids.video === undefined) d.pids.video = es;
     if (type === AAC && d.pids.audio === undefined) d.pids.audio = es;
+    if (OTHER_VIDEO.includes(type)) otherVideo = type;
+    if (OTHER_AUDIO.includes(type)) otherAudio = type;
     p += 5 + ((((t[p + 3] as number) & 0x0f) << 8) | (t[p + 4] as number));
   }
+  // Video or sound only in another coding would make a film without it: an error, not a silent one.
+  if (d.pids.video === undefined && otherVideo !== undefined)
+    throw new Error(`the stream's video is not H.264 (stream type ${otherVideo})`);
+  if (d.pids.audio === undefined && otherAudio !== undefined)
+    throw new Error(`the stream's sound is not AAC in ADTS (stream type ${otherAudio})`);
 }
 
 /** The NAL units of an Annex B byte stream. */
@@ -163,10 +193,12 @@ export function demuxSegment(
     if (data[0] !== 0 || data[1] !== 0 || data[2] !== 1) continue;
     const flags = (data[7] as number) >> 6;
     const headerEnd = 9 + (data[8] as number);
-    const pts = flags & 2 ? timestamp(data, 9) : undefined;
-    const dts = flags === 3 ? timestamp(data, 14) : pts;
-    const body = data.subarray(headerEnd);
-    if (pid === d.pids.video && pts !== undefined && dts !== undefined) {
+    const pts = flags & 2 ? unwrap(d, timestamp(data, 9)) : undefined;
+    const dts = flags === 3 ? unwrap(d, timestamp(data, 14)) : pts;
+    let body = data.subarray(headerEnd);
+    if (pid === d.pids.video) {
+      // A frame without its time cannot be placed: the film would drift from its sound.
+      if (pts === undefined || dts === undefined) throw new Error("a video frame without its time");
       const kept: Uint8Array[] = [];
       let key = false;
       for (const nal of nalUnits(body)) {
@@ -205,10 +237,28 @@ export function demuxSegment(
       d.video.samples.push({ size, dts, cts: pts - dts, key });
       frames.push({ kind: "video", seconds: dts / CLOCK, bytes });
     }
-    if (pid === d.pids.audio && pts !== undefined) {
+    if (pid === d.pids.audio) {
+      // The frames that begin in this PES are timed from its PTS; one carried over from the PES
+      // before it keeps its own time.
+      const carried = d.carry;
+      d.carry = undefined;
+      if (carried) body = concat([carried.bytes, body]);
+      if (pts === undefined && !carried) continue;
       let n = 0;
-      for (let p = 0; p + 7 <= body.length; ) {
-        if (body[p] !== 0xff || ((body[p + 1] as number) & 0xf0) !== 0xf0) break;
+      /** The time of the frame at `p`, the `n`th here. */
+      const timeOf = (p: number, rate: number) =>
+        carried && p === 0
+          ? carried.time
+          : Math.round(((pts ?? 0) * rate) / CLOCK) + (n - (carried ? 1 : 0)) * 1024;
+      for (let p = 0; p < body.length; ) {
+        if (body[p] !== 0xff) break;
+        if (p + 7 > body.length) {
+          // A frame's header cut by the PES's end: the rest of it comes in the next.
+          if (pts !== undefined || p === 0)
+            d.carry = { bytes: body.slice(p), time: timeOf(p, d.audio?.timescale ?? 44100) };
+          break;
+        }
+        if (((body[p + 1] as number) & 0xf0) !== 0xf0) break;
         const crc = ((body[p + 1] as number) & 1) === 0;
         const profile = (body[p + 2] as number) >> 6;
         const rateIndex = ((body[p + 2] as number) >> 2) & 0x0f;
@@ -218,8 +268,16 @@ export function demuxSegment(
           ((body[p + 4] as number) << 3) |
           ((body[p + 5] as number) >> 5);
         const head = crc ? 9 : 7;
-        if (length < head || p + length > body.length) break;
+        if (length < head) break;
         const rate = AAC_RATES[rateIndex] ?? 44100;
+        if (!(carried && p === 0) && pts === undefined)
+          throw new Error("a sound frame without its time");
+        const time = timeOf(p, rate);
+        if (p + length > body.length) {
+          // The rest of this frame comes in the next PES.
+          d.carry = { bytes: body.slice(p), time };
+          break;
+        }
         if (!d.audio) {
           const object = profile + 1;
           d.audio = {
@@ -233,7 +291,6 @@ export function demuxSegment(
             samples: [],
           };
         }
-        const time = Math.round((pts * rate) / CLOCK) + n * 1024;
         const bytes = body.slice(p + head, p + length);
         d.audio.samples.push({ size: bytes.length, dts: time, cts: 0, key: true });
         frames.push({ kind: "audio", seconds: time / rate, bytes });
@@ -243,6 +300,18 @@ export function demuxSegment(
     }
   }
   return frames.sort((a, b) => a.seconds - b.seconds);
+}
+
+function concat(parts: Uint8Array[]) {
+  let size = 0;
+  for (const p of parts) size += p.length;
+  const out = new Uint8Array(size);
+  let at = 0;
+  for (const p of parts) {
+    out.set(p, at);
+    at += p.length;
+  }
+  return out;
 }
 
 // MP4 boxes.
@@ -255,15 +324,19 @@ const u64 = (v: number) => {
   return out;
 };
 const text = (s: string) => new TextEncoder().encode(s);
-function cat(parts: Uint8Array[]) {
-  let size = 0;
-  for (const p of parts) size += p.length;
-  const out = new Uint8Array(size);
-  let at = 0;
-  for (const p of parts) {
-    out.set(p, at);
-    at += p.length;
-  }
+const cat = concat;
+/** 32-bit numbers as one array (a table of a long film's thousands: never spread as arguments). */
+function u32s(values: Iterable<number>) {
+  const list = [...values];
+  const out = new Uint8Array(list.length * 4);
+  const view = new DataView(out.buffer);
+  for (let i = 0; i < list.length; i++) view.setUint32(i * 4, list[i] as number);
+  return out;
+}
+function u64s(values: number[]) {
+  const out = new Uint8Array(values.length * 8);
+  const view = new DataView(out.buffer);
+  for (let i = 0; i < values.length; i++) view.setBigUint64(i * 8, BigInt(values[i] as number));
   return out;
 }
 const box = (type: string, ...parts: Uint8Array[]) => {
@@ -365,18 +438,18 @@ function sampleTable(track: VideoTrack | AudioTrack, offsets: number[], big: boo
   return box(
     "stbl",
     full("stsd", 0, 0, u32(1), entry),
-    full("stts", 0, 0, u32(stts.length), ...stts.flatMap(([n, d]) => [u32(n), u32(d)])),
+    full("stts", 0, 0, u32(stts.length), u32s(stts.flat())),
     ...(cts.some((c) => c !== 0)
-      ? [full("ctts", 0, 0, u32(samples.length), ...cts.flatMap((c) => [u32(1), u32(c)]))]
+      ? [full("ctts", 0, 0, u32(samples.length), u32s(cts.flatMap((c) => [1, c])))]
       : []),
     ...(track.kind === "video" && keys.length < samples.length
-      ? [full("stss", 0, 0, u32(keys.length), ...keys.map(u32))]
+      ? [full("stss", 0, 0, u32(keys.length), u32s(keys))]
       : []),
     full("stsc", 0, 0, u32(1), u32(1), u32(1), u32(1)),
-    full("stsz", 0, 0, u32(0), u32(samples.length), ...samples.map((s) => u32(s.size))),
+    full("stsz", 0, 0, u32(0), u32(samples.length), u32s(samples.map((s) => s.size))),
     big
-      ? full("co64", 0, 0, u32(offsets.length), ...offsets.map(u64))
-      : full("stco", 0, 0, u32(offsets.length), ...offsets.map(u32)),
+      ? full("co64", 0, 0, u32(offsets.length), u64s(offsets))
+      : full("stco", 0, 0, u32(offsets.length), u32s(offsets)),
   );
 }
 

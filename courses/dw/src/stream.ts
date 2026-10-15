@@ -20,13 +20,20 @@ export function variantUrl(master: string, resolution: string): string | undefin
   return i >= 0 ? lines[i + 1] : undefined;
 }
 
+/** Tags of a playlist whose segments are not one plain run (encrypted, in parts of a file, a break in
+ *  their timing, an init section): not read as one. */
+const UNSUPPORTED = ["#EXT-X-KEY", "#EXT-X-BYTERANGE", "#EXT-X-DISCONTINUITY", "#EXT-X-MAP"];
+
 /** The segments of a variant playlist, as absolute URLs. */
-export const segmentUrls = (playlist: string, base: string) =>
-  playlist
-    .split("\n")
-    .map((line) => line.trim())
+export function segmentUrls(playlist: string, base: string) {
+  const lines = playlist.split("\n").map((line) => line.trim());
+  const odd = lines.find((line) => UNSUPPORTED.some((tag) => line.startsWith(tag)));
+  if (odd && !odd.startsWith("#EXT-X-KEY:METHOD=NONE"))
+    throw new Error(`${base}: the stream cannot be remuxed (${odd.split(":")[0]})`);
+  return lines
     .filter((line) => line && !line.startsWith("#"))
     .map((line) => new URL(line, base).href);
+}
 
 /** Remuxes the variant into an MP4 at `target` (moved into place by the caller): the frames go to a
  *  file beside it as each segment is read, then the MP4's head and they are written as one. */
@@ -59,6 +66,7 @@ export async function remuxStream(
   try {
     await fs.write(frames, data());
     if (!demuxer.video?.samples.length) throw new Error(`${variantHref}: no video in the stream`);
+    if (!demuxer.audio?.samples.length) throw new Error(`${variantHref}: no sound in the stream`);
     const head = mp4Header(demuxer, order, dataBytes);
     async function* whole() {
       yield head;
