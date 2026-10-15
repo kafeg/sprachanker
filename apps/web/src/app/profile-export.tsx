@@ -18,7 +18,7 @@ export function ProfileExport({
   /** Tests give their own: the file made ready, still there, and downloaded. */
   prepare?: () => Promise<ExportedProfile>;
   check?: (id: string) => Promise<void>;
-  download?: (url: string, fileName: string) => void;
+  download?: (url: string, fileName: string) => void | Promise<void>;
 }) {
   const { t } = useTranslation();
   const bytes = useBytes();
@@ -27,9 +27,9 @@ export function ProfileExport({
       const ready = await prepare();
       // One gone meanwhile is an error here, never the server's answer saved as the file.
       await check(ready.id);
+      await download(exportUrl(ready.id), ready.fileName);
       return ready;
     },
-    onSuccess: (ready) => download(exportUrl(ready.id), ready.fileName),
   });
   return (
     <Panel title={t("profile.export.title")}>

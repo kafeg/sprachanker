@@ -55,14 +55,16 @@ export const deckExportUrl = (id: string) => `/api/decks/export/${id}`;
 /** A deck the learner sees (`course:<key>`, `deck:<id>`) as a file: made ready on the server, asked
  *  after (one gone meanwhile is an error, never the server's answer saved as the file), then
  *  downloaded under its own name. Its name and size. */
-export function useExportDeck(download = startDownload) {
+export function useExportDeck(
+  download: (url: string, fileName: string) => void | Promise<void> = startDownload,
+) {
   return useMutation({
     mutationFn: async (scope: string) => {
       const ready = await json(api.decks.export.$post({ json: { scope } }));
       await downloadReady(deckExportUrl(ready.id), "deck_export_gone");
+      await download(deckExportUrl(ready.id), ready.fileName);
       return ready;
     },
-    onSuccess: (ready) => download(deckExportUrl(ready.id), ready.fileName),
   });
 }
 

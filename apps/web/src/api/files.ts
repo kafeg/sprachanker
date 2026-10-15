@@ -68,12 +68,10 @@ export async function downloadReady(url: string, gone: ErrorCode) {
   if (!res.ok) throw new ApiError(res.status === 404 ? gone : `HTTP ${res.status}`, res.status);
 }
 
-/** A file downloaded by the browser, under its own name (the phone app: into its Downloads). */
-export function startDownload(url: string, fileName: string) {
-  if (phone) {
-    phone.save(url, fileName).catch((error: unknown) => console.error(error));
-    return;
-  }
+/** A file downloaded by the browser, under its own name; the phone app saves it into its Downloads,
+ *  done when saved (its failure — a full phone — the caller's to show). */
+export async function startDownload(url: string, fileName: string) {
+  if (phone) return phone.save(url, fileName);
   const link = document.createElement("a");
   link.href = url;
   link.download = fileName;

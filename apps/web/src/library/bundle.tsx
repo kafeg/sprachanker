@@ -41,7 +41,7 @@ export function CourseExport({
   /** Tests give their own: the file made ready, still there, and downloaded. */
   prepare?: typeof prepareCourseExport;
   check?: (id: string) => Promise<void>;
-  download?: (url: string, fileName: string) => void;
+  download?: (url: string, fileName: string) => void | Promise<void>;
 }) {
   const { t } = useTranslation();
   const bytes = useBytes();
@@ -50,9 +50,9 @@ export function CourseExport({
       const ready = await prepare({ series, course, edition });
       // One gone meanwhile is an error here, never the server's answer saved as the file.
       await check(ready.id);
+      await download(courseExportUrl(ready.id), ready.fileName);
       return ready;
     },
-    onSuccess: (ready) => download(courseExportUrl(ready.id), ready.fileName),
   });
   return (
     <>
