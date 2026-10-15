@@ -96,9 +96,13 @@ fn place(taken_over: Option<(Option<u16>, Option<String>)>) -> Place {
     }
 }
 
-/// The server's log: ~/Library/Logs/SprachAnker on a Mac.
+/// The server's log: ~/Library/Logs/SprachAnker on a Mac; a run on another folder (a test's) keeps
+/// its own there, never mixed into the app's.
 fn log_file() -> PathBuf {
-    user_home().join("Library/Logs/SprachAnker/serve.log")
+    match std::env::var_os("SPRACHANKER_HOME") {
+        Some(home) => PathBuf::from(home).join("serve.log"),
+        None => user_home().join("Library/Logs/SprachAnker/serve.log"),
+    }
 }
 
 /// The shell's words (`desktop.*`) in the system's language (English where a catalog lacks one), from
