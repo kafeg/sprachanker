@@ -1288,7 +1288,8 @@
         "model": "Model dasar (1.7B): suara penutur asli untuk kata",
         "taking": "Mengambil suara dari rekaman kursus…",
         "none": "Belum ada kursus dalam bahasa ini ({language}) untuk diambil suaranya.",
-        "another": "Rekaman lain"
+        "recording": "Dengarkan rekaman",
+        "recordingFor": "Rekaman untuk suara: {language}"
       }
     },
     "listening": "Mendengarkan…",

@@ -1288,7 +1288,8 @@
         "model": "Modelo base (1.7B): uma voz nativa para palavras",
         "taking": "Tirando a voz de uma gravação do curso…",
         "none": "Não há aqui nenhum curso nesta língua ({language}) de onde tirar uma voz.",
-        "another": "Outra gravação"
+        "recording": "Ouvir a gravação",
+        "recordingFor": "Gravação para a voz: {language}"
       }
     },
     "listening": "Ouvindo…",

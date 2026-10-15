@@ -1288,7 +1288,8 @@
         "model": "Modèle de base (1.7B) : une voix native pour les mots",
         "taking": "Voix prise dans un enregistrement du cours…",
         "none": "Aucun cours dans cette langue ({language}) ici pour y prendre une voix.",
-        "another": "Autre enregistrement"
+        "recording": "Écouter l’enregistrement",
+        "recordingFor": "Enregistrement pour la voix : {language}"
       }
     },
     "listening": "Écoute en cours…",

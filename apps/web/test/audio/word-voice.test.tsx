@@ -82,10 +82,10 @@ test("the voice for words: its Base model downloaded from Settings like the othe
   fireEvent.click(within(row).getByRole("button", { name: /Download/ }));
   await waitFor(() => expect(asked).toContain("POST /api/speech/qwen/models/base"));
   // Nothing to choose until the model is there.
-  expect(view.queryByRole("button", { name: /Another recording/ })).toBeNull();
+  expect(view.queryByRole("combobox", { name: /Recording for/ })).toBeNull();
 });
 
-test("the voice for words of a language: the sentence it was taken from, Listen reads a word in it, another recording taken as 24 kHz WAV", async () => {
+test("the voice for words of a language, in the speakers' row: its recording chosen from a list, heard as it is, Listen reads the text below in the voice", async () => {
   const words = { de: { id: "abc", ...KAFFEE } };
   const asked = server((path) =>
     path === "/api/speech/say"
@@ -94,36 +94,69 @@ test("the voice for words of a language: the sentence it was taken from, Listen 
         ? new Response(new Blob([new Uint8Array([1, 2, 3])], { type: "audio/mpeg" }))
         : Response.json(qwen(true, { de: { id: "def", ...TISCH } })),
   );
-  const view = await renderApp(<ReadAloud />, {
-    data: [
-      catalog,
-      [["qwen-tts"], qwen(true, words)],
-      [
-        ["word-candidates", "de"],
-        [KAFFEE, TISCH],
+  const played: string[] = [];
+  const realAudio = globalThis.Audio;
+  (globalThis as { Audio: unknown }).Audio = class {
+    paused = true;
+    currentTime = 0;
+    playbackRate = 1;
+    constructor(readonly src: string) {}
+    async play() {
+      played.push(this.src);
+    }
+    pause() {}
+  };
+  try {
+    const view = await renderApp(<ReadAloud />, {
+      data: [
+        catalog,
+        [["qwen-tts"], qwen(true, words)],
+        [
+          ["word-candidates", "de"],
+          [KAFFEE, TISCH],
+        ],
+        [["word-candidates", "en"], []],
       ],
-      [["word-candidates", "en"], []],
-    ],
-  });
-  const sentence = view.getByText(KAFFEE.text);
-  expect(sentence.getAttribute("lang")).toBe("de");
-  // English: no course of it here to take a voice from.
-  expect(view.getByText("No course in English here to take a voice from.")).toBeTruthy();
+    });
+    const pick = view.getByRole("combobox", { name: "Recording for the German voice" });
+    expect(pick.textContent).toBe(KAFFEE.text);
+    // English: no course of it here to take a voice from.
+    expect(view.getByText("No course in English here to take a voice from.")).toBeTruthy();
 
-  const row = within(sentence.closest("div") as HTMLElement);
-  fireEvent.click(row.getByRole("button", { name: /Listen/ }));
-  await waitFor(() =>
-    expect(asked).toContain(
-      `POST /api/speech/say ${JSON.stringify({ text: "der Kühlschrank", lang: "de", use: "words" })}`,
-    ),
-  );
+    // The recording as it is.
+    fireEvent.click(view.getByRole("button", { name: /Course recording/ }));
+    expect(played).toEqual(["/library/dw.nicos-weg/media/audio/kaffee.mp3"]);
 
-  fireEvent.click(row.getByRole("button", { name: /Another recording/ }));
-  await view.findByText(TISCH.text);
-  expect(asked).toContain("GET /library/dw.nicos-weg/media/audio/tisch.mp3");
-  expect(asked).toContain(
-    `POST /api/speech/words/de?${new URLSearchParams({ series: TISCH.series, path: TISCH.path })} audio/wav`,
-  );
+    // Listen reads what the box below holds: a word first, then the learner's own text.
+    const row = within(pick.closest("div.border-t") as HTMLElement);
+    const box = row.getByRole("textbox", { name: /German/ });
+    expect((box as HTMLTextAreaElement).value).toBe("der Kühlschrank");
+    fireEvent.change(box, { target: { value: "die Stühle" } });
+    fireEvent.click(row.getByRole("button", { name: /Listen/ }));
+    await waitFor(() =>
+      expect(asked).toContain(
+        `POST /api/speech/say ${JSON.stringify({ text: "die Stühle", lang: "de", use: "words" })}`,
+      ),
+    );
+
+    // Another recording chosen from the list: taken as 24 kHz WAV.
+    fireEvent.click(pick);
+    const options = await view.findAllByRole("option");
+    expect(options.map((o) => [o.textContent, o.getAttribute("lang")])).toEqual([
+      [KAFFEE.text, "de"],
+      [TISCH.text, "de"],
+    ]);
+    fireEvent.click(view.getByRole("option", { name: TISCH.text }));
+    await waitFor(() =>
+      expect(asked).toContain(
+        `POST /api/speech/words/de?${new URLSearchParams({ series: TISCH.series, path: TISCH.path })} audio/wav`,
+      ),
+    );
+    expect(asked).toContain("GET /library/dw.nicos-weg/media/audio/tisch.mp3");
+    await waitFor(() => expect(pick.textContent).toBe(TISCH.text));
+  } finally {
+    (globalThis as { Audio: unknown }).Audio = realAudio;
+  }
 });
 
 test("no voice for words yet: the first recording proposed is taken by itself", async () => {
@@ -143,13 +176,17 @@ test("no voice for words yet: the first recording proposed is taken by itself", 
       [["word-candidates", "en"], []],
     ],
   });
-  await view.findByText(KAFFEE.text);
+  await waitFor(() =>
+    expect(view.getByRole("combobox", { name: "Recording for the German voice" }).textContent).toBe(
+      KAFFEE.text,
+    ),
+  );
   expect(asked.filter((a) => a.startsWith("POST /api/speech/words/de"))).toEqual([
     `POST /api/speech/words/de?${new URLSearchParams({ series: KAFFEE.series, path: KAFFEE.path })} audio/wav`,
   ]);
 });
 
-test("a recording that cannot be taken: said so, and another one offered", async () => {
+test("a recording that cannot be taken: said so, and another one chosen from the list", async () => {
   const asked = server((path) =>
     path.endsWith("kaffee.mp3")
       ? Response.json({ error: "not_found" }, { status: 404 })
@@ -169,9 +206,11 @@ test("a recording that cannot be taken: said so, and another one offered", async
     ],
   });
   await view.findByText("This recording is gone.");
-  fireEvent.click(view.getByRole("button", { name: /Another recording/ }));
-  await view.findByText(TISCH.text);
-  expect(asked.filter((a) => a.startsWith("POST /api/speech/words/de"))).toEqual([
-    `POST /api/speech/words/de?${new URLSearchParams({ series: TISCH.series, path: TISCH.path })} audio/wav`,
-  ]);
+  fireEvent.click(view.getByRole("combobox", { name: "Recording for the German voice" }));
+  fireEvent.click(await view.findByRole("option", { name: TISCH.text }));
+  await waitFor(() =>
+    expect(asked.filter((a) => a.startsWith("POST /api/speech/words/de"))).toEqual([
+      `POST /api/speech/words/de?${new URLSearchParams({ series: TISCH.series, path: TISCH.path })} audio/wav`,
+    ]),
+  );
 });

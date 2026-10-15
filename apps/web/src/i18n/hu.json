@@ -1288,7 +1288,8 @@
         "model": "Alapmodell (1.7B): anyanyelvi hang a szavakhoz",
         "taking": "A hang átvétele egy kurzusfelvételből…",
         "none": "Itt nincs ilyen nyelvű ({language}) kurzus, amelyből hangot lehetne venni.",
-        "another": "Másik felvétel"
+        "recording": "Felvétel meghallgatása",
+        "recordingFor": "Felvétel a hanghoz: {language}"
       }
     },
     "listening": "Felismerés…",

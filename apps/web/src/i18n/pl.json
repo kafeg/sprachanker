@@ -1288,7 +1288,8 @@
         "model": "Model bazowy (1.7B): rodzimy głos do słów",
         "taking": "Głos jest brany z nagrania kursu…",
         "none": "Nie ma tu kursu w tym języku ({language}), z którego można wziąć głos.",
-        "another": "Inne nagranie"
+        "recording": "Posłuchaj nagrania",
+        "recordingFor": "Nagranie dla głosu: {language}"
       }
     },
     "listening": "Słucham…",

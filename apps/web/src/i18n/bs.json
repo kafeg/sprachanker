@@ -1288,7 +1288,8 @@
         "model": "Osnovni model (1.7B): glas izvornog govornika za riječi",
         "taking": "Glas se uzima iz snimka kursa…",
         "none": "Ovdje nema kursa na tom jeziku ({language}) iz kojeg bi se uzeo glas.",
-        "another": "Drugi snimak"
+        "recording": "Poslušaj snimak",
+        "recordingFor": "Snimak za glas: {language}"
       }
     },
     "listening": "Slušam…",

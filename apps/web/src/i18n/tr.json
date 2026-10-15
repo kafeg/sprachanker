@@ -1288,7 +1288,8 @@
         "model": "Temel model (1.7B): kelimeler için anadili sesi",
         "taking": "Ses bir kurs kaydından alınıyor…",
         "none": "Burada bu dilde ({language}) ses alınacak bir kurs yok.",
-        "another": "Başka bir kayıt"
+        "recording": "Kaydı dinle",
+        "recordingFor": "Ses için kayıt: {language}"
       }
     },
     "listening": "Dinleniyor…",

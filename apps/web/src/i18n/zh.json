@@ -1288,7 +1288,8 @@
         "model": "基础模型（1.7B）：单词的母语声音",
         "taking": "正在从课程录音中取声音…",
         "none": "这里还没有这种语言（{language}）的课程可以取声音。",
-        "another": "换一段录音"
+        "recording": "听录音",
+        "recordingFor": "用于声音的录音：{language}"
       }
     },
     "listening": "正在识别…",

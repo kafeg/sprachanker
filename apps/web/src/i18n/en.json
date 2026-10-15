@@ -1288,7 +1288,8 @@
         "model": "Base model (1.7B): a native voice for words",
         "taking": "Taking the voice from a course's recording…",
         "none": "No course in {language} here to take a voice from.",
-        "another": "Another recording"
+        "recording": "Course recording",
+        "recordingFor": "Recording for the {language} voice"
       }
     },
     "listening": "Listening to it…",

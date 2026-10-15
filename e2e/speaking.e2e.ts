@@ -194,5 +194,5 @@ test("reading aloud in Settings: Qwen3-TTS alone, each language's speaker", asyn
     .getByRole("listitem")
     .filter({ hasText: "Base model (1.7B): a native voice for words" });
   await expect(words.getByRole("button", { name: "Download" })).toBeVisible();
-  await expect(page.getByRole("button", { name: "Another recording" })).toHaveCount(0);
+  await expect(page.getByRole("combobox", { name: /Recording for/ })).toHaveCount(0);
 });

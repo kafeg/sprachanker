@@ -1288,7 +1288,8 @@
         "model": "Model de bază (1.7B): o voce nativă pentru cuvinte",
         "taking": "Se ia vocea dintr-o înregistrare a cursului…",
         "none": "Nu există aici niciun curs în această limbă ({language}) din care să se ia o voce.",
-        "another": "Altă înregistrare"
+        "recording": "Ascultă înregistrarea",
+        "recordingFor": "Înregistrarea pentru voce: {language}"
       }
     },
     "listening": "Se ascultă…",

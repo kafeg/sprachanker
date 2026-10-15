@@ -1288,7 +1288,8 @@
         "model": "Basismodell (1.7B): eine Muttersprachlerstimme für Wörter",
         "taking": "Stimme wird aus einer Kursaufnahme genommen…",
         "none": "Hier ist kein Kurs in dieser Sprache ({language}), aus dem sich eine Stimme nehmen lässt.",
-        "another": "Andere Aufnahme"
+        "recording": "Kursaufnahme",
+        "recordingFor": "Aufnahme für die Stimme: {language}"
       }
     },
     "listening": "Wird erkannt …",

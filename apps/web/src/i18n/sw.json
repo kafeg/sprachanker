@@ -1288,7 +1288,8 @@
         "model": "Modeli ya msingi (1.7B): sauti ya mzawa kwa maneno",
         "taking": "Sauti inachukuliwa kutoka rekodi ya kozi…",
         "none": "Hakuna kozi ya lugha hii ({language}) hapa ya kuchukua sauti.",
-        "another": "Rekodi nyingine"
+        "recording": "Sikiliza rekodi",
+        "recordingFor": "Rekodi ya sauti: {language}"
       }
     },
     "listening": "Inasikiliza…",

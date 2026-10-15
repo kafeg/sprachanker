@@ -95,9 +95,9 @@ apps/web/src/
                    # which voice; pure), speaker.ts (a part's recording as it is, else each part by the server's engine — Piper or Qwen3-TTS —
                    # or the device's voices, one text at a time; a dialogue's second speaker by another voice; a part marked `words` by the voice
                    # for words), listening (a text line by line: pause, on, again), speak-button, selection-menu (words selected anywhere: a bar by them that reads them aloud; an optional feature's actions beside, what they show in a line under them), read-by (who reads a language, named),
-                   # read-aloud-settings (Qwen3-TTS alone: its state) with qwen-voices (models, each language's speaker; voice-pick: a language's voice and "Listen";
+                   # read-aloud-settings (Qwen3-TTS alone: its state) with qwen-voices (models, each language's speaker; voice-pick: a language's voice, "Listen" and its text;
                    # voice-names: a server voice's name, pure; a voice's gender: the engine's speech/voices) and word-voice (the voice for words: its
-                   # Base model, each language's recording taken — the first proposed by itself —, "Listen", "Another recording"); download-row (a model
+                   # Base model, in the speakers' row: a language's recording chosen from a list — the first proposed taken by itself —, heard as it is, "Listen"); download-row (a model
                    # or voice the server downloads), read-languages (the languages read aloud), samples ("Listen"'s sentences and words; pure), in-use (the in-use mark)
   word/            # a word as shown: gender colouring; tones (ratings and counts in our hues), time
                    # (intervals, next due)
