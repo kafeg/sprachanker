@@ -13,10 +13,14 @@ src/main.ts         # serve, import, verify, profiles (the server's profile matt
                     # (a course's AI practice made for every lesson by a profile's model: steps,
                     # count 1–3; --status), backup, version; main(argv, embedded?) — also
                     # runs from sources
+src/version.ts      # the version reported: set when compiled, counted from git from the sources
 install.sh          # the installer published with each release (curl … | bash): Apple Silicon only; the
                     # program into ~/SprachAnker/bin, a LaunchAgent, a backup before an update
                     # (README's Install; docs/decisions.md)
+scripts/version.ts  # the app's version: MAJOR.MINOR of package.json, the commit count third (printed when run;
+                    # the desktop's and the phone's builds take it too)
 scripts/build.ts    # bun run build:bin (build:cli after build:speech): embeds the web build, compiles dist/sprachanker
+                    # with the version
                     # (the server's profile-db Worker a second entry, its name handed in), copies the
                     # speech engines built in native/ beside it (whisper-server, Piper's
                     # sherpa-onnx-offline-tts, Qwen3-TTS's tts-server)

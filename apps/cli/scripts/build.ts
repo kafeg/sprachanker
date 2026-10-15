@@ -5,6 +5,7 @@ import { copyFileSync, existsSync, rmSync } from "node:fs";
 import { join, relative, resolve } from "node:path";
 import { PROFILE_DB_WORKER, speechEngines, targetTriple } from "@sprachanker/server";
 import { Glob } from "bun";
+import { appVersion } from "./version.ts";
 
 const cliDir = resolve(import.meta.dir, "..");
 const webDist = resolve(cliDir, "../web/dist");
@@ -40,6 +41,7 @@ await Bun.write(entry, source);
 
 // Bun 1.4 leaves a copy of the runtime (.<hash>-00000000.bun-build) in the working directory on
 // every compile: build from the output folder and remove it there.
+const version = appVersion();
 const workingDir = process.cwd();
 process.chdir(outDir);
 const result = await Bun.build({
@@ -47,6 +49,7 @@ const result = await Bun.build({
   root,
   compile: { outfile },
   minify: true,
+  define: { SPRACHANKER_VERSION: JSON.stringify(version) },
 });
 for (const leftover of new Glob(".*.bun-build").scanSync({ cwd: outDir, dot: true })) {
   rmSync(join(outDir, leftover));
@@ -56,7 +59,7 @@ if (!result.success) {
   for (const log of result.logs) console.error(log);
   process.exit(1);
 }
-console.log(`built ${relative(process.cwd(), outfile)} with ${files.length} web files`);
+console.log(`built ${relative(process.cwd(), outfile)} ${version} with ${files.length} web files`);
 
 // The speech engines built for this machine only: the binary compiled here runs here.
 for (const { folder, program } of Object.values(speechEngines)) {

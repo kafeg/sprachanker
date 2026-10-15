@@ -12,12 +12,14 @@ import {
   serverSchema,
 } from "@sprachanker/server/portable";
 import { drizzle } from "drizzle-orm/sql-js";
-import pkg from "../package.json" with { type: "json" };
 import { flushAll, openDb } from "./db.ts";
 import { openFiles } from "./files.ts";
 import { FILES, native, setNetFetch } from "./native.ts";
 import { profileFiles } from "./profiles.ts";
 import { phoneSpeech } from "./speech.ts";
+
+/** The app's version, set when the page is built (scripts/build.ts). */
+declare const SPRACHANKER_VERSION: string;
 
 const netFetch = globalThis.fetch.bind(globalThis);
 setNetFetch(netFetch);
@@ -96,7 +98,7 @@ async function start() {
     transfers: notOnPhone("profile files"),
     courseTransfers: notOnPhone("course files"),
     deckTransfers: notOnPhone("deck files"),
-    appVersion: pkg.version,
+    appVersion: SPRACHANKER_VERSION,
     secretKey,
     fetch: speech.fetchVia(netFetch),
     speech: speech.host,

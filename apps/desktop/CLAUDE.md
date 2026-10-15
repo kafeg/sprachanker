@@ -19,7 +19,7 @@ src-tauri/
                        # the browser, quit); started at login from Applications, hidden; a second start
                        # shows the first
   build.rs             # Tauri's build; the shell's words: the web catalogs' `desktop` section, embedded
-  tauri.conf.json      # app.sprachanker.desktop, the version apps/cli's; externalBin: the binary and the
+  tauri.conf.json      # app.sprachanker.desktop (its version given by the build: the binary's); externalBin: the binary and the
                        # engines; signed ad hoc
   Info.plist           # the microphone's question (English; the build adds each catalog's language)
   icons/               # from icons/app-icon.png (apps/web/scripts/icons.ts: macOS's grid), `tauri icon`
