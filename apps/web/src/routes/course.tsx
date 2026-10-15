@@ -4,7 +4,7 @@
 import { lessonOrder, parseLessonKey } from "@sprachanker/schema";
 import { Link } from "@tanstack/react-router";
 import { Check, CheckCircle2, CircleDot } from "lucide-react";
-import { Suspense } from "react";
+import { Suspense, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { mediaUrl } from "@/api/client.ts";
 import { useCourseMap } from "@/api/courses.ts";
@@ -76,8 +76,13 @@ function LessonCard({
   );
 }
 
-/** What an optional feature adds to a course's page (the AI assistant: the course's practice). */
-export type CourseExtra = React.ComponentType<{ series: string; course: string; edition: string }>;
+type CourseIds = { series: string; course: string; edition: string };
+/** What an optional feature adds to a course's page (the AI assistant: the course's practice): a
+ *  button among the course's actions, and what it opens under the course's head. */
+export type CourseExtra = {
+  Button: React.ComponentType<CourseIds & { open: boolean; onToggle(): void }>;
+  Panel: React.ComponentType<CourseIds>;
+};
 
 export function CoursePage({
   series,
@@ -91,6 +96,7 @@ export function CoursePage({
   const { t } = useTranslation();
   const { courses, info, edition } = useCourseEdition(series, course);
   const map = useCourseMap(series, course, edition);
+  const [extraOpen, setExtraOpen] = useState(false);
   useWindowPlace(t("windowTitle.course"));
   if (courses.isPending) return <Loading />;
   if (!info) return <CourseGone series={series} course={course} />;
@@ -113,10 +119,24 @@ export function CoursePage({
           lessons={all.length}
           next={next ? { key: next, title: titles[next] ?? next } : undefined}
           started={!!info?.started}
+          actions={
+            Extra &&
+            edition && (
+              <Suspense fallback={null}>
+                <Extra.Button
+                  series={series}
+                  course={course}
+                  edition={edition}
+                  open={extraOpen}
+                  onToggle={() => setExtraOpen((open) => !open)}
+                />
+              </Suspense>
+            )
+          }
         />
-        {Extra && edition && (
+        {Extra && edition && extraOpen && (
           <Suspense fallback={null}>
-            <Extra series={series} course={course} edition={edition} />
+            <Extra.Panel series={series} course={course} edition={edition} />
           </Suspense>
         )}
         <ol className="relative space-y-8 before:absolute before:top-2 before:bottom-2 before:start-[15px] before:w-0.5 before:bg-border">

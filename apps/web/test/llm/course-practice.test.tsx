@@ -1,9 +1,10 @@
 // A course's AI practice on its page: how much of each step there is; made for every lesson — the
 // steps (Listening only where Qwen3-TTS records it) and how many of each —; a job's progress and
-// Stop; nothing to make without a model. A step's "more": how many, unavailable saying why.
+// Stop; nothing to make without a model. Its button among the course's actions: open or not, a job's
+// progress on it.
 import { expect, test } from "bun:test";
 import { fireEvent, waitFor } from "@testing-library/react";
-import { CoursePractice } from "../../src/llm/course-practice.tsx";
+import { CoursePractice, CoursePracticeButton } from "../../src/llm/course-practice.tsx";
 import { renderApp } from "../render.tsx";
 import { server } from "./practice-lesson.ts";
 
@@ -80,4 +81,36 @@ test("a job running: its progress, the step being made, Stop; Listening off with
     (deaf.getByRole("button", { name: "Make for every lesson" }) as HTMLButtonElement).disabled,
   ).toBe(true);
   deaf.unmount();
+});
+
+test("its button: pressed, it says so and asks the page to open it; while a job runs, how far it is", async () => {
+  let toggled = 0;
+  const button = (open: boolean, job: unknown) =>
+    renderApp(
+      <CoursePracticeButton
+        {...WHAT}
+        open={open}
+        onToggle={() => {
+          toggled++;
+        }}
+      />,
+      { data: [llm, [KEY, { ...STATE, job }]] },
+    );
+  const closed = await button(false, null);
+  const ai = closed.getByRole("button", { name: "AI practice" });
+  expect(ai.getAttribute("aria-expanded")).toBe("false");
+  fireEvent.click(ai);
+  expect(toggled).toBe(1);
+  closed.unmount();
+  const running = await button(true, {
+    state: "running",
+    done: 4,
+    total: 12,
+    current: [],
+    failed: [],
+  });
+  expect(
+    running.getByRole("button", { name: /AI practice · 4 of 12/ }).getAttribute("aria-expanded"),
+  ).toBe("true");
+  running.unmount();
 });

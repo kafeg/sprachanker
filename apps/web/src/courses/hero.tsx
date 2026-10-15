@@ -48,6 +48,8 @@ type CourseHeroProps = {
   next?: { key: string; title: string };
   /** The course is begun (engine `courseProgress`). */
   started: boolean;
+  /** An optional feature's button among the course's actions (the AI's practice). */
+  actions?: React.ReactNode;
 };
 
 export function CourseHero(props: CourseHeroProps) {
@@ -162,7 +164,7 @@ export function CourseHero(props: CourseHeroProps) {
 
       {/* What can be done with the course itself: download what is missing or sync it with its
           source, reset its progress. */}
-      {(available || started) && (
+      {(available || started || props.actions) && (
         <div className="mt-3 flex flex-wrap gap-2">
           <SyncButton
             series={series}
@@ -183,6 +185,7 @@ export function CourseHero(props: CourseHeroProps) {
               )}
             </ResetProgress>
           )}
+          {props.actions}
         </div>
       )}
 
