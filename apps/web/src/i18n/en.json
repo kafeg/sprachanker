@@ -1087,7 +1087,9 @@
       "install": "To generate it, install a voice for {language} in Settings → Speech",
       "failed": "{count, plural, one {# word could not be read aloud} other {# words could not be read aloud}}",
       "voice": "Read by {engine, select, qwen {Qwen3-TTS} other {Piper}} · {voice} ({language})",
-      "chooseVoice": "Choose a voice"
+      "chooseVoice": "Choose a voice",
+      "voiceWords": "Read by Qwen3-TTS · the voice for words ({language})",
+      "otherVoice": "{count, plural, one {# word read in another voice} other {# words read in another voice}}"
     },
     "why": "Reason: {reason}",
     "examples": {
@@ -1279,7 +1281,20 @@
       "howMic": "Where an answer is spoken (an exam's speaking part), a microphone: tap to start recording, tap again to stop. Where the task is writing, there is none.",
       "howPhrase": "The phrase to repeat is hidden until your first try; you can show it sooner.",
       "howRecordings": "Your recordings are kept on this computer to listen to again in the Notebook; delete them in General → Storage.",
-      "how": "How it works"
+      "how": "How it works",
+      "words": {
+        "title": "Voice for words",
+        "hint": "Words — a deck's, those kept in Finds and words you select — are read by a separate Base model in a native voice taken from a recording of a course in their language. It runs beside the model above and holds about 3 GB more memory while it reads.",
+        "model": "Base model (1.7B): a native voice for words",
+        "taking": "Taking the voice from a course's recording…",
+        "none": "No course in {language} here to take a voice from.",
+        "recording": "Course recording",
+        "recordingFor": "Recording for the {language} voice",
+        "sample": "Voice sample: a course's recording — the model copies the speaker's voice from it.",
+        "where": "{course} · lesson {lesson, number}",
+        "male": "man's voice",
+        "female": "woman's voice"
+      }
     },
     "listening": "Listening to it…",
     "heardLater": "Not heard yet — your take is kept; what was heard follows.",
@@ -1747,6 +1762,8 @@
     "speak": "Read aloud",
     "translate": "Translate",
     "added": "Added to Finds",
-    "had": "Already in your cards"
+    "had": "Already in your cards",
+    "audioMaking": "Audio being made",
+    "listen": "Listen"
   }
 }

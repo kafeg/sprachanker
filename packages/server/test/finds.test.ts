@@ -83,21 +83,34 @@ test("words selected in German: the model's card, read aloud, kept in the profil
   const { sendJson, getJson, get, root, model: m } = api;
 
   const found = await sendJson("POST", "/api/llm/finds", SITUATION);
+  // Shown at once: added and made a card, its audio read next, on its own request.
   expect(found).toEqual({
     target: "die Situation",
     translation: "ситуация",
     from: "target",
     lang: "de",
-    audio: expect.stringMatching(new RegExp(`^/decks/${FINDS}/media/find-[0-9a-f]{12}\\.wav$`)),
+    audio: null,
+    word: { deck: FINDS, key: expect.any(String) },
     added: true,
   });
+  expect(p.said).toEqual([]);
+  expect(deckJson(root).words[0].audio).toBeUndefined();
   // The model was told the page's language, the sentence and the words, to answer in Russian.
   const asked = m.bodies[0]?.messages.at(-1)?.content ?? "";
   expect(asked).toContain("<hint>German</hint>");
   expect(asked).toContain("<context>Das ist eine schwierige Situation.</context>");
   expect(asked).toContain('"translation" in Russian');
-  // Its audio: the words learnt read by the profile's voice, served from the deck's folder.
-  expect(await (await get(found.audio)).text()).toBe("RIFF die Situation");
+  // Its audio: the words learnt read by the profile's voice, kept with the word, served from the
+  // deck's folder; asked again, the same (read once).
+  const { audio } = await sendJson("POST", "/api/llm/finds/audio", found.word);
+  expect(audio).toMatch(new RegExp(`^/decks/${FINDS}/media/find-[0-9a-f]{12}\\.wav$`));
+  expect(await (await get(audio)).text()).toBe("RIFF die Situation");
+  expect(await sendJson("POST", "/api/llm/finds/audio", found.word)).toEqual({ audio });
+  expect(p.said).toHaveLength(1);
+  // Only a word of the profile's own Finds.
+  expect(
+    (await api.send("POST", "/api/llm/finds/audio", { deck: FINDS, key: "nope" })).status,
+  ).toBe(404);
 
   // A deck of the profile's own, its sentence kept as the word's example.
   const deck = deckJson(root);
@@ -112,7 +125,7 @@ test("words selected in German: the model's card, read aloud, kept in the profil
       plural: "die Situationen",
       translation: "ситуация",
       tags: ["find"],
-      audio: found.audio.slice(`/decks/${FINDS}/`.length),
+      audio: audio.slice(`/decks/${FINDS}/`.length),
       examples: [{ sentence: "Das ist eine schwierige Situation." }],
     },
   ]);
@@ -172,10 +185,11 @@ test("a word the learner has a card of from a course is not added again; nothing
     added: false,
   });
   expect(existsSync(join(root, "decks", FINDS))).toBe(false);
-  // No voice for German on this computer: the word kept all the same.
+  // No voice for German on this computer: the word kept all the same, no audio to ask for.
   expect(await sendJson("POST", "/api/llm/finds", SITUATION)).toMatchObject({
     added: true,
     audio: null,
+    word: null,
   });
   expect(deckJson(root).words[0].audio).toBeUndefined();
   const offers = await getJson("/api/cards/decks/offers");
@@ -187,7 +201,7 @@ test("a word the learner has a card of from a course is not added again; nothing
 test("another profile sees nothing of one's Finds and keeps its own; a deleted profile's Finds go with it", async () => {
   const api = await withModel();
   const { sendJson, anonymous, root } = api;
-  await sendJson("POST", "/api/llm/finds", SITUATION);
+  const mine = await sendJson("POST", "/api/llm/finds", SITUATION);
 
   const made = await anonymous("POST", "/api/profiles", { name: "Anna" });
   const anna = ((await made.json()) as { profile: { id: string } }).profile;
@@ -202,6 +216,11 @@ test("another profile sees nothing of one's Finds and keeps its own; a deleted p
     error: "no_such_deck",
   });
   expect(await asAnna("DELETE", `/api/decks/${FINDS}`)).toEqual({ error: "no_such_deck" });
+  // Its words not read aloud for her either (the key taken from the first profile's answer).
+  const key = deckJson(root).words[0].key;
+  expect(mine.word ?? { deck: FINDS, key }).toEqual({ deck: FINDS, key });
+  const audio = await anonymous("POST", "/api/llm/finds/audio", { deck: FINDS, key }, { cookie });
+  expect([audio.status, await audio.json()]).toEqual([404, { error: "no_such_deck" }]);
   expect(existsSync(join(root, "decks", FINDS, "deck.json"))).toBe(true);
 
   // Her own Finds, apart from the first profile's.

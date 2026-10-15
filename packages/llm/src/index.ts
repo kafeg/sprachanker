@@ -27,4 +27,4 @@ export * from "./tasks/tutor-tools.ts";
 export * from "./tasks/understanding.ts";
 export * from "./tasks/word-examples.ts";
 export * from "./tasks/writing-task.ts";
-export { estimateTokens, languageName, PLACEHOLDER_NAMES } from "./text.ts";
+export { estimateTokens, inOwnScripts, languageName, PLACEHOLDER_NAMES } from "./text.ts";

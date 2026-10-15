@@ -1087,7 +1087,9 @@
       "install": "Para gerá-lo, instale uma voz para {language} em Configurações → Fala",
       "failed": "{count, plural, =0 {Não foi possível ler # palavras em voz alta} one {Não foi possível ler # palavra em voz alta} other {Não foi possível ler # palavras em voz alta}}",
       "voice": "Lido por {engine, select, qwen {Qwen3-TTS} other {Piper}} · {voice} ({language})",
-      "chooseVoice": "Escolher uma voz"
+      "chooseVoice": "Escolher uma voz",
+      "voiceWords": "Lido pelo Qwen3-TTS · a voz para palavras ({language})",
+      "otherVoice": "{count, plural, one {# palavra lida com outra voz} other {# palavras lidas com outra voz}}"
     },
     "why": "Motivo: {reason}",
     "examples": {
@@ -1279,7 +1281,20 @@
       "howMic": "Onde uma resposta é falada (a parte oral de um exame), há um microfone: toque para começar a gravar e toque de novo para parar. Onde a tarefa é escrever, não há.",
       "howPhrase": "A frase a repetir fica oculta até a sua primeira tentativa; você pode mostrá-la antes.",
       "howRecordings": "As suas gravações ficam neste computador para você ouvi-las de novo no Caderno; exclua-as em Geral → Armazenamento.",
-      "how": "Como funciona"
+      "how": "Como funciona",
+      "words": {
+        "title": "Voz para palavras",
+        "hint": "As palavras — de um baralho, as guardadas em Achados e as que você seleciona — são lidas por um modelo base à parte, com a voz de um falante nativo tirada de uma gravação de um curso na língua delas. Ele roda ao lado do modelo acima e ocupa cerca de 3 GB a mais de memória enquanto lê.",
+        "model": "Modelo base (1.7B): uma voz nativa para palavras",
+        "taking": "Tirando a voz de uma gravação do curso…",
+        "none": "Não há aqui nenhum curso nesta língua ({language}) de onde tirar uma voz.",
+        "recording": "Ouvir a gravação",
+        "recordingFor": "Gravação para a voz: {language}",
+        "sample": "Amostra de voz: uma gravação do curso — o modelo copia dela a voz do locutor.",
+        "where": "{course} · lição {lesson, number}",
+        "male": "voz masculina",
+        "female": "voz feminina"
+      }
     },
     "listening": "Ouvindo…",
     "heardLater": "Ainda não reconhecido — sua gravação foi guardada; o que foi ouvido vem em seguida.",
@@ -1747,6 +1762,8 @@
     "speak": "Ler em voz alta",
     "translate": "Traduzir",
     "added": "Adicionado a Achados",
-    "had": "Já está nos seus cartões"
+    "had": "Já está nos seus cartões",
+    "audioMaking": "Preparando o áudio",
+    "listen": "Ouvir"
   }
 }

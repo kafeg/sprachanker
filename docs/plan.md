@@ -81,4 +81,5 @@ Taken along when an item above touches the area, or on request.
 - Notebook: a lesson's page opened without passes (a link) has no title. A pass's "how long" is still
   from its start to its end (or last work).
 - Review: the course map's can-do list; a word anywhere in a lesson opens its sheet.
-- Reading aloud: Qwen3-TTS's voice cloning and voice design — on request.
+- Reading aloud: Qwen3-TTS's voice design — on request. The voice for words without a course of the
+  language: a CC0 recording per language shipped with the app as its default.

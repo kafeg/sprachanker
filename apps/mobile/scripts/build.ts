@@ -15,8 +15,11 @@ await $`bun run build`.cwd(web);
 rmSync(dist, { recursive: true, force: true });
 cpSync(join(web, "dist"), dist, { recursive: true });
 
+// The app's version: the binary's (MAJOR.MINOR.<commits>, apps/cli/scripts/version.ts).
+const version = (await $`bun ${join(here, "../cli/scripts/version.ts")}`.text()).trim();
 const built = await Bun.build({
   entrypoints: [join(here, "src", "boot.ts")],
+  define: { SPRACHANKER_VERSION: JSON.stringify(version) },
   target: "browser",
   format: "esm",
   minify: process.env.MINIFY !== "0",

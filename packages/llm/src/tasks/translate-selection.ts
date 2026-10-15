@@ -88,7 +88,8 @@ function translateSelectionRequest(input: TranslateSelectionInput): TaskRequest 
     temperature: 0.2,
     maxTokens: 400,
     reasoning: false,
-    effort: "low",
+    // The learner waits for the bar: no thinking (owner, 2026-10-15).
+    effort: "none",
   };
 }
 

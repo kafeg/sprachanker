@@ -485,6 +485,30 @@ export function createDecks(deps: {
       return added;
     },
 
+    /** Gives a word of a profile's own deck its audio (`media/<name>`, written first), unless it has
+     *  some already; the word as it is now (none: no such word in the profile's deck). */
+    ownAudio(request: {
+      id: DeckId;
+      owner: string;
+      key: string;
+      audio: { path: string; bytes: Uint8Array };
+    }): Promise<DeckWord | undefined> {
+      const added = adding.then(() => {
+        const was = deckOf(request.id);
+        const word = was?.owner === request.owner && was.words.find((w) => w.key === request.key);
+        if (!was || !word) return undefined;
+        if (word.audio) return word;
+        const audio = { ...word, audio: request.audio.path };
+        const deck = { ...was, words: was.words.map((w) => (w === word ? audio : w)) };
+        files.writeMedia(request.id, request.audio.path, request.audio.bytes);
+        files.writeDeck(request.id, `${JSON.stringify(deck, null, 2)}\n`);
+        read.set(request.id, deck);
+        return audio;
+      });
+      adding = added.catch(() => {});
+      return added;
+    },
+
     /** The deck here (no learner's own) that a deck from another computer is — of its languages,
      *  most of its notes the same, as an .apkg tells the deck it updates —, else the deck of its id
      *  when that is of its languages too; none: it is a new deck here (`freeId`). */

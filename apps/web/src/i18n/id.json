@@ -1087,7 +1087,9 @@
       "install": "Untuk membuatnya, pasang suara untuk bahasa {language} di Pengaturan → Ucapan",
       "failed": "{count, plural, other {# kata tidak bisa dibacakan}}",
       "voice": "Dibacakan oleh {engine, select, qwen {Qwen3-TTS} other {Piper}} · {voice} ({language})",
-      "chooseVoice": "Pilih suara"
+      "chooseVoice": "Pilih suara",
+      "voiceWords": "Dibaca oleh Qwen3-TTS · suara untuk kata ({language})",
+      "otherVoice": "{count, plural, other {# kata dibaca dengan suara lain}}"
     },
     "why": "Alasan: {reason}",
     "examples": {
@@ -1279,7 +1281,20 @@
       "howMic": "Di tempat jawaban diucapkan (bagian berbicara dalam ujian), ada mikrofon: ketuk untuk mulai merekam, ketuk lagi untuk berhenti. Jika tugasnya menulis, tidak ada mikrofon.",
       "howPhrase": "Frasa yang harus diulang disembunyikan sampai percobaan pertama kamu; kamu bisa menampilkannya lebih awal.",
       "howRecordings": "Rekaman kamu disimpan di komputer ini agar bisa didengarkan lagi di Buku catatan; hapus di Umum → Penyimpanan.",
-      "how": "Cara kerjanya"
+      "how": "Cara kerjanya",
+      "words": {
+        "title": "Suara untuk kata",
+        "hint": "Kata — dari dek, yang disimpan di Temuan, dan yang kamu pilih — dibaca oleh model dasar tersendiri dengan suara penutur asli yang diambil dari rekaman kursus dalam bahasanya. Model ini berjalan di samping model di atas dan memakai sekitar 3 GB memori lagi saat membaca.",
+        "model": "Model dasar (1.7B): suara penutur asli untuk kata",
+        "taking": "Mengambil suara dari rekaman kursus…",
+        "none": "Belum ada kursus dalam bahasa ini ({language}) untuk diambil suaranya.",
+        "recording": "Dengarkan rekaman",
+        "recordingFor": "Rekaman untuk suara: {language}",
+        "sample": "Contoh suara: rekaman dari kursus — model meniru suara pembicaranya.",
+        "where": "{course} · pelajaran {lesson, number}",
+        "male": "suara pria",
+        "female": "suara wanita"
+      }
     },
     "listening": "Mendengarkan…",
     "heardLater": "Belum dikenali — rekamanmu sudah disimpan; yang terdengar menyusul.",
@@ -1747,6 +1762,8 @@
     "speak": "Bacakan",
     "translate": "Terjemahkan",
     "added": "Ditambahkan ke Temuan",
-    "had": "Sudah ada di kartumu"
+    "had": "Sudah ada di kartumu",
+    "audioMaking": "Audio sedang dibuat",
+    "listen": "Dengarkan"
   }
 }

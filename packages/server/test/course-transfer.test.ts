@@ -22,7 +22,7 @@ import { strFromU8, strToU8, unzipSync, zipSync } from "fflate";
 import { ulid } from "ulid";
 import { courseAdmin } from "../src/index.ts";
 import { bundleName } from "../src/services/course-transfer.ts";
-import { setup } from "./setup.ts";
+import { ROOMY, setup } from "./setup.ts";
 import { courseTransferFiles, withSeriesLock } from "./storage.ts";
 import { until } from "./until.ts";
 
@@ -460,7 +460,7 @@ test("an upload that stalls ends: the next import is let in", async () => {
   const { bytes } = await exported(a);
   const b = await setup({
     empty: true,
-    courseTransfers: (root) => courseTransferFiles(root, { uploadIdleMs: 50 }),
+    courseTransfers: (root) => courseTransferFiles(root, { ...ROOMY, uploadIdleMs: 50 }),
   });
   const stalled = await importInto(
     b,
@@ -611,7 +611,7 @@ test("every course exported: a file a group sharing media, each media file in on
   const to = join(a.root, "exported");
   mkdirSync(to);
   const told: string[] = [];
-  const written = await courseAdmin(a.root, "test").exportAll(
+  const written = await courseAdmin(a.root, "test", ROOMY.disk).exportAll(
     (fileName) => join(to, fileName),
     (done) => told.push(done.file),
   );
@@ -641,7 +641,7 @@ test("every course exported: a file a group sharing media, each media file in on
   expect(media(entries(written[1]?.file as string))).toEqual([]);
 
   const b = await setup({ empty: true });
-  const admin = courseAdmin(b.root, "test");
+  const admin = courseAdmin(b.root, "test", ROOMY.disk);
   const imported = [];
   for (const w of written) imported.push(...(await admin.importFile(w.file)).courses);
   expect(imported.map((c): string[] => [c.key, c.status])).toEqual([

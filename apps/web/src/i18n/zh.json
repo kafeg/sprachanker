@@ -1087,7 +1087,9 @@
       "install": "要生成音频，请在“设置 → 语音”中安装{language}的声音",
       "failed": "{count, plural, other {#个单词无法朗读}}",
       "voice": "朗读：{engine, select, qwen {Qwen3-TTS} other {Piper}} · {voice}（{language}）",
-      "chooseVoice": "选择声音"
+      "chooseVoice": "选择声音",
+      "voiceWords": "由 Qwen3-TTS 朗读 · 单词的声音（{language}）",
+      "otherVoice": "{count, plural, other {# 个单词由其他声音朗读}}"
     },
     "why": "原因：{reason}",
     "examples": {
@@ -1279,7 +1281,20 @@
       "howMic": "需要口头回答的地方（考试的口语部分）会有麦克风：点按开始录音，再点一次停止。需要书面作答的地方则没有麦克风。",
       "howPhrase": "要复述的句子在你第一次尝试之前是隐藏的；你也可以提前显示。",
       "howRecordings": "你的录音保存在这台电脑上，可以在“学习记录”中重听；在“通用 → 存储”中删除。",
-      "how": "使用说明"
+      "how": "使用说明",
+      "words": {
+        "title": "单词的声音",
+        "hint": "单词（卡组里的、“发现”中保存的以及你选中的）由一个单独的基础模型朗读，声音取自该语言课程录音中的母语者。它与上面的模型并行运行，朗读时另外占用约 3 GB 内存。",
+        "model": "基础模型（1.7B）：单词的母语声音",
+        "taking": "正在从课程录音中取声音…",
+        "none": "这里还没有这种语言（{language}）的课程可以取声音。",
+        "recording": "听录音",
+        "recordingFor": "用于声音的录音：{language}",
+        "sample": "声音样本：课程中的一段录音——模型从中模仿说话人的声音。",
+        "where": "{course} · 第 {lesson, number} 课",
+        "male": "男声",
+        "female": "女声"
+      }
     },
     "listening": "正在识别…",
     "heardLater": "尚未识别——你的录音已保存，识别结果稍后显示。",
@@ -1747,6 +1762,8 @@
     "speak": "朗读",
     "translate": "翻译",
     "added": "已加入“发现”",
-    "had": "你的卡片里已有"
+    "had": "你的卡片里已有",
+    "audioMaking": "正在生成音频",
+    "listen": "试听"
   }
 }

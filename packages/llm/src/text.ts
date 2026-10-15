@@ -95,6 +95,17 @@ const ownScripts = (lang: string) => {
   return SCRIPTS.filter((s) => s.letter.test(name)).map((s) => s.name);
 };
 
+/** Whether every letter of `text` is in a script `lang` writes in (a German sentence, not a
+ *  caption in Greek); true when the language's scripts are not known here. */
+export function inOwnScripts(text: string, lang: string): boolean {
+  const names = ownScripts(lang);
+  // Japanese names itself in Han alone ("日本語") and writes in kana too.
+  if (names.includes("Han")) names.push("Hiragana", "Katakana");
+  const own = SCRIPTS.filter((s) => names.includes(s.name));
+  if (!own.length) return true;
+  return [...text.matchAll(/\p{L}/gu)].every(([letter]) => own.some((s) => s.letter.test(letter)));
+}
+
 /** The scripts `lang` writes in that `other` does not use (Cyrillic for Russian beside German);
  *  none when the two share theirs. */
 export function scriptsOnlyOf(lang: string, other: string): Script[] {

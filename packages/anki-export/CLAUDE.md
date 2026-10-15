@@ -1,7 +1,7 @@
 # packages/anki-export
 
 Anki's deck packages (`.apkg`). Depends on `packages/schema` and `fflate` only; runtime-free — SQLite and zstd come from the caller (`ApkgRuntime`: the server's
-`src/runtime/decks.ts`).
+`src/runtime/apkg.ts`; the phone app: `apps/mobile/src/sql.ts`).
 
 ## Layout
 

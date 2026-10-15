@@ -26,6 +26,14 @@ export function useFind() {
   });
 }
 
+/** A word kept in Finds read aloud after it was shown (the server reads it in the voice for words
+ *  where there is one): its audio's path, none when nothing there reads it. */
+export const useFindAudio = () =>
+  useMutation({
+    mutationFn: (word: Parameters<(typeof api.llm.finds)["audio"]["$post"]>[0]["json"]) =>
+      json(api.llm.finds.audio.$post({ json: word })),
+  });
+
 /** What a streamed reply is read from: its status, its body, and its JSON when it failed. */
 type StreamedResponse = Pick<Response, "ok" | "status" | "body" | "json">;
 

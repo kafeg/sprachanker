@@ -1,6 +1,6 @@
 name: Release
 
-# A tag vX.Y.Z (the version in apps/cli/package.json) builds the binary on a Mac with Apple Silicon,
+# A tag vX.Y.N (the build's version: MAJOR.MINOR of apps/cli/package.json, N its commits — apps/cli/scripts/version.ts) builds the binary on a Mac with Apple Silicon,
 # the speech engines taken from their releases (the Engines workflow), runs the e2e against that build,
 # puts that build into the desktop app (apps/desktop: a zip and a dmg, signed ad hoc) and makes a draft
 # release with the app, the archive and the installer; the release skill writes its notes and publishes it. Run by hand (Actions → Release →
@@ -18,10 +18,12 @@ jobs:
       contents: write
     steps:
       - uses: actions/checkout@v7
+        with:
+          fetch-depth: 0 # the version's third number counts the commits
+      - uses: oven-sh/setup-bun@v2 # version from packageManager in package.json
       - name: The tag is the binary's version
         if: github.ref_type == 'tag'
-        run: test "v$(jq -r .version apps/cli/package.json)" = "$GITHUB_REF_NAME"
-      - uses: oven-sh/setup-bun@v2 # version from packageManager in package.json
+        run: test "v$(bun apps/cli/scripts/version.ts)" = "$GITHUB_REF_NAME"
       - run: bun install --frozen-lockfile
       - name: Speech engines, from their releases
         env:

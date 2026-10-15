@@ -51,7 +51,12 @@ async function install() {
   await $`bun scripts/build.ts`.cwd(here);
   // The page is built into the binary: cargo rebuilds it only when the Rust changes.
   await $`touch src-tauri/src/lib.rs`.cwd(here);
-  await $`cargo tauri android build --debug --apk --target aarch64`.cwd(here).env(androidEnv());
+  // The app's version and Android's build number: MAJOR.MINOR.<commits>, the commits.
+  const version = (await $`bun ${join(here, "../cli/scripts/version.ts")}`.text()).trim();
+  const config = { version, bundle: { android: { versionCode: Number(version.split(".")[2]) } } };
+  await $`cargo tauri android build --debug --apk --target aarch64 --config ${JSON.stringify(config)}`
+    .cwd(here)
+    .env(androidEnv());
   const apk = join(
     here,
     "src-tauri/gen/android/app/build/outputs/apk/universal/debug/app-universal-debug.apk",

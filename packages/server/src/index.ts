@@ -23,6 +23,7 @@ import { piperHost } from "./runtime/piper.ts";
 import { bunProfileSql } from "./runtime/profile-sql.ts";
 import { readingCache } from "./runtime/readings.ts";
 import { speechHost } from "./runtime/speech.ts";
+
 import { createCardStore } from "./services/card-store.ts";
 import { createContent } from "./services/content.ts";
 import { createCourseTransfer } from "./services/course-transfer.ts";
@@ -44,6 +45,7 @@ import {
 } from "./storage/installer.ts";
 import { practiceFiles } from "./storage/practice.ts";
 import { profileTransferFiles } from "./storage/profile-transfer.ts";
+import type { TransferOptions } from "./storage/transfers.ts";
 
 export type { AppType, WebAssets } from "./app.ts";
 export { directoryAssets, fileAssets, type Listening } from "./runtime/bun.ts";
@@ -252,10 +254,11 @@ export function profileAdmin(
  * imported, one removed — also while a server runs on the
  * data root (the series' import lock keeps them apart; the server reads the files anew).
  */
-export function courseAdmin(dataRoot: string, appVersion = "") {
+export function courseAdmin(dataRoot: string, appVersion = "", disk?: TransferOptions["disk"]) {
   const library = openLibrary(nodeFs, join(dataRoot, "library"));
   const transfer = createCourseTransfer({
     files: courseTransferFiles(nodeDataRoot(dataRoot), {
+      disk,
       // A server running on the data root keeps its transfers: they are its to sweep.
       sweeps: () => !serverOn(dataRoot),
     }),

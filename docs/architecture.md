@@ -25,7 +25,8 @@ browser ──localhost, a LAN name, the tailnet (tailscale serve)────�
                             │                             examples): extras.json, media/; kept as practice is
                             ├─ decks/finds-<profile>-…/   a profile's own deck (Finds): deck.json, extras.json, media/
                             ├─ decks/.transfers/          a deck file being exported or imported
-                            ├─ models/                    speech models, voices/ Piper's voices, engines.pid
+                            ├─ models/                    speech models, voices/ Piper's voices, word-voices/ the
+                            │                             recordings words are read in (cloned), engines.pid
                             ├─ cache/tts/                 texts read aloud by Piper and Qwen3-TTS
                             ├─ server.sqlite, server.pid  profiles, devices signed in; one server per root
                             ├─ profiles/<id>/             each learner's profile.sqlite (runs, events,
@@ -113,7 +114,9 @@ gets the types through Hono RPC (`AppType`), no codegen.
   (a lesson's next variants taken as it starts); exams: `exam-rating`,
   `exam-conversation` (a speaking part's script); review: `examples` (a card's word).
 - **Speech**: `speech` (whisper-server and its models) and `qwen-tts` (Qwen3-TTS's tts-server, its
-  models) on `sidecar`, the supervisor of local engines; `read-aloud` (Piper's voices,
+  models; the Base model in a process of its own reads words in a cloned voice) on `sidecar`, the
+  supervisor of local engines; `word-voice` (each language's voice for words: a course's recording
+  proposed, taken, cloned); `read-aloud` (Piper's voices,
   a text read as a WAV); what they share in `local-engines` (the runtime's SpeechHost, the reading
   cache Piper and Qwen3-TTS both keep their WAVs in) and `model-downloads`; `profile-speech` (a profile's
   choices applied); `recordings` (the learner's audio per profile). The runtime side: `runtime/engines.ts`

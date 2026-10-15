@@ -22,7 +22,6 @@ import {
   serverSchema,
 } from "@sprachanker/server/portable";
 import { drizzle } from "drizzle-orm/sql-js";
-import pkg from "../package.json" with { type: "json" };
 import { bridge, check, latin1, needBridge } from "./bridge.ts";
 import { flushAll, openDb } from "./db.ts";
 import { filesOver, openFiles } from "./files.ts";
@@ -32,6 +31,9 @@ import { phoneFs } from "./phone-fs.ts";
 import { profileFiles } from "./profiles.ts";
 import { phoneSpeech } from "./speech.ts";
 import { phoneApkg, phoneProfileSql } from "./sql.ts";
+
+/** The app's version, set when the page is built (scripts/build.ts). */
+declare const SPRACHANKER_VERSION: string;
 
 const netFetch = globalThis.fetch.bind(globalThis);
 setNetFetch(netFetch);
@@ -165,7 +167,7 @@ async function start() {
     deckTransfers: storage?.deckTransfers ?? notOnPhone("deck files"),
     practice: storage?.practice,
     installer: storage?.installer,
-    appVersion: pkg.version,
+    appVersion: SPRACHANKER_VERSION,
     secretKey,
     // An LLM provider's requests through the native side too (any address the learner sets).
     fetch: speech.fetchVia(storage ? nativeFetch : netFetch),

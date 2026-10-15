@@ -213,3 +213,27 @@ export function samplesOf(lang: string): readonly string[] {
 
 /** Every language with sentences (for tests). */
 export const SAMPLE_LANGUAGES = Object.keys(SAMPLES);
+
+/** What "Listen" reads in the voice for words: a word that is easily misread, in each language
+ *  Qwen3-TTS speaks. */
+const SAMPLE_WORDS: Record<string, string> = {
+  de: "der Kühlschrank",
+  en: "the weather",
+  ru: "холодильник",
+  fr: "le réfrigérateur",
+  es: "la nevera",
+  it: "il frigorifero",
+  pt: "a geladeira",
+  zh: "冰箱",
+  ja: "冷蔵庫",
+  ko: "냉장고",
+};
+
+/** The word "Listen" reads in a language's voice for words: its own, else its first sentence's first
+ *  word. */
+export const sampleWord = (lang: string) =>
+  SAMPLE_WORDS[lang.split(/[-_]/)[0]?.toLowerCase() ?? ""] ??
+  samplesOf(lang)[0]
+    ?.split(/\s+/)[0]
+    ?.replace(/[!?.,;:]+$/u, "") ??
+  "";

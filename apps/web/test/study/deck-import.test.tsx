@@ -119,7 +119,8 @@ const deckFile = {
 test("one button takes both kinds of deck file: a package (.apkg) and a deck exported here (.sprachanker-deck, zipped again too)", async () => {
   const view = await renderApp(<DeckImport />, { data: [[["decks"], { decks: [] }]] });
   const input = view.getByLabelText("Import a deck file") as HTMLInputElement;
-  expect(input.accept.split(",")).toEqual([".apkg", ".sprachanker-deck", ".zip"]);
+  // Any file too: Android's picker greys out a type it does not know.
+  expect(input.accept.split(",")).toEqual([".apkg", ".sprachanker-deck", ".zip", "*/*"]);
 });
 
 test("a deck file exported here — the server tells it by its content —: what it holds and where it goes, then imported by its upload", async () => {

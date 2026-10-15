@@ -1,7 +1,7 @@
-// Files the speech engines download into <data-root>/models on this machine: storage/model-files.ts
-// over Node's files and Bun's fetch.
+// Files the speech engines download into <data-root>/models on this machine, and the voices taken
+// for words: storage/model-files.ts over Node's files and Bun's fetch.
 import { nodeFs } from "@sprachanker/course-kit/node";
-import type { ModelStore } from "../services/local-engines.ts";
+import type { ModelStore, VoiceStore } from "../services/local-engines.ts";
 import * as portable from "../storage/model-files.ts";
 
 /** Downloads a file to `part`, its sha256 checked as it comes; a failed or wrong download leaves
@@ -21,3 +21,6 @@ export const removeParts = (dir: string, also?: (name: string) => boolean) =>
 
 /** The model files in `dir`, its leftover parts removed. */
 export const modelStore = (dir: string): ModelStore => portable.modelStore(nodeFs, dir, fetch);
+
+/** The voices taken for words in `dir`, by language (storage/model-files.ts's voiceStore). */
+export const voiceStore = (dir: string): VoiceStore => portable.voiceStore(nodeFs, dir);

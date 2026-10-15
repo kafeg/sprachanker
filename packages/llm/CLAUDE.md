@@ -34,7 +34,8 @@ src/
   thinking.ts      # strips inline <think>…</think> from streamed text (client.ts also drops control tokens)
   text.ts          # course HTML → plain text for prompts (a table: a row a line, cells joined by " · ");
                    # languages' names; scripts (writtenIn: which of two languages a text is in, where
-                   # their scripts differ; mixedWord: a word in two alphabets alike)
+                   # their scripts differ; inOwnScripts: a text in its language's own; mixedWord: a word
+                   # in two alphabets alike)
   tasks/
     rules.ts           # systemPrompt: the learner's rules or the standing ones, then the fixed suffix and
                        # the reply's languages (languagesLine); NEUTRAL: the line that no

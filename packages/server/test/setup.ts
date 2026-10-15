@@ -25,6 +25,10 @@ import {
   profileTransferFiles,
 } from "./storage.ts";
 
+/** A disk with room to spare: transfers checked against it, not against the disk the tests run on
+ *  (a full one would refuse them). Tests of a full disk give their own. */
+export const ROOMY = { disk: () => ({ free: 1024 ** 4, size: 2 * 1024 ** 4 }) };
+
 const files: Record<string, Blob> = {
   "/index.html": new Blob(["<!doctype html>"], { type: "text/html" }),
   "/assets/app-1a2b.js": new Blob(["console.log(1)"], { type: "text/javascript" }),
@@ -71,9 +75,9 @@ export async function setup(
     mediaBlob,
     decks: deckFiles(root),
     apkg: apkgRuntime,
-    transfers: options.transfers?.(root) ?? profileTransferFiles(root),
-    courseTransfers: options.courseTransfers?.(root) ?? courseTransferFiles(root),
-    deckTransfers: deckTransferFiles(root),
+    transfers: options.transfers?.(root) ?? profileTransferFiles(root, ROOMY),
+    courseTransfers: options.courseTransfers?.(root) ?? courseTransferFiles(root, ROOMY),
+    deckTransfers: deckTransferFiles(root, ROOMY),
     practice: practiceFiles(root),
     appVersion: "test",
     secretKey: new Uint8Array(32).fill(7),

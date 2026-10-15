@@ -66,6 +66,7 @@ test("an imported deck's words without audio read by Piper into its folder by le
     words: 4,
     own: 1,
     read: 0,
+    other: 0,
     missing: 3,
     reader: { engine: "piper", voice: VOICE },
     job: null,

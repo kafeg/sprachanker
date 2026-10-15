@@ -1087,7 +1087,9 @@
       "install": "Za to instaliraj glas za jezik „{language}“ u Postavkama → Govor",
       "failed": "{count, plural, one {# riječ se nije mogla pročitati naglas} few {# riječi se nisu mogle pročitati naglas} other {# riječi se nije moglo pročitati naglas}}",
       "voice": "Čita {engine, select, qwen {Qwen3-TTS} other {Piper}} · {voice} ({language})",
-      "chooseVoice": "Izaberi glas"
+      "chooseVoice": "Izaberi glas",
+      "voiceWords": "Čita Qwen3-TTS · glas za riječi ({language})",
+      "otherVoice": "{count, plural, one {# riječ pročitana drugim glasom} few {# riječi pročitane drugim glasom} other {# riječi pročitano drugim glasom}}"
     },
     "why": "Razlog: {reason}",
     "examples": {
@@ -1279,7 +1281,20 @@
       "howMic": "Gdje se odgovor izgovara (usmeni dio ispita), tu je mikrofon: dodirni za početak snimanja, dodirni ponovo za kraj. Gdje je zadatak pisanje, mikrofona nema.",
       "howPhrase": "Fraza za ponavljanje je skrivena do tvog prvog pokušaja; možeš je prikazati i ranije.",
       "howRecordings": "Tvoji snimci se čuvaju na ovom računaru da ih ponovo preslušaš u Svesci; obriši ih u Opće → Pohrana.",
-      "how": "Kako radi"
+      "how": "Kako radi",
+      "words": {
+        "title": "Glas za riječi",
+        "hint": "Riječi — iz špila, iz „Nalaza” i one koje označiš — čita poseban osnovni model glasom izvornog govornika uzetim iz snimka kursa na tom jeziku. Radi pored modela iznad i dok čita zauzima još oko 3 GB memorije.",
+        "model": "Osnovni model (1.7B): glas izvornog govornika za riječi",
+        "taking": "Glas se uzima iz snimka kursa…",
+        "none": "Ovdje nema kursa na tom jeziku ({language}) iz kojeg bi se uzeo glas.",
+        "recording": "Poslušaj snimak",
+        "recordingFor": "Snimak za glas: {language}",
+        "sample": "Uzorak glasa: snimak iz kursa — model od njega preuzima glas govornika.",
+        "where": "{course} · lekcija {lesson, number}",
+        "male": "muški glas",
+        "female": "ženski glas"
+      }
     },
     "listening": "Slušam…",
     "heardLater": "Još nije prepoznato — tvoj snimak je sačuvan, a ono što je čuto stiže kasnije.",
@@ -1747,6 +1762,8 @@
     "speak": "Pročitaj",
     "translate": "Prevedi",
     "added": "Dodano u „Nalaze”",
-    "had": "Već je u tvojim karticama"
+    "had": "Već je u tvojim karticama",
+    "audioMaking": "Zvuk se pravi",
+    "listen": "Poslušaj"
   }
 }

@@ -1,9 +1,10 @@
-// A language's voice in Settings → Speech → Read aloud: the voices to choose from, automatic
-// first, "Listen", and below them the text it reads — a phrase in the language (another one on
-// request) or the learner's own; left empty, the phrase. The choice is kept per engine and language.
+// A language's voice in Settings → Speech → Read aloud: the voices to choose from (automatic first,
+// where there is one), "Listen", and below them the text it reads — a phrase in the language (another
+// one on request) or the learner's own; left empty, the phrase. The speakers' choice is kept per
+// engine and language; the voice for words uses the same row with its recordings (word-voice.tsx).
 import type { SettingValue } from "@sprachanker/schema";
 import { RefreshCw, Volume2 } from "lucide-react";
-import { useState } from "react";
+import { type ReactNode, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { useSetSetting, useSetting } from "@/api/settings.ts";
 import { languageName } from "@/i18n/index.ts";
@@ -49,26 +50,41 @@ export function VoicePick({
   lang,
   pick,
   onListen,
+  listenId = `listen:${lang}`,
+  phrases = samplesFor(lang),
+  beside,
+  note,
 }: {
   lang: string;
   /** The voices to choose from for this language. */
   pick: {
-    options: Array<{ id: string; name: string }>;
+    options: Array<{ id: string; name: string; detail?: ReactNode }>;
     value: string;
-    /** The name of the voice "automatic" reads with. */
-    auto: string;
+    /** The name of the voice "automatic" reads with; none: no automatic choice. */
+    auto?: string;
     onChange(id: string): void;
+    label?: string;
+    /** Each option's text in the language (a recording's sentence), not in the interface's. */
+    inLang?: boolean;
   };
   onListen(text: string): void;
+  /** What "Listen" reads with (its wait shown while a model loads). */
+  listenId?: string;
+  /** The texts offered to listen to, the first shown. */
+  phrases?: readonly string[];
+  /** Beside "Listen": more about the voice chosen. */
+  beside?: ReactNode;
+  /** A line under the choice: what is chosen. */
+  note?: string;
 }) {
   const { t, i18n } = useTranslation();
   const name = languageName(lang, i18n.language, true);
-  const phrases = samplesFor(lang);
   const [shown, setShown] = useState(0);
   const phrase = phrases[shown % phrases.length] ?? "";
   const [text, setText] = useState(phrase);
   // The server's voice taking its time over "Listen" (a model loading): said.
-  const starting = useReadingWait() === `listen:${lang}`;
+  const starting = useReadingWait() === listenId;
+  const own = pick.inLang ? { lang, dir: "auto" as const } : {};
   const another = () => {
     const next = (shown + 1) % phrases.length;
     setShown(next);
@@ -79,16 +95,18 @@ export function VoicePick({
       <Select value={pick.value} onValueChange={pick.onChange}>
         <SelectTrigger
           className="min-w-56 flex-1"
-          aria-label={t("speech.settings.voiceFor", { language: name })}
+          aria-label={pick.label ?? t("speech.settings.voiceFor", { language: name })}
         >
-          <SelectValue />
+          <SelectValue {...own} />
         </SelectTrigger>
         <SelectContent>
-          <SelectItem value={AUTO}>
-            {t("speech.settings.voiceAuto", { name: pick.auto })}
-          </SelectItem>
+          {pick.auto !== undefined && (
+            <SelectItem value={AUTO}>
+              {t("speech.settings.voiceAuto", { name: pick.auto })}
+            </SelectItem>
+          )}
           {pick.options.map((v) => (
-            <SelectItem key={v.id} value={v.id}>
+            <SelectItem key={v.id} value={v.id} detail={v.detail} {...own}>
               {v.name}
             </SelectItem>
           ))}
@@ -102,12 +120,14 @@ export function VoicePick({
       >
         {!starting && <Volume2 className="size-4" />} {t("speech.settings.listen")}
       </Button>
+      {beside}
       {starting && (
         <span className="text-sm text-muted-foreground" role="status">
           {t("speech.starting")}
         </span>
       )}
       <div className="basis-full space-y-1 sm:ps-31">
+        {note && <p className="text-xs text-muted-foreground">{note}</p>}
         <Textarea
           lang={lang}
           dir="auto"

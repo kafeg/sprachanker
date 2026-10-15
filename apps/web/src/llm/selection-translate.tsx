@@ -1,18 +1,19 @@
 // "Translate" in the bar of words selected anywhere (owner, 2026-10-15), while a model is set up: the
-// model tells which language they are in; the words in the language learnt are said aloud (their
-// audio made for the deck, else read now), shown with their translation, and kept as a card of the
-// learner's deck "Finds" by themselves — or said to be among the cards already; pressed again, said
-// again. The selection menu's
-// optional actions (audio/selection-menu.tsx: `extra`).
-import { Languages } from "lucide-react";
+// model tells which language they are in; the words in the language learnt are shown with their
+// translation as soon as it answers, and kept as a card of the learner's deck "Finds" by themselves —
+// or said to be among the cards already. Their audio comes after: made by the server for the deck (a
+// spinner beside them meanwhile; in the voice for words where there is one), then played once by
+// itself; the play button says them again. The selection menu's optional actions
+// (audio/selection-menu.tsx: `extra`).
+import { Languages, LoaderCircle, Volume2 } from "lucide-react";
 import { useTranslation } from "react-i18next";
 import { fileUrl } from "@/api/client.ts";
 import type { Picked } from "@/audio/selection-menu.tsx";
-import { said } from "@/audio/speak.ts";
+import { wordsSaid } from "@/audio/speak.ts";
 import { useSpeaker } from "@/audio/speaker.ts";
 import { Button } from "@/ui/components/button.tsx";
 import { inLang } from "@/ui/direction.tsx";
-import { useFind } from "./api.ts";
+import { useFind, useFindAudio } from "./api.ts";
 import { ErrorLine } from "./parts.tsx";
 import { useLlm } from "./setup-api.ts";
 
@@ -21,39 +22,73 @@ export function SelectionTranslate({ picked }: { picked: Picked }) {
   const llm = useLlm();
   const speaker = useSpeaker();
   const find = useFind();
+  const made = useFindAudio();
   if (!llm.data?.model) return null;
   type Found = NonNullable<typeof find.data>;
-  const play = (found: Found) =>
+  const id = (found: Found) => `find:${found.target}`;
+  /** The words said: their audio in Finds, else read now. */
+  const play = (found: Found, audio: string | null | undefined) =>
     speaker.say(
-      `find:${found.target}`,
-      found.audio
-        ? [{ text: found.target, lang: found.lang, src: fileUrl(found.audio) }]
-        : said(found.target, found.lang),
+      id(found),
+      audio
+        ? [{ text: found.target, lang: found.lang, src: fileUrl(audio) }]
+        : wordsSaid(found.target, found.lang),
     );
+  /** Shown: their audio played once it is there — made for Finds first when it is still to be. */
+  const shown = (found: Found) => {
+    if (found.audio || !found.word) return void play(found, found.audio);
+    made.mutate(found.word, {
+      onSuccess: ({ audio }) => void play(found, audio),
+      onError: () => void play(found, null),
+    });
+  };
   const found = find.data;
+  const audio = found?.audio ?? made.data?.audio;
   // Translated: pressed again, said again — the model is not asked twice.
   const translate = () =>
     found
-      ? play(found)
+      ? play(found, audio)
       : find.mutate(
           { text: picked.text, context: picked.context, lang: picked.lang },
-          { onSuccess: play },
+          { onSuccess: shown },
         );
+  const making = made.isPending || (!!found && speaker.waiting === id(found));
   return (
     <>
       <Button variant="ghost" size="sm" loading={find.isPending} onClick={translate}>
         {!find.isPending && <Languages />} {t("selection.translate")}
       </Button>
       {found && (
-        <p className="basis-full px-2 pb-1 text-sm" aria-live="polite">
-          <span className="font-semibold" {...inLang(found.lang)}>
-            {found.target}
-          </span>{" "}
-          — {found.translation}
-          <span className="block text-xs text-muted-foreground">
-            {found.added ? t("selection.added") : t("selection.had")}
-          </span>
-        </p>
+        <div className="flex basis-full items-start gap-2 px-2 pb-1">
+          <p className="min-w-0 flex-1 text-sm" aria-live="polite">
+            <span className="font-semibold" {...inLang(found.lang)}>
+              {found.target}
+            </span>{" "}
+            — {found.translation}
+            <span className="block text-xs text-muted-foreground">
+              {found.added ? t("selection.added") : t("selection.had")}
+            </span>
+          </p>
+          {making ? (
+            <span
+              role="status"
+              aria-label={t("selection.audioMaking")}
+              className="flex size-8 shrink-0 items-center justify-center text-muted-foreground"
+            >
+              <LoaderCircle className="size-4 animate-spin" aria-hidden />
+            </span>
+          ) : (
+            <Button
+              variant="ghost"
+              size="icon-sm"
+              className="shrink-0"
+              aria-label={t("selection.listen")}
+              onClick={() => void play(found, audio)}
+            >
+              <Volume2 />
+            </Button>
+          )}
+        </div>
       )}
       {find.isError && (
         <div className="basis-full px-2 pb-1">

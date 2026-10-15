@@ -14,14 +14,11 @@ apps/web/src/
                    # /review/decks — decks.tsx: a row a deck, its menu's "Export to a file" (made ready, then downloaded) —, /review/words — words.tsx), exams (/exams, /exams/downloaded,
                    # /exams/catalog), course (its map; an optional feature's button among its actions and the panel it opens: its `extra` slot), settings, storage (Settings → General's storage),
                    # runs (the lesson and exam runs with the assistant's slots)
-  courses/         # course cards (on library/card), the pair and course filters (filterCourses, pure), the
-                   # course page's hero (progress, source, stats, integrity, sync)
-  lesson/          # lesson player: player (loads the lesson and its run, shows the step), use-flow (the
-                   # flow over the plan: steps, moving, starting, resuming, completing), frame (plan,
-                   # header, reference), use-run (the run in the query cache + its events, sent through
-                   # api/run-events), plan, overview, words-step, steps (reading pages, the step bar),
-                   # exercise-step (its rules in use-exercise, Enter in enter-key), practice-step,
-                   # summary (the steps marked, going over mistakes: a slot), reference; slots.ts: what optional features add
+  courses/         # course cards (on library/card), the pair and course filters (filterCourses, pure), the course page's hero (progress, source, stats, integrity, sync)
+  lesson/          # lesson player: player (loads the lesson and its run, shows the step), use-flow (the flow over the plan: steps, moving,
+                   # starting, resuming, completing), frame (plan, header, reference), use-run (the run in the query cache + its events, sent through
+                   # api/run-events), plan, overview, words-step, steps (reading pages, the step bar), exercise-step (its rules in use-exercise,
+                   # Enter in enter-key), practice-step, summary (the steps marked, going over mistakes: a slot), reference; slots.ts: what optional features add
   study/           # Anki's reviewer, shared by Review and the lesson's "Words" step: card (the card widget,
                    # its recording and autoplay, "Example"), session (counts, Show answer, ratings, undo; one action
                    # at a time; a rating with the time its card was shown), reviewer-keys (Anki's keys: a
@@ -67,7 +64,7 @@ apps/web/src/
   llm/             # AI assistant: settings (AssistantSetup: provider-cards, key-state, model-list over the
                    # pure model-filter; LM Studio), "Why is this wrong?", tutor (the chat view; the lesson's
                    # header panel — History: tutor-history), going-over (the run's mistakes, in the summary), tutor-section (the Tutor
-                   # section: its chats, a chat and its language — a new one's chosen in a SelectField), understanding (Reading and Listening, done as an exercise: what it is, the text or its recording in the course's player, Check in the step bar, then what it was about), writing (a message answered, Check in the step bar), talk (Speaking: a monologue card or a role-play said line by line, Check in the step bar), dialogue (the Dialogue: goal card, lines read aloud, summary — no step since Speaking, kept for the Tutor section, plan); practice-next (a step's "Another version": the course's next variant, none left: no button), course-practice (the course page's: a button among its actions opening what its lessons have, made for every lesson — a job's progress, Stop); dialogue-line: a line said and heard, or typed, spoken-check (the AI's check under an answer said aloud), word-examples (a deck's: on a card, under a deck — the slots); selection-translate (the selection bar's "Translate": the words learnt said aloud, shown with their translation, kept in Finds); exam-assistant (an exam run's slots): exam-rating ("Propose a
+                   # section: its chats, a chat and its language — a new one's chosen in a SelectField), understanding (Reading and Listening, done as an exercise: what it is, the text or its recording in the course's player, Check in the step bar, then what it was about), writing (a message answered, Check in the step bar), talk (Speaking: a monologue card or a role-play said line by line, Check in the step bar), dialogue (the Dialogue: goal card, lines read aloud, summary — no step since Speaking, kept for the Tutor section, plan); practice-next (a step's "Another version": the course's next variant, none left: no button), course-practice (the course page's: a button among its actions opening what its lessons have, made for every lesson — a job's progress, Stop); dialogue-line: a line said and heard, or typed, spoken-check (the AI's check under an answer said aloud), word-examples (a deck's: on a card, under a deck — the slots); selection-translate (the selection bar's "Translate": the words learnt shown with their translation at once, kept in Finds, their audio made after — a spinner —, then played); exam-assistant (an exam run's slots): exam-rating ("Propose a
                    # rating"), exam-part (a speaking part said from its script: the examiner and the partner read aloud, the learner's places said in turn, hints in practice only);
                    # settings-section (Settings → AI assistant), lmstudio-section, prompts-info (where it
                    # works; the prompts under Advanced), prompt-view (a request as sent), context-meter
@@ -91,18 +88,17 @@ apps/web/src/
                    # the course's language), window-title, pointer (a finger or a mouse: the system's
                    # picker on touch), job-row (a server's job: progress, Stop, why it failed), direction, utils (cn)
   audio/           # recording oneself: recorder (MediaRecorder — what plays stopped as a take starts —, the microphone of this device, its
-                   # loudness), wav (a take as 16 kHz WAV), mic-button (disabled with the reason),
-                   # dictate (a microphone beside a text box: what was heard goes into it), take-button,
-                   # context (the speech host the router provides: save, src, recognition —
-                   # renderers call no API; use-speech-host makes it),
-                   # speech-settings (Settings → Speech; SpeechSetup is also the onboarding's step),
-                   # reading aloud: speak.ts (what is said, by which voice; pure), speaker.ts (a part's recording as it is, else each part by
-                   # the server's engine — Piper or Qwen3-TTS — or the device's voices, one text at a
-                   # time; a dialogue's second speaker by another voice), listening (a text line by line: pause, on, again), speak-button, selection-menu (words selected anywhere: a bar by them that reads them aloud; an optional feature's actions beside, what they show in a line under them), read-by (who reads a language, named), read-aloud-settings (Qwen3-TTS alone: its
-                   # state) with qwen-voices (models, each language's speaker; voice-pick: a language's voice and
-                   # "Listen"; voice-names: a server voice's name, pure; a voice's gender: the engine's
-                   # speech/voices); download-row (a model or voice the server downloads), read-languages (the
-                   # languages read aloud), samples ("Listen"'s sentences; pure), in-use (the in-use mark)
+                   # loudness), wav (a take as 16 kHz WAV; a course's recording as 24 kHz, its silence cut, for the voice for words; a voice's pitch: a man's or a woman's),
+                   # mic-button (disabled with the reason), dictate (a microphone beside a text box: what was heard goes into it), take-button,
+                   # context (the speech host the router provides: save, src, recognition — renderers call no API; use-speech-host makes it),
+                   # speech-settings (Settings → Speech; SpeechSetup is also the onboarding's step); reading aloud: speak.ts (what is said, by
+                   # which voice; pure), speaker.ts (a part's recording as it is, else each part by the server's engine — Piper or Qwen3-TTS —
+                   # or the device's voices, one text at a time; a dialogue's second speaker by another voice; a part marked `words` by the voice
+                   # for words), listening (a text line by line: pause, on, again), speak-button, selection-menu (words selected anywhere: a bar by them that reads them aloud; an optional feature's actions beside, what they show in a line under them), read-by (who reads a language, named),
+                   # read-aloud-settings (Qwen3-TTS alone: its state) with qwen-voices (models, each language's speaker; voice-pick: a language's voice, "Listen" and its text;
+                   # voice-names: a server voice's name, pure; a voice's gender: the engine's speech/voices) and word-voice (the voice for words: its
+                   # Base model, in the speakers' row: a language's sample recording chosen from a list — each with its course, lesson and a man's or woman's voice; the first proposed taken by itself —, heard as it is, "Listen"); download-row (a model
+                   # or voice the server downloads), read-languages (the languages read aloud), samples ("Listen"'s sentences and words; pure), in-use (the in-use mark)
   word/            # a word as shown: gender colouring; tones (ratings and counts in our hues), time
                    # (intervals, next due)
 apps/web/public/   # favicon.svg (the icon master: speech bubble with an anchor), PNG icons, manifest

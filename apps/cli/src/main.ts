@@ -17,7 +17,7 @@ import {
   verifyData,
   type WebAssets,
 } from "@sprachanker/server";
-import pkg from "../package.json" with { type: "json" };
+import { VERSION } from "./version.ts";
 
 const DEFAULT_PORT = 4580;
 const USAGE = `Usage: sprachanker <command>
@@ -110,7 +110,7 @@ async function serve(args: string[], webAssets: WebAssets, profileDbWorker?: str
   const server = await startServer({
     ...options,
     webAssets,
-    appVersion: pkg.version,
+    appVersion: VERSION,
     profileDbWorker,
   });
   console.log(`SprachAnker is running at ${server.url} (data: ${options.dataRoot})`);
@@ -232,7 +232,7 @@ async function profilesCommand(args: string[], embedded?: Embedded): Promise<voi
     allowPositionals: true,
     options: { data: { type: "string" }, to: { type: "string" } },
   });
-  const profiles = profileAdmin(resolveDataRoot(values.data), pkg.version, {
+  const profiles = profileAdmin(resolveDataRoot(values.data), VERSION, {
     profileDbWorker: embedded?.profileDbWorker,
   });
   const [action, arg] = positionals;
@@ -316,7 +316,7 @@ async function coursesCommand(args: string[]): Promise<void> {
     },
   });
   const dataRoot = resolveDataRoot(values.data);
-  const courses = courseAdmin(dataRoot, pkg.version);
+  const courses = courseAdmin(dataRoot, VERSION);
   const [action, arg] = positionals;
   const refused = (error: unknown) => {
     throw inWords(error, COURSE_BUNDLE_ERRORS);
@@ -446,7 +446,7 @@ async function practiceCommand(args: string[]): Promise<void> {
       status: { type: "boolean", default: false },
     },
   });
-  const admin = practiceAdmin(resolveDataRoot(values.data), pkg.version);
+  const admin = practiceAdmin(resolveDataRoot(values.data), VERSION);
   const [key] = positionals;
   const listed = "(sprachanker courses lists them)";
   const course = admin.courses().find((c) => `${c.series}/${c.course}` === key);
@@ -566,7 +566,7 @@ async function run(argv: string[], embedded?: Embedded): Promise<void> {
       await practiceCommand(rest);
       break;
     case "version":
-      console.log(pkg.version);
+      console.log(VERSION);
       break;
     default:
       console.log(USAGE);

@@ -1087,7 +1087,9 @@
       "install": "Ili kuitengeneza, sakinisha sauti ya {language} katika Mipangilio → Sauti",
       "failed": "{count, plural, one {Neno # halikuweza kusomwa kwa sauti} other {Maneno # hayakuweza kusomwa kwa sauti}}",
       "voice": "Imesomwa na {engine, select, qwen {Qwen3-TTS} other {Piper}} · {voice} ({language})",
-      "chooseVoice": "Chagua sauti"
+      "chooseVoice": "Chagua sauti",
+      "voiceWords": "Imesomwa na Qwen3-TTS · sauti ya maneno ({language})",
+      "otherVoice": "{count, plural, one {neno # limesomwa kwa sauti nyingine} other {maneno # yamesomwa kwa sauti nyingine}}"
     },
     "why": "Sababu: {reason}",
     "examples": {
@@ -1279,7 +1281,20 @@
       "howMic": "Mahali ambapo jibu linatamkwa (sehemu ya kuzungumza ya mtihani), kuna maikrofoni: gusa ili kuanza kurekodi, gusa tena ili kuacha. Mahali ambapo kazi ni kuandika, hakuna.",
       "howPhrase": "Sentensi ya kurudia imefichwa hadi jaribio lako la kwanza; unaweza kuionyesha mapema.",
       "howRecordings": "Rekodi zako zinahifadhiwa kwenye kompyuta hii ili uzisikilize tena katika Daftari; zifute katika Jumla → Hifadhi.",
-      "how": "Inavyofanya kazi"
+      "how": "Inavyofanya kazi",
+      "words": {
+        "title": "Sauti ya maneno",
+        "hint": "Maneno — ya safu, yaliyohifadhiwa kwenye Vilivyopatikana na unayochagua — husomwa na modeli ya msingi tofauti kwa sauti ya mzawa iliyochukuliwa kutoka rekodi ya kozi ya lugha hiyo. Inaendeshwa kando ya modeli iliyo juu na hutumia takriban GB 3 zaidi za kumbukumbu inaposoma.",
+        "model": "Modeli ya msingi (1.7B): sauti ya mzawa kwa maneno",
+        "taking": "Sauti inachukuliwa kutoka rekodi ya kozi…",
+        "none": "Hakuna kozi ya lugha hii ({language}) hapa ya kuchukua sauti.",
+        "recording": "Sikiliza rekodi",
+        "recordingFor": "Rekodi ya sauti: {language}",
+        "sample": "Sampuli ya sauti: rekodi ya kozi — modeli inaiga sauti ya msemaji kutoka kwayo.",
+        "where": "{course} · somo {lesson, number}",
+        "male": "sauti ya mwanamume",
+        "female": "sauti ya mwanamke"
+      }
     },
     "listening": "Inasikiliza…",
     "heardLater": "Bado haijatambuliwa — rekodi yako imehifadhiwa; kilichosikika kitafuata.",
@@ -1747,6 +1762,8 @@
     "speak": "Soma kwa sauti",
     "translate": "Tafsiri",
     "added": "Imeongezwa kwenye Vilivyopatikana",
-    "had": "Tayari iko kwenye kadi zako"
+    "had": "Tayari iko kwenye kadi zako",
+    "audioMaking": "Sauti inatengenezwa",
+    "listen": "Sikiliza"
   }
 }

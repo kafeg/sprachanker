@@ -45,8 +45,12 @@ for (const engine of ["whisper-server", "sherpa-onnx-offline-tts", "tts-server"]
   copyFileSync(join(cli, file), join(binaries, file));
 }
 
+// The binary's version (MAJOR.MINOR.<commits>: apps/cli/scripts/version.ts) is the app's too.
+const version = (await $`bun ${join(here, "../cli/scripts/version.ts")}`.text()).trim();
 // Tauri's command line pinned in package.json (as the Rust crates are in Cargo.toml).
-await $`bun x tauri build --bundles app -- --locked`.cwd(here).env(env);
+await $`bun x tauri build --bundles app --config ${JSON.stringify({ version })} -- --locked`
+  .cwd(here)
+  .env(env);
 const app = join(tauri, "target/release/bundle/macos/SprachAnker.app");
 
 // The microphone's question in the languages of the catalogs (macOS asks it; zh: Simplified).
@@ -67,9 +71,6 @@ for (const name of readdirSync(i18n).filter((n) => n.endsWith(".json"))) {
 }
 await $`codesign --force --deep --sign - ${app}`;
 
-const version = (
-  JSON.parse(readFileSync(join(here, "../cli/package.json"), "utf8")) as { version: string }
-).version;
 const arch = triple.startsWith("aarch64") ? "arm64" : "x64";
 const base = `SprachAnker-${version}-macos-${arch}`;
 rmSync(out, { recursive: true, force: true });

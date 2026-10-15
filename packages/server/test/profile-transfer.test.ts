@@ -22,7 +22,7 @@ import { strFromU8, strToU8, unzipSync, zipSync } from "fflate";
 import { ulid } from "ulid";
 import type { TransferFiles } from "../src/services/profile-transfer.ts";
 import { PREPARED_MS } from "../src/services/transfers.ts";
-import { setup } from "./setup.ts";
+import { ROOMY, setup } from "./setup.ts";
 import { profileTransferFiles } from "./storage.ts";
 import { until } from "./until.ts";
 
@@ -494,7 +494,7 @@ test("a database with SQL of its own is refused before any of it runs: a view, t
   const after: Array<{ fired: unknown[]; secrets: number; copies: string[] }> = [];
   const b = await setup({
     transfers: (root): TransferFiles => {
-      const real = profileTransferFiles(root);
+      const real = profileTransferFiles(root, ROOMY);
       return {
         ...real,
         async settle(id, endpoints) {
@@ -562,7 +562,9 @@ test("a database with SQL of its own is refused before any of it runs: a view, t
 
 test("a database made ready for too long is refused", async () => {
   const { bytes } = await exported(await studied());
-  const slow = await setup({ transfers: (root) => profileTransferFiles(root, { settleMs: 1 }) });
+  const slow = await setup({
+    transfers: (root) => profileTransferFiles(root, { ...ROOMY, settleMs: 1 }),
+  });
   const res = await importInto(slow, bytes);
   expect([res.status, await read(res)]).toEqual([422, { error: "profile_file_damaged" }]);
   await nothingLeft(slow);
@@ -641,7 +643,7 @@ test("a full disk: the export and the import say so and leave nothing behind", a
   // The disk filling up while the file is unpacked.
   const filling = await setup({
     transfers: (root): TransferFiles => {
-      const real = profileTransferFiles(root);
+      const real = profileTransferFiles(root, ROOMY);
       return {
         ...real,
         async unpack(id, listed, file) {
@@ -730,7 +732,7 @@ test("one import at a time; one export a profile, a new one replacing the one no
   });
   const c = await setup({
     transfers: (root): TransferFiles => {
-      const real = profileTransferFiles(root);
+      const real = profileTransferFiles(root, ROOMY);
       return {
         ...real,
         async snapshot(profileId) {
@@ -819,7 +821,7 @@ test("a profile moved into place but not made (its row failed): moved back, noth
   const { bytes } = await exported(await studied());
   const failing = await setup({
     transfers: (root): TransferFiles => {
-      const real = profileTransferFiles(root);
+      const real = profileTransferFiles(root, ROOMY);
       return {
         ...real,
         adopt: (id, profileId) =>

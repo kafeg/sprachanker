@@ -77,6 +77,7 @@ import { createTextMaker } from "./text-maker.ts";
 import { createTutor } from "./tutor.ts";
 import { createTutorTools } from "./tutor-tools.ts";
 import { createUnderstanding } from "./understanding.ts";
+import { createWordVoice, type WordVoice } from "./word-voice.ts";
 import { createWords } from "./words.ts";
 import { createWriting } from "./writing.ts";
 
@@ -133,6 +134,7 @@ function profileServices(
     speech: Speech;
     readAloud: ReadAloud;
     qwenTts: QwenTts;
+    wordVoice: WordVoice;
     practiceJobs: PracticeJobs;
   },
   profileId: string,
@@ -143,9 +145,9 @@ function profileServices(
   const { content, deckAudio, deckExtras, deckExamples, downloads, courseTransfer } = shared;
   // The decks as this profile sees them: another profile's own (its Finds) left out.
   const decks = shared.decks.of(profileId);
-  const { speech, readAloud, qwenTts } = shared;
+  const { speech, readAloud, qwenTts, wordVoice } = shared;
   const settings = createSettings(db);
-  const speechOfProfile = createProfileSpeech({ speech, readAloud, qwenTts, settings });
+  const speechOfProfile = createProfileSpeech({ speech, readAloud, qwenTts, wordVoice, settings });
   const llm = createLlm({
     db,
     settings,
@@ -314,6 +316,7 @@ function profileServices(
         })
         .map(({ source, target }) => ({ lang: target, translationLang: source })),
     reader: speechOfProfile.deckReader,
+    warm: speechOfProfile.warmWords,
     uiLanguage: () => settings.value("uiLanguage"),
   });
   // Every module reports its standing the same way; the Notebook gathers them.
@@ -548,6 +551,13 @@ export function createServices(config: ServicesConfig) {
     readings: config.readings,
     fetch: config.fetch,
   });
+  // The voice words are read with, taken from a course's recording: every profile's.
+  const wordVoice = createWordVoice({
+    content,
+    library: config.library,
+    qwen: qwenTts,
+    store: config.speech?.wordVoices,
+  });
 
   const profileTransfer = createProfileTransfer({
     files: config.transfers,
@@ -637,6 +647,7 @@ export function createServices(config: ServicesConfig) {
             readAloud,
             practiceJobs,
             qwenTts,
+            wordVoice,
           },
           profileId,
           config.profiles.open(profileId),

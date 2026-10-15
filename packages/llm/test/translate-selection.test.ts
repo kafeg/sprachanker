@@ -48,7 +48,7 @@ test("the request: the page's language as a hint, the sentence, the words; the r
   expect(bare.messages[1]?.content).toContain("<hint>none</hint>");
   expect(bare.messages[1]?.content).toContain("<context>Situation</context>");
   // Small and quick: one card.
-  expect(request).toMatchObject({ reasoning: false, effort: "low", maxTokens: 400 });
+  expect(request).toMatchObject({ reasoning: false, effort: "none", maxTokens: 400 });
   expect(structuredRequest(translateSelectionTask(input)).jsonSchema?.name).toBe(
     "selection_translate",
   );
