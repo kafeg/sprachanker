@@ -7,7 +7,7 @@ import { dirname, join } from "node:path";
 import { profileMigrations, profileSchema } from "@sprachanker/server/portable";
 import { eq } from "drizzle-orm";
 import { drizzle } from "drizzle-orm/sql-js";
-import { openDb, sqlJsWasmAt } from "../src/db.ts";
+import { makeDb, openDb, sqlJsWasmAt } from "../src/db.ts";
 import type { Files } from "../src/files.ts";
 
 sqlJsWasmAt(
@@ -90,4 +90,12 @@ test("a transaction inside another is a savepoint: the inner one failing leaves 
       .sort(),
   ).toEqual(["outer", "second"]);
   await opened.close();
+});
+
+test("a database file there but not read is never written over by a new one", async () => {
+  const { kept, files } = memoryFiles();
+  await openDb(files, "p.sqlite", []);
+  kept.set("p.sqlite", new Uint8Array([1, 2, 3]));
+  expect(() => makeDb(files, "p.sqlite", profileMigrations, undefined)).toThrow("not read");
+  expect(kept.get("p.sqlite")).toEqual(new Uint8Array([1, 2, 3]));
 });

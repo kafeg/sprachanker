@@ -70,6 +70,9 @@ pub fn fs_list(path: String) -> Result<Vec<Entry>, String> {
     Ok(out)
 }
 
+/// The most bytes a `?part=` is answered with.
+const MAX_PART: u64 = 64 << 20;
+
 /// A file written whole (base64), through a part file renamed into place.
 #[tauri::command(async)]
 pub fn fs_write(path: String, base64: String) -> Result<(), String> {
@@ -164,6 +167,10 @@ pub fn serve(request: &Request<Vec<u8>>) -> Response<Vec<u8>> {
         let end = end.min(size.saturating_sub(1));
         if start > end {
             return answer(StatusCode::OK, Vec::new());
+        }
+        // A part is a few megabytes (phone-fs.ts asks 4): never a film's whole held at once.
+        if end - start >= MAX_PART {
+            return answer(StatusCode::RANGE_NOT_SATISFIABLE, Vec::new());
         }
         let mut body = vec![0; (end - start + 1) as usize];
         if f.seek(SeekFrom::Start(start)).is_err() || f.read_exact(&mut body).is_err() {

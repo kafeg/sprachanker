@@ -61,7 +61,9 @@ export function phoneFs(root: string, net: typeof fetch): DataFs {
         if (dir === path || dir.startsWith(`${path}/`)) known.delete(dir);
       for (let p = path; p.startsWith(`${root}/`); p = dirName(p)) {
         const dir = dirName(p);
-        if (!known.has(dir)) break;
+        // A folder not asked about yet: nothing kept of it, but one above may be (a path made
+        // several folders deep at once).
+        if (!known.has(dir)) continue;
         const parent = known.get(dir);
         // A folder known as not there may be there now (made for this path): asked again when next
         // needed, and so may the folders above it.
@@ -118,7 +120,9 @@ export function phoneFs(root: string, net: typeof fetch): DataFs {
       return { free, size };
     },
     async *stream(path, start = 0, end) {
-      const last = end ?? (fs.stat(path)?.size ?? 0) - 1;
+      const info = fs.stat(path);
+      if (!info || info.dir) throw Object.assign(new Error(`ENOENT: ${path}`), { code: "ENOENT" });
+      const last = end ?? info.size - 1;
       if (last - start < SMALL) {
         if (last < start) return;
         const got = b.readBytes(path, start, last - start + 1);

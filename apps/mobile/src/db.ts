@@ -69,6 +69,8 @@ export async function openDb(files: Files, rel: string, migrations: Migration[])
  *  a moment after each change (a new or migrated one at once): sql.js's handle, and how to let it go
  *  (written first). */
 export function makeDb(files: Files, rel: string, migrations: Migration[], bytes?: Uint8Array) {
+  // A database there that was not read is never written over by a new one.
+  if (!bytes && files.has(rel)) throw new Error(`${rel} is there but was not read`);
   const db = nesting(new SQL.Database(bytes));
   pragmas(db);
   const dir = rel.includes("/") ? rel.slice(0, rel.lastIndexOf("/")) : "";

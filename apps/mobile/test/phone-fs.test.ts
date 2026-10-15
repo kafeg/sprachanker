@@ -183,3 +183,16 @@ test("a folder known as not there is asked again once a file is written into it"
   expect(fs.readText(file)).toBe("<p>");
   expect(fs.list(`${root}/later`)).toEqual(["deep"]);
 });
+
+test("a file made several folders under one listed, those between never asked, shows in the listed one", () => {
+  const fs = phoneFs(root, net);
+  expect(fs.list(root)).not.toContain("fresh");
+  fs.writeFile(`${root}/fresh/a/b/file.txt`, "x");
+  expect(fs.list(root)).toContain("fresh");
+  expect(fs.readText(`${root}/fresh/a/b/file.txt`)).toBe("x");
+});
+
+test("a file not there is not streamed as an empty one", async () => {
+  const fs = phoneFs(root, net);
+  await expect(readAll(fs, `${root}/nowhere.bin`)).rejects.toMatchObject({ code: "ENOENT" });
+});

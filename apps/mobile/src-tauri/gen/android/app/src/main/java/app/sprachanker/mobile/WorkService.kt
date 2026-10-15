@@ -51,6 +51,12 @@ class WorkService : Service() {
     return START_NOT_STICKY
   }
 
+  // Android 15 ends a data sync's service after six hours: it stops (the work goes on while the app
+  // is open).
+  override fun onTimeout(startId: Int, fgsType: Int) {
+    stopSelf()
+  }
+
   override fun onDestroy() {
     lock?.let { if (it.isHeld) it.release() }
     lock = null
@@ -63,7 +69,11 @@ class WorkService : Service() {
 
     fun start(context: Context, text: String) {
       val intent = Intent(context, WorkService::class.java).putExtra(TEXT, text)
-      if (Build.VERSION.SDK_INT >= 26) context.startForegroundService(intent) else context.startService(intent)
+      // Refused (Android 12 and later, when the app is away already): the work goes on while the app
+      // is open.
+      try {
+        if (Build.VERSION.SDK_INT >= 26) context.startForegroundService(intent) else context.startService(intent)
+      } catch (e: Exception) {}
     }
 
     fun stop(context: Context) {

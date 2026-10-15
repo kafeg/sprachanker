@@ -66,7 +66,8 @@ src-tauri/
   `native/whisper/VERSION`, the server's).
 - `ANDROID_HOME`, `NDK_HOME` and `JAVA_HOME` (17) set, from `apps/mobile`: `bun scripts/build.ts`,
   `cargo tauri android build --debug --apk --target aarch64`, then
-  `adb install -r src-tauri/gen/android/app/build/outputs/apk/universal/debug/app-universal-debug.apk`.
+  `adb install -r -d src-tauri/gen/android/app/build/outputs/apk/universal/debug/app-universal-debug.apk`
+  (`-d`: the build number may be below the one there; never uninstall — it deletes the app's files).
 - `bun scripts/phone.ts install|course|practice|models` does the above (`ANDROID_SERIAL`: which phone).
   The app lists its files as it starts: files pushed show after it is started again.
 - The data root is `/sdcard/Android/data/app.sprachanker.mobile/files/` (`adb push` reaches it):
@@ -108,6 +109,11 @@ src-tauri/
   page's own `fetch` stays the WebView's.
 - What the bridge answers at once blocks the page while it works: a call each for small things only;
   a large file is read by the scheme, written in 1 MB parts, summed later (`sums`).
+- A file read or written whole through the bridge (`readBytes` without a length, `writeFile`, a
+  profile's or an .apkg's database in sql.js) is held whole three times — Java's bytes, its string,
+  the page's —: about 100–200 MB is the most (the app's Java heap); larger ones go by the stream.
+- A link fails on the phone's storage (EPERM): what the storage links on a computer it copies here
+  (a course's export copies the course first).
 
 ## Planned
 

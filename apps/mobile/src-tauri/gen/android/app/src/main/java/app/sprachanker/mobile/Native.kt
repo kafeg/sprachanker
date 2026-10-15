@@ -48,6 +48,13 @@ class Native(private val activity: Activity, private val webView: WebView, priva
     return File(path)
   }
 
+  /** A path that may be changed: under the root, never the root itself. */
+  private fun inside(path: String): File {
+    if (!path.startsWith("$root/")) throw IOException("EACCES not inside the app's files: $path")
+    if (path.split('/').any { it == ".." || it == "." }) throw IOException("EACCES $path")
+    return File(path)
+  }
+
   private fun failure(e: Throwable): String {
     val code = when (e) {
       is NoSuchFileException, is java.io.FileNotFoundException -> "ENOENT"
@@ -90,7 +97,9 @@ class Native(private val activity: Activity, private val webView: WebView, priva
     synchronized(this) {
       working = maxOf(0, working + if (on) 1 else -1)
       if (on && working == 1) WorkService.start(activity, text)
-      if (!on && working == 0) WorkService.stop(activity)
+      // Stopped a moment later, when nothing began again: a service stopped before it has shown its
+      // notification ends the app on Android 12 and later.
+      if (!on && working == 0) webView.postDelayed({ synchronized(this) { if (working == 0) WorkService.stop(activity) } }, 2_000)
       // The page's renderer kept as important as the app while work goes on: else Android freezes it
       // as soon as the app is put away (measured: the download stood still till the app came back).
       if (Build.VERSION.SDK_INT >= 26 && (working == 0 || (on && working == 1))) {
@@ -144,8 +153,9 @@ class Native(private val activity: Activity, private val webView: WebView, priva
     if (f.isFile) String(f.readBytes(), StandardCharsets.UTF_8) else null
   } catch (e: Throwable) { null }
 
-  /** `length` bytes from `start` (fewer at the end), Latin-1; null when there is no file. */
-  @JavascriptInterface fun readBytes(path: String, start: Double, length: Double): String? = try {
+  /** `length` bytes from `start` (fewer at the end), Latin-1; null when there is no file. A file that
+   *  cannot be read (memory) is an error the page sees, never taken for none. */
+  @JavascriptInterface fun readBytes(path: String, start: Double, length: Double): String? = run {
     val f = under(path)
     if (!f.isFile) null else RandomAccessFile(f, "r").use { r ->
       val from = start.toLong()
@@ -155,32 +165,39 @@ class Native(private val activity: Activity, private val webView: WebView, priva
       r.readFully(buf)
       latin1(buf)
     }
-  } catch (e: Throwable) { null }
+  }
 
   private fun writeWhole(path: String, bytes: ByteArray) {
     val f = under(path)
     f.parentFile?.mkdirs()
     val part = File("${f.path}.part")
-    FileOutputStream(part).use { it.write(bytes); it.fd.sync() }
-    if (!part.renameTo(f)) {
-      Files.move(part.toPath(), f.toPath(), StandardCopyOption.REPLACE_EXISTING)
+    try {
+      FileOutputStream(part).use { it.write(bytes); it.fd.sync() }
+      if (!part.renameTo(f)) {
+        Files.move(part.toPath(), f.toPath(), StandardCopyOption.REPLACE_EXISTING)
+      }
+    } finally {
+      // Whole or not at all: a part left by a failure goes.
+      if (part.exists()) part.delete()
     }
   }
 
   @JavascriptInterface fun writeText(path: String, text: String) = attempt { writeWhole(path, text.toByteArray(StandardCharsets.UTF_8)) }
   @JavascriptInterface fun writeBytes(path: String, data: String) = attempt { writeWhole(path, bytesOf(data)) }
   @JavascriptInterface fun mkdir(path: String) = attempt { Files.createDirectories(under(path).toPath()) }
-  @JavascriptInterface fun rename(from: String, to: String) = attempt { Os.rename(under(from).path, under(to).path) }
+  @JavascriptInterface fun rename(from: String, to: String) = attempt { Os.rename(inside(from).path, inside(to).path) }
   @JavascriptInterface fun remove(path: String) = attempt {
-    val f = under(path)
+    val f = inside(path)
     if (f.isDirectory) { if (!f.deleteRecursively()) throw IOException("EIO could not remove $path") }
     else if (f.exists() && !f.delete()) throw IOException("EIO could not remove $path")
   }
-  @JavascriptInterface fun removeDir(path: String) = attempt { Files.delete(under(path).toPath()) }
+  @JavascriptInterface fun removeDir(path: String) = attempt { Files.delete(inside(path).toPath()) }
   @JavascriptInterface fun link(from: String, to: String) = attempt { Os.link(under(from).path, under(to).path) }
   @JavascriptInterface fun copy(from: String, to: String) = attempt { Files.copy(under(from).toPath(), under(to).toPath()) }
   @JavascriptInterface fun touch(path: String) = attempt {
-    if (!under(path).setLastModified(System.currentTimeMillis())) throw NoSuchFileException(path)
+    val f = under(path)
+    if (!f.exists()) throw NoSuchFileException(path)
+    if (!f.setLastModified(System.currentTimeMillis())) throw IOException("EIO cannot touch $path")
   }
 
   /** "<free> <size>" of the disk the path is on. */
@@ -239,7 +256,9 @@ class Native(private val activity: Activity, private val webView: WebView, priva
 
   /** A file saved into the phone's Downloads (a file exported: a course, a deck, a profile), written
    *  as `openWrite`'s are; seen by other apps once closed, and said so. Its handle, or "!CODE message". */
-  @JavascriptInterface fun openDownload(name: String, mime: String): String = try {
+  @JavascriptInterface fun openDownload(given: String, mime: String): String = try {
+    // A name, never a path: no folder of its own, no hidden or parent one.
+    val name = given.replace(Regex("[/\\\\\\x00-\\x1f]"), "_").trimStart('.').ifEmpty { "sprachanker" }
     val id = synchronized(this) { nextSink++ }
     if (Build.VERSION.SDK_INT >= 29) {
       val resolver = activity.contentResolver
@@ -256,10 +275,17 @@ class Native(private val activity: Activity, private val webView: WebView, priva
         activity.runOnUiThread { Toast.makeText(activity, "↓ $name", Toast.LENGTH_LONG).show() }
       }, drop = { resolver.delete(uri, null, null) })
     } else {
-      @Suppress("DEPRECATION")
-      val dir = Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOWNLOADS)
+      // Before Android 10 the shared Downloads needs a permission asked of the learner: the app's own
+      // Downloads instead (Android/data/<id>/files/Download, reached by a file manager or a computer).
+      val dir = activity.getExternalFilesDir(Environment.DIRECTORY_DOWNLOADS)
+        ?: throw IOException("EIO no Downloads")
       dir.mkdirs()
-      val file = File(dir, name)
+      // A file there already kept: the new one under a free name, as MediaStore does.
+      var file = File(dir, name)
+      val stem = name.substringBeforeLast('.')
+      val ext = if (name.contains('.')) ".${name.substringAfterLast('.')}" else ""
+      var n = 1
+      while (file.exists()) file = File(dir, "$stem (${n++})$ext")
       sinks[id] = Sink(FileOutputStream(file), MessageDigest.getInstance("SHA-256"), 0, finish = {
         activity.runOnUiThread { Toast.makeText(activity, "↓ $name", Toast.LENGTH_LONG).show() }
       }, drop = { file.delete() })
@@ -300,11 +326,16 @@ class Native(private val activity: Activity, private val webView: WebView, priva
     @Volatile var error: String? = null
     @Volatile var waiting = false
     @Volatile var queued = 0L
+    @Volatile var lastRead = System.currentTimeMillis()
   }
   private val requests = ConcurrentHashMap<Int, Pending>()
+  /** Requests the page gave up before their head came. */
+  private val dropped = HashSet<Int>()
 
   /** The bytes a request may hold unread before it waits for the page. */
   private val held = 8L shl 20
+  /** A body the page has not read from this long is let go (a response the page dropped unread). */
+  private val unread = 10L * 60_000
 
   /** A request (`init`: {method, headers: [[name, value]]}; `body`: Latin-1 or null) started: its
    *  head answered to `id` — {status, statusText, url, headers} or {error} —, then its body read by
@@ -354,7 +385,10 @@ class Native(private val activity: Activity, private val webView: WebView, priva
           break
         }
         val pending = Pending(connection)
-        requests[id] = pending
+        synchronized(dropped) {
+          if (dropped.remove(id)) { connection.disconnect(); return@execute }
+          requests[id] = pending
+        }
         val head = JSONObject().put("status", connection.responseCode)
           .put("statusText", connection.responseMessage ?: "").put("url", target.toString())
         val list = JSONArray()
@@ -371,11 +405,14 @@ class Native(private val activity: Activity, private val webView: WebView, priva
             while (!pending.done.get()) {
               val n = input.read(buf)
               if (n < 0) break
-              pending.parts.put(buf.copyOf(n))
               synchronized(pending) {
+                pending.parts.put(buf.copyOf(n))
                 pending.queued += n
                 if (pending.waiting) { pending.waiting = false; answer(id, "\"more\"") }
-                while (pending.queued > held && !pending.done.get()) (pending as java.lang.Object).wait(1000)
+                while (pending.queued > held && !pending.done.get()) {
+                  (pending as java.lang.Object).wait(1000)
+                  if (System.currentTimeMillis() - pending.lastRead > unread) throw IOException("ETIMEDOUT the body was not read")
+                }
               }
             }
           }
@@ -386,6 +423,9 @@ class Native(private val activity: Activity, private val webView: WebView, priva
           pending.done.set(true)
           synchronized(pending) { if (pending.waiting) { pending.waiting = false; answer(id, "\"more\"") } }
         }
+        // What the page leaves unread is let go after a while.
+        while (requests[id] === pending && System.currentTimeMillis() - pending.lastRead < unread) Thread.sleep(5_000)
+        if (requests.remove(id, pending)) pending.parts.clear()
       } catch (e: Throwable) {
         answer(id, JSONObject().put("error", failure(e)).toString())
       }
@@ -397,15 +437,17 @@ class Native(private val activity: Activity, private val webView: WebView, priva
   @JavascriptInterface fun netRead(id: Int): String? {
     val p = requests[id] ?: return null
     val out = java.io.ByteArrayOutputStream()
-    while (out.size() < (1 shl 20)) {
-      val part = p.parts.poll() ?: break
-      out.write(part)
-    }
+    // Taken and the wait noted under the lock the reader adds under: a part cannot come between.
     synchronized(p) {
+      p.lastRead = System.currentTimeMillis()
+      while (out.size() < (1 shl 20)) {
+        val part = p.parts.poll() ?: break
+        out.write(part)
+      }
       p.queued -= out.size()
       (p as java.lang.Object).notifyAll()
       if (out.size() == 0) {
-        if (p.done.get() && p.parts.isEmpty()) { requests.remove(id); return null }
+        if (p.done.get()) return null
         p.waiting = true
         return ""
       }
@@ -413,10 +455,11 @@ class Native(private val activity: Activity, private val webView: WebView, priva
     return latin1(out.toByteArray())
   }
 
-  @JavascriptInterface fun netError(id: Int): String = requests[id]?.error ?: ""
+  /** After `netRead`'s null: why the body broke off ("" when it ended whole); the request let go. */
+  @JavascriptInterface fun netError(id: Int): String = requests.remove(id)?.error ?: ""
 
   @JavascriptInterface fun netAbort(id: Int) {
-    val p = requests.remove(id) ?: return
+    val p = synchronized(dropped) { requests.remove(id) ?: run { dropped.add(id); null } } ?: return
     p.done.set(true)
     synchronized(p) { (p as java.lang.Object).notifyAll() }
     pool.execute { try { p.connection.disconnect() } catch (e: Throwable) {} }
