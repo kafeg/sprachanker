@@ -120,6 +120,8 @@ function checkWritingRequest(input: WritingInput): TaskRequest {
     temperature: 0.2,
     maxTokens: 2500,
     reasoning: false,
+    // The learner waits: no thinking (owner, 2026-10-15: 30 s → 13 s, the corrections alike).
+    effort: "none",
   };
 }
 

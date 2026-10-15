@@ -44,9 +44,11 @@ export interface ChatRequest {
   maxTokens?: number;
   /** false: answer without reasoning first (fast replies), where the provider allows it. */
   reasoning?: boolean;
-  /** Command-line agents' effort: "low" for a short check; unset, their default (a reply that
-   *  teaches or a turn of a conversation weighs more than its speed). */
-  effort?: "low";
+  /** Command-line agents' effort: "low" for a short check; "none", no thinking before the answer (a
+   *  check the learner waits for: Claude thinks for two thirds of its time otherwise; Codex: low);
+   *  unset, their default (a reply that teaches or a turn of a conversation weighs more than its
+   *  speed). */
+  effort?: "low" | "none";
   /** Ask for JSON matching this schema (structured output); used with complete. */
   jsonSchema?: { name: string; schema: Record<string, unknown> };
   /** Functions the model may call while answering; `runTool` answers each call. */

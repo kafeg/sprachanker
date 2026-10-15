@@ -168,6 +168,17 @@ test("claude's effort: low only for a short check; the user's environment never 
     'model_reasoning_effort="low"',
   );
   expect(cliRun("codex", request).args.join(" ")).not.toContain("model_reasoning_effort");
+  // None: Claude thinks not (its budget nothing), Codex as low; the effort flag absent.
+  const none = cliRun("claude", { ...request, effort: "none" });
+  expect(none.args).not.toContain("--effort");
+  expect(none.env).toEqual({
+    CLAUDE_CODE_EFFORT_LEVEL: undefined,
+    CLAUDE_CODE_MAX_RETRIES: "3",
+    MAX_THINKING_TOKENS: "0",
+  });
+  expect(cliRun("codex", { ...request, effort: "none" }).args.join(" ")).toContain(
+    'model_reasoning_effort="low"',
+  );
 });
 
 /** A runner whose runs go as listed: lines then success, lines then a failure, or a hang. */

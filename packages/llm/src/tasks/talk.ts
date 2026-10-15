@@ -275,6 +275,8 @@ export function talkCheckTask(input: TalkCheckInput): StructuredTask<RoleplayChe
       temperature: 0.2,
       maxTokens: 2000,
       reasoning: false,
+      // The learner waits: no thinking (owner, 2026-10-15), as the writing check.
+      effort: "none",
     },
   };
 }

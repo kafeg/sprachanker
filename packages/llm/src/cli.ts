@@ -162,7 +162,7 @@ function codexArgs(request: Omit<ChatRequest, "signal" | "runTool">) {
     "--sandbox",
     "read-only",
     ...(request.model ? ["--model", request.model] : []),
-    ...(request.effort === "low" ? ["-c", 'model_reasoning_effort="low"'] : []),
+    ...(request.effort ? ["-c", 'model_reasoning_effort="low"'] : []),
     ...(request.jsonSchema ? ["--output-schema", "schema.json"] : []),
     "-",
   ];
@@ -172,7 +172,8 @@ const codexStdin = (system: string, prompt: string) =>
   `<instructions>\n${system}\nAnswer directly in your reply. Do not run commands or read files.\n</instructions>\n\n${prompt}`;
 
 /** Claude's environment: its effort as asked (the user's `CLAUDE_CODE_EFFORT_LEVEL` would win over
- *  `--effort`), its API retries few. */
+ *  `--effort`), its API retries few; no thinking where the request says none (`--effort` has no such
+ *  level: its thinking's budget set to nothing). */
 const CLAUDE_ENV = {
   CLAUDE_CODE_EFFORT_LEVEL: undefined,
   CLAUDE_CODE_MAX_RETRIES: CLAUDE_API_RETRIES,
@@ -198,7 +199,7 @@ export function cliRun(
         args: claudeArgs(request, output),
         stdin: prompt,
         files: { "system.txt": system },
-        env: CLAUDE_ENV,
+        env: request.effort === "none" ? { ...CLAUDE_ENV, MAX_THINKING_TOKENS: "0" } : CLAUDE_ENV,
       }
     : {
         args: codexArgs(request),

@@ -49,9 +49,10 @@ const input: WritingInput = {
 test("writing_task: a situation and three points from the lesson's goals, its length by the level, the exam's way said with the data", () => {
   const { name, request, schema } = writingTaskTask({ language: "ru", target: "de", lesson });
   expect(name).toBe("writing_task");
-  // A task that teaches keeps a command-line agent's default effort, as the check does.
+  // A task that teaches keeps a command-line agent's default effort; the check, which the learner
+  // waits for, thinks not.
   expect(request.effort).toBeUndefined();
-  expect(checkWritingTask(input).request.effort).toBeUndefined();
+  expect(checkWritingTask(input).request.effort).toBe("none");
   const [system, user] = request.messages.map((m) => String(m.content));
   for (const part of [
     '"points": exactly three things the text must do, in Russian',
