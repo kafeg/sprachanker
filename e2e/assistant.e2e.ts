@@ -184,12 +184,13 @@ test("a deck's words given examples in Decks; a card and the word's sheet show t
     edition: "en-de",
   });
   await page.goto("/review/decks");
-  // The course's deck, made by the fake model under its entry in the decks to take, in the pair taken
-  // (an earlier project may have made them already); the deck taken says how they stand.
+  // The course's deck, made by the fake model from its row's "Audio and examples", in the pair taken
+  // (an earlier project may have made them already); its row says how they stand.
   const entry = page
     .getByRole("listitem")
     .filter({ hasText: "Demo course" })
     .filter({ hasText: "English → German" });
+  await entry.getByRole("button", { name: "Audio and examples" }).click();
   const make = entry.getByRole("button", { name: "Make examples" });
   const all = page.getByText("All words have examples");
   await expect(make.or(all).first()).toBeVisible();

@@ -11,7 +11,7 @@ apps/web/src/
   fonts.css        # the faces bundled from @fontsource (Fira: Latin, Cyrillic, Greek; Arabic, Devanagari; Chinese: the system's)
   routes/          # router.tsx (code-based TanStack Router: the gate, then the pages, each but Courses and
                    # Exams loaded when first opened — page.tsx: lazy pages, a failed page's error): courses (/, /downloaded, /catalog), review (/review,
-                   # /review/decks, /review/words — words.tsx), exams (/exams, /exams/downloaded,
+                   # /review/decks — decks.tsx: a row a deck —, /review/words — words.tsx), exams (/exams, /exams/downloaded,
                    # /exams/catalog), course (its map; an optional feature's button among its actions and the panel it opens: its `extra` slot), settings, storage (Settings → General's storage),
                    # runs (the lesson and exam runs with the assistant's slots)
   courses/         # course cards (on library/card), the pair and course filters (filterCourses, pure), the

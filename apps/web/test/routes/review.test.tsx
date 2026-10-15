@@ -1,5 +1,5 @@
 import { expect, test } from "bun:test";
-import { fireEvent, waitFor } from "@testing-library/react";
+import { fireEvent, waitFor, within } from "@testing-library/react";
 import { ReviewPage } from "../../src/routes/review.tsx";
 import { renderApp } from "../render.tsx";
 
@@ -77,45 +77,50 @@ const page = () =>
     ],
   });
 
-test("Decks: an imported deck taken is under its language beside the course, left as a course's", async () => {
+/** A row's menu ("More"), opened as a keyboard opens it. */
+function openMenu(view: Awaited<ReturnType<typeof page>>, row: HTMLElement) {
+  const more = within(row).getByRole("button", { name: "More" });
+  fireEvent.keyDown(more, { key: "Enter" });
+  return view;
+}
+
+test("Decks: each deck one row under its language — counts, Study, a menu to leave it; how its audio stands in a line that opens what makes it", async () => {
   const view = await page();
   await waitFor(() => expect(view.getByRole("button", { name: "Mein Deck" })).toBeTruthy());
-  expect(view.getByRole("button", { name: "Demo course" })).toBeTruthy();
-  // Under the imported deck how its audio stands; it is generated under the decks to take (each of
-  // which has words without audio but the course, whose words have their own).
-  expect(view.getByText("3 words without audio")).toBeTruthy();
-  expect(view.getByText("Audio: 0 of 3")).toBeTruthy();
-  expect(view.getAllByRole("button", { name: "Generate audio" })).toHaveLength(2);
-  // A card's way to its deck lands on the deck to take.
-  expect(document.getElementById("deck-deck-mein-deck-abc123")?.textContent).toContain(
-    "Audio: 0 of 3",
-  );
-  // A course's and an imported deck's leave alike (the language's does not).
-  expect(view.getAllByRole("button", { name: "Leave deck…" })).toHaveLength(2);
-  fireEvent.click(view.getAllByRole("button", { name: "Leave deck…" })[1] as HTMLElement);
+  // Once each: a deck taken is not listed again among the decks to take.
+  expect(view.getAllByText("Mein Deck")).toHaveLength(1);
+  expect(view.getAllByText("Demo course")).toHaveLength(1);
+  const row = document.getElementById("deck-deck-mein-deck-abc123") as HTMLElement;
+  expect(row.textContent).toContain("3 words without audio");
+  // What makes its audio opens from its line.
+  expect(within(row).queryByRole("button", { name: "Generate audio" })).toBeNull();
+  fireEvent.click(within(row).getByRole("button", { name: "Audio and examples" }));
+  expect(within(row).getByText("Audio: 0 of 3")).toBeTruthy();
+  expect(within(row).getByRole("button", { name: "Generate audio" })).toBeTruthy();
+  // Left from its menu, asked first; the action itself asks nothing more: no ellipsis on it.
+  openMenu(view, row);
+  fireEvent.click(await view.findByRole("menuitem", { name: "Leave deck…" }));
   expect(view.getByText(/^Leave the deck Mein Deck/)).toBeTruthy();
-  // The action itself asks nothing more: no ellipsis on it.
   expect(view.getByRole("button", { name: "Leave deck" })).toBeTruthy();
 });
 
-test("Decks to take: an imported deck not taken whole, taken or deleted; a deck file to import", async () => {
+test("Decks to take: only those not taken, the rest of a deck added where some of its words are cards already, an imported one deleted; a deck file to import", async () => {
   const view = await page();
   await waitFor(() => expect(view.getByText("A1 words")).toBeTruthy());
+  expect(view.getByText("Decks to take")).toBeTruthy();
   expect(view.getByText(/5 words · 1 yours already/)).toBeTruthy();
   expect(view.getByRole("button", { name: "Add the other 4" })).toBeTruthy();
   // The name and count keep their room (14rem) beside the button, which wraps under them on a phone.
   expect(view.getByText("A1 words").closest("[data-deck-name]")?.className.split(" ")).toContain(
     "flex-[1_1_14rem]",
   );
-  // Taken whole: no more to take, still there to delete — and a course's, to make what its words lack.
-  expect(view.getAllByText("Mein Deck")).toHaveLength(2);
-  expect(view.getAllByText("Demo course")).toHaveLength(2);
-  expect(view.getByText("Audio: 5 of 5")).toBeTruthy();
+  // Taken whole (the course, Mein Deck): nothing to add.
   expect(view.getAllByRole("button", { name: /^(Take the deck|Add the other \d+)$/ })).toHaveLength(
     1,
   );
-  expect(view.getAllByRole("button", { name: "Delete deck" })).toHaveLength(2);
   expect(view.getByRole("button", { name: "Import a deck file (.apkg)" })).toBeTruthy();
-  fireEvent.click(view.getAllByRole("button", { name: "Delete deck" })[0] as HTMLElement);
+  const row = document.getElementById("deck-deck-a1-words-def456") as HTMLElement;
+  openMenu(view, row);
+  fireEvent.click(await view.findByRole("menuitem", { name: "Delete deck…" }));
   expect(view.getByText("Delete the deck A1 words?")).toBeTruthy();
 });

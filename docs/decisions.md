@@ -155,6 +155,7 @@ area is built is in its `CLAUDE.md`; work not built yet is in `docs/plan.md`.
 - The lesson's "Words" step skips the daily new limit (the learner chose to learn now) but is otherwise Anki's reviewer; it is done once nothing is due now.
 - Undo takes back only answers in the deck being studied: a lesson's Words step never undoes the morning's review.
 - Leaving a deck removes its cards with their progress, after asking; a card whose word another of the learner's decks has moves there instead.
+- Review → Decks shows each deck once (owner, 2026-10-15): its row has the day's counts, Study and a menu (more new today, leave, delete an imported one), how many of its words are cards with the rest to add, and how its audio and examples stand in a line that opens what makes them; "Decks to take" lists only decks none of whose words are cards. The long explanation lives in "How it works".
 - An imported deck is deleted only while no profile has cards from it: nobody's progress goes unasked. Removing made audio never touches recordings a deck or course brought.
 
 ## Exams

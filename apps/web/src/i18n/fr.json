@@ -923,7 +923,6 @@
     "unmark": "Retirer la marque",
     "keys": "Espace ou Entrée : afficher la réponse, puis Correct · 1–4 : évaluer · R : réécouter · U : annuler",
     "noCards": "Pas encore de cartes : elles viennent de l’étape « Mots de la leçon » des leçons.",
-    "deck": "Paquet",
     "count": {
       "new": "Nouv.",
       "learning": "Appr.",
@@ -1040,15 +1039,12 @@
     "more": "{count, plural, one {# nouvelle carte de plus aujourd’hui} many {# de nouvelles cartes de plus aujourd’hui} other {# nouvelles cartes de plus aujourd’hui}}",
     "leave": "Quitter le paquet…",
     "leaveConfirm": "Quitter le paquet",
-    "offers": "Paquets à prendre",
-    "offersHint": "Les mots de chacun de tes cours, et de chaque paquet importé ici, forment un paquet : pris en entier, il les ajoute comme nouvelles cartes, dans son ordre — dans la limite quotidienne, ou plus avec « de plus aujourd’hui ». Un mot dont tu as déjà une carte la garde. Ici aussi se créent l’audio et les exemples de tous les mots d’un paquet, pris ou non.",
     "words": "{words, plural, one {# mot} many {# de mots} other {# mots}} · {mine, number} déjà à toi",
     "take": "Prendre le paquet",
     "takeRest": "Ajouter les {count, number} autres",
     "study": "Étudier",
     "leaveTitle": "Quitter le paquet {deck} ?",
     "leaveBody": "Ses cartes disparaissent, avec leur progression. Les mots qu’un autre de tes paquets contient y passent, avec leur progression.",
-    "moreShort": "{count, plural, one {+# nouvelle} many {+# de nouvelles} other {+# nouvelles}}",
     "import": {
       "button": "Importer un fichier de paquet (.apkg)",
       "title": "Importer un paquet",
@@ -1101,7 +1097,10 @@
       "failed": "{count, plural, one {# mot n’a pas reçu d’exemples} many {# de mots n’ont pas reçu d’exemples} other {# mots n’ont pas reçu d’exemples}}",
       "setUp": "Pour créer des exemples, configure l’assistant IA dans Réglages"
     },
-    "removeStudied": "{count, plural, one {Le profil {profiles} étudie ce paquet.} many {Les profils {profiles} étudient ce paquet.} other {Les profils {profiles} étudient ce paquet.}} Il pourra être supprimé quand tous les profils l’auront quitté : Révision → Paquets → Quitter le paquet…."
+    "removeStudied": "{count, plural, one {Le profil {profiles} étudie ce paquet.} many {Les profils {profiles} étudient ce paquet.} other {Les profils {profiles} étudient ce paquet.}} Il pourra être supprimé quand tous les profils l’auront quitté : Révision → Paquets → Quitter le paquet….",
+    "available": "Paquets à prendre",
+    "progress": "{mine, number} sur {words, plural, one {# mot} other {# mots}}",
+    "extras": "Audio et exemples"
   },
   "guide": {
     "open": "Comment ça marche",
@@ -1139,6 +1138,10 @@
     "counts": {
       "title": "Les trois nombres",
       "text": "Les nouvelles cartes encore à apprendre aujourd’hui, les cartes en apprentissage (qui reviennent dans quelques minutes) et les cartes à réviser. Le nombre souligné indique d’où vient la carte à l’écran. « Réponses restantes » estime combien de réponses terminent la séance si chacune est Correct."
+    },
+    "decks": {
+      "title": "Paquets",
+      "text": "Les mots de chacun de tes cours, et de chaque paquet importé ici, forment un paquet : pris en entier, il les ajoute comme nouvelles cartes, dans son ordre — dans la limite quotidienne, ou plus avec « de plus aujourd’hui ». Un mot dont tu as déjà une carte la garde. Ici aussi se créent l’audio et les exemples de tous les mots d’un paquet, pris ou non."
     },
     "faces": {
       "title": "Les cartes d’un mot",

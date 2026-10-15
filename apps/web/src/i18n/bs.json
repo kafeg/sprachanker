@@ -923,7 +923,6 @@
     "unmark": "Ukloni oznaku s riječi",
     "keys": "Razmaknica ili Enter: prikaži odgovor, zatim Dobro · 1–4: ocjena · R: ponovo pusti · U: poništi",
     "noCards": "Još nema kartica: dolaze iz koraka „Riječi lekcije“ u lekcijama.",
-    "deck": "Špil",
     "count": {
       "new": "Nove",
       "learning": "Učenje",
@@ -1040,15 +1039,12 @@
     "more": "{count, plural, one {Još # nova kartica danas} few {Još # nove kartice danas} other {Još # novih kartica danas}}",
     "leave": "Napusti špil…",
     "leaveConfirm": "Napusti špil",
-    "offers": "Dostupni špilovi",
-    "offersHint": "Riječi svakog tvog kursa i svakog ovdje uvezenog špila čine špil: kad ga uzmeš cijelog, dodaje ih kao nove kartice svojim redom — u okviru dnevnog ograničenja ili više uz „više novih danas“. Riječ za koju već imaš karticu zadržava je. Ovdje se prave i audio i primjeri za sve riječi špila, uzete ili ne.",
     "words": "{words, plural, one {# riječ} few {# riječi} other {# riječi}} · {mine, number} već tvojih",
     "take": "Uzmi špil",
     "takeRest": "Dodaj ostalih {count, number}",
     "study": "Uči",
     "leaveTitle": "Napustiti špil {deck}?",
     "leaveBody": "Njegove kartice odlaze, s napretkom. Riječi koje ima neki drugi tvoj špil prelaze tamo, sa cijelim napretkom.",
-    "moreShort": "{count, plural, one {+# nova} few {+# nove} other {+# novih}}",
     "import": {
       "button": "Uvezi datoteku špila (.apkg)",
       "title": "Uvezi špil",
@@ -1101,7 +1097,10 @@
       "failed": "{count, plural, one {# riječ nije dobila primjere} few {# riječi nisu dobile primjere} other {# riječi nije dobilo primjere}}",
       "setUp": "Za primjere podesi AI asistenta u Postavkama"
     },
-    "removeStudied": "{count, plural, one {Profil {profiles} uči ovaj špil.} few {Profili {profiles} uče ovaj špil.} other {Profili {profiles} uče ovaj špil.}} Može se obrisati kad ga svi profili napuste: Ponavljanje → Špilovi → Napusti špil…."
+    "removeStudied": "{count, plural, one {Profil {profiles} uči ovaj špil.} few {Profili {profiles} uče ovaj špil.} other {Profili {profiles} uče ovaj špil.}} Može se obrisati kad ga svi profili napuste: Ponavljanje → Špilovi → Napusti špil….",
+    "available": "Može se uzeti",
+    "progress": "{mine, number} od {words, plural, one {# riječi} few {# riječi} other {# riječi}}",
+    "extras": "Zvuk i primjeri"
   },
   "guide": {
     "open": "Kako radi",
@@ -1139,6 +1138,10 @@
     "counts": {
       "title": "Tri broja",
       "text": "Nove kartice koje danas još treba naučiti, kartice u učenju (vraćaju se za nekoliko minuta) i kartice koje su na redu za ponavljanje. Podvučeni broj pokazuje odakle dolazi kartica na ekranu. „Odgovora do kraja“ procjenjuje koliko odgovora završava sesiju ako je svaki Dobro."
+    },
+    "decks": {
+      "title": "Špilovi",
+      "text": "Riječi svakog tvog kursa i svakog ovdje uvezenog špila čine špil: kad ga uzmeš cijelog, dodaje ih kao nove kartice svojim redom — u okviru dnevnog ograničenja ili više uz „više novih danas“. Riječ za koju već imaš karticu zadržava je. Ovdje se prave i audio i primjeri za sve riječi špila, uzete ili ne."
     },
     "faces": {
       "title": "Kartice jedne riječi",

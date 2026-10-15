@@ -923,7 +923,6 @@
     "unmark": "Desmarcar nota",
     "keys": "Espaço ou Enter: mostrar a resposta, depois Bom · 1–4: avaliar · R: repetir · U: desfazer",
     "noCards": "Ainda não há cartões: eles vêm da etapa “Palavras da lição” das lições.",
-    "deck": "Baralho",
     "count": {
       "new": "Novos",
       "learning": "Aprendendo",
@@ -1040,15 +1039,12 @@
     "more": "{count, plural, =0 {Mais # cartões novos hoje} one {Mais # cartão novo hoje} other {Mais # cartões novos hoje}}",
     "leave": "Sair do baralho…",
     "leaveConfirm": "Sair do baralho",
-    "offers": "Baralhos disponíveis",
-    "offersHint": "As palavras de cada um dos seus cursos, e de cada baralho importado aqui, formam um baralho: ao pegá-lo inteiro, ele as adiciona como cartões novos na ordem dele, dentro do limite diário ou mais com “mais novos hoje”. Uma palavra da qual você já tem cartão fica com ele. Aqui também são criados o áudio e os exemplos de todas as palavras de um baralho, pegas ou não.",
     "words": "{words, plural, =0 {# palavras} one {# palavra} other {# palavras}} · {mine, number} já suas",
     "take": "Pegar o baralho",
     "takeRest": "Adicionar as outras {count, number}",
     "study": "Estudar",
     "leaveTitle": "Sair do baralho {deck}?",
     "leaveBody": "Os cartões dele saem, com o progresso. As palavras que estão em outro baralho seu passam para ele, com progresso e tudo.",
-    "moreShort": "{count, plural, =0 {+# novos} one {+# novo} other {+# novos}}",
     "import": {
       "button": "Importar um arquivo de baralho (.apkg)",
       "title": "Importar um baralho",
@@ -1101,7 +1097,10 @@
       "failed": "{count, plural, =0 {# palavras ficaram sem exemplos} one {# palavra ficou sem exemplos} other {# palavras ficaram sem exemplos}}",
       "setUp": "Para criar exemplos, configure o assistente de IA em Configurações"
     },
-    "removeStudied": "{count, plural, =0 {Os perfis {profiles} estudam este baralho.} one {O perfil {profiles} estuda este baralho.} other {Os perfis {profiles} estudam este baralho.}} Ele pode ser excluído quando todos os perfis tiverem saído dele: Revisão → Baralhos → Sair do baralho…."
+    "removeStudied": "{count, plural, =0 {Os perfis {profiles} estudam este baralho.} one {O perfil {profiles} estuda este baralho.} other {Os perfis {profiles} estudam este baralho.}} Ele pode ser excluído quando todos os perfis tiverem saído dele: Revisão → Baralhos → Sair do baralho….",
+    "available": "Baralhos para pegar",
+    "progress": "{mine, number} de {words, plural, one {# palavra} other {# palavras}}",
+    "extras": "Áudio e exemplos"
   },
   "guide": {
     "open": "Como funciona",
@@ -1139,6 +1138,10 @@
     "counts": {
       "title": "Os três números",
       "text": "Cartões novos ainda por aprender hoje, cartões em aprendizado (voltam em minutos) e cartões a revisar. O número sublinhado mostra de onde vem o cartão na tela. “Respostas restantes” estima quantas respostas terminam a sessão se cada uma for Bom."
+    },
+    "decks": {
+      "title": "Baralhos",
+      "text": "As palavras de cada um dos seus cursos, e de cada baralho importado aqui, formam um baralho: ao pegá-lo inteiro, ele as adiciona como cartões novos na ordem dele, dentro do limite diário ou mais com “mais novos hoje”. Uma palavra da qual você já tem cartão fica com ele. Aqui também são criados o áudio e os exemplos de todas as palavras de um baralho, pegas ou não."
     },
     "faces": {
       "title": "Os cartões de uma palavra",

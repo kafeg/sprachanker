@@ -89,6 +89,7 @@ function StudyGuide() {
       {section("recall", text("recall"))}
       {section("buttons", list("buttons", ["again", "hard", "good", "easy"]))}
       {section("counts", text("counts"))}
+      {section("decks", text("decks"))}
       {section(
         "schedule",
         <ul className="list-disc space-y-1 ps-5 text-sm">

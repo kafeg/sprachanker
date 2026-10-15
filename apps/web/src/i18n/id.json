@@ -923,7 +923,6 @@
     "unmark": "Hapus tanda catatan",
     "keys": "Space atau Enter: tampilkan jawaban, lalu Bagus · 1–4: beri nilai · R: putar ulang · U: urungkan",
     "noCards": "Belum ada kartu: kartu berasal dari langkah “Kosakata pelajaran” di setiap pelajaran.",
-    "deck": "Dek",
     "count": {
       "new": "Baru",
       "learning": "Dipelajari",
@@ -1040,15 +1039,12 @@
     "more": "{count, plural, other {# kartu baru lagi hari ini}}",
     "leave": "Tinggalkan dek…",
     "leaveConfirm": "Tinggalkan dek",
-    "offers": "Dek yang bisa diambil",
-    "offersHint": "Kosakata dari setiap kursus kamu, dan dari setiap dek yang diimpor ke sini, adalah sebuah dek: jika diambil utuh, kata-katanya ditambahkan sebagai kartu baru sesuai urutannya — dalam batas harian, atau lebih dengan “kartu baru lagi hari ini”. Kata yang sudah punya kartu tetap memakai kartunya. Di sini juga audio dan contoh dibuat untuk semua kata sebuah dek, sudah diambil atau belum.",
     "words": "{words, plural, other {# kata}} · {mine, number} sudah kamu punya",
     "take": "Ambil dek",
     "takeRest": "Tambahkan {count, number} lainnya",
     "study": "Belajar",
     "leaveTitle": "Tinggalkan dek {deck}?",
     "leaveBody": "Kartunya akan hilang beserta progresnya. Kata yang juga ada di dek kamu yang lain pindah ke sana, lengkap dengan progresnya.",
-    "moreShort": "{count, plural, other {+# baru}}",
     "import": {
       "button": "Impor berkas dek (.apkg)",
       "title": "Impor dek",
@@ -1101,7 +1097,10 @@
       "failed": "{count, plural, other {# kata tidak mendapat contoh}}",
       "setUp": "Untuk membuat contoh, siapkan asisten AI di Pengaturan"
     },
-    "removeStudied": "{count, plural, other {Profil {profiles} sedang mempelajari dek ini.}} Dek bisa dihapus setelah semua profil meninggalkannya: Pengulangan → Dek → Tinggalkan dek…."
+    "removeStudied": "{count, plural, other {Profil {profiles} sedang mempelajari dek ini.}} Dek bisa dihapus setelah semua profil meninggalkannya: Pengulangan → Dek → Tinggalkan dek….",
+    "available": "Dek yang bisa diambil",
+    "progress": "{mine, number} dari {words, plural, other {# kata}}",
+    "extras": "Audio dan contoh"
   },
   "guide": {
     "open": "Cara kerjanya",
@@ -1139,6 +1138,10 @@
     "counts": {
       "title": "Tiga angka",
       "text": "Kartu baru yang masih harus dipelajari hari ini, kartu yang sedang dipelajari (kembali dalam beberapa menit), dan kartu yang jatuh tempo untuk diulang. Angka yang bergaris bawah menunjukkan asal kartu di layar. “Jawaban lagi” memperkirakan berapa jawaban yang dibutuhkan untuk menyelesaikan sesi jika semuanya Bagus."
+    },
+    "decks": {
+      "title": "Dek",
+      "text": "Kosakata dari setiap kursus kamu, dan dari setiap dek yang diimpor ke sini, adalah sebuah dek: jika diambil utuh, kata-katanya ditambahkan sebagai kartu baru sesuai urutannya — dalam batas harian, atau lebih dengan “kartu baru lagi hari ini”. Kata yang sudah punya kartu tetap memakai kartunya. Di sini juga audio dan contoh dibuat untuk semua kata sebuah dek, sudah diambil atau belum."
     },
     "faces": {
       "title": "Kartu sebuah kata",

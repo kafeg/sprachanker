@@ -923,7 +923,6 @@
     "unmark": "Ondoa alama kwenye neno",
     "keys": "Space au Enter: onyesha jibu, kisha Vizuri · 1–4: jipe alama · R: cheza tena · U: tendua",
     "noCards": "Bado hakuna kadi: zinatoka kwenye hatua ya “Maneno ya somo” ya masomo.",
-    "deck": "Seti",
     "count": {
       "new": "Mpya",
       "learning": "Inajifunzwa",
@@ -1040,15 +1039,12 @@
     "more": "{count, plural, one {Kadi # mpya zaidi leo} other {Kadi # mpya zaidi leo}}",
     "leave": "Acha seti…",
     "leaveConfirm": "Acha seti",
-    "offers": "Seti za kuchukua",
-    "offersHint": "Maneno ya kila kozi yako, na ya kila seti iliyoingizwa hapa, ni seti: ikichukuliwa yote, huyaongeza kama kadi mpya kwa mpangilio wake — ndani ya kikomo cha siku, au zaidi kwa “mpya zaidi leo”. Neno ambalo tayari una kadi yake linaibakiza. Hapa pia sauti na mifano hutengenezwa kwa maneno yote ya seti, yawe yamechukuliwa au la.",
     "words": "{words, plural, one {neno #} other {maneno #}} · {mine, number} tayari ni yako",
     "take": "Chukua seti",
     "takeRest": "Ongeza mengine {count, number}",
     "study": "Soma",
     "leaveTitle": "Uache seti {deck}?",
     "leaveBody": "Kadi zake zinaondoka, pamoja na maendeleo yake. Maneno yaliyo katika seti yako nyingine yanahamia huko, pamoja na maendeleo yote.",
-    "moreShort": "{count, plural, one {+# mpya} other {+# mpya}}",
     "import": {
       "button": "Ingiza faili la seti (.apkg)",
       "title": "Ingiza seti",
@@ -1101,7 +1097,10 @@
       "failed": "{count, plural, one {Neno # halikupata mifano} other {Maneno # hayakupata mifano}}",
       "setUp": "Ili kutengeneza mifano, weka msaidizi wa AI katika Mipangilio"
     },
-    "removeStudied": "{count, plural, one {Wasifu {profiles} unasoma seti hii.} other {Wasifu {profiles} zinasoma seti hii.}} Inaweza kufutwa baada ya kila wasifu kuiacha: Marudio → Seti → Acha seti…."
+    "removeStudied": "{count, plural, one {Wasifu {profiles} unasoma seti hii.} other {Wasifu {profiles} zinasoma seti hii.}} Inaweza kufutwa baada ya kila wasifu kuiacha: Marudio → Seti → Acha seti….",
+    "available": "Deki za kuchukua",
+    "progress": "{mine, number} kati ya {words, plural, one {neno #} other {maneno #}}",
+    "extras": "Sauti na mifano"
   },
   "guide": {
     "open": "Inavyofanya kazi",
@@ -1139,6 +1138,10 @@
     "counts": {
       "title": "Namba tatu",
       "text": "Kadi mpya za kujifunza leo, kadi zinazojifunzwa (zinarudi ndani ya dakika chache), na kadi za kurudia. Namba iliyopigiwa mstari inaonyesha kadi iliyo kwenye skrini inatoka wapi. \"Majibu yamebaki\" inakadiria ni majibu mangapi yatamaliza kipindi ikiwa kila moja ni Vizuri."
+    },
+    "decks": {
+      "title": "Seti",
+      "text": "Maneno ya kila kozi yako, na ya kila seti iliyoingizwa hapa, ni seti: ikichukuliwa yote, huyaongeza kama kadi mpya kwa mpangilio wake — ndani ya kikomo cha siku, au zaidi kwa “mpya zaidi leo”. Neno ambalo tayari una kadi yake linaibakiza. Hapa pia sauti na mifano hutengenezwa kwa maneno yote ya seti, yawe yamechukuliwa au la."
     },
     "faces": {
       "title": "Kadi za neno",

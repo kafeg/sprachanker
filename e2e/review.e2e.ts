@@ -128,7 +128,7 @@ test("My words: the table under Decks, search, a word's sheet, suspend and back"
   await expect(sheet.getByRole("button", { name: "Suspend" })).toBeVisible();
 });
 
-test("review: the guide explains the method beside; the decks to take are offered", async ({
+test("review: the guide explains the method beside; a course's deck with its pair and its menu", async ({
   page,
   request,
 }) => {
@@ -140,10 +140,13 @@ test("review: the guide explains the method beside; the decks to take are offere
   // Offered: the courses of My courses.
   await beginCourse(request);
   await page.goto("/review/decks");
-  await expect(page.getByRole("heading", { name: "Decks to take" })).toBeVisible();
-  // A course's deck with its language pair and what it does, at hand.
-  await expect(page.getByText("English → German").first()).toBeVisible();
-  await expect(page.getByRole("button", { name: "Leave deck…" }).first()).toBeVisible();
+  // The course's deck: its language pair and its menu (the rest of its words to add depends on what
+  // an earlier test of the shared profile took).
+  const row = page.getByRole("listitem").filter({ hasText: "Demo course" }).first();
+  await expect(row.getByText("English → German")).toBeVisible();
+  await row.getByRole("button", { name: "More" }).click();
+  await expect(page.getByRole("menuitem", { name: "Leave deck…" })).toBeVisible();
+  await page.keyboard.press("Escape");
   await page.getByRole("button", { name: "How it works" }).click();
   const guide = page.getByRole("dialog");
   await expect(guide.getByRole("heading", { name: "How review works" })).toBeVisible();
@@ -182,9 +185,10 @@ test("a deck file imported in Decks, taken, studied as a course's deck; left and
   const take = offer.getByRole("button", { name: /^(Take the deck|Add the other \d+)$/ });
   await take.click();
   await expect(take).toHaveCount(0);
-  // Its words have no audio — the deck taken says so —: read aloud by the server's engine (Piper on
-  // paper here) and kept, generated under its entry in the decks to take.
-  await expect(page.getByText("3 words without audio")).toBeVisible();
+  // Its words have no audio — its row says so —: read aloud by the server's engine (Piper on paper
+  // here) and kept, made from its row's "Audio and examples".
+  await expect(offer.getByText("3 words without audio")).toBeVisible();
+  await offer.getByRole("button", { name: "Audio and examples" }).click();
   await expect(offer.getByText("Audio: 0 of 3")).toBeVisible();
   await offer.getByRole("button", { name: "Generate audio" }).click();
   await expect(page.getByText("All words have audio")).toBeVisible();

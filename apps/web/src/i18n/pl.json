@@ -923,7 +923,6 @@
     "unmark": "Usuń oznaczenie",
     "keys": "Spacja lub Enter: pokaż odpowiedź, potem Dobrze · 1–4: ocena · R: odtwórz ponownie · U: cofnij",
     "noCards": "Nie ma jeszcze fiszek: powstają w kroku „Słówka lekcji”.",
-    "deck": "Talia",
     "count": {
       "new": "Nowe",
       "learning": "W nauce",
@@ -1040,15 +1039,12 @@
     "more": "{count, plural, one {Jeszcze # nowa fiszka dzisiaj} few {Jeszcze # nowe fiszki dzisiaj} many {Jeszcze # nowych fiszek dzisiaj} other {Jeszcze # nowej fiszki dzisiaj}}",
     "leave": "Opuść talię…",
     "leaveConfirm": "Opuść talię",
-    "offers": "Talie do wzięcia",
-    "offersHint": "Słowa każdego z twoich kursów i każdej zaimportowanej tu talii tworzą talię: wzięta w całości, dodaje je jako nowe fiszki w swojej kolejności — w ramach dziennego limitu albo więcej przez „więcej nowych dzisiaj”. Słowo, do którego masz już fiszkę, ją zachowuje. Tu też powstają nagrania i przykłady dla wszystkich słów talii, wziętych czy nie.",
     "words": "{words, plural, one {# słowo} few {# słowa} many {# słów} other {# słowa}} · {mine, number} już twoich",
     "take": "Weź talię",
     "takeRest": "Dodaj pozostałe {count, number}",
     "study": "Ucz się",
     "leaveTitle": "Opuścić talię {deck}?",
     "leaveBody": "Jej fiszki znikną razem z postępami. Słowa, które ma inna twoja talia, przejdą do niej razem z postępami.",
-    "moreShort": "{count, plural, one {+# nowa} few {+# nowe} many {+# nowych} other {+# nowej}}",
     "import": {
       "button": "Importuj plik talii (.apkg)",
       "title": "Import talii",
@@ -1101,7 +1097,10 @@
       "failed": "{count, plural, one {# słowo nie dostało przykładów} few {# słowa nie dostały przykładów} many {# słów nie dostało przykładów} other {# słowa nie dostało przykładów}}",
       "setUp": "Aby tworzyć przykłady, skonfiguruj asystenta AI w Ustawieniach"
     },
-    "removeStudied": "{count, plural, one {Profil {profiles} uczy się z tej talii.} few {Profile {profiles} uczą się z tej talii.} many {Profile {profiles} uczą się z tej talii.} other {Profile {profiles} uczą się z tej talii.}} Można ją usunąć, gdy wszystkie profile ją opuszczą: Powtórki → Talie → Opuść talię…."
+    "removeStudied": "{count, plural, one {Profil {profiles} uczy się z tej talii.} few {Profile {profiles} uczą się z tej talii.} many {Profile {profiles} uczą się z tej talii.} other {Profile {profiles} uczą się z tej talii.}} Można ją usunąć, gdy wszystkie profile ją opuszczą: Powtórki → Talie → Opuść talię….",
+    "available": "Do wzięcia",
+    "progress": "{mine, number} z {words, plural, one {# słowa} few {# słów} many {# słów} other {# słowa}}",
+    "extras": "Nagrania i przykłady"
   },
   "guide": {
     "open": "Jak to działa",
@@ -1139,6 +1138,10 @@
     "counts": {
       "title": "Trzy liczby",
       "text": "Nowe fiszki, których zostało dziś do nauki, fiszki w nauce (wracają w ciągu minut) i fiszki do powtórki. Podkreślona liczba wskazuje, skąd pochodzi fiszka na ekranie. „Odpowiedzi do końca” to szacunek, ile odpowiedzi zakończy sesję, jeśli każda będzie Dobrze."
+    },
+    "decks": {
+      "title": "Talie",
+      "text": "Słowa każdego z twoich kursów i każdej zaimportowanej tu talii tworzą talię: wzięta w całości, dodaje je jako nowe fiszki w swojej kolejności — w ramach dziennego limitu albo więcej przez „więcej nowych dzisiaj”. Słowo, do którego masz już fiszkę, ją zachowuje. Tu też powstają nagrania i przykłady dla wszystkich słów talii, wziętych czy nie."
     },
     "faces": {
       "title": "Fiszki słowa",

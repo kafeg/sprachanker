@@ -923,7 +923,6 @@
     "unmark": "Desmarcar nota",
     "keys": "Espacio o Intro: mostrar la respuesta, luego Bien · 1–4: valorar · R: repetir · U: deshacer",
     "noCards": "Aún no hay tarjetas: salen del paso «Palabras de la lección» de las lecciones.",
-    "deck": "Mazo",
     "count": {
       "new": "Nuevas",
       "learning": "En aprendizaje",
@@ -1040,15 +1039,12 @@
     "more": "{count, plural, one {# tarjeta nueva más hoy} other {# tarjetas nuevas más hoy}}",
     "leave": "Dejar el mazo…",
     "leaveConfirm": "Dejar el mazo",
-    "offers": "Mazos disponibles",
-    "offersHint": "Las palabras de cada uno de tus cursos, y de cada mazo importado aquí, forman un mazo: al tomarlo entero, las añade como tarjetas nuevas en su orden, dentro del límite diario o más con «más nuevas hoy». Una palabra de la que ya tienes tarjeta la conserva. Aquí también se crean el audio y los ejemplos de todas las palabras de un mazo, tomadas o no.",
     "words": "{words, plural, one {# palabra} other {# palabras}} · {mine, number} ya tuyas",
     "take": "Tomar el mazo",
     "takeRest": "Añadir las otras {count, number}",
     "study": "Estudiar",
     "leaveTitle": "¿Dejar el mazo {deck}?",
     "leaveBody": "Sus tarjetas se van, con su progreso. Las palabras que estén en otro de tus mazos pasan a él, con progreso incluido.",
-    "moreShort": "{count, plural, one {+# nueva} other {+# nuevas}}",
     "import": {
       "button": "Importar un archivo de mazo (.apkg)",
       "title": "Importar un mazo",
@@ -1101,7 +1097,10 @@
       "failed": "{count, plural, one {# palabra se quedó sin ejemplos} other {# palabras se quedaron sin ejemplos}}",
       "setUp": "Para crear ejemplos, configura el asistente de IA en Ajustes"
     },
-    "removeStudied": "{count, plural, one {El perfil {profiles} estudia este mazo.} other {Los perfiles {profiles} estudian este mazo.}} Se podrá eliminar cuando todos los perfiles lo hayan dejado: Repaso → Mazos → Dejar el mazo…."
+    "removeStudied": "{count, plural, one {El perfil {profiles} estudia este mazo.} other {Los perfiles {profiles} estudian este mazo.}} Se podrá eliminar cuando todos los perfiles lo hayan dejado: Repaso → Mazos → Dejar el mazo….",
+    "available": "Mazos para tomar",
+    "progress": "{mine, number} de {words, plural, one {# palabra} other {# palabras}}",
+    "extras": "Audio y ejemplos"
   },
   "guide": {
     "open": "Cómo funciona",
@@ -1139,6 +1138,10 @@
     "counts": {
       "title": "Los tres números",
       "text": "Tarjetas nuevas que quedan por aprender hoy, tarjetas en aprendizaje (vuelven en minutos) y tarjetas pendientes de repaso. El número subrayado indica de dónde viene la tarjeta en pantalla. «Respuestas pendientes» calcula cuántas respuestas terminan la sesión si cada una es Bien."
+    },
+    "decks": {
+      "title": "Mazos",
+      "text": "Las palabras de cada uno de tus cursos, y de cada mazo importado aquí, forman un mazo: al tomarlo entero, las añade como tarjetas nuevas en su orden, dentro del límite diario o más con «más nuevas hoy». Una palabra de la que ya tienes tarjeta la conserva. Aquí también se crean el audio y los ejemplos de todas las palabras de un mazo, tomadas o no."
     },
     "faces": {
       "title": "Las tarjetas de una palabra",

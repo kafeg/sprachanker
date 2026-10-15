@@ -923,7 +923,6 @@
     "unmark": "Markierung entfernen",
     "keys": "Leertaste oder Enter: Antwort zeigen, dann Gut · 1–4: bewerten · R: Audio · U: rückgängig",
     "noCards": "Noch keine Karten: Sie kommen aus dem Schritt „Wörter der Lektion“.",
-    "deck": "Stapel",
     "count": {
       "new": "Neu",
       "learning": "Lernen",
@@ -1040,15 +1039,12 @@
     "more": "{count, plural, one {# neue Karte mehr heute} other {# neue Karten mehr heute}}",
     "leave": "Stapel entfernen…",
     "leaveConfirm": "Stapel entfernen",
-    "offers": "Stapel zum Übernehmen",
-    "offersHint": "Die Wörter jedes deiner Kurse und jedes hier importierten Stapels sind ein Stapel: als Ganzes übernommen, fügt er sie als neue Karten in seiner Reihenfolge hinzu — im Tageslimit oder mehr mit „heute mehr neue“. Ein Wort, von dem du schon eine Karte hast, behält sie. Hier werden auch Audio und Beispiele für alle Wörter eines Stapels erstellt, ob genommen oder nicht.",
     "words": "{words, plural, one {# Wort} other {# Wörter}} · schon deine: {mine, number}",
     "take": "Stapel übernehmen",
     "takeRest": "Die übrigen {count, number} hinzufügen",
     "study": "Lernen",
     "leaveTitle": "Stapel {deck} entfernen?",
     "leaveBody": "Seine Karten gehen mit ihrem Fortschritt. Wörter, die ein anderer deiner Stapel hat, wandern mit allem Fortschritt dorthin.",
-    "moreShort": "{count, plural, one {+# neue} other {+# neue}}",
     "import": {
       "button": "Stapeldatei importieren (.apkg)",
       "title": "Stapel importieren",
@@ -1101,7 +1097,10 @@
       "failed": "{count, plural, one {# Wort hat keine Beispiele bekommen} other {# Wörter haben keine Beispiele bekommen}}",
       "setUp": "Richte für Beispiele den KI-Assistenten in den Einstellungen ein"
     },
-    "removeStudied": "{count, plural, one {Das Profil {profiles} lernt diesen Stapel.} other {Die Profile {profiles} lernen diesen Stapel.}} Löschen lässt er sich, wenn ihn alle Profile entfernt haben: Wiederholung → Stapel → Stapel entfernen…."
+    "removeStudied": "{count, plural, one {Das Profil {profiles} lernt diesen Stapel.} other {Die Profile {profiles} lernen diesen Stapel.}} Löschen lässt er sich, wenn ihn alle Profile entfernt haben: Wiederholung → Stapel → Stapel entfernen….",
+    "available": "Zum Übernehmen",
+    "progress": "{mine, number} von {words, plural, one {# Wort} other {# Wörtern}}",
+    "extras": "Audio und Beispiele"
   },
   "guide": {
     "open": "So funktioniert's",
@@ -1139,6 +1138,10 @@
     "counts": {
       "title": "Die drei Zahlen",
       "text": "Neue Karten, die heute noch zu lernen sind, Karten im Lernen (kommen in Minuten wieder) und fällige Wiederholungen. Unterstrichen ist die Reihe, aus der die Karte auf dem Bildschirm stammt. „Antworten bis zum Ende“ schätzt, wie viele Antworten die Sitzung beenden, wenn jede „Gut“ ist."
+    },
+    "decks": {
+      "title": "Stapel",
+      "text": "Die Wörter jedes deiner Kurse und jedes hier importierten Stapels sind ein Stapel: als Ganzes übernommen, fügt er sie als neue Karten in seiner Reihenfolge hinzu — im Tageslimit oder mehr mit „heute mehr neue“. Ein Wort, von dem du schon eine Karte hast, behält sie. Hier werden auch Audio und Beispiele für alle Wörter eines Stapels erstellt, ob genommen oder nicht."
     },
     "faces": {
       "title": "Die Karten eines Worts",

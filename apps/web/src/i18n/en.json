@@ -923,7 +923,6 @@
     "unmark": "Unmark note",
     "keys": "Space or Enter: show the answer, then Good · 1–4: rate · R: replay · U: undo",
     "noCards": "No cards yet: they come from the lessons' “Words of the lesson” step.",
-    "deck": "Deck",
     "count": {
       "new": "New",
       "learning": "Learn",
@@ -1040,15 +1039,12 @@
     "more": "{count, plural, one {# more new card today} other {# more new cards today}}",
     "leave": "Leave deck…",
     "leaveConfirm": "Leave deck",
-    "offers": "Decks to take",
-    "offersHint": "The words of each of your courses, and of each deck imported here, are a deck: taken whole, it adds them as new cards in its order — within the daily limit, or more with “more new today”. A word you have a card of already keeps it. Here, too, audio and examples are made for all of a deck's words, taken or not.",
     "words": "{words, plural, one {# word} other {# words}} · {mine, number} yours already",
     "take": "Take the deck",
     "takeRest": "Add the other {count, number}",
     "study": "Study",
     "leaveTitle": "Leave the deck {deck}?",
     "leaveBody": "Its cards go, with their progress. Words that another of your decks has move there, progress and all.",
-    "moreShort": "{count, plural, one {+# new} other {+# new}}",
     "import": {
       "button": "Import a deck file (.apkg)",
       "title": "Import a deck",
@@ -1101,7 +1097,10 @@
       "failed": "{count, plural, one {# word got no examples} other {# words got no examples}}",
       "setUp": "To make examples, set up the AI assistant in Settings"
     },
-    "removeStudied": "{count, plural, one {The profile {profiles} studies this deck.} other {The profiles {profiles} study this deck.}} It can be deleted once every profile has left it: Review → Decks → Leave deck…."
+    "removeStudied": "{count, plural, one {The profile {profiles} studies this deck.} other {The profiles {profiles} study this deck.}} It can be deleted once every profile has left it: Review → Decks → Leave deck….",
+    "available": "Decks to take",
+    "progress": "{mine, number} of {words, plural, one {# word} other {# words}}",
+    "extras": "Audio and examples"
   },
   "guide": {
     "open": "How it works",
@@ -1139,6 +1138,10 @@
     "counts": {
       "title": "The three numbers",
       "text": "New cards still to learn today, cards in learning (coming back within minutes), and cards due for review. The one underlined is where the card on screen comes from. \"Answers to go\" estimates how many answers finish the session if each is Good."
+    },
+    "decks": {
+      "title": "Decks",
+      "text": "The words of each of your courses, and of each deck imported here, are a deck: taken whole, it adds them as new cards in its order — within the daily limit, or more with “more new today”. A word you have a card of already keeps it. Here, too, audio and examples are made for all of a deck's words, taken or not."
     },
     "faces": {
       "title": "A word's cards",

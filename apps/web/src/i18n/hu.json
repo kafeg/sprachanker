@@ -923,7 +923,6 @@
     "unmark": "Jelölés törlése",
     "keys": "Space vagy Enter: válasz, aztán Jó · 1–4: értékelés · R: újrajátszás · U: visszavonás",
     "noCards": "Még nincsenek kártyák: a leckék „A lecke szavai” lépéséből érkeznek.",
-    "deck": "Pakli",
     "count": {
       "new": "Új",
       "learning": "Tanulás",
@@ -1040,15 +1039,12 @@
     "more": "{count, plural, one {Még # új kártya ma} other {Még # új kártya ma}}",
     "leave": "Pakli elhagyása…",
     "leaveConfirm": "Pakli elhagyása",
-    "offers": "Felvehető paklik",
-    "offersHint": "Minden kurzusod szavai és minden ide importált pakli szavai egy-egy paklit alkotnak: ha egészben felveszed, új kártyaként adja hozzá őket a saját sorrendjében — a napi korláton belül, vagy többet a „több új ma” gombbal. Ha egy szóhoz már van kártyád, az megmarad. Itt készül a hang és a példák is a pakli minden szavához, akár felvetted már, akár nem.",
     "words": "{words, plural, one {# szó} other {# szó}} · ebből {mine, number} már a tiéd",
     "take": "Pakli felvétele",
     "takeRest": "A többi {count, number} hozzáadása",
     "study": "Tanulás",
     "leaveTitle": "Elhagyod ezt a paklit: {deck}?",
     "leaveBody": "A kártyái a haladásukkal együtt eltűnnek. Azok a szavak, amelyek egy másik paklidban is megvannak, a haladásukkal együtt átkerülnek oda.",
-    "moreShort": "{count, plural, one {+# új} other {+# új}}",
     "import": {
       "button": "Paklifájl importálása (.apkg)",
       "title": "Pakli importálása",
@@ -1101,7 +1097,10 @@
       "failed": "{count, plural, one {# szó nem kapott példát} other {# szó nem kapott példát}}",
       "setUp": "Példák készítéséhez állítsd be az MI-asszisztenst a Beállításokban"
     },
-    "removeStudied": "{count, plural, one {Ezt a paklit tanulja ez a profil: {profiles}.} other {Ezt a paklit tanulják ezek a profilok: {profiles}.}} Akkor törölhető, ha már minden profil elhagyta: Ismétlés → Paklik → Pakli elhagyása…."
+    "removeStudied": "{count, plural, one {Ezt a paklit tanulja ez a profil: {profiles}.} other {Ezt a paklit tanulják ezek a profilok: {profiles}.}} Akkor törölhető, ha már minden profil elhagyta: Ismétlés → Paklik → Pakli elhagyása….",
+    "available": "Felvehető paklik",
+    "progress": "{mine, number} / {words, plural, one {# szó} other {# szó}}",
+    "extras": "Hang és példák"
   },
   "guide": {
     "open": "Hogyan működik",
@@ -1139,6 +1138,10 @@
     "counts": {
       "title": "A három szám",
       "text": "A ma még megtanulandó új kártyák, a tanulás alatti kártyák (perceken belül visszajönnek) és az ismétlésre esedékes kártyák. Az aláhúzott szám mutatja, honnan jön a képernyőn lévő kártya. A „válasz van hátra” megbecsüli, hány válasz zárja le a munkamenetet, ha mindegyik Jó."
+    },
+    "decks": {
+      "title": "Paklik",
+      "text": "Minden kurzusod szavai és minden ide importált pakli szavai egy-egy paklit alkotnak: ha egészben felveszed, új kártyaként adja hozzá őket a saját sorrendjében — a napi korláton belül, vagy többet a „több új ma” gombbal. Ha egy szóhoz már van kártyád, az megmarad. Itt készül a hang és a példák is a pakli minden szavához, akár felvetted már, akár nem."
     },
     "faces": {
       "title": "Egy szó kártyái",

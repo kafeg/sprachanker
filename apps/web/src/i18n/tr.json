@@ -923,7 +923,6 @@
     "unmark": "İşareti kaldır",
     "keys": "Space ya da Enter: cevabı göster, sonra İyi · 1–4: değerlendir · R: sesi tekrar çal · U: geri al",
     "noCards": "Henüz kart yok: kartlar derslerin “Dersin kelimeleri” adımından gelir.",
-    "deck": "Deste",
     "count": {
       "new": "Yeni",
       "learning": "Öğrenme",
@@ -1040,15 +1039,12 @@
     "more": "{count, plural, one {Bugün # yeni kart daha} other {Bugün # yeni kart daha}}",
     "leave": "Desteden ayrıl…",
     "leaveConfirm": "Desteden ayrıl",
-    "offers": "Alınabilecek desteler",
-    "offersHint": "Her kursunun ve buraya içe aktarılan her destenin kelimeleri bir deste oluşturur: desteyi bütün olarak aldığında kelimeler kendi sırasıyla yeni kart olarak eklenir — günlük sınır içinde ya da “bugün daha fazla yeni” ile daha fazlası. Zaten kartı olan bir kelime kartını korur. Destenin alınmış ya da alınmamış tüm kelimeleri için ses ve örnekler de burada oluşturulur.",
     "words": "{words, plural, one {# kelime} other {# kelime}} · {mine, number} tanesi zaten senin",
     "take": "Desteyi al",
     "takeRest": "Kalan {count, number} kelimeyi ekle",
     "study": "Çalış",
     "leaveTitle": "{deck} destesinden ayrılmak istiyor musun?",
     "leaveBody": "Kartları ilerlemeleriyle birlikte gider. Başka bir destende de olan kelimeler, ilerlemeleriyle birlikte oraya taşınır.",
-    "moreShort": "{count, plural, one {+# yeni} other {+# yeni}}",
     "import": {
       "button": "Deste dosyası içe aktar (.apkg)",
       "title": "Deste içe aktar",
@@ -1101,7 +1097,10 @@
       "failed": "{count, plural, one {# kelime için örnek oluşturulamadı} other {# kelime için örnek oluşturulamadı}}",
       "setUp": "Örnek oluşturmak için Ayarlar’da yapay zekâ asistanını kur"
     },
-    "removeStudied": "{count, plural, one {{profiles} profili bu desteyi çalışıyor.} other {{profiles} profilleri bu desteyi çalışıyor.}} Tüm profiller desteden ayrıldığında silinebilir: Tekrar → Desteler → Desteden ayrıl…"
+    "removeStudied": "{count, plural, one {{profiles} profili bu desteyi çalışıyor.} other {{profiles} profilleri bu desteyi çalışıyor.}} Tüm profiller desteden ayrıldığında silinebilir: Tekrar → Desteler → Desteden ayrıl…",
+    "available": "Alınabilecek desteler",
+    "progress": "{words, plural, one {# kelimeden} other {# kelimeden}} {mine, number}",
+    "extras": "Ses ve örnekler"
   },
   "guide": {
     "open": "Nasıl çalışır?",
@@ -1139,6 +1138,10 @@
     "counts": {
       "title": "Üç sayı",
       "text": "Bugün öğrenilecek yeni kartlar, öğrenmedeki kartlar (birkaç dakika içinde geri gelir) ve tekrar sırası gelen kartlar. Altı çizili olan, ekrandaki kartın nereden geldiğini gösterir. “Cevap kaldı”, her cevap İyi olursa oturumu bitirmek için kaç cevap gerektiğini tahmin eder."
+    },
+    "decks": {
+      "title": "Desteler",
+      "text": "Her kursunun ve buraya içe aktarılan her destenin kelimeleri bir deste oluşturur: desteyi bütün olarak aldığında kelimeler kendi sırasıyla yeni kart olarak eklenir — günlük sınır içinde ya da “bugün daha fazla yeni” ile daha fazlası. Zaten kartı olan bir kelime kartını korur. Destenin alınmış ya da alınmamış tüm kelimeleri için ses ve örnekler de burada oluşturulur."
     },
     "faces": {
       "title": "Bir kelimenin kartları",
