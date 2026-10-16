@@ -1386,24 +1386,6 @@
     "sha256": "b63babaefcdd63202c7079aba25b72a2013825ad5895e2aeff03d1ae5a5b3bbf"
   },
   {
-    "id": "tr_TR-fahrettin-medium",
-    "lang": "tr",
-    "region": "TR",
-    "name": "fahrettin",
-    "quality": "medium",
-    "bytes": 67212827,
-    "sha256": "2ee3c18b5dc0a5faf913f995b027163befa6e7a6ad2f5c6b8a2e99fe1aad8b6d"
-  },
-  {
-    "id": "tr_TR-fettah-medium",
-    "lang": "tr",
-    "region": "TR",
-    "name": "fettah",
-    "quality": "medium",
-    "bytes": 67174342,
-    "sha256": "314a9910616fb17be882c77f0bcf76796a1914d4d606f3c984f9094cb9abf1e5"
-  },
-  {
     "id": "uk_UA-lada-x_low",
     "lang": "uk",
     "region": "UA",

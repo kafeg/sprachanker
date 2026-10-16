@@ -615,14 +615,6 @@
     "licence": "CC-BY-NC-SA-4.0",
     "source": "https://huggingface.co/rhasspy/piper-voices/blob/main/tr/tr_TR/dfki/medium/MODEL_CARD"
   },
-  "tr_TR-fahrettin-medium": {
-    "licence": "CC0-1.0",
-    "source": "https://huggingface.co/csukuangfj/vits-piper-tr_TR-fahrettin-medium/blob/main/MODEL_CARD"
-  },
-  "tr_TR-fettah-medium": {
-    "licence": "CC0-1.0",
-    "source": "https://huggingface.co/csukuangfj/vits-piper-tr_TR-fettah-medium/blob/main/MODEL_CARD"
-  },
   "uk_UA-lada-x_low": {
     "licence": "Apache-2.0",
     "source": "https://huggingface.co/rhasspy/piper-voices/blob/main/uk/uk_UA/lada/x_low/MODEL_CARD"
