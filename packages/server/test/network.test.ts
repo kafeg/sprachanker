@@ -261,8 +261,21 @@ describe("the addresses the app is reached at", () => {
       machine: { url: "http://localhost:4581", secure: true },
       network: [{ url: "http://192.168.1.20:4581", secure: false }],
       localName: { url: "http://mac.local:4581", secure: false },
-      tailnet: { name: NAME },
+      tailnet: { name: NAME, http: { url: `http://${NAME}:4581`, secure: false } },
     });
+  });
+
+  test("a Tailscale without serve (the phone's): never asked, the name over HTTP, said so", async () => {
+    const { host, asked } = fakeHost({ status: running(), ipv4: ["192.168.1.20", TAILNET_IP] });
+    const { net } = network({ ...host, serves: false }, { hostname: "0.0.0.0", port: 4580 });
+    expect(await net.addresses()).toEqual({
+      machine: { url: "http://localhost:4580", secure: true },
+      network: [{ url: "http://192.168.1.20:4580", secure: false }],
+      tailnet: { name: NAME, http: { url: `http://${NAME}:4580`, secure: false } },
+      noServe: true,
+    });
+    expect(await net.knows(NAME)).toBe(true);
+    expect(asked.serve).toBe(0);
   });
 
   test("listening on one address: that one", async () => {

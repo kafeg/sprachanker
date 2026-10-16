@@ -13,6 +13,9 @@ export interface NetworkHost {
   /** `tailscale status --json` or `tailscale serve status --json`, parsed; undefined when Tailscale
    *  is not installed or the command fails. */
   tailscale(command: "status" | "serve"): Promise<unknown>;
+  /** False where Tailscale has no `tailscale serve` (the phone's Tailscale app: no command line):
+   *  serve is not asked, and the addresses say no HTTPS address can be set up here. */
+  serves?: boolean;
 }
 
 /** The address and port the server listens on (`--host`, `--port`). */
@@ -140,11 +143,14 @@ const address = (host: string, port: number): ServerAddress => ({
   secure: LOOPBACK.test(host),
 });
 
-/** The tailnet in the addresses: no HTTPS address while Funnel is on (the name is refused). */
-const tailnetAddress = (t: Tailnet): NonNullable<ServerAddresses["tailnet"]> =>
+/** The tailnet in the addresses: no address while Funnel is on (the name is refused); the HTTPS one
+ *  serve gives, else the name over plain HTTP where the server listens on every address (`port`). */
+const tailnetAddress = (t: Tailnet, port?: number): NonNullable<ServerAddresses["tailnet"]> =>
   t.funnel
     ? { name: t.name, funnel: true }
-    : { name: t.name, ...(t.https ? { https: { url: t.https, secure: true } } : {}) };
+    : t.https
+      ? { name: t.name, https: { url: t.https, secure: true } }
+      : { name: t.name, ...(port ? { http: address(t.name, port) } : {}) };
 
 export function createNetwork(config: {
   host?: NetworkHost;
@@ -165,7 +171,11 @@ export function createNetwork(config: {
     once("status", async () => {
       const status = await tailscale("status");
       const found = status === undefined ? undefined : tailnetOf(status);
-      const serve = found && serveOf(await tailscale("serve"), found.name, listensOn.port);
+      const serve =
+        found &&
+        (host?.serves === false
+          ? { https: undefined, funnel: false }
+          : serveOf(await tailscale("serve"), found.name, listensOn.port));
       if (status === undefined || (found && !serve)) failedAt = now();
       else {
         readAt = now();
@@ -221,7 +231,8 @@ export function createNetwork(config: {
       machine: local || everywhere ? address("localhost", port) : address(hostname, port),
       network: network.map((ip) => address(ip, port)),
       ...(localName && !local ? { localName: address(localName, port) } : {}),
-      ...(t ? { tailnet: tailnetAddress(t) } : {}),
+      ...(t ? { tailnet: tailnetAddress(t, everywhere ? port : undefined) } : {}),
+      ...(host?.serves === false ? { noServe: true } : {}),
     };
   }
 }

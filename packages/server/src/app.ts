@@ -125,7 +125,7 @@ export function createApp(config: AppConfig) {
     .route("/", sessionRoutes(svc, { inHeader: config.sessionInHeader }))
     // Everything after it is a profile's: the device's session names it (401 without one).
     .use("*", requireSession(svc, { inHeader: config.sessionInHeader }))
-    .route("/", profileRoutes(svc))
+    .route("/", profileRoutes(svc, { inHeader: config.sessionInHeader }))
     .route("/", networkRoutes(svc))
     .route("/", courseRoutes())
     .route("/", lessonRoutes())

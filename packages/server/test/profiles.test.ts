@@ -194,6 +194,7 @@ test("the session in a header, where a page can send no cookie (the phone app): 
   // This computer's server: the token only in the cookie, never answered in a header.
   const mac = await setup();
   expect(mac.signedIn.headers.get("x-sprachanker-session")).toBeNull();
+  expect(mac.signedIn.headers.get("x-sprachanker-cookie")).toBeNull();
   const fromCookie = token((mac.signedIn.headers.get("set-cookie") ?? "").split(";")[0] ?? "");
   // The header is read as the cookie is: without it, no session.
   expect((await mac.anonymous("GET", "/api/courses")).status).toBe(401);
@@ -206,8 +207,16 @@ test("the session in a header, where a page can send no cookie (the phone app): 
   const phone = await setup({ sessionInHeader: true });
   const given = phone.signedIn.headers.get("x-sprachanker-session") ?? "";
   expect(given.length).toBeGreaterThan(20);
+  // The cookie as Set-Cookie says it, for the phone's listener to hand on to another device.
+  expect(phone.signedIn.headers.get("x-sprachanker-cookie")).toBe(
+    phone.signedIn.headers.get("set-cookie"),
+  );
   const headers = { "x-sprachanker-session": given };
   expect((await phone.anonymous("GET", "/api/courses", undefined, headers)).status).toBe(200);
-  expect((await phone.anonymous("DELETE", "/api/session", undefined, headers)).status).toBe(200);
+  const out = await phone.anonymous("DELETE", "/api/session", undefined, headers);
+  expect(out.status).toBe(200);
+  expect(out.headers.get("x-sprachanker-cookie")).toMatch(
+    /^sprachanker_device=; Max-Age=0; Path=\/$/,
+  );
   expect((await phone.anonymous("GET", "/api/courses", undefined, headers)).status).toBe(401);
 });
