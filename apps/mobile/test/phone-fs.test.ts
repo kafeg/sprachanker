@@ -196,3 +196,13 @@ test("a file not there is not streamed as an empty one", async () => {
   const fs = phoneFs(root, net);
   await expect(readAll(fs, `${root}/nowhere.bin`)).rejects.toMatchObject({ code: "ENOENT" });
 });
+
+test("a name in another case is the file there: the phone's storage does not tell case apart", () => {
+  const fs = phoneFs(root, net);
+  fs.writeFile(`${root}/cased/foo.png`, "ours");
+  expect(fs.stat(`${root}/cased/FOO.png`)?.size).toBe(4);
+  // Known again after a change in the folder.
+  fs.writeFile(`${root}/cased/bar.png`, "x");
+  expect(fs.stat(`${root}/cased/Bar.PNG`)?.size).toBe(1);
+  expect(fs.stat(`${root}/cased/baz.png`)).toBeUndefined();
+});

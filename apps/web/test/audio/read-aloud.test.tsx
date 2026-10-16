@@ -308,8 +308,8 @@ test("Settings: every engine offered as a card — Qwen3-TTS the default: its mo
   // The three engines, Qwen3-TTS chosen (the default).
   const card = (name: RegExp) => view.getByRole("button", { name });
   expect(card(/This device's voices/).getAttribute("aria-pressed")).toBe("false");
-  expect(card(/Piper on this computer/).getAttribute("aria-pressed")).toBe("false");
-  expect(card(/Qwen3-TTS on this computer/).getAttribute("aria-pressed")).toBe("true");
+  expect(card(/Piper on this device/).getAttribute("aria-pressed")).toBe("false");
+  expect(card(/Qwen3-TTS on this device/).getAttribute("aria-pressed")).toBe("true");
   expect(view.getByText("Ready: a model downloaded")).toBeTruthy();
   // Both there: the one in use is marked, the other can be used instead.
   const row = (name: RegExp) => view.getByText(name).closest("li") as HTMLElement;
@@ -338,7 +338,7 @@ test("Settings: the device's voices chosen — each language read aloud with its
   });
   expect(view.getByText(/^Speed:/)).toBeTruthy();
   // Neither Piper nor Qwen3-TTS built here: their cards say so and cannot be chosen.
-  for (const name of [/Piper on this computer/, /Qwen3-TTS on this computer/])
+  for (const name of [/Piper on this device/, /Qwen3-TTS on this device/])
     expect(view.getByRole("button", { name })).toHaveProperty("disabled", true);
   expect(view.getByText("Automatic — Petra (Enhanced)")).toBeTruthy();
   expect(view.getByText("Automatic — Milena")).toBeTruthy();
@@ -365,7 +365,7 @@ test("Settings: Qwen3-TTS the default but not built here — the device's voices
   const view = await renderApp(<ReadAloud />, {
     data: [installed("en-de"), [["piper-voices"], { engine: false, voices: [], auto: {} }]],
   });
-  expect(view.getByText(/Qwen3-TTS on this computer/).closest("button")?.textContent).toMatch(
+  expect(view.getByText(/Qwen3-TTS on this device/).closest("button")?.textContent).toMatch(
     /Not in this build/,
   );
   expect(view.getByText("Automatic — Petra (Enhanced)")).toBeTruthy();

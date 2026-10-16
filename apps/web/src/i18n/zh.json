@@ -78,8 +78,8 @@
     "checkAgain": "重新检查",
     "complete": "已全部下载",
     "next": "下一课：{where}——{title}",
-    "gone": "这门课程已不在这台电脑上——重新下载即可继续。",
-    "examGone": "这场考试已不在这台电脑上——重新下载即可继续。",
+    "gone": "这门课程已不在这台设备上——重新下载即可继续。",
+    "examGone": "这场考试已不在这台设备上——重新下载即可继续。",
     "checkFiles": "检查",
     "problem": {
       "missingMedia": "文件缺失：{at}",
@@ -605,7 +605,7 @@
   },
   "about": {
     "title": "关于SprachAnker",
-    "intro": "自托管、本地优先的语言学习助手：真实课程集于一个播放器，进度和语音都留在你自己的电脑上，可接入任何AI模型。免费开源。",
+    "intro": "自托管、本地优先的语言学习助手：真实课程集于一个播放器，进度和语音都留在你自己的设备上，可接入任何AI模型。免费开源。",
     "version": "版本",
     "licence": "许可证：MIT",
     "source": "GitHub上的源代码"
@@ -661,8 +661,8 @@
     "log": "下载日志",
     "syncShort": "同步",
     "remove": {
-      "button": "从这台电脑删除…",
-      "title": "要从这台电脑删除“{title}”吗？",
+      "button": "从这台设备删除…",
+      "title": "要从这台设备删除“{title}”吗？",
       "body": "它的课程和媒体文件将从磁盘删除（其他课程使用的媒体文件会保留）。你的进度、笔记本和单词都会保留；重新下载即可继续。",
       "bodyExam": "它的题目和媒体文件将从磁盘删除（其他课程使用的媒体文件会保留）。你的模拟考试、练习和笔记本都会保留；重新下载即可继续。",
       "confirm": "删除"
@@ -670,7 +670,7 @@
   },
   "storage": {
     "title": "存储",
-    "intro": "课程、媒体和你的进度都保存在运行SprachAnker的电脑上的这个文件夹中。它在服务器启动时指定（--data或SPRACHANKER_DATA）；桌面应用将支持更改此位置。",
+    "intro": "课程、媒体和你的进度都保存在运行SprachAnker的设备上的这个文件夹中。它在服务器启动时指定（--data或SPRACHANKER_DATA）；桌面应用将支持更改此位置。",
     "total": "合计",
     "used": "课程占用{size}",
     "usedFree": "课程占用{size} · 磁盘剩余{free}",
@@ -679,7 +679,7 @@
     "recordingsKept": "{count, plural, =0 {未保存录音} other {{n}段录音 · {size}}}",
     "deleteRecordings": "全部删除",
     "deleteRecordingsTitle": "删除所有录音？",
-    "deleteRecordingsBody": "你的录音将从这台电脑上删除。你的答案和进度会保留。此操作无法撤销。"
+    "deleteRecordingsBody": "你的录音将从这台设备上删除。你的答案和进度会保留。此操作无法撤销。"
   },
   "windowTitle": {
     "course": "课程",
@@ -964,7 +964,7 @@
       "checking": "正在检查文件并创建个人资料…",
       "done": "“{name}”已导入。",
       "noKeys": "文件中没有 API 密钥：请在“设置 → AI助手”中重新输入。",
-      "missing": "这台电脑上还没有以下内容——下载后即可看到其课程；单词已在复习中：",
+      "missing": "这台设备上还没有以下内容——下载后即可看到其课程；单词已在复习中：",
       "open": "打开“{name}”",
       "noEndpointLogins": "AI 服务器地址中的用户名和密码不在文件中：请在“设置 → AI助手”中重新输入密钥。"
     }
@@ -976,7 +976,7 @@
     "finish": "选择课程",
     "profile": {
       "title": "欢迎",
-      "text": "SprachAnker把真实的语言课程集中在一个播放器里，检查你的答案，用间隔重复帮你记住单词，还可以引入AI辅导老师。所有数据都留在这台电脑上。",
+      "text": "SprachAnker把真实的语言课程集中在一个播放器里，检查你的答案，用间隔重复帮你记住单词，还可以引入AI辅导老师。所有数据都留在这台设备上。",
       "sources": "课程直接从出版方网站（德国之声等）下载，仅供你个人使用。请遵守其使用条款；SprachAnker与它们没有任何关联。",
       "experimental": "仍在试验中的课程和考试默认隐藏，可在“设置 → 通用 → 实验功能”中开启。",
       "name": "我们该怎么称呼你？"
@@ -990,7 +990,7 @@
     },
     "speech": {
       "title": "口语",
-      "text": "亲口说出课程中的句子，并让任何文本朗读给你听：测试麦克风，下载语音识别器（只需一次）让应用听懂你说的话，再为每种语言选择一个声音。所有数据都留在这台电脑上；以后都可以在“设置 → 语音”中更改。"
+      "text": "亲口说出课程中的句子，并让任何文本朗读给你听：测试麦克风，下载语音识别器（只需一次）让应用听懂你说的话，再为每种语言选择一个声音。所有数据都留在这台设备上；以后都可以在“设置 → 语音”中更改。"
     },
     "cancel": "取消"
   },
@@ -1024,8 +1024,8 @@
       "lime": "青柠色"
     },
     "export": {
-      "title": "迁移到另一台电脑",
-      "body": "一个包含此个人资料的进度、单词、设置和录音的文件，可在你的另一台电脑上通过“谁在学习？”导入。其中不含 API 密钥。",
+      "title": "迁移到另一台设备",
+      "body": "一个包含此个人资料的进度、单词、设置和录音的文件，可在你的另一台设备上通过“谁在学习？”导入。其中不含 API 密钥。",
       "button": "导出个人资料",
       "started": "正在下载“{file}”（{size}）。"
     }
@@ -1049,7 +1049,7 @@
     "import": {
       "button": "导入卡组文件",
       "title": "导入卡组",
-      "hint": "其中的单词会成为这台电脑上每个个人资料都能添加的卡组，就像课程卡组一样；音频也会一并导入。",
+      "hint": "其中的单词会成为这台设备上每个个人资料都能添加的卡组，就像课程卡组一样；音频也会一并导入。",
       "name": "名称",
       "lang": "单词语言",
       "translationLang": "翻译语言",
@@ -1063,15 +1063,15 @@
     },
     "export": "导出为文件",
     "file": {
-      "new": "其中的词会成为一个卡组，这台电脑上的每个资料都可以添加，连同音频和例句。",
+      "new": "其中的词会成为一个卡组，这台设备上的每个资料都可以添加，连同音频和例句。",
       "merges": "这个卡组这里已经有了：会添加它缺少的词，以及它没有的音频和例句。它已有的保持不变。",
       "course": "为这门课程的词制作的音频和例句。这里的课程卡片会播放并显示它们；这里已经做好的保持不变。",
-      "courseWaits": "为这门课程的词制作的音频和例句。这台电脑上还没有这门课程：它们会为课程保留，直到你下载它。",
+      "courseWaits": "为这门课程的词制作的音频和例句。这台设备上还没有这门课程：它们会为课程保留，直到你下载它。",
       "finds": "你收集的词：它们会加入你自己的“收集的词”，并成为你的卡片。已经在那里的词保持原样。"
     },
     "remove": "删除卡组",
     "removeTitle": "删除卡组{deck}？",
-    "removeBody": "该卡组及其单词和音频将从这台电脑上删除，所有个人资料都无法再使用。此操作无法撤销。",
+    "removeBody": "该卡组及其单词和音频将从这台设备上删除，所有个人资料都无法再使用。此操作无法撤销。",
     "audio": {
       "missing": "{count, plural, other {#个单词没有音频}}",
       "count": "音频：{done, number} / {total, number}",
@@ -1253,7 +1253,7 @@
       "sampleFor": "{language}试听文本",
       "otherSample": "换一句",
       "recognition": "语音识别",
-      "recognitionHint": "你的语音在这台电脑上识别（Whisper）：将你说的话与句子进行比较。它识别的是单词而不是发音，且判定较宽松。所有数据都不会离开这台电脑。",
+      "recognitionHint": "你的语音在这台设备上识别（Whisper）：将你说的话与句子进行比较。它识别的是单词而不是发音，且判定较宽松。所有数据都不会离开这台设备。",
       "noEngine": "此版本没有语音识别引擎。",
       "recognitionOn": "识别我的语音",
       "inUse": "使用中",
@@ -1279,12 +1279,12 @@
       "voiceAuto": "自动：{name}",
       "noVoice": "本设备没有{language}的声音。",
       "betterVoices": "在Mac上，可以在“系统设置 → 辅助功能 → 朗读内容 → 系统声音 → 管理声音”中下载更好的声音（优化音质、高音质）。",
-      "phoneVoices": "More voices are installed in Android's settings: Accessibility → Text-to-speech output → the engine's settings → Install voice data.",
+      "phoneVoices": "更多语音可在 Android 设置中安装：无障碍 → 文字转语音输出 → 引擎设置 → 安装语音数据。",
       "readRate": "语速：{rate}×",
       "readRateLabel": "朗读语速",
       "piperNone": "还没有{language}的声音：请从下方下载。",
       "piperNoLanguage": "Piper没有{language}的声音：将由设备的声音朗读。",
-      "piperHint": "Piper的每个声音约60–120MB，保存在这台电脑上；没有Piper声音的语言由设备的声音朗读。",
+      "piperHint": "Piper 的每个语音约 60–120 MB，保存在本设备上；没有语音的语言由设备的语音朗读。",
       "removeVoice": "移除声音{voice}",
       "allVoices": "所有声音（{count, number}）",
       "quality": {
@@ -1299,10 +1299,10 @@
       },
       "qwenHint": "一种神经网络语音，可朗读10种语言（德语、英语、俄语、法语、西班牙语、意大利语、葡萄牙语、中文、日语、韩语），有九位说话人。运行时约占用3GB内存（大模型更多），10分钟无朗读后自动停止；之后第一次朗读需等待约20秒加载。它不支持的语言由设备的声音朗读。",
       "qwenNoLanguage": "Qwen3-TTS不支持{language}：将由设备的声音朗读。",
-      "qwenOnPhone": "Qwen3-TTS takes long on a phone: on a mid-range one (Snapdragon 860) 10–35 s for a word or a sentence, and about 3 GB of memory. A text read once is kept and comes at once after. Piper and the device's voices read in a second.",
+      "qwenOnPhone": "在手机上 Qwen3-TTS 很慢：在中端手机（Snapdragon 860）上读一个词或一句话需要 10–35 秒，并占用约 3 GB 内存。读过一次的文本会被保存，之后立即播放。Piper 和设备的语音一两秒内就能读出。",
       "howMic": "需要口头回答的地方（考试的口语部分）会有麦克风：点按开始录音，再点一次停止。需要书面作答的地方则没有麦克风。",
       "howPhrase": "要复述的句子在你第一次尝试之前是隐藏的；你也可以提前显示。",
-      "howRecordings": "你的录音保存在这台电脑上，可以在“学习记录”中重听；在“通用 → 存储”中删除。",
+      "howRecordings": "你的录音保存在这台设备上，可以在“学习记录”中重听；在“通用 → 存储”中删除。",
       "how": "使用说明",
       "words": {
         "title": "单词的声音",
@@ -1355,7 +1355,7 @@
     "card_changed": "此卡片已在另一台设备上更改，现重新显示。",
     "downloads_unavailable": "此处无法下载课程。",
     "course_busy": "这门课程正在下载。下载结束后再删除。",
-    "course_gone": "这门课程已不在这台电脑上——重新下载即可继续。",
+    "course_gone": "这门课程已不在这台设备上——重新下载即可继续。",
     "empty_recording": "录音为空。请重试。",
     "event_id_taken": "此答案已以不同方式记录。请重新加载页面。",
     "event_of_another_run": "此记录属于另一轮学习。请重新加载本课。",
@@ -1454,7 +1454,7 @@
     "course_bundle_damaged": "此课程文件已损坏，或在导出后被修改过。",
     "course_bundle_too_large": "此课程文件太大（最多 16 GB）。",
     "course_bundle_from_newer_app": "此课程文件来自更新版本的 SprachAnker：请先更新这里的应用。",
-    "course_bundle_clash": "这台电脑上已有与此课程媒体文件同名的其他文件：请改为在这里下载课程。",
+    "course_bundle_clash": "这台设备上已有与此课程媒体文件同名的其他文件：请改为在这里下载课程。",
     "course_import_busy": "正在导入另一个课程文件。请在其完成后重试。",
     "series_busy": "此来源的课程正在下载或导入。请在完成后重试。",
     "understanding_busy": "正在为本课写一篇文本。请稍候。",
@@ -1561,7 +1561,7 @@
       "title": "来源与检查",
       "allPassed": "所有检查均已通过",
       "someFailed": "有检查未通过",
-      "statement": "此处的每道题、每张图片、每段录音和每个答案，都是由这台电脑上的导入程序从下列文件中读取的——没有任何内容由人工或模型编写——并按所列项目进行了检查。模拟考试的题目和评分规则与官方样题相同；它反映的是你的准备程度，而不是真实考试会出什么题。",
+      "statement": "此处的每道题、每张图片、每段录音和每个答案，都是由这台设备上的导入程序从下列文件中读取的——没有任何内容由人工或模型编写——并按所列项目进行了检查。模拟考试的题目和评分规则与官方样题相同；它反映的是你的准备程度，而不是真实考试会出什么题。",
       "documents": "读取自",
       "copy": "已保存副本，SHA-256 {hash}…，读取于{date}",
       "read": "读取于{date}",
@@ -1645,13 +1645,13 @@
   "bundle": {
     "export": {
       "button": "导出为文件",
-      "hint": "将此课程存为一个文件，以便在你的另一台电脑的“已下载”中导入。",
-      "hintExam": "将此考试导出为一个文件，以便在另一台电脑的“已下载”中导入。",
+      "hint": "将此课程存为一个文件，以便在你的另一台设备的“已下载”中导入。",
+      "hintExam": "将此考试导出为一个文件，以便在另一台设备的“已下载”中导入。",
       "started": "正在下载“{file}”（{size}）。"
     },
     "import": {
       "button": "从文件导入…",
-      "hint": "在你另一台电脑上导出的课程或考试（.sprachanker-course）。",
+      "hint": "在你另一台设备上导出的课程或考试（.sprachanker-course）。",
       "sending": "正在发送文件… {share, number, percent}",
       "checking": "正在检查并安装文件…",
       "added": "“{title}”已在这里。",

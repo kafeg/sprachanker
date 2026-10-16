@@ -18,7 +18,7 @@ import { TooltipProvider } from "../src/ui/components/tooltip.tsx";
 /** A query client whose cache holds `data` by query key, and `failed` queries' errors; nothing goes
  *  stale, nothing is fetched (a failed query is not tried again). The profile's settings (read all
  *  over the app) start empty — the defaults — unless a test gives them; Qwen3-TTS, the default
- *  engine, is not on this computer (the device's voices read) unless a test gives it. */
+ *  engine, and Piper are not on this device (the device's voices read) unless a test gives them. */
 export function queryClient(
   data: Array<[unknown[], unknown]> = [],
   failed: Array<[unknown[], Error]> = [],
@@ -38,6 +38,7 @@ export function queryClient(
     wordModel: { id: "base", bytes: 2079448256, installed: false },
     words: {},
   });
+  client.setQueryData(["piper-voices"], { engine: false, voices: [], auto: {} });
   for (const [key, value] of data) client.setQueryData(key, value);
   for (const [queryKey, error] of failed)
     client.getQueryCache().build(client, { queryKey }).setState({ status: "error", error });

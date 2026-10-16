@@ -162,7 +162,7 @@ test("a deck file's sheet says what becomes of it: merged into the deck here, a 
   expect((await sheet({ merges: true })).getByText(/^This deck is here already/)).toBeTruthy();
   expect(
     (await sheet({ kind: "course", course: "dw.nicos-weg/a1" as never, waits: true })).getByText(
-      /The course is not on this computer yet/,
+      /The course is not on this device yet/,
     ),
   ).toBeTruthy();
   const finds = await sheet({ kind: "finds", title: "Finds" });

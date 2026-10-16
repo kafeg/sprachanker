@@ -78,8 +78,8 @@
     "checkAgain": "Yeniden kontrol et",
     "complete": "Tamamı indirildi",
     "next": "sıradaki: {where} — {title}",
-    "gone": "Bu kurs artık bu bilgisayarda değil — devam etmek için yeniden indir.",
-    "examGone": "Bu sınav artık bu bilgisayarda değil — devam etmek için yeniden indir.",
+    "gone": "Bu kurs artık bu cihazda değil — devam etmek için yeniden indir.",
+    "examGone": "Bu sınav artık bu cihazda değil — devam etmek için yeniden indir.",
     "checkFiles": "Kontrol et",
     "problem": {
       "missingMedia": "Eksik dosya: {at}",
@@ -297,7 +297,7 @@
       "llm_no_key": "anahtar gerekli",
       "installed": "yüklü",
       "keySaved": "anahtar kaydedildi",
-      "here": "bu bilgisayarda",
+      "here": "bu cihazda",
       "at": "{host} üzerinde"
     },
     "list": {
@@ -323,11 +323,11 @@
       "freeModels": "Ücretsiz modellerin OpenRouter’ın belirlediği günlük bir istek sınırı vardır (kredi satın alındıysa daha yüksektir)."
     },
     "keyHintFor": {
-      "openrouter": "openrouter.ai/keys adresinde bir anahtar oluştur. Bu bilgisayarda şifrelenmiş olarak saklanır ve bir daha gösterilmez.",
-      "openai": "platform.openai.com/api-keys adresinde bir anahtar oluştur. Bu bilgisayarda şifrelenmiş olarak saklanır ve bir daha gösterilmez.",
-      "anthropic": "platform.claude.com/settings/keys adresinde bir anahtar oluştur. Bu bilgisayarda şifrelenmiş olarak saklanır ve bir daha gösterilmez.",
-      "gemini": "aistudio.google.com/apikey adresinde bir anahtar oluştur. Bu bilgisayarda şifrelenmiş olarak saklanır ve bir daha gösterilmez.",
-      "groq": "console.groq.com/keys adresinde bir anahtar oluştur. Bu bilgisayarda şifrelenmiş olarak saklanır ve bir daha gösterilmez."
+      "openrouter": "openrouter.ai/keys adresinde bir anahtar oluştur. Bu cihazda şifrelenmiş olarak saklanır ve bir daha gösterilmez.",
+      "openai": "platform.openai.com/api-keys adresinde bir anahtar oluştur. Bu cihazda şifrelenmiş olarak saklanır ve bir daha gösterilmez.",
+      "anthropic": "platform.claude.com/settings/keys adresinde bir anahtar oluştur. Bu cihazda şifrelenmiş olarak saklanır ve bir daha gösterilmez.",
+      "gemini": "aistudio.google.com/apikey adresinde bir anahtar oluştur. Bu cihazda şifrelenmiş olarak saklanır ve bir daha gösterilmez.",
+      "groq": "console.groq.com/keys adresinde bir anahtar oluştur. Bu cihazda şifrelenmiş olarak saklanır ve bir daha gösterilmez."
     }
   },
   "tutor": {
@@ -605,7 +605,7 @@
   },
   "about": {
     "title": "SprachAnker hakkında",
-    "intro": "Kendi bilgisayarında çalışan, yerel öncelikli bir dil öğretmeni: gerçek kurslar tek bir oynatıcıda, ilerleme ve konuşma kendi bilgisayarında, bağladığın herhangi bir yapay zekâ modeli. Ücretsiz ve açık kaynak.",
+    "intro": "Kendi cihazında çalışan, yerel öncelikli bir dil öğretmeni: gerçek kurslar tek bir oynatıcıda, ilerleme ve konuşma kendi cihazında, bağladığın herhangi bir yapay zekâ modeli. Ücretsiz ve açık kaynak.",
     "version": "Sürüm",
     "licence": "Lisans: MIT",
     "source": "GitHub’da kaynak kodu"
@@ -661,8 +661,8 @@
     "log": "İndirme günlüğü",
     "syncShort": "Eşitle",
     "remove": {
-      "button": "Bu bilgisayardan kaldır…",
-      "title": "“{title}” bu bilgisayardan kaldırılsın mı?",
+      "button": "Bu cihazdan kaldır…",
+      "title": "“{title}” bu cihazdan kaldırılsın mı?",
       "body": "Dersleri ve medyası diskten silinir (başka bir kursun kullandığı medya kalır). İlerlemen, defterin ve kelimelerin kalır; devam etmek için yeniden indir.",
       "bodyExam": "Soruları ve medyası diskten silinir (başka bir kursun kullandığı medya kalır). Deneme sınavların, alıştırmaların ve defterin kalır; devam etmek için yeniden indir.",
       "confirm": "Kaldır"
@@ -670,7 +670,7 @@
   },
   "storage": {
     "title": "Depolama",
-    "intro": "Kurslar, medya ve ilerlemen, SprachAnker’ın çalıştığı bilgisayardaki bu klasörde durur. Klasör sunucu başlarken seçilir (--data ya da SPRACHANKER_DATA); masaüstü uygulamasında değiştirilebilecek.",
+    "intro": "Kurslar, medya ve ilerlemen, SprachAnker’ın çalıştığı cihazdaki bu klasörde durur. Klasör sunucu başlarken seçilir (--data ya da SPRACHANKER_DATA); masaüstü uygulamasında değiştirilebilecek.",
     "total": "Toplam",
     "used": "Kurslar {size} yer kaplıyor",
     "usedFree": "Kurslar {size} yer kaplıyor · diskte {free} boş",
@@ -679,7 +679,7 @@
     "recordingsKept": "{count, plural, =0 {saklanan kayıt yok} one {{n} kayıt · {size}} other {{n} kayıt · {size}}}",
     "deleteRecordings": "Tümünü sil",
     "deleteRecordingsTitle": "Tüm kayıtlar silinsin mi?",
-    "deleteRecordingsBody": "Kayıtların bu bilgisayardan silinecek. Cevapların ve ilerlemen kalır. Bu işlem geri alınamaz."
+    "deleteRecordingsBody": "Kayıtların bu cihazdan silinecek. Cevapların ve ilerlemen kalır. Bu işlem geri alınamaz."
   },
   "windowTitle": {
     "course": "Kurs",
@@ -964,7 +964,7 @@
       "checking": "Dosya denetleniyor ve profil oluşturuluyor…",
       "done": "“{name}” burada.",
       "noKeys": "API anahtarları dosyada yok: onları Ayarlar → Yapay zekâ asistanı bölümünde yeniden gir.",
-      "missing": "Henüz bu bilgisayarda yok — dersleri indirilince görünür; kelimeler zaten Tekrar'da:",
+      "missing": "Henüz bu cihazda yok — dersleri indirilince görünür; kelimeler zaten Tekrar'da:",
       "open": "“{name}” profilini aç",
       "noEndpointLogins": "Yapay zekâ sunucu adreslerindeki kullanıcı adları ve parolalar dosyada yok: anahtarları Ayarlar → Yapay zekâ asistanı bölümünde yeniden gir."
     }
@@ -976,7 +976,7 @@
     "finish": "Bir kurs seç",
     "profile": {
       "title": "Hoş geldin",
-      "text": "SprachAnker gerçek dil kurslarını tek bir oynatıcıda toplar, cevaplarını kontrol eder, kelimelerini aralıklı tekrarla çalıştırır ve bir yapay zekâ öğretmenini de devreye alabilir. Her şey bu bilgisayarda kalır.",
+      "text": "SprachAnker gerçek dil kurslarını tek bir oynatıcıda toplar, cevaplarını kontrol eder, kelimelerini aralıklı tekrarla çalıştırır ve bir yapay zekâ öğretmenini de devreye alabilir. Her şey bu cihazda kalır.",
       "sources": "Kurslar doğrudan yayıncılarının web sitelerinden (Deutsche Welle ve diğerleri) kişisel kullanımın için indirilir. Onların kullanım koşullarına uy; SprachAnker’ın onlarla bir bağlantısı yoktur.",
       "experimental": "Hâlâ denenmekte olan kurslar ve sınavlar, Ayarlar → Genel → Deneysel bölümünden açana kadar gizli kalır.",
       "name": "Sana nasıl hitap edelim?"
@@ -990,7 +990,7 @@
     },
     "speech": {
       "title": "Konuşma",
-      "text": "Kurslardaki cümleleri kendin söyle ve her metni sesli dinle: mikrofonunu test et, uygulamanın söylediklerini duyabilmesi için konuşma tanımayı (bir kez) indir ve her dil için bir ses seç. Her şey bu bilgisayarda kalır; hepsi daha sonra Ayarlar → Konuşma bölümünden değiştirilebilir."
+      "text": "Kurslardaki cümleleri kendin söyle ve her metni sesli dinle: mikrofonunu test et, uygulamanın söylediklerini duyabilmesi için konuşma tanımayı (bir kez) indir ve her dil için bir ses seç. Her şey bu cihazda kalır; hepsi daha sonra Ayarlar → Konuşma bölümünden değiştirilebilir."
     },
     "cancel": "İptal"
   },
@@ -1024,8 +1024,8 @@
       "lime": "Limon yeşili"
     },
     "export": {
-      "title": "Başka bir bilgisayara taşı",
-      "body": "Bu profilin ilerlemesini, kelimelerini, ayarlarını ve kayıtlarını içeren, diğer bilgisayarında “Kim çalışıyor?” ekranından içe aktaracağın bir dosya. API anahtarları içinde yok.",
+      "title": "Başka bir cihaza taşı",
+      "body": "Bu profilin ilerlemesini, kelimelerini, ayarlarını ve kayıtlarını içeren, diğer cihazında “Kim çalışıyor?” ekranından içe aktaracağın bir dosya. API anahtarları içinde yok.",
       "button": "Profili dışa aktar",
       "started": "“{file}” indiriliyor ({size})."
     }
@@ -1049,7 +1049,7 @@
     "import": {
       "button": "Deste dosyası içe aktar",
       "title": "Deste içe aktar",
-      "hint": "Dosyanın kelimeleri, bu bilgisayardaki her profilin bir kursun destesi gibi alabileceği bir deste olur; sesleri de birlikte gelir.",
+      "hint": "Dosyanın kelimeleri, bu cihazdaki her profilin bir kursun destesi gibi alabileceği bir deste olur; sesleri de birlikte gelir.",
       "name": "Ad",
       "lang": "Kelimelerin dili",
       "translationLang": "Çevirilerin dili",
@@ -1063,15 +1063,15 @@
     },
     "export": "Dosyaya dışa aktar",
     "file": {
-      "new": "Kelimeleri, bu bilgisayardaki her profilin alabileceği bir deste olur; sesleri ve örnekleriyle birlikte.",
+      "new": "Kelimeleri, bu cihazdaki her profilin alabileceği bir deste olur; sesleri ve örnekleriyle birlikte.",
       "merges": "Bu deste burada zaten var: eksik kelimeleri ve sahip olmadığı sesler ile örnekler eklenir. Elindekiler kalır.",
       "course": "Bu kursun kelimeleri için yapılan sesler ve örnekler. Buradaki kartları bunları çalar ve gösterir; burada daha önce yapılanlar kalır.",
-      "courseWaits": "Bu kursun kelimeleri için yapılan sesler ve örnekler. Kurs henüz bu bilgisayarda yok: sen onu indirene kadar onun için saklanır.",
+      "courseWaits": "Bu kursun kelimeleri için yapılan sesler ve örnekler. Kurs henüz bu cihazda yok: sen onu indirene kadar onun için saklanır.",
       "finds": "Bulduğun kelimeler: kendi Bulduklarım desteğine katılır ve kartların olur. Orada zaten olan kelimeler olduğu gibi kalır."
     },
     "remove": "Desteyi sil",
     "removeTitle": "{deck} destesi silinsin mi?",
-    "removeBody": "Deste, kelimeleri ve sesleri tüm profiller için bu bilgisayardan silinecek. Bu işlem geri alınamaz.",
+    "removeBody": "Deste, kelimeleri ve sesleri tüm profiller için bu cihazdan silinecek. Bu işlem geri alınamaz.",
     "audio": {
       "missing": "{count, plural, one {# kelimenin sesi yok} other {# kelimenin sesi yok}}",
       "count": "Ses: {total, number} kelimeden {done, number}",
@@ -1253,7 +1253,7 @@
       "sampleFor": "Dinlenecek {language} metin",
       "otherSample": "Başka bir cümle",
       "recognition": "Tanıma",
-      "recognitionHint": "Konuşman bu bilgisayarda tanınır (Whisper): söylediğin, cümleyle karşılaştırılır. Sesleri değil kelimeleri duyar ve hoşgörülüdür. Hiçbir şey bilgisayardan çıkmaz.",
+      "recognitionHint": "Konuşman bu cihazda tanınır (Whisper): söylediğin, cümleyle karşılaştırılır. Sesleri değil kelimeleri duyar ve hoşgörülüdür. Hiçbir şey cihazdan çıkmaz.",
       "noEngine": "Bu sürümde tanıma motoru yok.",
       "recognitionOn": "Konuşmamı tanı",
       "inUse": "Kullanımda",
@@ -1267,10 +1267,10 @@
         "device": "Bu cihazın sesleri",
         "deviceLine": "{count, plural, one {# ses} other {# ses}}, yükleme gerekmez",
         "deviceNone": "Bu tarayıcıda okuma için ses yok.",
-        "piper": "Bu bilgisayarda Piper",
+        "piper": "Bu cihazda Piper",
         "piperMissing": "Bu sürümde yok: uygulama konuşma motorları olmadan derlenmiş",
         "piperLine": "{count, plural, =0 {henüz ses yok: aşağıdan bir tane indir} one {# ses indirildi} other {# ses indirildi}}",
-        "qwen": "Bu bilgisayarda Qwen3-TTS",
+        "qwen": "Bu cihazda Qwen3-TTS",
         "qwenMissing": "Bu sürümde yok: uygulama konuşma motorları olmadan derlenmiş",
         "qwenReady": "Hazır: bir model indirildi",
         "qwenNoModel": "Henüz model yok: aşağıdan bir tane indir"
@@ -1279,12 +1279,12 @@
       "voiceAuto": "Otomatik — {name}",
       "noVoice": "Bu cihazda {language} için ses yok.",
       "betterVoices": "Mac’te daha iyi sesler (Premium, Gelişmiş) Sistem Ayarları → Erişilebilirlik → Konuşulan İçerik → Sistem Sesi → Sesleri Yönet bölümünden indirilir.",
-      "phoneVoices": "More voices are installed in Android's settings: Accessibility → Text-to-speech output → the engine's settings → Install voice data.",
+      "phoneVoices": "Başka sesler Android ayarlarından yüklenir: Erişilebilirlik → Metin okuma çıkışı → motorun ayarları → Ses verilerini yükle.",
       "readRate": "Hız: {rate}×",
       "readRateLabel": "Okuma hızı",
       "piperNone": "Henüz {language} için ses yok: aşağıdan bir tane indir.",
       "piperNoLanguage": "Piper’da {language} için ses yok: bu dili cihazın sesleri okur.",
-      "piperHint": "Piper seslerinin her biri yaklaşık 60–120 MB’tır ve bu bilgisayarda kalır; sesi olmayan bir dili cihazın sesleri okur.",
+      "piperHint": "Piper seslerinin her biri yaklaşık 60–120 MB'tır ve bu cihazda kalır; sesi olmayan bir dili cihazın sesleri okur.",
       "removeVoice": "{voice} sesini kaldır",
       "allVoices": "Tüm sesler ({count, number})",
       "quality": {
@@ -1299,10 +1299,10 @@
       },
       "qwenHint": "10 dili (Almanca, İngilizce, Rusça, Fransızca, İspanyolca, İtalyanca, Portekizce, Çince, Japonca, Korece) dokuz konuşmacıyla okuyan bir sinir ağı sesi. Çalışırken yaklaşık 3 GB bellek kullanır (büyük modelde daha fazla) ve 10 dakika okuma yapılmazsa durur; sonrasındaki ilk okuma, model yüklenirken yaklaşık 20 sn bekler. Konuşmadığı dilleri cihazın sesleri okur.",
       "qwenNoLanguage": "Qwen3-TTS {language} konuşmuyor: bu dili cihazın sesleri okur.",
-      "qwenOnPhone": "Qwen3-TTS takes long on a phone: on a mid-range one (Snapdragon 860) 10–35 s for a word or a sentence, and about 3 GB of memory. A text read once is kept and comes at once after. Piper and the device's voices read in a second.",
+      "qwenOnPhone": "Telefonda Qwen3-TTS yavaştır: orta sınıf bir telefonda (Snapdragon 860) bir kelime ya da cümle için 10–35 sn ve yaklaşık 3 GB bellek. Bir kez okunan metin saklanır ve sonra hemen gelir. Piper ve cihazın sesleri bir iki saniyede okur.",
       "howMic": "Cevabın sözlü verildiği yerlerde (bir sınavın konuşma bölümü) bir mikrofon vardır: kayda başlamak için dokun, durdurmak için yeniden dokun. Görevin yazılı olduğu yerlerde mikrofon yoktur.",
       "howPhrase": "Tekrar edilecek cümle ilk denemene kadar gizlidir; daha önce de gösterebilirsin.",
-      "howRecordings": "Kayıtların, Defter’de yeniden dinleyebilmen için bu bilgisayarda saklanır; onları Genel → Depolama bölümünden silebilirsin.",
+      "howRecordings": "Kayıtların, Defter’de yeniden dinleyebilmen için bu cihazda saklanır; onları Genel → Depolama bölümünden silebilirsin.",
       "how": "Nasıl çalışır?",
       "words": {
         "title": "Kelimeler için ses",
@@ -1355,7 +1355,7 @@
     "card_changed": "Bu kart başka bir cihazda değişti. Yeniden gösteriliyor.",
     "downloads_unavailable": "Burada kurs indirilemez.",
     "course_busy": "Bu kurs şu anda indiriliyor. İndirme bittiğinde kaldır.",
-    "course_gone": "Bu kurs artık bu bilgisayarda değil — devam etmek için yeniden indir.",
+    "course_gone": "Bu kurs artık bu cihazda değil — devam etmek için yeniden indir.",
     "empty_recording": "Kayıt boş. Tekrar dene.",
     "event_id_taken": "Bu cevap zaten farklı şekilde kaydedilmiş. Sayfayı yeniden yükle.",
     "event_of_another_run": "Bu kayıt başka bir tura ait. Dersi yeniden yükle.",
@@ -1454,7 +1454,7 @@
     "course_bundle_damaged": "Bu kurs dosyası bozuk ya da dışa aktarıldıktan sonra değiştirilmiş.",
     "course_bundle_too_large": "Bu kurs dosyası çok büyük (en fazla 16 GB).",
     "course_bundle_from_newer_app": "Bu kurs dosyası SprachAnker'in daha yeni bir sürümünden: önce buradaki uygulamayı güncelle.",
-    "course_bundle_clash": "Bu bilgisayarda bu kursun medya dosyalarının adlarını taşıyan başka dosyalar var: kursu bunun yerine burada indir.",
+    "course_bundle_clash": "Bu cihazda bu kursun medya dosyalarının adlarını taşıyan başka dosyalar var: kursu bunun yerine burada indir.",
     "course_import_busy": "Şu anda başka bir kurs dosyası içe aktarılıyor. Bittiğinde yeniden dene.",
     "series_busy": "Bu kaynaktan kurslar şu anda indiriliyor ya da içe aktarılıyor. Bittiğinde yeniden dene.",
     "understanding_busy": "Bu ders için bir metin yazılıyor. Biraz bekle.",
@@ -1561,7 +1561,7 @@
       "title": "Kaynaklar ve kontroller",
       "allPassed": "tüm kontroller geçti",
       "someFailed": "bir kontrol geçmedi",
-      "statement": "Buradaki her soru, resim, kayıt ve cevap, bu bilgisayardaki içe aktarıcı tarafından aşağıdaki belgelerden okundu — hiçbiri elle ya da bir model tarafından yazılmadı — ve listelendiği gibi kontrol edildi. Deneme sınavı, resmî örnek testle aynı görevleri sorar ve aynı kurallarla puanlar; ne kadar hazır olduğunu gösterir, gerçek sınavda ne çıkacağını değil.",
+      "statement": "Buradaki her soru, resim, kayıt ve cevap, bu cihazdaki içe aktarıcı tarafından aşağıdaki belgelerden okundu — hiçbiri elle ya da bir model tarafından yazılmadı — ve listelendiği gibi kontrol edildi. Deneme sınavı, resmî örnek testle aynı görevleri sorar ve aynı kurallarla puanlar; ne kadar hazır olduğunu gösterir, gerçek sınavda ne çıkacağını değil.",
       "documents": "Okunan belgeler",
       "copy": "kopyası saklandı, SHA-256 {hash}…, okunma: {date}",
       "read": "okunma: {date}",
@@ -1645,13 +1645,13 @@
   "bundle": {
     "export": {
       "button": "Dosyaya aktar",
-      "hint": "Bu kurs tek bir dosya olarak; diğer bilgisayarında “İndirilenler” altında içe aktarmak için.",
-      "hintExam": "Bu sınav tek dosya olarak; diğer bilgisayarında “İndirilenler” altında içe aktarmak için.",
+      "hint": "Bu kurs tek bir dosya olarak; diğer cihazında “İndirilenler” altında içe aktarmak için.",
+      "hintExam": "Bu sınav tek dosya olarak; diğer cihazında “İndirilenler” altında içe aktarmak için.",
       "started": "“{file}” indiriliyor ({size})."
     },
     "import": {
       "button": "Dosyadan içe aktar…",
-      "hint": "Diğer bilgisayarında dışa aktarılmış bir kurs ya da sınav (.sprachanker-course).",
+      "hint": "Diğer cihazında dışa aktarılmış bir kurs ya da sınav (.sprachanker-course).",
       "sending": "Dosya gönderiliyor… {share, number, percent}",
       "checking": "Dosya denetleniyor ve kuruluyor…",
       "added": "“{title}” burada.",

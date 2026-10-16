@@ -15,7 +15,7 @@ test("export a profile, import it as a new one, study on", async ({ page, reques
   await freshLessonRun(request);
   await beginCourse(request);
   await page.goto("/settings#profile");
-  await expect(page.getByRole("heading", { name: "Move to another computer" })).toBeVisible();
+  await expect(page.getByRole("heading", { name: "Move to another device" })).toBeVisible();
   const downloading = page.waitForEvent("download");
   await page.getByRole("button", { name: "Export profile" }).click();
   const download = await downloading;

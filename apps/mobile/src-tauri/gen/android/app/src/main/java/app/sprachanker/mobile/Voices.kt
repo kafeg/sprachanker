@@ -17,8 +17,9 @@ import org.json.JSONObject
 // does not give the page as `speechSynthesis` — apps/mobile/src/voices.ts makes that of it. The voices
 // on the device (none that needs the network: what is read stays on the phone), a text said in a
 // language with a voice and speed, its start and end told; stopped. Answers go through
-// `window.sprachankerNative.done(id, …)`, as Native.kt's do.
-class Voices(activity: ComponentActivity, private val webView: WebView) {
+// `window.sprachankerNative.done(id, …)`, as Native.kt's do; the app's own page alone is answered
+// (Native.kt's `guard`).
+class Voices(activity: ComponentActivity, private val webView: WebView, private val guard: () -> Unit) {
   private val listeners = mutableListOf<Int>()
   @Volatile private var ready: Boolean? = null
   private val tts: TextToSpeech = TextToSpeech(activity) { status ->
@@ -74,6 +75,7 @@ class Voices(activity: ComponentActivity, private val webView: WebView) {
 
   /** The voices, once the engine has started: answered to `id` (a JSON array). */
   @JavascriptInterface fun voices(id: Int) {
+    guard()
     synchronized(this) {
       if (ready == null) listeners.add(id) else answer(id, voicesJson())
     }
@@ -84,6 +86,7 @@ class Voices(activity: ComponentActivity, private val webView: WebView) {
    *  with a voice on the device: a language set without one is read by the engine's server (Google's
    *  sends the text away), so a language without one is not read. */
   @JavascriptInterface fun speak(id: Int, text: String, lang: String, voice: String, rate: Float) {
+    guard()
     if (ready != true) return answer(id, JSONObject.quote("error"))
     val all = installed()
     val wanted = Locale.forLanguageTag(lang)
@@ -99,6 +102,7 @@ class Voices(activity: ComponentActivity, private val webView: WebView) {
 
   /** Stops what is said and what waits to be. */
   @JavascriptInterface fun stop() {
+    guard()
     tts.stop()
   }
 }

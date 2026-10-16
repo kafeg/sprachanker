@@ -129,8 +129,14 @@ src-tauri/
 - A file read or written whole through the bridge (`readBytes` without a length, `writeFile`, a
   profile's or an .apkg's database in sql.js) is held whole three times — Java's bytes, its string,
   the page's —: about 100–200 MB is the most (the app's Java heap); larger ones go by the stream.
+- The WebView is the app's alone: lib.rs lets it navigate only to the app's own pages, the CSP
+  (tauri.conf.json) lets in the app, the `media` scheme, blob:, data: pictures, WebAssembly and
+  Tauri's IPC — no frame, no other host (the server's code reaches them through Native.kt) —, and
+  Native.kt answers only while the app's own page is in the main frame (`guard`; a new bridge
+  method calls it too). A new need (a host, a frame) goes into the CSP, checked on the phone.
+- Android 11 (API 30) and later (`minSdk`, tauri.conf.json's `minSdkVersion`): no code for older ones.
 - A link fails on the phone's storage (EPERM): what the storage links on a computer it copies here
-  (a course's export copies the course first).
+  (a course's export: its JSON only — its media are streamed from where they are).
 
 ## Planned
 

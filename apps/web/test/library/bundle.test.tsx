@@ -95,7 +95,7 @@ test("Import from a file: sent with its progress, checked, then the course insta
       }}
     />,
   );
-  expect(view.getByText(/exported on your other computer/)).toBeTruthy();
+  expect(view.getByText(/exported on your other device/)).toBeTruthy();
   choose(view);
   await waitFor(() => expect(view.getByText("Sending the file… 0%")).toBeTruthy());
   act(() => progress(0.5));

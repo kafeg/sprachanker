@@ -2,8 +2,6 @@ package app.sprachanker.mobile
 
 import android.app.Activity
 import android.content.ContentValues
-import android.os.Build
-import android.os.Environment
 import android.os.StatFs
 import android.provider.MediaStore
 import android.widget.Toast
@@ -29,6 +27,8 @@ import java.security.MessageDigest
 import java.util.concurrent.ConcurrentHashMap
 import java.util.concurrent.Executors
 import java.util.concurrent.LinkedBlockingQueue
+import java.util.concurrent.CountDownLatch
+import java.util.concurrent.TimeUnit
 import java.util.concurrent.atomic.AtomicBoolean
 import java.util.zip.CRC32
 import org.json.JSONArray
@@ -42,7 +42,31 @@ import org.json.JSONObject
 class Native(private val activity: Activity, private val webView: WebView, private val root: String) {
   private val pool = Executors.newCachedThreadPool()
 
+  // The bridge answers the app's own page alone. The WebView shows no other (lib.rs keeps it on the
+  // app's pages, the CSP lets no frame in), and should one be there, every call is refused: the page
+  // in the main frame (as wry's client saw it start) must be of the app's origin.
+  @Volatile private var client: RustWebViewClient? = null
+  private fun ownPage(): Boolean {
+    val c = client ?: run {
+      // The WebView's own thread asked once (its client is set after the bridge is added).
+      val got = CountDownLatch(1)
+      webView.post {
+        client = webView.webViewClient as? RustWebViewClient
+        got.countDown()
+      }
+      got.await(5, TimeUnit.SECONDS)
+      client
+    } ?: return false
+    val url = c.currentUrl
+    return url == ORIGIN || url.startsWith("$ORIGIN/")
+  }
+  /** Refuses a call from any page but the app's own (Voices.kt's too). */
+  fun guard() {
+    if (!ownPage()) throw IOException("EACCES not the app's own page")
+  }
+
   private fun under(path: String): File {
+    guard()
     if (path != root && !path.startsWith("$root/")) throw IOException("EACCES outside the app's files: $path")
     if (path.split('/').any { it == ".." || it == "." }) throw IOException("EACCES $path")
     return File(path)
@@ -50,6 +74,7 @@ class Native(private val activity: Activity, private val webView: WebView, priva
 
   /** A path that may be changed: under the root, never the root itself. */
   private fun inside(path: String): File {
+    guard()
     if (!path.startsWith("$root/")) throw IOException("EACCES not inside the app's files: $path")
     if (path.split('/').any { it == ".." || it == "." }) throw IOException("EACCES $path")
     return File(path)
@@ -87,13 +112,14 @@ class Native(private val activity: Activity, private val webView: WebView, priva
     webView.post { webView.evaluateJavascript("window.sprachankerNative&&window.sprachankerNative.done($id,$json)", null) }
   }
 
-  @JavascriptInterface fun root(): String = root
+  @JavascriptInterface fun root(): String = if (ownPage()) root else ""
 
   private var working = 0
 
   /** Work begun (`on`) or ended that must go on while the app is put away — a download: a
    *  foreground service while any runs (WorkService). */
   @JavascriptInterface fun work(on: Boolean, text: String) {
+    guard()
     synchronized(this) {
       working = maxOf(0, working + if (on) 1 else -1)
       if (on && working == 1) WorkService.start(activity, text)
@@ -102,7 +128,7 @@ class Native(private val activity: Activity, private val webView: WebView, priva
       if (!on && working == 0) webView.postDelayed({ synchronized(this) { if (working == 0) WorkService.stop(activity) } }, 2_000)
       // The page's renderer kept as important as the app while work goes on: else Android freezes it
       // as soon as the app is put away (measured: the download stood still till the app came back).
-      if (Build.VERSION.SDK_INT >= 26 && (working == 0 || (on && working == 1))) {
+      if (working == 0 || (on && working == 1)) {
         val keep = working > 0
         webView.post { webView.setRendererPriorityPolicy(WebView.RENDERER_PRIORITY_IMPORTANT, !keep) }
       }
@@ -228,6 +254,7 @@ class Native(private val activity: Activity, private val webView: WebView, priva
   } catch (e: Throwable) { "!${failure(e)}" }
 
   @JavascriptInterface fun append(handle: Int, data: String): String {
+    if (!ownPage()) return "EACCES not the app's own page"
     val sink = sinks[handle] ?: return "EBADF no such file"
     return attempt {
       val bytes = bytesOf(data)
@@ -239,6 +266,7 @@ class Native(private val activity: Activity, private val webView: WebView, priva
 
   /** "<sha256> <size>", or "!CODE message". */
   @JavascriptInterface fun closeWrite(handle: Int, sync: Boolean): String {
+    if (!ownPage()) return "!EACCES not the app's own page"
     val sink = sinks.remove(handle) ?: return "!EBADF no such file"
     return try {
       if (sync) (sink.out as? FileOutputStream)?.fd?.sync()
@@ -249,6 +277,7 @@ class Native(private val activity: Activity, private val webView: WebView, priva
   }
 
   @JavascriptInterface fun abortWrite(handle: Int) {
+    if (!ownPage()) return
     val sink = sinks.remove(handle) ?: return
     try { sink.out.close() } catch (e: Throwable) {}
     try { sink.drop() } catch (e: Throwable) {}
@@ -257,39 +286,23 @@ class Native(private val activity: Activity, private val webView: WebView, priva
   /** A file saved into the phone's Downloads (a file exported: a course, a deck, a profile), written
    *  as `openWrite`'s are; seen by other apps once closed, and said so. Its handle, or "!CODE message". */
   @JavascriptInterface fun openDownload(given: String, mime: String): String = try {
+    guard()
     // A name, never a path: no folder of its own, no hidden or parent one.
     val name = given.replace(Regex("[/\\\\\\x00-\\x1f]"), "_").trimStart('.').ifEmpty { "sprachanker" }
     val id = synchronized(this) { nextSink++ }
-    if (Build.VERSION.SDK_INT >= 29) {
-      val resolver = activity.contentResolver
-      val values = ContentValues().apply {
-        put(MediaStore.Downloads.DISPLAY_NAME, name)
-        put(MediaStore.Downloads.MIME_TYPE, mime)
-        put(MediaStore.Downloads.IS_PENDING, 1)
-      }
-      val uri = resolver.insert(MediaStore.Downloads.EXTERNAL_CONTENT_URI, values)
-        ?: throw IOException("EIO Downloads refused $name")
-      val out = resolver.openOutputStream(uri) ?: throw IOException("EIO Downloads refused $name")
-      sinks[id] = Sink(out, MessageDigest.getInstance("SHA-256"), 0, finish = {
-        resolver.update(uri, ContentValues().apply { put(MediaStore.Downloads.IS_PENDING, 0) }, null, null)
-        activity.runOnUiThread { Toast.makeText(activity, "↓ $name", Toast.LENGTH_LONG).show() }
-      }, drop = { resolver.delete(uri, null, null) })
-    } else {
-      // Before Android 10 the shared Downloads needs a permission asked of the learner: the app's own
-      // Downloads instead (Android/data/<id>/files/Download, reached by a file manager or a computer).
-      val dir = activity.getExternalFilesDir(Environment.DIRECTORY_DOWNLOADS)
-        ?: throw IOException("EIO no Downloads")
-      dir.mkdirs()
-      // A file there already kept: the new one under a free name, as MediaStore does.
-      var file = File(dir, name)
-      val stem = name.substringBeforeLast('.')
-      val ext = if (name.contains('.')) ".${name.substringAfterLast('.')}" else ""
-      var n = 1
-      while (file.exists()) file = File(dir, "$stem (${n++})$ext")
-      sinks[id] = Sink(FileOutputStream(file), MessageDigest.getInstance("SHA-256"), 0, finish = {
-        activity.runOnUiThread { Toast.makeText(activity, "↓ $name", Toast.LENGTH_LONG).show() }
-      }, drop = { file.delete() })
+    val resolver = activity.contentResolver
+    val values = ContentValues().apply {
+      put(MediaStore.Downloads.DISPLAY_NAME, name)
+      put(MediaStore.Downloads.MIME_TYPE, mime)
+      put(MediaStore.Downloads.IS_PENDING, 1)
     }
+    val uri = resolver.insert(MediaStore.Downloads.EXTERNAL_CONTENT_URI, values)
+      ?: throw IOException("EIO Downloads refused $name")
+    val out = resolver.openOutputStream(uri) ?: throw IOException("EIO Downloads refused $name")
+    sinks[id] = Sink(out, MessageDigest.getInstance("SHA-256"), 0, finish = {
+      resolver.update(uri, ContentValues().apply { put(MediaStore.Downloads.IS_PENDING, 0) }, null, null)
+      activity.runOnUiThread { Toast.makeText(activity, "↓ $name", Toast.LENGTH_LONG).show() }
+    }, drop = { resolver.delete(uri, null, null) })
     id.toString()
   } catch (e: Throwable) { "!${failure(e)}" }
 
@@ -341,6 +354,7 @@ class Native(private val activity: Activity, private val webView: WebView, priva
    *  head answered to `id` — {status, statusText, url, headers} or {error} —, then its body read by
    *  `netRead`. Redirects followed (to 10), across schemes too. */
   @JavascriptInterface fun netOpen(id: Int, url: String, init: String, body: String?) {
+    guard()
     pool.execute {
       try {
         val spec = JSONObject(init)
@@ -435,6 +449,7 @@ class Native(private val activity: Activity, private val webView: WebView, priva
   /** What has come of a body, Latin-1 (at most about a megabyte); "" when nothing yet — `done(id,
    *  "more")` follows when more comes —; null at its end (`netError` then says whether it broke). */
   @JavascriptInterface fun netRead(id: Int): String? {
+    guard()
     val p = requests[id] ?: return null
     val out = java.io.ByteArrayOutputStream()
     // Taken and the wait noted under the lock the reader adds under: a part cannot come between.
@@ -456,12 +471,18 @@ class Native(private val activity: Activity, private val webView: WebView, priva
   }
 
   /** After `netRead`'s null: why the body broke off ("" when it ended whole); the request let go. */
-  @JavascriptInterface fun netError(id: Int): String = requests.remove(id)?.error ?: ""
+  @JavascriptInterface fun netError(id: Int): String = if (!ownPage()) "" else requests.remove(id)?.error ?: ""
 
   @JavascriptInterface fun netAbort(id: Int) {
+    if (!ownPage()) return
     val p = synchronized(dropped) { requests.remove(id) ?: run { dropped.add(id); null } } ?: return
     p.done.set(true)
     synchronized(p) { (p as java.lang.Object).notifyAll() }
     pool.execute { try { p.connection.disconnect() } catch (e: Throwable) {} }
+  }
+
+  companion object {
+    /** The app's own page's origin (Tauri's on Android). */
+    const val ORIGIN = "http://tauri.localhost"
   }
 }

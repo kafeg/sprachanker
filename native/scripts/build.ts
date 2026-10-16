@@ -11,7 +11,7 @@
 // For an Android phone (arm64, the NDK's toolchain: ANDROID_NDK_HOME or the SDK's newest): Piper's and
 // Qwen3-TTS's programs, stripped, to <engine>/out/<program>-aarch64-linux-android — the phone app
 // carries them as libraries and runs them as the server runs them here (apps/mobile/CLAUDE.md);
-// Whisper runs in the app's own process there. `GGML_VULKAN=1`: Qwen3-TTS with ggml's Vulkan too.
+// Whisper runs in the app's own process there.
 //   bun native/scripts/build.ts android [piper|qwen]
 import {
   copyFileSync,
@@ -133,7 +133,6 @@ const phoneGgml = [
   "-DGGML_OPENMP=OFF",
   "-DGGML_NATIVE=OFF",
   "-DGGML_CPU_ARM_ARCH=armv8.2-a+dotprod+fp16",
-  ...(process.env.GGML_VULKAN === "1" ? ["-DGGML_VULKAN=ON"] : []),
 ];
 if (!android && (!only || only === "whisper"))
   await build("whisper", "https://github.com/ggml-org/whisper.cpp", [

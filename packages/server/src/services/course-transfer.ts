@@ -58,38 +58,39 @@ export interface CourseTransferFiles {
   /** Installs stopped midway (the process stopped) undone, whatever their age, each under its
    *  series' lock (one another process holds is its install, running). */
   recover(): Promise<void>;
-  /** Courses' files of one series (`editions`: those asked of each, else every one installed) linked
-   *  into a new transfer, each hashed; NotInstalledError when a course or an edition is not here. */
+  /** Courses' files of one series (`editions`: those asked of each, else every one installed) made
+   *  ready in a new transfer, each hashed — those an import rewrites in place linked or copied there,
+   *  media and recordings read from the library when streamed; NotInstalledError when a course or an
+   *  edition is not here. */
   stage(series: string, courses: string[], editions?: string[]): Promise<StagedBundle>;
   /** Every installed course by series, grouped so courses naming one media file are one group. */
   groups(): Promise<Array<{ series: string; courses: string[] }>>;
   /** The length of the bundle `stream` makes. */
   bytes(id: string, manifest: string, paths: string[]): number;
-  /** A staged course as a bundle: `manifest.json` first, then its files in the order given; the
-   *  transfer goes when the stream ends or is cancelled. */
+  /** A course made ready as a bundle: `manifest.json` first, then its files in the order given, each
+   *  read as it is streamed (one changed since it was hashed fails the stream); the transfer goes
+   *  when the stream ends or is cancelled. */
   stream(id: string, manifest: string, paths: string[]): ReadableStream<Uint8Array>;
   /** A stream written whole to a file (beside it, then renamed), its disk checked for `bytes` first. */
   save(stream: ReadableStream<Uint8Array>, file: string, bytes: number): Promise<void>;
   /** A new, empty transfer. */
   begin(): string;
-  /** A bundle of `length` bytes received into the transfer, the room for it checked first; false
-   *  when more comes. */
-  receive(id: string, body: AsyncIterable<Uint8Array>, length: number): Promise<boolean>;
-  /** A bundle read by its zip directory — the one received, or `file` on disk: its manifest's text
-   *  and the other files' paths and sizes; undefined when it is no zip of stored entries with a
-   *  manifest and paths a bundle may hold, each once. */
+  /** A bundle begun to be read as it comes — an upload of `length` bytes (more: an error, code EFBIG;
+   *  one that stalls: ETIMEDOUT), or a file —: its manifest's text, the zip's first entry; undefined
+   *  when it does not begin as a zip of stored entries with its manifest first. */
   read(
     id: string,
-    file?: string,
-  ): { manifest: string; entries: Array<{ path: string; size: number }> } | undefined;
-  /** What the library lacks of it unpacked into the transfer, streamed and hashed: "damaged" at the
-   *  first file not as listed; "clash" when a media file the library has under its name holds other
-   *  content (nothing unpacked). */
+    from: { body: AsyncIterable<Uint8Array>; length: number } | { file: string },
+  ): Promise<string | undefined>;
+  /** The rest of the bundle `read` began, as it comes: what the library lacks written into the
+   *  transfer, hashed; "damaged" at the first file not listed once with its size, or not as listed,
+   *  or a file listed that never came; "clash" when a media file the library has under its name holds
+   *  other content (nothing written); "not_a_bundle" when the zip is not one as written here (its
+   *  directory not its entries, paths a bundle may not hold, two names one file). */
   unpack(
     id: string,
     manifest: CourseBundleManifest,
-    file?: string,
-  ): Promise<"ok" | "damaged" | "clash">;
+  ): Promise<"ok" | "damaged" | "clash" | "not_a_bundle">;
   /** The unpacked files checked by their schemas and places: the problems found. */
   check(id: string, manifest: CourseBundleManifest): Promise<string[]>;
   /** The checked bundle installed under its series' lock, then verified. */
@@ -120,14 +121,17 @@ export function createCourseTransfer(deps: {
   /** An import, the only one while it runs (each needs the room of its file and more). */
   const alone = oneAtATime("course_import_busy");
 
-  /** The received or given file checked, unpacked and installed; the transfer is the caller's to
-   *  discard. */
-  async function settle(id: string, file?: string) {
-    const read = files.read(id, file);
-    if (!read) throw new ServiceError("not_a_course_bundle", 422);
+  /** The upload or the file read as it comes, checked, unpacked and installed; the transfer is the
+   *  caller's to discard. */
+  async function settle(
+    id: string,
+    from: { body: AsyncIterable<Uint8Array>; length: number } | { file: string },
+  ) {
+    const text = await files.read(id, from);
+    if (text === undefined) throw new ServiceError("not_a_course_bundle", 422);
     let json: unknown;
     try {
-      json = JSON.parse(read.manifest);
+      json = JSON.parse(text);
     } catch {
       throw new ServiceError("not_a_course_bundle", 422);
     }
@@ -139,16 +143,13 @@ export function createCourseTransfer(deps: {
     const parsed = CourseBundleManifest.safeParse(json);
     if (!parsed.success) throw new ServiceError("not_a_course_bundle", 422);
     const manifest = parsed.data;
-    // Exactly the files listed, each with its size.
-    const listed = new Map(manifest.files.map((f) => [f.path, f.size]));
-    const sameFiles =
-      listed.size === manifest.files.length &&
-      listed.size === read.entries.length &&
-      read.entries.every((e) => listed.get(e.path) === e.size);
-    if (!sameFiles) throw new ServiceError("course_bundle_damaged", 422);
-    const unpacked = await files.unpack(id, manifest, file);
+    // Each file listed once (the zip's entries are checked against the list as they come).
+    if (new Set(manifest.files.map((f) => f.path)).size !== manifest.files.length)
+      throw new ServiceError("course_bundle_damaged", 422);
+    const unpacked = await files.unpack(id, manifest);
     if (unpacked === "clash") throw new ServiceError("course_bundle_clash", 409);
     if (unpacked === "damaged") throw new ServiceError("course_bundle_damaged", 422);
+    if (unpacked === "not_a_bundle") throw new ServiceError("not_a_course_bundle", 422);
     const problems = await files.check(id, manifest);
     if (problems.length) {
       const of = manifest.courses.map((c) => c.course).join(", ");
@@ -297,9 +298,14 @@ export function createCourseTransfer(deps: {
         const id = files.begin();
         try {
           return await guarded(async () => {
-            if (!(await files.receive(id, body, length)))
-              throw new ServiceError("course_bundle_too_large", 413);
-            return await settle(id);
+            try {
+              return await settle(id, { body, length });
+            } catch (error) {
+              // More than its length said.
+              if ((error as { code?: string } | null)?.code === "EFBIG")
+                throw new ServiceError("course_bundle_too_large", 413);
+              throw error;
+            }
           }, "course_bundle_damaged");
         } finally {
           files.discard(id);
@@ -314,7 +320,7 @@ export function createCourseTransfer(deps: {
         await recovered;
         const id = files.begin();
         try {
-          return await guarded(() => settle(id, file), "course_bundle_damaged");
+          return await guarded(() => settle(id, { file }), "course_bundle_damaged");
         } finally {
           files.discard(id);
         }

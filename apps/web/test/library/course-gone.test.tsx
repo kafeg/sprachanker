@@ -1,4 +1,4 @@
-// A lesson or exam whose course is not on this computer: said so, with its offer to download again.
+// A lesson or exam whose course is not on this device: said so, with its offer to download again.
 import { expect, test } from "bun:test";
 import { CourseGone } from "../../src/library/course-gone.tsx";
 import { renderApp } from "../render.tsx";
@@ -24,7 +24,7 @@ test("a course removed: said so, its offer there to download it again", async ()
       [["catalog"], [offer, { ...offer, course: "a2", key: "dw.nicos-weg/a2", title: "A2" }]],
     ],
   });
-  expect(view.getByText(/This course isn't on this computer any more/)).toBeTruthy();
+  expect(view.getByText(/This course isn't on this device any more/)).toBeTruthy();
   expect(view.getByRole("heading", { name: "Nicos Weg A1" })).toBeTruthy();
   expect(view.queryByRole("heading", { name: "A2" })).toBeNull();
   expect(view.getByRole("button", { name: /Download/ })).toBeTruthy();
@@ -38,6 +38,6 @@ test("an exam nothing offers any more: said so, the way to what is available", a
       [["catalog"], [offer]],
     ],
   });
-  expect(view.getByText(/This exam isn't on this computer any more/)).toBeTruthy();
+  expect(view.getByText(/This exam isn't on this device any more/)).toBeTruthy();
   expect(view.getByRole("link", { name: "Available" }).getAttribute("href")).toBe("/exams/catalog");
 });

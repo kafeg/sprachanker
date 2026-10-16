@@ -188,9 +188,9 @@ test("reading aloud in Settings: every engine offered, Qwen3-TTS the default wit
   // Qwen3-TTS on paper, its small model there, chosen by default; the other engines offered beside.
   await expect(page.getByText("Ready: a model downloaded")).toBeVisible();
   const card = (name: RegExp) => page.getByRole("button", { name });
-  await expect(card(/Qwen3-TTS on this computer/)).toHaveAttribute("aria-pressed", "true");
+  await expect(card(/Qwen3-TTS on this device/)).toHaveAttribute("aria-pressed", "true");
   await expect(card(/This device's voices/)).toHaveAttribute("aria-pressed", "false");
-  await expect(card(/Piper on this computer/)).toBeVisible();
+  await expect(card(/Piper on this device/)).toBeVisible();
   // The languages read aloud (the courses' here and the interface's): the default speaker of each.
   await expect(page.getByRole("combobox", { name: "Voice for German" })).toHaveText(
     "Automatic — Ryan",
@@ -207,7 +207,7 @@ test("reading aloud in Settings: every engine offered, Qwen3-TTS the default wit
     "Automatic — Samantha",
   );
   await expect(page.getByText(/^Speed:/)).toBeVisible();
-  await card(/Qwen3-TTS on this computer/).click();
+  await card(/Qwen3-TTS on this device/).click();
   await expect(page.getByRole("combobox", { name: "Voice for German" })).toHaveText(
     "Automatic — Ryan",
   );

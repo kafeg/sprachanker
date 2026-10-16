@@ -57,6 +57,16 @@ async function* timely<T>(chunks: AsyncIterable<T>, ms: number): AsyncGenerator<
   }
 }
 
+/** Chunks passed on while they hold at most `max` bytes; past it an error (code EFBIG). */
+async function* capped(chunks: AsyncIterable<Uint8Array>, max: number) {
+  let size = 0;
+  for await (const chunk of chunks) {
+    size += chunk.byteLength;
+    if (size > max) throw Object.assign(new Error("more bytes than announced"), { code: "EFBIG" });
+    yield chunk;
+  }
+}
+
 export interface TransferOptions {
   disk?: (dir: string) => Disk | null;
   /** Whether this process may sweep: not the command line while a server runs on the data root
@@ -144,6 +154,14 @@ export function transferFolders(
     room(dir: string, bytes: number, margin = dataRootMargin) {
       const disk = diskAt(dir);
       if (disk && disk.free < bytes + margin(disk.size)) throw noSpace();
+    },
+    /** An upload's bytes as they come, at most `length` (more: an error, code EFBIG), the transfer
+     *  marked in use while they come; one that sends nothing for a while has stalled (ETIMEDOUT). */
+    incoming(id: string, body: AsyncIterable<Uint8Array>, length: number) {
+      return self.touching(
+        id,
+        capped(timely(body, options.uploadIdleMs ?? UPLOAD_IDLE_MS), length),
+      );
     },
     /** A file of `length` bytes received into `file` of the transfer, the room checked for `need`
      *  first; false when more comes. */
