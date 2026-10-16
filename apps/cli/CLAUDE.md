@@ -23,7 +23,8 @@ scripts/build.ts    # bun run build:bin (build:cli after build:speech): embeds t
                     # with the version
                     # (the server's profile-db Worker a second entry, its name handed in), copies the
                     # speech engines built in native/ beside it (whisper-server, Piper's
-                    # sherpa-onnx-offline-tts, Qwen3-TTS's tts-server)
+                    # sherpa-onnx-offline-tts, Qwen3-TTS's tts-server); THIRD_PARTY_NOTICES.txt
+                    # (scripts/notices) written into the web build first, then beside the binary
 ```
 
 ## Planned

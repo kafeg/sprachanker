@@ -2,7 +2,8 @@ name: Release
 
 # A tag vX.Y.N (the build's version: MAJOR.MINOR of apps/cli/package.json, N its commits — apps/cli/scripts/version.ts) builds the binary on a Mac with Apple Silicon,
 # the speech engines taken from their releases (the Engines workflow), runs the e2e against that build,
-# puts that build into the desktop app (apps/desktop: a zip and a dmg, signed ad hoc) and makes a draft
+# puts that build into the desktop app (apps/desktop: a zip and a dmg, signed ad hoc; the third-party
+# notices inside, as beside the binary in the archive) and makes a draft
 # release with the app, the archive and the installer; the release skill writes its notes and publishes it. Run by hand (Actions → Release →
 # Run workflow), the same build's archive is kept as the run's artifact instead.
 on:
@@ -43,7 +44,7 @@ jobs:
         run: bun run e2e
       - name: Archive
         working-directory: apps/cli/dist
-        run: tar -czf ../sprachanker-macos-arm64.tar.gz sprachanker *-apple-darwin
+        run: tar -czf ../sprachanker-macos-arm64.tar.gz sprachanker *-apple-darwin THIRD_PARTY_NOTICES.txt
       - uses: Swatinem/rust-cache@v2
         with:
           workspaces: apps/desktop/src-tauri
