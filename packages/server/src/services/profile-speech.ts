@@ -32,7 +32,7 @@ export function createProfileSpeech(deps: {
     settings.value("speech.recognition")
       ? speech.modelFor(settings.get("speech.model"))
       : undefined;
-  /** The Qwen3-TTS model the profile chose (none: the large one when it is there). */
+  /** The Qwen3-TTS model the profile chose (none: the large one when it is there, a phone's small one). */
   const qwenModel = () => settings.get("speech.qwenModel");
 
   return {

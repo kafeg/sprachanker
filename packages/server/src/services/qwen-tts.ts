@@ -54,7 +54,8 @@ const CODEC: ModelFile = {
   sha256: "1883beeed99348fc35e23dd225e9082f93f6f8c109330a33d935baa8acdbfd94",
 };
 /** The models offered: the small one (about 3 GB of memory while it runs, reads twice as fast as it
- *  speaks on an M2 Pro) and the large one; the large is used when both are there. */
+ *  speaks on an M2 Pro) and the large one; the large is used when both are there (on a phone the
+ *  small). */
 const QWEN_MODELS: ModelFile[] = [
   {
     id: "0.6b",
@@ -168,10 +169,11 @@ export function createQwenTts(deps: {
     installed: installed(m),
     ...downloads.of(m.id),
   });
-  /** The model in use: the profile's choice when it is there, else the large one when it is there. */
+  /** The model in use: the profile's choice when it is there, else the large one when it is there —
+   *  on a phone the small one (its default). */
   const inUse = (choice?: unknown) => {
     const ready = QWEN_MODELS.filter(installed);
-    return ready.find((m) => m.id === choice) ?? ready.at(-1);
+    return ready.find((m) => m.id === choice) ?? (host?.phone ? ready[0] : ready.at(-1));
   };
   const engine = engineSidecar(host, {
     spawn: (h, id, port) => {

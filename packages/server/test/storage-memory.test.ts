@@ -10,6 +10,7 @@ import { courseTransferFiles } from "../src/storage/course-transfer.ts";
 import { deckFiles } from "../src/storage/decks.ts";
 import { courseInstaller } from "../src/storage/installer.ts";
 import { modelStore } from "../src/storage/model-files.ts";
+import { readingCache } from "../src/storage/readings.ts";
 import type { DataRoot } from "../src/storage/root.ts";
 
 const rootOver = (fs = memoryFs(), fetchFn: typeof fetch = fetch): DataRoot => ({
@@ -97,6 +98,44 @@ test("a course exported over one memory and installed over another: the same fil
     expect(sha256Hex(await readAll(from, `/data/library/${series}/${f.path}`))).toBe(f.sha256);
   into.discard(id);
   expect(to.list("/data/library/.transfers")).toEqual([]);
+});
+
+test("readings kept through the files given: made once (a second request waits for the first), read again from the file", async () => {
+  const fs = memoryFs();
+  fs.writeFile("/data/cache/tts/old.part", "left by a stopped server");
+  const cache = readingCache(fs, "/data");
+  expect(fs.list("/data/cache/tts")).toEqual([]);
+  let made = 0;
+  const produce = async () => {
+    made++;
+    await Bun.sleep(5);
+    return new Uint8Array([1, 2, 3]);
+  };
+  const [a, b] = await Promise.all([cache.kept("k", produce), cache.kept("k", produce)]);
+  expect([...a]).toEqual([1, 2, 3]);
+  expect([...b]).toEqual([1, 2, 3]);
+  expect(made).toBe(1);
+  expect(fs.list("/data/cache/tts")).toEqual(["k.wav"]);
+  expect([...(await cache.kept("k", produce))]).toEqual([1, 2, 3]);
+  expect(made).toBe(1);
+  // Nobody waits any more: the making is stopped, and nothing is kept.
+  const stop = new AbortController();
+  let stopped = false;
+  const held = cache.kept(
+    "slow",
+    (signal) =>
+      new Promise((_, reject) =>
+        signal.addEventListener("abort", () => {
+          stopped = true;
+          reject(new Error("stopped"));
+        }),
+      ),
+    stop.signal,
+  );
+  stop.abort();
+  await expect(held).rejects.toThrow();
+  expect(stopped).toBe(true);
+  expect(fs.list("/data/cache/tts")).toEqual(["k.wav"]);
 });
 
 test("the installer's storage and unfinished downloads read through the files given", async () => {
