@@ -65,10 +65,11 @@ and mockups: the owner's page "Goethe в SprachAnker"; background: `docs/researc
 - iOS: the same app runs in the simulator (a course offline, films, practice); next on an iPhone —
   Xcode with an Apple ID, developer mode, whisper.cpp with Metal / Core ML —, the weekly re-sign.
 - Reading aloud on the phone: Qwen3-TTS on a phone's GPU — ggml's Vulkan needs Vulkan 1.2 (the
-  POCO's Adreno 640 on Android 11 has 1.1), its OpenCL backend targets newer Adrenos. Next (owner,
-  2026-10-16): the POCO's Android is being updated — then build the Vulkan backend again, measure it
-  there and ship it if faster and stable (the CPU kept where Vulkan 1.2 is missing); also on a stronger
-  phone; iOS: Piper and Qwen3-TTS cannot run as programs there (in the app's process instead).
+  POCO's Adreno 640 on Android 11 has 1.1), its OpenCL backend targets newer Adrenos. The POCO on
+  Android 15 (LineageOS 22.2, 2026-10-16): the loader gives Vulkan 1.3, the Adreno 640's driver still
+  1.1. Next: bring Mesa's Turnip driver (Vulkan 1.3 on Adreno 6xx) with the app and load it without root
+  through adrenotools, as emulators do — measure Qwen3-TTS on it and ship it if faster and stable (the
+  CPU kept where neither driver serves); also on a stronger phone; iOS: Piper and Qwen3-TTS cannot run as programs there (in the app's process instead).
 
 ## Open items in built areas
 Taken along when an item above touches the area, or on request.
