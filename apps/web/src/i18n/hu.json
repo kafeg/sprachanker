@@ -608,7 +608,10 @@
     "intro": "Saját eszközön futó, helyben dolgozó nyelvi tutor: valódi kurzusok egy lejátszóban, a haladás és a beszéd a saját eszközödön, bármilyen MI-modellel, amelyet csatlakoztatsz. Ingyenes és nyílt forráskódú.",
     "version": "Verzió",
     "licence": "Licenc: MIT",
-    "source": "Forráskód a GitHubon"
+    "source": "Forráskód a GitHubon",
+    "notices": "Külső összetevők és licencek",
+    "noticesIntro": "A SprachAnker ezekből az összetevőkből épül, mindegyik a saját licence alatt; a licencszövegek a lista után következnek.",
+    "noticesMissing": "Ebben a buildben nincs lista: a terjesztett buildek tartalmazzák — a program, a Mac-app és az Android-app."
   },
   "addresses": {
     "title": "Más eszközök",

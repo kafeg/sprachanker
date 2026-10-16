@@ -608,7 +608,10 @@
     "intro": "Mwalimu wa lugha unayemwendesha mwenyewe, anayefanya kazi kwanza kwenye kifaa chako: kozi halisi katika kicheza kimoja, maendeleo na sauti kwenye kifaa chako mwenyewe, modeli yoyote ya AI unayounganisha. Bure na chanzo huria.",
     "version": "Toleo",
     "licence": "Leseni: MIT",
-    "source": "Msimbo chanzo kwenye GitHub"
+    "source": "Msimbo chanzo kwenye GitHub",
+    "notices": "Vipengele vya wahusika wengine na leseni",
+    "noticesIntro": "SprachAnker imejengwa kwa vipengele hivi, kila kimoja chini ya leseni yake; maandishi ya leseni yanafuata baada ya orodha.",
+    "noticesMissing": "Toleo hili halina orodha: inakuja na matoleo yanayosambazwa — programu, programu ya Mac na programu ya Android."
   },
   "addresses": {
     "title": "Vifaa vingine",

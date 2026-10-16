@@ -608,7 +608,10 @@
     "intro": "Tutor bahasa yang di-host sendiri dan mengutamakan penyimpanan lokal: kursus asli dalam satu pemutar, progres dan ucapan di perangkat kamu sendiri, model AI apa pun yang kamu hubungkan. Gratis dan bersumber terbuka.",
     "version": "Versi",
     "licence": "Lisensi: MIT",
-    "source": "Kode sumber di GitHub"
+    "source": "Kode sumber di GitHub",
+    "notices": "Komponen pihak ketiga dan lisensi",
+    "noticesIntro": "SprachAnker dibangun dengan komponen-komponen ini, masing-masing dengan lisensinya sendiri; teks lisensi ada setelah daftar.",
+    "noticesMissing": "Build ini tidak memuat daftar: daftar disertakan pada build yang dibagikan — program, aplikasi Mac, dan aplikasi Android."
   },
   "addresses": {
     "title": "Perangkat lain",

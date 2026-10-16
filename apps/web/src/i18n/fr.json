@@ -608,7 +608,10 @@
     "intro": "Un tuteur de langues auto-hébergé et local : de vrais cours dans un seul lecteur, ta progression et ta voix sur ton propre appareil, le modèle d’IA de ton choix. Gratuit et open source.",
     "version": "Version",
     "licence": "Licence : MIT",
-    "source": "Code source sur GitHub"
+    "source": "Code source sur GitHub",
+    "notices": "Composants tiers et licences",
+    "noticesIntro": "SprachAnker est construit avec ces composants, chacun sous sa propre licence ; les textes des licences suivent la liste.",
+    "noticesMissing": "Cette version ne contient pas la liste : elle accompagne les versions distribuées — le programme, l'app Mac et l'app Android."
   },
   "addresses": {
     "title": "Autres appareils",

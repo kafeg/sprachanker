@@ -608,7 +608,10 @@
     "intro": "Un profesor de limbi găzduit de tine, care funcționează local: cursuri reale într-un singur player, progresul și vocea ta pe propriul dispozitiv, orice model AI conectezi. Gratuit și open source.",
     "version": "Versiune",
     "licence": "Licență: MIT",
-    "source": "Codul sursă pe GitHub"
+    "source": "Codul sursă pe GitHub",
+    "notices": "Componente terțe și licențe",
+    "noticesIntro": "SprachAnker este construit cu aceste componente, fiecare sub propria licență; textele licențelor urmează după listă.",
+    "noticesMissing": "Această versiune nu conține lista: o au versiunile distribuite — programul, aplicația pentru Mac și aplicația pentru Android."
   },
   "addresses": {
     "title": "Alte dispozitive",

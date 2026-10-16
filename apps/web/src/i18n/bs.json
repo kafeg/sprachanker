@@ -608,7 +608,10 @@
     "intro": "Tutor za jezike koji radi kod tebe, lokalno: pravi kursevi u jednom plejeru, napredak i govor na tvom uređaju, bilo koji AI model koji povežeš. Besplatan i otvorenog koda.",
     "version": "Verzija",
     "licence": "Licenca: MIT",
-    "source": "Izvorni kod na GitHubu"
+    "source": "Izvorni kod na GitHubu",
+    "notices": "Komponente trećih strana i licence",
+    "noticesIntro": "SprachAnker je izgrađen od ovih komponenti, svaka pod svojom licencom; tekstovi licenci slijede nakon liste.",
+    "noticesMissing": "Ova verzija nema listu: nose je verzije koje se dijele — program, aplikacija za Mac i aplikacija za Android."
   },
   "addresses": {
     "title": "Drugi uređaji",

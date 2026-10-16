@@ -608,7 +608,10 @@
     "intro": "Ein Sprachtrainer, der bei dir läuft: echte Kurse in einem Player, Fortschritt und Sprache auf deinem eigenen Gerät, jedes KI-Modell, das du anbindest. Kostenlos und quelloffen.",
     "version": "Version",
     "licence": "Lizenz: MIT",
-    "source": "Quellcode auf GitHub"
+    "source": "Quellcode auf GitHub",
+    "notices": "Komponenten von Dritten und Lizenzen",
+    "noticesIntro": "SprachAnker ist aus diesen Komponenten gebaut, jede unter ihrer eigenen Lizenz; die Lizenztexte folgen nach der Liste.",
+    "noticesMissing": "Dieser Build enthält keine Liste: Sie kommt mit den Builds, die weitergegeben werden — dem Programm, der Mac-App und der Android-App."
   },
   "addresses": {
     "title": "Andere Geräte",
