@@ -169,18 +169,45 @@ test("a request's body pulled as the server reads it, its length as announced", 
   });
   let got = "";
   let length: string | null = "";
-  const listen = answerOthers(fake.native, async () => ({
-    async fetch(request) {
-      length = request.headers.get("content-length");
-      got = await request.text();
-      return new Response(null, { status: 204 });
-    },
-  }));
+  let changes = 0;
+  const listen = answerOthers(
+    fake.native,
+    async () => ({
+      async fetch(request) {
+        length = request.headers.get("content-length");
+        got = await request.text();
+        return new Response(null, { status: 204 });
+      },
+    }),
+    () => changes++,
+  );
   listen(head("/api/courses/import", [["content-length", "6"]], "POST", true));
   await fake.settled;
+  await new Promise((r) => setTimeout(r, 5));
   expect(got).toBe("abcdef");
   expect(length).toBe("6");
   expect(fake.answers.get(1)).toMatchObject({ status: 204, body: false });
+  // A request that may change something has the databases written at once.
+  expect(changes).toBe(1);
+});
+
+test("a body the native side no longer has (its device gone) breaks off, never taken for whole", async () => {
+  const fake = fakeNative();
+  fake.native.pull = async () => {
+    throw new Error("the request's body broke off (410)");
+  };
+  let failed = false;
+  const listen = answerOthers(fake.native, async () => ({
+    async fetch(request) {
+      await request.arrayBuffer().catch(() => {
+        failed = true;
+      });
+      return new Response(null, { status: 204 });
+    },
+  }));
+  listen(head("/api/recordings", [["content-length", "6"]], "POST", true));
+  await fake.settled;
+  expect(failed).toBe(true);
 });
 
 test("a host a browser would not send is refused", async () => {

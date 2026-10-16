@@ -28,11 +28,18 @@ class WorkService : Service() {
 
   override fun onBind(intent: Intent?): IBinder? = null
 
+  override fun onCreate() {
+    super.onCreate()
+    running = this
+  }
+
   override fun onStartCommand(intent: Intent?, flags: Int, startId: Int): Int {
-    if (intent?.action == QUIT) {
-      quit()
-      return START_NOT_STICKY
-    }
+    if (intent?.action == QUIT) quit() else refresh()
+    return START_NOT_STICKY
+  }
+
+  /** The notification and the types as what goes on now asks. */
+  private fun refresh() {
     val doing = work
     val open = hosting
     val manager = getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
@@ -71,13 +78,13 @@ class WorkService : Service() {
         .newWakeLock(PowerManager.PARTIAL_WAKE_LOCK, "sprachanker:work")
         .also { it.acquire(6 * 60 * 60 * 1000L) }
     } else if (doing == null) release()
-    return START_NOT_STICKY
   }
 
-  // Android 15 ends a data sync's service after six hours: it stops (the work goes on while the app
-  // is open).
+  // Android 15 ends a data sync's time after six hours: the download is no longer told about (it
+  // goes on while the app is open); serving others goes on as it was.
   override fun onTimeout(startId: Int, fgsType: Int) {
-    stopSelf()
+    work = null
+    if (hosting != null) refresh() else stopSelf()
   }
 
   // The app taken off the recent apps: closed, its listener with it.
@@ -102,6 +109,7 @@ class WorkService : Service() {
   }
 
   override fun onDestroy() {
+    if (running === this) running = null
     release()
     super.onDestroy()
   }
@@ -116,6 +124,9 @@ class WorkService : Service() {
     /** What is being done (a download), shown first; null when nothing. */
     @Volatile private var work: String? = null
     @Volatile private var hosting: Hosting? = null
+    /** The service while it runs: changed in place (starting it again from the background may be
+     *  refused). */
+    @Volatile private var running: WorkService? = null
 
     fun start(context: Context, text: String) {
       work = text
@@ -135,6 +146,10 @@ class WorkService : Service() {
     }
 
     private fun show(context: Context) {
+      running?.let { service ->
+        Handler(Looper.getMainLooper()).post { service.refresh() }
+        return
+      }
       // Refused (Android 12 and later, when the app is away already): the work goes on while the app
       // is open.
       try {

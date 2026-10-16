@@ -87,8 +87,14 @@ const concat = (parts: Uint8Array[]) => {
 
 type Server = { fetch(request: Request): Response | Promise<Response> };
 
-/** Answers the listener's requests with `server` (once it is ready): the handler of its messages. */
-export function answerOthers(native: HostNative, server: () => Promise<Server>) {
+/** Answers the listener's requests with `server` (once it is ready): the handler of its messages.
+ *  `changed` runs after a request that may change something (the databases written at once: a page
+ *  put away writes them late, and the app may be closed meanwhile). */
+export function answerOthers(
+  native: HostNative,
+  server: () => Promise<Server>,
+  changed: () => unknown = () => {},
+) {
   const going = new Map<number, AbortController>();
   return (message: HostMessage) => {
     if ("gone" in message) going.get(message.gone)?.abort();
@@ -114,6 +120,7 @@ export function answerOthers(native: HostNative, server: () => Promise<Server>) 
       else if (answered) await native.end(m.id, String(error)).catch(() => undefined);
     } finally {
       going.delete(m.id);
+      if (m.method !== "GET" && m.method !== "HEAD") void changed();
     }
   }
 
@@ -174,11 +181,15 @@ export function answerOthers(native: HostNative, server: () => Promise<Server>) 
       await reader?.cancel();
       return native.answer(m.id, response.status, headers, null, false);
     }
-    // The start of the body: a file's token, or the first of the body itself.
+    // The start of the body: a file's token, or the first of the body itself (an answer that cannot
+    // be a file's — JSON, a stream of events — sent as it comes).
     const first: Uint8Array[] = [];
     let size = 0;
     let done = false;
-    while (!done && size <= TOKEN_LENGTH) {
+    const type = response.headers.get("content-type") ?? "";
+    const maybeFile =
+      response.status === 200 && !/^(application\/json|text\/event-stream)/.test(type);
+    while (maybeFile && !done && size <= TOKEN_LENGTH) {
       const part = await reader.read();
       if (part.done) done = true;
       else {

@@ -153,6 +153,17 @@ test("X-Forwarded-Proto believed only from a proxy of ours: tailscale serve, --a
   expect(await secureCookie("http://localhost:4580/api/session", forwarded)).toBe(false);
   expect(await secureCookie(`http://${NAME}/api/session`)).toBe(false);
   expect(await secureCookie("https://localhost/api/session")).toBe(true);
+  // Where Tailscale serves nothing (the phone app's), the tailnet's name is no proxy of ours.
+  const phone = await setup({
+    network: { ...fakeHost({ status: running() }).host, serves: false },
+  });
+  const response = await phone.app.request(`http://${NAME}/api/session`, {
+    method: "POST",
+    headers: { "content-type": "application/json", ...CLIENT_HEADERS, ...forwarded },
+    body: JSON.stringify({ profile: "local" }),
+  });
+  expect(response.status).toBe(200);
+  expect(response.headers.get("set-cookie")).not.toMatch(/;\s*Secure/i);
 });
 
 describe("Funnel", () => {

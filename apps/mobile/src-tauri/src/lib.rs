@@ -173,7 +173,7 @@ pub fn run() {
             let app = ctx.app_handle().clone();
             std::thread::spawn(move || {
                 let host = app.state::<host::Host>();
-                let pulled = host::pull(&host, request.uri().path());
+                let pulled = host::pull(&host, &request);
                 responder.respond(pulled.unwrap_or_else(|| files::serve(&request)))
             });
         })

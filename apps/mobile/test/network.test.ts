@@ -33,6 +33,9 @@ test("Tailscale: running while its VPN has a tailnet address, named by MagicDNS;
     Self: { DNSName: "poco.tail0000.ts.net", TailscaleIPs: ["100.101.102.103"] },
   });
   expect(await up.tailscale("serve")).toEqual({});
+  // A name not MagicDNS's (another resolver's answer) is not taken.
+  const rebound = phoneNetwork(bridge("tun0 100.101.102.103\n", "attacker.example"));
+  expect(await rebound.tailscale("status")).toMatchObject({ Self: { DNSName: "" } });
   // Another VPN's address, or none: not running.
   for (const lines of ["wlan0 192.168.20.72\ntun0 10.8.0.2\n", "wlan0 192.168.20.72\n"])
     expect(await phoneNetwork(bridge(lines)).tailscale("status")).toMatchObject({

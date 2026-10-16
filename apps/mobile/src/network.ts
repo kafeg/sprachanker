@@ -35,8 +35,10 @@ export function phoneNetwork(
       if (command === "serve") return {};
       const ip = addresses().find((a) => VPN.test(a.name) && TAILNET.test(a.ip))?.ip;
       if (!ip) return { BackendState: "Stopped", Self: {} };
+      // A MagicDNS name only: another resolver's answer could name any host (a page rebinding it).
       const name = await once<string>((id) => b.nameOf(id, ip));
-      return { BackendState: "Running", Self: { DNSName: name, TailscaleIPs: [ip] } };
+      const DNSName = /\.ts\.net$/i.test(name) ? name : "";
+      return { BackendState: "Running", Self: { DNSName, TailscaleIPs: [ip] } };
     },
   };
 }

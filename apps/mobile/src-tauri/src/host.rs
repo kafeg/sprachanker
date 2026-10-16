@@ -10,7 +10,8 @@ use std::collections::HashMap;
 use std::collections::VecDeque;
 use std::convert::Infallible;
 use std::io::{self, Read, Seek, SeekFrom};
-use std::path::{Path, PathBuf};
+use std::net::IpAddr;
+use std::path::{Component, Path, PathBuf};
 use std::pin::Pin;
 use std::sync::atomic::{AtomicU64, Ordering};
 use std::sync::{Arc, Condvar, Mutex};
@@ -43,6 +44,8 @@ const CONNECTIONS: usize = 64;
 const PULL: usize = 1 << 20;
 /** The most of a request's body read ahead of the page. */
 const AHEAD: usize = 4 << 20;
+/** A connection that sends no request this long is closed. */
+const IDLE: Duration = Duration::from_secs(30);
 /** How long a pull waits for its body to come before it answers with nothing yet. */
 const PULL_WAIT: Duration = Duration::from_millis(100);
 /** A file sent in parts of this size. */
@@ -65,6 +68,11 @@ impl Drop for Pending {
     fn drop(&mut self) {
         if let Some(body) = &self.body {
             body.close();
+        }
+        // An answer let go before the page ended it (the page loaded again): the device sees it cut
+        // off, never as whole.
+        if let Some(sink) = self.sink.take() {
+            let _ = sink.try_send(Err(io::Error::other("the answer was let go")));
         }
     }
 }
@@ -182,8 +190,12 @@ impl Host {
     }
 }
 
-/** A body of parts sent through a channel. */
-struct Parts(mpsc::Receiver<Result<Bytes, io::Error>>);
+/** A body of parts sent through a channel; the page told when its device went away (the body
+ *  dropped while the page still sends it). */
+struct Parts(
+    mpsc::Receiver<Result<Bytes, io::Error>>,
+    #[allow(dead_code)] Option<Waiting>,
+);
 
 impl hyper::body::Body for Parts {
     type Data = Bytes;
@@ -283,18 +295,42 @@ async fn accept(shared: Arc<Shared>, listener: tokio::net::TcpListener) {
         let Ok((stream, _)) = listener.accept().await else {
             continue;
         };
+        // Only the networks other devices share with the phone: not a mobile network's public
+        // address.
+        if !stream.local_addr().is_ok_and(|a| nearby(a.ip())) {
+            continue;
+        }
         let _ = stream.set_nodelay(true);
+        let keepalive = socket2::TcpKeepalive::new()
+            .with_time(Duration::from_secs(60))
+            .with_interval(Duration::from_secs(15));
+        let _ = socket2::SockRef::from(&stream).set_tcp_keepalive(&keepalive);
         let shared = shared.clone();
         tokio::spawn(async move {
             let service = hyper::service::service_fn(move |request| {
                 let shared = shared.clone();
                 async move { Ok::<_, Infallible>(handle(shared, request).await) }
             });
+            // A connection that sends nothing (a laptop asleep, gone from the Wi-Fi) is let go.
             let _ = hyper::server::conn::http1::Builder::new()
+                .timer(hyper_util::rt::TokioTimer::new())
+                .header_read_timeout(IDLE)
                 .serve_connection(hyper_util::rt::TokioIo::new(stream), service)
                 .await;
             drop(permit);
         });
+    }
+}
+
+/** The addresses of the networks other devices reach the phone on: its own (loopback), a home's
+ *  or a hotspot's (private, link-local), a tailnet's (100.64.0.0/10). */
+fn nearby(ip: IpAddr) -> bool {
+    match ip {
+        IpAddr::V4(v4) => {
+            let [a, b, ..] = v4.octets();
+            v4.is_loopback() || v4.is_private() || v4.is_link_local() || (a == 100 && (64..128).contains(&b))
+        }
+        IpAddr::V6(v6) => v6.is_loopback(),
     }
 }
 
@@ -451,7 +487,30 @@ pub async fn host_answer<R: Runtime>(
         let p = pending.get_mut(&id).ok_or("gone")?;
         (p.answer.take().ok_or("answered")?, p.range.clone(), p.head)
     };
-    let response = match native {
+    let built = answer_of(&app, &shared, id, status, headers, native, body, range, head);
+    let response = match built {
+        Ok(response) => response,
+        Err(error) => {
+            shared.pending.lock().unwrap().remove(&id);
+            return Err(error);
+        }
+    };
+    answer.send(response).map_err(|_| "gone".to_string())
+}
+
+#[allow(clippy::too_many_arguments)]
+fn answer_of<R: Runtime>(
+    app: &AppHandle<R>,
+    shared: &Arc<Shared>,
+    id: u64,
+    status: u16,
+    headers: Vec<(String, String)>,
+    native: Option<Native>,
+    body: bool,
+    range: Option<String>,
+    head: bool,
+) -> Result<Response<Body>, String> {
+    Ok(match native {
         Some(Native::File(path)) => {
             let builder = with_headers(status, &headers, false)?;
             shared.pending.lock().unwrap().remove(&id);
@@ -464,15 +523,16 @@ pub async fn host_answer<R: Runtime>(
                 .into_iter()
                 .filter(|(name, _)| !name.eq_ignore_ascii_case("content-type"))
                 .collect();
-            asset(&app, with_headers(status, &headers, false)?, &path)
+            asset(app, with_headers(status, &headers, false)?, &path)
         }
         None if body => {
             let (sink, parts) = mpsc::channel(HELD);
             if let Some(p) = shared.pending.lock().unwrap().get_mut(&id) {
                 p.sink = Some(sink);
             }
+            let gone = Waiting { shared: shared.clone(), id, answered: false };
             with_headers(status, &headers, true)?
-                .body(Parts(parts).boxed())
+                .body(Parts(parts, Some(gone)).boxed())
                 .map_err(|e| e.to_string())?
         }
         None => {
@@ -481,8 +541,7 @@ pub async fn host_answer<R: Runtime>(
                 .body(empty())
                 .map_err(|e| e.to_string())?
         }
-    };
-    answer.send(response).map_err(|_| "gone".to_string())
+    })
 }
 
 /** A part of an answer's body (base64); fails once its device has gone. */
@@ -528,8 +587,8 @@ pub async fn host_end(
 
 /** A request's body as the page pulls it (the `media` scheme's `/.host/<id>`): what came since, up to
  *  a megabyte, waiting a moment for some; `x-end` once it is whole. None: not such a path. */
-pub fn pull(host: &Host, path: &str) -> Option<tauri::http::Response<Vec<u8>>> {
-    let id: u64 = path.strip_prefix("/.host/")?.parse().ok()?;
+pub fn pull(host: &Host, request: &tauri::http::Request<Vec<u8>>) -> Option<tauri::http::Response<Vec<u8>>> {
+    let id: u64 = request.uri().path().strip_prefix("/.host/")?.parse().ok()?;
     let answer = |status: StatusCode, end: bool, body: Vec<u8>| {
         let mut builder = tauri::http::Response::builder()
             .status(status)
@@ -540,13 +599,17 @@ pub fn pull(host: &Host, path: &str) -> Option<tauri::http::Response<Vec<u8>>> {
         }
         builder.body(body).unwrap()
     };
-    let body = host.shared().ok().and_then(|s| {
-        s.pending
-            .lock()
-            .unwrap()
-            .get(&id)
-            .and_then(|p| p.body.clone())
-    });
+    // The app's own page alone (as the scheme's files).
+    let origin = request.headers().get(header::ORIGIN).and_then(|v| v.to_str().ok());
+    if origin.is_some_and(|o| o != files::APP_ORIGIN) {
+        return Some(answer(StatusCode::FORBIDDEN, false, Vec::new()));
+    }
+    // A request gone (its device, or the page that had it): an error, never an end — a body cut off
+    // must not be taken for whole.
+    let pending = host.shared().ok().and_then(|s| s.pending.lock().unwrap().get(&id).map(|p| p.body.clone()));
+    let Some(body) = pending else {
+        return Some(answer(StatusCode::GONE, false, Vec::new()));
+    };
     let Some(body) = body else {
         return Some(answer(StatusCode::OK, true, Vec::new()));
     };
@@ -613,14 +676,29 @@ fn file(
             left -= n as u64;
         }
     });
-    builder.body(Parts(parts).boxed()).unwrap()
+    builder.body(Parts(parts, None).boxed()).unwrap()
 }
 
-/** A path under the app's data root (links resolved), or none. */
+/** A file the native side may send (links resolved): under the library, the decks, or a profile's
+ *  recordings — never the keys, the databases. */
 fn inside_root(path: &Path) -> Option<PathBuf> {
     let root = files::root().canonicalize().ok()?;
     let path = path.canonicalize().ok()?;
-    (path.starts_with(&root) && path.is_file()).then_some(path)
+    let rel: Vec<_> = path
+        .strip_prefix(&root)
+        .ok()?
+        .components()
+        .map(|c| match c {
+            Component::Normal(name) => name.to_str(),
+            _ => None,
+        })
+        .collect::<Option<_>>()?;
+    let allowed = match rel.as_slice() {
+        ["library" | "decks", _, ..] => true,
+        ["profiles", _, "recordings", _] => true,
+        _ => false,
+    };
+    (allowed && path.is_file()).then_some(path)
 }
 
 #[derive(Debug, PartialEq)]
@@ -697,6 +775,16 @@ mod tests {
     use super::*;
 
     #[test]
+    fn nearby_networks_only() {
+        for ip in ["127.0.0.1", "192.168.20.72", "10.1.2.3", "172.20.0.5", "169.254.1.1", "100.101.102.103"] {
+            assert!(nearby(ip.parse().unwrap()), "{ip}");
+        }
+        for ip in ["8.8.8.8", "100.128.0.1", "37.4.5.6", "2001:db8::1"] {
+            assert!(!nearby(ip.parse().unwrap()), "{ip}");
+        }
+    }
+
+    #[test]
     fn ranges() {
         assert_eq!(parse_range("bytes=0-99", 1000), Range::Part(0, 99));
         assert_eq!(parse_range("bytes=500-", 1000), Range::Part(500, 999));
@@ -718,6 +806,14 @@ mod tests {
         std::fs::write(&inside, "a").unwrap();
         assert!(inside_root(&inside).is_some());
         assert!(inside_root(&root.join("library/../library/a.txt")).is_some());
+        std::fs::write(root.join("secret.key"), "k").unwrap();
+        assert!(inside_root(&root.join("secret.key")).is_none());
+        assert!(inside_root(&root.join("library/../secret.key")).is_none());
+        std::fs::create_dir_all(root.join("profiles/p/recordings")).unwrap();
+        std::fs::write(root.join("profiles/p/recordings/r.webm"), "r").unwrap();
+        std::fs::write(root.join("profiles/p/profile.sqlite"), "db").unwrap();
+        assert!(inside_root(&root.join("profiles/p/recordings/r.webm")).is_some());
+        assert!(inside_root(&root.join("profiles/p/profile.sqlite")).is_none());
         assert!(inside_root(&root.join("../../etc/passwd")).is_none());
         assert!(inside_root(Path::new("/etc/hosts")).is_none());
         assert!(inside_root(&root.join("library")).is_none());

@@ -52,6 +52,9 @@ export async function profileFiles(
   };
 }
 
+/** Takes kept in memory to be read back at once (the server hears one just saved). */
+const TAKES_KEPT = 8;
+
 /** A profile's recordings folder: names checked by the service (`<ulid>.<ext>`); the takes of this
  *  run kept in memory to be read back, older ones played from the files by the native side. */
 function recordingFiles(files: Files, dir: string): RecordingFiles {
@@ -64,6 +67,8 @@ function recordingFiles(files: Files, dir: string): RecordingFiles {
     async write(name, bytes) {
       await files.write(file(name), bytes);
       kept.set(name, new Blob([bytes as Uint8Array<ArrayBuffer>]));
+      // The latest few: older ones are read from their files.
+      for (const old of kept.keys()) if (kept.size > TAKES_KEPT) kept.delete(old);
     },
     // One played on another device: sent from its file by the native side.
     read: (name) =>

@@ -2957,6 +2957,7 @@ dependencies = [
  "hyper-util",
  "serde",
  "serde_json",
+ "socket2",
  "tar",
  "tauri",
  "tauri-build",

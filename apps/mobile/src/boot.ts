@@ -161,7 +161,7 @@ let answer: (message: HostMessage) => void = (message) => {
 const hosting = bridge
   ? startHost((message) => answer(message)).then(
       ({ port, host }) => {
-        answer = answerOthers(host, () => ready);
+        answer = answerOthers(host, () => ready, flushAll);
         for (const message of early.splice(0)) answer(message);
         const words = SPRACHANKER_HOST_WORDS[navigator.language.split("-")[0] ?? ""];
         const en = SPRACHANKER_HOST_WORDS.en ?? { hosting: "", quit: "" };

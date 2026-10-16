@@ -53,9 +53,9 @@ src-tauri/
   src/lib.rs           # commands `load` (a model) and `transcribe` (16 kHz f32 samples)
   src/engines.rs       # reading aloud's engines (libsa_piper.so, libsa_qwen.so) run as processes:
                        # started, awaited, stopped; a request to one on 127.0.0.1; a .tar.bz2 unpacked
-  src/host.rs          # the listener (hyper) on every address, port 4580 (another kept in host.json):
-                       # heads to the page by a Channel, bodies pulled by the scheme's `/.host/<id>`,
-                       # answers' bodies by `host_write` (base64); a file or an asset sent with ranges
+  src/host.rs          # the listener (hyper; 4580, another kept in host.json; nearby networks only):
+                       # heads to the page by a Channel, bodies read ahead, pulled by `/.host/<id>`,
+                       # answers' bodies by `host_write` (base64); files (library, decks, recordings)
   src/files.rs         # the data root (Android: /sdcard/Android/data/<id>/files): fs_* commands and the
                        # `media` scheme (files whole, by range, a part by `?part=a-b`; a recording by its id)
   native/asr.c         # whisper.cpp's C API for Rust: a model (GPU or not), an answer heard (greedy)
@@ -136,10 +136,10 @@ src-tauri/
   Tauri's IPC — no frame, no other host (the server's code reaches them through Native.kt) —, and
   Native.kt answers only while the app's own page is in the main frame (`guard`; a new bridge
   method calls it too). A new need (a host, a frame) goes into the CSP, checked on the phone.
-- Android 11 (API 30) and later (`minSdk`, tauri.conf.json's `minSdkVersion`): no code for older ones.
-- Open to other devices (Android): what the computer's server sends from the disk the native side
-  sends (`NativeFile`), the rest is the server's answer in the page — no route, check or cookie of its
-  own here. A foreground service (`desktop.hosting`) keeps the renderer and listener alive.
+- Android 11 (API 30) and later (`minSdk`, tauri.conf.json's `minSdkVersion`): no older code.
+- Open to other devices (Android): files the native side sends (`NativeFile`), the rest is the
+  server's answer in the page — no route, check or cookie of its own here; a foreground service
+  (`desktop.hosting`) keeps it alive. The WebView's scheme serves one request at a time: no long wait.
 - A link fails on the phone's storage (EPERM): what the storage links on a computer it copies here
   (a course's export: its JSON only — its media are streamed from where they are).
 
