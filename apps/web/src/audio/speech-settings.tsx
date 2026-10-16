@@ -3,7 +3,6 @@
 // works) and reading aloud (read-aloud-settings.tsx). The recordings kept are in General → Storage.
 import { useEffect, useState } from "react";
 import { useTranslation } from "react-i18next";
-import { inPhoneApp } from "@/api/client.ts";
 import { useSetSetting, useSetting } from "@/api/settings.ts";
 import { useSpeechModels, useSpeechState } from "@/api/speech.ts";
 import { CheckRow } from "@/ui/check-row.tsx";
@@ -189,19 +188,11 @@ function HowSpeaking() {
 /** Hearing and speaking: the microphone, recognition and reading aloud — the onboarding's speech step
  *  and Settings → Speech. */
 export function SpeechSetup() {
-  const { t } = useTranslation();
   return (
     <div className="space-y-6">
       <Microphone />
       <Recognition />
-      {/* Measured too slow on a phone (docs/decisions.md): there, why it is off. */}
-      {inPhoneApp ? (
-        <Panel title={t("speech.settings.read")}>
-          <p className="mt-2 text-sm text-muted-foreground">{t("speech.settings.readOnPhone")}</p>
-        </Panel>
-      ) : (
-        <ReadAloud />
-      )}
+      <ReadAloud />
       <HowSpeaking />
     </div>
   );

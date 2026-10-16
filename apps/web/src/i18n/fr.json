@@ -1265,7 +1265,11 @@
       "readHint": "Une voix lit les textes dans une langue : les répliques des dialogues, l’exemple d’un mot et les mots sans enregistrement. Chaque langue a sa propre voix.",
       "engine": {
         "device": "Voix de cet appareil",
+        "deviceLine": "{count, plural, one {# voix} many {# de voix} other {# voix}}, rien à installer",
+        "deviceNone": "Ce navigateur n’a aucune voix pour lire.",
         "piper": "Piper sur cet ordinateur",
+        "piperMissing": "Absent de cette version : l’appli a été compilée sans ses moteurs vocaux",
+        "piperLine": "{count, plural, =0 {pas encore de voix : télécharges-en une ci-dessous} one {# voix téléchargée} many {# de voix téléchargées} other {# voix téléchargées}}",
         "qwen": "Qwen3-TTS sur cet ordinateur",
         "qwenMissing": "Absent de cette version : l’appli a été compilée sans ses moteurs vocaux",
         "qwenReady": "Prêt : un modèle téléchargé",
@@ -1273,12 +1277,29 @@
       },
       "voiceFor": "Voix en {language}",
       "voiceAuto": "Automatique — {name}",
+      "noVoice": "Cet appareil n’a pas de voix en {language}.",
+      "betterVoices": "Sur un Mac, de meilleures voix (Premium, Améliorée) se téléchargent dans Réglages Système → Accessibilité → Contenu énoncé → Voix du système → Gérer les voix.",
+      "phoneVoices": "More voices are installed in Android's settings: Accessibility → Text-to-speech output → the engine's settings → Install voice data.",
+      "readRate": "Vitesse : {rate}×",
+      "readRateLabel": "Vitesse de lecture",
+      "piperNone": "Pas encore de voix en {language} : télécharges-en une ci-dessous.",
+      "piperNoLanguage": "Piper n’a pas de voix en {language} : les voix de l’appareil s’en chargent.",
+      "piperHint": "Les voix de Piper font environ 60 à 120 Mo chacune et restent sur cet ordinateur ; une langue sans voix Piper est lue par les voix de l’appareil.",
+      "removeVoice": "Supprimer la voix {voice}",
+      "allVoices": "Toutes les voix ({count, number})",
+      "quality": {
+        "x_low": "qualité minimale",
+        "low": "qualité basse",
+        "medium": "qualité moyenne",
+        "high": "haute qualité"
+      },
       "qwenModel": {
         "small": "Petit modèle (0.6B) : plus rapide",
         "large": "Grand modèle (1.7B) : plus naturel, plus lent"
       },
       "qwenHint": "Une voix neuronale qui lit 10 langues (allemand, anglais, russe, français, espagnol, italien, portugais, chinois, japonais, coréen) avec neuf locuteurs. Pendant qu’elle tourne, elle occupe environ 3 Go de mémoire (plus pour le grand modèle) et s’arrête après 10 minutes sans lecture ; la lecture suivante attend alors environ 20 s le temps du chargement. Les langues qu’elle ne parle pas sont lues par les voix de l’appareil.",
       "qwenNoLanguage": "Qwen3-TTS ne parle pas {language} : les voix de l’appareil s’en chargent.",
+      "qwenOnPhone": "Qwen3-TTS takes long on a phone: on a mid-range one (Snapdragon 860) 10–35 s for a word or a sentence, and about 3 GB of memory. A text read once is kept and comes at once after. Piper and the device's voices read in a second.",
       "howMic": "Là où une réponse se dit à voix haute (l’épreuve orale d’un examen), un micro : touche pour lancer l’enregistrement, touche à nouveau pour l’arrêter. Là où la tâche est écrite, il n’y en a pas.",
       "howPhrase": "La phrase à répéter reste masquée jusqu’à ton premier essai ; tu peux l’afficher avant.",
       "howRecordings": "Tes enregistrements sont conservés sur cet ordinateur pour les réécouter dans le Carnet ; supprime-les dans Général → Stockage.",
@@ -1295,8 +1316,7 @@
         "where": "{course} · leçon {lesson, number}",
         "male": "voix d’homme",
         "female": "voix de femme"
-      },
-      "readOnPhone": "La lecture à voix haute avec les voix de l'ordinateur est désactivée sur ce téléphone : Qwen3-TTS y mettait 10 à 42 s pour un mot ou une phrase (environ une seconde sur un ordinateur). Les enregistrements des cours et de la pratique sont lus ; un mot sans enregistrement reste muet."
+      }
     },
     "listening": "Écoute en cours…",
     "heardLater": "Pas encore reconnu — ton enregistrement est gardé ; ce qui a été entendu suit.",
@@ -1748,8 +1768,7 @@
       "stop": "Arrêter",
       "make": "Faire pour toutes les leçons",
       "upTo": "Les étapes de chaque leçon sont complétées jusqu’au nombre choisi ; relancé, il reprend là où il s’est arrêté.",
-      "steps": "Étapes",
-      "onPhone": "La pratique se fait sur un ordinateur : son écoute demande la lecture à voix haute, que ce téléphone ne fait pas à temps. Ici, ce qui est venu avec le cours (son téléchargement ou son fichier)."
+      "steps": "Étapes"
     },
     "another": "Une autre version"
   },

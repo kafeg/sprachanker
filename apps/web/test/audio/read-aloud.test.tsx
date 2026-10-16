@@ -5,9 +5,10 @@ import { useListening } from "../../src/audio/listening.ts";
 import { ReadAloud } from "../../src/audio/read-aloud-settings.tsx";
 import { ReadByLabel } from "../../src/audio/read-by.tsx";
 import { useReadLanguages } from "../../src/audio/read-languages.ts";
+import { samplesOf } from "../../src/audio/samples.ts";
 import type { SpokenPart } from "../../src/audio/speak.ts";
 import { SpeakButton } from "../../src/audio/speak-button.tsx";
-import { useSpeaker } from "../../src/audio/speaker.ts";
+import { stop, useSpeaker } from "../../src/audio/speaker.ts";
 import { ChatBubble } from "../../src/llm/parts.tsx";
 import { queryClient, renderApp } from "../render.tsx";
 
@@ -282,10 +283,11 @@ test("a recording that cannot be had: its line said by a voice instead", async (
   }
 });
 
-test("Settings: Qwen3-TTS alone — its models (the one in use), each language's speaker; a language it lacks said so", async () => {
+test("Settings: every engine offered as a card — Qwen3-TTS the default: its models (the one in use), each language's speaker; a language it lacks said so", async () => {
   const view = await renderApp(<ReadAloud />, {
     data: [
       installed("en-de", "en-ar"),
+      [["piper-voices"], { engine: true, voices: [], auto: {} }],
       [
         ["qwen-tts"],
         {
@@ -303,6 +305,11 @@ test("Settings: Qwen3-TTS alone — its models (the one in use), each language's
       ],
     ],
   });
+  // The three engines, Qwen3-TTS chosen (the default).
+  const card = (name: RegExp) => view.getByRole("button", { name });
+  expect(card(/This device's voices/).getAttribute("aria-pressed")).toBe("false");
+  expect(card(/Piper on this computer/).getAttribute("aria-pressed")).toBe("false");
+  expect(card(/Qwen3-TTS on this computer/).getAttribute("aria-pressed")).toBe("true");
   expect(view.getByText("Ready: a model downloaded")).toBeTruthy();
   // Both there: the one in use is marked, the other can be used instead.
   const row = (name: RegExp) => view.getByText(name).closest("li") as HTMLElement;
@@ -316,15 +323,87 @@ test("Settings: Qwen3-TTS alone — its models (the one in use), each language's
     "Automatic — Ryan",
   );
   expect(view.getByText(/Qwen3-TTS does not speak Arabic/)).toBeTruthy();
-  // No other engine to choose, no speed (it has none of its own).
-  expect(view.queryByText("This device's voices")).toBeNull();
+  // No speed with it (it has none of its own); the voice for words offered.
   expect(view.queryByText(/^Speed:/)).toBeNull();
+  expect(view.getByText(/^Base model/)).toBeTruthy();
 });
 
-test("Settings without Qwen3-TTS here: said so, nothing to choose", async () => {
-  const view = await renderApp(<ReadAloud />, { data: [installed("en-de")] });
-  expect(view.getByText(/Not in this build/)).toBeTruthy();
-  expect(view.queryByRole("combobox")).toBeNull();
+test("Settings: the device's voices chosen — each language read aloud with its voice (automatic: the best one) and Listen; an engine not built here cannot be chosen", async () => {
+  const view = await renderApp(<ReadAloud />, {
+    data: [
+      [["settings"], { "speech.readEngine": "device" }],
+      installed("en-de", "en-ru"),
+      [["piper-voices"], { engine: false, voices: [], auto: {} }],
+    ],
+  });
+  expect(view.getByText(/^Speed:/)).toBeTruthy();
+  // Neither Piper nor Qwen3-TTS built here: their cards say so and cannot be chosen.
+  for (const name of [/Piper on this computer/, /Qwen3-TTS on this computer/])
+    expect(view.getByRole("button", { name })).toHaveProperty("disabled", true);
+  expect(view.getByText("Automatic — Petra (Enhanced)")).toBeTruthy();
+  expect(view.getByText("Automatic — Milena")).toBeTruthy();
+  // Listen reads the phrase under it, in the voice's language.
+  const field = view.getByRole("textbox", { name: "Text to listen to in German" });
+  const phrase = (field as HTMLTextAreaElement).value;
+  expect(phrase).toBe(samplesOf("de")[0] as string);
+  const listen = () =>
+    fireEvent.click(view.getAllByRole("button", { name: "Listen" })[0] as HTMLElement);
+  listen();
+  expect(said).toEqual([{ text: phrase, lang: "de-DE", voice: "petra", rate: 1 }]);
+  // Another phrase, then the learner's own text; left empty, the phrase again.
+  fireEvent.click(view.getAllByRole("button", { name: "Another phrase" })[0] as HTMLElement);
+  expect((field as HTMLTextAreaElement).value).toBe(samplesOf("de")[1] as string);
+  fireEvent.change(field, { target: { value: "Wie spät ist es?" } });
+  listen();
+  expect(said.at(-1)?.text).toBe("Wie spät ist es?");
+  fireEvent.change(field, { target: { value: "  " } });
+  listen();
+  expect(said.at(-1)?.text).toBe(samplesOf("de")[1] as string);
+});
+
+test("Settings: Qwen3-TTS the default but not built here — the device's voices read, with their speed", async () => {
+  const view = await renderApp(<ReadAloud />, {
+    data: [installed("en-de"), [["piper-voices"], { engine: false, voices: [], auto: {} }]],
+  });
+  expect(view.getByText(/Qwen3-TTS on this computer/).closest("button")?.textContent).toMatch(
+    /Not in this build/,
+  );
+  expect(view.getByText("Automatic — Petra (Enhanced)")).toBeTruthy();
+  expect(view.getByText(/^Speed:/)).toBeTruthy();
+});
+
+test("Settings with Piper: each language's voices — the one reading, those to download, one coming", async () => {
+  const view = await renderApp(<ReadAloud />, {
+    data: [
+      [["settings"], { "speech.readEngine": "piper" }],
+      installed("en-de", "en-ru"),
+      [["piper-voices"], PIPER],
+    ],
+  });
+  expect(view.getByText("1 voice downloaded")).toBeTruthy();
+  expect(view.getByText("Automatic — thorsten · Germany · medium quality")).toBeTruthy();
+  // In the server's order; a download in progress shows how far it is.
+  const rows = view.getAllByRole("listitem").map((li) => li.textContent);
+  expect(rows[0]).toContain("thorsten · Germany · high quality");
+  expect(rows.some((r) => r?.includes("50 %") || r?.includes("50%"))).toBe(true);
+  expect(view.getByText(/No voice for Russian yet/)).toBeTruthy();
+  expect(view.getAllByRole("button", { name: "Download" }).length).toBeGreaterThan(0);
+  expect(view.getByText(/^Speed:/)).toBeTruthy();
+
+  // "Listen" while the server's voice takes its time (a model loading): said, not just a pressed
+  // button.
+  const realFetch = globalThis.fetch;
+  globalThis.fetch = (() => new Promise(() => {})) as unknown as typeof fetch;
+  try {
+    fireEvent.click(view.getByRole("button", { name: "Listen" }));
+    expect(view.queryByText(/^Starting the voice/)).toBeNull();
+    await waitFor(() => expect(view.getByText(/^Starting the voice/)).toBeTruthy(), {
+      timeout: 2000,
+    });
+  } finally {
+    act(() => stop());
+    globalThis.fetch = realFetch;
+  }
 });
 
 /** A text to listen to, as Understanding plays it. */

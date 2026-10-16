@@ -1265,7 +1265,11 @@
       "readHint": "Głos czyta teksty w jednym języku: kwestie dialogów, przykład do słowa i słowa bez nagrania. Każdy język ma swój głos.",
       "engine": {
         "device": "Głosy tego urządzenia",
+        "deviceLine": "{count, plural, one {# głos} few {# głosy} many {# głosów} other {# głosu}}, nic do instalowania",
+        "deviceNone": "Ta przeglądarka nie ma głosów do czytania.",
         "piper": "Piper na tym komputerze",
+        "piperMissing": "Brak w tej wersji: aplikację zbudowano bez silników mowy",
+        "piperLine": "{count, plural, =0 {brak głosów: pobierz któryś poniżej} one {pobrano # głos} few {pobrano # głosy} many {pobrano # głosów} other {pobrano # głosu}}",
         "qwen": "Qwen3-TTS na tym komputerze",
         "qwenMissing": "Brak w tej wersji: aplikację zbudowano bez silników mowy",
         "qwenReady": "Gotowe: model pobrany",
@@ -1273,12 +1277,29 @@
       },
       "voiceFor": "Głos dla języka: {language}",
       "voiceAuto": "Automatycznie — {name}",
+      "noVoice": "To urządzenie nie ma głosu dla języka: {language}.",
+      "betterVoices": "Na Macu lepsze głosy (Premium, Rozszerzone) pobiera się w Ustawienia systemowe → Dostępność → Mowa → Głos systemowy → Zarządzaj głosami.",
+      "phoneVoices": "More voices are installed in Android's settings: Accessibility → Text-to-speech output → the engine's settings → Install voice data.",
+      "readRate": "Tempo: {rate}×",
+      "readRateLabel": "Tempo czytania",
+      "piperNone": "Nie ma jeszcze głosu dla języka: {language}. Pobierz któryś poniżej.",
+      "piperNoLanguage": "Piper nie ma głosu dla języka: {language}. Czytają go głosy urządzenia.",
+      "piperHint": "Głosy Piper mają ok. 60–120 MB każdy i zostają na tym komputerze; język bez takiego głosu czytają głosy urządzenia.",
+      "removeVoice": "Usuń głos {voice}",
+      "allVoices": "Wszystkie głosy ({count, number})",
+      "quality": {
+        "x_low": "najniższa jakość",
+        "low": "niska jakość",
+        "medium": "średnia jakość",
+        "high": "wysoka jakość"
+      },
       "qwenModel": {
         "small": "Mały model (0.6B): szybszy",
         "large": "Duży model (1.7B): bardziej naturalny, wolniejszy"
       },
       "qwenHint": "Neuronowy głos, który czyta w 10 językach (niemieckim, angielskim, rosyjskim, francuskim, hiszpańskim, włoskim, portugalskim, chińskim, japońskim, koreańskim) dziewięcioma głosami. Gdy działa, zajmuje ok. 3 GB pamięci (więcej przy dużym modelu) i wyłącza się po 10 minutach bez czytania; pierwsze czytanie potem czeka ok. 20 s na wczytanie. Języki, których nie zna, czytają głosy urządzenia.",
       "qwenNoLanguage": "Qwen3-TTS nie obsługuje języka: {language}. Czytają go głosy urządzenia.",
+      "qwenOnPhone": "Qwen3-TTS takes long on a phone: on a mid-range one (Snapdragon 860) 10–35 s for a word or a sentence, and about 3 GB of memory. A text read once is kept and comes at once after. Piper and the device's voices read in a second.",
       "howMic": "Tam, gdzie odpowiedź jest ustna (część ustna egzaminu), jest mikrofon: stuknij, by zacząć nagrywanie, stuknij ponownie, by zatrzymać. Tam, gdzie zadanie jest pisemne, go nie ma.",
       "howPhrase": "Zdanie do powtórzenia jest ukryte do pierwszej próby; możesz je pokazać wcześniej.",
       "howRecordings": "Twoje nagrania są przechowywane na tym komputerze, by można było ich posłuchać w Zeszycie; usuniesz je w Ustawieniach → Ogólne → Dane.",
@@ -1295,8 +1316,7 @@
         "where": "{course} · lekcja {lesson, number}",
         "male": "głos męski",
         "female": "głos kobiecy"
-      },
-      "readOnPhone": "Czytanie na głos głosami komputera jest na tym telefonie wyłączone: Qwen3-TTS potrzebował tu 10–42 s na słowo lub zdanie (na komputerze około sekundy). Własne nagrania kursów i ćwiczeń grają; słowo bez nagrania pozostaje ciche."
+      }
     },
     "listening": "Słucham…",
     "heardLater": "Jeszcze nie rozpoznano — twoje nagranie jest zapisane; to, co usłyszano, pojawi się za chwilę.",
@@ -1748,8 +1768,7 @@
       "stop": "Zatrzymaj",
       "make": "Zrób dla wszystkich lekcji",
       "upTo": "Kroki każdej lekcji są uzupełniane do wybranej liczby; uruchomione ponownie, kontynuuje tam, gdzie skończyło.",
-      "steps": "Kroki",
-      "onPhone": "Ćwiczenia powstają na komputerze: ich słuchanie wymaga czytania na głos, z którym ten telefon nie zdąża. Tu jest to, co przyszło z kursem (z pobierania lub z pliku)."
+      "steps": "Kroki"
     },
     "another": "Inny wariant"
   },

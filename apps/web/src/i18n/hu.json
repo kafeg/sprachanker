@@ -1265,7 +1265,11 @@
       "readHint": "Egy hang egy nyelven olvas fel szövegeket: a párbeszédek mondatait, egy szó példáját és a felvétel nélküli szavakat. Minden nyelvnek saját hangja van.",
       "engine": {
         "device": "Az eszköz hangjai",
+        "deviceLine": "{count, plural, one {# hang} other {# hang}}, nem kell telepíteni semmit",
+        "deviceNone": "Ennek a böngészőnek nincsenek felolvasó hangjai.",
         "piper": "Piper ezen a számítógépen",
+        "piperMissing": "Nincs ebben a változatban: az alkalmazás a beszédmotorjai nélkül készült",
+        "piperLine": "{count, plural, =0 {még nincs hang: tölts le egyet lent} one {# hang letöltve} other {# hang letöltve}}",
         "qwen": "Qwen3-TTS ezen a számítógépen",
         "qwenMissing": "Nincs ebben a változatban: az alkalmazás a beszédmotorjai nélkül készült",
         "qwenReady": "Kész: egy modell letöltve",
@@ -1273,12 +1277,29 @@
       },
       "voiceFor": "Hang ehhez a nyelvhez: {language}",
       "voiceAuto": "Automatikus — {name}",
+      "noVoice": "Ezen az eszközön nincs hang ehhez a nyelvhez: {language}.",
+      "betterVoices": "Macen a jobb hangokat (Premium, Enhanced) itt töltheted le: Rendszerbeállítások → Kisegítő lehetőségek → Felolvasott tartalom → Rendszerhang → Hangok kezelése.",
+      "phoneVoices": "More voices are installed in Android's settings: Accessibility → Text-to-speech output → the engine's settings → Install voice data.",
+      "readRate": "Sebesség: {rate}×",
+      "readRateLabel": "Felolvasási sebesség",
+      "piperNone": "Ehhez a nyelvhez még nincs hang: {language}. Tölts le egyet lent.",
+      "piperNoLanguage": "A Pipernek nincs hangja ehhez a nyelvhez: {language}. Az eszköz hangjai olvassák fel.",
+      "piperHint": "A Piper hangjai egyenként kb. 60–120 MB-osak, és ezen a számítógépen maradnak; a hang nélküli nyelveket az eszköz hangjai olvassák fel.",
+      "removeVoice": "Hang eltávolítása: {voice}",
+      "allVoices": "Összes hang ({count, number})",
+      "quality": {
+        "x_low": "legalacsonyabb minőség",
+        "low": "alacsony minőség",
+        "medium": "közepes minőség",
+        "high": "magas minőség"
+      },
       "qwenModel": {
         "small": "Kis modell (0.6B): gyorsabb",
         "large": "Nagy modell (1.7B): természetesebb, lassabb"
       },
       "qwenHint": "Neurális hang, amely 10 nyelven olvas (német, angol, orosz, francia, spanyol, olasz, portugál, kínai, japán, koreai) kilenc beszélővel. Futás közben kb. 3 GB memóriát foglal (a nagy modell többet), és 10 perc felolvasás nélküli idő után leáll; az ezt követő első felolvasás kb. 20 mp-et vár a betöltésre. Az általa nem beszélt nyelveket az eszköz hangjai olvassák fel.",
       "qwenNoLanguage": "A Qwen3-TTS nem beszéli ezt a nyelvet: {language}. Az eszköz hangjai olvassák fel.",
+      "qwenOnPhone": "Qwen3-TTS takes long on a phone: on a mid-range one (Snapdragon 860) 10–35 s for a word or a sentence, and about 3 GB of memory. A text read once is kept and comes at once after. Piper and the device's voices read in a second.",
       "howMic": "Ahol a választ ki kell mondani (egy vizsga szóbeli része), ott mikrofon van: koppints a felvétel indításához, és újra a leállításhoz. Ahol írni kell, ott nincs.",
       "howPhrase": "Az ismétlendő mondat az első próbálkozásodig rejtve marad; előbb is megjelenítheted.",
       "howRecordings": "A felvételeid ezen a számítógépen maradnak, hogy a Füzetben újra meghallgathasd őket; törölni itt tudod: Általános → Tárhely.",
@@ -1295,8 +1316,7 @@
         "where": "{course} · {lesson, number}. lecke",
         "male": "férfihang",
         "female": "női hang"
-      },
-      "readOnPhone": "A számítógép hangjaival való felolvasás ezen a telefonon ki van kapcsolva: a Qwen3-TTS itt 10–42 s alatt mondott ki egy szót vagy mondatot (számítógépen kb. egy másodperc). A kurzusok és a gyakorlás saját felvételei szólnak; a felvétel nélküli szó néma marad."
+      }
     },
     "listening": "Felismerés…",
     "heardLater": "Még nincs felismerve — a felvételed megmaradt, a felismert szöveg hamarosan jön.",
@@ -1748,8 +1768,7 @@
       "stop": "Leállítás",
       "make": "Elkészítés minden leckéhez",
       "upTo": "Minden lecke lépései a választott számig töltődnek fel; újraindítva ott folytatja, ahol abbahagyta.",
-      "steps": "Lépések",
-      "onPhone": "A gyakorlás számítógépen készül: a hallásértéshez felolvasás kell, amit ez a telefon nem győz időben. Itt az van, ami a kurzussal jött (letöltéskor vagy fájlból)."
+      "steps": "Lépések"
     },
     "another": "Másik változat"
   },

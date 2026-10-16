@@ -1265,7 +1265,11 @@
       "readHint": "Una voz lee textos en un idioma: frases de diálogos, el ejemplo de una palabra y palabras sin grabación. Cada idioma tiene su propia voz.",
       "engine": {
         "device": "Voces de este dispositivo",
+        "deviceLine": "{count, plural, one {# voz} other {# voces}}, nada que instalar",
+        "deviceNone": "Este navegador no tiene voces para leer.",
         "piper": "Piper en esta computadora",
+        "piperMissing": "No incluido en esta versión: la aplicación se compiló sin sus motores de voz",
+        "piperLine": "{count, plural, =0 {aún no hay voces: descarga una abajo} one {# voz descargada} other {# voces descargadas}}",
         "qwen": "Qwen3-TTS en esta computadora",
         "qwenMissing": "No incluido en esta versión: la aplicación se compiló sin sus motores de voz",
         "qwenReady": "Listo: hay un modelo descargado",
@@ -1273,12 +1277,29 @@
       },
       "voiceFor": "Voz para {language}",
       "voiceAuto": "Automática: {name}",
+      "noVoice": "Este dispositivo no tiene voz para {language}.",
+      "betterVoices": "En un Mac, las voces mejores (Premium, Mejorada) se descargan en Ajustes del Sistema → Accesibilidad → Contenido leído → Voz del sistema → Gestionar voces.",
+      "phoneVoices": "More voices are installed in Android's settings: Accessibility → Text-to-speech output → the engine's settings → Install voice data.",
+      "readRate": "Velocidad: {rate}×",
+      "readRateLabel": "Velocidad de lectura",
+      "piperNone": "Aún no hay voz para {language}: descarga una abajo.",
+      "piperNoLanguage": "Piper no tiene voz para {language}: lo leen las voces del dispositivo.",
+      "piperHint": "Las voces de Piper ocupan unos 60–120 MB cada una y se quedan en esta computadora; un idioma sin voz lo leen las voces del dispositivo.",
+      "removeVoice": "Quitar la voz {voice}",
+      "allVoices": "Todas las voces ({count, number})",
+      "quality": {
+        "x_low": "calidad mínima",
+        "low": "calidad baja",
+        "medium": "calidad media",
+        "high": "calidad alta"
+      },
       "qwenModel": {
         "small": "Modelo pequeño (0.6B): más rápido",
         "large": "Modelo grande (1.7B): más natural, más lento"
       },
       "qwenHint": "Una voz neuronal que lee 10 idiomas (alemán, inglés, ruso, francés, español, italiano, portugués, chino, japonés y coreano) con nueve hablantes. Mientras funciona ocupa unos 3 GB de memoria (más con el modelo grande) y se detiene tras 10 minutos sin leer; la primera lectura después espera unos 20 s mientras se carga. Los idiomas que no habla los leen las voces del dispositivo.",
       "qwenNoLanguage": "Qwen3-TTS no habla {language}: lo leen las voces del dispositivo.",
+      "qwenOnPhone": "Qwen3-TTS takes long on a phone: on a mid-range one (Snapdragon 860) 10–35 s for a word or a sentence, and about 3 GB of memory. A text read once is kept and comes at once after. Piper and the device's voices read in a second.",
       "howMic": "Donde una respuesta se dice en voz alta (la parte oral de un examen), hay un micrófono: tócalo para empezar a grabar y otra vez para detener. Donde la tarea es escribir, no hay.",
       "howPhrase": "La frase que repetir está oculta hasta tu primer intento; puedes mostrarla antes.",
       "howRecordings": "Tus grabaciones se guardan en esta computadora para volver a escucharlas en el Cuaderno; elimínalas en General → Almacenamiento.",
@@ -1295,8 +1316,7 @@
         "where": "{course} · lección {lesson, number}",
         "male": "voz de hombre",
         "female": "voz de mujer"
-      },
-      "readOnPhone": "La lectura en voz alta con las voces del ordenador está desactivada en este teléfono: Qwen3-TTS tardaba aquí 10–42 s por palabra o frase (en un ordenador, alrededor de un segundo). Suenan las grabaciones propias de los cursos y de la práctica; una palabra sin grabación queda en silencio."
+      }
     },
     "listening": "Escuchando…",
     "heardLater": "Aún no se ha reconocido — tu grabación se ha guardado; lo que se oyó llegará enseguida.",
@@ -1748,8 +1768,7 @@
       "stop": "Detener",
       "make": "Hacer para todas las lecciones",
       "upTo": "Los pasos de cada lección se completan hasta el número elegido; si se inicia de nuevo, sigue donde se quedó.",
-      "steps": "Pasos",
-      "onPhone": "La práctica se hace en un ordenador: su comprensión auditiva necesita lectura en voz alta, que este teléfono no hace a tiempo. Aquí está lo que vino con el curso (su descarga o su archivo)."
+      "steps": "Pasos"
     },
     "another": "Otra versión"
   },

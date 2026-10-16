@@ -6,7 +6,6 @@
 import { Sparkles } from "lucide-react";
 import { useState } from "react";
 import { useTranslation } from "react-i18next";
-import { inPhoneApp } from "@/api/client.ts";
 import { quietButton } from "@/library/upkeep.tsx";
 import { Choice } from "@/ui/choice.tsx";
 import { Button } from "@/ui/components/button.tsx";
@@ -98,10 +97,7 @@ export function CoursePractice({
             ).join(" · ")}
           </span>
         </p>
-        {/* Made on a computer: a phone cannot read Listening's texts aloud in time (docs/decisions.md). */}
-        {inPhoneApp ? (
-          <p className="text-sm text-muted-foreground">{t("practice.course.onPhone")}</p>
-        ) : running && job ? (
+        {running && job ? (
           <div className="space-y-2" aria-live="polite">
             <progress className="w-full" value={job.done} max={job.total} />
             <p className="text-sm">

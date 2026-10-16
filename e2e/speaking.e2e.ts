@@ -180,11 +180,17 @@ test("a monologue typed where nothing hears: the card, the text kept, checked wi
   await expect(step.getByText("FAKE: Ich heiße Mara. Ich komme aus Polen.")).toBeVisible();
 });
 
-test("reading aloud in Settings: Qwen3-TTS alone, each language's speaker", async ({ page }) => {
+test("reading aloud in Settings: every engine offered, Qwen3-TTS the default with each language's speaker; the device's voices chosen instead", async ({
+  page,
+}) => {
+  await deviceVoices(page);
   await page.goto("/settings#speech");
-  // Qwen3-TTS on paper, its small model there; no other engine to choose.
+  // Qwen3-TTS on paper, its small model there, chosen by default; the other engines offered beside.
   await expect(page.getByText("Ready: a model downloaded")).toBeVisible();
-  await expect(page.getByText("This device's voices")).toHaveCount(0);
+  const card = (name: RegExp) => page.getByRole("button", { name });
+  await expect(card(/Qwen3-TTS on this computer/)).toHaveAttribute("aria-pressed", "true");
+  await expect(card(/This device's voices/)).toHaveAttribute("aria-pressed", "false");
+  await expect(card(/Piper on this computer/)).toBeVisible();
   // The languages read aloud (the courses' here and the interface's): the default speaker of each.
   await expect(page.getByRole("combobox", { name: "Voice for German" })).toHaveText(
     "Automatic — Ryan",
@@ -195,4 +201,14 @@ test("reading aloud in Settings: Qwen3-TTS alone, each language's speaker", asyn
     .filter({ hasText: "Base model (1.7B): a native voice for words" });
   await expect(words.getByRole("button", { name: "Download" })).toBeVisible();
   await expect(page.getByRole("combobox", { name: /Recording for/ })).toHaveCount(0);
+  // The device's voices chosen: each language with its best one, and the speed; back to Qwen3-TTS.
+  await card(/This device's voices/).click();
+  await expect(page.getByRole("combobox", { name: "Voice for English" })).toHaveText(
+    "Automatic — Samantha",
+  );
+  await expect(page.getByText(/^Speed:/)).toBeVisible();
+  await card(/Qwen3-TTS on this computer/).click();
+  await expect(page.getByRole("combobox", { name: "Voice for German" })).toHaveText(
+    "Automatic — Ryan",
+  );
 });
