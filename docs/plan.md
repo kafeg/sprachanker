@@ -57,7 +57,9 @@ and mockups: the owner's page "Goethe в SprachAnker"; background: `docs/researc
   files, decks and .apkg, profile files, Whisper's models downloaded in Settings, all by the server's
   own storage code over the phone's files (the native bridge). Course files go out and come in as a
   stream, the computer's path (owner, 2026-10-16); its WebView is the app's alone (a CSP, the bridge
-  for its own page); Android 11 and later.
+  for its own page); Android 11 and later. Open to other devices as the computer is (owner,
+  2026-10-16): its addresses and QR code in Settings, a listener on every address answered by the
+  server's code in the app, media sent natively with ranges, serving on while it is put away.
 - Next: iOS's bridge in Swift (files, requests, Downloads: what Android's Native.kt does); sync
   with the Mac's server (`docs/decisions.md`); an update of the app over Wi-Fi from the Mac.
 - iOS: the same app runs in the simulator (a course offline, films, practice); next on an iPhone —

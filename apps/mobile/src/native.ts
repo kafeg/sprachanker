@@ -97,6 +97,9 @@ export const native = {
 /** The listener on all addresses (src-tauri/src/host.rs) started: its port, and its native side;
  *  `listen` gets its requests. */
 export async function startHost(listen: (message: HostMessage) => void) {
+  // Started with the page: Tauri's script may come a moment after this one (Android, a cold start).
+  for (let waited = 0; !tauri()?.core && waited < 10_000; waited += 20)
+    await new Promise((r) => setTimeout(r, 20));
   const page = new (tauri().core.Channel)();
   page.onmessage = (message) => listen(message as HostMessage);
   const port = await invoke<number>("host_start", { page });

@@ -115,7 +115,7 @@ function storageOver(
     library: openLibrary(fs, `${root}/library`),
     decks: deckFiles(
       data,
-      (file) => new NativeFile({ file }, () => readAll(fs, file)) as MediaBlob,
+      (file) => new NativeFile({ file }, () => readAll(fs, file), fs.stat(file)?.size) as MediaBlob,
     ),
     apkg: phoneApkg,
     transfers: profileTransferFiles(data, phoneProfileSql(fs, profiles.live)),
@@ -209,7 +209,8 @@ async function start() {
     profiles,
     // Media are played from the native side's scheme; the server reads one only whole (a practice
     // recording it hands on), read from the files when it does; another device's sent natively.
-    mediaBlob: (file) => new NativeFile({ file }, () => files.read(file)) as MediaBlob,
+    mediaBlob: (file) =>
+      new NativeFile({ file }, () => files.read(file), files.fs.stat(file)?.size) as MediaBlob,
     decks: storage?.decks ?? notOnPhone("decks"),
     apkg: storage?.apkg ?? notOnPhone("decks"),
     transfers: storage?.transfers ?? notOnPhone("profile files"),

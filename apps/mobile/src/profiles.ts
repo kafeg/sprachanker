@@ -69,7 +69,11 @@ function recordingFiles(files: Files, dir: string): RecordingFiles {
     read: (name) =>
       (kept.get(name) ??
         (files.has(file(name))
-          ? new NativeFile({ file: files.abs(file(name)) }, () => files.read(file(name)))
+          ? new NativeFile(
+              { file: files.abs(file(name)) },
+              () => files.read(file(name)),
+              files.fs.stat(files.abs(file(name)))?.size,
+            )
           : undefined)) as MediaBlob | undefined,
     list: () =>
       files.fs

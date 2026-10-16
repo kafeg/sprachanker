@@ -43,18 +43,23 @@ const made = new Map<string, NativeAt>();
 const MADE_KEPT = 256;
 
 /** A file the native side sends when the server answers with it — its bytes are only a token that
- *  names it (never another's: a random one, known here only) —; read whole (`arrayBuffer`, `bytes`)
- *  it gives the file's bytes, as the server reads a recording it hands on. */
+ *  names it (never another's: a random one, known here only) —; its `size` the file's (`length`:
+ *  what a HEAD is answered with); read whole (`arrayBuffer`, `bytes`) it gives the file's bytes, as
+ *  the server reads a recording it hands on. */
 export class NativeFile extends Blob {
   constructor(
     at: NativeAt,
     private readonly read: () => Promise<Uint8Array<ArrayBuffer> | undefined> = async () =>
       undefined,
+    private readonly length?: number,
   ) {
     const token = TOKEN + crypto.randomUUID();
     super([token]);
     made.set(token, at);
     if (made.size > MADE_KEPT) made.delete(made.keys().next().value as string);
+  }
+  override get size() {
+    return this.length ?? super.size;
   }
   override async arrayBuffer() {
     return ((await this.read()) ?? new Uint8Array()).buffer as ArrayBuffer;
@@ -120,12 +125,13 @@ export function answerOthers(native: HostNative, server: () => Promise<Server>) 
     for (const [name, value] of m.headers) headers.append(name, value);
     const host = headers.get("host");
     if (!host || !HOST.test(host)) return undefined;
-    const method = m.method === "HEAD" ? "GET" : m.method;
-    if (method === "GET") {
+    const { method } = m;
+    const reading = method === "GET" || method === "HEAD";
+    if (reading) {
       headers.delete("range");
       headers.delete("if-range");
     }
-    const body = m.body && method !== "GET" ? bodyOf(m.id) : undefined;
+    const body = m.body && !reading ? bodyOf(m.id) : undefined;
     const request = new Request(`http://${host}${m.path}`, {
       method,
       body,
@@ -139,10 +145,14 @@ export function answerOthers(native: HostNative, server: () => Promise<Server>) 
   function bodyOf(id: number) {
     return new ReadableStream<Uint8Array>(
       {
+        // Each pull answers soon, with nothing while nothing came (the device sends slowly).
         async pull(controller) {
-          const { bytes, end } = await native.pull(id);
-          if (bytes.byteLength) controller.enqueue(bytes);
-          if (end) controller.close();
+          for (;;) {
+            const { bytes, end } = await native.pull(id);
+            if (bytes.byteLength) controller.enqueue(bytes);
+            if (end) controller.close();
+            if (bytes.byteLength || end) return;
+          }
         },
       },
       { highWaterMark: 0 },
@@ -159,7 +169,11 @@ export function answerOthers(native: HostNative, server: () => Promise<Server>) 
       if (name === COOKIE_HEADER) headers.push(["set-cookie", value]);
       else if (name !== SESSION_HEADER) headers.push([name, value]);
     const reader = response.body?.getReader();
-    if (!reader) return native.answer(m.id, response.status, headers, null, false);
+    // A HEAD's answer has no body (a file's length is its size).
+    if (!reader || m.method === "HEAD") {
+      await reader?.cancel();
+      return native.answer(m.id, response.status, headers, null, false);
+    }
     // The start of the body: a file's token, or the first of the body itself.
     const first: Uint8Array[] = [];
     let size = 0;
@@ -179,11 +193,6 @@ export function answerOthers(native: HostNative, server: () => Promise<Server>) 
         made.delete(token);
         return native.answer(m.id, 200, headers, at, false);
       }
-    }
-    // A HEAD's answer has no body (the server answered it as a GET).
-    if (m.method === "HEAD") {
-      if (!done) await reader.cancel();
-      return native.answer(m.id, response.status, headers, null, false);
     }
     await native.answer(m.id, response.status, headers, null, true);
     const stop = () => void reader.cancel().catch(() => undefined);

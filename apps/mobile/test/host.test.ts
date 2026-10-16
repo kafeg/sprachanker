@@ -145,7 +145,7 @@ test("a body that only looks like a token is sent as it is", async () => {
   expect(text(fake.written.get(1))).toBe(forged);
 });
 
-test("a HEAD: answered as a GET, without a body; a file's left to the native side", async () => {
+test("a HEAD: asked as it is (an export's HEAD takes nothing), answered without a body, a file's with its size", async () => {
   const fake = fakeNative();
   let method = "";
   const listen = answerOthers(fake.native, async () => ({
@@ -158,14 +158,9 @@ test("a HEAD: answered as a GET, without a body; a file's left to the native sid
   }));
   listen(head("/index.html", [], "HEAD"));
   await fake.settled;
-  expect(method).toBe("GET");
+  expect(method).toBe("HEAD");
   expect(fake.answers.get(1)).toMatchObject({ status: 200, native: null, body: false });
-  const second = fakeNative();
-  answerOthers(second.native, async () => ({
-    fetch: () => new Response(new NativeFile({ file: "/data/a.mp4" })),
-  }))(head("/a.mp4", [], "HEAD"));
-  await second.settled;
-  expect(second.answers.get(1)?.native).toEqual({ file: "/data/a.mp4" });
+  expect(new NativeFile({ file: "/data/a.mp4" }, undefined, 123_456).size).toBe(123_456);
 });
 
 test("a request's body pulled as the server reads it, its length as announced", async () => {
