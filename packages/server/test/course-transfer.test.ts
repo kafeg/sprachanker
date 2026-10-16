@@ -277,6 +277,46 @@ test("a file that is no sound bundle is refused before anything is installed: no
   );
 });
 
+test("a bundle is read as it comes: its manifest first and as its CRC-32 says, else it is none", async () => {
+  const a = await setup();
+  const { bytes } = await exported(a);
+  const b = await setup({ empty: true });
+  const files = unzipSync(bytes);
+  const manifest = files["manifest.json"] as Uint8Array;
+  delete files["manifest.json"];
+  const refused = async (body: Uint8Array) => {
+    const res = await importInto(b, body);
+    expect([res.status, await read(res)]).toEqual([422, { error: "not_a_course_bundle" }]);
+    nothingLeft(b, {});
+  };
+  // The manifest last.
+  await refused(zipSync({ ...files, "manifest.json": manifest }, { level: 0 }));
+  // A digit of the manifest changed, its CRC-32 left as it was (still a manifest that reads).
+  const flipped = Buffer.from(bytes);
+  const at = flipped.indexOf(Buffer.from('"exportedAt":')) + '"exportedAt":'.length;
+  flipped[at] = flipped[at] === 0x31 ? 0x32 : 0x31;
+  await refused(new Uint8Array(flipped));
+  // Unchanged, it installs.
+  expect((await read(importInto(b, bytes))).courses[0].status).toBe("added");
+});
+
+test("a course normalised again after its export was made ready: the bundle holds it as it was", async () => {
+  const a = await setup();
+  const ready = await read(
+    a.send("POST", "/api/courses/export", { series: FIXTURE_SERIES, course: "demo" }),
+  );
+  // A lesson replaced as an import replaces it: written beside, renamed into place.
+  const lesson = join(a.root, "library", FIXTURE_SERIES, "canonical/demo/lessons/00-01.json");
+  const was = readFileSync(lesson);
+  writeFileSync(`${lesson}.tmp`, "{}");
+  renameSync(`${lesson}.tmp`, lesson);
+  const res = await a.get(`/api/courses/export/${ready.id}`);
+  const files = unzipSync(new Uint8Array(await res.arrayBuffer()));
+  expect(Buffer.from(files["canonical/demo/lessons/00-01.json"] as Uint8Array).equals(was)).toBe(
+    true,
+  );
+});
+
 test("names the disk refuses (a file where a folder would be) are the bundle's damage, not the server's fault", async () => {
   const a = await setup();
   const { bytes } = await exported(a);

@@ -460,6 +460,8 @@ class Incoming {
 export interface ZipEntryRead {
   name: string;
   size: number;
+  /** The CRC-32 its header says its bytes have (not checked here: a reader that needs it does). */
+  crc32: number;
   data: AsyncIterable<Uint8Array>;
 }
 
@@ -511,7 +513,7 @@ export async function* zipRead(
           yield chunk;
         }
       })();
-      yield { name: new TextDecoder().decode(name), size: length, data };
+      yield { name: new TextDecoder().decode(name), size: length, crc32: head.u32(10), data };
       // What the reader left of it passes by.
       await data.return(undefined);
       for await (const chunk of bytes.pass(left)) left -= chunk.byteLength;

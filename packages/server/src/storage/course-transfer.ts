@@ -15,6 +15,7 @@ import {
   checkBundle,
   contentVersions,
   courseBundleContent,
+  crc32,
   dirName,
   errorCode,
   fileEntry,
@@ -62,12 +63,16 @@ interface ReadyFile {
   mtimeMs: number;
 }
 
-/** The text of chunks (a manifest: its size checked before). */
+/** The text of chunks and their CRC-32 (a manifest: its size checked before). */
 async function textOf(chunks: AsyncIterable<Uint8Array>) {
   const decoder = new TextDecoder();
   let text = "";
-  for await (const chunk of chunks) text += decoder.decode(chunk, { stream: true });
-  return text + decoder.decode();
+  let crc = 0;
+  for await (const chunk of chunks) {
+    text += decoder.decode(chunk, { stream: true });
+    crc = crc32(chunk, crc);
+  }
+  return { text: text + decoder.decode(), crc };
 }
 
 export function courseTransferFiles(
@@ -158,13 +163,18 @@ export function courseTransferFiles(
         const summed = new Map<string, ReadyFile>();
         for (const f of content.files) {
           const file = writtenOnce(f.path) ? f.file : joinPath(filesOf(id), f.path);
-          const before = fs.stat(file);
-          const { sha256, size, crc32 } = await fileSums(fs, file);
-          const after = fs.stat(file);
-          if (!before || after?.size !== size || after.mtimeMs !== before.mtimeMs)
-            throw Object.assign(new Error(`${f.path} changed while it was summed`), {
+          // Gone or changed meanwhile (a course removed, a download): the series is busy.
+          const busy = () =>
+            Object.assign(new Error(`${f.path} changed while it was summed`), {
               code: "SERIES_BUSY",
             });
+          const before = fs.stat(file);
+          if (!before) throw busy();
+          const { sha256, size, crc32 } = await fileSums(fs, file).catch((error) => {
+            throw errorCode(error) === "ENOENT" ? busy() : error;
+          });
+          const after = fs.stat(file);
+          if (after?.size !== size || after.mtimeMs !== before.mtimeMs) throw busy();
           files.push({ path: f.path, size, sha256 });
           summed.set(f.path, { file, size, crc32, mtimeMs: before.mtimeMs });
         }
@@ -218,7 +228,10 @@ export function courseTransferFiles(
         const first = await zip.next();
         if (first.done || first.value.name !== MANIFEST || first.value.size > MANIFEST_MAX)
           return undefined;
-        return await textOf(first.value.data);
+        // The manifest's own check (its lines of media.json and keys.json are installed as they
+        // are; the files it lists are checked by their hashes).
+        const { text, crc } = await textOf(first.value.data);
+        return crc === first.value.crc32 ? text : undefined;
       } catch (error) {
         if (errorCode(error) === "EBADZIP") return undefined;
         throw error;

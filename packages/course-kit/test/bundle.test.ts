@@ -263,28 +263,32 @@ test("media already in the library are not unpacked: the same name skipped, the 
 test("a picture the importer made, made by another version (other bytes, the same address), is kept as it is; any other is a clash", async () => {
   // The picture made from a part of a fetched document: its address has a fragment.
   const made = "https://example.org/quiz.pdf#pdf=0123&q=001&at=item";
-  const withAddress = (series: string, url: string, bytes: string) => {
+  // Another question's picture, the same: stored once, under the first one's name.
+  const twin = "https://example.org/quiz.pdf#pdf=0123&q=002&at=item";
+  const withAddress = (series: string, urls: string[], bytes: string, kind = "image") => {
     put(join(series, "media/image/frage.png"), bytes);
     const index = JSON.parse(readFileSync(join(series, "media.json"), "utf8"));
     const entry = index["https://example.org/frage.png"];
     delete index["https://example.org/frage.png"];
-    index[url] = {
-      ...entry,
-      sha256: createHash("sha256").update(bytes).digest("hex"),
-      size: bytes.length,
-    };
+    for (const url of urls)
+      index[url] = {
+        ...entry,
+        kind,
+        sha256: createHash("sha256").update(bytes).digest("hex"),
+        size: bytes.length,
+      };
     put(join(series, "media.json"), JSON.stringify(index));
   };
   const { root, series } = await library();
-  withAddress(series, made, "the picture encoded now");
+  withAddress(series, [made, twin], "the picture encoded now");
   const bundle = await bundled(root, ["ru-de"]);
   // Another library: the same picture, encoded by an older version.
-  const older = async (url: string) => {
+  const older = async (urls: string[], kind?: string) => {
     const { root: other, series: otherSeries } = await library();
-    withAddress(otherSeries, url, "the picture encoded before");
+    withAddress(otherSeries, urls, "the picture encoded before", kind);
     return { other, otherSeries };
   };
-  const { other, otherSeries } = await older(made);
+  const { other, otherSeries } = await older([made]);
   const before = readFileSync(join(otherSeries, "media.json"), "utf8");
   const plan = await planBundle(nodeFs, other, bundle.manifest);
   expect([plan.clash, [...plan.keep]]).toEqual([[], ["media/image/frage.png"]]);
@@ -294,13 +298,23 @@ test("a picture the importer made, made by another version (other bytes, the sam
   expect(readFileSync(join(otherSeries, "media/image/frage.png"), "utf8")).toBe(
     "the picture encoded before",
   );
-  expect(JSON.parse(readFileSync(join(otherSeries, "media.json"), "utf8"))[made]).toEqual(
-    JSON.parse(before)[made],
-  );
+  const index = JSON.parse(readFileSync(join(otherSeries, "media.json"), "utf8"));
+  expect(index[made]).toEqual(JSON.parse(before)[made]);
+  // The address it brings that was not here names our file as it is.
+  expect([index[twin].path, index[twin].sha256]).toEqual([
+    "media/image/frage.png",
+    index[made].sha256,
+  ]);
   expect((await openLibrary(nodeFs, other).check(MINI_SERIES, "basic")).problems).toEqual([]);
-  // A file fetched whole (no fragment), or named by another address here: a clash.
-  for (const url of ["https://example.org/frage.png", `${made}-2`]) {
-    const { other: clashing } = await older(url);
+  // A file fetched whole (no fragment), named by another address here, named here by one address
+  // fetched whole as well, or no picture: a clash.
+  for (const [urls, kind] of [
+    [["https://example.org/frage.png"]],
+    [[`${made}-2`]],
+    [[made, "https://example.org/frage.png"]],
+    [[made], "audio"],
+  ] as Array<[string[], string?]>) {
+    const { other: clashing } = await older(urls, kind);
     expect((await planBundle(nodeFs, clashing, bundle.manifest)).clash).toEqual([
       "media/image/frage.png",
     ]);

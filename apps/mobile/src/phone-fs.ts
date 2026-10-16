@@ -76,6 +76,7 @@ export function phoneFs(root: string, net: typeof fetch): DataFs {
         const now = info(p);
         if (now) parent.set(name, now);
         else parent.delete(name);
+        folded.delete(parent);
         // A folder above it known already: nothing more above changed.
         if (p !== path && had) break;
       }
@@ -86,9 +87,21 @@ export function phoneFs(root: string, net: typeof fetch): DataFs {
     changed(...paths);
     check(answer);
   };
+  /** A folder's entries by their names folded: the phone's shared storage does not tell case apart,
+   *  so a name in another case is that file (as on a Mac's disk). */
+  const folded = new WeakMap<Map<string, FileInfo>, Map<string, FileInfo>>();
+  const fold = (name: string) => name.normalize("NFC").toLowerCase();
   const at = (path: string) => {
     const name = path.slice(path.lastIndexOf("/") + 1);
-    return entries(dirName(path))?.get(name);
+    const dir = entries(dirName(path));
+    const exact = dir?.get(name);
+    if (exact || !dir) return exact;
+    let byFold = folded.get(dir);
+    if (!byFold) {
+      byFold = new Map([...dir].map(([n, info]) => [fold(n), info]));
+      folded.set(dir, byFold);
+    }
+    return byFold.get(fold(name));
   };
 
   const fs: DataFs = {

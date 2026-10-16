@@ -346,18 +346,25 @@ export async function planBundle(
 ): Promise<BundlePlan> {
   const seriesDir = joinPath(libraryRoot, bundleSeries(manifest));
   const { media } = await seriesState(fs, seriesDir);
-  const byPath = new Map<string, { sha256: string; size: number; url: string }>();
+  const byPath = new Map<string, { sha256: string; size: number }>();
   const byHash = new Map<string, string>();
-  for (const [url, e] of Object.entries(media))
+  for (const e of Object.values(media))
     if ("path" in e) {
-      byPath.set(e.path, { ...e, url });
+      byPath.set(e.path, e);
       byHash.set(e.sha256, e.path);
     }
-  /** The bundle's media file of `path` made by the importer from the same address as ours. */
+  /** The bundle's picture of `path` made by the importer from an address ours has too: every address
+   *  of ours naming it one the importer made it from, and the bundle naming it by one of them. */
   const remade = (path: string) => {
-    const ours = byPath.get(path);
-    const theirs = ours && manifest.media[ours.url];
-    return !!theirs && madeByImporter(ours.url) && "path" in theirs && theirs.path === path;
+    const ours = Object.entries(media).filter(([, e]) => "path" in e && e.path === path);
+    return (
+      ours.length > 0 &&
+      ours.every(([url, e]) => e.kind === "image" && madeByImporter(url)) &&
+      ours.some(([url]) => {
+        const theirs = manifest.media[url];
+        return !!theirs && "path" in theirs && theirs.path === path;
+      })
+    );
   };
   const plan: BundlePlan = {
     unpack: new Set(),
@@ -634,9 +641,15 @@ export async function installBundle(options: {
 
   // The series' own state: lines it lacks (or whose file failed) from the bundle; the course's scopes.
   const media = { ...state.media };
+  // A file kept as ours: the lines naming it say what ours holds.
+  const keptAs = new Map<string, { sha256: string; size: number }>();
+  for (const e of Object.values(state.media))
+    if ("path" in e && plan.keep.has(e.path)) keptAs.set(e.path, e);
   for (const [url, entry] of Object.entries(manifest.media)) {
     const known = media[url];
-    if (!known || !("path" in known)) media[url] = entry;
+    const kept = "path" in entry ? keptAs.get(entry.path) : undefined;
+    if (!known || !("path" in known))
+      media[url] = kept ? { ...entry, sha256: kept.sha256, size: kept.size } : entry;
   }
   const others = Object.entries(state.keys).filter(
     ([scope]) => !manifest.courses.some((c) => scope.startsWith(`${c.course}/`)),
