@@ -63,7 +63,9 @@ and mockups: the owner's page "Goethe в SprachAnker"; background: `docs/researc
 - iOS: the same app runs in the simulator (a course offline, films, practice); next on an iPhone —
   Xcode with an Apple ID, developer mode, whisper.cpp with Metal / Core ML —, the weekly re-sign.
 - Reading aloud on the phone: Qwen3-TTS on a phone's GPU — ggml's Vulkan needs Vulkan 1.2 (the
-  POCO's Adreno 640 has 1.1), its OpenCL backend targets newer Adrenos: to measure on a stronger
+  POCO's Adreno 640 on Android 11 has 1.1), its OpenCL backend targets newer Adrenos. Next (owner,
+  2026-10-16): the POCO's Android is being updated — then build the Vulkan backend again, measure it
+  there and ship it if faster and stable (the CPU kept where Vulkan 1.2 is missing); also on a stronger
   phone; iOS: Piper and Qwen3-TTS cannot run as programs there (in the app's process instead).
 
 ## Open items in built areas
