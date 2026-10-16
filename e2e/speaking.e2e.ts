@@ -186,6 +186,13 @@ test("reading aloud in Settings: every engine offered, Qwen3-TTS the default wit
   page,
 }) => {
   await deviceVoices(page);
+  // The profile's engine as by default (another test sets the shared profile's to the device's).
+  await page.route("**/api/settings", async (route) => {
+    if (route.request().method() !== "GET") return route.continue();
+    const response = await route.fetch();
+    const json = { ...(await response.json()), "speech.readEngine": "qwen" };
+    await route.fulfill({ response, json });
+  });
   await page.goto("/settings#speech");
   // Qwen3-TTS on paper, its small model there, chosen by default; the other engines offered beside.
   await expect(page.getByText("Ready: a model downloaded")).toBeVisible();
