@@ -1299,7 +1299,7 @@
       },
       "qwenHint": "Suara neural yang membacakan 10 bahasa (Jerman, Inggris, Rusia, Prancis, Spanyol, Italia, Portugis, Tionghoa, Jepang, Korea) dengan sembilan penutur. Selama berjalan, ia memakai sekitar 3 GB memori (lebih banyak untuk model besar) dan berhenti setelah 10 menit tidak membaca; pembacaan pertama setelah itu menunggu sekitar 20 detik selagi model dimuat. Bahasa yang tidak didukungnya dibacakan oleh suara perangkat.",
       "qwenNoLanguage": "Qwen3-TTS tidak mendukung bahasa {language}: suara perangkat yang membacakannya.",
-      "qwenOnPhone": "Di ponsel Qwen3-TTS lambat: di ponsel kelas menengah (Snapdragon 860) 10–35 detik untuk satu kata atau kalimat, dan sekitar 3 GB memori. Teks yang sudah dibacakan disimpan dan berikutnya langsung keluar. Piper dan suara perangkat membaca dalam satu-dua detik.",
+      "qwenOnPhone": "Di ponsel Qwen3-TTS lambat: di ponsel kelas menengah (Snapdragon 860) 8–20 detik untuk satu kata atau kalimat, dan sekitar 3 GB memori. Teks yang sudah dibacakan disimpan dan berikutnya langsung keluar. Piper dan suara perangkat membaca dalam satu-dua detik.",
       "howMic": "Di tempat jawaban diucapkan (bagian berbicara dalam ujian), ada mikrofon: ketuk untuk mulai merekam, ketuk lagi untuk berhenti. Jika tugasnya menulis, tidak ada mikrofon.",
       "howPhrase": "Frasa yang harus diulang disembunyikan sampai percobaan pertama kamu; kamu bisa menampilkannya lebih awal.",
       "howRecordings": "Rekaman kamu disimpan di perangkat ini agar bisa didengarkan lagi di Buku catatan; hapus di Umum → Penyimpanan.",

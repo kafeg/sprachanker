@@ -1299,7 +1299,7 @@
       },
       "qwenHint": "Eine neuronale Stimme für 10 Sprachen (Deutsch, Englisch, Russisch, Französisch, Spanisch, Italienisch, Portugiesisch, Chinesisch, Japanisch, Koreanisch) mit neun Sprechern. Solange sie läuft, belegt sie etwa 3 GB Speicher (das große Modell mehr) und stoppt nach 10 Minuten ohne Vorlesen; das erste Vorlesen danach wartet etwa 20 s, bis sie geladen ist. Sprachen, die sie nicht spricht, lesen die Stimmen des Geräts.",
       "qwenNoLanguage": "Qwen3-TTS spricht kein {language}: die Stimmen des Geräts lesen es.",
-      "qwenOnPhone": "Auf einem Handy braucht Qwen3-TTS lange: auf einem Mittelklasse-Gerät (Snapdragon 860) 10–35 s für ein Wort oder einen Satz und etwa 3 GB Speicher. Ein einmal gelesener Text bleibt gespeichert und kommt danach sofort. Piper und die Stimmen des Geräts lesen in ein, zwei Sekunden.",
+      "qwenOnPhone": "Auf einem Handy braucht Qwen3-TTS lange: auf einem Mittelklasse-Gerät (Snapdragon 860) 8–20 s für ein Wort oder einen Satz und etwa 3 GB Speicher. Ein einmal gelesener Text bleibt gespeichert und kommt danach sofort. Piper und die Stimmen des Geräts lesen in ein, zwei Sekunden.",
       "howMic": "Wo man spricht (der Sprechteil einer Prüfung), ein Mikrofon: tippen, um die Aufnahme zu starten, nochmal tippen, um sie zu beenden. Wo geschrieben wird, gibt es keins.",
       "howPhrase": "Der Satz zum Nachsprechen bleibt bis zum ersten Versuch verborgen; du kannst ihn auch vorher zeigen.",
       "howRecordings": "Deine Aufnahmen bleiben auf diesem Gerät, zum Nachhören im Notizbuch; löschen kannst du sie unter Allgemein → Speicher.",

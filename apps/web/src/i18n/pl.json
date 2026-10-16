@@ -1299,7 +1299,7 @@
       },
       "qwenHint": "Neuronowy głos, który czyta w 10 językach (niemieckim, angielskim, rosyjskim, francuskim, hiszpańskim, włoskim, portugalskim, chińskim, japońskim, koreańskim) dziewięcioma głosami. Gdy działa, zajmuje ok. 3 GB pamięci (więcej przy dużym modelu) i wyłącza się po 10 minutach bez czytania; pierwsze czytanie potem czeka ok. 20 s na wczytanie. Języki, których nie zna, czytają głosy urządzenia.",
       "qwenNoLanguage": "Qwen3-TTS nie obsługuje języka: {language}. Czytają go głosy urządzenia.",
-      "qwenOnPhone": "Na telefonie Qwen3-TTS działa długo: na średniej klasy (Snapdragon 860) 10–35 s na słowo lub zdanie i około 3 GB pamięci. Raz przeczytany tekst zostaje zapisany i potem brzmi od razu. Piper i głosy urządzenia czytają w sekundę, dwie.",
+      "qwenOnPhone": "Na telefonie Qwen3-TTS działa długo: na średniej klasy (Snapdragon 860) 8–20 s na słowo lub zdanie i około 3 GB pamięci. Raz przeczytany tekst zostaje zapisany i potem brzmi od razu. Piper i głosy urządzenia czytają w sekundę, dwie.",
       "howMic": "Tam, gdzie odpowiedź jest ustna (część ustna egzaminu), jest mikrofon: stuknij, by zacząć nagrywanie, stuknij ponownie, by zatrzymać. Tam, gdzie zadanie jest pisemne, go nie ma.",
       "howPhrase": "Zdanie do powtórzenia jest ukryte do pierwszej próby; możesz je pokazać wcześniej.",
       "howRecordings": "Twoje nagrania są przechowywane na tym urządzeniu, by można było ich posłuchać w Zeszycie; usuniesz je w Ustawieniach → Ogólne → Dane.",

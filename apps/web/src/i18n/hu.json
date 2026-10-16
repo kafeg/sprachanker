@@ -1299,7 +1299,7 @@
       },
       "qwenHint": "Neurális hang, amely 10 nyelven olvas (német, angol, orosz, francia, spanyol, olasz, portugál, kínai, japán, koreai) kilenc beszélővel. Futás közben kb. 3 GB memóriát foglal (a nagy modell többet), és 10 perc felolvasás nélküli idő után leáll; az ezt követő első felolvasás kb. 20 mp-et vár a betöltésre. Az általa nem beszélt nyelveket az eszköz hangjai olvassák fel.",
       "qwenNoLanguage": "A Qwen3-TTS nem beszéli ezt a nyelvet: {language}. Az eszköz hangjai olvassák fel.",
-      "qwenOnPhone": "Telefonon a Qwen3-TTS lassú: egy középkategóriás készüléken (Snapdragon 860) 10–35 mp egy szóra vagy mondatra, és kb. 3 GB memória. Az egyszer felolvasott szöveg megmarad, és utána azonnal szól. A Piper és az eszköz hangjai egy-két másodperc alatt olvasnak.",
+      "qwenOnPhone": "Telefonon a Qwen3-TTS lassú: egy középkategóriás készüléken (Snapdragon 860) 8–20 mp egy szóra vagy mondatra, és kb. 3 GB memória. Az egyszer felolvasott szöveg megmarad, és utána azonnal szól. A Piper és az eszköz hangjai egy-két másodperc alatt olvasnak.",
       "howMic": "Ahol a választ ki kell mondani (egy vizsga szóbeli része), ott mikrofon van: koppints a felvétel indításához, és újra a leállításhoz. Ahol írni kell, ott nincs.",
       "howPhrase": "Az ismétlendő mondat az első próbálkozásodig rejtve marad; előbb is megjelenítheted.",
       "howRecordings": "A felvételeid ezen az eszközön maradnak, hogy a Füzetben újra meghallgathasd őket; törölni itt tudod: Általános → Tárhely.",

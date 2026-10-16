@@ -1299,7 +1299,7 @@
       },
       "qwenHint": "Sauti ya mtandao wa neva inayosoma lugha 10 (Kijerumani, Kiingereza, Kirusi, Kifaransa, Kihispania, Kiitaliano, Kireno, Kichina, Kijapani, Kikorea) kwa wazungumzaji tisa. Inapoendeshwa inashikilia takriban GB 3 za kumbukumbu (zaidi kwa modeli kubwa) na inasimama baada ya dakika 10 bila kusoma; usomaji wa kwanza baada ya hapo husubiri takriban sekunde 20 inapopakiwa. Lugha zisizozungumzwa nayo husomwa na sauti za kifaa.",
       "qwenNoLanguage": "Qwen3-TTS haizungumzi {language}: sauti za kifaa zinaisoma.",
-      "qwenOnPhone": "Kwenye simu Qwen3-TTS huchukua muda: kwenye simu ya kiwango cha kati (Snapdragon 860) 10–35 sekunde kwa neno au sentensi, na takriban GB 3 za kumbukumbu. Maandishi yaliyosomwa mara moja huhifadhiwa na baadaye huja mara moja. Piper na sauti za kifaa husoma ndani ya sekunde moja au mbili.",
+      "qwenOnPhone": "Kwenye simu Qwen3-TTS huchukua muda: kwenye simu ya kiwango cha kati (Snapdragon 860) 8–20 sekunde kwa neno au sentensi, na takriban GB 3 za kumbukumbu. Maandishi yaliyosomwa mara moja huhifadhiwa na baadaye huja mara moja. Piper na sauti za kifaa husoma ndani ya sekunde moja au mbili.",
       "howMic": "Mahali ambapo jibu linatamkwa (sehemu ya kuzungumza ya mtihani), kuna maikrofoni: gusa ili kuanza kurekodi, gusa tena ili kuacha. Mahali ambapo kazi ni kuandika, hakuna.",
       "howPhrase": "Sentensi ya kurudia imefichwa hadi jaribio lako la kwanza; unaweza kuionyesha mapema.",
       "howRecordings": "Rekodi zako zinahifadhiwa kwenye kifaa hiki ili uzisikilize tena katika Daftari; zifute katika Jumla → Hifadhi.",

@@ -1299,7 +1299,7 @@
       },
       "qwenHint": "Neuralni glas koji čita 10 jezika (njemački, engleski, ruski, francuski, španski, italijanski, portugalski, kineski, japanski, korejski) s devet govornika. Dok radi, zauzima oko 3 GB memorije (više za veliki model) i zaustavlja se nakon 10 minuta bez čitanja; prvo čitanje nakon toga čeka oko 20 s dok se učitava. Jezike koje ne govori čitaju glasovi uređaja.",
       "qwenNoLanguage": "Qwen3-TTS ne govori jezik „{language}“: čitaju ga glasovi uređaja.",
-      "qwenOnPhone": "Na telefonu Qwen3-TTS radi sporo: na telefonu srednje klase (Snapdragon 860) 10–35 s za riječ ili rečenicu i oko 3 GB memorije. Jednom pročitan tekst se čuva i poslije dolazi odmah. Piper i glasovi uređaja čitaju za sekundu-dvije.",
+      "qwenOnPhone": "Na telefonu Qwen3-TTS radi sporo: na telefonu srednje klase (Snapdragon 860) 8–20 s za riječ ili rečenicu i oko 3 GB memorije. Jednom pročitan tekst se čuva i poslije dolazi odmah. Piper i glasovi uređaja čitaju za sekundu-dvije.",
       "howMic": "Gdje se odgovor izgovara (usmeni dio ispita), tu je mikrofon: dodirni za početak snimanja, dodirni ponovo za kraj. Gdje je zadatak pisanje, mikrofona nema.",
       "howPhrase": "Fraza za ponavljanje je skrivena do tvog prvog pokušaja; možeš je prikazati i ranije.",
       "howRecordings": "Tvoji snimci se čuvaju na ovom uređaju da ih ponovo preslušaš u Svesci; obriši ih u Opće → Pohrana.",

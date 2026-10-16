@@ -1299,7 +1299,7 @@
       },
       "qwenHint": "O voce neuronală care citește 10 limbi (germană, engleză, rusă, franceză, spaniolă, italiană, portugheză, chineză, japoneză, coreeană) cu nouă vorbitori. Cât rulează, ocupă circa 3 GB de memorie (mai mult pentru modelul mare) și se oprește după 10 minute fără citire; prima citire după aceea așteaptă circa 20 s cât se încarcă. Limbile pe care nu le vorbește sunt citite de vocile dispozitivului.",
       "qwenNoLanguage": "Qwen3-TTS nu vorbește {language}: o citesc vocile dispozitivului.",
-      "qwenOnPhone": "Pe telefon Qwen3-TTS e lent: pe unul de gamă medie (Snapdragon 860) 10–35 s pentru un cuvânt sau o propoziție și cam 3 GB de memorie. Un text citit o dată se păstrează și apoi vine imediat. Piper și vocile dispozitivului citesc într-o secundă-două.",
+      "qwenOnPhone": "Pe telefon Qwen3-TTS e lent: pe unul de gamă medie (Snapdragon 860) 8–20 s pentru un cuvânt sau o propoziție și cam 3 GB de memorie. Un text citit o dată se păstrează și apoi vine imediat. Piper și vocile dispozitivului citesc într-o secundă-două.",
       "howMic": "Acolo unde un răspuns se spune cu voce tare (proba orală a unui examen), un microfon: atinge ca să începi înregistrarea, atinge din nou ca s-o oprești. Unde sarcina e scrisă, nu există.",
       "howPhrase": "Fraza de repetat e ascunsă până la prima ta încercare; o poți afișa și mai devreme.",
       "howRecordings": "Înregistrările tale se păstrează pe acest dispozitiv ca să le reasculți în Caiet; le ștergi în General → Stocare.",

@@ -1299,7 +1299,7 @@
       },
       "qwenHint": "10 dili (Almanca, İngilizce, Rusça, Fransızca, İspanyolca, İtalyanca, Portekizce, Çince, Japonca, Korece) dokuz konuşmacıyla okuyan bir sinir ağı sesi. Çalışırken yaklaşık 3 GB bellek kullanır (büyük modelde daha fazla) ve 10 dakika okuma yapılmazsa durur; sonrasındaki ilk okuma, model yüklenirken yaklaşık 20 sn bekler. Konuşmadığı dilleri cihazın sesleri okur.",
       "qwenNoLanguage": "Qwen3-TTS {language} konuşmuyor: bu dili cihazın sesleri okur.",
-      "qwenOnPhone": "Telefonda Qwen3-TTS yavaştır: orta sınıf bir telefonda (Snapdragon 860) bir kelime ya da cümle için 10–35 sn ve yaklaşık 3 GB bellek. Bir kez okunan metin saklanır ve sonra hemen gelir. Piper ve cihazın sesleri bir iki saniyede okur.",
+      "qwenOnPhone": "Telefonda Qwen3-TTS yavaştır: orta sınıf bir telefonda (Snapdragon 860) bir kelime ya da cümle için 8–20 sn ve yaklaşık 3 GB bellek. Bir kez okunan metin saklanır ve sonra hemen gelir. Piper ve cihazın sesleri bir iki saniyede okur.",
       "howMic": "Cevabın sözlü verildiği yerlerde (bir sınavın konuşma bölümü) bir mikrofon vardır: kayda başlamak için dokun, durdurmak için yeniden dokun. Görevin yazılı olduğu yerlerde mikrofon yoktur.",
       "howPhrase": "Tekrar edilecek cümle ilk denemene kadar gizlidir; daha önce de gösterebilirsin.",
       "howRecordings": "Kayıtların, Defter’de yeniden dinleyebilmen için bu cihazda saklanır; onları Genel → Depolama bölümünden silebilirsin.",

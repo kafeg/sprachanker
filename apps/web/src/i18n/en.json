@@ -1299,7 +1299,7 @@
       },
       "qwenHint": "A neural voice that reads 10 languages (German, English, Russian, French, Spanish, Italian, Portuguese, Chinese, Japanese, Korean) with nine speakers. While it runs it holds about 3 GB of memory (more for the large model) and stops after 10 minutes without reading; the first reading after that waits about 20 s while it loads. Languages it does not speak are read by the device's voices.",
       "qwenNoLanguage": "Qwen3-TTS does not speak {language}: the device's voices read it.",
-      "qwenOnPhone": "Qwen3-TTS takes long on a phone: on a mid-range one (Snapdragon 860) 10–35 s for a word or a sentence, and about 3 GB of memory. A text read once is kept and comes at once after. Piper and the device's voices read in a second or two.",
+      "qwenOnPhone": "Qwen3-TTS takes long on a phone: on a mid-range one (Snapdragon 860) 8–20 s for a word or a sentence, and about 3 GB of memory. A text read once is kept and comes at once after. Piper and the device's voices read in a second or two.",
       "howMic": "Where an answer is spoken (an exam's speaking part), a microphone: tap to start recording, tap again to stop. Where the task is writing, there is none.",
       "howPhrase": "The phrase to repeat is hidden until your first try; you can show it sooner.",
       "howRecordings": "Your recordings are kept on this device to listen to again in the Notebook; delete them in General → Storage.",

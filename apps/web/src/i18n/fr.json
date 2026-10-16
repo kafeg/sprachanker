@@ -1299,7 +1299,7 @@
       },
       "qwenHint": "Une voix neuronale qui lit 10 langues (allemand, anglais, russe, français, espagnol, italien, portugais, chinois, japonais, coréen) avec neuf locuteurs. Pendant qu’elle tourne, elle occupe environ 3 Go de mémoire (plus pour le grand modèle) et s’arrête après 10 minutes sans lecture ; la lecture suivante attend alors environ 20 s le temps du chargement. Les langues qu’elle ne parle pas sont lues par les voix de l’appareil.",
       "qwenNoLanguage": "Qwen3-TTS ne parle pas {language} : les voix de l’appareil s’en chargent.",
-      "qwenOnPhone": "Sur un téléphone, Qwen3-TTS est lent : sur un milieu de gamme (Snapdragon 860), 10–35 s pour un mot ou une phrase, et environ 3 Go de mémoire. Un texte lu une fois est gardé et revient aussitôt ensuite. Piper et les voix de l’appareil lisent en une ou deux secondes.",
+      "qwenOnPhone": "Sur un téléphone, Qwen3-TTS est lent : sur un milieu de gamme (Snapdragon 860), 8–20 s pour un mot ou une phrase, et environ 3 Go de mémoire. Un texte lu une fois est gardé et revient aussitôt ensuite. Piper et les voix de l’appareil lisent en une ou deux secondes.",
       "howMic": "Là où une réponse se dit à voix haute (l’épreuve orale d’un examen), un micro : touche pour lancer l’enregistrement, touche à nouveau pour l’arrêter. Là où la tâche est écrite, il n’y en a pas.",
       "howPhrase": "La phrase à répéter reste masquée jusqu’à ton premier essai ; tu peux l’afficher avant.",
       "howRecordings": "Tes enregistrements sont conservés sur cet appareil pour les réécouter dans le Carnet ; supprime-les dans Général → Stockage.",
