@@ -19,9 +19,9 @@ src/
                      # transfers.ts (transfer folders: swept, room on the disk, a file received or saved, a zip streamed);
                      # profile-transfer.ts (profile files: a snapshot zipped, a file read by its zip directory, unpacked, its database
                      # made ready by profile-db.ts over the runtime's SQLite — ProfileSql, SqlFiles — the exact schema first);
-                     # course-transfer.ts (course bundles: files linked and zipped — a course, or every group (exportAll) —, read,
-                     # what the library lacks unpacked, checked and installed by course-kit's bundle.ts under the lock, verified; one
-                     # stopped midway undone at the start); decks.ts (deck folders written whole: replaceFolder; extras.json, media;
+                     # course-transfer.ts (bundles, one path everywhere: a course or every group (exportAll) zipped as streamed from
+                     # the library; read as they come, what the library lacks written as it passes, checked and installed by
+                     # course-kit's bundle.ts under the lock, verified; one stopped midway undone at the start); decks.ts (deck folders written whole: replaceFolder; extras.json, media;
                      # .apkg uploads); deck-transfer.ts (deck files: zipped, read, unpacked, placed); practice.ts (addPractice, locked)
   runtime/           # Bun/Node adapters: listen, web assets, sqlite, secret key, data-root.ts (one server per data root: server.pid;
                      # nodeDataRoot over Node's files); process-name.ts (`ps` names a pid); lmstudio.ts (detect, `lms server start`);

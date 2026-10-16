@@ -9,7 +9,10 @@ interface Node {
   mtimeMs: number;
 }
 
-export function memoryFs(options: { free?: number; size?: number; now?: () => number } = {}) {
+/** `links: false`: a disk without hard links (the phone's storage: EPERM). */
+export function memoryFs(
+  options: { free?: number; size?: number; now?: () => number; links?: boolean } = {},
+) {
   const nodes = new Map<string, Node>([["/", { dir: true, data: new Uint8Array(), mtimeMs: 0 }]]);
   const now = options.now ?? Date.now;
   const norm = (path: string) => joinPath("/", path);
@@ -88,6 +91,7 @@ export function memoryFs(options: { free?: number; size?: number; now?: () => nu
       nodes.delete(p);
     },
     link(from, to) {
+      if (options.links === false) throw fsError("EPERM", `${from}: no hard links here`);
       const node = need(from);
       if (nodes.has(norm(to))) throw fsError("EEXIST", to);
       if (!parentOf(norm(to))?.dir) throw fsError("ENOENT", to);

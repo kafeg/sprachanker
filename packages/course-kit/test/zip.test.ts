@@ -12,6 +12,7 @@ import {
   zipEntries,
   zipLength,
   zipLimits,
+  zipRead,
   zipStream,
 } from "../src/zip.ts";
 
@@ -133,4 +134,101 @@ test("ZIP64 end records are checked: the locator right before the end record, th
       return undefined;
     }),
   ).toBeUndefined();
+});
+
+/** A zip read as it comes, in chunks of `size` bytes: each entry's name and bytes (`skip`: those
+ *  whose bytes are not read), or the error's code. */
+async function readAsItComes(
+  bytes: Uint8Array,
+  size = 7,
+  skip = new Set<string>(),
+  limits = LIMITS,
+) {
+  async function* chunks() {
+    for (let at = 0; at < bytes.length; at += size) yield bytes.subarray(at, at + size);
+  }
+  const out: Array<[string, string]> = [];
+  try {
+    for await (const e of zipRead(chunks(), limits)) {
+      if (skip.has(e.name)) {
+        out.push([e.name, "-"]);
+        continue;
+      }
+      const parts: Uint8Array[] = [];
+      for await (const part of e.data) parts.push(part);
+      out.push([e.name, Buffer.concat(parts).toString()]);
+    }
+    return out;
+  } catch (error) {
+    return (error as { code?: string }).code;
+  }
+}
+
+test("a zip read as it comes: each entry by the size its header gives, the directory checked against them at the end", async () => {
+  const entries = [
+    bytesEntry("manifest.json", text('{"a":1}')),
+    // Bytes that look like headers inside an entry are only its bytes.
+    bytesEntry("trap.bin", text("PK\x03\x04PK\x01\x02PK\x05\x06")),
+    bytesEntry("ünïcode.txt", text("ü")),
+    bytesEntry("empty.txt", new Uint8Array(0)),
+  ];
+  for (const force64 of [false, true]) {
+    const { bytes } = await written(entries, { force64 });
+    for (const size of [1, 7, bytes.length])
+      expect(await readAsItComes(bytes, size)).toEqual([
+        ["manifest.json", '{"a":1}'],
+        ["trap.bin", "PK\x03\x04PK\x01\x02PK\x05\x06"],
+        ["ünïcode.txt", "ü"],
+        ["empty.txt", ""],
+      ]);
+    // An entry not read passes by.
+    expect(await readAsItComes(bytes, 3, new Set(["trap.bin"]))).toEqual([
+      ["manifest.json", '{"a":1}'],
+      ["trap.bin", "-"],
+      ["ünïcode.txt", "ü"],
+      ["empty.txt", ""],
+    ]);
+  }
+});
+
+test("a zip read as it comes is believed only as far as it is checked", async () => {
+  const entries = [bytesEntry("a.txt", text("aaaa")), bytesEntry("b.txt", text("bbbb"))];
+  const { bytes } = await written(entries);
+  const centralAt = bytes.length - 22 - 2 * (46 + 5);
+  const bad = async (change: (b: Buffer) => Uint8Array | undefined) => {
+    const b = Buffer.from(bytes);
+    return readAsItComes(new Uint8Array(change(b) ?? b));
+  };
+  expect(await bad(() => undefined)).toEqual([
+    ["a.txt", "aaaa"],
+    ["b.txt", "bbbb"],
+  ]);
+  // Not a zip; cut short; bytes after the end record.
+  expect(await bad(() => text("hello"))).toBe("EBADZIP");
+  expect(await bad((b) => b.subarray(0, b.length - 1))).toBe("EBADZIP");
+  expect(await bad((b) => Buffer.concat([b, Buffer.from([0])]))).toBe("EBADZIP");
+  // Compressed; a data descriptor (no size in the header): never read as it comes.
+  expect(await bad(at(8, 8))).toBe("EBADZIP");
+  expect(await bad(at(6, 8))).toBe("EBADZIP");
+  // The directory not its entries: another size, another offset (overlapping), another CRC, one
+  // entry fewer than were read.
+  expect(await bad(at(centralAt + 20, 3))).toBe("EBADZIP");
+  expect(await bad(at(centralAt + 46 + 5 + 42, 0))).toBe("EBADZIP");
+  expect(await bad(at(centralAt + 16, 1))).toBe("EBADZIP");
+  expect(
+    await bad((b) => {
+      b.writeUInt16LE(1, b.length - 22 + 8);
+      b.writeUInt16LE(1, b.length - 22 + 10);
+      return undefined;
+    }),
+  ).toBe("EBADZIP");
+  // More entries than a zip may hold; a directory larger than they need.
+  const { bytes: three } = await written(
+    ["a", "b", "c"].map((n) => bytesEntry(`${n}.txt`, text(n))),
+  );
+  expect(await readAsItComes(three, 7, new Set(), { ...LIMITS, countMax: 3 })).toHaveLength(3);
+  expect(await readAsItComes(three, 7, new Set(), { ...LIMITS, countMax: 2 })).toBe("EBADZIP");
+  expect(await readAsItComes(three, 7, new Set(), { ...LIMITS, directoryMax: 2 * 46 })).toBe(
+    "EBADZIP",
+  );
 });

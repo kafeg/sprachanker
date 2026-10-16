@@ -1,8 +1,11 @@
 // Course bundles on disk: each export or import in a transfer folder of its own,
 // `library/.transfers/<id>/` (transfers.ts) — on the library's disk, so files link and move into
-// place. An export's files linked there (a course normalised again meanwhile keeps the bundle whole),
-// each hashed, streamed as a zip (course-kit); a received bundle read by its zip directory, what the
-// library lacks unpacked streaming and hashed, checked and installed by course-kit's bundle.
+// place. One path on every system, the phone's too: an export streams its zip straight from the
+// library's files — only those a later import rewrites in place (library JSON, source copies: small)
+// linked or copied aside first, so a course normalised again meanwhile keeps the bundle whole —, each
+// hashed when made ready and found unchanged when streamed; an import reads the bundle as it comes (the
+// upload, or a file), what the library lacks written into the transfer as it passes, hashed, the zip's
+// directory checked at its end, then checked and installed by course-kit's bundle.
 import {
   aliased,
   type BundlePlan,
@@ -13,8 +16,7 @@ import {
   contentVersions,
   courseBundleContent,
   dirName,
-  entryStream,
-  entryText,
+  errorCode,
   fileEntry,
   fileSums,
   installBundle,
@@ -26,9 +28,11 @@ import {
   planBundle,
   undoInstall,
   writeChunks,
-  zipEntries,
+  writtenOnce,
+  type ZipEntryRead,
   zipLength,
   zipLimits,
+  zipRead,
 } from "@sprachanker/course-kit";
 import {
   COURSE_BUNDLE_MAX_FILES,
@@ -50,6 +54,22 @@ const JSON_MAX = 64 * 1024 * 1024;
  *  some 250 bytes on average at most (a library path is under 100). */
 const ZIP_LIMITS = zipLimits(COURSE_BUNDLE_MAX_FILES + 1, 1536, 256);
 
+/** A file of an export made ready: where it is read from, as it was summed then. */
+interface ReadyFile {
+  file: string;
+  size: number;
+  crc32: number;
+  mtimeMs: number;
+}
+
+/** The text of chunks (a manifest: its size checked before). */
+async function textOf(chunks: AsyncIterable<Uint8Array>) {
+  const decoder = new TextDecoder();
+  let text = "";
+  for await (const chunk of chunks) text += decoder.decode(chunk, { stream: true });
+  return text + decoder.decode();
+}
+
 export function courseTransferFiles(
   data: DataRoot,
   options: TransferOptions = {},
@@ -57,48 +77,38 @@ export function courseTransferFiles(
   const { fs } = data;
   const libraryRoot = under(data, "library");
   const root = joinPath(libraryRoot, ".transfers");
+  /** Each import's bundle as it is read, after its manifest. */
+  const reading = new Map<string, AsyncGenerator<ZipEntryRead>>();
+  /** Each import's plan: what of it the library holds already. */
+  const plans = new Map<string, BundlePlan>();
+  /** Each export's files made ready, until it is streamed. */
+  const ready = new Map<string, Map<string, ReadyFile>>();
   // A transfer swept with an install it stopped midway: undone first.
   const t = transferFolders(fs, root, options, (folder) =>
     undoInstall(fs, libraryRoot, joinPath(folder, "aside")),
   );
   const filesOf = (id: string) => joinPath(t.folder(id), "files");
   const asideOf = (id: string) => joinPath(t.folder(id), "aside");
-  const received = (id: string) => joinPath(t.folder(id), "received");
-  /** Each staged course's files with their size and CRC-32 (the zip's), until it is streamed. */
-  const sums = new Map<string, Map<string, { size: number; crc32: number }>>();
-  /** Each import's plan: what of it the library holds already. */
-  const plans = new Map<string, BundlePlan>();
   const discard = (id: string) => {
-    sums.delete(id);
+    ready.delete(id);
     plans.delete(id);
+    // A bundle read no further: its source let go (an upload, a file).
+    reading
+      .get(id)
+      ?.return(undefined)
+      .catch(() => {});
+    reading.delete(id);
     t.discard(id);
   };
-  /** The entries of a bundle, its manifest apart; each name a path a bundle may hold, and once —
-   *  also to a disk that does not tell case or Unicode forms apart. */
-  const entriesOf = (id: string, file: string) => t.once(id, file, () => parseEntries(file));
-  const parseEntries = (file: string) => {
-    const entries = zipEntries(fs, file, ZIP_LIMITS);
-    if (!entries) return undefined;
-    const manifest = entries.find((e) => e.name === MANIFEST);
-    const others = entries.filter((e) => e !== manifest);
-    if (
-      aliased(entries.map((e) => e.name)) ||
-      !manifest ||
-      manifest.size > MANIFEST_MAX ||
-      others.some((e) => !CourseBundlePath.safeParse(e.name).success)
-    )
-      return undefined;
-    return { manifest, others };
-  };
-  /** The zip's entries: the manifest first, then the staged files in the order given. */
+  /** The zip's entries: the manifest first, then the files made ready in the order given. */
   const zipOf = (id: string, manifest: string, paths: string[]) => {
-    const of = sums.get(id);
+    const of = ready.get(id);
     return [
       bytesEntry(MANIFEST, new TextEncoder().encode(manifest)),
       ...paths.map((path) => {
-        const sum = of?.get(path);
-        if (!sum) throw new Error(`${path} is not in transfer ${id}`);
-        return fileEntry(fs, path, joinPath(filesOf(id), path), sum);
+        const f = of?.get(path);
+        if (!f) throw new Error(`${path} is not in transfer ${id}`);
+        return fileEntry(fs, path, f.file, f);
       }),
     ];
   };
@@ -123,16 +133,17 @@ export function courseTransferFiles(
         throw new NotInstalledError(`${series}/${courses.join(",")}`);
       const id = t.begin();
       try {
-        // Its files as they are while no import changes them (an import replaces a course's files
-        // one by one): linked under the series' lock — not waited for: a download holds it for
-        // long —, so a file replaced later stays as it was here. Copied where the disk has no hard
-        // links, the room for it checked first. Hashed after, the lock let go.
+        // What it holds, as it is while no import changes it (an import replaces a course's files
+        // one by one): under the series' lock — not waited for: a download holds it for long. What
+        // an import rewrites in place is linked aside (copied where the disk has no hard links:
+        // small, its room checked first); media and recordings stay where they are.
         const content = await withSeriesLock(
           data,
           series,
           async () => {
             const content = await courseBundleContent(fs, libraryRoot, series, courses, editions);
             for (const f of content.files) {
+              if (writtenOnce(f.path)) continue;
               const to = joinPath(filesOf(id), f.path);
               fs.mkdir(dirName(to));
               linkOrCopy(fs, f.file, to, () => t.room(root, fs.stat(f.file)?.size ?? 0));
@@ -141,14 +152,23 @@ export function courseTransferFiles(
           },
           { wait: false },
         );
+        // Each hashed after, the lock let go, with its time of change: one not so when it is
+        // streamed fails the stream.
         const files: BundleFileEntry[] = [];
-        const summed = new Map<string, { size: number; crc32: number }>();
+        const summed = new Map<string, ReadyFile>();
         for (const f of content.files) {
-          const { sha256, size, crc32 } = await fileSums(fs, joinPath(filesOf(id), f.path));
+          const file = writtenOnce(f.path) ? f.file : joinPath(filesOf(id), f.path);
+          const before = fs.stat(file);
+          const { sha256, size, crc32 } = await fileSums(fs, file);
+          const after = fs.stat(file);
+          if (!before || after?.size !== size || after.mtimeMs !== before.mtimeMs)
+            throw Object.assign(new Error(`${f.path} changed while it was summed`), {
+              code: "SERIES_BUSY",
+            });
           files.push({ path: f.path, size, sha256 });
-          summed.set(f.path, { size, crc32 });
+          summed.set(f.path, { file, size, crc32, mtimeMs: before.mtimeMs });
         }
-        sums.set(id, summed);
+        ready.set(id, summed);
         return {
           id,
           courses: content.courses.map((c) => ({
@@ -182,47 +202,67 @@ export function courseTransferFiles(
     bytes: (id, manifest, paths) => zipLength(zipOf(id, manifest, paths)),
     stream(id, manifest, paths) {
       const entries = zipOf(id, manifest, paths);
-      sums.delete(id);
+      ready.delete(id);
       return t.zip(id, entries);
     },
     save: t.save,
     begin: t.begin,
-    // The file; the room for what of it is unpacked is checked then (media here already are not).
-    receive: (id, body, length) => t.receive(id, "received", body, length, length),
-    read(id, file = received(id)) {
-      const entries = entriesOf(id, file);
-      if (!entries) return undefined;
-      return {
-        manifest: entryText(fs, file, entries.manifest),
-        entries: entries.others.map((e) => ({ path: e.name, size: e.size })),
-      };
+    async read(id, from) {
+      const source =
+        "file" in from
+          ? t.touching(id, fs.stream(from.file))
+          : t.incoming(id, from.body, from.length);
+      const zip = zipRead(source, ZIP_LIMITS);
+      reading.set(id, zip);
+      try {
+        const first = await zip.next();
+        if (first.done || first.value.name !== MANIFEST || first.value.size > MANIFEST_MAX)
+          return undefined;
+        return await textOf(first.value.data);
+      } catch (error) {
+        if (errorCode(error) === "EBADZIP") return undefined;
+        throw error;
+      }
     },
-    async unpack(id, manifest, file = received(id)) {
-      const entries = entriesOf(id, file);
-      if (!entries) return "damaged";
+    async unpack(id, manifest) {
+      const zip = reading.get(id);
+      if (!zip) throw new Error(`transfer ${id} has no bundle being read`);
       const listed = new Map(manifest.files.map((f) => [f.path, f]));
+      // Two names one file on a disk that does not tell case or Unicode forms apart.
+      if (aliased([MANIFEST, ...listed.keys()])) return "not_a_bundle";
       // A library file is read whole when it is checked.
       if (manifest.files.some((f) => f.path.endsWith(".json") && f.size > JSON_MAX))
         return "damaged";
       const plan = await planBundle(fs, libraryRoot, manifest);
       if (plan.clash.length) return "clash";
-      const wanted = entries.others.filter((e) => plan.unpack.has(e.name));
+      // The room for what of it is unpacked (media here already are not).
       t.room(
         root,
-        wanted.reduce((n, e) => n + e.size, 0),
+        manifest.files.filter((f) => plan.unpack.has(f.path)).reduce((n, f) => n + f.size, 0),
       );
-      for (const e of wanted) {
-        const written = await writeChunks(
-          fs,
-          joinPath(filesOf(id), e.name),
-          t.touching(id, entryStream(fs, file, e)),
-          e.size,
-        );
-        // The first file not as listed ends it.
-        const want = listed.get(e.name);
-        if (!written || written.size !== want?.size || written.sha256 !== want.sha256)
-          return "damaged";
+      const seen = new Set<string>();
+      try {
+        for await (const e of zip) {
+          if (!CourseBundlePath.safeParse(e.name).success) return "not_a_bundle";
+          const want = listed.get(e.name);
+          // A name not listed that is one listed on such a disk is no bundle's.
+          if (!want && aliased([...listed.keys(), MANIFEST, e.name])) return "not_a_bundle";
+          if (!want || seen.has(e.name) || want.size !== e.size) return "damaged";
+          seen.add(e.name);
+          // What the library holds passes by.
+          if (!plan.unpack.has(e.name)) continue;
+          const written = await writeChunks(fs, joinPath(filesOf(id), e.name), e.data, e.size);
+          // The first file not as listed ends it.
+          if (!written || written.size !== want.size || written.sha256 !== want.sha256)
+            return "damaged";
+        }
+      } catch (error) {
+        if (errorCode(error) === "EBADZIP") return "not_a_bundle";
+        throw error;
+      } finally {
+        reading.delete(id);
       }
+      if (seen.size !== listed.size) return "damaged";
       plans.set(id, plan);
       return "ok";
     },

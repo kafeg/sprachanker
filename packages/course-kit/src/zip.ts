@@ -1,7 +1,9 @@
 // Zips of stored entries — the files that move a course or a profile between one's machines:
 // written with every size and checksum known before an entry starts (ZIP64 where a size or an offset
-// needs it), and read by their directory only as far as it is checked. Untrusted files are read here,
-// so nothing a zip says is believed beyond what is checked against the rest of it.
+// needs it), and read by their directory only as far as it is checked — or, as they come (a course
+// bundle), entry by entry by the sizes their headers give, then the directory checked against every
+// entry read. Untrusted files are read here, so nothing a zip says is believed beyond what is checked
+// against the rest of it.
 import type { DataFs } from "./data-fs.ts";
 import { crc32 } from "./hash.ts";
 
@@ -78,14 +80,27 @@ export function bytesEntry(name: string, bytes: Uint8Array): ZipSource {
   };
 }
 
-/** A file on disk as an entry, its size and CRC-32 as summed before (`fileSums`). */
+/** A file on disk as an entry, its size and CRC-32 as summed before (`fileSums`). Given its time of
+ *  change then (`mtimeMs`), a file not as it was summed — replaced, changed — before or after its
+ *  bytes are read fails the zip (code ECHANGED). */
 export function fileEntry(
   fs: DataFs,
   name: string,
   file: string,
-  sums: { size: number; crc32: number },
+  sums: { size: number; crc32: number; mtimeMs?: number },
 ) {
-  return { name, ...sums, data: () => fs.stream(file) } satisfies ZipSource;
+  const { size, crc32, mtimeMs } = sums;
+  const same = () => {
+    const now = fs.stat(file);
+    if (mtimeMs !== undefined && (now?.size !== size || now.mtimeMs !== mtimeMs))
+      throw Object.assign(new Error(`${file} changed after it was summed`), { code: "ECHANGED" });
+  };
+  async function* data() {
+    same();
+    yield* fs.stream(file);
+    same();
+  }
+  return { name, size, crc32, data } satisfies ZipSource;
 }
 
 /** `force64` writes the ZIP64 records even where nothing needs them (tests read them so). */
@@ -369,6 +384,213 @@ export function zipEntries(fs: DataFs, file: string, limits: ZipLimits): ZipEntr
       entries.push({ name: new TextDecoder().decode(name), start, size: length });
     }
     return p === dirBytes ? entries : undefined;
+  }
+}
+
+/** A zip read as it comes that is no zip of stored entries as written here (code EBADZIP). */
+const badZip = (why: string) => Object.assign(new Error(`not a zip: ${why}`), { code: "EBADZIP" });
+
+/** Bytes as they come, taken exactly: so many at once (a header), or passed on in their chunks. */
+class Incoming {
+  private readonly it: AsyncIterator<Uint8Array>;
+  private chunks: Uint8Array[] = [];
+  private held = 0;
+  private ended = false;
+  /** Bytes taken so far: where the next one is in the zip. */
+  at = 0;
+  constructor(source: AsyncIterable<Uint8Array>) {
+    this.it = source[Symbol.asyncIterator]();
+  }
+  /** At least `n` bytes held, unless the bytes end first. */
+  private async fill(n: number) {
+    while (this.held < n && !this.ended) {
+      const next = await this.it.next();
+      if (next.done) this.ended = true;
+      else if (next.value.byteLength) {
+        this.chunks.push(next.value);
+        this.held += next.value.byteLength;
+      }
+    }
+    return this.held >= n;
+  }
+  /** The next `n` bytes at once (a header, a name; never an entry's data). */
+  async take(n: number) {
+    if (!(await this.fill(n))) throw badZip("it ends early");
+    const out = new Uint8Array(n);
+    let got = 0;
+    while (got < n) {
+      const chunk = this.chunks[0] as Uint8Array;
+      const part = Math.min(n - got, chunk.byteLength);
+      out.set(chunk.subarray(0, part), got);
+      got += part;
+      if (part === chunk.byteLength) this.chunks.shift();
+      else this.chunks[0] = chunk.subarray(part);
+    }
+    this.held -= n;
+    this.at += n;
+    return new Fields(out);
+  }
+  /** The next `n` bytes in the chunks they come in, none copied. */
+  async *pass(n: number): AsyncGenerator<Uint8Array> {
+    let left = n;
+    while (left > 0) {
+      if (!this.held && !(await this.fill(1))) throw badZip("it ends early");
+      const chunk = this.chunks[0] as Uint8Array;
+      const part = Math.min(left, chunk.byteLength);
+      if (part === chunk.byteLength) this.chunks.shift();
+      else this.chunks[0] = chunk.subarray(part);
+      this.held -= part;
+      this.at += part;
+      left -= part;
+      yield chunk.subarray(0, part);
+    }
+  }
+  /** Whether no byte is left. */
+  async atEnd() {
+    return !(await this.fill(1));
+  }
+  close() {
+    // Not waited for: a source's return may wait for a read that stalled.
+    this.it.return?.()?.catch(() => {});
+  }
+}
+
+/** An entry of a zip read as it comes: its name and size, then its bytes — read or not: the next
+ *  entry passes by what was left of them. */
+export interface ZipEntryRead {
+  name: string;
+  size: number;
+  data: AsyncIterable<Uint8Array>;
+}
+
+/**
+ * A zip's entries as its bytes come, in their order. Each local header is checked (stored, not
+ * encrypted, no data descriptor: its size in the header, ZIP64 only as a size needs it; fields no
+ * longer than `limits.fieldMax`) and its bytes passed on by that size, so nothing inside an entry is
+ * ever taken for a header. After the last entry the directory and end records are read and checked
+ * against every entry read (names, flags, CRC-32, sizes, offsets, how many; the directory no larger
+ * than they need, at most `limits.directoryMax`), and the bytes must end there. Any other bytes fail
+ * with code EBADZIP — possibly after entries were yielded: what was taken of them is believed only
+ * once the zip has ended whole. At most `limits.countMax` entries.
+ */
+export async function* zipRead(
+  source: AsyncIterable<Uint8Array>,
+  limits: ZipLimits,
+): AsyncGenerator<ZipEntryRead> {
+  const bytes = new Incoming(source);
+  const read: Array<{ at: number; name: Uint8Array; flags: number; crc: number; size: number }> =
+    [];
+  try {
+    let sig = (await bytes.take(4)).u32(0);
+    while (sig === SIG.local) {
+      const at = bytes.at - 4;
+      if (read.length >= limits.countMax) throw badZip("too many entries");
+      // A local header after its signature.
+      const head = await bytes.take(LOCAL_HEADER - 4);
+      const flags = head.u16(2);
+      const nameBytes = head.u16(22);
+      const extraBytes = head.u16(24);
+      if (flags & ~UTF8 || head.u16(4) !== 0) throw badZip("an entry not stored as written here");
+      if (nameBytes > limits.fieldMax || extraBytes > limits.fieldMax)
+        throw badZip("a field too long");
+      const name = (await bytes.take(nameBytes)).bytes;
+      const extra = await bytes.take(extraBytes);
+      const small = [head.u32(14), head.u32(18)];
+      const values = zip64Values(extra, small.filter((v) => v === MAX32).length);
+      if (!values || (values.length && values.length !== 2)) throw badZip("an entry's sizes");
+      const [stored, length] = small.map((v) => (v === MAX32 ? values.shift() : v)) as [
+        number,
+        number,
+      ];
+      if (stored !== length) throw badZip("an entry's sizes");
+      read.push({ at, name, flags, crc: head.u32(10), size: length });
+      let left = length;
+      const data = (async function* () {
+        for await (const chunk of bytes.pass(left)) {
+          left -= chunk.byteLength;
+          yield chunk;
+        }
+      })();
+      yield { name: new TextDecoder().decode(name), size: length, data };
+      // What the reader left of it passes by.
+      await data.return(undefined);
+      for await (const chunk of bytes.pass(left)) left -= chunk.byteLength;
+      sig = (await bytes.take(4)).u32(0);
+    }
+    // The directory: an entry for each entry read, the same.
+    const dirAt = bytes.at - 4;
+    const dirMax = Math.min(
+      limits.directoryMax,
+      read.length * (CENTRAL_HEADER + 3 * limits.fieldMax),
+    );
+    for (const entry of read) {
+      if (sig !== SIG.central) throw badZip("its directory");
+      // A directory entry after its signature.
+      const head = await bytes.take(CENTRAL_HEADER - 4);
+      const fields = [head.u16(24), head.u16(26), head.u16(28)];
+      const [nameBytes = 0, extraBytes = 0, commentBytes = 0] = fields;
+      if (fields.some((f) => f > limits.fieldMax)) throw badZip("a field too long");
+      const name = (await bytes.take(nameBytes)).bytes;
+      const extra = await bytes.take(extraBytes);
+      await bytes.take(commentBytes);
+      if (bytes.at - dirAt > dirMax) throw badZip("its directory too large");
+      const small = [head.u32(20), head.u32(16), head.u32(38)];
+      const values = zip64Values(extra, small.filter((v) => v === MAX32).length);
+      if (!values) throw badZip("its directory");
+      const [length, stored, local] = small.map((v) => (v === MAX32 ? values.shift() : v));
+      if (
+        !same(name, entry.name) ||
+        head.u16(4) !== entry.flags ||
+        head.u16(6) !== 0 ||
+        head.u32(12) !== entry.crc ||
+        length !== entry.size ||
+        stored !== entry.size ||
+        local !== entry.at
+      )
+        throw badZip("its directory is not its entries");
+      sig = (await bytes.take(4)).u32(0);
+    }
+    const dirBytes = bytes.at - 4 - dirAt;
+    // The ZIP64 end record and its locator, where a value needs them.
+    const zip64 = sig === SIG.zip64End;
+    if (zip64) {
+      const recordAt = bytes.at - 4;
+      const record = await bytes.take(ZIP64_END - 4);
+      const locator = await bytes.take(ZIP64_LOCATOR);
+      if (
+        record.u64(0) !== BigInt(ZIP64_END - 12) ||
+        record.u32(12) !== 0 ||
+        record.u32(16) !== 0 ||
+        record.u64(20) !== BigInt(read.length) ||
+        record.u64(28) !== BigInt(read.length) ||
+        record.u64(36) !== BigInt(dirBytes) ||
+        record.u64(44) !== BigInt(dirAt) ||
+        locator.u32(0) !== SIG.zip64Locator ||
+        locator.u32(4) !== 0 ||
+        locator.u64(8) !== BigInt(recordAt) ||
+        locator.u32(16) !== 1
+      )
+        throw badZip("its ZIP64 end");
+      sig = (await bytes.take(4)).u32(0);
+    }
+    if (sig !== SIG.end) throw badZip("its end");
+    const end = await bytes.take(END_RECORD - 4);
+    // Each value as it is, or (with the ZIP64 record) the mark that says it is there.
+    const says = (value: number, actual: number, mark: number) =>
+      value === actual || (zip64 && value === mark);
+    if (
+      end.u16(0) !== 0 ||
+      end.u16(2) !== 0 ||
+      end.u16(4) !== end.u16(6) ||
+      !says(end.u16(6), read.length, MAX16) ||
+      !says(end.u32(8), dirBytes, MAX32) ||
+      !says(end.u32(12), dirAt, MAX32)
+    )
+      throw badZip("its end");
+    await bytes.take(end.u16(16));
+    if (!(await bytes.atEnd())) throw badZip("bytes after its end");
+  } finally {
+    bytes.close();
   }
 }
 

@@ -113,7 +113,7 @@ src-tauri/
   profile's or an .apkg's database in sql.js) is held whole three times — Java's bytes, its string,
   the page's —: about 100–200 MB is the most (the app's Java heap); larger ones go by the stream.
 - A link fails on the phone's storage (EPERM): what the storage links on a computer it copies here
-  (a course's export copies the course first).
+  (a course's export: its JSON only — its media are streamed from where they are).
 
 ## Planned
 

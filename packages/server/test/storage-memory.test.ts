@@ -4,8 +4,9 @@
 import { expect, test } from "bun:test";
 import { createHash } from "node:crypto";
 import { writeFixtureLibrary } from "@sprachanker/course-fixture";
-import { chunksOf, openLibrary, readAll, sha256Hex } from "@sprachanker/course-kit";
+import { openLibrary, readAll, sha256Hex } from "@sprachanker/course-kit";
 import { memoryFs } from "@sprachanker/course-kit/memory-fs";
+import { createCourseTransfer } from "../src/services/course-transfer.ts";
 import { courseTransferFiles } from "../src/storage/course-transfer.ts";
 import { deckFiles } from "../src/storage/decks.ts";
 import { courseInstaller } from "../src/storage/installer.ts";
@@ -70,33 +71,55 @@ test("a deck folder written whole, its media kept across an update; an upload st
   expect(await decks.stage(new Blob([new Uint8Array(20)]).stream(), 10)).toBeUndefined();
 });
 
-test("a course exported over one memory and installed over another: the same files", async () => {
-  const from = memoryFs();
+test("a course exported over one memory without hard links and installed over another: the same files, no media copied", async () => {
+  // The phone's storage: no hard links.
+  const from = memoryFs({ links: false });
   await writeFixtureLibrary(from, "/data/library");
   const series = "sprachanker.fixture";
   const course = openLibrary(from, "/data/library").courses()[0];
   if (!course) throw new Error("no fixture course");
-  const out = courseTransferFiles(rootOver(from));
-  const staged = await out.stage(series, [course.course], course.editions);
-  const manifest = JSON.stringify({ files: staged.files });
-  const paths = staged.files.map((f) => f.path);
-  const length = out.bytes(staged.id, manifest, paths);
-  const zip = new Uint8Array(
-    await new Response(out.stream(staged.id, manifest, paths)).arrayBuffer(),
-  );
-  expect(zip.length).toBe(length);
-  // Read back on the other side: its directory, every file as it was.
-  const to = memoryFs();
-  const into = courseTransferFiles(rootOver(to));
-  const id = into.begin();
-  expect(await into.receive(id, chunksOf(zip), zip.length)).toBe(true);
-  const read = into.read(id);
-  expect(read?.manifest).toBe(manifest);
-  expect(read?.entries.map((e) => e.path).sort()).toEqual([...paths].sort());
-  for (const f of staged.files)
-    expect(sha256Hex(await readAll(from, `/data/library/${series}/${f.path}`))).toBe(f.sha256);
-  into.discard(id);
+  const transfer = (fs: ReturnType<typeof memoryFs>) =>
+    createCourseTransfer({
+      files: courseTransferFiles(rootOver(fs)),
+      appVersion: "0.0.0",
+      now: () => 0,
+    });
+  const out = transfer(from);
+  const ready = await out.prepare(series, [course.course], course.editions);
+  // Made ready: only what an import rewrites in place copied aside, no media.
+  const aside = from.files().filter((f) => f.startsWith(`/data/library/.transfers/${ready.id}/`));
+  expect(aside.length).toBeGreaterThan(0);
+  expect(aside.some((f) => f.includes("/media/"))).toBe(false);
+  const { stream, bytes } = out.download(ready.id);
+  const zip = new Uint8Array(await new Response(stream).arrayBuffer());
+  expect(zip.length).toBe(bytes);
+  expect(from.list("/data/library/.transfers")).toEqual([]);
+  // Imported on the other side, read as it comes in small chunks: every file as it was.
+  const to = memoryFs({ links: false });
+  const chunks = async function* () {
+    for (let at = 0; at < zip.length; at += 1000) yield zip.subarray(at, at + 1000);
+  };
+  const result = await transfer(to).importUpload(chunks(), zip.length);
+  expect(result.courses.map((c) => c.status)).toEqual(["added"]);
+  for (const f of from.files().filter((p) => p.startsWith(`/data/library/${series}/`)))
+    if (!f.includes("/raw/"))
+      expect(sha256Hex(await readAll(to, f))).toBe(sha256Hex(await readAll(from, f)));
   expect(to.list("/data/library/.transfers")).toEqual([]);
+});
+
+test("an export whose media file changed after it was made ready fails its stream", async () => {
+  let clock = 1;
+  const fs = memoryFs({ now: () => clock++ });
+  await writeFixtureLibrary(fs, "/data/library");
+  const course = openLibrary(fs, "/data/library").courses()[0];
+  if (!course) throw new Error("no fixture course");
+  const files = courseTransferFiles(rootOver(fs));
+  const staged = await files.stage(course.series, [course.course], course.editions);
+  const media = staged.files.find((f) => f.path.startsWith("media/"));
+  if (!media) throw new Error("no media");
+  fs.touch(`/data/library/${course.series}/${media.path}`);
+  const stream = files.stream(staged.id, "{}", [media.path]);
+  await expect(new Response(stream).arrayBuffer()).rejects.toThrow(/changed after it was summed/);
 });
 
 test("the installer's storage and unfinished downloads read through the files given", async () => {

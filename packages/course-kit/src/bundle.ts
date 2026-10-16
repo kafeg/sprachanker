@@ -47,6 +47,17 @@ const isLibraryJson = (path: string) =>
 /** A practice's lesson file (not one of its recordings). */
 const isPracticeJson = (path: string) => path.startsWith("practice/") && path.endsWith(".json");
 
+/** A file of a bundle that is never rewritten where it is: a media file (other content gets another
+ *  name) or a practice recording. Its library files and source copies are: a later import or practice
+ *  made replaces them. */
+export const writtenOnce = (path: string) =>
+  path.startsWith("media/") || (path.startsWith("practice/") && !isPracticeJson(path));
+
+/** A media address with a fragment names a part of a fetched document that the importer made a file
+ *  of (Leben in Deutschland's pictures out of the catalogue PDF, the PDF's hash in the fragment): the
+ *  file is the importer's own making, its bytes those of the version that made it. */
+const madeByImporter = (url: string) => url.includes("#");
+
 /** Paths of the files under `dir` (a course's folder), as series paths under `prefix`, that a bundle
  *  may hold (a temporary file an import left is none). */
 function filesUnder(fs: DataFs, seriesDir: string, prefix: string) {
@@ -297,6 +308,9 @@ export interface BundlePlan {
   unpack: Set<string>;
   /** Already there with the same content: left as it is. */
   skip: Set<string>;
+  /** There with other content made by the importer from the same part of the same document, by
+   *  another version of it (a picture encoded otherwise): ours kept, as it is. */
+  keep: Set<string>;
   /** The same content there under another name: linked to that file (copied where the disk has no
    *  hard links), not unpacked. */
   link: Map<string, string>;
@@ -319,8 +333,11 @@ async function holds(
 /**
  * What to unpack of a bundle: every library file; a media file or source copy only when the series
  * does not hold it already — the same content under its name is skipped, under another name of the
- * media index linked. A media file or source copy there with other content is a clash (the bundle
- * cannot be installed): nothing of the library is replaced by a bundle but the course's own folders.
+ * media index linked. A media file the importer made (`madeByImporter`) there with other content, the
+ * bundle's and the series' media index naming it by the same address, is the same part of the same
+ * document made by another version: ours is kept. Any other media file or source copy there with
+ * other content is a clash (the bundle cannot be installed): nothing of the library is replaced by a
+ * bundle but the course's own folders.
  */
 export async function planBundle(
   fs: DataFs,
@@ -329,14 +346,26 @@ export async function planBundle(
 ): Promise<BundlePlan> {
   const seriesDir = joinPath(libraryRoot, bundleSeries(manifest));
   const { media } = await seriesState(fs, seriesDir);
-  const byPath = new Map<string, { sha256: string; size: number }>();
+  const byPath = new Map<string, { sha256: string; size: number; url: string }>();
   const byHash = new Map<string, string>();
-  for (const e of Object.values(media))
+  for (const [url, e] of Object.entries(media))
     if ("path" in e) {
-      byPath.set(e.path, e);
+      byPath.set(e.path, { ...e, url });
       byHash.set(e.sha256, e.path);
     }
-  const plan: BundlePlan = { unpack: new Set(), skip: new Set(), link: new Map(), clash: [] };
+  /** The bundle's media file of `path` made by the importer from the same address as ours. */
+  const remade = (path: string) => {
+    const ours = byPath.get(path);
+    const theirs = ours && manifest.media[ours.url];
+    return !!theirs && madeByImporter(ours.url) && "path" in theirs && theirs.path === path;
+  };
+  const plan: BundlePlan = {
+    unpack: new Set(),
+    skip: new Set(),
+    keep: new Set(),
+    link: new Map(),
+    clash: [],
+  };
   for (const f of manifest.files) {
     if (isLibraryJson(f.path)) {
       plan.unpack.add(f.path);
@@ -349,7 +378,12 @@ export async function planBundle(
       continue;
     }
     const isMedia = f.path.startsWith("media/");
-    if (fs.stat(file)) {
+    const there = fs.stat(file);
+    if (there && isMedia && !there.dir && remade(f.path)) {
+      plan.keep.add(f.path);
+      continue;
+    }
+    if (there) {
       plan.clash.push(f.path);
       continue;
     }
@@ -574,6 +608,8 @@ export async function installBundle(options: {
   };
   for (const path of plan.skip)
     if (!(await still(path, path))) throw new Error(`${path} changed in the library meanwhile`);
+  for (const path of plan.keep)
+    if (!fs.stat(joinPath(seriesDir, path))) throw new Error(`${path} left the library meanwhile`);
   for (const [path, from] of plan.link)
     if (fs.stat(joinPath(seriesDir, path)) || !(await still(path, from, true)))
       throw new Error(`${path} changed in the library meanwhile`);
@@ -694,7 +730,7 @@ export async function installBundle(options: {
       variants: brought.get(c.course) ?? 0,
     })),
     /** Media files placed (unpacked or linked), and those the library had already. */
-    media: { added: unpackedMedia + plan.link.size, kept: plan.skip.size },
+    media: { added: unpackedMedia + plan.link.size, kept: plan.skip.size + plan.keep.size },
   };
 }
 

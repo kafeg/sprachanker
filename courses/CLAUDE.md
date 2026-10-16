@@ -10,7 +10,8 @@ packages/course-kit/src/
   data-fs.ts           # DataFs: what the shared code needs of a file system (small things synchronous, large
                        # ones streamed; Node's error codes), POSIX paths joined (joinPath, dirName …)
   node-fs.ts           # DataFs through Node (`@sprachanker/course-kit/node`): the desktop's, the tests'
-  memory-fs.ts         # DataFs kept in memory (tests: the shared code reaches files through it alone)
+  memory-fs.ts         # DataFs kept in memory (tests: the shared code reaches files through it alone;
+                       # without hard links, as the phone's storage)
   hash.ts              # SHA-256 and CRC-32 in TypeScript (fingerprints, a page's copy, a zip entry)
   provider.ts          # the provider contract: import options, report, progress, course offers, wanted,
                        # CourseProvider; libraryFile (a file by kind: its path from its keys, its schema;
@@ -27,6 +28,8 @@ packages/course-kit/src/
   files.ts             # atomic writes, temporary names, streamed hashes, a hard link (a copy) never over a file
   zip.ts               # zips of stored entries (profile files, course bundles): written with sizes and
                        # CRC-32 known (ZIP64 where needed), read by a directory checked before believed
+                       # (zipEntries) or as they come, by their headers' sizes, the directory checked
+                       # against them at the end (zipRead: a course bundle)
   library.ts           # the library read from its folder, validated
   library-view.ts      # LibraryView: what the app reads (courses, lessons, exams), NotInstalledError;
                        # no Node APIs: the server's app imports it alone (`@sprachanker/course-kit/view`)
@@ -38,9 +41,11 @@ packages/course-kit/src/
                        # go, keys.json stays
   bundle.ts            # course bundles, the library's side: what a bundle of a series' courses holds
                        # (media once), a series' courses grouped for bundles (bundleGroups: sharing most
-                       # of their media's bytes), content versions, a bundle unpacked checked (schemas,
-                       # places, media used) and installed all or nothing, a status per course
-                       # (install.json: undone on an error, or at the next start)
+                       # of their media's bytes), what is never rewritten in place (writtenOnce: read
+                       # from the library as it is exported), content versions, a bundle unpacked
+                       # checked (schemas, places, media used) and installed all or nothing — a picture
+                       # the importer made kept where another version made the bundle's —, a status
+                       # per course (install.json: undone on an error, or at the next start)
   canonical-json.ts    # canonical JSON (hashes) and library files' JSON
   fingerprint.ts       # exercise fingerprints
   exercise-draft.ts    # draftExercise, Unmapped, unknownExercise, draftOrUnknown (a mapping run)
