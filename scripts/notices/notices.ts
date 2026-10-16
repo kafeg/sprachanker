@@ -76,7 +76,7 @@ export function licenceFiles(dir: string, licence: string): string[] {
   return [...(perLicence && own.length ? own : rest), ...notices];
 }
 
-function readTexts(dir: string, licence: string) {
+export function readTexts(dir: string, licence: string) {
   const texts = licenceFiles(dir, licence).map((f) => readFileSync(join(dir, f), "utf8"));
   if (texts.length) return texts;
   const standard = STANDARD[licence];
@@ -171,10 +171,29 @@ function packageFolders(root: string) {
 type Person = string | { name?: string };
 const person = (p: Person | undefined) => (typeof p === "string" ? p : p?.name);
 
+/** Which builds carry a workspace's code: the web app every one, the program's server the computer's,
+ *  the phone app's page (with the server's code in it) the Android app. */
+const WORKSPACE_BUILDS: Array<[string, Build[]]> = [
+  ["apps/web", [...BUILDS]],
+  ["apps/cli", ["program", "mac"]],
+  ["apps/mobile", ["android"]],
+];
+
+/** Fira's fonts as Fontsource packs them name "Google Inc." where the font's own notice is this. */
+const FIRA = "Copyright (c) 2012-2015, The Mozilla Foundation and Telefonica S.A.";
+const COPYRIGHT: Record<string, string> = {
+  "@fontsource/fira-sans": FIRA,
+  "@fontsource/fira-sans-condensed": FIRA,
+};
+
 export function jsComponents(root = ROOT): Component[] {
   const lock = Bun.JSONC.parse(readFileSync(join(root, "bun.lock"), "utf8")) as Lock;
   const folders = packageFolders(root);
-  return lockPackages(lock).map((spec) => {
+  const builds = new Map<string, Set<Build>>();
+  for (const [workspace, carried] of WORKSPACE_BUILDS)
+    for (const spec of lockPackages(lock, [workspace]))
+      builds.set(spec, new Set([...(builds.get(spec) ?? []), ...carried]));
+  return [...builds.keys()].sort().map((spec) => {
     const dir = folders.get(spec);
     if (!dir) throw new Error(`${spec} is not installed: bun install first`);
     const pkg = JSON.parse(readFileSync(join(dir, "package.json"), "utf8")) as {
@@ -185,7 +204,15 @@ export function jsComponents(root = ROOT): Component[] {
     };
     const licence =
       typeof pkg.license === "string" ? pkg.license : (pkg.license?.type ?? "UNKNOWN");
-    const holders = person(pkg.author);
+    let texts = readTexts(dir, chosen(licence));
+    let holders = person(pkg.author);
+    const own = COPYRIGHT[pkg.name];
+    if (own) {
+      holders = own;
+      texts = texts.map((t) => t.replace(/^Google Inc\.$/m, own));
+    } else if (pkg.name.startsWith("@fontsource"))
+      // A font's notice is its licence's first line.
+      holders = texts[0]?.split("\n")[0]?.trim() || holders;
     return {
       group: "js",
       name: pkg.name,
@@ -193,8 +220,8 @@ export function jsComponents(root = ROOT): Component[] {
       licence,
       copyright: holders,
       source: `https://www.npmjs.com/package/${pkg.name}/v/${pkg.version}`,
-      builds: [...BUILDS],
-      texts: readTexts(dir, chosen(licence)),
+      builds: BUILDS.filter((b) => builds.get(spec)?.has(b)),
+      texts,
     };
   });
 }
@@ -346,8 +373,9 @@ export function render(components: Component[], downloads = ""): string {
   const sorted = [...components].sort(
     (a, b) =>
       GROUPS.findIndex(([g]) => g === a.group) - GROUPS.findIndex(([g]) => g === b.group) ||
-      a.name.localeCompare(b.name, "en") ||
-      a.version.localeCompare(b.version, "en"),
+      // Code units, not a locale's order: the same on every system.
+      (a.name < b.name ? -1 : a.name > b.name ? 1 : 0) ||
+      (a.version < b.version ? -1 : a.version > b.version ? 1 : 0),
   );
   const out = [
     "SprachAnker — third-party components and their licences",

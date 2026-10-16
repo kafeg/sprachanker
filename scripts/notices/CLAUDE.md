@@ -16,6 +16,11 @@ notices.ts       # the generator: the inventory, the JavaScript packages of the 
 inventory.ts     # hand-kept: the speech engines and what each links (whisper.cpp, sherpa-onnx with
                  # eSpeak NG and its dependencies, qwentts.cpp), Bun, the Android libraries Gradle
                  # resolves, the GPL/LGPL source statement and written offer
+bun.ts           # what the pinned Bun links, for bun.json: the libraries its build fetches (their
+                 # licence files at Bun's pins), its vendored code, JavaScriptCore/WTF (LGPL), the
+                 # crates of its Cargo.lock (texts from crates.io). `bun scripts/notices/bun.ts`
+                 # (gh and the network) when Bun moves
+bun.json         # its output, read by inventory.ts
 downloads.ts     # what the app downloads when chosen (models, Piper voices with their licences:
                  # piper-voices.json, each its model card's): listed with links, not shipped
 piper-voices.json # each Piper voice's licence and its source (model card), by the catalog's id
@@ -40,6 +45,8 @@ texts/           # licence texts no package folder holds: the engines' own (copi
 - A new engine version (`native/<engine>/VERSION`), a new sherpa-onnx dependency, a new Bun or a
   Gradle library changed: update `inventory.ts` (versions, sources, texts copied from the new
   sources) — `notices.test.ts` fails until the pinned versions match.
+- A new Bun (package.json's `packageManager`): `bun scripts/notices/bun.ts`. A new tauri in the phone
+  app: resolve the Android libraries again (`ANDROID_RESOLVED_WITH_TAURI` says how).
 - A Piper voice added to the server's catalog gets its licence and source (its model card) in
   `piper-voices.json` here.
 - A component under the GPL or LGPL: its exact source linked and named in `SOURCE_OFFER`.

@@ -4,7 +4,7 @@
 // when a pinned version (native/<engine>/VERSION, Bun's, a Gradle library's) moves without it.
 // Licence texts are the components' own, copied into texts/ from their sources at these versions;
 // spdx-<id>.txt are the standard texts (spdx/license-list-data) for those that ship none.
-import { readFileSync } from "node:fs";
+import { existsSync, readFileSync } from "node:fs";
 import { join } from "node:path";
 
 /** The builds given out: the program's archive (the program and the speech engines), the Mac app
@@ -280,26 +280,6 @@ export const NATIVE: Component[] = [
   },
   {
     group: "native",
-    name: "hclust-cpp",
-    version: "2026-02-25",
-    licence: "BSD-2-Clause",
-    source: "https://github.com/csukuangfj/hclust-cpp/tree/2026-02-25",
-    builds: ALL,
-    where: IN_SHERPA,
-    texts: [text("hclust-cpp")],
-  },
-  {
-    group: "native",
-    name: "cargs",
-    version: "1.0.3",
-    licence: "MIT",
-    source: "https://github.com/likle/cargs/tree/v1.0.3",
-    builds: ALL,
-    where: IN_SHERPA,
-    texts: [text("cargs")],
-  },
-  {
-    group: "native",
     name: "qwentts.cpp",
     version: QWEN,
     engine: "qwen",
@@ -346,34 +326,52 @@ export const NATIVE: Component[] = [
   {
     group: "native",
     name: "LLVM libc++ (the Android NDK's)",
-    version: "Android NDK r27",
-    licence: "Apache-2.0 WITH LLVM-exception",
+    version: "Android NDK r27d (27.3.13750724), clang 18.0.4",
+    licence: "Apache-2.0 WITH LLVM-exception (older parts: NCSA)",
     copyright: "The LLVM Project",
-    source: "https://android.googlesource.com/toolchain/llvm-project",
+    source:
+      "https://android.googlesource.com/toolchain/llvm-project/+/d8003a456d14a3deb8054cdaa529ffbf02d9b262/libcxx",
     builds: ["android"],
     where: "linked statically into the engines and the app's library",
-    texts: [spdx("Apache-2.0"), text("spdx-LLVM-exception")],
+    texts: [text("libcxx")],
   },
 ];
 
-/** The Bun release the program is compiled with (package.json's packageManager). */
-const BUN = "1.4.2";
-const WEBKIT = "2e2aa2290fac856d6f451ceacb58f7f5b44dd057";
-const TINYCC = "05f0fafaa3be31e31d7b4b5c17dc60f62c991171";
+/** What Bun links, with its parts' texts: bun.json, written by bun.ts for the Bun release
+ *  package.json pins (absent: none, and check.ts says Bun's version does not match). */
+const BUN_PARTS = join(import.meta.dir, "bun.json");
+const bunParts = (
+  existsSync(BUN_PARTS)
+    ? JSON.parse(readFileSync(BUN_PARTS, "utf8"))
+    : { bun: "", parts: [], texts: [] }
+) as {
+  bun: string;
+  parts: Array<Omit<Component, "group" | "builds" | "texts"> & { texts: number[] }>;
+  texts: string[];
+};
 
 export const RUNTIME: Component[] = [
   {
     group: "runtime",
     name: "Bun",
-    version: BUN,
+    version: bunParts.bun,
     licence: "MIT (statically links LGPL-2.0 JavaScriptCore/WebKit and LGPL-2.1 TinyCC)",
     copyright: "Copyright (c) Oven and the Bun contributors",
-    source: `https://github.com/oven-sh/bun/tree/bun-v${BUN}`,
+    source: `https://github.com/oven-sh/bun/tree/bun-v${bunParts.bun}`,
     builds: COMPUTER,
     where: "the sprachanker program (bun build --compile)",
-    note: `Bun's own statement of what it links follows. JavaScriptCore: https://github.com/oven-sh/WebKit/tree/${WEBKIT}; TinyCC: https://github.com/oven-sh/tinycc/tree/${TINYCC}. On macOS Bun uses the system's SQLite and ICU.`,
-    texts: [text("bun"), spdx("MIT"), spdx("LGPL-2.0-only"), spdx("LGPL-2.1-only")],
+    note: "Bun's own statement of what it links follows; each part is listed below with its texts. On macOS Bun uses the system's SQLite and ICU.",
+    texts: [text("bun"), spdx("MIT")],
   },
+  ...bunParts.parts.map(
+    (part): Component => ({
+      ...part,
+      group: "runtime",
+      builds: COMPUTER,
+      where: "the sprachanker program, in Bun",
+      texts: part.texts.map((i) => bunParts.texts[i] as string),
+    }),
+  ),
 ];
 
 /** The phone app's Android libraries, as Gradle resolves the release build's runtime classpath
@@ -507,6 +505,11 @@ export const ANDROID: Component[] = ANDROID_LIBS.map(({ id, copyright, texts = [
 /** The libraries written in the Android app's Gradle build, with their versions. */
 export const ANDROID_DECLARED = ANDROID_LIBS.filter((l) => l.declared).map((l) => l.id);
 
+/** The tauri crate the list above was resolved with (its Android library brings Jackson and
+ *  Kotlin's): another one in apps/mobile's Cargo.lock means resolving the list again —
+ *  `./gradlew :app:dependencies --configuration universalReleaseRuntimeClasspath` in gen/android. */
+export const ANDROID_RESOLVED_WITH_TAURI = "2.12.1";
+
 export const SOURCE_OFFER = [
   "Source code for the GPL and LGPL components",
   "",
@@ -515,15 +518,18 @@ export const SOURCE_OFFER = [
   "Public License version 3 or later; so that program as a whole is under the GPL. SprachAnker",
   "starts it as a separate program and is itself under the MIT licence. Its complete corresponding",
   "source is: sherpa-onnx at the version below with the sources its build fetches, each listed",
-  "below with the link to its exact version, and the script that builds it, native/scripts/build.ts",
-  "in SprachAnker's repository at the version of your build:",
+  "below with the link to its exact version; ONNX Runtime's source at its version and the recipe its",
+  "static libraries were built by (https://github.com/csukuangfj/onnxruntime-build, as of their",
+  `release v${ONNX_RUNTIME}); and the script that builds the program, native/scripts/build.ts in`,
+  "SprachAnker's repository at the version of your build:",
   "https://github.com/kafeg/sprachanker (tag v<version>; the version is in Settings → About).",
   "",
-  `The program (sprachanker) is compiled with Bun ${BUN}, which statically links JavaScriptCore`,
-  "and WebKit (GNU Library GPL version 2) and TinyCC (GNU Lesser GPL version 2.1). Their source is",
-  "at the links in Bun's entry below. To relink the program with a changed library: build Bun from",
-  "its source with that library (Bun's statement below says how), then build the program from",
-  "SprachAnker's source at your version with that Bun (`bun run build:bin`).",
+  `The program (sprachanker) is compiled with Bun ${bunParts.bun}, which statically links`,
+  "JavaScriptCore and WTF from WebKit (GNU Library GPL version 2 or later) and TinyCC (GNU Lesser",
+  "GPL version 2.1 or later). Their copyright holders and sources are in their entries below.",
+  "To relink the program with a changed library: build Bun from its source with that library",
+  "(Bun's statement below says how), then build the program from SprachAnker's source at your",
+  "version with that Bun (`bun run build:bin`).",
   "",
   "Written offer: for three years after we last gave out a build, anyone may ask for the complete",
   "corresponding source of these GPL and LGPL components as built into it, by opening an issue at",
