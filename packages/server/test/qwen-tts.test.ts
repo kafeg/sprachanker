@@ -1,4 +1,5 @@
 import { expect, test } from "bun:test";
+import { createQwenTts } from "../src/services/qwen-tts.ts";
 import { setup } from "./setup.ts";
 import { qwen } from "./speech-fakes.ts";
 
@@ -131,4 +132,25 @@ test("Qwen3-TTS on a phone: every model offered, the small one used when both ar
   expect(await inUse()).toEqual(["0.6b"]);
   await send("PUT", "/api/settings", { key: "speech.qwenModel", value: "1.7b" });
   expect(await inUse()).toEqual(["1.7b"]);
+});
+
+test("Qwen3-TTS on a phone: one process at a time — the voice for words stops the speakers' model, and back", async () => {
+  const files = [
+    "qwen-tokenizer-12hz-Q8_0.gguf",
+    "qwen-talker-0.6b-customvoice-Q8_0.gguf",
+    "qwen-talker-1.7b-base-Q8_0.gguf",
+  ];
+  const run = async (phone: boolean) => {
+    const q = qwen([...files]);
+    const tts = createQwenTts({ host: { ...q.host, phone }, fetch });
+    const voice = { id: "abc", text: "Hallo.", wav: new Uint8Array([1, 2]) };
+    await tts.say("Guten Tag.", "de", undefined, undefined, { keep: false });
+    await tts.sayCloned("Apfel", "de", voice, { keep: false });
+    await tts.say("Guten Abend.", "de", undefined, undefined, { keep: false });
+    q.exitAll();
+    return q.spawned();
+  };
+  // A computer keeps both; a phone starts the speakers' model again after a word.
+  expect(await run(false)).toBe(2);
+  expect(await run(true)).toBe(3);
 });

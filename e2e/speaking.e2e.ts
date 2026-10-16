@@ -180,7 +180,9 @@ test("a monologue typed where nothing hears: the card, the text kept, checked wi
   await expect(step.getByText("FAKE: Ich heiße Mara. Ich komme aus Polen.")).toBeVisible();
 });
 
-test("reading aloud in Settings: every engine offered, Qwen3-TTS the default with each language's speaker; the device's voices chosen instead", async ({
+// Choosing another engine is the profile's setting, which the projects share: tested in the web's
+// tests (read-aloud.test.tsx), not here.
+test("reading aloud in Settings: every engine offered, Qwen3-TTS the default with each language's speaker", async ({
   page,
 }) => {
   await deviceVoices(page);
@@ -201,14 +203,4 @@ test("reading aloud in Settings: every engine offered, Qwen3-TTS the default wit
     .filter({ hasText: "Base model (1.7B): a native voice for words" });
   await expect(words.getByRole("button", { name: "Download" })).toBeVisible();
   await expect(page.getByRole("combobox", { name: /Recording for/ })).toHaveCount(0);
-  // The device's voices chosen: each language with its best one, and the speed; back to Qwen3-TTS.
-  await card(/This device's voices/).click();
-  await expect(page.getByRole("combobox", { name: "Voice for English" })).toHaveText(
-    "Automatic — Samantha",
-  );
-  await expect(page.getByText(/^Speed:/)).toBeVisible();
-  await card(/Qwen3-TTS on this device/).click();
-  await expect(page.getByRole("combobox", { name: "Voice for German" })).toHaveText(
-    "Automatic — Ryan",
-  );
 });

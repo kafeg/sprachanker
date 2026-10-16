@@ -4,7 +4,9 @@
 // sha256 — and asked for a text in a language with one of its named speakers. Words are read by the
 // Base model in a voice cloned from a recording (word-voice.ts chooses it; owner, 2026-10-15): a
 // second process of its own, so reading a word never unloads the model practice is read with. A
-// reading is kept with Piper's (one cache), so a text read again comes at once.
+// reading is kept with Piper's (one cache), so a text read again comes at once. On a phone one process
+// at a time: the two models do not fit beside each other (measured on 6 GB: 2.7 and 3.2 GB; the app
+// was killed), so starting one stops the other.
 import { ServiceError } from "../errors.ts";
 import { base64, sha256 } from "../security/encoding.ts";
 import {
@@ -177,6 +179,7 @@ export function createQwenTts(deps: {
   };
   const engine = engineSidecar(host, {
     spawn: (h, id, port) => {
+      if (h.phone) wordEngine.stop();
       const program = binary();
       const talker = there(offered(QWEN_MODELS, id));
       const codec = there(CODEC);
@@ -193,6 +196,7 @@ export function createQwenTts(deps: {
   let registered = new Map<string, Promise<void>>();
   const wordEngine = engineSidecar(host, {
     spawn: (h, _id, port) => {
+      if (h.phone) engine.stop();
       const program = binary();
       const talker = there(WORD_MODEL);
       const codec = there(CODEC);
