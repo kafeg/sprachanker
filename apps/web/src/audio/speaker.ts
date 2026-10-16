@@ -335,8 +335,10 @@ export function deviceVoice(
 }
 
 /** Reading aloud with the profile's engine, voices and speed: whether it can, what is being read,
- *  read/stop. */
-export function useSpeaker() {
+ *  read/stop. `warm`: Qwen3-TTS is started as soon as this mounts (a screen with something to read);
+ *  off where it may never read — the selection bar on every page: a model of 3 GB loaded at the app's
+ *  start, on a phone the system closes the app for it. */
+export function useSpeaker({ warm = true }: { warm?: boolean } = {}) {
   const voices = useDeviceVoices();
   const settings = useSettings();
   const engine = useSetting("speech.readEngine");
@@ -348,7 +350,8 @@ export function useSpeaker() {
   const piper = piperQuery.data;
   const qwen = qwenQuery.data;
   // Qwen3-TTS takes seconds to load: started as soon as something here may read with it.
-  const qwenReady = engine === "qwen" && !!qwen?.engine && qwen.models.some((m) => m.installed);
+  const qwenReady =
+    warm && engine === "qwen" && !!qwen?.engine && qwen.models.some((m) => m.installed);
   useEffect(() => {
     if (qwenReady && Date.now() - qwenWarmedAt > WARM_AGAIN_MS) {
       qwenWarmedAt = Date.now();

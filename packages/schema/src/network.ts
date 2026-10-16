@@ -9,14 +9,22 @@ export type ServerAddress = z.infer<typeof ServerAddress>;
 
 /** This machine; the local network — each address of the machine, and its `.local` name — only
  *  while the server listens beyond 127.0.0.1 (`--host`); the tailnet when Tailscale runs here: its
- *  name, and `https` once `tailscale serve` serves this server over HTTPS (absent: not served);
- *  `funnel`: Funnel opens the name to the internet, so the server refuses it (no `https`). */
+ *  name, and `https` once `tailscale serve` serves this server over HTTPS (absent: not served), else
+ *  `http`, the name over plain HTTP, while the server listens on every address; `funnel`: Funnel
+ *  opens the name to the internet, so the server refuses it (no address). `noServe`: Tailscale here
+ *  cannot serve over HTTPS (the phone app's). */
 export const ServerAddresses = z.object({
   machine: ServerAddress,
   network: z.array(ServerAddress),
   localName: ServerAddress.optional(),
   tailnet: z
-    .object({ name: z.string(), https: ServerAddress.optional(), funnel: z.boolean().optional() })
+    .object({
+      name: z.string(),
+      https: ServerAddress.optional(),
+      http: ServerAddress.optional(),
+      funnel: z.boolean().optional(),
+    })
     .optional(),
+  noServe: z.boolean().optional(),
 });
 export type ServerAddresses = z.infer<typeof ServerAddresses>;

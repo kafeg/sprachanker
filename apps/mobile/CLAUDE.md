@@ -12,12 +12,15 @@ What comes next: `docs/plan.md`, "Phone app".
 ```
 src/                   # runs in the WebView, before the web app (bundled into dist/boot.js)
   boot.ts              # createApp over the phone's adapters and the server's storage (Android); the web
-                       # app's /api requests answered in the page (the session in the server's header:
-                       # a page sends no cookie); files in and out (`sprachankerTransfer`: a file chosen
-                       # sent as it is read, an export saved into Downloads); a download or a transfer
-                       # kept going while the app is put away (`work`); media and recordings from the
-                       # native scheme (`sprachankerFileUrl`), films whole as blob URLs
-                       # (`sprachankerPlayable`)
+                       # app's /api requests answered in the page (the session in a header); files in and
+                       # out (`sprachankerTransfer`: sent as read, an export into Downloads); work kept
+                       # going while the app is put away (`work`); media and recordings from the native
+                       # scheme (`sprachankerFileUrl`), films whole as blob URLs (`sprachankerPlayable`);
+                       # the listener started before createApp (its port: listensOn, `network.ts`)
+  host.ts              # other devices' requests answered by the same server (headers whole, the body
+                       # pulled, the answer in parts, its cookie from COOKIE_HEADER); `NativeFile`: a
+                       # random token the native side sends as the file (media, recordings, web files)
+  network.ts           # the server's NetworkHost: Wi-Fi's, a hotspot's, Tailscale's addresses (bridge)
   bridge.ts            # the native bridge (Native.kt): its methods, bytes as Latin-1, later answers
   phone-fs.ts          # course-kit's DataFs over the bridge: folders' entries kept, a change noting its
                        # own entry; parts read by the scheme's `?part=`, small files at once
@@ -36,8 +39,7 @@ src/                   # runs in the WebView, before the web app (bundled into d
                        # native side; a phone's defaults (the small models)
   piper.ts             # the server's PiperHost: sherpa-onnx's program run per text, its voices
                        # downloaded by the server's storage, unpacked by the native side
-  voices.ts            # Android's TextToSpeech (Voices.kt) as the page's speechSynthesis: the
-                       # device's voices for the web app
+  voices.ts            # Android's TextToSpeech (Voices.kt) as the page's speechSynthesis (device voices)
 scripts/
   build.ts             # dist/: the web app's build, boot.js before it, sql.js's wasm, whisper.html;
                        # THIRD_PARTY_NOTICES.txt (scripts/notices) there and in the Android assets
@@ -51,30 +53,29 @@ src-tauri/
   src/lib.rs           # commands `load` (a model) and `transcribe` (16 kHz f32 samples)
   src/engines.rs       # reading aloud's engines (libsa_piper.so, libsa_qwen.so) run as processes:
                        # started, awaited, stopped; a request to one on 127.0.0.1; a .tar.bz2 unpacked
+  src/host.rs          # the listener (hyper; 4580, another kept in host.json; nearby networks only):
+                       # heads to the page by a Channel, bodies read ahead, pulled by `/.host/<id>`,
+                       # answers' bodies by `host_write` (base64); files (library, decks, recordings)
   src/files.rs         # the data root (Android: /sdcard/Android/data/<id>/files): fs_* commands and the
                        # `media` scheme (files whole, by range, a part by `?part=a-b`; a recording by its id)
-  native/asr.c         # whisper.cpp's C API for Rust: a model (on the GPU or not), an answer heard
-                       # (greedy, temperature 0)
+  native/asr.c         # whisper.cpp's C API for Rust: a model (GPU or not), an answer heard (greedy)
   build.rs             # on Android and iOS: asr.c compiled, whisper.cpp's static libraries linked;
                        # on Android the engines built in native/ packed into jniLibs as libsa_<engine>.so
-  tauri.conf.json      # app.sprachanker.mobile; the page from dist/
-  capabilities/        # what the page may call
+  tauri.conf.json      # app.sprachanker.mobile; the page from dist/ (capabilities/: what it may call)
   icons/               # from apps/web/public/icon-512.png (`cargo tauri icon`)
   gen/android/         # the Android project Tauri generated, MainActivity's insets, microphone and
                        # Back added (its build outputs ignored); Native.kt (the page's bridge: files —
                        # small things at once —, requests to other hosts by HttpURLConnection, a file
                        # into Downloads by MediaStore), WorkService.kt (a foreground service while work
-                       # goes on), Voices.kt (TextToSpeech for the page: installed voices only)
-  gen/apple/           # the iOS project Tauri generated (`cargo tauri ios init`; needs xcodegen and
-                       # CocoaPods)
+                       # goes on or the app is open to others; its Close ends the app), Voices.kt
+                       # (TextToSpeech for the page: installed voices only)
+  gen/apple/           # the iOS project Tauri generated (`cargo tauri ios init`; xcodegen, CocoaPods)
 ```
 
 ## Build and run (Android)
 
-- Once: Rust with the Android targets, the Android NDK, `cargo install tauri-cli` (2.x), and
-  whisper.cpp built for the phone — `bun run speech:android` builds it
-  (`~/.cache/sprachanker/whisper.cpp-<version>/build-android-arm64`, the version in
-  `native/whisper/VERSION`, the server's); Piper's and Qwen3-TTS's programs for the phone —
+- Once: Rust with the Android targets, the NDK, `cargo install tauri-cli` (2.x), whisper.cpp built
+  for the phone by `bun run speech:android` (the server's version, `native/whisper/VERSION`); Piper's and Qwen3-TTS's programs for the phone —
   `bun native/scripts/build.ts android` (`native/<engine>/out/<program>-aarch64-linux-android`;
   `phone.ts install` builds them once).
 - `ANDROID_HOME`, `NDK_HOME` and `JAVA_HOME` (17) set, from `apps/mobile`: `bun scripts/build.ts`,
@@ -88,19 +89,16 @@ src-tauri/
   `profiles/`, `server.sqlite`, `secret.key`.
 - Only the page changed: touch `src-tauri/src/lib.rs` — the page is built into the binary, and cargo
   rebuilds it only when the Rust does.
-- The debug build's WebView is open to Chrome's DevTools: `adb forward tcp:9334
-  localabstract:webview_devtools_remote_<pid>`.
+- The debug build's WebView: Chrome's DevTools after `adb forward tcp:9334 localabstract:webview_devtools_remote_<pid>`.
 
 ## Build and run (iOS simulator)
 
 - `bun scripts/build.ts`, `cargo tauri ios build --debug --target aarch64-sim`, then
   `xcrun simctl install <device> src-tauri/gen/apple/build/arm64-sim/SprachAnker.app` and
   `xcrun simctl launch <device> app.sprachanker.mobile`.
-- The data root is the app's Documents (`xcrun simctl get_app_container <device>
-  app.sprachanker.mobile data`): a library copied there (`cp -c`: an APFS clone).
+- The data root is the app's Documents (`xcrun simctl get_app_container <device> <id> data`).
 - iOS names the schemes, not hosts: the page is `tauri://localhost`, the files `media://localhost`.
-- Its WKWebView answers the WebKit inspector: `ios_webkit_debug_proxy -s
-  unix:<the simulator's webinspectord_sim.socket>` (Homebrew), then `Target.sendMessageToTarget`.
+- Its WKWebView: `ios_webkit_debug_proxy -s unix:<the simulator's webinspectord_sim.socket>`.
 - Whisper for iOS: whisper.cpp's static libraries with Metal (and Accelerate), built from the same
   sources into `build-ios-sim` (`-DCMAKE_SYSTEM_NAME=iOS -DCMAKE_OSX_SYSROOT=iphonesimulator
   -DCMAKE_OSX_ARCHITECTURES=arm64 -DGGML_METAL=ON -DGGML_METAL_EMBED_LIBRARY=ON -DGGML_BLAS=OFF`;
@@ -138,7 +136,10 @@ src-tauri/
   Tauri's IPC — no frame, no other host (the server's code reaches them through Native.kt) —, and
   Native.kt answers only while the app's own page is in the main frame (`guard`; a new bridge
   method calls it too). A new need (a host, a frame) goes into the CSP, checked on the phone.
-- Android 11 (API 30) and later (`minSdk`, tauri.conf.json's `minSdkVersion`): no code for older ones.
+- Android 11 (API 30) and later (`minSdk`, tauri.conf.json's `minSdkVersion`): no older code.
+- Open to other devices (Android): files the native side sends (`NativeFile`), the rest is the
+  server's answer in the page — no route, check or cookie of its own here; a foreground service
+  (`desktop.hosting`) keeps it alive. The WebView's scheme serves one request at a time: no long wait.
 - A link fails on the phone's storage (EPERM): what the storage links on a computer it copies here
   (a course's export: its JSON only — its media are streamed from where they are).
 
@@ -146,4 +147,4 @@ src-tauri/
 
 - iOS: the bridge in Swift (files at once, requests, Downloads) — till then iOS has the course and
   practice offline only; on an iPhone whisper.cpp built for `iphoneos` (Metal), signing with an Apple ID.
-- Sync with the Mac's server (`docs/decisions.md`).
+- Sync with the Mac's server (`docs/decisions.md`). iOS open to other devices (no listener there yet).

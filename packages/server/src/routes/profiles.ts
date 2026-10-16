@@ -7,7 +7,7 @@
 import { PROFILE_NAME_MAX, ProfileColour } from "@sprachanker/schema";
 import type { Context } from "hono";
 import { Hono } from "hono";
-import { deleteCookie, getCookie, setCookie } from "hono/cookie";
+import { generateCookie, getCookie } from "hono/cookie";
 import { z } from "zod";
 import { ServiceError } from "../errors.ts";
 import { announcedLength, attachment } from "../media.ts";
@@ -23,6 +23,10 @@ const DEVICE_COOKIE = "sprachanker_device";
  *  only ever answered in the cookie, which scripts cannot read; and another site cannot send a
  *  header of its own without CORS. */
 export const SESSION_HEADER = "x-sprachanker-session";
+/** The Set-Cookie that sets or clears the device's cookie, also in this header in that case: a
+ *  Response made in a page drops Set-Cookie, and the phone app's listener hands it on to another
+ *  device's browser as its own (apps/mobile src/host.ts). */
+export const COOKIE_HEADER = "x-sprachanker-cookie";
 
 /** How the session travels: also in SESSION_HEADER's answers (the phone app). */
 export interface SessionOptions {
@@ -41,9 +45,22 @@ const https = (c: Context<ProfileEnv>) =>
   new URL(c.req.url).protocol === "https:" ||
   (c.get("proxied") && c.req.header("x-forwarded-proto") === "https");
 
+/** The device's cookie set (a token) or cleared (""), in COOKIE_HEADER too where the session also
+ *  travels in a header. */
+function deviceCookie(
+  c: Context<ProfileEnv>,
+  token: string,
+  options: SessionOptions,
+  opt: Parameters<typeof generateCookie>[2],
+) {
+  const cookie = generateCookie(DEVICE_COOKIE, token, opt);
+  c.header("Set-Cookie", cookie, { append: true });
+  if (options.inHeader) c.header(COOKIE_HEADER, cookie);
+}
+
 function signedIn(c: Context<ProfileEnv>, token: string, options: SessionOptions) {
   if (options.inHeader) c.header(SESSION_HEADER, token);
-  setCookie(c, DEVICE_COOKIE, token, {
+  deviceCookie(c, token, options, {
     httpOnly: true,
     sameSite: "Strict",
     secure: https(c),
@@ -51,6 +68,10 @@ function signedIn(c: Context<ProfileEnv>, token: string, options: SessionOptions
     maxAge: DEVICE_LIFETIME_MS / 1000,
   });
 }
+
+/** This device signed out: its cookie cleared. */
+const signedOut = (c: Context<ProfileEnv>, options: SessionOptions) =>
+  deviceCookie(c, "", options, { path: "/", maxAge: 0 });
 
 /** Signing in and out: no session needed. */
 export function sessionRoutes(svc: Services, options: SessionOptions = {}) {
@@ -97,7 +118,7 @@ export function sessionRoutes(svc: Services, options: SessionOptions = {}) {
       .delete("/session", async (c) => {
         const device = await devices.resolve(tokenOf(c));
         if (device) devices.revoke(device.profileId, device.deviceId);
-        deleteCookie(c, DEVICE_COOKIE, { path: "/" });
+        signedOut(c, options);
         return c.json({ ok: true as const });
       })
   );
@@ -118,7 +139,7 @@ export function requireSession(svc: Services, options: SessionOptions = {}) {
 }
 
 /** The signed-in profile itself: name, colour, onboarding, devices. */
-export function profileRoutes(svc: Services) {
+export function profileRoutes(svc: Services, options: SessionOptions = {}) {
   const { profiles, devices } = svc;
   return (
     new Hono<ProfileEnv>()
@@ -137,7 +158,7 @@ export function profileRoutes(svc: Services) {
       // The profile deleted with everything it holds; this device is signed out of it.
       .delete("/profile", (c) => {
         svc.removeProfile(c.var.profileId);
-        deleteCookie(c, DEVICE_COOKIE, { path: "/" });
+        signedOut(c, options);
         return c.json({ ok: true as const });
       })
       // The profile as a file to move to another machine: made ready (its name, size, what it leaves

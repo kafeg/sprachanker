@@ -12,6 +12,7 @@ import {
 import { drizzle } from "drizzle-orm/sql-js";
 import { makeDb, openDb } from "./db.ts";
 import type { Files } from "./files.ts";
+import { NativeFile } from "./host.ts";
 
 type Opened = ReturnType<typeof makeDb>;
 
@@ -51,6 +52,9 @@ export async function profileFiles(
   };
 }
 
+/** Takes kept in memory to be read back at once (the server hears one just saved). */
+const TAKES_KEPT = 8;
+
 /** A profile's recordings folder: names checked by the service (`<ulid>.<ext>`); the takes of this
  *  run kept in memory to be read back, older ones played from the files by the native side. */
 function recordingFiles(files: Files, dir: string): RecordingFiles {
@@ -63,8 +67,19 @@ function recordingFiles(files: Files, dir: string): RecordingFiles {
     async write(name, bytes) {
       await files.write(file(name), bytes);
       kept.set(name, new Blob([bytes as Uint8Array<ArrayBuffer>]));
+      // The latest few: older ones are read from their files.
+      for (const old of kept.keys()) if (kept.size > TAKES_KEPT) kept.delete(old);
     },
-    read: (name) => kept.get(name) as MediaBlob | undefined,
+    // One played on another device: sent from its file by the native side.
+    read: (name) =>
+      (kept.get(name) ??
+        (files.has(file(name))
+          ? new NativeFile(
+              { file: files.abs(file(name)) },
+              () => files.read(file(name)),
+              files.fs.stat(files.abs(file(name)))?.size,
+            )
+          : undefined)) as MediaBlob | undefined,
     list: () =>
       files.fs
         .files(files.abs(dir))

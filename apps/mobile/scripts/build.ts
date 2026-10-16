@@ -4,9 +4,17 @@
 // The third-party notices (scripts/notices) go into dist/ — the app's About shows them — and into the
 // Android project's assets, a file of the APK.
 //   bun scripts/build.ts
-import { cpSync, existsSync, mkdirSync, readFileSync, rmSync, writeFileSync } from "node:fs";
+import {
+  cpSync,
+  existsSync,
+  mkdirSync,
+  readdirSync,
+  readFileSync,
+  rmSync,
+  writeFileSync,
+} from "node:fs";
 import { createRequire } from "node:module";
-import { dirname, join } from "node:path";
+import { dirname, join, relative } from "node:path";
 import { $ } from "bun";
 
 const here = join(import.meta.dir, "..");
@@ -22,11 +30,36 @@ const assets = join(here, "src-tauri", "gen", "android", "app", "src", "main", "
 mkdirSync(assets, { recursive: true });
 await $`bun ${join(here, "../../scripts/notices/notices.ts")} ${join(dist, NOTICES)} ${join(assets, NOTICES)}`;
 
+// The web app's own files, served to other devices (src/host.ts); its index as built is web.html
+// (index.html gets the app's start below).
+const webFiles = readdirSync(dist, { recursive: true, withFileTypes: true })
+  .filter((entry) => entry.isFile())
+  .map((entry) => `/${relative(dist, join(entry.parentPath, entry.name))}`);
+cpSync(join(dist, "index.html"), join(dist, "web.html"));
+// The notification's words while the app is open to other devices: each catalog's.
+const i18n = join(web, "src", "i18n");
+const HOST_WORDS = { hosting: "desktop.hosting", quit: "desktop.quit" };
+const hostWords = Object.fromEntries(
+  readdirSync(i18n)
+    .filter((name) => name.endsWith(".json"))
+    .map((name) => {
+      const catalog = JSON.parse(readFileSync(join(i18n, name), "utf8"));
+      const word = (key: string) =>
+        key.split(".").reduce((at, part) => at?.[part], catalog) as string | undefined;
+      const words = Object.entries(HOST_WORDS).map(([name, key]) => [name, word(key)]);
+      return [name.slice(0, -".json".length), Object.fromEntries(words)];
+    }),
+);
+
 // The app's version: the binary's (MAJOR.MINOR.<commits>, apps/cli/scripts/version.ts).
 const version = (await $`bun ${join(here, "../cli/scripts/version.ts")}`.text()).trim();
 const built = await Bun.build({
   entrypoints: [join(here, "src", "boot.ts")],
-  define: { SPRACHANKER_VERSION: JSON.stringify(version) },
+  define: {
+    SPRACHANKER_VERSION: JSON.stringify(version),
+    SPRACHANKER_WEB_FILES: JSON.stringify(webFiles),
+    SPRACHANKER_HOST_WORDS: JSON.stringify(hostWords),
+  },
   target: "browser",
   format: "esm",
   minify: process.env.MINIFY !== "0",

@@ -46,8 +46,11 @@ export function hostGuard(options: {
   hosts?: readonly string[];
   proxies?: readonly string[];
   known?: (name: string) => Promise<boolean>;
+  /** Whether the tailnet's name comes through a proxy of ours (`tailscale serve`); not where
+   *  Tailscale serves nothing (the phone app's): its `X-Forwarded-Proto` is not believed there. */
+  tailnetProxied?: boolean;
 }): MiddlewareHandler<HostEnv> {
-  const { hosts = [], proxies = [], known } = options;
+  const { hosts = [], proxies = [], known, tailnetProxied = true } = options;
   return async (c, next) => {
     const name = new URL(c.req.url).hostname.toLowerCase().replace(/\.$/, "");
     // Tailscale marks what Funnel brings in from the internet: never answered.
@@ -56,7 +59,7 @@ export function hostGuard(options: {
     const own = proxied || hostAllowed(name, hosts);
     const tailnet = !own && !!(await known?.(name));
     if (!own && !tailnet) return c.json({ error: "unknown_host" }, 421);
-    c.set("proxied", proxied || tailnet);
+    c.set("proxied", proxied || (tailnet && tailnetProxied));
     await next();
     // A response with a policy of its own keeps it (media: a sandbox, media.ts).
     if (!c.res.headers.has("content-security-policy")) c.header("content-security-policy", CSP);

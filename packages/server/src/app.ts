@@ -125,7 +125,7 @@ export function createApp(config: AppConfig) {
     .route("/", sessionRoutes(svc, { inHeader: config.sessionInHeader }))
     // Everything after it is a profile's: the device's session names it (401 without one).
     .use("*", requireSession(svc, { inHeader: config.sessionInHeader }))
-    .route("/", profileRoutes(svc))
+    .route("/", profileRoutes(svc, { inHeader: config.sessionInHeader }))
     .route("/", networkRoutes(svc))
     .route("/", courseRoutes())
     .route("/", lessonRoutes())
@@ -151,7 +151,12 @@ export function createApp(config: AppConfig) {
     new Hono()
       .use(
         "*",
-        hostGuard({ hosts: config.hosts, proxies: config.allowHosts, known: svc.network.knows }),
+        hostGuard({
+          hosts: config.hosts,
+          proxies: config.allowHosts,
+          known: svc.network.knows,
+          tailnetProxied: config.network?.serves !== false,
+        }),
       )
       .route("/api", api)
       .all("/api/*", (c) => c.json({ error: "not_found" }, 404))

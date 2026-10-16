@@ -5,9 +5,11 @@ use std::sync::Mutex;
 use std::time::Instant;
 
 use tauri::ipc::{InvokeBody, Request};
+use tauri::Manager;
 
 mod engines;
 mod files;
+mod host;
 
 #[cfg(any(target_os = "android", target_os = "ios"))]
 mod whisper {
@@ -166,8 +168,14 @@ pub fn run() {
         )
         .manage(Asr::default())
         .manage(engines::Engines::default())
-        .register_asynchronous_uri_scheme_protocol("media", |_ctx, request, responder| {
-            std::thread::spawn(move || responder.respond(files::serve(&request)));
+        .manage(host::Host::default())
+        .register_asynchronous_uri_scheme_protocol("media", |ctx, request, responder| {
+            let app = ctx.app_handle().clone();
+            std::thread::spawn(move || {
+                let host = app.state::<host::Host>();
+                let pulled = host::pull(&host, &request);
+                responder.respond(pulled.unwrap_or_else(|| files::serve(&request)))
+            });
         })
         .invoke_handler(tauri::generate_handler![
             asr_built,
@@ -186,7 +194,11 @@ pub fn run() {
             files::fs_list,
             files::fs_write,
             files::fs_remove,
-            files::fs_root
+            files::fs_root,
+            host::host_start,
+            host::host_answer,
+            host::host_write,
+            host::host_end
         ])
         .run(tauri::generate_context!())
         .expect("the app failed to start");

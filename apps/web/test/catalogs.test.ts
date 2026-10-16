@@ -66,8 +66,10 @@ test("messages are plain text: no Markdown backticks (they show as written)", ()
 
 const SRC = join(import.meta.dir, "../src");
 /** The desktop shell takes its few words (`desktop.*`) from these catalogs too: its Rust (build.rs
- *  embeds them) and its build script (the microphone's question, macOS's own). */
+ *  embeds them) and its build script (the microphone's question, macOS's own); so does the phone
+ *  app's build (its notification while it is open to other devices). */
 const DESKTOP = join(import.meta.dir, "../../desktop");
+const MOBILE = join(import.meta.dir, "../../mobile");
 const sources = (dir: string, kinds = /\.(ts|tsx)$/): string[] =>
   readdirSync(dir).flatMap((name) => {
     const path = join(dir, name);
@@ -78,7 +80,12 @@ const sources = (dir: string, kinds = /\.(ts|tsx)$/): string[] =>
         : [];
   });
 const rust = sources(join(DESKTOP, "src-tauri/src"), /\.rs$/).join("\n");
-const code = [...sources(SRC), rust, ...sources(join(DESKTOP, "scripts"))].join("\n");
+const code = [
+  ...sources(SRC),
+  rust,
+  ...sources(join(DESKTOP, "scripts")),
+  ...sources(join(MOBILE, "scripts")),
+].join("\n");
 
 /** Keys the code asks for by name: `t("a.b")`, `t('a.b')`; the shell's `text("desktop.x")`. */
 const asked = [

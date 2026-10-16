@@ -80,6 +80,31 @@ test("Tailscale not serving the app: its name and how to serve it on this port",
   expect(view.queryByText(/^https:/)).toBeNull();
 });
 
+test("listening everywhere, Tailscale not serving: its name over plain HTTP, and how to serve it", async () => {
+  const http = { url: `http://${TAILNET}:4580`, secure: false };
+  const view = await show({ machine: MACHINE, network: [LAN], tailnet: { name: TAILNET, http } });
+  expect(view.getByText(http.url)).toBeTruthy();
+  expect(view.getByText("tailscale serve --bg 4580")).toBeTruthy();
+});
+
+test("the phone app (Tailscale there cannot serve): its tailnet address with no command; without Tailscale, said for this device", async () => {
+  const http = { url: `http://${TAILNET}:4580`, secure: false };
+  const view = await show({
+    machine: MACHINE,
+    network: [LAN],
+    tailnet: { name: TAILNET, http },
+    noServe: true,
+  });
+  expect(view.getByText("This device")).toBeTruthy();
+  expect(view.getByText(http.url)).toBeTruthy();
+  expect(view.queryByText(/tailscale serve/)).toBeNull();
+  expect(view.getAllByText(/^No microphone at these addresses/)).toHaveLength(2);
+  view.unmount();
+  const without = await show({ machine: MACHINE, network: [LAN], noServe: true });
+  expect(without.getByText(/Tailscale is not running on this device/)).toBeTruthy();
+  expect(without.queryByText(/your phones open SprachAnker at a secure address/)).toBeNull();
+});
+
 test("Funnel on: a warning, and no address through the tailnet", async () => {
   const view = await show({
     machine: MACHINE,

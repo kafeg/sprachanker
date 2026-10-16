@@ -1,6 +1,8 @@
 // The app's native side (src-tauri): its files — listed, read through the `media` scheme, written
-// whole, removed; paths relative to its data root —, Whisper in its process, and reading aloud's
-// engines run as programs (src-tauri/src/engines.rs).
+// whole, removed; paths relative to its data root —, Whisper in its process, reading aloud's
+// engines run as programs (src-tauri/src/engines.rs), and the listener other devices open the app at.
+import { latin1 } from "./bridge.ts";
+import type { HostMessage, HostNative } from "./host.ts";
 
 /** Where the native side serves the app's files (and a learner's recordings, by id); the desktop
  *  harness (scripts/dev.ts) serves them elsewhere. */
@@ -9,17 +11,17 @@ export const FILES =
   // iOS names a scheme of the app's as its own (`media://localhost`); Android as a host.
   (location.protocol === "tauri:" ? "media://localhost" : "http://media.localhost");
 
+type Tauri = {
+  core: { invoke: Invoke; Channel: new () => { onmessage: (message: unknown) => void } };
+};
+const tauri = () => (globalThis as unknown as { __TAURI__: Tauri }).__TAURI__;
+
 type Invoke = <T>(
   cmd: string,
   args?: unknown,
   options?: { headers: Record<string, string> },
 ) => Promise<T>;
-const invoke: Invoke = (cmd, args, options) =>
-  (globalThis as unknown as { __TAURI__: { core: { invoke: Invoke } } }).__TAURI__.core.invoke(
-    cmd,
-    args,
-    options,
-  );
+const invoke: Invoke = (cmd, args, options) => tauri().core.invoke(cmd, args, options);
 
 export interface Entry {
   /** Relative to the data root. */
@@ -91,3 +93,32 @@ export const native = {
   /** A .tar.bz2 archive unpacked into a folder (absolute paths). */
   untarBz2: (archive: string, into: string) => invoke<void>("untar_bz2", { archive, into }),
 };
+
+/** The listener on all addresses (src-tauri/src/host.rs) started: its port, and its native side;
+ *  `listen` gets its requests. */
+export async function startHost(listen: (message: HostMessage) => void) {
+  // Started with the page: Tauri's script may come a moment after this one (Android, a cold start).
+  for (let waited = 0; !tauri()?.core && waited < 10_000; waited += 20)
+    await new Promise((r) => setTimeout(r, 20));
+  const page = new (tauri().core.Channel)();
+  page.onmessage = (message) => listen(message as HostMessage);
+  const port = await invoke<number>("host_start", { page });
+  let pulls = 0;
+  const host: HostNative = {
+    answer: (id, status, headers, native, body) =>
+      invoke("host_answer", { id, status, headers, native, body }),
+    // Base64: Android's IPC carries strings, not bytes.
+    write: (id, bytes) => invoke("host_write", { id, data: btoa(latin1(bytes)) }),
+    end: (id, error) => invoke("host_end", { id, error: error ?? null }),
+    async pull(id) {
+      // Numbered: each pull a request of its own, never one the WebView kept.
+      const res = await netFetch(`${FILES}/.host/${id}?n=${++pulls}`);
+      if (!res.ok) throw new Error(`the request's body broke off (${res.status})`);
+      return {
+        bytes: new Uint8Array(await res.arrayBuffer()),
+        end: res.headers.get("x-end") === "1",
+      };
+    },
+  };
+  return { port, host };
+}

@@ -69,7 +69,7 @@ function useSize() {
 
 export function SelectionMenu({ extra }: { extra?: (picked: Picked) => React.ReactNode }) {
   const { t, i18n } = useTranslation();
-  const speaker = useSpeaker();
+  const speaker = useSpeaker({ warm: false });
   const [now, setNow] = useState<Picked | null>(null);
   const [size, measured] = useSize();
   /** When the bar was last pressed. */

@@ -133,7 +133,11 @@ export function phoneSpeech(
       const request = new Request(input, init);
       const url = new URL(request.url);
       const local = url.hostname === "127.0.0.1";
-      if (local && url.port === whisperPort) return whisper(request, url);
+      if (local && url.port === whisperPort) {
+        // The file as given: a form sent on carries a file's blob of the app's as its token alone.
+        const given = init?.body instanceof FormData ? init.body.get("file") : null;
+        return whisper(request, url, given instanceof Blob ? given : undefined);
+      }
       if (!local || !programPorts.has(url.port)) return net(request);
       const body = request.method === "GET" ? null : await request.text();
       const timeout = url.pathname === "/health" ? HEALTH_MS : ANSWER_MS;
@@ -150,14 +154,14 @@ export function phoneSpeech(
       return new Response(status === 204 ? null : bytes.slice(2), { status });
     }) as typeof fetch;
 
-  async function whisper(request: Request, url: URL) {
+  async function whisper(request: Request, url: URL, given?: Blob) {
     if (url.pathname === "/health") {
       await loading;
       return Response.json({ status: "ok" });
     }
     if (url.pathname === "/inference") {
       const form = await request.formData();
-      const audio = form.get("file") as Blob;
+      const audio = given ?? (form.get("file") as Blob);
       const lang = String(form.get("language") ?? "de");
       const samples = await samples16k(await audio.arrayBuffer());
       const heard = await native.transcribe(samples, lang, THREADS);

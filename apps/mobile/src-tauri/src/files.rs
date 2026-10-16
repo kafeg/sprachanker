@@ -127,9 +127,9 @@ fn media_type(path: &Path) -> &'static str {
 /** The app's own page: the only origin the files are answered to (another page in the WebView must
  *  not read the profiles' databases or the key that seals their API keys). */
 #[cfg(not(target_os = "ios"))]
-const APP_ORIGIN: &str = "http://tauri.localhost";
+pub const APP_ORIGIN: &str = "http://tauri.localhost";
 #[cfg(target_os = "ios")]
-const APP_ORIGIN: &str = "tauri://localhost";
+pub const APP_ORIGIN: &str = "tauri://localhost";
 
 fn answer(status: StatusCode, body: Vec<u8>) -> Response<Vec<u8>> {
     Response::builder()
