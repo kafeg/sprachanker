@@ -1266,7 +1266,7 @@
       "engine": {
         "device": "本设备的声音",
         "deviceLine": "{count, plural, other {#个声音}}，无需安装",
-        "deviceNone": "此浏览器没有可用于朗读的声音。",
+        "deviceNone": "此设备上没有可用于朗读的声音。",
         "piper": "本机上的Piper",
         "piperMissing": "此版本中没有：应用构建时未包含语音引擎",
         "piperLine": "{count, plural, =0 {还没有声音：请从下方下载} other {已下载#个声音}}",
@@ -1329,7 +1329,7 @@
       "wrong": "再试一次：听一听，再说一遍"
     },
     "model": {
-      "large-v3-turbo-q5_0": "Whisper large-v3 turbo——准确（推荐）",
+      "large-v3-turbo-q5_0": "Whisper large-v3 turbo——准确",
       "small-q5_1": "Whisper small——更快，准确度较低"
     },
     "sayIn": "用{language}说",

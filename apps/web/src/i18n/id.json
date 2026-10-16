@@ -1266,7 +1266,7 @@
       "engine": {
         "device": "Suara perangkat ini",
         "deviceLine": "{count, plural, other {# suara}}, tidak perlu memasang apa pun",
-        "deviceNone": "Browser ini tidak punya suara untuk membacakan teks.",
+        "deviceNone": "Perangkat ini tidak punya suara untuk membaca.",
         "piper": "Piper di perangkat ini",
         "piperMissing": "Tidak ada di build ini: aplikasi dibuat tanpa mesin ucapannya",
         "piperLine": "{count, plural, =0 {belum ada suara: unduh di bawah} other {# suara diunduh}}",
@@ -1329,7 +1329,7 @@
       "wrong": "Coba lagi: dengarkan dan ucapkan sekali lagi"
     },
     "model": {
-      "large-v3-turbo-q5_0": "Whisper large-v3 turbo — akurat (disarankan)",
+      "large-v3-turbo-q5_0": "Whisper large-v3 turbo — akurat",
       "small-q5_1": "Whisper small — lebih cepat, kurang akurat"
     },
     "sayIn": "Ucapkan dalam bahasa {language}",

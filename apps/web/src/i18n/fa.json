@@ -1266,7 +1266,7 @@
       "engine": {
         "device": "صداهای این دستگاه",
         "deviceLine": "{count, plural, one {# صدا} other {# صدا}}، بدون نیاز به نصب",
-        "deviceNone": "این مرورگر صدایی برای خواندن ندارد.",
+        "deviceNone": "این دستگاه صدایی برای خواندن ندارد.",
         "piper": "Piper روی همین دستگاه",
         "piperMissing": "در این نسخه نیست: برنامه بدون موتورهای گفتار ساخته شده",
         "piperLine": "{count, plural, =0 {هنوز صدایی نیست: یکی را از پایین دانلود کن} one {# صدا دانلود شده} other {# صدا دانلود شده}}",
@@ -1329,7 +1329,7 @@
       "wrong": "دوباره امتحان کن: گوش کن و یک بار دیگر بگو"
     },
     "model": {
-      "large-v3-turbo-q5_0": "Whisper large-v3 turbo — دقیق (توصیه‌شده)",
+      "large-v3-turbo-q5_0": "Whisper large-v3 turbo — دقیق",
       "small-q5_1": "Whisper small — سریع‌تر، کم‌دقت‌تر"
     },
     "sayIn": "به {language} بگو",

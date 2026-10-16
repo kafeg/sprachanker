@@ -1266,7 +1266,7 @@
       "engine": {
         "device": "Sauti za kifaa hiki",
         "deviceLine": "{count, plural, one {sauti #} other {sauti #}}, hakuna cha kusakinisha",
-        "deviceNone": "Kivinjari hiki hakina sauti za kusoma.",
+        "deviceNone": "Kifaa hiki hakina sauti za kusoma.",
         "piper": "Piper kwenye kifaa hiki",
         "piperMissing": "Haipo katika toleo hili: programu ilijengwa bila injini zake za sauti",
         "piperLine": "{count, plural, =0 {bado hakuna sauti: pakua moja hapa chini} one {sauti # imepakuliwa} other {sauti # zimepakuliwa}}",
@@ -1329,7 +1329,7 @@
       "wrong": "Jaribu tena: sikiliza na uitamke mara nyingine"
     },
     "model": {
-      "large-v3-turbo-q5_0": "Whisper large-v3 turbo — sahihi (inapendekezwa)",
+      "large-v3-turbo-q5_0": "Whisper large-v3 turbo — sahihi",
       "small-q5_1": "Whisper small — ya haraka zaidi, si sahihi sana"
     },
     "sayIn": "Itamke kwa {language}",

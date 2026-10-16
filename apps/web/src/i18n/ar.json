@@ -1266,7 +1266,7 @@
       "engine": {
         "device": "أصوات هذا الجهاز",
         "deviceLine": "{count, plural, zero {# صوت} one {صوت واحد} two {صوتان} few {# أصوات} many {# صوتًا} other {# صوت}}، لا حاجة إلى تثبيت شيء",
-        "deviceNone": "لا أصوات في هذا المتصفح للقراءة بها.",
+        "deviceNone": "لا توجد أصوات للقراءة على هذا الجهاز.",
         "piper": "Piper على هذا الجهاز",
         "piperMissing": "غير موجود في هذه النسخة: بُني التطبيق دون محرّكات الكلام",
         "piperLine": "{count, plural, =0 {لا أصوات بعد: نزّل صوتًا أدناه} zero {نُزّل # صوت} one {نُزّل صوت واحد} two {نُزّل صوتان} few {نُزّلت # أصوات} many {نُزّل # صوتًا} other {نُزّل # صوت}}",
@@ -1329,7 +1329,7 @@
       "wrong": "حاول مجددًا: استمع وقلها مرة أخرى"
     },
     "model": {
-      "large-v3-turbo-q5_0": "Whisper large-v3 turbo — دقيق (موصى به)",
+      "large-v3-turbo-q5_0": "Whisper large-v3 turbo — دقيق",
       "small-q5_1": "Whisper small — أسرع، أقل دقة"
     },
     "sayIn": "قلها باللغة {language}",

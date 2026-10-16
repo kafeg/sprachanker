@@ -1266,7 +1266,7 @@
       "engine": {
         "device": "Az eszköz hangjai",
         "deviceLine": "{count, plural, one {# hang} other {# hang}}, nem kell telepíteni semmit",
-        "deviceNone": "Ennek a böngészőnek nincsenek felolvasó hangjai.",
+        "deviceNone": "Ezen az eszközön nincsenek felolvasó hangok.",
         "piper": "Piper ezen az eszközön",
         "piperMissing": "Nincs ebben a változatban: az alkalmazás a beszédmotorjai nélkül készült",
         "piperLine": "{count, plural, =0 {még nincs hang: tölts le egyet lent} one {# hang letöltve} other {# hang letöltve}}",
@@ -1329,7 +1329,7 @@
       "wrong": "Próbáld újra: hallgasd meg, és mondd el még egyszer"
     },
     "model": {
-      "large-v3-turbo-q5_0": "Whisper large-v3 turbo — pontos (ajánlott)",
+      "large-v3-turbo-q5_0": "Whisper large-v3 turbo — pontos",
       "small-q5_1": "Whisper small — gyorsabb, kevésbé pontos"
     },
     "sayIn": "Mondd ki ezen a nyelven: {language}",

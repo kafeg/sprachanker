@@ -1266,7 +1266,7 @@
       "engine": {
         "device": "Glasovi ovog uređaja",
         "deviceLine": "{count, plural, one {# glas} few {# glasa} other {# glasova}}, ništa za instaliranje",
-        "deviceNone": "Ovaj preglednik nema glasova za čitanje.",
+        "deviceNone": "Na ovom uređaju nema glasova za čitanje.",
         "piper": "Piper na ovom uređaju",
         "piperMissing": "Nije u ovoj verziji: aplikacija je napravljena bez mehanizama za govor",
         "piperLine": "{count, plural, =0 {još nema glasova: preuzmi jedan ispod} one {# glas preuzet} few {# glasa preuzeta} other {# glasova preuzeto}}",
@@ -1329,7 +1329,7 @@
       "wrong": "Pokušaj ponovo: poslušaj i izgovori još jednom"
     },
     "model": {
-      "large-v3-turbo-q5_0": "Whisper large-v3 turbo — precizan (preporučeno)",
+      "large-v3-turbo-q5_0": "Whisper large-v3 turbo — precizan",
       "small-q5_1": "Whisper small — brži, manje precizan"
     },
     "sayIn": "Izgovori na jeziku: {language}",

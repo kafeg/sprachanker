@@ -1266,7 +1266,7 @@
       "engine": {
         "device": "This device's voices",
         "deviceLine": "{count, plural, one {# voice} other {# voices}}, nothing to install",
-        "deviceNone": "This browser has no voices to read with.",
+        "deviceNone": "This device has no voices to read with.",
         "piper": "Piper on this device",
         "piperMissing": "Not in this build: the app was built without its speech engines",
         "piperLine": "{count, plural, =0 {no voices yet: download one below} one {# voice downloaded} other {# voices downloaded}}",
@@ -1329,7 +1329,7 @@
       "wrong": "Try again: listen and say it once more"
     },
     "model": {
-      "large-v3-turbo-q5_0": "Whisper large-v3 turbo — accurate (recommended)",
+      "large-v3-turbo-q5_0": "Whisper large-v3 turbo — accurate",
       "small-q5_1": "Whisper small — faster, less accurate"
     },
     "sayIn": "Say it in {language}",

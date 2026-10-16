@@ -1266,7 +1266,7 @@
       "engine": {
         "device": "Bu cihazın sesleri",
         "deviceLine": "{count, plural, one {# ses} other {# ses}}, yükleme gerekmez",
-        "deviceNone": "Bu tarayıcıda okuma için ses yok.",
+        "deviceNone": "Bu cihazda okuma için ses yok.",
         "piper": "Bu cihazda Piper",
         "piperMissing": "Bu sürümde yok: uygulama konuşma motorları olmadan derlenmiş",
         "piperLine": "{count, plural, =0 {henüz ses yok: aşağıdan bir tane indir} one {# ses indirildi} other {# ses indirildi}}",
@@ -1329,7 +1329,7 @@
       "wrong": "Tekrar dene: dinle ve bir kez daha söyle"
     },
     "model": {
-      "large-v3-turbo-q5_0": "Whisper large-v3 turbo — doğru (önerilen)",
+      "large-v3-turbo-q5_0": "Whisper large-v3 turbo — doğru",
       "small-q5_1": "Whisper small — daha hızlı, daha az doğru"
     },
     "sayIn": "{language} söyle",

@@ -1266,7 +1266,7 @@
       "engine": {
         "device": "Voces de este dispositivo",
         "deviceLine": "{count, plural, one {# voz} other {# voces}}, nada que instalar",
-        "deviceNone": "Este navegador no tiene voces para leer.",
+        "deviceNone": "Este dispositivo no tiene voces para leer.",
         "piper": "Piper en este dispositivo",
         "piperMissing": "No incluido en esta versión: la aplicación se compiló sin sus motores de voz",
         "piperLine": "{count, plural, =0 {aún no hay voces: descarga una abajo} one {# voz descargada} other {# voces descargadas}}",
@@ -1329,7 +1329,7 @@
       "wrong": "Inténtalo otra vez: escucha y dilo de nuevo"
     },
     "model": {
-      "large-v3-turbo-q5_0": "Whisper large-v3 turbo: preciso (recomendado)",
+      "large-v3-turbo-q5_0": "Whisper large-v3 turbo: preciso",
       "small-q5_1": "Whisper small: más rápido, menos preciso"
     },
     "sayIn": "Dilo en {language}",

@@ -1266,7 +1266,7 @@
       "engine": {
         "device": "Vocile acestui dispozitiv",
         "deviceLine": "{count, plural, one {# voce} few {# voci} other {# de voci}}, nimic de instalat",
-        "deviceNone": "Acest browser nu are voci cu care să citească.",
+        "deviceNone": "Acest dispozitiv nu are voci pentru citire.",
         "piper": "Piper pe acest dispozitiv",
         "piperMissing": "Nu e în această versiune: aplicația a fost compilată fără motoarele de vorbire",
         "piperLine": "{count, plural, =0 {încă nicio voce: descarcă una mai jos} one {# voce descărcată} few {# voci descărcate} other {# de voci descărcate}}",
@@ -1329,7 +1329,7 @@
       "wrong": "Încearcă din nou: ascultă și spune încă o dată"
     },
     "model": {
-      "large-v3-turbo-q5_0": "Whisper large-v3 turbo — precis (recomandat)",
+      "large-v3-turbo-q5_0": "Whisper large-v3 turbo — precis",
       "small-q5_1": "Whisper small — mai rapid, mai puțin precis"
     },
     "sayIn": "Spune în {language}",
