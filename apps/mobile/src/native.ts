@@ -1,6 +1,6 @@
 // The app's native side (src-tauri): its files — listed, read through the `media` scheme, written
-// whole, removed; paths relative to its data root —, Whisper in its process, and the listener other
-// devices open the app at.
+// whole, removed; paths relative to its data root —, Whisper in its process, reading aloud's
+// engines run as programs (src-tauri/src/engines.rs), and the listener other devices open the app at.
 import { latin1 } from "./bridge.ts";
 import type { HostMessage, HostNative } from "./host.ts";
 
@@ -72,6 +72,26 @@ export const native = {
       new Uint8Array(samples.buffer, samples.byteOffset, samples.byteLength),
       { headers: { lang, threads: String(threads) } },
     ),
+  /** Reading aloud's engines this app carries ("piper", "qwen"; Android). */
+  enginesBuilt: () => invoke<string[]>("engines_built").catch(() => [] as string[]),
+  /** An engine started with its arguments: its pid. */
+  engineSpawn: (engine: "piper" | "qwen", args: string[]) =>
+    invoke<number>("engine_spawn", { engine, args }),
+  /** An engine's end: its exit code and the end of what it said on stderr. */
+  engineWait: (pid: number) => invoke<{ code: number; log: string }>("engine_wait", { pid }),
+  engineKill: (pid: number) => invoke<void>("engine_kill", { pid }),
+  /** Every engine stopped (the page started again: none has its owner any more). */
+  enginesStopAll: () => invoke<void>("engines_stop_all").catch(() => {}),
+  /** The folder engines write what they make into (absolute). */
+  engineOutputs: () => invoke<string>("engine_outputs"),
+  /** A file an engine wrote there, read and removed. */
+  engineOutput: (name: string) => invoke<ArrayBuffer>("engine_output", { name }),
+  freePort: () => invoke<number>("free_port"),
+  /** A request to an engine on 127.0.0.1 (a JSON body): two bytes of status, then the body. */
+  localHttp: (port: number, method: string, path: string, body: string | null, timeout: number) =>
+    invoke<ArrayBuffer>("local_http", { port, method, path, body, timeout }),
+  /** A .tar.bz2 archive unpacked into a folder (absolute paths). */
+  untarBz2: (archive: string, into: string) => invoke<void>("untar_bz2", { archive, into }),
 };
 
 /** The listener on all addresses (src-tauri/src/host.rs) started: its port, and its native side;

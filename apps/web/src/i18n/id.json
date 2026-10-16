@@ -1266,7 +1266,11 @@
       "readHint": "Satu suara membacakan teks dalam satu bahasa: kalimat dialog, contoh kalimat sebuah kata, dan kata tanpa rekaman. Setiap bahasa punya suaranya sendiri.",
       "engine": {
         "device": "Suara perangkat ini",
+        "deviceLine": "{count, plural, other {# suara}}, tidak perlu memasang apa pun",
+        "deviceNone": "Perangkat ini tidak punya suara untuk membaca.",
         "piper": "Piper di perangkat ini",
+        "piperMissing": "Tidak ada di build ini: aplikasi dibuat tanpa mesin ucapannya",
+        "piperLine": "{count, plural, =0 {belum ada suara: unduh di bawah} other {# suara diunduh}}",
         "qwen": "Qwen3-TTS di perangkat ini",
         "qwenMissing": "Tidak ada di build ini: aplikasi dibuat tanpa mesin ucapannya",
         "qwenReady": "Siap: model sudah diunduh",
@@ -1274,12 +1278,29 @@
       },
       "voiceFor": "Suara untuk bahasa {language}",
       "voiceAuto": "Otomatis — {name}",
+      "noVoice": "Perangkat ini tidak punya suara untuk bahasa {language}.",
+      "betterVoices": "Di Mac, suara yang lebih baik (Premium, Disempurnakan) diunduh di Pengaturan Sistem → Aksesibilitas → Konten Lisan → Suara Sistem → Kelola Suara.",
+      "phoneVoices": "Suara lain dipasang di setelan Android: Aksesibilitas → Output text-to-speech → setelan mesin → Instal data suara.",
+      "readRate": "Kecepatan: {rate}×",
+      "readRateLabel": "Kecepatan membaca",
+      "piperNone": "Belum ada suara untuk bahasa {language}: unduh di bawah.",
+      "piperNoLanguage": "Piper tidak punya suara untuk bahasa {language}: suara perangkat yang membacakannya.",
+      "piperHint": "Setiap suara Piper berukuran sekitar 60–120 MB dan tetap di perangkat ini; bahasa tanpa suara dibacakan oleh suara perangkat.",
+      "removeVoice": "Hapus suara {voice}",
+      "allVoices": "Semua suara ({count, number})",
+      "quality": {
+        "x_low": "kualitas terendah",
+        "low": "kualitas rendah",
+        "medium": "kualitas sedang",
+        "high": "kualitas tinggi"
+      },
       "qwenModel": {
         "small": "Model kecil (0.6B): lebih cepat",
         "large": "Model besar (1.7B): lebih alami, lebih lambat"
       },
       "qwenHint": "Suara neural yang membacakan 10 bahasa (Jerman, Inggris, Rusia, Prancis, Spanyol, Italia, Portugis, Tionghoa, Jepang, Korea) dengan sembilan penutur. Selama berjalan, ia memakai sekitar 3 GB memori (lebih banyak untuk model besar) dan berhenti setelah 10 menit tidak membaca; pembacaan pertama setelah itu menunggu sekitar 20 detik selagi model dimuat. Bahasa yang tidak didukungnya dibacakan oleh suara perangkat.",
       "qwenNoLanguage": "Qwen3-TTS tidak mendukung bahasa {language}: suara perangkat yang membacakannya.",
+      "qwenOnPhone": "Di ponsel Qwen3-TTS lambat: di ponsel kelas menengah (Snapdragon 860) 8–20 detik untuk satu kata atau kalimat, dan sekitar 3 GB memori. Teks yang sudah dibacakan disimpan dan berikutnya langsung keluar. Piper dan suara perangkat membaca dalam satu-dua detik.",
       "howMic": "Di tempat jawaban diucapkan (bagian berbicara dalam ujian), ada mikrofon: ketuk untuk mulai merekam, ketuk lagi untuk berhenti. Jika tugasnya menulis, tidak ada mikrofon.",
       "howPhrase": "Frasa yang harus diulang disembunyikan sampai percobaan pertama kamu; kamu bisa menampilkannya lebih awal.",
       "howRecordings": "Rekaman kamu disimpan di perangkat ini agar bisa didengarkan lagi di Buku catatan; hapus di Umum → Penyimpanan.",
@@ -1296,8 +1317,7 @@
         "where": "{course} · pelajaran {lesson, number}",
         "male": "suara pria",
         "female": "suara wanita"
-      },
-      "readOnPhone": "Membaca keras dengan suara komputer dimatikan di ponsel ini: Qwen3-TTS di sini perlu 10–42 dtk untuk satu kata atau kalimat (di komputer sekitar satu detik). Rekaman kursus dan latihan tetap diputar; kata tanpa rekaman tetap diam."
+      }
     },
     "listening": "Mendengarkan…",
     "heardLater": "Belum dikenali — rekamanmu sudah disimpan; yang terdengar menyusul.",
@@ -1310,7 +1330,7 @@
       "wrong": "Coba lagi: dengarkan dan ucapkan sekali lagi"
     },
     "model": {
-      "large-v3-turbo-q5_0": "Whisper large-v3 turbo — akurat (disarankan)",
+      "large-v3-turbo-q5_0": "Whisper large-v3 turbo — akurat",
       "small-q5_1": "Whisper small — lebih cepat, kurang akurat"
     },
     "sayIn": "Ucapkan dalam bahasa {language}",
@@ -1749,8 +1769,7 @@
       "stop": "Hentikan",
       "make": "Buat untuk semua pelajaran",
       "upTo": "Langkah setiap pelajaran diisi hingga jumlah yang dipilih; jika dimulai lagi, dilanjutkan dari tempat berhenti.",
-      "steps": "Langkah",
-      "onPhone": "Latihan dibuat di komputer: bagian Menyimak perlu pembacaan keras, yang tidak sempat dilakukan ponsel ini. Di sini ada yang datang bersama kursus (dari unduhan atau berkasnya)."
+      "steps": "Langkah"
     },
     "another": "Versi lain"
   },

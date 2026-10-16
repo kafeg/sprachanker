@@ -36,10 +36,10 @@ class MainActivity : TauriActivity() {
   override fun onWebViewCreate(webView: WebView) {
     // The page's native side for the shared code: the app's files, requests to other hosts.
     getExternalFilesDir(null)
-    webView.addJavascriptInterface(
-      Native(this, webView, "/sdcard/Android/data/$packageName/files"),
-      "sprachankerNativeBridge",
-    )
+    val native = Native(this, webView, "/sdcard/Android/data/$packageName/files")
+    webView.addJavascriptInterface(native, "sprachankerNativeBridge")
+    // The device's voices for reading aloud (the WebView gives the page none), to the app's page alone.
+    webView.addJavascriptInterface(Voices(this, webView, native::guard), "sprachankerVoices")
     onBackPressedDispatcher.addCallback(this, object : OnBackPressedCallback(true) {
       override fun handleOnBackPressed() {
         webView.evaluateJavascript(

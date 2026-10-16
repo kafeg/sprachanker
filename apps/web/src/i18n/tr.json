@@ -1266,7 +1266,11 @@
       "readHint": "Bir ses, tek bir dildeki metinleri okur: diyalog replikleri, bir kelimenin örneği ve kaydı olmayan kelimeler. Her dilin kendi sesi vardır.",
       "engine": {
         "device": "Bu cihazın sesleri",
+        "deviceLine": "{count, plural, one {# ses} other {# ses}}, yükleme gerekmez",
+        "deviceNone": "Bu cihazda okuma için ses yok.",
         "piper": "Bu cihazda Piper",
+        "piperMissing": "Bu sürümde yok: uygulama konuşma motorları olmadan derlenmiş",
+        "piperLine": "{count, plural, =0 {henüz ses yok: aşağıdan bir tane indir} one {# ses indirildi} other {# ses indirildi}}",
         "qwen": "Bu cihazda Qwen3-TTS",
         "qwenMissing": "Bu sürümde yok: uygulama konuşma motorları olmadan derlenmiş",
         "qwenReady": "Hazır: bir model indirildi",
@@ -1274,12 +1278,29 @@
       },
       "voiceFor": "{language} için ses",
       "voiceAuto": "Otomatik — {name}",
+      "noVoice": "Bu cihazda {language} için ses yok.",
+      "betterVoices": "Mac’te daha iyi sesler (Premium, Gelişmiş) Sistem Ayarları → Erişilebilirlik → Konuşulan İçerik → Sistem Sesi → Sesleri Yönet bölümünden indirilir.",
+      "phoneVoices": "Başka sesler Android ayarlarından yüklenir: Erişilebilirlik → Metin okuma çıkışı → motorun ayarları → Ses verilerini yükle.",
+      "readRate": "Hız: {rate}×",
+      "readRateLabel": "Okuma hızı",
+      "piperNone": "Henüz {language} için ses yok: aşağıdan bir tane indir.",
+      "piperNoLanguage": "Piper’da {language} için ses yok: bu dili cihazın sesleri okur.",
+      "piperHint": "Piper seslerinin her biri yaklaşık 60–120 MB'tır ve bu cihazda kalır; sesi olmayan bir dili cihazın sesleri okur.",
+      "removeVoice": "{voice} sesini kaldır",
+      "allVoices": "Tüm sesler ({count, number})",
+      "quality": {
+        "x_low": "en düşük kalite",
+        "low": "düşük kalite",
+        "medium": "orta kalite",
+        "high": "yüksek kalite"
+      },
       "qwenModel": {
         "small": "Küçük model (0.6B): daha hızlı",
         "large": "Büyük model (1.7B): daha doğal, daha yavaş"
       },
       "qwenHint": "10 dili (Almanca, İngilizce, Rusça, Fransızca, İspanyolca, İtalyanca, Portekizce, Çince, Japonca, Korece) dokuz konuşmacıyla okuyan bir sinir ağı sesi. Çalışırken yaklaşık 3 GB bellek kullanır (büyük modelde daha fazla) ve 10 dakika okuma yapılmazsa durur; sonrasındaki ilk okuma, model yüklenirken yaklaşık 20 sn bekler. Konuşmadığı dilleri cihazın sesleri okur.",
       "qwenNoLanguage": "Qwen3-TTS {language} konuşmuyor: bu dili cihazın sesleri okur.",
+      "qwenOnPhone": "Telefonda Qwen3-TTS yavaştır: orta sınıf bir telefonda (Snapdragon 860) bir kelime ya da cümle için 8–20 sn ve yaklaşık 3 GB bellek. Bir kez okunan metin saklanır ve sonra hemen gelir. Piper ve cihazın sesleri bir iki saniyede okur.",
       "howMic": "Cevabın sözlü verildiği yerlerde (bir sınavın konuşma bölümü) bir mikrofon vardır: kayda başlamak için dokun, durdurmak için yeniden dokun. Görevin yazılı olduğu yerlerde mikrofon yoktur.",
       "howPhrase": "Tekrar edilecek cümle ilk denemene kadar gizlidir; daha önce de gösterebilirsin.",
       "howRecordings": "Kayıtların, Defter’de yeniden dinleyebilmen için bu cihazda saklanır; onları Genel → Depolama bölümünden silebilirsin.",
@@ -1296,8 +1317,7 @@
         "where": "{course} · ders {lesson, number}",
         "male": "erkek sesi",
         "female": "kadın sesi"
-      },
-      "readOnPhone": "Bilgisayarın sesleriyle sesli okuma bu telefonda kapalı: Qwen3-TTS burada bir kelime ya da cümle için 10–42 sn harcadı (bilgisayarda yaklaşık bir saniye). Kursların ve alıştırmaların kendi kayıtları çalar; kaydı olmayan kelime sessiz kalır."
+      }
     },
     "listening": "Dinleniyor…",
     "heardLater": "Henüz tanınmadı — kaydın saklandı; duyulan birazdan gelecek.",
@@ -1310,7 +1330,7 @@
       "wrong": "Tekrar dene: dinle ve bir kez daha söyle"
     },
     "model": {
-      "large-v3-turbo-q5_0": "Whisper large-v3 turbo — doğru (önerilen)",
+      "large-v3-turbo-q5_0": "Whisper large-v3 turbo — doğru",
       "small-q5_1": "Whisper small — daha hızlı, daha az doğru"
     },
     "sayIn": "{language} söyle",
@@ -1749,8 +1769,7 @@
       "stop": "Durdur",
       "make": "Tüm dersler için yap",
       "upTo": "Her dersin adımları seçilen sayıya kadar tamamlanır; yeniden başlatılırsa kaldığı yerden devam eder.",
-      "steps": "Adımlar",
-      "onPhone": "Alıştırmalar bilgisayarda hazırlanır: dinleme bölümü, bu telefonun zamanında yapamadığı sesli okumayı gerektirir. Burada kursla gelenler var (indirmeyle ya da dosyadan)."
+      "steps": "Adımlar"
     },
     "another": "Başka bir sürüm"
   },

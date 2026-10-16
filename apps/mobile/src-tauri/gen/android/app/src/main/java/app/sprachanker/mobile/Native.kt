@@ -63,7 +63,8 @@ class Native(private val activity: Activity, private val webView: WebView, priva
     val url = c.currentUrl
     return url == ORIGIN || url.startsWith("$ORIGIN/")
   }
-  private fun guard() {
+  /** Refuses a call from any page but the app's own (Voices.kt's too). */
+  fun guard() {
     if (!ownPage()) throw IOException("EACCES not the app's own page")
   }
 

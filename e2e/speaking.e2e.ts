@@ -180,11 +180,26 @@ test("a monologue typed where nothing hears: the card, the text kept, checked wi
   await expect(step.getByText("FAKE: Ich heiße Mara. Ich komme aus Polen.")).toBeVisible();
 });
 
-test("reading aloud in Settings: Qwen3-TTS alone, each language's speaker", async ({ page }) => {
+// Choosing another engine is the profile's setting, which the projects share: tested in the web's
+// tests (read-aloud.test.tsx), not here.
+test("reading aloud in Settings: every engine offered, Qwen3-TTS the default with each language's speaker", async ({
+  page,
+}) => {
+  await deviceVoices(page);
+  // The profile's engine as by default (another test sets the shared profile's to the device's).
+  await page.route("**/api/settings", async (route) => {
+    if (route.request().method() !== "GET") return route.continue();
+    const response = await route.fetch();
+    const json = { ...(await response.json()), "speech.readEngine": "qwen" };
+    await route.fulfill({ response, json });
+  });
   await page.goto("/settings#speech");
-  // Qwen3-TTS on paper, its small model there; no other engine to choose.
+  // Qwen3-TTS on paper, its small model there, chosen by default; the other engines offered beside.
   await expect(page.getByText("Ready: a model downloaded")).toBeVisible();
-  await expect(page.getByText("This device's voices")).toHaveCount(0);
+  const card = (name: RegExp) => page.getByRole("button", { name });
+  await expect(card(/Qwen3-TTS on this device/)).toHaveAttribute("aria-pressed", "true");
+  await expect(card(/This device's voices/)).toHaveAttribute("aria-pressed", "false");
+  await expect(card(/Piper on this device/)).toBeVisible();
   // The languages read aloud (the courses' here and the interface's): the default speaker of each.
   await expect(page.getByRole("combobox", { name: "Voice for German" })).toHaveText(
     "Automatic — Ryan",

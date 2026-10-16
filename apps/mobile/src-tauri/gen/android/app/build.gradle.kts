@@ -57,6 +57,11 @@ android {
     buildFeatures {
         buildConfig = true
     }
+    // The native libraries unpacked on install: reading aloud's engines (libsa_*.so) are programs the
+    // app runs from there (src-tauri/src/engines.rs), which a library kept in the APK cannot be.
+    packaging {
+        jniLibs.useLegacyPackaging = true
+    }
 }
 
 kotlin {

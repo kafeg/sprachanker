@@ -1266,7 +1266,11 @@
       "readHint": "Uma voz lê textos num idioma: falas de diálogos, o exemplo de uma palavra e palavras sem gravação. Cada idioma tem a sua própria voz.",
       "engine": {
         "device": "Vozes deste dispositivo",
+        "deviceLine": "{count, plural, =0 {# vozes} one {# voz} other {# vozes}}, nada a instalar",
+        "deviceNone": "Este dispositivo não tem vozes para ler.",
         "piper": "Piper neste dispositivo",
+        "piperMissing": "Não incluído nesta versão: o app foi compilado sem os mecanismos de fala",
+        "piperLine": "{count, plural, =0 {nenhuma voz ainda: baixe uma abaixo} one {# voz baixada} other {# vozes baixadas}}",
         "qwen": "Qwen3-TTS neste dispositivo",
         "qwenMissing": "Não incluído nesta versão: o app foi compilado sem os mecanismos de fala",
         "qwenReady": "Pronto: há um modelo baixado",
@@ -1274,12 +1278,29 @@
       },
       "voiceFor": "Voz para {language}",
       "voiceAuto": "Automática: {name}",
+      "noVoice": "Este dispositivo não tem voz para {language}.",
+      "betterVoices": "No Mac, vozes melhores (Premium, Aprimorada) são baixadas em Ajustes do Sistema → Acessibilidade → Conteúdo Falado → Voz do sistema → Gerenciar Vozes.",
+      "phoneVoices": "Mais vozes são instaladas nas configurações do Android: Acessibilidade → Saída de conversão de texto em voz → configurações do mecanismo → Instalar dados de voz.",
+      "readRate": "Velocidade: {rate}×",
+      "readRateLabel": "Velocidade de leitura",
+      "piperNone": "Ainda não há voz para {language}: baixe uma abaixo.",
+      "piperNoLanguage": "O Piper não tem voz para {language}: as vozes do dispositivo leem esse idioma.",
+      "piperHint": "As vozes do Piper têm cerca de 60–120 MB cada e ficam neste dispositivo; um idioma sem voz é lido pelas vozes do dispositivo.",
+      "removeVoice": "Remover a voz {voice}",
+      "allVoices": "Todas as vozes ({count, number})",
+      "quality": {
+        "x_low": "qualidade mínima",
+        "low": "qualidade baixa",
+        "medium": "qualidade média",
+        "high": "qualidade alta"
+      },
       "qwenModel": {
         "small": "Modelo pequeno (0.6B): mais rápido",
         "large": "Modelo grande (1.7B): mais natural, mais lento"
       },
       "qwenHint": "Uma voz neural que lê 10 idiomas (alemão, inglês, russo, francês, espanhol, italiano, português, chinês, japonês e coreano) com nove locutores. Enquanto roda, ocupa cerca de 3 GB de memória (mais com o modelo grande) e para depois de 10 minutos sem ler; a primeira leitura depois disso espera cerca de 20 s enquanto ele carrega. Os idiomas que ele não fala são lidos pelas vozes do dispositivo.",
       "qwenNoLanguage": "O Qwen3-TTS não fala {language}: as vozes do dispositivo leem esse idioma.",
+      "qwenOnPhone": "No telefone o Qwen3-TTS demora: num aparelho intermediário (Snapdragon 860) 8–20 s por palavra ou frase, e cerca de 3 GB de memória. Um texto lido uma vez fica guardado e depois sai na hora. O Piper e as vozes do dispositivo leem em um ou dois segundos.",
       "howMic": "Onde uma resposta é falada (a parte oral de um exame), há um microfone: toque para começar a gravar e toque de novo para parar. Onde a tarefa é escrever, não há.",
       "howPhrase": "A frase a repetir fica oculta até a sua primeira tentativa; você pode mostrá-la antes.",
       "howRecordings": "As suas gravações ficam neste dispositivo para você ouvi-las de novo no Caderno; exclua-as em Geral → Armazenamento.",
@@ -1296,8 +1317,7 @@
         "where": "{course} · lição {lesson, number}",
         "male": "voz masculina",
         "female": "voz feminina"
-      },
-      "readOnPhone": "A leitura em voz alta com as vozes do computador está desligada neste telemóvel: o Qwen3-TTS demorava aqui 10–42 s por palavra ou frase (num computador, cerca de um segundo). As gravações dos cursos e da prática tocam; uma palavra sem gravação fica em silêncio."
+      }
     },
     "listening": "Ouvindo…",
     "heardLater": "Ainda não reconhecido — sua gravação foi guardada; o que foi ouvido vem em seguida.",
@@ -1310,7 +1330,7 @@
       "wrong": "Tente de novo: ouça e diga mais uma vez"
     },
     "model": {
-      "large-v3-turbo-q5_0": "Whisper large-v3 turbo: preciso (recomendado)",
+      "large-v3-turbo-q5_0": "Whisper large-v3 turbo: preciso",
       "small-q5_1": "Whisper small: mais rápido, menos preciso"
     },
     "sayIn": "Diga em {language}",
@@ -1749,8 +1769,7 @@
       "stop": "Parar",
       "make": "Fazer para todas as lições",
       "upTo": "Os passos de cada lição são completados até o número escolhido; iniciado de novo, continua de onde parou.",
-      "steps": "Etapas",
-      "onPhone": "A prática faz-se num computador: a sua audição precisa de leitura em voz alta, que este telemóvel não faz a tempo. Aqui tem o que veio com o curso (a transferência ou o ficheiro)."
+      "steps": "Etapas"
     },
     "another": "Outra versão"
   },

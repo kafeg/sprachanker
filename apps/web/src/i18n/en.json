@@ -1266,7 +1266,11 @@
       "readHint": "A voice reads texts in one language: dialogue lines, a word's example and words without a recording. Each language has its own voice.",
       "engine": {
         "device": "This device's voices",
+        "deviceLine": "{count, plural, one {# voice} other {# voices}}, nothing to install",
+        "deviceNone": "This device has no voices to read with.",
         "piper": "Piper on this device",
+        "piperMissing": "Not in this build: the app was built without its speech engines",
+        "piperLine": "{count, plural, =0 {no voices yet: download one below} one {# voice downloaded} other {# voices downloaded}}",
         "qwen": "Qwen3-TTS on this device",
         "qwenMissing": "Not in this build: the app was built without its speech engines",
         "qwenReady": "Ready: a model downloaded",
@@ -1274,12 +1278,29 @@
       },
       "voiceFor": "Voice for {language}",
       "voiceAuto": "Automatic — {name}",
+      "noVoice": "This device has no voice for {language}.",
+      "betterVoices": "On a Mac, better voices (Premium, Enhanced) are downloaded in System Settings → Accessibility → Spoken Content → System voice → Manage voices.",
+      "phoneVoices": "More voices are installed in Android's settings: Accessibility → Text-to-speech output → the engine's settings → Install voice data.",
+      "readRate": "Speed: {rate}×",
+      "readRateLabel": "Reading speed",
+      "piperNone": "No voice for {language} yet: download one below.",
+      "piperNoLanguage": "Piper has no voice for {language}: the device's voices read it.",
+      "piperHint": "Piper's voices are about 60–120 MB each and stay on this device; a language without one is read by the device's voices.",
+      "removeVoice": "Remove the voice {voice}",
+      "allVoices": "All voices ({count, number})",
+      "quality": {
+        "x_low": "lowest quality",
+        "low": "low quality",
+        "medium": "medium quality",
+        "high": "high quality"
+      },
       "qwenModel": {
         "small": "Small model (0.6B): faster",
         "large": "Large model (1.7B): more natural, slower"
       },
       "qwenHint": "A neural voice that reads 10 languages (German, English, Russian, French, Spanish, Italian, Portuguese, Chinese, Japanese, Korean) with nine speakers. While it runs it holds about 3 GB of memory (more for the large model) and stops after 10 minutes without reading; the first reading after that waits about 20 s while it loads. Languages it does not speak are read by the device's voices.",
       "qwenNoLanguage": "Qwen3-TTS does not speak {language}: the device's voices read it.",
+      "qwenOnPhone": "Qwen3-TTS takes long on a phone: on a mid-range one (Snapdragon 860) 8–20 s for a word or a sentence, and about 3 GB of memory. A text read once is kept and comes at once after. Piper and the device's voices read in a second or two.",
       "howMic": "Where an answer is spoken (an exam's speaking part), a microphone: tap to start recording, tap again to stop. Where the task is writing, there is none.",
       "howPhrase": "The phrase to repeat is hidden until your first try; you can show it sooner.",
       "howRecordings": "Your recordings are kept on this device to listen to again in the Notebook; delete them in General → Storage.",
@@ -1296,8 +1317,7 @@
         "where": "{course} · lesson {lesson, number}",
         "male": "man's voice",
         "female": "woman's voice"
-      },
-      "readOnPhone": "Reading aloud with the computer's voices is off on this phone: Qwen3-TTS took 10–42 s here for a word or a sentence (about a second on a computer). The courses' and practice's own recordings play; a word without one stays silent."
+      }
     },
     "listening": "Listening to it…",
     "heardLater": "Not heard yet — your take is kept; what was heard follows.",
@@ -1310,7 +1330,7 @@
       "wrong": "Try again: listen and say it once more"
     },
     "model": {
-      "large-v3-turbo-q5_0": "Whisper large-v3 turbo — accurate (recommended)",
+      "large-v3-turbo-q5_0": "Whisper large-v3 turbo — accurate",
       "small-q5_1": "Whisper small — faster, less accurate"
     },
     "sayIn": "Say it in {language}",
@@ -1749,8 +1769,7 @@
       "stop": "Stop",
       "make": "Make for every lesson",
       "upTo": "Each lesson's steps are filled up to the number chosen; started again, it goes on where it stopped.",
-      "steps": "Steps",
-      "onPhone": "Practice is made on a computer: its Listening needs reading aloud, which this phone cannot do in time. Here it has what came with the course (its download or file)."
+      "steps": "Steps"
     },
     "another": "Another version"
   },

@@ -1266,7 +1266,11 @@
       "readHint": "Glas čita tekstove na jednom jeziku: replike iz dijaloga, primjer za riječ i riječi bez snimka. Svaki jezik ima svoj glas.",
       "engine": {
         "device": "Glasovi ovog uređaja",
+        "deviceLine": "{count, plural, one {# glas} few {# glasa} other {# glasova}}, ništa za instaliranje",
+        "deviceNone": "Na ovom uređaju nema glasova za čitanje.",
         "piper": "Piper na ovom uređaju",
+        "piperMissing": "Nije u ovoj verziji: aplikacija je napravljena bez mehanizama za govor",
+        "piperLine": "{count, plural, =0 {još nema glasova: preuzmi jedan ispod} one {# glas preuzet} few {# glasa preuzeta} other {# glasova preuzeto}}",
         "qwen": "Qwen3-TTS na ovom uređaju",
         "qwenMissing": "Nije u ovoj verziji: aplikacija je napravljena bez mehanizama za govor",
         "qwenReady": "Spremno: model je preuzet",
@@ -1274,12 +1278,29 @@
       },
       "voiceFor": "Glas za jezik: {language}",
       "voiceAuto": "Automatski — {name}",
+      "noVoice": "Ovaj uređaj nema glas za jezik: {language}.",
+      "betterVoices": "Na Macu se bolji glasovi (Premium, Enhanced) preuzimaju u System Settings → Accessibility → Spoken Content → System voice → Manage voices.",
+      "phoneVoices": "Više glasova instaliraš u postavkama Androida: Pristupačnost → Pretvaranje teksta u govor → postavke mehanizma → Instaliraj glasovne podatke.",
+      "readRate": "Brzina: {rate}×",
+      "readRateLabel": "Brzina čitanja",
+      "piperNone": "Još nema glasa za jezik „{language}“: preuzmi jedan ispod.",
+      "piperNoLanguage": "Piper nema glas za jezik „{language}“: čitaju ga glasovi uređaja.",
+      "piperHint": "Piperovi glasovi imaju oko 60–120 MB svaki i ostaju na ovom uređaju; jezik bez takvog glasa čitaju glasovi uređaja.",
+      "removeVoice": "Ukloni glas {voice}",
+      "allVoices": "Svi glasovi ({count, number})",
+      "quality": {
+        "x_low": "najniži kvalitet",
+        "low": "nizak kvalitet",
+        "medium": "srednji kvalitet",
+        "high": "visok kvalitet"
+      },
       "qwenModel": {
         "small": "Mali model (0.6B): brži",
         "large": "Veliki model (1.7B): prirodniji, sporiji"
       },
       "qwenHint": "Neuralni glas koji čita 10 jezika (njemački, engleski, ruski, francuski, španski, italijanski, portugalski, kineski, japanski, korejski) s devet govornika. Dok radi, zauzima oko 3 GB memorije (više za veliki model) i zaustavlja se nakon 10 minuta bez čitanja; prvo čitanje nakon toga čeka oko 20 s dok se učitava. Jezike koje ne govori čitaju glasovi uređaja.",
       "qwenNoLanguage": "Qwen3-TTS ne govori jezik „{language}“: čitaju ga glasovi uređaja.",
+      "qwenOnPhone": "Na telefonu Qwen3-TTS radi sporo: na telefonu srednje klase (Snapdragon 860) 8–20 s za riječ ili rečenicu i oko 3 GB memorije. Jednom pročitan tekst se čuva i poslije dolazi odmah. Piper i glasovi uređaja čitaju za sekundu-dvije.",
       "howMic": "Gdje se odgovor izgovara (usmeni dio ispita), tu je mikrofon: dodirni za početak snimanja, dodirni ponovo za kraj. Gdje je zadatak pisanje, mikrofona nema.",
       "howPhrase": "Fraza za ponavljanje je skrivena do tvog prvog pokušaja; možeš je prikazati i ranije.",
       "howRecordings": "Tvoji snimci se čuvaju na ovom uređaju da ih ponovo preslušaš u Svesci; obriši ih u Opće → Pohrana.",
@@ -1296,8 +1317,7 @@
         "where": "{course} · lekcija {lesson, number}",
         "male": "muški glas",
         "female": "ženski glas"
-      },
-      "readOnPhone": "Čitanje naglas glasovima računara je na ovom telefonu isključeno: Qwen3-TTS je ovdje trebao 10–42 s za riječ ili rečenicu (na računaru oko sekunde). Vlastiti snimci kurseva i vježbe se puštaju; riječ bez snimka ostaje nijema."
+      }
     },
     "listening": "Slušam…",
     "heardLater": "Još nije prepoznato — tvoj snimak je sačuvan, a ono što je čuto stiže kasnije.",
@@ -1310,7 +1330,7 @@
       "wrong": "Pokušaj ponovo: poslušaj i izgovori još jednom"
     },
     "model": {
-      "large-v3-turbo-q5_0": "Whisper large-v3 turbo — precizan (preporučeno)",
+      "large-v3-turbo-q5_0": "Whisper large-v3 turbo — precizan",
       "small-q5_1": "Whisper small — brži, manje precizan"
     },
     "sayIn": "Izgovori na jeziku: {language}",
@@ -1749,8 +1769,7 @@
       "stop": "Zaustavi",
       "make": "Napravi za sve lekcije",
       "upTo": "Koraci svake lekcije popunjavaju se do odabranog broja; pokrenuto ponovo, nastavlja gdje je stalo.",
-      "steps": "Koraci",
-      "onPhone": "Vježba se pravi na računaru: njeno slušanje traži čitanje naglas, koje ovaj telefon ne stigne. Ovdje je ono što je došlo s kursom (preuzimanjem ili iz datoteke)."
+      "steps": "Koraci"
     },
     "another": "Druga varijanta"
   },

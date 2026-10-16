@@ -44,7 +44,7 @@ export const [useSpeechState, useSpeechModels] = downloadable(
 
 /** Piper's voices on the server: the engine (built or not), each voice, each language's automatic
  *  one. */
-export const [usePiperVoices] = downloadable(
+export const [usePiperVoices, usePiperVoiceActions] = downloadable(
   "piper-voices",
   () => json(api.speech.voices.$get()),
   (s) => s.voices,

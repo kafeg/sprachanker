@@ -9,7 +9,7 @@ import { createModelDownloads } from "./model-downloads.ts";
 import { loudness, said, silent } from "./silence.ts";
 
 /** The models offered, best first: the large turbo model (quantised), and a small one for slower
- *  machines. From ggerganov/whisper.cpp on Hugging Face at a fixed commit. On Android the same model
+ *  machines (a phone's default). From ggerganov/whisper.cpp on Hugging Face at a fixed commit. On Android the same model
  *  is run quantised to q8_0 (ARM's int8 paths: docs/decisions.md): its file there. */
 const WHISPER_MODELS: Array<ModelFile & { android: Omit<ModelFile, "id"> }> = [
   {
@@ -56,6 +56,8 @@ export function createSpeech(deps: { host?: SpeechHost; fetch: typeof fetch }) {
     const here = ofHere(m);
     return !!host?.models.path(here.file, here.bytes);
   };
+  /** The models best first for this machine: on a phone the small one first (its default). */
+  const ranked = host?.phone ? [...WHISPER_MODELS].reverse() : WHISPER_MODELS;
   /** Course recordings heard, by model, language and recording; a failed hearing is not kept. */
   const heard = createOnce<string>({ keep: true });
 
@@ -116,7 +118,7 @@ export function createSpeech(deps: { host?: SpeechHost; fetch: typeof fetch }) {
     state() {
       return {
         engine: !!binary(),
-        models: WHISPER_MODELS.map((m) => ({
+        models: ranked.map((m) => ({
           id: m.id,
           bytes: ofHere(m).bytes,
           installed: installed(m),
@@ -125,9 +127,10 @@ export function createSpeech(deps: { host?: SpeechHost; fetch: typeof fetch }) {
       };
     },
 
-    /** The model a profile uses: its choice if installed, else the best installed one. */
+    /** The model a profile uses: its choice if installed, else the first installed one for this
+     *  machine (on a phone the small one). */
     modelFor(choice: unknown) {
-      const ready = WHISPER_MODELS.filter(installed);
+      const ready = ranked.filter(installed);
       return (ready.find((m) => m.id === choice) ?? ready[0])?.id;
     },
 

@@ -1266,7 +1266,11 @@
       "readHint": "Głos czyta teksty w jednym języku: kwestie dialogów, przykład do słowa i słowa bez nagrania. Każdy język ma swój głos.",
       "engine": {
         "device": "Głosy tego urządzenia",
+        "deviceLine": "{count, plural, one {# głos} few {# głosy} many {# głosów} other {# głosu}}, nic do instalowania",
+        "deviceNone": "To urządzenie nie ma głosów do czytania.",
         "piper": "Piper na tym urządzeniu",
+        "piperMissing": "Brak w tej wersji: aplikację zbudowano bez silników mowy",
+        "piperLine": "{count, plural, =0 {brak głosów: pobierz któryś poniżej} one {pobrano # głos} few {pobrano # głosy} many {pobrano # głosów} other {pobrano # głosu}}",
         "qwen": "Qwen3-TTS na tym urządzeniu",
         "qwenMissing": "Brak w tej wersji: aplikację zbudowano bez silników mowy",
         "qwenReady": "Gotowe: model pobrany",
@@ -1274,12 +1278,29 @@
       },
       "voiceFor": "Głos dla języka: {language}",
       "voiceAuto": "Automatycznie — {name}",
+      "noVoice": "To urządzenie nie ma głosu dla języka: {language}.",
+      "betterVoices": "Na Macu lepsze głosy (Premium, Rozszerzone) pobiera się w Ustawienia systemowe → Dostępność → Mowa → Głos systemowy → Zarządzaj głosami.",
+      "phoneVoices": "Więcej głosów zainstalujesz w ustawieniach Androida: Ułatwienia dostępu → Przetwarzanie tekstu na mowę → ustawienia mechanizmu → Zainstaluj dane głosowe.",
+      "readRate": "Tempo: {rate}×",
+      "readRateLabel": "Tempo czytania",
+      "piperNone": "Nie ma jeszcze głosu dla języka: {language}. Pobierz któryś poniżej.",
+      "piperNoLanguage": "Piper nie ma głosu dla języka: {language}. Czytają go głosy urządzenia.",
+      "piperHint": "Głosy Piper mają po około 60–120 MB i zostają na tym urządzeniu; język bez głosu czytają głosy urządzenia.",
+      "removeVoice": "Usuń głos {voice}",
+      "allVoices": "Wszystkie głosy ({count, number})",
+      "quality": {
+        "x_low": "najniższa jakość",
+        "low": "niska jakość",
+        "medium": "średnia jakość",
+        "high": "wysoka jakość"
+      },
       "qwenModel": {
         "small": "Mały model (0.6B): szybszy",
         "large": "Duży model (1.7B): bardziej naturalny, wolniejszy"
       },
       "qwenHint": "Neuronowy głos, który czyta w 10 językach (niemieckim, angielskim, rosyjskim, francuskim, hiszpańskim, włoskim, portugalskim, chińskim, japońskim, koreańskim) dziewięcioma głosami. Gdy działa, zajmuje ok. 3 GB pamięci (więcej przy dużym modelu) i wyłącza się po 10 minutach bez czytania; pierwsze czytanie potem czeka ok. 20 s na wczytanie. Języki, których nie zna, czytają głosy urządzenia.",
       "qwenNoLanguage": "Qwen3-TTS nie obsługuje języka: {language}. Czytają go głosy urządzenia.",
+      "qwenOnPhone": "Na telefonie Qwen3-TTS działa długo: na średniej klasy (Snapdragon 860) 8–20 s na słowo lub zdanie i około 3 GB pamięci. Raz przeczytany tekst zostaje zapisany i potem brzmi od razu. Piper i głosy urządzenia czytają w sekundę, dwie.",
       "howMic": "Tam, gdzie odpowiedź jest ustna (część ustna egzaminu), jest mikrofon: stuknij, by zacząć nagrywanie, stuknij ponownie, by zatrzymać. Tam, gdzie zadanie jest pisemne, go nie ma.",
       "howPhrase": "Zdanie do powtórzenia jest ukryte do pierwszej próby; możesz je pokazać wcześniej.",
       "howRecordings": "Twoje nagrania są przechowywane na tym urządzeniu, by można było ich posłuchać w Zeszycie; usuniesz je w Ustawieniach → Ogólne → Dane.",
@@ -1296,8 +1317,7 @@
         "where": "{course} · lekcja {lesson, number}",
         "male": "głos męski",
         "female": "głos kobiecy"
-      },
-      "readOnPhone": "Czytanie na głos głosami komputera jest na tym telefonie wyłączone: Qwen3-TTS potrzebował tu 10–42 s na słowo lub zdanie (na komputerze około sekundy). Własne nagrania kursów i ćwiczeń grają; słowo bez nagrania pozostaje ciche."
+      }
     },
     "listening": "Słucham…",
     "heardLater": "Jeszcze nie rozpoznano — twoje nagranie jest zapisane; to, co usłyszano, pojawi się za chwilę.",
@@ -1310,7 +1330,7 @@
       "wrong": "Spróbuj ponownie: posłuchaj i powiedz to jeszcze raz"
     },
     "model": {
-      "large-v3-turbo-q5_0": "Whisper large-v3 turbo — dokładny (polecany)",
+      "large-v3-turbo-q5_0": "Whisper large-v3 turbo — dokładny",
       "small-q5_1": "Whisper small — szybszy, mniej dokładny"
     },
     "sayIn": "Powiedz to w języku: {language}",
@@ -1749,8 +1769,7 @@
       "stop": "Zatrzymaj",
       "make": "Zrób dla wszystkich lekcji",
       "upTo": "Kroki każdej lekcji są uzupełniane do wybranej liczby; uruchomione ponownie, kontynuuje tam, gdzie skończyło.",
-      "steps": "Kroki",
-      "onPhone": "Ćwiczenia powstają na komputerze: ich słuchanie wymaga czytania na głos, z którym ten telefon nie zdąża. Tu jest to, co przyszło z kursem (z pobierania lub z pliku)."
+      "steps": "Kroki"
     },
     "another": "Inny wariant"
   },

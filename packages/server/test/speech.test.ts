@@ -99,6 +99,21 @@ test("speech: models downloaded, the engine started on demand with the chosen mo
   expect((await send("POST", "/api/speech/models/nope", {})).status).toBe(404);
 });
 
+test("speech on a phone: every model offered, the small one first and used when both are there", async () => {
+  const m = machine();
+  const { getJson, sendJson, send } = await setup({
+    fetch: m.fetch,
+    speech: { ...m.host, phone: true },
+  });
+  const ids = (s: { models: Array<{ id: string }> }) => s.models.map((x) => x.id);
+  expect(ids(await getJson("/api/speech"))).toEqual(["small-q5_1", "large-v3-turbo-q5_0"]);
+  await sendJson("POST", "/api/speech/models/large-v3-turbo-q5_0", {});
+  await sendJson("POST", "/api/speech/models/small-q5_1", {});
+  expect((await getJson("/api/speech")).model).toBe("small-q5_1");
+  await send("PUT", "/api/settings", { key: "speech.model", value: "large-v3-turbo-q5_0" });
+  expect((await getJson("/api/speech")).model).toBe("large-v3-turbo-q5_0");
+});
+
 test("speech: without the engine built, nothing to recognise with", async () => {
   const m = machine();
   const { getJson } = await setup({

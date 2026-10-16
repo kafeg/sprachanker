@@ -18,10 +18,12 @@ import {
   modelStore,
   practiceFiles,
   profileTransferFiles,
+  readingCache,
   SESSION_HEADER,
   type ServerDb,
   serverMigrations,
   serverSchema,
+  voiceStore,
 } from "@sprachanker/server/portable";
 import { drizzle } from "drizzle-orm/sql-js";
 import { bridge, check, latin1, needBridge } from "./bridge.ts";
@@ -32,9 +34,11 @@ import { FILES, native, setNetFetch, startHost } from "./native.ts";
 import { nativeFetch } from "./net.ts";
 import { phoneNetwork } from "./network.ts";
 import { phoneFs } from "./phone-fs.ts";
+import { phonePiper } from "./piper.ts";
 import { profileFiles } from "./profiles.ts";
 import { phoneSpeech } from "./speech.ts";
 import { phoneApkg, phoneProfileSql } from "./sql.ts";
+import { installVoices } from "./voices.ts";
 
 /** The app's version, set when the page is built (scripts/build.ts). */
 declare const SPRACHANKER_VERSION: string;
@@ -50,6 +54,8 @@ setNetFetch(netFetch);
 // whether the app is open to other devices here (Android).
 (globalThis as { sprachankerPhone?: boolean }).sprachankerPhone = true;
 (globalThis as { sprachankerOpenToOthers?: boolean }).sprachankerOpenToOthers = !!bridge;
+// The device's voices as the page's speechSynthesis (Android's WebView has none).
+installVoices();
 
 /** What the phone's server answers when asked for what it does not have; at the start, nothing. */
 const EMPTY: Record<string, unknown> = {
@@ -99,10 +105,12 @@ function storageOver(
   fs: DataFs,
   root: string,
   profiles: { live(id: string): Uint8Array | undefined },
+  engines: string[],
 ) {
   const data: DataRoot = { fs, path: root, pid: 0, runs: () => false, fetch: nativeFetch };
   const installer = courseInstaller(data);
   const models = modelStore(fs, `${root}/models`, nativeFetch);
+  const piper = phonePiper(fs, root, nativeFetch, { built: engines.includes("piper") });
   return {
     library: openLibrary(fs, `${root}/library`),
     decks: deckFiles(
@@ -126,6 +134,13 @@ function storageOver(
           models.download(url, model, onProgress, signal),
         ),
     } satisfies typeof models,
+    wordVoices: voiceStore(fs, `${root}/models/word-voices`),
+    readings: readingCache(fs, root),
+    piper: {
+      ...piper,
+      download: (url, voice, onProgress, signal) =>
+        working(`SprachAnker ↓ ${voice.id}`, () => piper.download(url, voice, onProgress, signal)),
+    } satisfies typeof piper,
   };
 }
 
@@ -167,12 +182,16 @@ async function start() {
   const sqlite = await openDb(files, "server.sqlite", serverMigrations);
   const server = drizzle(sqlite.db, { schema: serverSchema }) as ServerDb;
   const profiles = await profileFiles(files);
-  const storage = fs && root ? storageOver(fs, root, profiles) : undefined;
-  const speech = phoneSpeech(
-    storage?.models ?? notOnPhone("speech models"),
-    await native.asrBuilt(),
-    !!storage,
-  );
+  const engines = await native.enginesBuilt();
+  // Engines a page before this one started (a reload) have no owner now.
+  if (engines.length) await native.enginesStopAll();
+  const storage = fs && root ? storageOver(fs, root, profiles, engines) : undefined;
+  const speech = phoneSpeech(storage?.models ?? notOnPhone("speech models"), {
+    whisper: await native.asrBuilt(),
+    engines: storage ? engines : [],
+    android: !!storage,
+    wordVoices: storage?.wordVoices,
+  });
   let secretKey = await files.read("secret.key");
   if (secretKey?.length !== 32) {
     secretKey = crypto.getRandomValues(new Uint8Array(32));
@@ -206,12 +225,31 @@ async function start() {
     // On every address where the listener started, as the desktop app's server.
     listensOn: port ? { hostname: "0.0.0.0", port } : { hostname: "127.0.0.1", port: 0 },
     network: port && bridge ? phoneNetwork(bridge) : undefined,
+    piper: storage?.piper,
+    readings: storage?.readings,
     sessionInHeader: true,
   });
   document.addEventListener("visibilitychange", () => {
     if (document.visibilityState === "hidden") void flushAll();
+    stopEnginesAway(speech.idle);
   });
   return app;
+}
+
+/** How long the app is put away before its engines stop. */
+const ENGINES_AWAY_MS = 60_000;
+let away: ReturnType<typeof setTimeout> | undefined;
+/** The engines stopped once the app has been put away a while and none is asked anything: their
+ *  gigabytes would keep the app's own standing with the memory killer (an app may not lower it), so
+ *  the system would end the app first. The next reading starts them again. */
+function stopEnginesAway(idle: () => boolean) {
+  clearTimeout(away);
+  if (document.visibilityState !== "hidden") return;
+  away = setTimeout(() => {
+    if (document.visibilityState !== "hidden") return;
+    if (idle()) void native.enginesStopAll();
+    else stopEnginesAway(idle);
+  }, ENGINES_AWAY_MS);
 }
 
 /** The device's session, kept on the device across starts (as a browser keeps the cookie). */

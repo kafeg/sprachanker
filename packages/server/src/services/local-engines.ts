@@ -49,6 +49,9 @@ interface LocalEngine<Files> {
 export interface SpeechHost {
   /** Android: a model's own file for it there (Whisper's q8_0, the speech service's list). */
   platform?: "android";
+  /** A phone: the small models are the defaults (Whisper's, Qwen3-TTS's), every one offered; one Qwen3-TTS
+   *  process at a time (its memory). */
+  phone?: boolean;
   /** A free port on 127.0.0.1. */
   freePort(): Promise<number>;
   models: ModelStore;

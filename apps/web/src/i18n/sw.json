@@ -1266,7 +1266,11 @@
       "readHint": "Sauti husoma maandishi katika lugha moja: mistari ya mazungumzo, mfano wa neno na maneno yasiyo na rekodi. Kila lugha ina sauti yake.",
       "engine": {
         "device": "Sauti za kifaa hiki",
+        "deviceLine": "{count, plural, one {sauti #} other {sauti #}}, hakuna cha kusakinisha",
+        "deviceNone": "Kifaa hiki hakina sauti za kusoma.",
         "piper": "Piper kwenye kifaa hiki",
+        "piperMissing": "Haipo katika toleo hili: programu ilijengwa bila injini zake za sauti",
+        "piperLine": "{count, plural, =0 {bado hakuna sauti: pakua moja hapa chini} one {sauti # imepakuliwa} other {sauti # zimepakuliwa}}",
         "qwen": "Qwen3-TTS kwenye kifaa hiki",
         "qwenMissing": "Haipo katika toleo hili: programu ilijengwa bila injini zake za sauti",
         "qwenReady": "Tayari: modeli imepakuliwa",
@@ -1274,12 +1278,29 @@
       },
       "voiceFor": "Sauti ya {language}",
       "voiceAuto": "Kiotomatiki — {name}",
+      "noVoice": "Kifaa hiki hakina sauti ya {language}.",
+      "betterVoices": "Kwenye Mac, sauti bora zaidi (Premium, Enhanced) hupakuliwa katika System Settings → Accessibility → Spoken Content → System voice → Manage voices.",
+      "phoneVoices": "Sauti zaidi husakinishwa kwenye mipangilio ya Android: Ufikivu → Kusoma maandishi kwa sauti → mipangilio ya injini → Sakinisha data ya sauti.",
+      "readRate": "Kasi: {rate}×",
+      "readRateLabel": "Kasi ya kusoma",
+      "piperNone": "Bado hakuna sauti ya {language}: pakua moja hapa chini.",
+      "piperNoLanguage": "Piper haina sauti ya {language}: sauti za kifaa zinaisoma.",
+      "piperHint": "Kila sauti ya Piper ni takriban MB 60–120 na hubaki kwenye kifaa hiki; lugha isiyo na sauti husomwa na sauti za kifaa.",
+      "removeVoice": "Ondoa sauti {voice}",
+      "allVoices": "Sauti zote ({count, number})",
+      "quality": {
+        "x_low": "ubora wa chini kabisa",
+        "low": "ubora wa chini",
+        "medium": "ubora wa kati",
+        "high": "ubora wa juu"
+      },
       "qwenModel": {
         "small": "Modeli ndogo (0.6B): ya haraka zaidi",
         "large": "Modeli kubwa (1.7B): ya asili zaidi, polepole zaidi"
       },
       "qwenHint": "Sauti ya mtandao wa neva inayosoma lugha 10 (Kijerumani, Kiingereza, Kirusi, Kifaransa, Kihispania, Kiitaliano, Kireno, Kichina, Kijapani, Kikorea) kwa wazungumzaji tisa. Inapoendeshwa inashikilia takriban GB 3 za kumbukumbu (zaidi kwa modeli kubwa) na inasimama baada ya dakika 10 bila kusoma; usomaji wa kwanza baada ya hapo husubiri takriban sekunde 20 inapopakiwa. Lugha zisizozungumzwa nayo husomwa na sauti za kifaa.",
       "qwenNoLanguage": "Qwen3-TTS haizungumzi {language}: sauti za kifaa zinaisoma.",
+      "qwenOnPhone": "Kwenye simu Qwen3-TTS huchukua muda: kwenye simu ya kiwango cha kati (Snapdragon 860) 8–20 sekunde kwa neno au sentensi, na takriban GB 3 za kumbukumbu. Maandishi yaliyosomwa mara moja huhifadhiwa na baadaye huja mara moja. Piper na sauti za kifaa husoma ndani ya sekunde moja au mbili.",
       "howMic": "Mahali ambapo jibu linatamkwa (sehemu ya kuzungumza ya mtihani), kuna maikrofoni: gusa ili kuanza kurekodi, gusa tena ili kuacha. Mahali ambapo kazi ni kuandika, hakuna.",
       "howPhrase": "Sentensi ya kurudia imefichwa hadi jaribio lako la kwanza; unaweza kuionyesha mapema.",
       "howRecordings": "Rekodi zako zinahifadhiwa kwenye kifaa hiki ili uzisikilize tena katika Daftari; zifute katika Jumla → Hifadhi.",
@@ -1296,8 +1317,7 @@
         "where": "{course} · somo {lesson, number}",
         "male": "sauti ya mwanamume",
         "female": "sauti ya mwanamke"
-      },
-      "readOnPhone": "Kusoma kwa sauti kwa sauti za kompyuta kumezimwa kwenye simu hii: Qwen3-TTS ilichukua sekunde 10–42 hapa kwa neno au sentensi (kwenye kompyuta takriban sekunde moja). Rekodi za kozi na mazoezi hucheza; neno lisilo na rekodi hubaki kimya."
+      }
     },
     "listening": "Inasikiliza…",
     "heardLater": "Bado haijatambuliwa — rekodi yako imehifadhiwa; kilichosikika kitafuata.",
@@ -1310,7 +1330,7 @@
       "wrong": "Jaribu tena: sikiliza na uitamke mara nyingine"
     },
     "model": {
-      "large-v3-turbo-q5_0": "Whisper large-v3 turbo — sahihi (inapendekezwa)",
+      "large-v3-turbo-q5_0": "Whisper large-v3 turbo — sahihi",
       "small-q5_1": "Whisper small — ya haraka zaidi, si sahihi sana"
     },
     "sayIn": "Itamke kwa {language}",
@@ -1749,8 +1769,7 @@
       "stop": "Simamisha",
       "make": "Tengeneza kwa masomo yote",
       "upTo": "Hatua za kila somo hujazwa hadi idadi uliyochagua; ukianzisha tena, inaendelea pale ilipoishia.",
-      "steps": "Hatua",
-      "onPhone": "Mazoezi hutengenezwa kwenye kompyuta: Kusikiliza kwake kunahitaji kusoma kwa sauti, jambo ambalo simu hii haiwezi kwa wakati. Hapa kuna kilichokuja na kozi (kwa kupakua au kwa faili)."
+      "steps": "Hatua"
     },
     "another": "Toleo jingine"
   },

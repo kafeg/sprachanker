@@ -1266,7 +1266,11 @@
       "readHint": "O voce citește textele într-o limbă: replicile dialogurilor, exemplul unui cuvânt și cuvintele fără înregistrare. Fiecare limbă are vocea ei.",
       "engine": {
         "device": "Vocile acestui dispozitiv",
+        "deviceLine": "{count, plural, one {# voce} few {# voci} other {# de voci}}, nimic de instalat",
+        "deviceNone": "Acest dispozitiv nu are voci pentru citire.",
         "piper": "Piper pe acest dispozitiv",
+        "piperMissing": "Nu e în această versiune: aplicația a fost compilată fără motoarele de vorbire",
+        "piperLine": "{count, plural, =0 {încă nicio voce: descarcă una mai jos} one {# voce descărcată} few {# voci descărcate} other {# de voci descărcate}}",
         "qwen": "Qwen3-TTS pe acest dispozitiv",
         "qwenMissing": "Nu e în această versiune: aplicația a fost compilată fără motoarele de vorbire",
         "qwenReady": "Gata: un model descărcat",
@@ -1274,12 +1278,29 @@
       },
       "voiceFor": "Voce pentru {language}",
       "voiceAuto": "Automat — {name}",
+      "noVoice": "Acest dispozitiv nu are nicio voce pentru {language}.",
+      "betterVoices": "Pe un Mac, voci mai bune (Premium, Îmbunătățită) se descarcă în Configurări sistem → Accesibilitate → Conținut vorbit → Voce sistem → Gestionează vocile.",
+      "phoneVoices": "Alte voci se instalează din setările Android: Accesibilitate → Transformare text în vorbire → setările motorului → Instalează date vocale.",
+      "readRate": "Viteză: {rate}×",
+      "readRateLabel": "Viteza de citire",
+      "piperNone": "Încă nicio voce pentru {language}: descarcă una mai jos.",
+      "piperNoLanguage": "Piper nu are nicio voce pentru {language}: o citesc vocile dispozitivului.",
+      "piperHint": "Vocile Piper au fiecare cam 60–120 MB și rămân pe acest dispozitiv; o limbă fără voce e citită de vocile dispozitivului.",
+      "removeVoice": "Elimină vocea {voice}",
+      "allVoices": "Toate vocile ({count, number})",
+      "quality": {
+        "x_low": "calitate minimă",
+        "low": "calitate scăzută",
+        "medium": "calitate medie",
+        "high": "calitate înaltă"
+      },
       "qwenModel": {
         "small": "Model mic (0.6B): mai rapid",
         "large": "Model mare (1.7B): mai natural, mai lent"
       },
       "qwenHint": "O voce neuronală care citește 10 limbi (germană, engleză, rusă, franceză, spaniolă, italiană, portugheză, chineză, japoneză, coreeană) cu nouă vorbitori. Cât rulează, ocupă circa 3 GB de memorie (mai mult pentru modelul mare) și se oprește după 10 minute fără citire; prima citire după aceea așteaptă circa 20 s cât se încarcă. Limbile pe care nu le vorbește sunt citite de vocile dispozitivului.",
       "qwenNoLanguage": "Qwen3-TTS nu vorbește {language}: o citesc vocile dispozitivului.",
+      "qwenOnPhone": "Pe telefon Qwen3-TTS e lent: pe unul de gamă medie (Snapdragon 860) 8–20 s pentru un cuvânt sau o propoziție și cam 3 GB de memorie. Un text citit o dată se păstrează și apoi vine imediat. Piper și vocile dispozitivului citesc într-o secundă-două.",
       "howMic": "Acolo unde un răspuns se spune cu voce tare (proba orală a unui examen), un microfon: atinge ca să începi înregistrarea, atinge din nou ca s-o oprești. Unde sarcina e scrisă, nu există.",
       "howPhrase": "Fraza de repetat e ascunsă până la prima ta încercare; o poți afișa și mai devreme.",
       "howRecordings": "Înregistrările tale se păstrează pe acest dispozitiv ca să le reasculți în Caiet; le ștergi în General → Stocare.",
@@ -1296,8 +1317,7 @@
         "where": "{course} · lecția {lesson, number}",
         "male": "voce de bărbat",
         "female": "voce de femeie"
-      },
-      "readOnPhone": "Citirea cu voce tare cu vocile computerului este oprită pe acest telefon: Qwen3-TTS a avut nevoie aici de 10–42 s pentru un cuvânt sau o frază (pe un computer, cam o secundă). Înregistrările proprii ale cursurilor și ale exersării se aud; un cuvânt fără înregistrare rămâne mut."
+      }
     },
     "listening": "Se ascultă…",
     "heardLater": "Încă nerecunoscut — înregistrarea ta e păstrată; ce s-a auzit vine imediat.",
@@ -1310,7 +1330,7 @@
       "wrong": "Încearcă din nou: ascultă și spune încă o dată"
     },
     "model": {
-      "large-v3-turbo-q5_0": "Whisper large-v3 turbo — precis (recomandat)",
+      "large-v3-turbo-q5_0": "Whisper large-v3 turbo — precis",
       "small-q5_1": "Whisper small — mai rapid, mai puțin precis"
     },
     "sayIn": "Spune în {language}",
@@ -1749,8 +1769,7 @@
       "stop": "Oprește",
       "make": "Fă pentru toate lecțiile",
       "upTo": "Pașii fiecărei lecții sunt completați până la numărul ales; pornit din nou, continuă de unde s-a oprit.",
-      "steps": "Pași",
-      "onPhone": "Exersarea se face pe un computer: ascultarea ei are nevoie de citire cu voce tare, pe care acest telefon nu o face la timp. Aici e ce a venit cu cursul (la descărcare sau din fișier)."
+      "steps": "Pași"
     },
     "another": "Altă variantă"
   },

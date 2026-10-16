@@ -22,13 +22,13 @@ src/
                      # course-transfer.ts (bundles, one path everywhere: a course or every group (exportAll) zipped as streamed from
                      # the library; read as they come, what the library lacks written as it passes, checked and installed by
                      # course-kit's bundle.ts under the lock, verified; one stopped midway undone at the start); decks.ts (deck folders written whole: replaceFolder; extras.json, media;
-                     # .apkg uploads); deck-transfer.ts (deck files: zipped, read, unpacked, placed); practice.ts (addPractice, locked)
+                     # .apkg uploads); deck-transfer.ts (deck files: zipped, read, unpacked, placed); practice.ts (addPractice, locked);
+                     # readings.ts (what was read aloud, kept in cache/tts: made once, stopped once no request waits)
   runtime/           # Bun/Node adapters: listen, web assets, sqlite, secret key, data-root.ts (one server per data root: server.pid;
                      # nodeDataRoot over Node's files); process-name.ts (`ps` names a pid); lmstudio.ts (detect, `lms server start`);
                      # engines.ts (the engines built in native/ — also read by the build scripts —, their processes going with the
                      # server), model-files.ts (storage's over Node), speech.ts (whisper-server, Qwen3-TTS's tts-server), piper.ts
-                     # (Piper's voices and runs), readings.ts (what was read aloud, kept in cache/tts: made once, stopped once no
-                     # request waits); backup.ts (a copy of each database a day; a backup on request); profile-sql.ts (ProfileSql
+                     # (Piper's voices and runs), readings.ts (storage's reading cache over Node); backup.ts (a copy of each database a day; a backup on request); profile-sql.ts (ProfileSql
                      # over bun:sqlite: VACUUM INTO, a received database made ready in a Worker — profile-db-worker.ts); network.ts
                      # (IPv4 addresses, `.local` name, `tailscale status` / `serve status`); cli.ts (`claude` / `codex` for the
                      # command-line LLM providers); apkg.ts (what an .apkg needs: SQLite from bytes, zstd)
