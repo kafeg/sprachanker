@@ -18,7 +18,6 @@
     "@fontsource/fira-sans-condensed": "5.3.0",
     "@sprachanker/engine": "workspace:*",
     "@sprachanker/schema": "workspace:*",
-    "@tailwindcss/vite": "4.3.3",
     "@tanstack/react-query": "5.104.1",
     "@tanstack/react-router": "1.170.41",
     "class-variance-authority": "0.7.1",
@@ -43,6 +42,7 @@
   "devDependencies": {
     "@happy-dom/global-registrator": "20.14.5",
     "@sprachanker/server": "workspace:*",
+    "@tailwindcss/vite": "4.3.3",
     "@testing-library/dom": "10.4.2",
     "@testing-library/react": "16.3.3",
     "@types/markdown-it": "14.2.0",
