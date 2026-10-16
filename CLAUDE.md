@@ -26,7 +26,7 @@ for the area you touch (the owner's decisions and why, invariants of stored data
 | `apps/cli` | The `sprachanker` binary: `serve` (starts the server), `import`, `verify`, `profiles`. Compiled with the web build embedded. | `apps/cli/CLAUDE.md` |
 | `native` | Builds of whisper.cpp (`whisper-server`), sherpa-onnx (`sherpa-onnx-offline-tts`, Piper voices) and qwentts.cpp (`tts-server`, Qwen3-TTS). | `native/CLAUDE.md` |
 | `e2e` | Playwright end-to-end tests against the compiled binary. | — |
-| `scripts` | Repository checks run by `bun test`: boundary rules test, CLAUDE.md paths. | — |
+| `scripts` | Repository checks run by `bun test`: boundary rules test, CLAUDE.md paths. `scripts/notices`: the third-party notices every build ships, and their check. | `scripts/notices/CLAUDE.md` |
 | `docs` | `decisions.md` — the owner's decisions and invariants; `plan.md` — remaining work; `architecture.md` — overview; `research/` — facts gathered about sources. | — |
 
 ## Dependency rules (enforced by dependency-cruiser in CI)

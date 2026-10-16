@@ -608,7 +608,10 @@
     "intro": "A self-hosted, local-first language tutor: real courses in one player, progress and speech on your own device, any AI model you connect. Free and open source.",
     "version": "Version",
     "licence": "Licence: MIT",
-    "source": "Source code on GitHub"
+    "source": "Source code on GitHub",
+    "notices": "Third-party components and licences",
+    "noticesIntro": "SprachAnker is built with these components, each under its own licence; the licence texts follow the list.",
+    "noticesMissing": "This build carries no list: it is made by the builds that are given out — the program, the Mac app and the Android app."
   },
   "addresses": {
     "title": "Other devices",

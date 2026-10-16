@@ -59,7 +59,7 @@ apps/web/src/
                    # profile" starts the onboarding; profile-import: a profile file sent, the new one), onboarding (name and colour — the profile made at its
                    # Next —, the AI step a slot from the router, speech, tour — app/tour.tsx: the sections,
                    # an icon and a line each), name-colour (the onboarding's and Settings → Profile's),
-                   # profile-settings (profile-export: its file), device-name, about, other-devices (Settings → General's addresses to copy or scan; the sidebar's "On a phone"), preferences (language, theme, playback speed),
+                   # profile-settings (profile-export: its file), device-name, about (the build's third-party notices in a sheet), other-devices (Settings → General's addresses to copy or scan; the sidebar's "On a phone"), preferences (language, theme, playback speed),
                    # experimental (courses ready for learning always, experimental ones turned on), experimental-settings
   llm/             # AI assistant: settings (AssistantSetup: provider-cards, key-state, model-list over the
                    # pure model-filter; LM Studio), "Why is this wrong?", tutor (the chat view; the lesson's

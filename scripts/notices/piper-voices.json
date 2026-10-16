@@ -1,0 +1,658 @@
+{
+  "ar_JO-SA_dii-high": {
+    "licence": "CC-BY-NC-ND-4.0",
+    "source": "https://huggingface.co/OpenVoiceOS/phoonnx_ar_dii_espeak"
+  },
+  "ar_JO-SA_miro-high": {
+    "licence": "CC-BY-NC-ND-4.0",
+    "source": "https://huggingface.co/OpenVoiceOS/phoonnx_ar_miro_espeak"
+  },
+  "ar_JO-SA_miro_V2-high": {
+    "licence": "CC-BY-NC-ND-4.0",
+    "source": "https://huggingface.co/OpenVoiceOS/phoonnx_ar_miro_espeak_V2"
+  },
+  "ar_JO-kareem-low": {
+    "licence": "Unknown",
+    "source": "https://github.com/AliMokhammad/arabicttstrain/"
+  },
+  "ar_JO-kareem-medium": {
+    "licence": "Unknown",
+    "source": "https://github.com/AliMokhammad/arabicttstrain/"
+  },
+  "ca_ES-upc_ona-medium": {
+    "licence": "CC-BY-SA-3.0 ES",
+    "source": "https://huggingface.co/rhasspy/piper-voices/blob/main/ca/ca_ES/upc_ona/medium/MODEL_CARD"
+  },
+  "ca_ES-upc_ona-x_low": {
+    "licence": "CC-BY-SA-3.0 ES",
+    "source": "https://huggingface.co/rhasspy/piper-voices/blob/main/ca/ca_ES/upc_ona/x_low/MODEL_CARD"
+  },
+  "ca_ES-upc_pau-x_low": {
+    "licence": "CC-BY-SA-3.0 ES",
+    "source": "https://huggingface.co/rhasspy/piper-voices/blob/main/ca/ca_ES/upc_pau/x_low/MODEL_CARD"
+  },
+  "cs_CZ-jirka-low": {
+    "licence": "CC0-1.0",
+    "source": "https://huggingface.co/rhasspy/piper-voices/blob/main/cs/cs_CZ/jirka/low/MODEL_CARD"
+  },
+  "cs_CZ-jirka-medium": {
+    "licence": "CC0-1.0",
+    "source": "https://huggingface.co/rhasspy/piper-voices/blob/main/cs/cs_CZ/jirka/medium/MODEL_CARD"
+  },
+  "cy_GB-bu_tts-medium": {
+    "licence": "CC-BY (version not stated)",
+    "source": "https://huggingface.co/rhasspy/piper-voices/blob/main/cy/cy_GB/bu_tts/medium/MODEL_CARD"
+  },
+  "cy_GB-gwryw_gogleddol-medium": {
+    "licence": "Unknown",
+    "source": "https://git.techiaith.bangor.ac.uk/data-porth-technolegau-iaith/corpws-talentau-llais"
+  },
+  "da_DK-talesyntese-medium": {
+    "licence": "CC0-1.0",
+    "source": "https://huggingface.co/rhasspy/piper-voices/blob/main/da/da_DK/talesyntese/medium/MODEL_CARD"
+  },
+  "de_DE-dii-high": {
+    "licence": "CC-BY-NC-ND-4.0",
+    "source": "https://huggingface.co/OpenVoiceOS/pipertts_de-DE_dii"
+  },
+  "de_DE-eva_k-x_low": {
+    "licence": "BSD-style M-AILABS licence (commercial use allowed)",
+    "source": "https://www.caito.de/2019/01/03/the-m-ailabs-speech-dataset/"
+  },
+  "de_DE-karlsson-low": {
+    "licence": "BSD-style M-AILABS licence (commercial use allowed)",
+    "source": "https://www.caito.de/2019/01/03/the-m-ailabs-speech-dataset/"
+  },
+  "de_DE-kerstin-low": {
+    "licence": "CC0-1.0",
+    "source": "https://huggingface.co/rhasspy/piper-voices/blob/main/de/de_DE/kerstin/low/MODEL_CARD"
+  },
+  "de_DE-miro-high": {
+    "licence": "CC-BY-NC-ND-4.0",
+    "source": "https://huggingface.co/OpenVoiceOS/pipertts_de-DE_miro"
+  },
+  "de_DE-pavoque-low": {
+    "licence": "CC-BY-NC-SA-4.0",
+    "source": "https://huggingface.co/rhasspy/piper-voices/blob/main/de/de_DE/pavoque/low/MODEL_CARD"
+  },
+  "de_DE-ramona-low": {
+    "licence": "BSD-style M-AILABS licence (commercial use allowed)",
+    "source": "https://www.caito.de/2019/01/03/the-m-ailabs-speech-dataset/"
+  },
+  "de_DE-thorsten-high": {
+    "licence": "CC0-1.0",
+    "source": "https://huggingface.co/rhasspy/piper-voices/blob/main/de/de_DE/thorsten/high/MODEL_CARD"
+  },
+  "de_DE-thorsten-low": {
+    "licence": "CC0-1.0",
+    "source": "https://huggingface.co/rhasspy/piper-voices/blob/main/de/de_DE/thorsten/low/MODEL_CARD"
+  },
+  "de_DE-thorsten-medium": {
+    "licence": "CC0-1.0",
+    "source": "https://huggingface.co/rhasspy/piper-voices/blob/main/de/de_DE/thorsten/medium/MODEL_CARD"
+  },
+  "el_GR-rapunzelina-low": {
+    "licence": "CC0-1.0",
+    "source": "https://huggingface.co/rhasspy/piper-voices/blob/main/el/el_GR/rapunzelina/low/MODEL_CARD"
+  },
+  "en_GB-alan-low": {
+    "licence": "CC-BY-SA-4.0 (mimic3-voices repo; the voice folder's own LICENSE says 'All rights reserved, Mycroft AI')",
+    "source": "https://github.com/MycroftAI/mimic3-voices/tree/master/voices/en_UK/apope_low"
+  },
+  "en_GB-alan-medium": {
+    "licence": "CC-BY-SA-4.0 (mimic3-voices repo; the voice folder's own LICENSE says 'All rights reserved, Mycroft AI')",
+    "source": "https://github.com/MycroftAI/mimic3-voices/tree/master/voices/en_UK/apope_low"
+  },
+  "en_GB-alba-medium": {
+    "licence": "CC-BY-4.0",
+    "source": "https://huggingface.co/rhasspy/piper-voices/blob/main/en/en_GB/alba/medium/MODEL_CARD"
+  },
+  "en_GB-aru-medium": {
+    "licence": "CC-BY-4.0",
+    "source": "https://huggingface.co/rhasspy/piper-voices/blob/main/en/en_GB/aru/medium/MODEL_CARD"
+  },
+  "en_GB-cori-high": {
+    "licence": "Public domain",
+    "source": "https://huggingface.co/rhasspy/piper-voices/blob/main/en/en_GB/cori/high/MODEL_CARD"
+  },
+  "en_GB-cori-medium": {
+    "licence": "Public domain",
+    "source": "https://huggingface.co/rhasspy/piper-voices/blob/main/en/en_GB/cori/medium/MODEL_CARD"
+  },
+  "en_GB-dii-high": {
+    "licence": "CC-BY-NC-ND-4.0",
+    "source": "https://huggingface.co/OpenVoiceOS/pipertts_en-GB_dii"
+  },
+  "en_GB-jenny_dioco-medium": {
+    "licence": "Custom: free incl. commercial; voice must be credited as 'Jenny (Dioco)'",
+    "source": "https://github.com/dioco-group/jenny-tts-dataset"
+  },
+  "en_GB-miro-high": {
+    "licence": "CC-BY-NC-ND-4.0",
+    "source": "https://huggingface.co/OpenVoiceOS/pipertts_en-GB_miro"
+  },
+  "en_GB-northern_english_male-medium": {
+    "licence": "CC-BY-SA-4.0",
+    "source": "https://huggingface.co/rhasspy/piper-voices/blob/main/en/en_GB/northern_english_male/medium/MODEL_CARD"
+  },
+  "en_GB-semaine-medium": {
+    "licence": "CC-BY-NC-SA-4.0",
+    "source": "https://huggingface.co/rhasspy/piper-voices/blob/main/en/en_GB/semaine/medium/MODEL_CARD"
+  },
+  "en_GB-southern_english_female-low": {
+    "licence": "CC-BY-SA-4.0",
+    "source": "https://huggingface.co/rhasspy/piper-voices/blob/main/en/en_GB/southern_english_female/low/MODEL_CARD"
+  },
+  "en_GB-southern_english_female-medium": {
+    "licence": "Unknown",
+    "source": "https://huggingface.co/csukuangfj/vits-piper-en_GB-southern_english_female-medium"
+  },
+  "en_GB-southern_english_male-medium": {
+    "licence": "Apache-2.0",
+    "source": "https://huggingface.co/csukuangfj/vits-piper-en_GB-southern_english_male-medium"
+  },
+  "en_GB-vctk-medium": {
+    "licence": "CC-BY-4.0",
+    "source": "https://huggingface.co/rhasspy/piper-voices/blob/main/en/en_GB/vctk/medium/MODEL_CARD"
+  },
+  "en_US-amy-low": {
+    "licence": "CC-BY-SA-4.0",
+    "source": "https://github.com/MycroftAI/mimic3-voices/blob/master/LICENSE"
+  },
+  "en_US-amy-medium": {
+    "licence": "CC-BY-SA-4.0",
+    "source": "https://github.com/MycroftAI/mimic3-voices/blob/master/LICENSE"
+  },
+  "en_US-arctic-medium": {
+    "licence": "CMU ARCTIC licence (free for any purpose, BSD-style)",
+    "source": "http://www.festvox.org/cmu_arctic/cmu_arctic/cmu_us_bdl_arctic/COPYING"
+  },
+  "en_US-bryce-medium": {
+    "licence": "Public domain",
+    "source": "https://huggingface.co/rhasspy/piper-voices/blob/main/en/en_US/bryce/medium/MODEL_CARD"
+  },
+  "en_US-danny-low": {
+    "licence": "CC-BY-SA-4.0",
+    "source": "https://github.com/MycroftAI/mimic3-voices/blob/master/LICENSE"
+  },
+  "en_US-hfc_female-medium": {
+    "licence": "CC-BY-NC-SA-4.0",
+    "source": "https://huggingface.co/rhasspy/piper-voices/blob/main/en/en_US/hfc_female/medium/MODEL_CARD"
+  },
+  "en_US-hfc_male-medium": {
+    "licence": "CC-BY-NC-SA-4.0",
+    "source": "https://huggingface.co/rhasspy/piper-voices/blob/main/en/en_US/hfc_male/medium/MODEL_CARD"
+  },
+  "en_US-joe-medium": {
+    "licence": "CC0-1.0",
+    "source": "https://huggingface.co/rhasspy/piper-voices/blob/main/en/en_US/joe/medium/MODEL_CARD"
+  },
+  "en_US-john-medium": {
+    "licence": "Public domain",
+    "source": "https://huggingface.co/rhasspy/piper-voices/blob/main/en/en_US/john/medium/MODEL_CARD"
+  },
+  "en_US-kathleen-low": {
+    "licence": "CC0-1.0",
+    "source": "https://huggingface.co/rhasspy/piper-voices/blob/main/en/en_US/kathleen/low/MODEL_CARD"
+  },
+  "en_US-kristin-medium": {
+    "licence": "Public domain",
+    "source": "https://huggingface.co/rhasspy/piper-voices/blob/main/en/en_US/kristin/medium/MODEL_CARD"
+  },
+  "en_US-kusal-medium": {
+    "licence": "Apache-2.0",
+    "source": "https://github.com/MycroftAI/mimic2/blob/master/LICENSE"
+  },
+  "en_US-l2arctic-medium": {
+    "licence": "CC-BY-NC-4.0",
+    "source": "https://huggingface.co/rhasspy/piper-voices/blob/main/en/en_US/l2arctic/medium/MODEL_CARD"
+  },
+  "en_US-lessac-high": {
+    "licence": "Research use only, non-commercial (Blizzard 2013 Lessac licence)",
+    "source": "https://www.cstr.ed.ac.uk/projects/blizzard/2013/lessac_blizzard2013/license.html"
+  },
+  "en_US-lessac-low": {
+    "licence": "Research use only, non-commercial (Blizzard 2013 Lessac licence)",
+    "source": "https://www.cstr.ed.ac.uk/projects/blizzard/2013/lessac_blizzard2013/license.html"
+  },
+  "en_US-lessac-medium": {
+    "licence": "Research use only, non-commercial (Blizzard 2013 Lessac licence)",
+    "source": "https://www.cstr.ed.ac.uk/projects/blizzard/2013/lessac_blizzard2013/license.html"
+  },
+  "en_US-libritts-high": {
+    "licence": "CC-BY-4.0",
+    "source": "https://huggingface.co/rhasspy/piper-voices/blob/main/en/en_US/libritts/high/MODEL_CARD"
+  },
+  "en_US-libritts_r-medium": {
+    "licence": "CC-BY-4.0",
+    "source": "https://huggingface.co/rhasspy/piper-voices/blob/main/en/en_US/libritts_r/medium/MODEL_CARD"
+  },
+  "en_US-ljspeech-high": {
+    "licence": "Public domain",
+    "source": "https://huggingface.co/rhasspy/piper-voices/blob/main/en/en_US/ljspeech/high/MODEL_CARD"
+  },
+  "en_US-ljspeech-medium": {
+    "licence": "Public domain",
+    "source": "https://huggingface.co/rhasspy/piper-voices/blob/main/en/en_US/ljspeech/medium/MODEL_CARD"
+  },
+  "en_US-miro-high": {
+    "licence": "CC-BY-NC-ND-4.0",
+    "source": "https://huggingface.co/OpenVoiceOS/pipertts_en-US_miro"
+  },
+  "en_US-norman-medium": {
+    "licence": "Public domain",
+    "source": "https://huggingface.co/rhasspy/piper-voices/blob/main/en/en_US/norman/medium/MODEL_CARD"
+  },
+  "en_US-reza_ibrahim-medium": {
+    "licence": "CC0-1.0",
+    "source": "https://huggingface.co/rhasspy/piper-voices/blob/main/en/en_US/reza_ibrahim/medium/MODEL_CARD"
+  },
+  "en_US-ryan-high": {
+    "licence": "CC-BY-NC-SA-4.0",
+    "source": "https://huggingface.co/rhasspy/piper-voices/blob/main/en/en_US/ryan/high/MODEL_CARD"
+  },
+  "en_US-ryan-low": {
+    "licence": "CC-BY-NC-SA-4.0",
+    "source": "https://huggingface.co/rhasspy/piper-voices/blob/main/en/en_US/ryan/low/MODEL_CARD"
+  },
+  "en_US-ryan-medium": {
+    "licence": "CC-BY-NC-SA-4.0",
+    "source": "https://huggingface.co/rhasspy/piper-voices/blob/main/en/en_US/ryan/medium/MODEL_CARD"
+  },
+  "en_US-sam-medium": {
+    "licence": "Apache-2.0",
+    "source": "https://huggingface.co/rhasspy/piper-voices/blob/main/en/en_US/sam/medium/MODEL_CARD"
+  },
+  "es_AR-daniela-high": {
+    "licence": "CC-BY-SA-4.0",
+    "source": "https://huggingface.co/rhasspy/piper-voices/blob/main/es/es_AR/daniela/high/MODEL_CARD"
+  },
+  "es_ES-carlfm-x_low": {
+    "licence": "Public domain",
+    "source": "https://huggingface.co/rhasspy/piper-voices/blob/main/es/es_ES/carlfm/x_low/MODEL_CARD"
+  },
+  "es_ES-davefx-medium": {
+    "licence": "CC0-1.0",
+    "source": "https://huggingface.co/rhasspy/piper-voices/blob/main/es/es_ES/davefx/medium/MODEL_CARD"
+  },
+  "es_ES-miro-high": {
+    "licence": "CC-BY-NC-ND-4.0",
+    "source": "https://huggingface.co/OpenVoiceOS/pipertts_es-ES_miro"
+  },
+  "es_ES-sharvard-medium": {
+    "licence": "CC-BY-3.0",
+    "source": "https://huggingface.co/rhasspy/piper-voices/blob/main/es/es_ES/sharvard/medium/MODEL_CARD"
+  },
+  "es_MX-ald-medium": {
+    "licence": "Unlicense",
+    "source": "https://huggingface.co/rhasspy/piper-voices/blob/main/es/es_MX/ald/medium/MODEL_CARD"
+  },
+  "es_MX-claude-high": {
+    "licence": "Apache-2.0",
+    "source": "https://huggingface.co/rhasspy/piper-voices/blob/main/es/es_MX/claude/high/MODEL_CARD"
+  },
+  "eu_ES-antton-medium": {
+    "licence": "CC-BY-4.0",
+    "source": "https://huggingface.co/rhasspy/piper-voices/blob/main/eu/eu_ES/antton/medium/MODEL_CARD"
+  },
+  "eu_ES-maider-medium": {
+    "licence": "CC-BY-4.0",
+    "source": "https://huggingface.co/rhasspy/piper-voices/blob/main/eu/eu_ES/maider/medium/MODEL_CARD"
+  },
+  "fa_IR-amir-medium": {
+    "licence": "CC0-1.0",
+    "source": "https://huggingface.co/rhasspy/piper-voices/blob/main/fa/fa_IR/amir/medium/MODEL_CARD"
+  },
+  "fa_IR-ganji-medium": {
+    "licence": "CC0-1.0",
+    "source": "https://huggingface.co/rhasspy/piper-voices/blob/main/fa/fa_IR/ganji/medium/MODEL_CARD"
+  },
+  "fa_IR-ganji_adabi-medium": {
+    "licence": "CC0-1.0",
+    "source": "https://huggingface.co/rhasspy/piper-voices/blob/main/fa/fa_IR/ganji_adabi/medium/MODEL_CARD"
+  },
+  "fa_IR-gyro-medium": {
+    "licence": "MIT",
+    "source": "https://huggingface.co/gyroing/Persian-Piper-Model-gyro"
+  },
+  "fa_IR-reza_ibrahim-medium": {
+    "licence": "CC0-1.0",
+    "source": "https://huggingface.co/rhasspy/piper-voices/blob/main/fa/fa_IR/reza_ibrahim/medium/MODEL_CARD"
+  },
+  "fi_FI-harri-low": {
+    "licence": "CC0-1.0",
+    "source": "https://huggingface.co/rhasspy/piper-voices/blob/main/fi/fi_FI/harri/low/MODEL_CARD"
+  },
+  "fi_FI-harri-medium": {
+    "licence": "CC0-1.0",
+    "source": "https://huggingface.co/rhasspy/piper-voices/blob/main/fi/fi_FI/harri/medium/MODEL_CARD"
+  },
+  "fr_FR-gilles-low": {
+    "licence": "CC0-1.0",
+    "source": "https://huggingface.co/rhasspy/piper-voices/blob/main/fr/fr_FR/gilles/low/MODEL_CARD"
+  },
+  "fr_FR-miro-high": {
+    "licence": "CC-BY-NC-ND-4.0",
+    "source": "https://huggingface.co/OpenVoiceOS/pipertts_fr-FR_miro"
+  },
+  "fr_FR-siwis-low": {
+    "licence": "CC-BY-4.0",
+    "source": "https://huggingface.co/rhasspy/piper-voices/blob/main/fr/fr_FR/siwis/low/MODEL_CARD"
+  },
+  "fr_FR-siwis-medium": {
+    "licence": "CC-BY-4.0",
+    "source": "https://huggingface.co/rhasspy/piper-voices/blob/main/fr/fr_FR/siwis/medium/MODEL_CARD"
+  },
+  "fr_FR-tom-medium": {
+    "licence": "AGPL-3.0",
+    "source": "https://huggingface.co/rhasspy/piper-voices/blob/main/fr/fr_FR/tom/medium/MODEL_CARD"
+  },
+  "fr_FR-upmc-medium": {
+    "licence": "CC-BY-SA-4.0",
+    "source": "https://huggingface.co/rhasspy/piper-voices/blob/main/fr/fr_FR/upmc/medium/MODEL_CARD"
+  },
+  "hi_IN-pratham-medium": {
+    "licence": "CC-BY-NC-SA-4.0",
+    "source": "https://huggingface.co/rhasspy/piper-voices/blob/main/hi/hi_IN/pratham/medium/MODEL_CARD"
+  },
+  "hi_IN-priyamvada-medium": {
+    "licence": "CC-BY-NC-SA-4.0",
+    "source": "https://huggingface.co/rhasspy/piper-voices/blob/main/hi/hi_IN/priyamvada/medium/MODEL_CARD"
+  },
+  "hi_IN-rohan-medium": {
+    "licence": "IIT Madras IndicTTS EULA (royalty-free, derivatives may be distributed)",
+    "source": "https://www.iitm.ac.in/donlab/indictts/downloads/license.pdf"
+  },
+  "hu_HU-anna-medium": {
+    "licence": "CC0-1.0",
+    "source": "https://huggingface.co/rhasspy/piper-voices/blob/main/hu/hu_HU/anna/medium/MODEL_CARD"
+  },
+  "hu_HU-berta-medium": {
+    "licence": "CC0-1.0",
+    "source": "https://huggingface.co/rhasspy/piper-voices/blob/main/hu/hu_HU/berta/medium/MODEL_CARD"
+  },
+  "hu_HU-imre-medium": {
+    "licence": "CC0-1.0",
+    "source": "https://huggingface.co/rhasspy/piper-voices/blob/main/hu/hu_HU/imre/medium/MODEL_CARD"
+  },
+  "id_ID-news_tts-medium": {
+    "licence": "Unknown (card links an unrelated Malayalam corpus; the name matches INDspeech_NEWS_TTS, which is CC-BY-NC-SA-4.0)",
+    "source": "https://github.com/s-sakti/data_indsp_news_tts"
+  },
+  "is_IS-bui-medium": {
+    "licence": "CC-BY-4.0",
+    "source": "http://hdl.handle.net/20.500.12537/104"
+  },
+  "is_IS-salka-medium": {
+    "licence": "CC-BY-4.0",
+    "source": "http://hdl.handle.net/20.500.12537/104"
+  },
+  "is_IS-steinn-medium": {
+    "licence": "CC-BY-4.0",
+    "source": "http://hdl.handle.net/20.500.12537/104"
+  },
+  "is_IS-ugla-medium": {
+    "licence": "CC-BY-4.0",
+    "source": "http://hdl.handle.net/20.500.12537/104"
+  },
+  "it_IT-dii-high": {
+    "licence": "CC-BY-NC-ND-4.0",
+    "source": "https://huggingface.co/OpenVoiceOS/pipertts_it-IT_dii"
+  },
+  "it_IT-miro-high": {
+    "licence": "CC-BY-NC-ND-4.0",
+    "source": "https://huggingface.co/OpenVoiceOS/pipertts_it-IT_miro"
+  },
+  "it_IT-paola-medium": {
+    "licence": "CC0-1.0",
+    "source": "https://huggingface.co/datasets/paolapersico1/Voice-Dataset-Italian"
+  },
+  "it_IT-riccardo-x_low": {
+    "licence": "BSD-style M-AILABS licence (commercial use allowed)",
+    "source": "https://www.caito.de/2019/01/03/the-m-ailabs-speech-dataset/"
+  },
+  "ka_GE-natia-medium": {
+    "licence": "Personal use by individuals only (RHVoice Natia licence)",
+    "source": "https://github.com/RHVoice/RHVoice/blob/master/licenses/voices/natia/license-eng.txt"
+  },
+  "kk_KZ-iseke-x_low": {
+    "licence": "CC-BY-4.0",
+    "source": "https://huggingface.co/rhasspy/piper-voices/blob/main/kk/kk_KZ/iseke/x_low/MODEL_CARD"
+  },
+  "kk_KZ-issai-high": {
+    "licence": "CC-BY-4.0",
+    "source": "https://huggingface.co/rhasspy/piper-voices/blob/main/kk/kk_KZ/issai/high/MODEL_CARD"
+  },
+  "kk_KZ-raya-x_low": {
+    "licence": "CC-BY-4.0",
+    "source": "https://huggingface.co/rhasspy/piper-voices/blob/main/kk/kk_KZ/raya/x_low/MODEL_CARD"
+  },
+  "ku_TR-berfin_renas-medium": {
+    "licence": "CC-BY-NC-4.0",
+    "source": "https://huggingface.co/rhasspy/piper-voices/blob/main/ku/ku_TR/berfin_renas/medium/MODEL_CARD"
+  },
+  "lb_LU-marylux-medium": {
+    "licence": "CC-BY-NC-SA-4.0",
+    "source": "https://huggingface.co/rhasspy/piper-voices/blob/main/lb/lb_LU/marylux/medium/MODEL_CARD"
+  },
+  "lv_LV-aivars-medium": {
+    "licence": "CC0-1.0",
+    "source": "https://huggingface.co/rhasspy/piper-voices/blob/main/lv/lv_LV/aivars/medium/MODEL_CARD"
+  },
+  "ml_IN-arjun-medium": {
+    "licence": "IIT Madras IndicTTS EULA (royalty-free, derivatives may be distributed)",
+    "source": "https://www.kaggle.com/datasets/kavyamanohar/indic-tts-malayalam-speech-corpus"
+  },
+  "ml_IN-meera-medium": {
+    "licence": "IIT Madras IndicTTS EULA (royalty-free, derivatives may be distributed)",
+    "source": "https://www.kaggle.com/datasets/kavyamanohar/indic-tts-malayalam-speech-corpus"
+  },
+  "ne_NP-chitwan-medium": {
+    "licence": "CC0-1.0",
+    "source": "https://huggingface.co/rhasspy/piper-voices/blob/main/ne/ne_NP/chitwan/medium/MODEL_CARD"
+  },
+  "ne_NP-google-medium": {
+    "licence": "CC-BY-SA-4.0",
+    "source": "https://huggingface.co/rhasspy/piper-voices/blob/main/ne/ne_NP/google/medium/MODEL_CARD"
+  },
+  "ne_NP-google-x_low": {
+    "licence": "CC-BY-SA-4.0",
+    "source": "https://huggingface.co/rhasspy/piper-voices/blob/main/ne/ne_NP/google/x_low/MODEL_CARD"
+  },
+  "nl_BE-nathalie-medium": {
+    "licence": "CC0-1.0",
+    "source": "https://huggingface.co/rhasspy/piper-voices/blob/main/nl/nl_BE/nathalie/medium/MODEL_CARD"
+  },
+  "nl_BE-nathalie-x_low": {
+    "licence": "CC0-1.0",
+    "source": "https://huggingface.co/rhasspy/piper-voices/blob/main/nl/nl_BE/nathalie/x_low/MODEL_CARD"
+  },
+  "nl_NL-alex-medium": {
+    "licence": "CC0-1.0",
+    "source": "https://huggingface.co/rhasspy/piper-voices/blob/main/nl/nl_NL/alex/medium/MODEL_CARD"
+  },
+  "nl_NL-dii-high": {
+    "licence": "CC-BY-NC-ND-4.0",
+    "source": "https://huggingface.co/OpenVoiceOS/pipertts_nl-NL_dii"
+  },
+  "nl_NL-miro-high": {
+    "licence": "CC-BY-NC-ND-4.0",
+    "source": "https://huggingface.co/OpenVoiceOS/pipertts_nl-NL_miro"
+  },
+  "nl_NL-pim-medium": {
+    "licence": "CC0-1.0",
+    "source": "https://huggingface.co/rhasspy/piper-voices/blob/main/nl/nl_NL/pim/medium/MODEL_CARD"
+  },
+  "nl_NL-ronnie-medium": {
+    "licence": "CC0-1.0",
+    "source": "https://huggingface.co/rhasspy/piper-voices/blob/main/nl/nl_NL/ronnie/medium/MODEL_CARD"
+  },
+  "no_NO-talesyntese-medium": {
+    "licence": "CC0-1.0",
+    "source": "https://huggingface.co/rhasspy/piper-voices/blob/main/no/no_NO/talesyntese/medium/MODEL_CARD"
+  },
+  "pl_PL-bass-high": {
+    "licence": "Apache-2.0",
+    "source": "https://huggingface.co/rhasspy/piper-voices/blob/main/pl/pl_PL/bass/high/MODEL_CARD"
+  },
+  "pl_PL-darkman-medium": {
+    "licence": "CC0-1.0",
+    "source": "https://huggingface.co/rhasspy/piper-voices/blob/main/pl/pl_PL/darkman/medium/MODEL_CARD"
+  },
+  "pl_PL-gosia-medium": {
+    "licence": "CC0-1.0",
+    "source": "https://huggingface.co/rhasspy/piper-voices/blob/main/pl/pl_PL/gosia/medium/MODEL_CARD"
+  },
+  "pl_PL-jarvis_wg_glos-medium": {
+    "licence": "MIT",
+    "source": "https://huggingface.co/WitoldG/polish_piper_models"
+  },
+  "pl_PL-justyna_wg_glos-medium": {
+    "licence": "MIT",
+    "source": "https://huggingface.co/WitoldG/polish_piper_models"
+  },
+  "pl_PL-mc_speech-medium": {
+    "licence": "CC0-1.0",
+    "source": "https://huggingface.co/rhasspy/piper-voices/blob/main/pl/pl_PL/mc_speech/medium/MODEL_CARD"
+  },
+  "pl_PL-meski_wg_glos-medium": {
+    "licence": "MIT",
+    "source": "https://huggingface.co/WitoldG/polish_piper_models"
+  },
+  "pl_PL-zenski_wg_glos-medium": {
+    "licence": "MIT",
+    "source": "https://huggingface.co/WitoldG/polish_piper_models"
+  },
+  "pt_BR-cadu-medium": {
+    "licence": "CC0-1.0",
+    "source": "https://huggingface.co/rhasspy/piper-voices/blob/main/pt/pt_BR/cadu/medium/MODEL_CARD"
+  },
+  "pt_BR-dii-high": {
+    "licence": "CC-BY-NC-ND-4.0",
+    "source": "https://huggingface.co/OpenVoiceOS/pipertts_pt-BR_dii"
+  },
+  "pt_BR-edresson-low": {
+    "licence": "CC-BY-4.0",
+    "source": "https://huggingface.co/rhasspy/piper-voices/blob/main/pt/pt_BR/edresson/low/MODEL_CARD"
+  },
+  "pt_BR-faber-medium": {
+    "licence": "CC0-1.0",
+    "source": "https://huggingface.co/rhasspy/piper-voices/blob/main/pt/pt_BR/faber/medium/MODEL_CARD"
+  },
+  "pt_BR-jeff-medium": {
+    "licence": "CC0-1.0",
+    "source": "https://huggingface.co/rhasspy/piper-voices/blob/main/pt/pt_BR/jeff/medium/MODEL_CARD"
+  },
+  "pt_BR-miro-high": {
+    "licence": "CC-BY-NC-ND-4.0",
+    "source": "https://huggingface.co/OpenVoiceOS/pipertts_pt-BR_miro"
+  },
+  "pt_PT-dii-high": {
+    "licence": "CC-BY-NC-ND-4.0",
+    "source": "https://huggingface.co/OpenVoiceOS/pipertts_pt-PT_dii"
+  },
+  "pt_PT-miro-high": {
+    "licence": "CC-BY-NC-ND-4.0",
+    "source": "https://huggingface.co/OpenVoiceOS/pipertts_pt-PT_miro"
+  },
+  "pt_PT-tugao-medium": {
+    "licence": "CC0-1.0",
+    "source": "https://huggingface.co/rhasspy/piper-voices/blob/main/pt/pt_PT/tug%C3%A3o/medium/MODEL_CARD"
+  },
+  "ro_RO-mihai-medium": {
+    "licence": "CC0-1.0",
+    "source": "https://huggingface.co/rhasspy/piper-voices/blob/main/ro/ro_RO/mihai/medium/MODEL_CARD"
+  },
+  "ru_RU-denis-medium": {
+    "licence": "CC0-1.0",
+    "source": "https://huggingface.co/rhasspy/piper-voices/blob/main/ru/ru_RU/denis/medium/MODEL_CARD"
+  },
+  "ru_RU-dmitri-medium": {
+    "licence": "CC0-1.0",
+    "source": "https://huggingface.co/rhasspy/piper-voices/blob/main/ru/ru_RU/dmitri/medium/MODEL_CARD"
+  },
+  "ru_RU-irina-medium": {
+    "licence": "Unknown",
+    "source": "https://huggingface.co/rhasspy/piper-voices/blob/main/ru/ru_RU/irina/medium/MODEL_CARD"
+  },
+  "ru_RU-ruslan-medium": {
+    "licence": "CC-BY-NC-SA-4.0",
+    "source": "https://huggingface.co/rhasspy/piper-voices/blob/main/ru/ru_RU/ruslan/medium/MODEL_CARD"
+  },
+  "sk_SK-lili-medium": {
+    "licence": "CC0-1.0",
+    "source": "https://huggingface.co/rhasspy/piper-voices/blob/main/sk/sk_SK/lili/medium/MODEL_CARD"
+  },
+  "sl_SI-artur-medium": {
+    "licence": "CC-BY-4.0",
+    "source": "https://huggingface.co/rhasspy/piper-voices/blob/main/sl/sl_SI/artur/medium/MODEL_CARD"
+  },
+  "sq_AL-edon-medium": {
+    "licence": "CC0-1.0",
+    "source": "https://huggingface.co/rhasspy/piper-voices/blob/main/sq/sq_AL/edon/medium/MODEL_CARD"
+  },
+  "sr_RS-serbski_institut-medium": {
+    "licence": "CC-BY-NC-SA-4.0",
+    "source": "https://huggingface.co/rhasspy/piper-voices/blob/main/sr/sr_RS/serbski_institut/medium/MODEL_CARD"
+  },
+  "sv_SE-alma-medium": {
+    "licence": "CC-BY-4.0",
+    "source": "https://huggingface.co/rhasspy/piper-voices/blob/main/sv/sv_SE/alma/medium/MODEL_CARD"
+  },
+  "sv_SE-lisa-medium": {
+    "licence": "Unknown",
+    "source": "https://huggingface.co/rhasspy/piper-voices/blob/main/sv/sv_SE/lisa/medium/MODEL_CARD"
+  },
+  "sv_SE-nst-medium": {
+    "licence": "CC0-1.0",
+    "source": "https://huggingface.co/rhasspy/piper-voices/blob/main/sv/sv_SE/nst/medium/MODEL_CARD"
+  },
+  "sw_CD-lanfrica-medium": {
+    "licence": "CC-BY-4.0",
+    "source": "https://data.mendeley.com/datasets/vbvj6j6pm9/1"
+  },
+  "tr_TR-dfki-medium": {
+    "licence": "CC-BY-NC-SA-4.0",
+    "source": "https://huggingface.co/rhasspy/piper-voices/blob/main/tr/tr_TR/dfki/medium/MODEL_CARD"
+  },
+  "tr_TR-fahrettin-medium": {
+    "licence": "CC0-1.0",
+    "source": "https://huggingface.co/csukuangfj/vits-piper-tr_TR-fahrettin-medium/blob/main/MODEL_CARD"
+  },
+  "tr_TR-fettah-medium": {
+    "licence": "CC0-1.0",
+    "source": "https://huggingface.co/csukuangfj/vits-piper-tr_TR-fettah-medium/blob/main/MODEL_CARD"
+  },
+  "uk_UA-lada-x_low": {
+    "licence": "Apache-2.0",
+    "source": "https://huggingface.co/rhasspy/piper-voices/blob/main/uk/uk_UA/lada/x_low/MODEL_CARD"
+  },
+  "uk_UA-ukrainian_tts-medium": {
+    "licence": "CC0-1.0",
+    "source": "https://huggingface.co/rhasspy/piper-voices/blob/main/uk/uk_UA/ukrainian_tts/medium/MODEL_CARD"
+  },
+  "ur_PK-fasih-medium": {
+    "licence": "MIT",
+    "source": "https://huggingface.co/rhasspy/piper-voices/blob/main/ur/ur_PK/fasih/medium/MODEL_CARD"
+  },
+  "vi_VN-25hours_single-low": {
+    "licence": "Unknown",
+    "source": "https://huggingface.co/rhasspy/piper-voices/blob/main/vi/vi_VN/25hours_single/low/MODEL_CARD"
+  },
+  "vi_VN-vais1000-medium": {
+    "licence": "CC-BY-4.0",
+    "source": "https://huggingface.co/rhasspy/piper-voices/blob/main/vi/vi_VN/vais1000/medium/MODEL_CARD"
+  },
+  "vi_VN-vivos-x_low": {
+    "licence": "CC-BY-NC-SA-4.0",
+    "source": "https://huggingface.co/rhasspy/piper-voices/blob/main/vi/vi_VN/vivos/x_low/MODEL_CARD"
+  },
+  "zh_CN-chaowen-medium": {
+    "licence": "CC0-1.0",
+    "source": "https://huggingface.co/rhasspy/piper-voices/blob/main/zh/zh_CN/chaowen/medium/MODEL_CARD"
+  },
+  "zh_CN-xiao_ya-medium": {
+    "licence": "Non-commercial use (Databaker)",
+    "source": "https://huggingface.co/rhasspy/piper-voices/blob/main/zh/zh_CN/xiao_ya/medium/MODEL_CARD"
+  }
+}

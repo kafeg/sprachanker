@@ -26,7 +26,8 @@ src-tauri/
 www/index.html         # the start page: the name and a spinner; why the server did not start (after #)
 scripts/build.ts       # the .app from apps/cli/dist (build:bin's) — the sidecars copied into
                        # src-tauri/binaries first, not committed —, each catalog's microphone question
-                       # in it, signed ad hoc, then dist/: SprachAnker-<version>-macos-<arch>.zip, .dmg
+                       # and build:bin's THIRD_PARTY_NOTICES.txt (Contents/Resources) in it, signed ad
+                       # hoc, then dist/: SprachAnker-<version>-macos-<arch>.zip, .dmg
 ```
 
 ## Build and run

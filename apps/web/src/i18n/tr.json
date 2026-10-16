@@ -608,7 +608,10 @@
     "intro": "Kendi cihazında çalışan, yerel öncelikli bir dil öğretmeni: gerçek kurslar tek bir oynatıcıda, ilerleme ve konuşma kendi cihazında, bağladığın herhangi bir yapay zekâ modeli. Ücretsiz ve açık kaynak.",
     "version": "Sürüm",
     "licence": "Lisans: MIT",
-    "source": "GitHub’da kaynak kodu"
+    "source": "GitHub’da kaynak kodu",
+    "notices": "Üçüncü taraf bileşenler ve lisanslar",
+    "noticesIntro": "SprachAnker bu bileşenlerle oluşturulmuştur, her biri kendi lisansıyla; lisans metinleri listeden sonra gelir.",
+    "noticesMissing": "Bu derlemede liste yok: dağıtılan derlemelerde bulunur — program, Mac uygulaması ve Android uygulaması."
   },
   "addresses": {
     "title": "Diğer cihazlar",

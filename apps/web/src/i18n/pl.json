@@ -608,7 +608,10 @@
     "intro": "Samodzielnie hostowany, lokalny korepetytor językowy: prawdziwe kursy w jednym odtwarzaczu, postępy i mowa na twoim urządzeniu, dowolny podłączony model AI. Darmowy i open source.",
     "version": "Wersja",
     "licence": "Licencja: MIT",
-    "source": "Kod źródłowy na GitHubie"
+    "source": "Kod źródłowy na GitHubie",
+    "notices": "Komponenty innych firm i licencje",
+    "noticesIntro": "SprachAnker zbudowano z tych komponentów, każdy na własnej licencji; teksty licencji są po liście.",
+    "noticesMissing": "Ta kompilacja nie zawiera listy: dodają ją kompilacje przeznaczone do udostępniania — program, aplikacja na Maca i aplikacja na Androida."
   },
   "addresses": {
     "title": "Inne urządzenia",

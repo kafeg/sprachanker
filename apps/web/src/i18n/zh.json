@@ -608,7 +608,10 @@
     "intro": "自托管、本地优先的语言学习助手：真实课程集于一个播放器，进度和语音都留在你自己的设备上，可接入任何AI模型。免费开源。",
     "version": "版本",
     "licence": "许可证：MIT",
-    "source": "GitHub上的源代码"
+    "source": "GitHub上的源代码",
+    "notices": "第三方组件与许可证",
+    "noticesIntro": "SprachAnker 使用这些组件构建，每个组件都有自己的许可证；许可证全文附在列表之后。",
+    "noticesMissing": "此版本不含该列表：它随对外发布的版本提供——程序、Mac 应用和 Android 应用。"
   },
   "addresses": {
     "title": "其他设备",

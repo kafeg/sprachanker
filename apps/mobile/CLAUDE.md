@@ -39,10 +39,10 @@ src/                   # runs in the WebView, before the web app (bundled into d
                        # native side; a phone's defaults (the small models)
   piper.ts             # the server's PiperHost: sherpa-onnx's program run per text, its voices
                        # downloaded by the server's storage, unpacked by the native side
-  voices.ts            # Android's TextToSpeech (Voices.kt) as the page's speechSynthesis: the
-                       # device's voices for the web app
+  voices.ts            # Android's TextToSpeech (Voices.kt) as the page's speechSynthesis (device voices)
 scripts/
-  build.ts             # dist/: the web app's build, boot.js before it, sql.js's wasm, whisper.html
+  build.ts             # dist/: the web app's build, boot.js before it, sql.js's wasm, whisper.html;
+                       # THIRD_PARTY_NOTICES.txt (scripts/notices) there and in the Android assets
   dev.ts               # dist/ on this Mac with the native side played over a folder (a browser test)
   phone.ts             # the phone looked after over adb: install (build + adb install), course (a
                        # course of this Mac's library pushed), practice (its AI practice brought up

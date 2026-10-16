@@ -608,7 +608,10 @@
     "intro": "Um tutor de idiomas auto-hospedado e local: cursos reais num só player, progresso e fala no seu próprio dispositivo, qualquer modelo de IA que você conectar. Livre e de código aberto.",
     "version": "Versão",
     "licence": "Licença: MIT",
-    "source": "Código-fonte no GitHub"
+    "source": "Código-fonte no GitHub",
+    "notices": "Componentes de terceiros e licenças",
+    "noticesIntro": "O SprachAnker é construído com estes componentes, cada um com a sua própria licença; os textos das licenças seguem a lista.",
+    "noticesMissing": "Esta compilação não inclui a lista: ela acompanha as compilações distribuídas — o programa, a app para Mac e a app para Android."
   },
   "addresses": {
     "title": "Outros dispositivos",

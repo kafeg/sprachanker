@@ -7,7 +7,7 @@ Publishes one version: the desktop app (a zip and a dmg) and an archive of the b
 
 ## Rules
 - Release only from `main`, with a clean tree, `bun run check` green and the full e2e green on the build being released.
-- The archive holds the `sprachanker` binary and the speech engines beside it — nothing else; the app holds the same build. Models, voices and courses download from the app.
+- The archive holds the `sprachanker` binary, the speech engines and `THIRD_PARTY_NOTICES.txt` beside it — nothing else; the app holds the same build (the notices in `Contents/Resources`). Models, voices and courses download from the app.
 - ⚠️ Never put course content, keys or personal data in an archive or a release note: the repository is public.
 - The version is MAJOR.MINOR.N: MAJOR.MINOR in `apps/cli/package.json`, N the commit count of the build (`bun apps/cli/scripts/version.ts` prints it; the server reports it at `/api/health`). Change MAJOR.MINOR only for a large step.
 - Build on the platform the archive is for: the speech engines are native (macOS arm64 only, the
@@ -38,13 +38,15 @@ Publishes one version: the desktop app (a zip and a dmg) and an archive of the b
    its window open the app, quit it from the tray.
 5. Write the notes for learners — what is new, what changed in use; updating is the newer app over
    the old one, or the install command again; the app is not notarised: Privacy & Security → Open
-   Anyway the first time — and publish:
+   Anyway the first time; the third-party components and their licences: `THIRD_PARTY_NOTICES.txt`
+   in the archive and the app, Settings → About in the app — and publish:
    ```bash
    gh release edit vX.Y.Z --notes-file <notes.md> --draft=false
    ```
 6. Update the owner's own server: the newer app, the install command (installed by it) or `deploy-local`.
 
 ## Gotchas
+- The build stops at the notices (`scripts/notices`) → an engine, Bun or a Gradle library moved without its inventory entry, or a crate lacks a licence text → update `scripts/notices/inventory.ts`; `bun run check` shows which.
 - "cannot be opened" on another Mac → the file came through a browser (quarantine) → install with the `curl … | bash` command, or `xattr -dr com.apple.quarantine <folder>`.
 - The release run fails at "Speech engines, from their releases" → an engine's release is missing (a new
   `VERSION` or `build.ts`) → wait for the Engines workflow (Actions → Engines), then run the release

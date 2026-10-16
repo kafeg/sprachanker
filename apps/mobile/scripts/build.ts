@@ -1,6 +1,8 @@
 // The phone app's page: the web app's build (apps/web), the app's start (src/boot.ts: the server's
 // code over the phone's files) run before it, and sql.js's WebAssembly — in dist/, which Tauri builds
 // into the app (src-tauri/tauri.conf.json). The Whisper test page (www/) goes along as whisper.html.
+// The third-party notices (scripts/notices) go into dist/ — the app's About shows them — and into the
+// Android project's assets, a file of the APK.
 //   bun scripts/build.ts
 import {
   cpSync,
@@ -22,6 +24,11 @@ const web = join(here, "..", "web");
 await $`bun run build`.cwd(web);
 rmSync(dist, { recursive: true, force: true });
 cpSync(join(web, "dist"), dist, { recursive: true });
+
+const NOTICES = "THIRD_PARTY_NOTICES.txt";
+const assets = join(here, "src-tauri", "gen", "android", "app", "src", "main", "assets");
+mkdirSync(assets, { recursive: true });
+await $`bun ${join(here, "../../scripts/notices/notices.ts")} ${join(dist, NOTICES)} ${join(assets, NOTICES)}`;
 
 // The web app's own files, served to other devices (src/host.ts); its index as built is web.html
 // (index.html gets the app's start below).

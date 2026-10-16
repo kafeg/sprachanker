@@ -27,7 +27,9 @@ scripts/   # build.ts (`bun run build:speech [whisper|piper|qwen]`): clones each
 
 ## Rules
 
-- Pin exact upstream versions; record them in each folder's `VERSION` file.
+- Pin exact upstream versions; record them in each folder's `VERSION` file. A new version (or a new
+  dependency of its build): its entry in `scripts/notices/inventory.ts` too — what it links, each
+  licence text from its sources; `bun run check` fails until they match.
 - A new whisper.cpp (`whisper/VERSION`): measure the silence thresholds again (`bun run speech:levels`,
   `e2e/speech/levels.ts`) — `avg_logprob` is whisper.cpp's own computation (the non-special tokens'
   log probabilities summed, over all tokens) and the server's thresholds are set by it

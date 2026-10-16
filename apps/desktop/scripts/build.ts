@@ -1,7 +1,7 @@
 // The desktop app for this Mac: the `sprachanker` binary and the speech engines beside it (apps/cli/dist,
 // made by `bun run build:bin`) put into the Tauri shell as its sidecars, the .app built, macOS's
-// microphone question added in each language of the web app's catalogs, signed ad hoc (no Developer
-// ID: owner, 2026-10-15), then a zip and a dmg of it in dist/.
+// microphone question added in each language of the web app's catalogs, the third-party notices in its
+// Resources, signed ad hoc (no Developer ID: owner, 2026-10-15), then a zip and a dmg of it in dist/.
 //   bun scripts/build.ts            (root: bun run build:desktop builds the binary first)
 import {
   copyFileSync,
@@ -31,8 +31,8 @@ const env = {
 
 const triple = (await $`rustc -vV`.env(env).text()).match(/^host: (.+)$/m)?.[1];
 if (!triple) throw new Error("rustc names no host");
-if (!existsSync(join(cli, "sprachanker")))
-  throw new Error(`no ${cli}/sprachanker: bun run build:bin first`);
+for (const file of ["sprachanker", "THIRD_PARTY_NOTICES.txt"])
+  if (!existsSync(join(cli, file))) throw new Error(`no ${cli}/${file}: bun run build:bin first`);
 
 // Sidecars as Tauri wants them: each named for the target; the bundle drops the suffix.
 rmSync(binaries, { recursive: true, force: true });
@@ -69,6 +69,9 @@ for (const name of readdirSync(i18n).filter((n) => n.endsWith(".json"))) {
     `"NSMicrophoneUsageDescription" = ${JSON.stringify(question)};\n`,
   );
 }
+// The third-party notices of the build (build:bin's, beside the binary), signed with the app.
+const NOTICES = "THIRD_PARTY_NOTICES.txt";
+copyFileSync(join(cli, NOTICES), join(app, "Contents/Resources", NOTICES));
 await $`codesign --force --deep --sign - ${app}`;
 
 const arch = triple.startsWith("aarch64") ? "arm64" : "x64";

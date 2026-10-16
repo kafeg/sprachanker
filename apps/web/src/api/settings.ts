@@ -13,6 +13,23 @@ export const useAppInfo = () =>
     queryFn: () => json(api.health.$get()),
   });
 
+/** The third-party components and their licences, as the build put them beside the app's pages
+ *  (scripts/notices); null where the build has none (a development server). */
+export const useThirdPartyNotices = (enabled: boolean) =>
+  useQuery({
+    queryKey: ["third-party-notices"],
+    meta: STATIC,
+    enabled,
+    staleTime: Number.POSITIVE_INFINITY,
+    queryFn: async () => {
+      const res = await fetch("/THIRD_PARTY_NOTICES.txt");
+      // A page in its place (a server answering every path with the app) is no notices either.
+      if (res.ok && !res.headers.get("content-type")?.includes("text/html")) return res.text();
+      if (res.ok || res.status === 404) return null;
+      throw new Error(`HTTP ${res.status}`);
+    },
+  });
+
 /** The addresses the app is reached at: this machine, the local network, the tailnet — asked again
  *  every few seconds while shown (Tailscale turned on or off meanwhile). */
 export const useAddresses = () =>
