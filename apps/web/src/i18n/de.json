@@ -78,8 +78,8 @@
     "checkAgain": "Erneut prüfen",
     "complete": "Vollständig geladen",
     "next": "weiter: {where} – {title}",
-    "gone": "Dieser Kurs ist nicht mehr auf diesem Computer — lade ihn erneut herunter, um weiterzumachen.",
-    "examGone": "Diese Prüfung ist nicht mehr auf diesem Computer — lade sie erneut herunter, um weiterzumachen.",
+    "gone": "Dieser Kurs ist nicht mehr auf diesem Gerät — lade ihn erneut herunter, um weiterzumachen.",
+    "examGone": "Diese Prüfung ist nicht mehr auf diesem Gerät — lade sie erneut herunter, um weiterzumachen.",
     "checkFiles": "Prüfen",
     "problem": {
       "missingMedia": "Datei fehlt: {at}",
@@ -297,7 +297,7 @@
       "llm_no_key": "Schlüssel nötig",
       "installed": "installiert",
       "keySaved": "Schlüssel gespeichert",
-      "here": "auf diesem Computer",
+      "here": "auf diesem Gerät",
       "at": "auf {host}"
     },
     "list": {
@@ -323,11 +323,11 @@
       "freeModels": "Kostenlose Modelle haben ein Tageslimit an Anfragen, das OpenRouter festlegt (höher, sobald Guthaben gekauft wurde)."
     },
     "keyHintFor": {
-      "openrouter": "Einen Schlüssel erstellst du auf openrouter.ai/keys. Er wird verschlüsselt auf diesem Computer gespeichert und nie wieder angezeigt.",
-      "openai": "Einen Schlüssel erstellst du auf platform.openai.com/api-keys. Er wird verschlüsselt auf diesem Computer gespeichert und nie wieder angezeigt.",
-      "anthropic": "Einen Schlüssel erstellst du auf platform.claude.com/settings/keys. Er wird verschlüsselt auf diesem Computer gespeichert und nie wieder angezeigt.",
-      "gemini": "Erstelle einen Schlüssel auf aistudio.google.com/apikey. Er wird verschlüsselt auf diesem Computer gespeichert und nie wieder angezeigt.",
-      "groq": "Erstelle einen Schlüssel auf console.groq.com/keys. Er wird verschlüsselt auf diesem Computer gespeichert und nie wieder angezeigt."
+      "openrouter": "Einen Schlüssel erstellst du auf openrouter.ai/keys. Er wird verschlüsselt auf diesem Gerät gespeichert und nie wieder angezeigt.",
+      "openai": "Einen Schlüssel erstellst du auf platform.openai.com/api-keys. Er wird verschlüsselt auf diesem Gerät gespeichert und nie wieder angezeigt.",
+      "anthropic": "Einen Schlüssel erstellst du auf platform.claude.com/settings/keys. Er wird verschlüsselt auf diesem Gerät gespeichert und nie wieder angezeigt.",
+      "gemini": "Erstelle einen Schlüssel auf aistudio.google.com/apikey. Er wird verschlüsselt auf diesem Gerät gespeichert und nie wieder angezeigt.",
+      "groq": "Erstelle einen Schlüssel auf console.groq.com/keys. Er wird verschlüsselt auf diesem Gerät gespeichert und nie wieder angezeigt."
     }
   },
   "tutor": {
@@ -605,7 +605,7 @@
   },
   "about": {
     "title": "Über SprachAnker",
-    "intro": "Ein Sprachtrainer, der bei dir läuft: echte Kurse in einem Player, Fortschritt und Sprache auf deinem eigenen Computer, jedes KI-Modell, das du anbindest. Kostenlos und quelloffen.",
+    "intro": "Ein Sprachtrainer, der bei dir läuft: echte Kurse in einem Player, Fortschritt und Sprache auf deinem eigenen Gerät, jedes KI-Modell, das du anbindest. Kostenlos und quelloffen.",
     "version": "Version",
     "licence": "Lizenz: MIT",
     "source": "Quellcode auf GitHub"
@@ -661,8 +661,8 @@
     "log": "Download-Protokoll",
     "syncShort": "Abgleichen",
     "remove": {
-      "button": "Von diesem Computer entfernen…",
-      "title": "„{title}“ von diesem Computer entfernen?",
+      "button": "Von diesem Gerät entfernen…",
+      "title": "„{title}“ von diesem Gerät entfernen?",
       "body": "Seine Lektionen und Medien werden von der Festplatte gelöscht (Medien, die ein anderer Kurs nutzt, bleiben). Dein Fortschritt, dein Notizbuch und deine Wörter bleiben; lade ihn wieder herunter, um weiterzumachen.",
       "bodyExam": "Ihre Fragen und Medien werden von der Festplatte gelöscht (Medien, die ein anderer Kurs nutzt, bleiben). Deine Probeprüfungen, Übungen und dein Notizbuch bleiben; lade sie wieder herunter, um weiterzumachen.",
       "confirm": "Entfernen"
@@ -670,7 +670,7 @@
   },
   "storage": {
     "title": "Speicher",
-    "intro": "Kurse, Medien und dein Fortschritt liegen in diesem Ordner auf dem Computer, auf dem SprachAnker läuft. Er wird beim Start des Servers festgelegt (--data oder SPRACHANKER_DATA); in der Desktop-App lässt er sich ändern.",
+    "intro": "Kurse, Medien und dein Fortschritt liegen in diesem Ordner auf dem Gerät, auf dem SprachAnker läuft. Er wird beim Start des Servers festgelegt (--data oder SPRACHANKER_DATA); in der Desktop-App lässt er sich ändern.",
     "total": "Gesamt",
     "used": "Kurse belegen {size}",
     "usedFree": "Kurse belegen {size} · {free} frei auf dem Datenträger",
@@ -679,7 +679,7 @@
     "recordingsKept": "{count, plural, =0 {keine gespeichert} one {{n} Aufnahme · {size}} other {{n} Aufnahmen · {size}}}",
     "deleteRecordings": "Alle löschen",
     "deleteRecordingsTitle": "Alle Aufnahmen löschen?",
-    "deleteRecordingsBody": "Deine Aufnahmen werden von diesem Computer gelöscht. Antworten und Fortschritt bleiben. Das lässt sich nicht rückgängig machen."
+    "deleteRecordingsBody": "Deine Aufnahmen werden von diesem Gerät gelöscht. Antworten und Fortschritt bleiben. Das lässt sich nicht rückgängig machen."
   },
   "windowTitle": {
     "course": "Kurs",
@@ -964,7 +964,7 @@
       "checking": "Datei wird geprüft und das Profil angelegt…",
       "done": "„{name}“ ist da.",
       "noKeys": "API-Schlüssel sind nicht in der Datei: gib sie unter Einstellungen → KI-Assistent noch einmal ein.",
-      "missing": "Noch nicht auf diesem Computer — ihre Lektionen erscheinen nach dem Herunterladen; die Wörter sind schon in Wiederholen:",
+      "missing": "Noch nicht auf diesem Gerät — ihre Lektionen erscheinen nach dem Herunterladen; die Wörter sind schon in Wiederholen:",
       "open": "„{name}“ öffnen",
       "noEndpointLogins": "Benutzernamen und Passwörter aus den Adressen der KI-Server sind nicht in der Datei: gib die Schlüssel unter Einstellungen → KI-Assistent noch einmal ein."
     }
@@ -976,7 +976,7 @@
     "finish": "Kurs wählen",
     "profile": {
       "title": "Willkommen",
-      "text": "SprachAnker bringt echte Sprachkurse in einen Player, prüft deine Antworten, hält deine Wörter in verteilter Wiederholung und kann einen KI-Tutor einbinden. Alles bleibt auf diesem Computer.",
+      "text": "SprachAnker bringt echte Sprachkurse in einen Player, prüft deine Antworten, hält deine Wörter in verteilter Wiederholung und kann einen KI-Tutor einbinden. Alles bleibt auf diesem Gerät.",
       "sources": "Kurse werden direkt von den Websites ihrer Herausgeber (Deutsche Welle und andere) für deinen persönlichen Gebrauch geladen. Beachte ihre Bedingungen; SprachAnker ist nicht mit ihnen verbunden.",
       "experimental": "Kurse und Prüfungen, die noch erprobt werden, bleiben verborgen, bis du sie unter Einstellungen → Allgemein → Experimentell einschaltest.",
       "name": "Wie sollen wir dich nennen?"
@@ -990,7 +990,7 @@
     },
     "speech": {
       "title": "Sprechen",
-      "text": "Sprich die Sätze der Kurse selbst und lass dir jeden Text vorlesen: teste dein Mikrofon, lade die Spracherkennung herunter (einmal), damit die App hört, was du gesagt hast, und wähle für jede Sprache eine Stimme. Alles bleibt auf diesem Computer; alles lässt sich später unter Einstellungen → Sprechen ändern."
+      "text": "Sprich die Sätze der Kurse selbst und lass dir jeden Text vorlesen: teste dein Mikrofon, lade die Spracherkennung herunter (einmal), damit die App hört, was du gesagt hast, und wähle für jede Sprache eine Stimme. Alles bleibt auf diesem Gerät; alles lässt sich später unter Einstellungen → Sprechen ändern."
     },
     "cancel": "Abbrechen"
   },
@@ -1024,8 +1024,8 @@
       "lime": "Limette"
     },
     "export": {
-      "title": "Auf einen anderen Computer umziehen",
-      "body": "Eine Datei mit dem Fortschritt, den Wörtern, Einstellungen und Aufnahmen dieses Profils, zum Importieren auf deinem anderen Computer unter „Wer lernt?“. API-Schlüssel sind nicht darin.",
+      "title": "Auf ein anderes Gerät umziehen",
+      "body": "Eine Datei mit dem Fortschritt, den Wörtern, Einstellungen und Aufnahmen dieses Profils, zum Importieren auf deinem anderen Gerät unter „Wer lernt?“. API-Schlüssel sind nicht darin.",
       "button": "Profil exportieren",
       "started": "„{file}“ wird heruntergeladen ({size})."
     }
@@ -1049,7 +1049,7 @@
     "import": {
       "button": "Stapeldatei importieren",
       "title": "Stapel importieren",
-      "hint": "Seine Wörter werden ein Stapel, den jedes Profil auf diesem Computer übernehmen kann wie den eines Kurses; das Audio kommt mit.",
+      "hint": "Seine Wörter werden ein Stapel, den jedes Profil auf diesem Gerät übernehmen kann wie den eines Kurses; das Audio kommt mit.",
       "name": "Name",
       "lang": "Sprache der Wörter",
       "translationLang": "Sprache der Übersetzungen",
@@ -1063,15 +1063,15 @@
     },
     "export": "Als Datei exportieren",
     "file": {
-      "new": "Seine Wörter werden ein Stapel, den jedes Profil auf diesem Computer übernehmen kann, mit Audio und Beispielen.",
+      "new": "Seine Wörter werden ein Stapel, den jedes Profil auf diesem Gerät übernehmen kann, mit Audio und Beispielen.",
       "merges": "Diesen Stapel gibt es hier schon: Die Wörter, die ihm fehlen, kommen dazu, ebenso Audio und Beispiele, die er nicht hat. Was er hat, bleibt.",
       "course": "Audio und Beispiele, die für die Wörter dieses Kurses gemacht wurden. Seine Karten hier spielen und zeigen sie; was hier schon gemacht wurde, bleibt.",
-      "courseWaits": "Audio und Beispiele, die für die Wörter dieses Kurses gemacht wurden. Der Kurs ist noch nicht auf diesem Computer: Sie werden für ihn aufbewahrt, bis du ihn herunterlädst.",
+      "courseWaits": "Audio und Beispiele, die für die Wörter dieses Kurses gemacht wurden. Der Kurs ist noch nicht auf diesem Gerät: Sie werden für ihn aufbewahrt, bis du ihn herunterlädst.",
       "finds": "Deine Fundstücke: Sie kommen zu deinen eigenen Fundstücken und werden deine Karten. Wörter, die schon dort sind, bleiben, wie sie sind."
     },
     "remove": "Stapel löschen",
     "removeTitle": "Stapel {deck} löschen?",
-    "removeBody": "Der Stapel, seine Wörter und sein Audio werden für alle Profile von diesem Computer gelöscht. Das lässt sich nicht rückgängig machen.",
+    "removeBody": "Der Stapel, seine Wörter und sein Audio werden für alle Profile von diesem Gerät gelöscht. Das lässt sich nicht rückgängig machen.",
     "audio": {
       "missing": "{count, plural, one {# Wort ohne Audio} other {# Wörter ohne Audio}}",
       "count": "Audio: {done, number} von {total, number}",
@@ -1253,7 +1253,7 @@
       "sampleFor": "Text zum Anhören: {language}",
       "otherSample": "Anderer Satz",
       "recognition": "Erkennung",
-      "recognitionHint": "Deine Sprache wird auf diesem Computer erkannt (Whisper): das Gesagte wird mit dem Satz verglichen. Sie hört Wörter, keine Laute, und ist nachsichtig. Nichts verlässt den Computer.",
+      "recognitionHint": "Deine Sprache wird auf diesem Gerät erkannt (Whisper): das Gesagte wird mit dem Satz verglichen. Sie hört Wörter, keine Laute, und ist nachsichtig. Nichts verlässt das Gerät.",
       "noEngine": "Dieser Build hat keine Spracherkennung.",
       "recognitionOn": "Meine Sprache erkennen",
       "inUse": "In Gebrauch",
@@ -1265,8 +1265,8 @@
       "readHint": "Eine Stimme liest Texte in einer Sprache: Dialogzeilen, das Beispiel zu einem Wort und Wörter ohne Aufnahme. Jede Sprache hat ihre eigene Stimme.",
       "engine": {
         "device": "Stimmen dieses Geräts",
-        "piper": "Piper auf diesem Computer",
-        "qwen": "Qwen3-TTS auf diesem Computer",
+        "piper": "Piper auf diesem Gerät",
+        "qwen": "Qwen3-TTS auf diesem Gerät",
         "qwenMissing": "Nicht in diesem Build: die App wurde ohne ihre Sprach-Engines gebaut",
         "qwenReady": "Bereit: ein Modell geladen",
         "qwenNoModel": "Noch kein Modell: unten eins laden"
@@ -1281,7 +1281,7 @@
       "qwenNoLanguage": "Qwen3-TTS spricht kein {language}: die Stimmen des Geräts lesen es.",
       "howMic": "Wo man spricht (der Sprechteil einer Prüfung), ein Mikrofon: tippen, um die Aufnahme zu starten, nochmal tippen, um sie zu beenden. Wo geschrieben wird, gibt es keins.",
       "howPhrase": "Der Satz zum Nachsprechen bleibt bis zum ersten Versuch verborgen; du kannst ihn auch vorher zeigen.",
-      "howRecordings": "Deine Aufnahmen bleiben auf diesem Computer, zum Nachhören im Notizbuch; löschen kannst du sie unter Allgemein → Speicher.",
+      "howRecordings": "Deine Aufnahmen bleiben auf diesem Gerät, zum Nachhören im Notizbuch; löschen kannst du sie unter Allgemein → Speicher.",
       "how": "So funktioniert es",
       "words": {
         "title": "Stimme für Wörter",
@@ -1335,7 +1335,7 @@
     "card_changed": "Die Karte hat sich auf einem anderen Gerät geändert. Sie wird neu gezeigt.",
     "downloads_unavailable": "Kurse können hier nicht heruntergeladen werden.",
     "course_busy": "Dieser Kurs wird gerade heruntergeladen. Entferne ihn, wenn der Download fertig ist.",
-    "course_gone": "Dieser Kurs ist nicht mehr auf diesem Computer — lade ihn erneut herunter, um weiterzumachen.",
+    "course_gone": "Dieser Kurs ist nicht mehr auf diesem Gerät — lade ihn erneut herunter, um weiterzumachen.",
     "empty_recording": "Die Aufnahme ist leer. Versuch es noch einmal.",
     "event_id_taken": "Diese Antwort ist schon anders gespeichert. Lade die Seite neu.",
     "event_of_another_run": "Dieser Eintrag gehört zu einem anderen Durchgang. Lade die Lektion neu.",
@@ -1434,7 +1434,7 @@
     "course_bundle_damaged": "Diese Kursdatei ist beschädigt oder wurde nach dem Export verändert.",
     "course_bundle_too_large": "Diese Kursdatei ist zu groß (höchstens 16 GB).",
     "course_bundle_from_newer_app": "Diese Kursdatei stammt aus einer neueren Version von SprachAnker: Aktualisiere die App hier zuerst.",
-    "course_bundle_clash": "Auf diesem Computer liegen unter den Namen der Mediendateien dieses Kurses andere Dateien: Lade den Kurs hier herunter.",
+    "course_bundle_clash": "Auf diesem Gerät liegen unter den Namen der Mediendateien dieses Kurses andere Dateien: Lade den Kurs hier herunter.",
     "course_import_busy": "Gerade wird eine andere Kursdatei importiert. Versuch es noch einmal, wenn sie fertig ist.",
     "series_busy": "Kurse aus dieser Quelle werden gerade heruntergeladen oder importiert. Versuch es noch einmal, wenn das fertig ist.",
     "understanding_busy": "Ein Text für diese Lektion wird gerade geschrieben. Warte darauf.",
@@ -1541,7 +1541,7 @@
       "title": "Quellen und Prüfungen",
       "allPassed": "alle Prüfungen bestanden",
       "someFailed": "eine Prüfung nicht bestanden",
-      "statement": "Jede Frage, jedes Bild, jede Aufnahme und jede Lösung hier hat der Import auf diesem Computer aus den Dokumenten unten gelesen — nichts von Hand oder von einem Modell geschrieben — und wie aufgeführt geprüft. Eine Probeprüfung stellt dieselben Aufgaben und bewertet sie nach denselben Regeln wie der offizielle Modellsatz; sie zeigt, wie gut du vorbereitet bist, nicht, was die echte Prüfung ergibt.",
+      "statement": "Jede Frage, jedes Bild, jede Aufnahme und jede Lösung hier hat der Import auf diesem Gerät aus den Dokumenten unten gelesen — nichts von Hand oder von einem Modell geschrieben — und wie aufgeführt geprüft. Eine Probeprüfung stellt dieselben Aufgaben und bewertet sie nach denselben Regeln wie der offizielle Modellsatz; sie zeigt, wie gut du vorbereitet bist, nicht, was die echte Prüfung ergibt.",
       "documents": "Gelesen aus",
       "copy": "Kopie gespeichert, SHA-256 {hash}…, gelesen am {date}",
       "read": "gelesen am {date}",
@@ -1625,13 +1625,13 @@
   "bundle": {
     "export": {
       "button": "In eine Datei exportieren",
-      "hint": "Dieser Kurs als eine Datei, um ihn auf deinem anderen Computer unter „Heruntergeladen“ zu importieren.",
-      "hintExam": "Diese Prüfung als eine Datei, zum Importieren auf deinem anderen Computer unter „Heruntergeladen“.",
+      "hint": "Dieser Kurs als eine Datei, um ihn auf deinem anderen Gerät unter „Heruntergeladen“ zu importieren.",
+      "hintExam": "Diese Prüfung als eine Datei, zum Importieren auf deinem anderen Gerät unter „Heruntergeladen“.",
       "started": "„{file}“ wird heruntergeladen ({size})."
     },
     "import": {
       "button": "Aus einer Datei importieren…",
-      "hint": "Ein Kurs oder eine Prüfung, auf deinem anderen Computer exportiert (.sprachanker-course).",
+      "hint": "Ein Kurs oder eine Prüfung, auf deinem anderen Gerät exportiert (.sprachanker-course).",
       "sending": "Datei wird gesendet… {share, number, percent}",
       "checking": "Datei wird geprüft und installiert…",
       "added": "„{title}“ ist da.",

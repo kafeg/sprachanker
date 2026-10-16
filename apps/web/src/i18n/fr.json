@@ -78,8 +78,8 @@
     "checkAgain": "Vérifier à nouveau",
     "complete": "Tout est téléchargé",
     "next": "suite : {where} — {title}",
-    "gone": "Ce cours n’est plus sur cet ordinateur — télécharge-le de nouveau pour continuer.",
-    "examGone": "Cet examen n’est plus sur cet ordinateur — télécharge-le de nouveau pour continuer.",
+    "gone": "Ce cours n’est plus sur cet appareil — télécharge-le de nouveau pour continuer.",
+    "examGone": "Cet examen n’est plus sur cet appareil — télécharge-le de nouveau pour continuer.",
     "checkFiles": "Vérifier",
     "problem": {
       "missingMedia": "Fichier manquant : {at}",
@@ -297,7 +297,7 @@
       "llm_no_key": "clé requise",
       "installed": "installé",
       "keySaved": "clé enregistrée",
-      "here": "sur cet ordinateur",
+      "here": "sur cet appareil",
       "at": "sur {host}"
     },
     "list": {
@@ -323,11 +323,11 @@
       "freeModels": "Les modèles gratuits ont une limite quotidienne de requêtes fixée par OpenRouter (plus élevée une fois des crédits achetés)."
     },
     "keyHintFor": {
-      "openrouter": "Crée une clé sur openrouter.ai/keys. Elle est stockée chiffrée sur cet ordinateur et n’est plus jamais affichée.",
-      "openai": "Crée une clé sur platform.openai.com/api-keys. Elle est stockée chiffrée sur cet ordinateur et n’est plus jamais affichée.",
-      "anthropic": "Crée une clé sur platform.claude.com/settings/keys. Elle est stockée chiffrée sur cet ordinateur et n’est plus jamais affichée.",
-      "gemini": "Crée une clé sur aistudio.google.com/apikey. Elle est stockée chiffrée sur cet ordinateur et n’est plus jamais affichée.",
-      "groq": "Crée une clé sur console.groq.com/keys. Elle est stockée chiffrée sur cet ordinateur et n’est plus jamais affichée."
+      "openrouter": "Crée une clé sur openrouter.ai/keys. Elle est stockée chiffrée sur cet appareil et n’est plus jamais affichée.",
+      "openai": "Crée une clé sur platform.openai.com/api-keys. Elle est stockée chiffrée sur cet appareil et n’est plus jamais affichée.",
+      "anthropic": "Crée une clé sur platform.claude.com/settings/keys. Elle est stockée chiffrée sur cet appareil et n’est plus jamais affichée.",
+      "gemini": "Crée une clé sur aistudio.google.com/apikey. Elle est stockée chiffrée sur cet appareil et n’est plus jamais affichée.",
+      "groq": "Crée une clé sur console.groq.com/keys. Elle est stockée chiffrée sur cet appareil et n’est plus jamais affichée."
     }
   },
   "tutor": {
@@ -605,7 +605,7 @@
   },
   "about": {
     "title": "À propos de SprachAnker",
-    "intro": "Un tuteur de langues auto-hébergé et local : de vrais cours dans un seul lecteur, ta progression et ta voix sur ton propre ordinateur, le modèle d’IA de ton choix. Gratuit et open source.",
+    "intro": "Un tuteur de langues auto-hébergé et local : de vrais cours dans un seul lecteur, ta progression et ta voix sur ton propre appareil, le modèle d’IA de ton choix. Gratuit et open source.",
     "version": "Version",
     "licence": "Licence : MIT",
     "source": "Code source sur GitHub"
@@ -661,8 +661,8 @@
     "log": "Journal du téléchargement",
     "syncShort": "Synchroniser",
     "remove": {
-      "button": "Retirer de cet ordinateur…",
-      "title": "Retirer « {title} » de cet ordinateur ?",
+      "button": "Retirer de cet appareil…",
+      "title": "Retirer « {title} » de cet appareil ?",
       "body": "Ses leçons et ses médias sont supprimés du disque (les médias qu’un autre cours utilise restent). Ta progression, ton carnet et tes mots restent ; télécharge-le à nouveau pour continuer.",
       "bodyExam": "Ses questions et ses médias sont supprimés du disque (les médias qu’un autre cours utilise restent). Tes examens blancs, ton entraînement et ton carnet restent ; télécharge-le à nouveau pour continuer.",
       "confirm": "Retirer"
@@ -670,7 +670,7 @@
   },
   "storage": {
     "title": "Stockage",
-    "intro": "Les cours, les médias et ta progression se trouvent dans ce dossier, sur l’ordinateur où tourne SprachAnker. Il est choisi au démarrage du serveur (--data ou SPRACHANKER_DATA) ; l’appli de bureau permettra de le changer.",
+    "intro": "Les cours, les médias et ta progression se trouvent dans ce dossier, sur l’appareil où tourne SprachAnker. Il est choisi au démarrage du serveur (--data ou SPRACHANKER_DATA) ; l’appli de bureau permettra de le changer.",
     "total": "Total",
     "used": "Les cours occupent {size}",
     "usedFree": "Les cours occupent {size} · {free} libres sur le disque",
@@ -679,7 +679,7 @@
     "recordingsKept": "{count, plural, =0 {aucun conservé} one {{n} enregistrement · {size}} many {{n} enregistrements · {size}} other {{n} enregistrements · {size}}}",
     "deleteRecordings": "Tout supprimer",
     "deleteRecordingsTitle": "Supprimer tous les enregistrements ?",
-    "deleteRecordingsBody": "Tes enregistrements seront supprimés de cet ordinateur. Tes réponses et ta progression restent. Action irréversible."
+    "deleteRecordingsBody": "Tes enregistrements seront supprimés de cet appareil. Tes réponses et ta progression restent. Action irréversible."
   },
   "windowTitle": {
     "course": "Cours",
@@ -964,7 +964,7 @@
       "checking": "Vérification du fichier et création du profil…",
       "done": "« {name} » est là.",
       "noKeys": "Les clés d’API ne sont pas dans le fichier : saisis-les à nouveau dans Réglages → Assistant IA.",
-      "missing": "Pas encore sur cet ordinateur — leurs leçons apparaissent une fois téléchargées ; les mots sont déjà dans Révision :",
+      "missing": "Pas encore sur cet appareil — leurs leçons apparaissent une fois téléchargées ; les mots sont déjà dans Révision :",
       "open": "Ouvrir « {name} »",
       "noEndpointLogins": "Les noms d’utilisateur et mots de passe des adresses des serveurs d’IA ne sont pas dans le fichier : saisis de nouveau les clés dans Réglages → Assistant IA."
     }
@@ -976,7 +976,7 @@
     "finish": "Choisir un cours",
     "profile": {
       "title": "Bienvenue",
-      "text": "SprachAnker réunit de vrais cours de langue dans un seul lecteur, vérifie tes réponses, fait revenir tes mots par répétition espacée et peut faire appel à un tuteur IA. Tout reste sur cet ordinateur.",
+      "text": "SprachAnker réunit de vrais cours de langue dans un seul lecteur, vérifie tes réponses, fait revenir tes mots par répétition espacée et peut faire appel à un tuteur IA. Tout reste sur cet appareil.",
       "sources": "Les cours sont téléchargés directement depuis les sites de leurs éditeurs (Deutsche Welle et d’autres), pour ton usage personnel. Respecte leurs conditions ; SprachAnker n’est pas lié à eux.",
       "experimental": "Les cours et examens encore à l’essai restent masqués tant que tu ne les actives pas dans Réglages → Général → Expérimental.",
       "name": "Comment veux-tu qu’on t’appelle ?"
@@ -990,7 +990,7 @@
     },
     "speech": {
       "title": "Parler",
-      "text": "Dis toi-même les phrases des cours et fais lire n’importe quel texte à voix haute : teste ton micro, télécharge la reconnaissance vocale (une seule fois) pour que l’appli entende ce que tu dis, et choisis une voix pour chaque langue. Tout reste sur cet ordinateur ; tout se modifie plus tard dans Réglages → Parole."
+      "text": "Dis toi-même les phrases des cours et fais lire n’importe quel texte à voix haute : teste ton micro, télécharge la reconnaissance vocale (une seule fois) pour que l’appli entende ce que tu dis, et choisis une voix pour chaque langue. Tout reste sur cet appareil ; tout se modifie plus tard dans Réglages → Parole."
     },
     "cancel": "Annuler"
   },
@@ -1024,8 +1024,8 @@
       "lime": "Citron vert"
     },
     "export": {
-      "title": "Passer à un autre ordinateur",
-      "body": "Un fichier avec la progression, les mots, les réglages et les enregistrements de ce profil, à importer sur ton autre ordinateur depuis « Qui étudie ? ». Les clés d’API n’y sont pas.",
+      "title": "Passer à un autre appareil",
+      "body": "Un fichier avec la progression, les mots, les réglages et les enregistrements de ce profil, à importer sur ton autre appareil depuis « Qui étudie ? ». Les clés d’API n’y sont pas.",
       "button": "Exporter le profil",
       "started": "Téléchargement de « {file} » ({size})."
     }
@@ -1049,7 +1049,7 @@
     "import": {
       "button": "Importer un fichier de paquet",
       "title": "Importer un paquet",
-      "hint": "Ses mots deviennent un paquet que chaque profil de cet ordinateur peut prendre, comme celui d’un cours ; son audio les accompagne.",
+      "hint": "Ses mots deviennent un paquet que chaque profil de cet appareil peut prendre, comme celui d’un cours ; son audio les accompagne.",
       "name": "Nom",
       "lang": "Langue des mots",
       "translationLang": "Langue des traductions",
@@ -1063,15 +1063,15 @@
     },
     "export": "Exporter dans un fichier",
     "file": {
-      "new": "Ses mots deviennent un paquet que chaque profil de cet ordinateur peut prendre, avec leur audio et leurs exemples.",
+      "new": "Ses mots deviennent un paquet que chaque profil de cet appareil peut prendre, avec leur audio et leurs exemples.",
       "merges": "Ce paquet est déjà ici : les mots qui lui manquent sont ajoutés, ainsi que l’audio et les exemples qu’il n’a pas. Ce qu’il a reste.",
       "course": "L’audio et les exemples faits pour les mots de ce cours. Ses cartes ici les jouent et les montrent ; ce qui a déjà été fait ici reste.",
-      "courseWaits": "L’audio et les exemples faits pour les mots de ce cours. Le cours n’est pas encore sur cet ordinateur : ils sont gardés pour lui jusqu’à ce que tu le télécharges.",
+      "courseWaits": "L’audio et les exemples faits pour les mots de ce cours. Le cours n’est pas encore sur cet appareil : ils sont gardés pour lui jusqu’à ce que tu le télécharges.",
       "finds": "Tes trouvailles : elles rejoignent tes propres Trouvailles et deviennent tes cartes. Les mots déjà présents restent tels quels."
     },
     "remove": "Supprimer le paquet",
     "removeTitle": "Supprimer le paquet {deck} ?",
-    "removeBody": "Le paquet, ses mots et son audio seront supprimés de cet ordinateur pour tous les profils. Action irréversible.",
+    "removeBody": "Le paquet, ses mots et son audio seront supprimés de cet appareil pour tous les profils. Action irréversible.",
     "audio": {
       "missing": "{count, plural, one {# mot sans audio} many {# de mots sans audio} other {# mots sans audio}}",
       "count": "Audio : {done, number} sur {total, number}",
@@ -1253,7 +1253,7 @@
       "sampleFor": "Texte à écouter en {language}",
       "otherSample": "Une autre phrase",
       "recognition": "Reconnaissance",
-      "recognitionHint": "Ta voix est reconnue sur cet ordinateur (Whisper) : ce que tu as dit est comparé à la phrase. Elle entend des mots, pas des sons, et elle est indulgente. Rien ne quitte l’ordinateur.",
+      "recognitionHint": "Ta voix est reconnue sur cet appareil (Whisper) : ce que tu as dit est comparé à la phrase. Elle entend des mots, pas des sons, et elle est indulgente. Rien ne quitte l’appareil.",
       "noEngine": "Cette version n’a pas de moteur de reconnaissance.",
       "recognitionOn": "Reconnaître ma voix",
       "inUse": "Utilisé",
@@ -1265,8 +1265,8 @@
       "readHint": "Une voix lit les textes dans une langue : les répliques des dialogues, l’exemple d’un mot et les mots sans enregistrement. Chaque langue a sa propre voix.",
       "engine": {
         "device": "Voix de cet appareil",
-        "piper": "Piper sur cet ordinateur",
-        "qwen": "Qwen3-TTS sur cet ordinateur",
+        "piper": "Piper sur cet appareil",
+        "qwen": "Qwen3-TTS sur cet appareil",
         "qwenMissing": "Absent de cette version : l’appli a été compilée sans ses moteurs vocaux",
         "qwenReady": "Prêt : un modèle téléchargé",
         "qwenNoModel": "Pas encore de modèle : télécharges-en un ci-dessous"
@@ -1281,7 +1281,7 @@
       "qwenNoLanguage": "Qwen3-TTS ne parle pas {language} : les voix de l’appareil s’en chargent.",
       "howMic": "Là où une réponse se dit à voix haute (l’épreuve orale d’un examen), un micro : touche pour lancer l’enregistrement, touche à nouveau pour l’arrêter. Là où la tâche est écrite, il n’y en a pas.",
       "howPhrase": "La phrase à répéter reste masquée jusqu’à ton premier essai ; tu peux l’afficher avant.",
-      "howRecordings": "Tes enregistrements sont conservés sur cet ordinateur pour les réécouter dans le Carnet ; supprime-les dans Général → Stockage.",
+      "howRecordings": "Tes enregistrements sont conservés sur cet appareil pour les réécouter dans le Carnet ; supprime-les dans Général → Stockage.",
       "how": "Comment ça marche",
       "words": {
         "title": "Voix pour les mots",
@@ -1335,7 +1335,7 @@
     "card_changed": "Cette carte a changé sur un autre appareil. Elle est affichée à nouveau.",
     "downloads_unavailable": "Les cours ne peuvent pas être téléchargés ici.",
     "course_busy": "Ce cours est en cours de téléchargement. Retire-le une fois le téléchargement terminé.",
-    "course_gone": "Ce cours n’est plus sur cet ordinateur — télécharge-le de nouveau pour continuer.",
+    "course_gone": "Ce cours n’est plus sur cet appareil — télécharge-le de nouveau pour continuer.",
     "empty_recording": "L’enregistrement est vide. Réessaie.",
     "event_id_taken": "Cette réponse a déjà été enregistrée autrement. Recharge la page.",
     "event_of_another_run": "Cet enregistrement appartient à un autre passage. Recharge la leçon.",
@@ -1434,7 +1434,7 @@
     "course_bundle_damaged": "Ce fichier de cours est endommagé ou a été modifié après l’export.",
     "course_bundle_too_large": "Ce fichier de cours est trop volumineux (16 Go au plus).",
     "course_bundle_from_newer_app": "Ce fichier de cours vient d’une version plus récente de SprachAnker : mets d’abord l’application à jour ici.",
-    "course_bundle_clash": "Cet ordinateur a d’autres fichiers sous les noms des médias de ce cours : télécharge plutôt le cours ici.",
+    "course_bundle_clash": "Cet appareil a d’autres fichiers sous les noms des médias de ce cours : télécharge plutôt le cours ici.",
     "course_import_busy": "Un autre fichier de cours est en cours d’import. Réessaie quand il sera terminé.",
     "series_busy": "Des cours de cette source sont en cours de téléchargement ou d'import. Réessaie quand ce sera fini.",
     "understanding_busy": "Un texte pour cette leçon est en cours d’écriture. Patiente.",
@@ -1541,7 +1541,7 @@
       "title": "Sources et vérifications",
       "allPassed": "toutes les vérifications réussies",
       "someFailed": "une vérification a échoué",
-      "statement": "Chaque question, image, enregistrement et réponse présent ici a été lu dans les documents ci-dessous par l’importateur sur cet ordinateur — rien n’a été écrit à la main ni par un modèle — et vérifié comme indiqué. Un examen blanc pose les mêmes tâches et les note selon les mêmes règles que le test modèle officiel ; il montre à quel point tu es prêt, pas ce que donnera le vrai examen.",
+      "statement": "Chaque question, image, enregistrement et réponse présent ici a été lu dans les documents ci-dessous par l’importateur sur cet appareil — rien n’a été écrit à la main ni par un modèle — et vérifié comme indiqué. Un examen blanc pose les mêmes tâches et les note selon les mêmes règles que le test modèle officiel ; il montre à quel point tu es prêt, pas ce que donnera le vrai examen.",
       "documents": "Lu dans",
       "copy": "copie conservée, SHA-256 {hash}…, lue le {date}",
       "read": "lu le {date}",
@@ -1625,13 +1625,13 @@
   "bundle": {
     "export": {
       "button": "Exporter dans un fichier",
-      "hint": "Ce cours en un seul fichier, à importer sur ton autre ordinateur dans « Téléchargés ».",
-      "hintExam": "Cet examen en un seul fichier, à importer sur ton autre ordinateur sous « Téléchargés ».",
+      "hint": "Ce cours en un seul fichier, à importer sur ton autre appareil dans « Téléchargés ».",
+      "hintExam": "Cet examen en un seul fichier, à importer sur ton autre appareil sous « Téléchargés ».",
       "started": "Téléchargement de « {file} » ({size})."
     },
     "import": {
       "button": "Importer depuis un fichier…",
-      "hint": "Un cours ou un examen exporté sur ton autre ordinateur (.sprachanker-course).",
+      "hint": "Un cours ou un examen exporté sur ton autre appareil (.sprachanker-course).",
       "sending": "Envoi du fichier… {share, number, percent}",
       "checking": "Vérification et installation du fichier…",
       "added": "« {title} » est là.",

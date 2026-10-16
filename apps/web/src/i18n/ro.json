@@ -78,8 +78,8 @@
     "checkAgain": "Verifică din nou",
     "complete": "Totul descărcat",
     "next": "urmează: {where} — {title}",
-    "gone": "Acest curs nu mai este pe acest calculator — descarcă-l din nou ca să continui.",
-    "examGone": "Acest examen nu mai este pe acest calculator — descarcă-l din nou ca să continui.",
+    "gone": "Acest curs nu mai este pe acest dispozitiv — descarcă-l din nou ca să continui.",
+    "examGone": "Acest examen nu mai este pe acest dispozitiv — descarcă-l din nou ca să continui.",
     "checkFiles": "Verifică",
     "problem": {
       "missingMedia": "Fișier lipsă: {at}",
@@ -297,7 +297,7 @@
       "llm_no_key": "necesită o cheie",
       "installed": "instalat",
       "keySaved": "cheie salvată",
-      "here": "pe acest computer",
+      "here": "pe acest dispozitiv",
       "at": "la {host}"
     },
     "list": {
@@ -323,11 +323,11 @@
       "freeModels": "Modelele gratuite au o limită zilnică de cereri stabilită de OpenRouter (mai mare după ce ai cumpărat credite)."
     },
     "keyHintFor": {
-      "openrouter": "Creează o cheie pe openrouter.ai/keys. Se păstrează criptată pe acest computer și nu mai este afișată niciodată.",
-      "openai": "Creează o cheie pe platform.openai.com/api-keys. Se păstrează criptată pe acest computer și nu mai este afișată niciodată.",
-      "anthropic": "Creează o cheie pe platform.claude.com/settings/keys. Se păstrează criptată pe acest computer și nu mai este afișată niciodată.",
-      "gemini": "Creează o cheie pe aistudio.google.com/apikey. Se păstrează criptată pe acest computer și nu mai este afișată niciodată.",
-      "groq": "Creează o cheie pe console.groq.com/keys. Se păstrează criptată pe acest computer și nu mai este afișată niciodată."
+      "openrouter": "Creează o cheie pe openrouter.ai/keys. Se păstrează criptată pe acest dispozitiv și nu mai este afișată niciodată.",
+      "openai": "Creează o cheie pe platform.openai.com/api-keys. Se păstrează criptată pe acest dispozitiv și nu mai este afișată niciodată.",
+      "anthropic": "Creează o cheie pe platform.claude.com/settings/keys. Se păstrează criptată pe acest dispozitiv și nu mai este afișată niciodată.",
+      "gemini": "Creează o cheie pe aistudio.google.com/apikey. Se păstrează criptată pe acest dispozitiv și nu mai este afișată niciodată.",
+      "groq": "Creează o cheie pe console.groq.com/keys. Se păstrează criptată pe acest dispozitiv și nu mai este afișată niciodată."
     }
   },
   "tutor": {
@@ -605,7 +605,7 @@
   },
   "about": {
     "title": "Despre SprachAnker",
-    "intro": "Un profesor de limbi găzduit de tine, care funcționează local: cursuri reale într-un singur player, progresul și vocea ta pe propriul computer, orice model AI conectezi. Gratuit și open source.",
+    "intro": "Un profesor de limbi găzduit de tine, care funcționează local: cursuri reale într-un singur player, progresul și vocea ta pe propriul dispozitiv, orice model AI conectezi. Gratuit și open source.",
     "version": "Versiune",
     "licence": "Licență: MIT",
     "source": "Codul sursă pe GitHub"
@@ -661,8 +661,8 @@
     "log": "Jurnalul descărcării",
     "syncShort": "Sincronizează",
     "remove": {
-      "button": "Elimină de pe acest calculator…",
-      "title": "Elimini „{title}” de pe acest calculator?",
+      "button": "Elimină de pe acest dispozitiv…",
+      "title": "Elimini „{title}” de pe acest dispozitiv?",
       "body": "Lecțiile și fișierele media ale lui sunt șterse de pe disc (media folosite de alt curs rămân). Progresul, caietul și cuvintele tale rămân; descarcă-l din nou ca să continui.",
       "bodyExam": "Întrebările și fișierele media ale lui sunt șterse de pe disc (media folosite de alt curs rămân). Simulările, exersarea și caietul tău rămân; descarcă-l din nou ca să continui.",
       "confirm": "Elimină"
@@ -670,7 +670,7 @@
   },
   "storage": {
     "title": "Stocare",
-    "intro": "Cursurile, fișierele media și progresul tău stau în acest dosar, pe computerul care rulează SprachAnker. Se alege la pornirea serverului (--data sau SPRACHANKER_DATA); aplicația desktop te va lăsa să-l schimbi.",
+    "intro": "Cursurile, fișierele media și progresul tău stau în acest dosar, pe dispozitivul care rulează SprachAnker. Se alege la pornirea serverului (--data sau SPRACHANKER_DATA); aplicația desktop te va lăsa să-l schimbi.",
     "total": "Total",
     "used": "Cursurile ocupă {size}",
     "usedFree": "Cursurile ocupă {size} · {free} liber pe disc",
@@ -679,7 +679,7 @@
     "recordingsKept": "{count, plural, =0 {niciuna păstrată} one {{n} înregistrare · {size}} few {{n} înregistrări · {size}} other {{n} de înregistrări · {size}}}",
     "deleteRecordings": "Șterge tot",
     "deleteRecordingsTitle": "Ștergi toate înregistrările?",
-    "deleteRecordingsBody": "Înregistrările tale vor fi șterse de pe acest computer. Răspunsurile și progresul tău rămân. Acțiunea nu poate fi anulată."
+    "deleteRecordingsBody": "Înregistrările tale vor fi șterse de pe acest dispozitiv. Răspunsurile și progresul tău rămân. Acțiunea nu poate fi anulată."
   },
   "windowTitle": {
     "course": "Curs",
@@ -964,7 +964,7 @@
       "checking": "Se verifică fișierul și se creează profilul…",
       "done": "„{name}” este aici.",
       "noKeys": "Cheile API nu sunt în fișier: introdu-le din nou în Setări → Asistent AI.",
-      "missing": "Încă nu sunt pe acest calculator — lecțiile apar după descărcare; cuvintele sunt deja la Recapitulare:",
+      "missing": "Încă nu sunt pe acest dispozitiv — lecțiile apar după descărcare; cuvintele sunt deja la Recapitulare:",
       "open": "Deschide „{name}”",
       "noEndpointLogins": "Numele de utilizator și parolele din adresele serverelor AI nu sunt în fișier: introdu din nou cheile în Setări → Asistent AI."
     }
@@ -976,7 +976,7 @@
     "finish": "Alege un curs",
     "profile": {
       "title": "Bine ai venit",
-      "text": "SprachAnker adună cursuri reale de limbi străine într-un singur player, îți verifică răspunsurile, îți repetă cuvintele prin repetiție spațiată și poate aduce un tutore AI. Totul rămâne pe acest computer.",
+      "text": "SprachAnker adună cursuri reale de limbi străine într-un singur player, îți verifică răspunsurile, îți repetă cuvintele prin repetiție spațiată și poate aduce un tutore AI. Totul rămâne pe acest dispozitiv.",
       "sources": "Cursurile se descarcă direct de pe site-urile editorilor lor (Deutsche Welle și alții), pentru uzul tău personal. Respectă condițiile lor; SprachAnker nu este afiliat cu ei.",
       "experimental": "Cursurile și examenele aflate încă în probă rămân ascunse până le activezi în Setări → General → Experimental.",
       "name": "Cum să-ți spunem?"
@@ -990,7 +990,7 @@
     },
     "speech": {
       "title": "Vorbire",
-      "text": "Spune singur frazele din cursuri și ascultă orice text citit cu voce tare: testează-ți microfonul, descarcă recunoașterea vorbirii (o singură dată) ca aplicația să audă ce ai spus și alege o voce pentru fiecare limbă. Totul rămâne pe acest computer; totul se poate schimba mai târziu în Setări → Vorbire."
+      "text": "Spune singur frazele din cursuri și ascultă orice text citit cu voce tare: testează-ți microfonul, descarcă recunoașterea vorbirii (o singură dată) ca aplicația să audă ce ai spus și alege o voce pentru fiecare limbă. Totul rămâne pe acest dispozitiv; totul se poate schimba mai târziu în Setări → Vorbire."
     },
     "cancel": "Anulează"
   },
@@ -1024,8 +1024,8 @@
       "lime": "Verde crud"
     },
     "export": {
-      "title": "Mută pe alt calculator",
-      "body": "Un fișier cu progresul, cuvintele, setările și înregistrările acestui profil, de importat pe celălalt calculator al tău din „Cine învață?”. Cheile API nu sunt în el.",
+      "title": "Mută pe alt dispozitiv",
+      "body": "Un fișier cu progresul, cuvintele, setările și înregistrările acestui profil, de importat pe celălalt dispozitiv al tău din „Cine învață?”. Cheile API nu sunt în el.",
       "button": "Exportă profilul",
       "started": "Se descarcă „{file}” ({size})."
     }
@@ -1049,7 +1049,7 @@
     "import": {
       "button": "Importă un fișier de pachet",
       "title": "Importă un pachet",
-      "hint": "Cuvintele lui devin un pachet pe care orice profil de pe acest computer îl poate lua, ca pe al unui curs; audio vine odată cu ele.",
+      "hint": "Cuvintele lui devin un pachet pe care orice profil de pe acest dispozitiv îl poate lua, ca pe al unui curs; audio vine odată cu ele.",
       "name": "Nume",
       "lang": "Limba cuvintelor",
       "translationLang": "Limba traducerilor",
@@ -1063,15 +1063,15 @@
     },
     "export": "Exportă într-un fișier",
     "file": {
-      "new": "Cuvintele lui devin un pachet pe care orice profil de pe acest computer îl poate lua, cu audio și exemple.",
+      "new": "Cuvintele lui devin un pachet pe care orice profil de pe acest dispozitiv îl poate lua, cu audio și exemple.",
       "merges": "Acest pachet e deja aici: se adaugă cuvintele care îi lipsesc, precum și audio și exemplele pe care nu le are. Ce are rămâne.",
       "course": "Audio și exemplele făcute pentru cuvintele acestui curs. Cardurile lui de aici le redau și le arată; ce s-a făcut deja aici rămâne.",
-      "courseWaits": "Audio și exemplele făcute pentru cuvintele acestui curs. Cursul nu e încă pe acest computer: sunt păstrate pentru el până îl descarci.",
+      "courseWaits": "Audio și exemplele făcute pentru cuvintele acestui curs. Cursul nu e încă pe acest dispozitiv: sunt păstrate pentru el până îl descarci.",
       "finds": "Descoperirile tale: se adaugă la propriile tale Descoperiri și devin cardurile tale. Cuvintele care sunt deja acolo rămân cum sunt."
     },
     "remove": "Șterge pachetul",
     "removeTitle": "Ștergi pachetul {deck}?",
-    "removeBody": "Pachetul, cuvintele și audio-ul lui vor fi șterse de pe acest computer pentru toate profilurile. Acțiunea nu poate fi anulată.",
+    "removeBody": "Pachetul, cuvintele și audio-ul lui vor fi șterse de pe acest dispozitiv pentru toate profilurile. Acțiunea nu poate fi anulată.",
     "audio": {
       "missing": "{count, plural, one {# cuvânt fără audio} few {# cuvinte fără audio} other {# de cuvinte fără audio}}",
       "count": "Audio: {done, number} din {total, number}",
@@ -1253,7 +1253,7 @@
       "sampleFor": "Text de ascultat în {language}",
       "otherSample": "Altă frază",
       "recognition": "Recunoaștere",
-      "recognitionHint": "Vorbirea ta este recunoscută pe acest computer (Whisper): ce ai spus se compară cu fraza. Aude cuvinte, nu sunete, și e îngăduitoare. Nimic nu părăsește computerul.",
+      "recognitionHint": "Vorbirea ta este recunoscută pe acest dispozitiv (Whisper): ce ai spus se compară cu fraza. Aude cuvinte, nu sunete, și e îngăduitoare. Nimic nu părăsește dispozitivul.",
       "noEngine": "Această versiune nu are motor de recunoaștere.",
       "recognitionOn": "Recunoaște-mi vorbirea",
       "inUse": "În uz",
@@ -1265,8 +1265,8 @@
       "readHint": "O voce citește textele într-o limbă: replicile dialogurilor, exemplul unui cuvânt și cuvintele fără înregistrare. Fiecare limbă are vocea ei.",
       "engine": {
         "device": "Vocile acestui dispozitiv",
-        "piper": "Piper pe acest computer",
-        "qwen": "Qwen3-TTS pe acest computer",
+        "piper": "Piper pe acest dispozitiv",
+        "qwen": "Qwen3-TTS pe acest dispozitiv",
         "qwenMissing": "Nu e în această versiune: aplicația a fost compilată fără motoarele de vorbire",
         "qwenReady": "Gata: un model descărcat",
         "qwenNoModel": "Încă niciun model: descarcă unul mai jos"
@@ -1281,7 +1281,7 @@
       "qwenNoLanguage": "Qwen3-TTS nu vorbește {language}: o citesc vocile dispozitivului.",
       "howMic": "Acolo unde un răspuns se spune cu voce tare (proba orală a unui examen), un microfon: atinge ca să începi înregistrarea, atinge din nou ca s-o oprești. Unde sarcina e scrisă, nu există.",
       "howPhrase": "Fraza de repetat e ascunsă până la prima ta încercare; o poți afișa și mai devreme.",
-      "howRecordings": "Înregistrările tale se păstrează pe acest computer ca să le reasculți în Caiet; le ștergi în General → Stocare.",
+      "howRecordings": "Înregistrările tale se păstrează pe acest dispozitiv ca să le reasculți în Caiet; le ștergi în General → Stocare.",
       "how": "Cum funcționează",
       "words": {
         "title": "Voce pentru cuvinte",
@@ -1335,7 +1335,7 @@
     "card_changed": "Acest card s-a schimbat pe alt dispozitiv. E afișat din nou.",
     "downloads_unavailable": "Cursurile nu pot fi descărcate aici.",
     "course_busy": "Acest curs se descarcă acum. Elimină-l după ce se termină descărcarea.",
-    "course_gone": "Acest curs nu mai este pe acest calculator — descarcă-l din nou ca să continui.",
+    "course_gone": "Acest curs nu mai este pe acest dispozitiv — descarcă-l din nou ca să continui.",
     "empty_recording": "Înregistrarea e goală. Încearcă din nou.",
     "event_id_taken": "Acest răspuns a fost deja înregistrat altfel. Reîncarcă pagina.",
     "event_of_another_run": "Această înregistrare aparține altei parcurgeri. Reîncarcă lecția.",
@@ -1434,7 +1434,7 @@
     "course_bundle_damaged": "Acest fișier de curs este deteriorat sau a fost modificat după export.",
     "course_bundle_too_large": "Acest fișier de curs este prea mare (cel mult 16 GB).",
     "course_bundle_from_newer_app": "Acest fișier de curs vine dintr-o versiune mai nouă a SprachAnker: actualizează mai întâi aplicația aici.",
-    "course_bundle_clash": "Pe acest calculator există alte fișiere cu numele fișierelor media ale acestui curs: descarcă mai bine cursul aici.",
+    "course_bundle_clash": "Pe acest dispozitiv există alte fișiere cu numele fișierelor media ale acestui curs: descarcă mai bine cursul aici.",
     "course_import_busy": "Se importă deja alt fișier de curs. Încearcă din nou după ce se termină.",
     "series_busy": "Cursuri din această sursă se descarcă sau se importă chiar acum. Încearcă din nou după ce se termină.",
     "understanding_busy": "Se scrie un text pentru această lecție. Așteaptă.",
@@ -1541,7 +1541,7 @@
       "title": "Surse și verificări",
       "allPassed": "toate verificările trecute",
       "someFailed": "o verificare nu a trecut",
-      "statement": "Fiecare întrebare, imagine, înregistrare și răspuns de aici a fost citit din documentele de mai jos de importatorul de pe acest computer — nimic scris de mână sau de un model — și verificat așa cum se arată. O simulare pune aceleași sarcini și le punctează după aceleași reguli ca testul model oficial; arată cât de pregătit ești, nu ce va da examenul real.",
+      "statement": "Fiecare întrebare, imagine, înregistrare și răspuns de aici a fost citit din documentele de mai jos de importatorul de pe acest dispozitiv — nimic scris de mână sau de un model — și verificat așa cum se arată. O simulare pune aceleași sarcini și le punctează după aceleași reguli ca testul model oficial; arată cât de pregătit ești, nu ce va da examenul real.",
       "documents": "Citit din",
       "copy": "copie păstrată, SHA-256 {hash}…, citită la {date}",
       "read": "citit la {date}",
@@ -1625,13 +1625,13 @@
   "bundle": {
     "export": {
       "button": "Exportă într-un fișier",
-      "hint": "Acest curs într-un singur fișier, ca să-l imporți pe celălalt calculator al tău, la „Descărcate”.",
-      "hintExam": "Acest examen într-un singur fișier, de importat pe celălalt calculator la „Descărcate”.",
+      "hint": "Acest curs într-un singur fișier, ca să-l imporți pe celălalt dispozitiv al tău, la „Descărcate”.",
+      "hintExam": "Acest examen într-un singur fișier, de importat pe celălalt dispozitiv la „Descărcate”.",
       "started": "Se descarcă „{file}” ({size})."
     },
     "import": {
       "button": "Importă dintr-un fișier…",
-      "hint": "Un curs sau un examen exportat pe celălalt calculator al tău (.sprachanker-course).",
+      "hint": "Un curs sau un examen exportat pe celălalt dispozitiv al tău (.sprachanker-course).",
       "sending": "Se trimite fișierul… {share, number, percent}",
       "checking": "Se verifică și se instalează fișierul…",
       "added": "„{title}” este aici.",

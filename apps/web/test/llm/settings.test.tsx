@@ -84,7 +84,7 @@ test("providers as cards, each saying what it lacks or where it is; a card picks
     />,
   );
   const card = (name: RegExp) => view.getByRole("button", { name });
-  expect(card(/LM Studio/).textContent).toContain("on this computer");
+  expect(card(/LM Studio/).textContent).toContain("on this device");
   expect(card(/OpenRouter/).textContent).toContain("needs a key");
   expect(card(/OpenAI/).textContent).toContain("needs a key");
   expect(card(/Anthropic/).textContent).toContain("key saved");

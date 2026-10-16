@@ -78,8 +78,8 @@
     "checkAgain": "Provjeri ponovo",
     "complete": "Sve preuzeto",
     "next": "sljedeće: {where} — {title}",
-    "gone": "Ovog kursa više nema na ovom računaru — preuzmi ga ponovo da nastaviš.",
-    "examGone": "Ovog ispita više nema na ovom računaru — preuzmi ga ponovo da nastaviš.",
+    "gone": "Ovog kursa više nema na ovom uređaju — preuzmi ga ponovo da nastaviš.",
+    "examGone": "Ovog ispita više nema na ovom uređaju — preuzmi ga ponovo da nastaviš.",
     "checkFiles": "Provjeri",
     "problem": {
       "missingMedia": "Nedostaje datoteka: {at}",
@@ -297,7 +297,7 @@
       "llm_no_key": "treba ključ",
       "installed": "instaliran",
       "keySaved": "ključ sačuvan",
-      "here": "na ovom računaru",
+      "here": "na ovom uređaju",
       "at": "na {host}"
     },
     "list": {
@@ -323,11 +323,11 @@
       "freeModels": "Besplatni modeli imaju dnevno ograničenje zahtjeva koje postavlja OpenRouter (veće nakon kupovine kredita)."
     },
     "keyHintFor": {
-      "openrouter": "Napravi ključ na openrouter.ai/keys. Čuva se šifrovan na ovom računaru i više se ne prikazuje.",
-      "openai": "Napravi ključ na platform.openai.com/api-keys. Čuva se šifrovan na ovom računaru i više se ne prikazuje.",
-      "anthropic": "Napravi ključ na platform.claude.com/settings/keys. Čuva se šifrovan na ovom računaru i više se ne prikazuje.",
-      "gemini": "Napravi ključ na aistudio.google.com/apikey. Čuva se šifrovan na ovom računaru i više se ne prikazuje.",
-      "groq": "Napravi ključ na console.groq.com/keys. Čuva se šifrovan na ovom računaru i više se ne prikazuje."
+      "openrouter": "Napravi ključ na openrouter.ai/keys. Čuva se šifrovan na ovom uređaju i više se ne prikazuje.",
+      "openai": "Napravi ključ na platform.openai.com/api-keys. Čuva se šifrovan na ovom uređaju i više se ne prikazuje.",
+      "anthropic": "Napravi ključ na platform.claude.com/settings/keys. Čuva se šifrovan na ovom uređaju i više se ne prikazuje.",
+      "gemini": "Napravi ključ na aistudio.google.com/apikey. Čuva se šifrovan na ovom uređaju i više se ne prikazuje.",
+      "groq": "Napravi ključ na console.groq.com/keys. Čuva se šifrovan na ovom uređaju i više se ne prikazuje."
     }
   },
   "tutor": {
@@ -605,7 +605,7 @@
   },
   "about": {
     "title": "O aplikaciji SprachAnker",
-    "intro": "Tutor za jezike koji radi kod tebe, lokalno: pravi kursevi u jednom plejeru, napredak i govor na tvom računaru, bilo koji AI model koji povežeš. Besplatan i otvorenog koda.",
+    "intro": "Tutor za jezike koji radi kod tebe, lokalno: pravi kursevi u jednom plejeru, napredak i govor na tvom uređaju, bilo koji AI model koji povežeš. Besplatan i otvorenog koda.",
     "version": "Verzija",
     "licence": "Licenca: MIT",
     "source": "Izvorni kod na GitHubu"
@@ -661,8 +661,8 @@
     "log": "Dnevnik preuzimanja",
     "syncShort": "Sinhronizuj",
     "remove": {
-      "button": "Ukloni s ovog računara…",
-      "title": "Ukloniti „{title}“ s ovog računara?",
+      "button": "Ukloni s ovog uređaja…",
+      "title": "Ukloniti „{title}“ s ovog uređaja?",
       "body": "Njegove lekcije i mediji brišu se s diska (mediji koje koristi drugi kurs ostaju). Tvoj napredak, bilježnica i riječi ostaju; preuzmi ga ponovo da nastaviš.",
       "bodyExam": "Njegova pitanja i mediji brišu se s diska (mediji koje koristi drugi kurs ostaju). Tvoji probni ispiti, vježbanje i bilježnica ostaju; preuzmi ga ponovo da nastaviš.",
       "confirm": "Ukloni"
@@ -670,7 +670,7 @@
   },
   "storage": {
     "title": "Pohrana",
-    "intro": "Kursevi, mediji i tvoj napredak nalaze se u ovoj fascikli na računaru na kojem radi SprachAnker. Bira se pri pokretanju servera (--data ili SPRACHANKER_DATA); desktop aplikacija će omogućiti da je promijeniš.",
+    "intro": "Kursevi, mediji i tvoj napredak nalaze se u ovoj fascikli na uređaju na kojem radi SprachAnker. Bira se pri pokretanju servera (--data ili SPRACHANKER_DATA); desktop aplikacija će omogućiti da je promijeniš.",
     "total": "Ukupno",
     "used": "Kursevi zauzimaju {size}",
     "usedFree": "Kursevi zauzimaju {size} · {free} slobodno na disku",
@@ -679,7 +679,7 @@
     "recordingsKept": "{count, plural, =0 {nijedan nije sačuvan} one {{n} snimak · {size}} few {{n} snimka · {size}} other {{n} snimaka · {size}}}",
     "deleteRecordings": "Obriši sve",
     "deleteRecordingsTitle": "Obrisati sve snimke?",
-    "deleteRecordingsBody": "Tvoji snimci će biti obrisani s ovog računara. Tvoji odgovori i napredak ostaju. Ovo se ne može poništiti."
+    "deleteRecordingsBody": "Tvoji snimci će biti obrisani s ovog uređaja. Tvoji odgovori i napredak ostaju. Ovo se ne može poništiti."
   },
   "windowTitle": {
     "course": "Kurs",
@@ -964,7 +964,7 @@
       "checking": "Datoteka se provjerava i profil se pravi…",
       "done": "„{name}“ je ovdje.",
       "noKeys": "API ključevi nisu u datoteci: unesi ih ponovo u Postavkama → AI asistent.",
-      "missing": "Još nije na ovom računaru — njihove lekcije se pojave nakon preuzimanja; riječi su već u Ponavljanju:",
+      "missing": "Još nije na ovom uređaju — njihove lekcije se pojave nakon preuzimanja; riječi su već u Ponavljanju:",
       "open": "Otvori „{name}“",
       "noEndpointLogins": "Korisnička imena i lozinke iz adresa AI servera nisu u datoteci: unesi ključeve ponovo u Postavkama → AI asistent."
     }
@@ -976,7 +976,7 @@
     "finish": "Izaberi kurs",
     "profile": {
       "title": "Dobro došli",
-      "text": "SprachAnker stavlja prave jezičke kurseve u jedan plejer, provjerava tvoje odgovore, čuva tvoje riječi u ponavljanju s razmacima i može uključiti AI tutora. Sve ostaje na ovom računaru.",
+      "text": "SprachAnker stavlja prave jezičke kurseve u jedan plejer, provjerava tvoje odgovore, čuva tvoje riječi u ponavljanju s razmacima i može uključiti AI tutora. Sve ostaje na ovom uređaju.",
       "sources": "Kursevi se preuzimaju direktno s web-stranica njihovih izdavača (Deutsche Welle i drugi) za tvoju ličnu upotrebu. Poštuj njihove uslove; SprachAnker nije povezan s njima.",
       "experimental": "Kursevi i ispiti koji se još isprobavaju ostaju skriveni dok ih ne uključiš u Postavkama → Opće → Eksperimentalno.",
       "name": "Kako da te zovemo?"
@@ -990,7 +990,7 @@
     },
     "speech": {
       "title": "Govor",
-      "text": "Izgovaraj fraze iz kurseva i slušaj bilo koji tekst naglas: testiraj mikrofon, preuzmi prepoznavač govora (jednom) da aplikacija čuje tvoj izgovor, i izaberi glas za svaki jezik. Sve ostaje na ovom računaru; sve se kasnije može promijeniti u Postavkama → Govor."
+      "text": "Izgovaraj fraze iz kurseva i slušaj bilo koji tekst naglas: testiraj mikrofon, preuzmi prepoznavač govora (jednom) da aplikacija čuje tvoj izgovor, i izaberi glas za svaki jezik. Sve ostaje na ovom uređaju; sve se kasnije može promijeniti u Postavkama → Govor."
     },
     "cancel": "Otkaži"
   },
@@ -1024,8 +1024,8 @@
       "lime": "Limeta"
     },
     "export": {
-      "title": "Prenesi na drugi računar",
-      "body": "Datoteka s napretkom, riječima, postavkama i snimcima ovog profila, za uvoz na tvom drugom računaru pod „Ko uči?“. API ključevi nisu u njoj.",
+      "title": "Prenesi na drugi uređaj",
+      "body": "Datoteka s napretkom, riječima, postavkama i snimcima ovog profila, za uvoz na tvom drugom uređaju pod „Ko uči?“. API ključevi nisu u njoj.",
       "button": "Izvezi profil",
       "started": "Preuzima se „{file}“ ({size})."
     }
@@ -1049,7 +1049,7 @@
     "import": {
       "button": "Uvezi datoteku špila",
       "title": "Uvezi špil",
-      "hint": "Njegove riječi postaju špil koji svaki profil na ovom računaru može uzeti, kao špil kursa; njegov audio dolazi s njima.",
+      "hint": "Njegove riječi postaju špil koji svaki profil na ovom uređaju može uzeti, kao špil kursa; njegov audio dolazi s njima.",
       "name": "Naziv",
       "lang": "Riječi na jeziku",
       "translationLang": "Prijevodi na jeziku",
@@ -1063,15 +1063,15 @@
     },
     "export": "Izvezi u datoteku",
     "file": {
-      "new": "Njegove riječi postaju špil koji svaki profil na ovom računaru može uzeti, sa zvukom i primjerima.",
+      "new": "Njegove riječi postaju špil koji svaki profil na ovom uređaju može uzeti, sa zvukom i primjerima.",
       "merges": "Ovaj špil je već ovdje: dodaju se riječi koje mu nedostaju, kao i zvuk i primjeri koje nema. Ono što ima ostaje.",
       "course": "Zvuk i primjeri napravljeni za riječi ovog kursa. Njegove kartice ovdje ih puštaju i prikazuju; ono što je ovdje već napravljeno ostaje.",
-      "courseWaits": "Zvuk i primjeri napravljeni za riječi ovog kursa. Kursa još nema na ovom računaru: čuvaju se za njega dok ga ne preuzmeš.",
+      "courseWaits": "Zvuk i primjeri napravljeni za riječi ovog kursa. Kursa još nema na ovom uređaju: čuvaju se za njega dok ga ne preuzmeš.",
       "finds": "Tvoji nalazi: dodaju se tvojim Nalazima i postaju tvoje kartice. Riječi koje su već tamo ostaju kakve jesu."
     },
     "remove": "Obriši špil",
     "removeTitle": "Obrisati špil {deck}?",
-    "removeBody": "Špil, njegove riječi i audio bit će obrisani s ovog računara za sve profile. Ovo se ne može poništiti.",
+    "removeBody": "Špil, njegove riječi i audio bit će obrisani s ovog uređaja za sve profile. Ovo se ne može poništiti.",
     "audio": {
       "missing": "{count, plural, one {# riječ bez audija} few {# riječi bez audija} other {# riječi bez audija}}",
       "count": "Audio: {done, number} od {total, number}",
@@ -1253,7 +1253,7 @@
       "sampleFor": "Tekst za slušanje: {language}",
       "otherSample": "Druga fraza",
       "recognition": "Prepoznavanje",
-      "recognitionHint": "Tvoj govor se prepoznaje na ovom računaru (Whisper): izgovoreno se poredi s frazom. Čuje riječi, ne glasove, i blag je. Ništa ne napušta računar.",
+      "recognitionHint": "Tvoj govor se prepoznaje na ovom uređaju (Whisper): izgovoreno se poredi s frazom. Čuje riječi, ne glasove, i blag je. Ništa ne napušta uređaj.",
       "noEngine": "Ova verzija nema mehanizam za prepoznavanje.",
       "recognitionOn": "Prepoznaj moj govor",
       "inUse": "U upotrebi",
@@ -1265,8 +1265,8 @@
       "readHint": "Glas čita tekstove na jednom jeziku: replike iz dijaloga, primjer za riječ i riječi bez snimka. Svaki jezik ima svoj glas.",
       "engine": {
         "device": "Glasovi ovog uređaja",
-        "piper": "Piper na ovom računaru",
-        "qwen": "Qwen3-TTS na ovom računaru",
+        "piper": "Piper na ovom uređaju",
+        "qwen": "Qwen3-TTS na ovom uređaju",
         "qwenMissing": "Nije u ovoj verziji: aplikacija je napravljena bez mehanizama za govor",
         "qwenReady": "Spremno: model je preuzet",
         "qwenNoModel": "Još nema modela: preuzmi jedan ispod"
@@ -1281,7 +1281,7 @@
       "qwenNoLanguage": "Qwen3-TTS ne govori jezik „{language}“: čitaju ga glasovi uređaja.",
       "howMic": "Gdje se odgovor izgovara (usmeni dio ispita), tu je mikrofon: dodirni za početak snimanja, dodirni ponovo za kraj. Gdje je zadatak pisanje, mikrofona nema.",
       "howPhrase": "Fraza za ponavljanje je skrivena do tvog prvog pokušaja; možeš je prikazati i ranije.",
-      "howRecordings": "Tvoji snimci se čuvaju na ovom računaru da ih ponovo preslušaš u Svesci; obriši ih u Opće → Pohrana.",
+      "howRecordings": "Tvoji snimci se čuvaju na ovom uređaju da ih ponovo preslušaš u Svesci; obriši ih u Opće → Pohrana.",
       "how": "Kako radi",
       "words": {
         "title": "Glas za riječi",
@@ -1335,7 +1335,7 @@
     "card_changed": "Ova kartica je promijenjena na drugom uređaju. Prikazuje se ponovo.",
     "downloads_unavailable": "Kursevi se ovdje ne mogu preuzimati.",
     "course_busy": "Ovaj kurs se upravo preuzima. Ukloni ga kad preuzimanje završi.",
-    "course_gone": "Ovog kursa više nema na ovom računaru — preuzmi ga ponovo da nastaviš.",
+    "course_gone": "Ovog kursa više nema na ovom uređaju — preuzmi ga ponovo da nastaviš.",
     "empty_recording": "Snimak je prazan. Pokušaj ponovo.",
     "event_id_taken": "Ovaj odgovor je već drugačije zabilježen. Ponovo učitaj stranicu.",
     "event_of_another_run": "Ovaj zapis pripada drugom prolazu. Ponovo učitaj lekciju.",
@@ -1434,7 +1434,7 @@
     "course_bundle_damaged": "Ova datoteka kursa je oštećena ili je izmijenjena nakon izvoza.",
     "course_bundle_too_large": "Ova datoteka kursa je prevelika (najviše 16 GB).",
     "course_bundle_from_newer_app": "Ova datoteka kursa potiče iz novije verzije SprachAnkera: prvo ažuriraj aplikaciju ovdje.",
-    "course_bundle_clash": "Na ovom računaru pod imenima medijskih datoteka ovog kursa postoje druge datoteke: umjesto toga preuzmi kurs ovdje.",
+    "course_bundle_clash": "Na ovom uređaju pod imenima medijskih datoteka ovog kursa postoje druge datoteke: umjesto toga preuzmi kurs ovdje.",
     "course_import_busy": "Upravo se uvozi druga datoteka kursa. Pokušaj ponovo kad se završi.",
     "series_busy": "Kursevi iz ovog izvora se upravo preuzimaju ili uvoze. Pokušaj ponovo kad se to završi.",
     "understanding_busy": "Tekst za ovu lekciju se upravo piše. Sačekaj.",
@@ -1541,7 +1541,7 @@
       "title": "Izvori i provjere",
       "allPassed": "sve provjere su prošle",
       "someFailed": "jedna provjera nije prošla",
-      "statement": "Svako pitanje, sliku, snimak i odgovor ovdje je uvoznik na ovom računaru pročitao iz dokumenata ispod — ništa nije napisano ručno ni modelom — i provjerio kako je navedeno. Probni ispit postavlja iste zadatke i boduje ih po istim pravilima kao službeni ogledni test; pokazuje tvoju spremnost, a ne šta će dati pravi ispit.",
+      "statement": "Svako pitanje, sliku, snimak i odgovor ovdje je uvoznik na ovom uređaju pročitao iz dokumenata ispod — ništa nije napisano ručno ni modelom — i provjerio kako je navedeno. Probni ispit postavlja iste zadatke i boduje ih po istim pravilima kao službeni ogledni test; pokazuje tvoju spremnost, a ne šta će dati pravi ispit.",
       "documents": "Pročitano iz",
       "copy": "kopija sačuvana, SHA-256 {hash}…, pročitano {date}",
       "read": "pročitano {date}",
@@ -1625,13 +1625,13 @@
   "bundle": {
     "export": {
       "button": "Izvezi u datoteku",
-      "hint": "Ovaj kurs kao jedna datoteka, za uvoz na tvom drugom računaru pod „Preuzeti“.",
-      "hintExam": "Ovaj ispit kao jedna datoteka, za uvoz na drugom računaru pod „Preuzeto“.",
+      "hint": "Ovaj kurs kao jedna datoteka, za uvoz na tvom drugom uređaju pod „Preuzeti“.",
+      "hintExam": "Ovaj ispit kao jedna datoteka, za uvoz na drugom uređaju pod „Preuzeto“.",
       "started": "Preuzima se „{file}“ ({size})."
     },
     "import": {
       "button": "Uvezi iz datoteke…",
-      "hint": "Kurs ili ispit izvezen na tvom drugom računaru (.sprachanker-course).",
+      "hint": "Kurs ili ispit izvezen na tvom drugom uređaju (.sprachanker-course).",
       "sending": "Datoteka se šalje… {share, number, percent}",
       "checking": "Datoteka se provjerava i instalira…",
       "added": "„{title}“ je ovdje.",

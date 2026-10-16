@@ -78,8 +78,8 @@
     "checkAgain": "Újraellenőrzés",
     "complete": "Minden letöltve",
     "next": "következik: {where} — {title}",
-    "gone": "Ez a kurzus már nincs ezen a számítógépen — töltsd le újra a folytatáshoz.",
-    "examGone": "Ez a vizsga már nincs ezen a számítógépen — töltsd le újra a folytatáshoz.",
+    "gone": "Ez a kurzus már nincs ezen az eszközön — töltsd le újra a folytatáshoz.",
+    "examGone": "Ez a vizsga már nincs ezen az eszközön — töltsd le újra a folytatáshoz.",
     "checkFiles": "Ellenőrzés",
     "problem": {
       "missingMedia": "Hiányzó fájl: {at}",
@@ -297,7 +297,7 @@
       "llm_no_key": "kulcs szükséges",
       "installed": "telepítve",
       "keySaved": "kulcs mentve",
-      "here": "ezen a számítógépen",
+      "here": "ezen az eszközön",
       "at": "itt: {host}"
     },
     "list": {
@@ -323,11 +323,11 @@
       "freeModels": "Az ingyenes modellekre az OpenRouter napi kéréskorlátot szab (kreditvásárlás után magasabbat)."
     },
     "keyHintFor": {
-      "openrouter": "Kulcsot az openrouter.ai/keys oldalon hozhatsz létre. Titkosítva tároljuk ezen a számítógépen, és többé nem jelenik meg.",
-      "openai": "Kulcsot a platform.openai.com/api-keys oldalon hozhatsz létre. Titkosítva tároljuk ezen a számítógépen, és többé nem jelenik meg.",
-      "anthropic": "Kulcsot a platform.claude.com/settings/keys oldalon hozhatsz létre. Titkosítva tároljuk ezen a számítógépen, és többé nem jelenik meg.",
-      "gemini": "Kulcsot az aistudio.google.com/apikey oldalon hozhatsz létre. Titkosítva tároljuk ezen a számítógépen, és többé nem jelenik meg.",
-      "groq": "Kulcsot a console.groq.com/keys oldalon hozhatsz létre. Titkosítva tároljuk ezen a számítógépen, és többé nem jelenik meg."
+      "openrouter": "Kulcsot az openrouter.ai/keys oldalon hozhatsz létre. Titkosítva tároljuk ezen az eszközön, és többé nem jelenik meg.",
+      "openai": "Kulcsot a platform.openai.com/api-keys oldalon hozhatsz létre. Titkosítva tároljuk ezen az eszközön, és többé nem jelenik meg.",
+      "anthropic": "Kulcsot a platform.claude.com/settings/keys oldalon hozhatsz létre. Titkosítva tároljuk ezen az eszközön, és többé nem jelenik meg.",
+      "gemini": "Kulcsot az aistudio.google.com/apikey oldalon hozhatsz létre. Titkosítva tároljuk ezen az eszközön, és többé nem jelenik meg.",
+      "groq": "Kulcsot a console.groq.com/keys oldalon hozhatsz létre. Titkosítva tároljuk ezen az eszközön, és többé nem jelenik meg."
     }
   },
   "tutor": {
@@ -605,7 +605,7 @@
   },
   "about": {
     "title": "A SprachAnkerről",
-    "intro": "Saját gépen futó, helyben dolgozó nyelvi tutor: valódi kurzusok egy lejátszóban, a haladás és a beszéd a saját számítógépeden, bármilyen MI-modellel, amelyet csatlakoztatsz. Ingyenes és nyílt forráskódú.",
+    "intro": "Saját eszközön futó, helyben dolgozó nyelvi tutor: valódi kurzusok egy lejátszóban, a haladás és a beszéd a saját eszközödön, bármilyen MI-modellel, amelyet csatlakoztatsz. Ingyenes és nyílt forráskódú.",
     "version": "Verzió",
     "licence": "Licenc: MIT",
     "source": "Forráskód a GitHubon"
@@ -661,8 +661,8 @@
     "log": "Letöltési napló",
     "syncShort": "Szinkronizálás",
     "remove": {
-      "button": "Eltávolítás erről a gépről…",
-      "title": "Eltávolítod a(z) „{title}” elemet erről a gépről?",
+      "button": "Eltávolítás erről az eszközről…",
+      "title": "Eltávolítod a(z) „{title}” elemet erről az eszközről?",
       "body": "A leckéi és médiafájljai törlődnek a lemezről (a más kurzus által használt médiafájlok maradnak). Az előrehaladásod, a jegyzetfüzeted és a szavaid megmaradnak; a folytatáshoz töltsd le újra.",
       "bodyExam": "A kérdései és médiafájljai törlődnek a lemezről (a más kurzus által használt médiafájlok maradnak). A próbavizsgáid, a gyakorlásaid és a jegyzetfüzeted megmaradnak; a folytatáshoz töltsd le újra.",
       "confirm": "Eltávolítás"
@@ -670,7 +670,7 @@
   },
   "storage": {
     "title": "Tárhely",
-    "intro": "A kurzusok, a médiafájlok és a haladásod ebben a mappában vannak, azon a számítógépen, amelyen a SprachAnker fut. A szerver indításakor dől el (--data vagy SPRACHANKER_DATA); az asztali alkalmazásban majd módosíthatod.",
+    "intro": "A kurzusok, a médiafájlok és a haladásod ebben a mappában vannak, azon az eszközön, amelyen a SprachAnker fut. A szerver indításakor dől el (--data vagy SPRACHANKER_DATA); az asztali alkalmazásban majd módosíthatod.",
     "total": "Összesen",
     "used": "A kurzusok mérete: {size}",
     "usedFree": "A kurzusok mérete: {size} · {free} szabad a lemezen",
@@ -679,7 +679,7 @@
     "recordingsKept": "{count, plural, =0 {nincs megőrzött felvétel} one {{n} felvétel · {size}} other {{n} felvétel · {size}}}",
     "deleteRecordings": "Összes törlése",
     "deleteRecordingsTitle": "Törlöd az összes felvételt?",
-    "deleteRecordingsBody": "A felvételeid törlődnek erről a számítógépről. A válaszaid és a haladásod megmaradnak. Ez nem vonható vissza."
+    "deleteRecordingsBody": "A felvételeid törlődnek erről az eszközről. A válaszaid és a haladásod megmaradnak. Ez nem vonható vissza."
   },
   "windowTitle": {
     "course": "Kurzus",
@@ -964,7 +964,7 @@
       "checking": "A fájl ellenőrzése és a profil létrehozása…",
       "done": "„{name}” itt van.",
       "noKeys": "Az API-kulcsok nincsenek a fájlban: add meg őket újra itt: Beállítások → MI-asszisztens.",
-      "missing": "Még nincs ezen a számítógépen — a leckéik a letöltés után jelennek meg; a szavak már az Ismétlésben vannak:",
+      "missing": "Még nincs ezen az eszközön — a leckéik a letöltés után jelennek meg; a szavak már az Ismétlésben vannak:",
       "open": "„{name}” megnyitása",
       "noEndpointLogins": "Az MI-szerverek címeiben lévő felhasználónevek és jelszavak nincsenek a fájlban: add meg újra a kulcsokat a Beállítások → MI-asszisztens alatt."
     }
@@ -976,7 +976,7 @@
     "finish": "Válassz kurzust",
     "profile": {
       "title": "Üdvözlünk",
-      "text": "A SprachAnker valódi nyelvtanfolyamokat gyűjt egy lejátszóba, ellenőrzi a válaszaidat, időzített ismétléssel gyakoroltatja a szavaidat, és MI-tutort is bevonhat. Minden ezen a számítógépen marad.",
+      "text": "A SprachAnker valódi nyelvtanfolyamokat gyűjt egy lejátszóba, ellenőrzi a válaszaidat, időzített ismétléssel gyakoroltatja a szavaidat, és MI-tutort is bevonhat. Minden ezen az eszközön marad.",
       "sources": "A kurzusok közvetlenül a kiadóik weboldaláról (Deutsche Welle és mások) töltődnek le, személyes használatra. Tartsd tiszteletben a feltételeiket; a SprachAnker nem áll kapcsolatban velük.",
       "experimental": "A még kipróbálás alatt álló kurzusok és vizsgák rejtve maradnak, amíg be nem kapcsolod őket itt: Beállítások → Általános → Kísérleti.",
       "name": "Hogyan szólítsunk?"
@@ -990,7 +990,7 @@
     },
     "speech": {
       "title": "Beszéd",
-      "text": "Mondd ki magad a kurzusok mondatait, és hallgass meg bármilyen szöveget felolvasva: próbáld ki a mikrofont, töltsd le a beszédfelismerőt (egyszer), hogy az alkalmazás hallja, mit mondtál, és válassz hangot minden nyelvhez. Minden ezen a számítógépen marad; később bármit módosíthatsz itt: Beállítások → Beszéd."
+      "text": "Mondd ki magad a kurzusok mondatait, és hallgass meg bármilyen szöveget felolvasva: próbáld ki a mikrofont, töltsd le a beszédfelismerőt (egyszer), hogy az alkalmazás hallja, mit mondtál, és válassz hangot minden nyelvhez. Minden ezen az eszközön marad; később bármit módosíthatsz itt: Beállítások → Beszéd."
     },
     "cancel": "Mégse"
   },
@@ -1024,8 +1024,8 @@
       "lime": "Limezöld"
     },
     "export": {
-      "title": "Átköltözés másik számítógépre",
-      "body": "Egy fájl a profil haladásával, szavaival, beállításaival és felvételeivel, amelyet a másik számítógépeden a „Ki tanul?” képernyőn importálhatsz. Az API-kulcsok nincsenek benne.",
+      "title": "Átköltözés másik eszközre",
+      "body": "Egy fájl a profil haladásával, szavaival, beállításaival és felvételeivel, amelyet a másik eszközödön a „Ki tanul?” képernyőn importálhatsz. Az API-kulcsok nincsenek benne.",
       "button": "Profil exportálása",
       "started": "„{file}” letöltése ({size})."
     }
@@ -1049,7 +1049,7 @@
     "import": {
       "button": "Paklifájl importálása",
       "title": "Pakli importálása",
-      "hint": "A szavaiból pakli lesz, amelyet ezen a számítógépen minden profil felvehet, mint egy kurzusét; a hangja is jön velük.",
+      "hint": "A szavaiból pakli lesz, amelyet ezen az eszközön minden profil felvehet, mint egy kurzusét; a hangja is jön velük.",
       "name": "Név",
       "lang": "A szavak nyelve",
       "translationLang": "A fordítások nyelve",
@@ -1063,15 +1063,15 @@
     },
     "export": "Exportálás fájlba",
     "file": {
-      "new": "A szavai paklivá válnak, amelyet a számítógép bármelyik profilja felvehet, hanggal és példákkal együtt.",
+      "new": "A szavai paklivá válnak, amelyet az eszköz bármelyik profilja felvehet, hanggal és példákkal együtt.",
       "merges": "Ez a pakli már itt van: a hiányzó szavai bekerülnek, és a hang meg a példák is, amelyek nincsenek meg neki. Ami megvan, marad.",
       "course": "A kurzus szavaihoz készült hang és példák. A kurzus kártyái itt lejátsszák és megmutatják őket; ami itt már elkészült, marad.",
-      "courseWaits": "A kurzus szavaihoz készült hang és példák. A kurzus még nincs ezen a számítógépen: megmaradnak neki, amíg le nem töltöd.",
+      "courseWaits": "A kurzus szavaihoz készült hang és példák. A kurzus még nincs ezen az eszközön: megmaradnak neki, amíg le nem töltöd.",
       "finds": "A gyűjtött szavaid: bekerülnek a saját Gyűjtött szavaid közé, és a kártyáid lesznek. Az ott már meglévő szavak maradnak, ahogy vannak."
     },
     "remove": "Pakli törlése",
     "removeTitle": "Törlöd ezt a paklit: {deck}?",
-    "removeBody": "A pakli, a szavai és a hangja minden profil számára törlődik erről a számítógépről. Ez nem vonható vissza.",
+    "removeBody": "A pakli, a szavai és a hangja minden profil számára törlődik erről az eszközről. Ez nem vonható vissza.",
     "audio": {
       "missing": "{count, plural, one {# szó hang nélkül} other {# szó hang nélkül}}",
       "count": "Hang: {done, number} / {total, number}",
@@ -1253,7 +1253,7 @@
       "sampleFor": "Meghallgatandó szöveg: {language}",
       "otherSample": "Másik mondat",
       "recognition": "Felismerés",
-      "recognitionHint": "A beszédedet ezen a számítógépen ismeri fel a Whisper: amit mondtál, összeveti a mondattal. Szavakat hall, nem hangokat, és elnéző. Semmi sem hagyja el a számítógépet.",
+      "recognitionHint": "A beszédedet ezen az eszközön ismeri fel a Whisper: amit mondtál, összeveti a mondattal. Szavakat hall, nem hangokat, és elnéző. Semmi sem hagyja el az eszközt.",
       "noEngine": "Ebben a változatban nincs felismerőmotor.",
       "recognitionOn": "Beszédem felismerése",
       "inUse": "Használatban",
@@ -1265,8 +1265,8 @@
       "readHint": "Egy hang egy nyelven olvas fel szövegeket: a párbeszédek mondatait, egy szó példáját és a felvétel nélküli szavakat. Minden nyelvnek saját hangja van.",
       "engine": {
         "device": "Az eszköz hangjai",
-        "piper": "Piper ezen a számítógépen",
-        "qwen": "Qwen3-TTS ezen a számítógépen",
+        "piper": "Piper ezen az eszközön",
+        "qwen": "Qwen3-TTS ezen az eszközön",
         "qwenMissing": "Nincs ebben a változatban: az alkalmazás a beszédmotorjai nélkül készült",
         "qwenReady": "Kész: egy modell letöltve",
         "qwenNoModel": "Még nincs modell: tölts le egyet lent"
@@ -1281,7 +1281,7 @@
       "qwenNoLanguage": "A Qwen3-TTS nem beszéli ezt a nyelvet: {language}. Az eszköz hangjai olvassák fel.",
       "howMic": "Ahol a választ ki kell mondani (egy vizsga szóbeli része), ott mikrofon van: koppints a felvétel indításához, és újra a leállításhoz. Ahol írni kell, ott nincs.",
       "howPhrase": "Az ismétlendő mondat az első próbálkozásodig rejtve marad; előbb is megjelenítheted.",
-      "howRecordings": "A felvételeid ezen a számítógépen maradnak, hogy a Füzetben újra meghallgathasd őket; törölni itt tudod: Általános → Tárhely.",
+      "howRecordings": "A felvételeid ezen az eszközön maradnak, hogy a Füzetben újra meghallgathasd őket; törölni itt tudod: Általános → Tárhely.",
       "how": "Hogyan működik",
       "words": {
         "title": "Hang a szavakhoz",
@@ -1335,7 +1335,7 @@
     "card_changed": "Ez a kártya egy másik eszközön megváltozott. Újra megjelenik.",
     "downloads_unavailable": "Itt nem lehet kurzusokat letölteni.",
     "course_busy": "Ez a kurzus éppen letöltődik. Távolítsd el, ha a letöltés befejeződött.",
-    "course_gone": "Ez a kurzus már nincs ezen a számítógépen — töltsd le újra a folytatáshoz.",
+    "course_gone": "Ez a kurzus már nincs ezen az eszközön — töltsd le újra a folytatáshoz.",
     "empty_recording": "A felvétel üres. Próbáld újra.",
     "event_id_taken": "Ezt a választ már másként rögzítettük. Töltsd be újra az oldalt.",
     "event_of_another_run": "Ez a bejegyzés egy másik körhöz tartozik. Töltsd be újra a leckét.",
@@ -1434,7 +1434,7 @@
     "course_bundle_damaged": "Ez a kurzusfájl sérült, vagy az exportálás után módosították.",
     "course_bundle_too_large": "Ez a kurzusfájl túl nagy (legfeljebb 16 GB).",
     "course_bundle_from_newer_app": "Ez a kurzusfájl a SprachAnker egy újabb verziójából származik: előbb frissítsd itt az alkalmazást.",
-    "course_bundle_clash": "Ezen a számítógépen a kurzus médiafájljainak nevén más fájlok vannak: töltsd le inkább itt a kurzust.",
+    "course_bundle_clash": "Ezen az eszközön a kurzus médiafájljainak nevén más fájlok vannak: töltsd le inkább itt a kurzust.",
     "course_import_busy": "Épp egy másik kurzusfájl importálása folyik. Próbáld újra, ha végzett.",
     "series_busy": "Ebből a forrásból éppen kurzusok letöltése vagy importálása folyik. Próbáld újra, ha végzett.",
     "understanding_busy": "Épp készül egy szöveg ehhez a leckéhez. Várj egy kicsit.",
@@ -1541,7 +1541,7 @@
       "title": "Források és ellenőrzések",
       "allPassed": "minden ellenőrzés sikeres",
       "someFailed": "egy ellenőrzés nem sikerült",
-      "statement": "Minden itteni kérdést, képet, felvételt és választ az importáló ezen a számítógépen olvasott be az alábbi dokumentumokból — egyiket sem kézzel vagy modellel írták —, és a felsorolt módon ellenőrizte. A próbavizsga ugyanazokat a feladatokat adja, és ugyanazon szabályok szerint pontoz, mint a hivatalos mintateszt; azt mutatja, mennyire vagy felkészült, nem azt, mit hoz majd a valódi vizsga.",
+      "statement": "Minden itteni kérdést, képet, felvételt és választ az importáló ezen az eszközön olvasott be az alábbi dokumentumokból — egyiket sem kézzel vagy modellel írták —, és a felsorolt módon ellenőrizte. A próbavizsga ugyanazokat a feladatokat adja, és ugyanazon szabályok szerint pontoz, mint a hivatalos mintateszt; azt mutatja, mennyire vagy felkészült, nem azt, mit hoz majd a valódi vizsga.",
       "documents": "Beolvasva ebből",
       "copy": "másolat megőrizve, SHA-256 {hash}…, beolvasva: {date}",
       "read": "beolvasva: {date}",
@@ -1625,13 +1625,13 @@
   "bundle": {
     "export": {
       "button": "Exportálás fájlba",
-      "hint": "Ez a kurzus egyetlen fájlban, hogy a másik számítógépeden a „Letöltve” alatt importáld.",
-      "hintExam": "Ez a vizsga egyetlen fájlként, hogy a másik gépeden a „Letöltött” lapon importáld.",
+      "hint": "Ez a kurzus egyetlen fájlban, hogy a másik eszközödön a „Letöltve” alatt importáld.",
+      "hintExam": "Ez a vizsga egyetlen fájlként, hogy a másik eszközödön a „Letöltött” lapon importáld.",
       "started": "„{file}” letöltése ({size})."
     },
     "import": {
       "button": "Importálás fájlból…",
-      "hint": "A másik számítógépeden exportált kurzus vagy vizsga (.sprachanker-course).",
+      "hint": "A másik eszközödön exportált kurzus vagy vizsga (.sprachanker-course).",
       "sending": "A fájl küldése… {share, number, percent}",
       "checking": "A fájl ellenőrzése és telepítése…",
       "added": "„{title}” itt van.",

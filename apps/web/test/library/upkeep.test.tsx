@@ -56,7 +56,7 @@ test("a whole course: the check says so and the sync stays quiet", async () => {
   expect(view.getByRole("button", { name: /^Sync$/ }).className).toContain("border-dashed");
 });
 
-test("Remove from this computer: asked first — what goes and what stays —, then removed; none while it downloads", async () => {
+test("Remove from this device: asked first — what goes and what stays —, then removed; none while it downloads", async () => {
   const asked: string[] = [];
   const real = globalThis.fetch;
   globalThis.fetch = (async (input: RequestInfo | URL, init?: RequestInit) => {
@@ -68,8 +68,8 @@ test("Remove from this computer: asked first — what goes and what stays —, t
     const view = await renderApp(<CourseRemove series="s" course="c" title="Mini" exam />, {
       data: ready,
     });
-    fireEvent.click(view.getByRole("button", { name: "Remove from this computer…" }));
-    expect(view.getByText("Remove “Mini” from this computer?")).toBeTruthy();
+    fireEvent.click(view.getByRole("button", { name: "Remove from this device…" }));
+    expect(view.getByText("Remove “Mini” from this device?")).toBeTruthy();
     expect(view.getByText(/Your mock exams, practice and Notebook stay/)).toBeTruthy();
     expect(asked).toEqual([]);
     fireEvent.click(view.getByRole("button", { name: "Remove" }));
@@ -83,5 +83,5 @@ test("Remove from this computer: asked first — what goes and what stays —, t
       [["downloads"], { available: true, jobs: [{ series: "s", course: "c", status: "running" }] }],
     ],
   });
-  expect(busy.queryByRole("button", { name: "Remove from this computer…" })).toBeNull();
+  expect(busy.queryByRole("button", { name: "Remove from this device…" })).toBeNull();
 });

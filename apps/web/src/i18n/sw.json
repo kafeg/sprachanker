@@ -78,8 +78,8 @@
     "checkAgain": "Kagua tena",
     "complete": "Zote zimepakuliwa",
     "next": "linalofuata: {where} — {title}",
-    "gone": "Kozi hii haipo tena kwenye kompyuta hii — ipakue tena ili uendelee.",
-    "examGone": "Mtihani huu haupo tena kwenye kompyuta hii — upakue tena ili uendelee.",
+    "gone": "Kozi hii haipo tena kwenye kifaa hiki — ipakue tena ili uendelee.",
+    "examGone": "Mtihani huu haupo tena kwenye kifaa hiki — upakue tena ili uendelee.",
     "checkFiles": "Kagua",
     "problem": {
       "missingMedia": "Faili haipo: {at}",
@@ -297,7 +297,7 @@
       "llm_no_key": "inahitaji ufunguo",
       "installed": "imesakinishwa",
       "keySaved": "ufunguo umehifadhiwa",
-      "here": "kwenye kompyuta hii",
+      "here": "kwenye kifaa hiki",
       "at": "kwenye {host}"
     },
     "list": {
@@ -323,11 +323,11 @@
       "freeModels": "Modeli za bure zina kikomo cha maombi kwa siku kilichowekwa na OpenRouter (kikubwa zaidi baada ya kununua salio)."
     },
     "keyHintFor": {
-      "openrouter": "Tengeneza ufunguo kwenye openrouter.ai/keys. Huhifadhiwa kwa usimbaji fiche kwenye kompyuta hii na hauonyeshwi tena.",
-      "openai": "Tengeneza ufunguo kwenye platform.openai.com/api-keys. Huhifadhiwa kwa usimbaji fiche kwenye kompyuta hii na hauonyeshwi tena.",
-      "anthropic": "Tengeneza ufunguo kwenye platform.claude.com/settings/keys. Huhifadhiwa kwa usimbaji fiche kwenye kompyuta hii na hauonyeshwi tena.",
-      "gemini": "Tengeneza ufunguo kwenye aistudio.google.com/apikey. Huhifadhiwa kwa usimbaji fiche kwenye kompyuta hii na hauonyeshwi tena.",
-      "groq": "Tengeneza ufunguo kwenye console.groq.com/keys. Huhifadhiwa kwa usimbaji fiche kwenye kompyuta hii na hauonyeshwi tena."
+      "openrouter": "Tengeneza ufunguo kwenye openrouter.ai/keys. Huhifadhiwa kwa usimbaji fiche kwenye kifaa hiki na hauonyeshwi tena.",
+      "openai": "Tengeneza ufunguo kwenye platform.openai.com/api-keys. Huhifadhiwa kwa usimbaji fiche kwenye kifaa hiki na hauonyeshwi tena.",
+      "anthropic": "Tengeneza ufunguo kwenye platform.claude.com/settings/keys. Huhifadhiwa kwa usimbaji fiche kwenye kifaa hiki na hauonyeshwi tena.",
+      "gemini": "Tengeneza ufunguo kwenye aistudio.google.com/apikey. Huhifadhiwa kwa usimbaji fiche kwenye kifaa hiki na hauonyeshwi tena.",
+      "groq": "Tengeneza ufunguo kwenye console.groq.com/keys. Huhifadhiwa kwa usimbaji fiche kwenye kifaa hiki na hauonyeshwi tena."
     }
   },
   "tutor": {
@@ -605,7 +605,7 @@
   },
   "about": {
     "title": "Kuhusu SprachAnker",
-    "intro": "Mwalimu wa lugha unayemwendesha mwenyewe, anayefanya kazi kwanza kwenye kompyuta yako: kozi halisi katika kicheza kimoja, maendeleo na sauti kwenye kompyuta yako mwenyewe, modeli yoyote ya AI unayounganisha. Bure na chanzo huria.",
+    "intro": "Mwalimu wa lugha unayemwendesha mwenyewe, anayefanya kazi kwanza kwenye kifaa chako: kozi halisi katika kicheza kimoja, maendeleo na sauti kwenye kifaa chako mwenyewe, modeli yoyote ya AI unayounganisha. Bure na chanzo huria.",
     "version": "Toleo",
     "licence": "Leseni: MIT",
     "source": "Msimbo chanzo kwenye GitHub"
@@ -661,8 +661,8 @@
     "log": "Kumbukumbu ya upakuaji",
     "syncShort": "Sawazisha",
     "remove": {
-      "button": "Ondoa kwenye kompyuta hii…",
-      "title": "Ondoa “{title}” kwenye kompyuta hii?",
+      "button": "Ondoa kwenye kifaa hiki…",
+      "title": "Ondoa “{title}” kwenye kifaa hiki?",
       "body": "Masomo na media yake yanafutwa kwenye diski (media zinazotumiwa na kozi nyingine zinabaki). Maendeleo yako, daftari na maneno yako yanabaki; ipakue tena ili uendelee.",
       "bodyExam": "Maswali na media yake yanafutwa kwenye diski (media zinazotumiwa na kozi nyingine zinabaki). Mitihani yako ya majaribio, mazoezi na daftari lako vinabaki; ipakue tena ili uendelee.",
       "confirm": "Ondoa"
@@ -670,7 +670,7 @@
   },
   "storage": {
     "title": "Hifadhi",
-    "intro": "Kozi, midia na maendeleo yako yamehifadhiwa katika folda hii kwenye kompyuta inayoendesha SprachAnker. Huchaguliwa seva inapoanza (--data, au SPRACHANKER_DATA); programu ya kompyuta ya mezani itakuruhusu kuibadilisha.",
+    "intro": "Kozi, midia na maendeleo yako yamehifadhiwa katika folda hii kwenye kifaa kinachoendesha SprachAnker. Huchaguliwa seva inapoanza (--data, au SPRACHANKER_DATA); programu ya kompyuta ya mezani itakuruhusu kuibadilisha.",
     "total": "Jumla",
     "used": "Kozi zinachukua {size}",
     "usedFree": "Kozi zinachukua {size} · {free} wazi kwenye diski",
@@ -679,7 +679,7 @@
     "recordingsKept": "{count, plural, =0 {hakuna iliyohifadhiwa} one {rekodi {n} · {size}} other {rekodi {n} · {size}}}",
     "deleteRecordings": "Futa zote",
     "deleteRecordingsTitle": "Ufute rekodi zote?",
-    "deleteRecordingsBody": "Rekodi zako zitafutwa kwenye kompyuta hii. Majibu na maendeleo yako yanabaki. Hatua hii haiwezi kutenduliwa."
+    "deleteRecordingsBody": "Rekodi zako zitafutwa kwenye kifaa hiki. Majibu na maendeleo yako yanabaki. Hatua hii haiwezi kutenduliwa."
   },
   "windowTitle": {
     "course": "Kozi",
@@ -964,7 +964,7 @@
       "checking": "Inakagua faili na kuunda wasifu…",
       "done": "“{name}” iko hapa.",
       "noKeys": "Funguo za API hazimo kwenye faili: ziweke tena katika Mipangilio → Msaidizi wa AI.",
-      "missing": "Bado havipo kwenye kompyuta hii — masomo yake yataonekana yakishapakuliwa; maneno tayari yako kwenye Marudio:",
+      "missing": "Bado havipo kwenye kifaa hiki — masomo yake yataonekana yakishapakuliwa; maneno tayari yako kwenye Marudio:",
       "open": "Fungua “{name}”",
       "noEndpointLogins": "Majina ya watumiaji na manenosiri kwenye anwani za seva za AI hayamo kwenye faili: weka funguo tena katika Mipangilio → Msaidizi wa AI."
     }
@@ -976,7 +976,7 @@
     "finish": "Chagua kozi",
     "profile": {
       "title": "Karibu",
-      "text": "SprachAnker huweka kozi halisi za lugha katika kicheza kimoja, hukagua majibu yako, huhifadhi maneno yako kwa marudio yaliyopangwa kwa vipindi na inaweza kuleta mkufunzi wa AI. Kila kitu kinabaki kwenye kompyuta hii.",
+      "text": "SprachAnker huweka kozi halisi za lugha katika kicheza kimoja, hukagua majibu yako, huhifadhi maneno yako kwa marudio yaliyopangwa kwa vipindi na inaweza kuleta mkufunzi wa AI. Kila kitu kinabaki kwenye kifaa hiki.",
       "sources": "Kozi hupakuliwa moja kwa moja kutoka kwenye tovuti za wachapishaji wake (Deutsche Welle na wengine) kwa matumizi yako binafsi. Heshimu masharti yao; SprachAnker haihusiani nao.",
       "experimental": "Kozi na mitihani ambayo bado inajaribiwa hufichwa hadi uiwashe katika Mipangilio → Jumla → Majaribio.",
       "name": "Tukuite nani?"
@@ -990,7 +990,7 @@
     },
     "speech": {
       "title": "Kuzungumza",
-      "text": "Tamka mwenyewe sentensi za kozi na usikilize maandishi yoyote yakisomwa kwa sauti: jaribu maikrofoni yako, pakua kitambuzi cha sauti (mara moja) ili programu isikie ulichosema, na uchague sauti kwa kila lugha. Kila kitu kinabaki kwenye kompyuta hii; yote yanaweza kubadilishwa baadaye katika Mipangilio → Sauti."
+      "text": "Tamka mwenyewe sentensi za kozi na usikilize maandishi yoyote yakisomwa kwa sauti: jaribu maikrofoni yako, pakua kitambuzi cha sauti (mara moja) ili programu isikie ulichosema, na uchague sauti kwa kila lugha. Kila kitu kinabaki kwenye kifaa hiki; yote yanaweza kubadilishwa baadaye katika Mipangilio → Sauti."
     },
     "cancel": "Ghairi"
   },
@@ -1024,8 +1024,8 @@
       "lime": "Kijani-limau"
     },
     "export": {
-      "title": "Hamia kompyuta nyingine",
-      "body": "Faili lenye maendeleo, maneno, mipangilio na rekodi za wasifu huu, la kuleta kwenye kompyuta yako nyingine kupitia “Nani anasoma?”. Funguo za API hazimo.",
+      "title": "Hamia kifaa kingine",
+      "body": "Faili lenye maendeleo, maneno, mipangilio na rekodi za wasifu huu, la kuleta kwenye kifaa chako kingine kupitia “Nani anasoma?”. Funguo za API hazimo.",
       "button": "Hamisha wasifu",
       "started": "Inapakua “{file}” ({size})."
     }
@@ -1049,7 +1049,7 @@
     "import": {
       "button": "Ingiza faili la seti",
       "title": "Ingiza seti",
-      "hint": "Maneno yake yanakuwa seti ambayo kila wasifu kwenye kompyuta hii unaweza kuichukua, kama ya kozi; sauti zake zinakuja pamoja nayo.",
+      "hint": "Maneno yake yanakuwa seti ambayo kila wasifu kwenye kifaa hiki unaweza kuichukua, kama ya kozi; sauti zake zinakuja pamoja nayo.",
       "name": "Jina",
       "lang": "Maneno kwa",
       "translationLang": "Tafsiri kwa",
@@ -1063,15 +1063,15 @@
     },
     "export": "Hamisha kwenye faili",
     "file": {
-      "new": "Maneno yake yanakuwa seti ambayo kila wasifu kwenye kompyuta hii unaweza kuchukua, pamoja na sauti na mifano yake.",
+      "new": "Maneno yake yanakuwa seti ambayo kila wasifu kwenye kifaa hiki unaweza kuchukua, pamoja na sauti na mifano yake.",
       "merges": "Seti hii tayari iko hapa: maneno inayokosa yanaongezwa, pamoja na sauti na mifano isiyokuwa nayo. Ilicho nacho kinabaki.",
       "course": "Sauti na mifano iliyotengenezwa kwa maneno ya kozi hii. Kadi zake hapa zitazicheza na kuzionyesha; kilichotengenezwa hapa tayari kinabaki.",
-      "courseWaits": "Sauti na mifano iliyotengenezwa kwa maneno ya kozi hii. Kozi bado haiko kwenye kompyuta hii: vinahifadhiwa kwa ajili yake hadi uipakue.",
+      "courseWaits": "Sauti na mifano iliyotengenezwa kwa maneno ya kozi hii. Kozi bado haiko kwenye kifaa hiki: vinahifadhiwa kwa ajili yake hadi uipakue.",
       "finds": "Vilivyopatikana vyako: vinaingia kwenye Vilivyopatikana vyako mwenyewe na kuwa kadi zako. Maneno yaliyopo tayari yanabaki kama yalivyo."
     },
     "remove": "Futa seti",
     "removeTitle": "Ufute seti {deck}?",
-    "removeBody": "Seti, maneno yake na sauti zitafutwa kwenye kompyuta hii kwa kila wasifu. Hatua hii haiwezi kutenduliwa.",
+    "removeBody": "Seti, maneno yake na sauti zitafutwa kwenye kifaa hiki kwa kila wasifu. Hatua hii haiwezi kutenduliwa.",
     "audio": {
       "missing": "{count, plural, one {Neno # halina sauti} other {Maneno # hayana sauti}}",
       "count": "Sauti: {done, number} kati ya {total, number}",
@@ -1253,7 +1253,7 @@
       "sampleFor": "Maandishi ya kusikiliza kwa {language}",
       "otherSample": "Sentensi nyingine",
       "recognition": "Utambuzi",
-      "recognitionHint": "Sauti yako inatambuliwa kwenye kompyuta hii (Whisper): ulichosema kinalinganishwa na sentensi. Inasikia maneno, si sauti za herufi, na si kali. Hakuna kinachotoka kwenye kompyuta.",
+      "recognitionHint": "Sauti yako inatambuliwa kwenye kifaa hiki (Whisper): ulichosema kinalinganishwa na sentensi. Inasikia maneno, si sauti za herufi, na si kali. Hakuna kinachotoka kwenye kifaa.",
       "noEngine": "Toleo hili halina injini ya utambuzi.",
       "recognitionOn": "Tambua sauti yangu",
       "inUse": "Inatumika",
@@ -1265,8 +1265,8 @@
       "readHint": "Sauti husoma maandishi katika lugha moja: mistari ya mazungumzo, mfano wa neno na maneno yasiyo na rekodi. Kila lugha ina sauti yake.",
       "engine": {
         "device": "Sauti za kifaa hiki",
-        "piper": "Piper kwenye kompyuta hii",
-        "qwen": "Qwen3-TTS kwenye kompyuta hii",
+        "piper": "Piper kwenye kifaa hiki",
+        "qwen": "Qwen3-TTS kwenye kifaa hiki",
         "qwenMissing": "Haipo katika toleo hili: programu ilijengwa bila injini zake za sauti",
         "qwenReady": "Tayari: modeli imepakuliwa",
         "qwenNoModel": "Bado hakuna modeli: pakua moja hapa chini"
@@ -1281,7 +1281,7 @@
       "qwenNoLanguage": "Qwen3-TTS haizungumzi {language}: sauti za kifaa zinaisoma.",
       "howMic": "Mahali ambapo jibu linatamkwa (sehemu ya kuzungumza ya mtihani), kuna maikrofoni: gusa ili kuanza kurekodi, gusa tena ili kuacha. Mahali ambapo kazi ni kuandika, hakuna.",
       "howPhrase": "Sentensi ya kurudia imefichwa hadi jaribio lako la kwanza; unaweza kuionyesha mapema.",
-      "howRecordings": "Rekodi zako zinahifadhiwa kwenye kompyuta hii ili uzisikilize tena katika Daftari; zifute katika Jumla → Hifadhi.",
+      "howRecordings": "Rekodi zako zinahifadhiwa kwenye kifaa hiki ili uzisikilize tena katika Daftari; zifute katika Jumla → Hifadhi.",
       "how": "Inavyofanya kazi",
       "words": {
         "title": "Sauti ya maneno",
@@ -1335,7 +1335,7 @@
     "card_changed": "Kadi hii ilibadilishwa kwenye kifaa kingine. Inaonyeshwa tena.",
     "downloads_unavailable": "Kozi haziwezi kupakuliwa hapa.",
     "course_busy": "Kozi hii inapakuliwa sasa. Iondoe upakuaji ukimalizika.",
-    "course_gone": "Kozi hii haipo tena kwenye kompyuta hii — ipakue tena ili uendelee.",
+    "course_gone": "Kozi hii haipo tena kwenye kifaa hiki — ipakue tena ili uendelee.",
     "empty_recording": "Rekodi ni tupu. Jaribu tena.",
     "event_id_taken": "Jibu hili tayari limerekodiwa kwa namna nyingine. Pakia ukurasa upya.",
     "event_of_another_run": "Kumbukumbu hii ni ya mzunguko mwingine. Pakia somo upya.",
@@ -1434,7 +1434,7 @@
     "course_bundle_damaged": "Faili hili la kozi limeharibika au lilibadilishwa baada ya kuhamishwa.",
     "course_bundle_too_large": "Faili hili la kozi ni kubwa mno (GB 16 kwa zaidi).",
     "course_bundle_from_newer_app": "Faili hili la kozi limetoka kwenye toleo jipya zaidi la SprachAnker: sasisha programu hapa kwanza.",
-    "course_bundle_clash": "Kompyuta hii ina faili nyingine kwa majina ya faili za midia za kozi hii: badala yake pakua kozi hapa.",
+    "course_bundle_clash": "Kifaa hiki kina faili nyingine kwa majina ya faili za midia za kozi hii: badala yake pakua kozi hapa.",
     "course_import_busy": "Faili nyingine ya kozi inaingizwa sasa. Jaribu tena itakapokamilika.",
     "series_busy": "Kozi kutoka chanzo hiki zinapakuliwa au kuingizwa sasa hivi. Jaribu tena itakapokamilika.",
     "understanding_busy": "Maandishi ya somo hili yanaandikwa. Subiri.",
@@ -1541,7 +1541,7 @@
       "title": "Vyanzo na ukaguzi",
       "allPassed": "kila ukaguzi umefaulu",
       "someFailed": "ukaguzi mmoja haukufaulu",
-      "statement": "Kila swali, picha, rekodi na jibu hapa vilisomwa kutoka kwenye nyaraka zilizo hapa chini na kiingizaji kwenye kompyuta hii — hakuna kilichoandikwa kwa mkono au na modeli — na vilikaguliwa kama ilivyoorodheshwa. Mtihani wa majaribio unauliza kazi zilezile na kuzipa alama kwa kanuni zilezile kama mtihani rasmi wa mfano; unaonyesha jinsi ulivyo tayari, si kile ambacho mtihani halisi utaleta.",
+      "statement": "Kila swali, picha, rekodi na jibu hapa vilisomwa kutoka kwenye nyaraka zilizo hapa chini na kiingizaji kwenye kifaa hiki — hakuna kilichoandikwa kwa mkono au na modeli — na vilikaguliwa kama ilivyoorodheshwa. Mtihani wa majaribio unauliza kazi zilezile na kuzipa alama kwa kanuni zilezile kama mtihani rasmi wa mfano; unaonyesha jinsi ulivyo tayari, si kile ambacho mtihani halisi utaleta.",
       "documents": "Imesomwa kutoka",
       "copy": "nakala imehifadhiwa, SHA-256 {hash}…, imesomwa {date}",
       "read": "imesomwa {date}",
@@ -1625,13 +1625,13 @@
   "bundle": {
     "export": {
       "button": "Hamisha kwenye faili",
-      "hint": "Kozi hii kama faili moja, uiingize kwenye kompyuta yako nyingine chini ya “Zilizopakuliwa”.",
-      "hintExam": "Mtihani huu kama faili moja, wa kuingiza kwenye kompyuta yako nyingine chini ya “Vilivyopakuliwa”.",
+      "hint": "Kozi hii kama faili moja, uiingize kwenye kifaa chako kingine chini ya “Zilizopakuliwa”.",
+      "hintExam": "Mtihani huu kama faili moja, wa kuingiza kwenye kifaa chako kingine chini ya “Vilivyopakuliwa”.",
       "started": "Inapakua “{file}” ({size})."
     },
     "import": {
       "button": "Leta kutoka kwenye faili…",
-      "hint": "Kozi au mtihani uliohamishwa kwenye kompyuta yako nyingine (.sprachanker-course).",
+      "hint": "Kozi au mtihani uliohamishwa kwenye kifaa chako kingine (.sprachanker-course).",
       "sending": "Inatuma faili… {share, number, percent}",
       "checking": "Inakagua faili na kuisakinisha…",
       "added": "“{title}” iko hapa.",
