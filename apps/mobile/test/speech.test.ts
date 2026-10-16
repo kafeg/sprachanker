@@ -167,7 +167,9 @@ test("Qwen3-TTS on the phone: its program started with the model on a free port,
   gone.abort();
   await expect(fetch("http://127.0.0.1:4242/health", { signal: gone.signal })).rejects.toThrow();
   expect((await fetch("https://example.test/x")).status).toBe(200);
-  expect(net).toBe(1);
+  // Another program on this phone (an LLM's server): the network's, as it is.
+  await fetch("http://127.0.0.1:1234/v1/models?x=1");
+  expect(net).toBe(2);
   // The program ends: the supervisor is told, with what it said.
   p.end(1, 3, "out of memory");
   expect(await proc?.exited).toBe(3);

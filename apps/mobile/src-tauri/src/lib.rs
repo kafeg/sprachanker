@@ -177,6 +177,7 @@ pub fn run() {
             engines::engine_spawn,
             engines::engine_wait,
             engines::engine_kill,
+            engines::engines_stop_all,
             engines::engine_output,
             engines::engine_outputs,
             engines::free_port,

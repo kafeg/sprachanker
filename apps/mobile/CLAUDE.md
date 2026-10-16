@@ -2,8 +2,9 @@
 
 The phone app (Tauri 2): the web app with the server's code running in its WebView over the phone's
 own files, Whisper in the app's process, reading aloud's engines run as programs. It stands alone
-(docs/decisions.md): the same code as the computer's — the server's storage (`packages/server/src/storage/`), the importers, the web UI — over
-the phone's adapters: files (course-kit's DataFs), requests to other hosts, SQLite (sql.js), zstd.
+(docs/decisions.md): the same code as the computer's — the server's storage
+(`packages/server/src/storage/`), the importers, the web UI — over the phone's adapters: files
+(course-kit's DataFs), requests to other hosts, SQLite (sql.js), zstd.
 What comes next: `docs/plan.md`, "Phone app".
 
 ## Layout
@@ -114,7 +115,8 @@ src-tauri/
 - Reading aloud's engines are the computer's programs built for the phone and run as the server runs
   them there (the same services, the phone's SpeechHost and PiperHost): Android runs programs only
   from the app's native library folder, so they are packed as `lib*.so` and installed unpacked
-  (`useLegacyPackaging`); a crash or the memory killer ends their process, not the app's.
+  (`useLegacyPackaging`). They run with the memory killer's score 500 (engines.rs): under pressure
+  they go before the app, a crash ends their process alone; on a phone one Qwen3-TTS model at a time.
 - The device's voices: only those installed on the phone are offered or used — a language set
   without one is read by Google's server, which would send the text away.
 - Android's WebView plays nothing from a range answered by the app's scheme: films go to the player

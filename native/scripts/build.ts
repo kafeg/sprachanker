@@ -81,6 +81,8 @@ async function build(
         `-DCMAKE_TOOLCHAIN_FILE=${join(ndk(), "build", "cmake", "android.toolchain.cmake")}`,
         "-DANDROID_ABI=arm64-v8a",
         "-DANDROID_PLATFORM=android-28",
+        // Phones with 16 KB memory pages run them too.
+        "-DANDROID_SUPPORT_FLEXIBLE_PAGE_SIZES=ON",
       ]
     : [];
   const vars = { ...process.env, ...(await env(src, dir)) };
@@ -102,8 +104,14 @@ async function build(
   console.log(`${target} ${version} → ${out}`);
 }
 
+/** The sha256 of ONNX Runtime's static library for Android, by version (a prebuilt archive). */
+const ONNX_RUNTIME_SHA256: Record<string, string> = {
+  "1.28.2": "bc68410f35f13df82c260830bf476ee5565f5efd0ec7622297829a929613c6c0",
+};
+
 /** ONNX Runtime's static library for Android at the version the pinned sherpa-onnx's own Android
- *  build takes (its build-android-arm64-v8a.sh), from where that script downloads it. */
+ *  build takes (its build-android-arm64-v8a.sh), from where that script downloads it, checked
+ *  against its sha256 (a new version: add its sum above). */
 async function onnxRuntimeAndroid(src: string, dir: string) {
   const script = readFileSync(join(src, "build-android-arm64-v8a.sh"), "utf8");
   const version = script.match(/SHERPA_ONNX_ONNXRUNTIME_VERSION:-([\d.]+)/)?.[1];
@@ -114,6 +122,11 @@ async function onnxRuntimeAndroid(src: string, dir: string) {
     mkdirSync(dir, { recursive: true });
     const zip = join(dir, `${name}.zip`);
     await $`curl -fsSL -o ${zip} https://github.com/csukuangfj/onnxruntime-libs/releases/download/v${version}/${name}.zip`;
+    const sum = (await $`shasum -a 256 ${zip}`.text()).split(" ")[0];
+    if (sum !== ONNX_RUNTIME_SHA256[version]) {
+      rmSync(zip);
+      throw new Error(`ONNX Runtime ${version}: sha256 ${sum}, not the one pinned`);
+    }
     await $`unzip -q -o ${zip} -d ${dir}`;
     rmSync(zip);
   }

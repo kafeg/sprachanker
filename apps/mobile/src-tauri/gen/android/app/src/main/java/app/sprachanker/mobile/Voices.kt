@@ -97,7 +97,9 @@ class Voices(activity: ComponentActivity, private val webView: WebView, private 
       ?: return answer(id, JSONObject.quote("error"))
     tts.voice = chosen
     tts.setSpeechRate(rate)
-    tts.speak(text, TextToSpeech.QUEUE_ADD, Bundle(), id.toString())
+    // Not queued (the service gone, a text too long): no callback follows, so its error is told now.
+    if (tts.speak(text, TextToSpeech.QUEUE_ADD, Bundle(), id.toString()) != TextToSpeech.SUCCESS)
+      answer(id, JSONObject.quote("error"))
   }
 
   /** Stops what is said and what waits to be. */

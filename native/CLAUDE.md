@@ -18,10 +18,11 @@ scripts/   # build.ts (`bun run build:speech [whisper|piper|qwen]`): clones each
            # build:cli runs it and copies them beside the sprachanker binary. The engines (folder, program) and
            # the target triple are the server's (packages/server/src/runtime/engines.ts); macOS 13
            # and later. `build.ts android [piper|qwen]`: the same programs for arm64 phones with the
-           # NDK (stripped, <program>-aarch64-linux-android; sherpa-onnx with the static ONNX Runtime
-           # its own Android build takes; ggml with dot product and fp16). tag.ts: the GitHub
-           # release an engine's build is kept in (its version and build.ts's hash) — `.github/workflows/engines.yml` builds an engine only while its
-           # release is missing, the Release workflow downloads them
+           # NDK (stripped, <program>-aarch64-linux-android, 16 KB pages too; sherpa-onnx with the
+           # static ONNX Runtime its own Android build takes, its sha256 pinned; ggml with dot
+           # product and fp16). tag.ts: the GitHub release an engine's build is kept in (its
+           # version and build.ts's hash) — `.github/workflows/engines.yml` builds an engine only
+           # while its release is missing, the Release workflow downloads them
 ```
 
 ## Rules

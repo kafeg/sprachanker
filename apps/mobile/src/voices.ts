@@ -111,13 +111,20 @@ export class PhoneSynthesis extends EventTarget {
     });
     this.#out.set(call.id, { u: utterance, forget: call.forget });
     const voice = utterance.voice;
-    this.native.speak(
-      call.id,
-      utterance.text,
-      voice?.lang || utterance.lang || "en",
-      voice?.voiceURI ?? "",
-      utterance.rate,
-    );
+    try {
+      this.native.speak(
+        call.id,
+        utterance.text,
+        voice?.lang || utterance.lang || "en",
+        voice?.voiceURI ?? "",
+        utterance.rate,
+      );
+    } catch {
+      // Refused (not the app's page): said as an error, as a browser's would be.
+      call.forget();
+      this.#out.delete(call.id);
+      utterance.tell("error");
+    }
   }
 
   /** Stops what is said and what waits: each ends now (what the native side tells later is not). */

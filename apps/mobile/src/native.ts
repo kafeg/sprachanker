@@ -78,6 +78,8 @@ export const native = {
   /** An engine's end: its exit code and the end of what it said on stderr. */
   engineWait: (pid: number) => invoke<{ code: number; log: string }>("engine_wait", { pid }),
   engineKill: (pid: number) => invoke<void>("engine_kill", { pid }),
+  /** Every engine stopped (the page started again: none has its owner any more). */
+  enginesStopAll: () => invoke<void>("engines_stop_all").catch(() => {}),
   /** The folder engines write what they make into (absolute). */
   engineOutputs: () => invoke<string>("engine_outputs"),
   /** A file an engine wrote there, read and removed. */

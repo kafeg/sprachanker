@@ -77,6 +77,9 @@ export function phoneSpeech(
   loading.catch(() => {});
   /** The port Whisper was "started" on: answered here, never on the network. */
   let whisperPort = "";
+  /** The ports the engines run as programs were started on: asked through the native side. Any other
+   *  address — 127.0.0.1 too (an LLM on this phone) — goes to the network as it is. */
+  const programPorts = new Set<string>();
 
   const host: SpeechHost = {
     ...(options.android && { platform: "android" as const }),
@@ -103,8 +106,9 @@ export function phoneSpeech(
     ...(options.engines.includes("qwen") && {
       qwen: {
         binary: () => "in-app",
-        spawn: (_binary, { talker, codec }, port) =>
-          programProcess(programs, "qwen", [
+        spawn: (_binary, { talker, codec }, port) => {
+          programPorts.add(String(port));
+          const proc = programProcess(programs, "qwen", [
             "--model",
             talker,
             "--codec",
@@ -113,7 +117,10 @@ export function phoneSpeech(
             "127.0.0.1",
             "--port",
             String(port),
-          ]),
+          ]);
+          void proc.exited.then(() => programPorts.delete(String(port)));
+          return proc;
+        },
       },
     }),
   };
@@ -123,13 +130,15 @@ export function phoneSpeech(
     (async (input: RequestInfo | URL, init?: RequestInit) => {
       const request = new Request(input, init);
       const url = new URL(request.url);
-      if (url.hostname !== "127.0.0.1") return net(request);
-      if (url.port === whisperPort) return whisper(request, url);
+      const local = url.hostname === "127.0.0.1";
+      if (local && url.port === whisperPort) return whisper(request, url);
+      if (!local || !programPorts.has(url.port)) return net(request);
       const body = request.method === "GET" ? null : await request.text();
       const timeout = url.pathname === "/health" ? HEALTH_MS : ANSWER_MS;
       const signal = init?.signal ?? request.signal;
       signal?.throwIfAborted();
-      const asked = programs.http(Number(url.port), request.method, url.pathname, body, timeout);
+      const path = url.pathname + url.search;
+      const asked = programs.http(Number(url.port), request.method, path, body, timeout);
       const answer = await (signal ? Promise.race([asked, aborted(signal)]) : asked);
       const bytes = new Uint8Array(answer);
       const status = (bytes[0] ?? 0) * 256 + (bytes[1] ?? 0);
