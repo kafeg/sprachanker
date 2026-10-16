@@ -6,6 +6,7 @@ use std::time::Instant;
 
 use tauri::ipc::{InvokeBody, Request};
 
+mod engines;
 mod files;
 
 #[cfg(any(target_os = "android", target_os = "ios"))]
@@ -158,6 +159,7 @@ pub fn run() {
                 .build(),
         )
         .manage(Asr::default())
+        .manage(engines::Engines::default())
         .register_asynchronous_uri_scheme_protocol("media", |_ctx, request, responder| {
             std::thread::spawn(move || responder.respond(files::serve(&request)));
         })
@@ -165,6 +167,15 @@ pub fn run() {
             asr_built,
             load,
             transcribe,
+            engines::engines_built,
+            engines::engine_spawn,
+            engines::engine_wait,
+            engines::engine_kill,
+            engines::engine_output,
+            engines::engine_outputs,
+            engines::free_port,
+            engines::local_http,
+            engines::untar_bz2,
             files::fs_list,
             files::fs_write,
             files::fs_remove,

@@ -1,5 +1,5 @@
 // The phone app looked after from this Mac over adb (Wi-Fi or a cable), until the app does it
-// itself: built and installed; a course of this Mac's library put on the phone (exported as a
+// itself: built (reading aloud's engines too) and installed; a course of this Mac's library put on the phone (exported as a
 // bundle by the `sprachanker` command, unpacked, pushed — only what the phone lacks); a course's
 // AI practice brought up to date; Whisper's models put there.
 //   bun scripts/phone.ts install
@@ -49,6 +49,13 @@ function androidEnv() {
 
 async function install() {
   await $`bun scripts/build.ts`.cwd(here);
+  // Reading aloud's engines for the phone, built once (src-tauri/build.rs packs them).
+  const engines = join(here, "../../native");
+  if (
+    !existsSync(join(engines, "piper/out/sherpa-onnx-offline-tts-aarch64-linux-android")) ||
+    !existsSync(join(engines, "qwen/out/tts-server-aarch64-linux-android"))
+  )
+    await $`bun ${join(engines, "scripts/build.ts")} android`.env(androidEnv());
   // The page is built into the binary: cargo rebuilds it only when the Rust changes.
   await $`touch src-tauri/src/lib.rs`.cwd(here);
   // The app's version and Android's build number: MAJOR.MINOR.<commits>, the commits.

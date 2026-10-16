@@ -1,8 +1,8 @@
 # apps/mobile
 
 The phone app (Tauri 2): the web app with the server's code running in its WebView over the phone's
-own files, Whisper in the app's process. It stands alone (docs/decisions.md): the same code as the
-computer's — the server's storage (`packages/server/src/storage/`), the importers, the web UI — over
+own files, Whisper in the app's process, reading aloud's engines run as programs. It stands alone
+(docs/decisions.md): the same code as the computer's — the server's storage (`packages/server/src/storage/`), the importers, the web UI — over
 the phone's adapters: files (course-kit's DataFs), requests to other hosts, SQLite (sql.js), zstd.
 What comes next: `docs/plan.md`, "Phone app".
 
@@ -24,13 +24,19 @@ src/                   # runs in the WebView, before the web app (bundled into d
   sql.ts               # sql.js for the storage: an .apkg's database (zstd by fzstd), a profile file's
                        # copied, opened, made ready (the server's profile-db.ts)
   native.ts            # the native side's Tauri commands: files (listed, read through
-                       # http://media.localhost, written, removed: iOS), Whisper
+                       # http://media.localhost, written, removed: iOS), Whisper, the engines
   files.ts             # the app's files as the server's ProfileFiles and the databases see them: over
                        # the DataFs (Android, `filesOver`), or a tree kept in memory (iOS)
   db.ts                # sql.js databases: read, migrated (the server's migrate.ts), written back after
                        # changes; nested transactions as savepoints
   profiles.ts          # the server's ProfileFiles: profile databases, recordings
-  speech.ts            # the server's SpeechHost: Whisper in the app answering as whisper-server
+  speech.ts            # the server's SpeechHost: Whisper in the app answering as whisper-server;
+                       # Qwen3-TTS's tts-server a program on a 127.0.0.1 port, asked through the
+                       # native side; a phone's defaults (the small models)
+  piper.ts             # the server's PiperHost: sherpa-onnx's program run per text, its voices
+                       # downloaded by the server's storage, unpacked by the native side
+  voices.ts            # Android's TextToSpeech (Voices.kt) as the page's speechSynthesis: the
+                       # device's voices for the web app
 scripts/
   build.ts             # dist/: the web app's build, boot.js before it, sql.js's wasm, whisper.html
   dev.ts               # dist/ on this Mac with the native side played over a folder (a browser test)
@@ -41,11 +47,14 @@ www/                   # the Whisper test page (dist/whisper.html; www/phrases: 
                        # e2e/speech/phrases.ts, not committed)
 src-tauri/
   src/lib.rs           # commands `load` (a model) and `transcribe` (16 kHz f32 samples)
+  src/engines.rs       # reading aloud's engines (libsa_piper.so, libsa_qwen.so) run as processes:
+                       # started, awaited, stopped; a request to one on 127.0.0.1; a .tar.bz2 unpacked
   src/files.rs         # the data root (Android: /sdcard/Android/data/<id>/files): fs_* commands and the
                        # `media` scheme (files whole, by range, a part by `?part=a-b`; a recording by its id)
   native/asr.c         # whisper.cpp's C API for Rust: a model (on the GPU or not), an answer heard
                        # (greedy, temperature 0)
-  build.rs             # on Android and iOS: asr.c compiled, whisper.cpp's static libraries linked
+  build.rs             # on Android and iOS: asr.c compiled, whisper.cpp's static libraries linked;
+                       # on Android the engines built in native/ packed into jniLibs as libsa_<engine>.so
   tauri.conf.json      # app.sprachanker.mobile; the page from dist/
   capabilities/        # what the page may call
   icons/               # from apps/web/public/icon-512.png (`cargo tauri icon`)
@@ -53,7 +62,7 @@ src-tauri/
                        # Back added (its build outputs ignored); Native.kt (the page's bridge: files —
                        # small things at once —, requests to other hosts by HttpURLConnection, a file
                        # into Downloads by MediaStore), WorkService.kt (a foreground service while work
-                       # goes on)
+                       # goes on), Voices.kt (TextToSpeech for the page: installed voices only)
   gen/apple/           # the iOS project Tauri generated (`cargo tauri ios init`; needs xcodegen and
                        # CocoaPods)
 ```
@@ -63,7 +72,9 @@ src-tauri/
 - Once: Rust with the Android targets, the Android NDK, `cargo install tauri-cli` (2.x), and
   whisper.cpp built for the phone — `bun run speech:android` builds it
   (`~/.cache/sprachanker/whisper.cpp-<version>/build-android-arm64`, the version in
-  `native/whisper/VERSION`, the server's).
+  `native/whisper/VERSION`, the server's); Piper's and Qwen3-TTS's programs for the phone —
+  `bun native/scripts/build.ts android` (`native/<engine>/out/<program>-aarch64-linux-android`;
+  `phone.ts install` builds them once).
 - `ANDROID_HOME`, `NDK_HOME` and `JAVA_HOME` (17) set, from `apps/mobile`: `bun scripts/build.ts`,
   `cargo tauri android build --debug --apk --target aarch64`, then
   `adb install -r -d src-tauri/gen/android/app/build/outputs/apk/universal/debug/app-universal-debug.apk`
@@ -98,8 +109,14 @@ src-tauri/
 
 - whisper.cpp is the server's version, linked through `src-tauri/native/asr.c`: no second copy of Whisper
   (whisper-rs bundles its own, and its build links macOS's libraries when cross-compiled from a Mac).
-- Keep the Rust small: what needs the platform (Whisper, files, the microphone's permission); the app
-  itself is the web app and the server's code in the WebView.
+- Keep the Rust small: what needs the platform (Whisper, files, the microphone's permission, running
+  the engines); the app itself is the web app and the server's code in the WebView.
+- Reading aloud's engines are the computer's programs built for the phone and run as the server runs
+  them there (the same services, the phone's SpeechHost and PiperHost): Android runs programs only
+  from the app's native library folder, so they are packed as `lib*.so` and installed unpacked
+  (`useLegacyPackaging`); a crash or the memory killer ends their process, not the app's.
+- The device's voices: only those installed on the phone are offered or used — a language set
+  without one is read by Google's server, which would send the text away.
 - Android's WebView plays nothing from a range answered by the app's scheme: films go to the player
   whole (blob URLs); it applies a Range header to the scheme's answer itself: parts are asked by
   `?part=`; a page's Request and Response carry no cookie: the session goes in a header; a page's

@@ -1,5 +1,6 @@
 // The app's native side (src-tauri): its files — listed, read through the `media` scheme, written
-// whole, removed; paths relative to its data root — and Whisper in its process.
+// whole, removed; paths relative to its data root —, Whisper in its process, and reading aloud's
+// engines run as programs (src-tauri/src/engines.rs).
 
 /** Where the native side serves the app's files (and a learner's recordings, by id); the desktop
  *  harness (scripts/dev.ts) serves them elsewhere. */
@@ -69,4 +70,22 @@ export const native = {
       new Uint8Array(samples.buffer, samples.byteOffset, samples.byteLength),
       { headers: { lang, threads: String(threads) } },
     ),
+  /** Reading aloud's engines this app carries ("piper", "qwen"; Android). */
+  enginesBuilt: () => invoke<string[]>("engines_built").catch(() => [] as string[]),
+  /** An engine started with its arguments: its pid. */
+  engineSpawn: (engine: "piper" | "qwen", args: string[]) =>
+    invoke<number>("engine_spawn", { engine, args }),
+  /** An engine's end: its exit code and the end of what it said on stderr. */
+  engineWait: (pid: number) => invoke<{ code: number; log: string }>("engine_wait", { pid }),
+  engineKill: (pid: number) => invoke<void>("engine_kill", { pid }),
+  /** The folder engines write what they make into (absolute). */
+  engineOutputs: () => invoke<string>("engine_outputs"),
+  /** A file an engine wrote there, read and removed. */
+  engineOutput: (name: string) => invoke<ArrayBuffer>("engine_output", { name }),
+  freePort: () => invoke<number>("free_port"),
+  /** A request to an engine on 127.0.0.1 (a JSON body): two bytes of status, then the body. */
+  localHttp: (port: number, method: string, path: string, body: string | null, timeout: number) =>
+    invoke<ArrayBuffer>("local_http", { port, method, path, body, timeout }),
+  /** A .tar.bz2 archive unpacked into a folder (absolute paths). */
+  untarBz2: (archive: string, into: string) => invoke<void>("untar_bz2", { archive, into }),
 };

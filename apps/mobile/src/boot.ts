@@ -17,9 +17,11 @@ import {
   modelStore,
   practiceFiles,
   profileTransferFiles,
+  readingCache,
   type ServerDb,
   serverMigrations,
   serverSchema,
+  voiceStore,
 } from "@sprachanker/server/portable";
 import { drizzle } from "drizzle-orm/sql-js";
 import { bridge, check, latin1, needBridge } from "./bridge.ts";
@@ -28,9 +30,11 @@ import { filesOver, openFiles } from "./files.ts";
 import { FILES, native, setNetFetch } from "./native.ts";
 import { nativeFetch } from "./net.ts";
 import { phoneFs } from "./phone-fs.ts";
+import { phonePiper } from "./piper.ts";
 import { profileFiles } from "./profiles.ts";
 import { phoneSpeech } from "./speech.ts";
 import { phoneApkg, phoneProfileSql } from "./sql.ts";
+import { installVoices } from "./voices.ts";
 
 /** The app's version, set when the page is built (scripts/build.ts). */
 declare const SPRACHANKER_VERSION: string;
@@ -39,6 +43,8 @@ const netFetch = globalThis.fetch.bind(globalThis);
 setNetFetch(netFetch);
 // The web app knows it runs in the phone app (what it does not have here, it does not offer).
 (globalThis as { sprachankerPhone?: boolean }).sprachankerPhone = true;
+// The device's voices as the page's speechSynthesis (Android's WebView has none).
+installVoices();
 
 /** A file's Blob whose bytes are read only when asked for as a whole (`arrayBuffer`, `bytes`): what
  *  the server reads of a practice recording. A Blob, as what takes one checks; its own data is none,
@@ -103,10 +109,12 @@ function storageOver(
   fs: DataFs,
   root: string,
   profiles: { live(id: string): Uint8Array | undefined },
+  engines: string[],
 ) {
   const data: DataRoot = { fs, path: root, pid: 0, runs: () => false, fetch: nativeFetch };
   const installer = courseInstaller(data);
   const models = modelStore(fs, `${root}/models`, nativeFetch);
+  const piper = phonePiper(fs, root, nativeFetch, { built: engines.includes("piper") });
   return {
     library: openLibrary(fs, `${root}/library`),
     decks: deckFiles(data, (file) => new FileBlob(() => readAll(fs, file)) as MediaBlob),
@@ -127,6 +135,13 @@ function storageOver(
           models.download(url, model, onProgress, signal),
         ),
     } satisfies typeof models,
+    wordVoices: voiceStore(fs, `${root}/models/word-voices`),
+    readings: readingCache(fs, root),
+    piper: {
+      ...piper,
+      download: (url, voice, onProgress, signal) =>
+        working(`SprachAnker ↓ ${voice.id}`, () => piper.download(url, voice, onProgress, signal)),
+    } satisfies typeof piper,
   };
 }
 
@@ -137,12 +152,14 @@ async function start() {
   const sqlite = await openDb(files, "server.sqlite", serverMigrations);
   const server = drizzle(sqlite.db, { schema: serverSchema }) as ServerDb;
   const profiles = await profileFiles(files);
-  const storage = fs && root ? storageOver(fs, root, profiles) : undefined;
-  const speech = phoneSpeech(
-    storage?.models ?? notOnPhone("speech models"),
-    await native.asrBuilt(),
-    !!storage,
-  );
+  const engines = await native.enginesBuilt();
+  const storage = fs && root ? storageOver(fs, root, profiles, engines) : undefined;
+  const speech = phoneSpeech(storage?.models ?? notOnPhone("speech models"), {
+    whisper: await native.asrBuilt(),
+    engines: storage ? engines : [],
+    android: !!storage,
+    wordVoices: storage?.wordVoices,
+  });
   let secretKey = await files.read("secret.key");
   if (secretKey?.length !== 32) {
     secretKey = crypto.getRandomValues(new Uint8Array(32));
@@ -172,6 +189,8 @@ async function start() {
     // An LLM provider's requests through the native side too (any address the learner sets).
     fetch: speech.fetchVia(storage ? nativeFetch : netFetch),
     speech: speech.host,
+    piper: storage?.piper,
+    readings: storage?.readings,
     listensOn: { hostname: "127.0.0.1", port: 0 },
     sessionInHeader: true,
   });

@@ -40,6 +40,8 @@ class MainActivity : TauriActivity() {
       Native(this, webView, "/sdcard/Android/data/$packageName/files"),
       "sprachankerNativeBridge",
     )
+    // The device's voices for reading aloud (the WebView gives the page none).
+    webView.addJavascriptInterface(Voices(this, webView), "sprachankerVoices")
     onBackPressedDispatcher.addCallback(this, object : OnBackPressedCallback(true) {
       override fun handleOnBackPressed() {
         webView.evaluateJavascript(
