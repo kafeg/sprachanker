@@ -17,6 +17,12 @@ tauri = { version = "=2.12.1", features = [] }
 serde = { version = "1", features = ["derive"] }
 serde_json = "1"
 base64 = "=0.22.1"
+# The listener other devices open the app at (src/host.rs): the versions Tauri already takes.
+tokio = { version = "=1.53.3", features = ["net", "rt", "sync"] }
+hyper = { version = "=1.12.0", features = ["server", "http1"] }
+hyper-util = { version = "=0.1.21", features = ["tokio"] }
+http-body-util = "=0.1.5"
+bytes = "=1.12.1"
 
 [profile.release]
 opt-level = 3

@@ -34,6 +34,12 @@ export interface NativeBridge {
   netRead(id: number): string | null;
   netError(id: number): string;
   netAbort(id: number): void;
+  /** The app open to other devices (`on`): its notification's words. */
+  host(on: boolean, text: string, quit: string): void;
+  /** The phone's IPv4 addresses: "<interface> <address>" a line. */
+  addresses(): string;
+  /** An address's name on its network (Tailscale's MagicDNS), answered later: "" when none. */
+  nameOf(id: number, ip: string): void;
 }
 
 /** The bridge, where the app has one (Android); iOS has none yet. */

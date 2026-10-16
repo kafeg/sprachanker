@@ -7,6 +7,8 @@
     <!-- A download (a course, a model) going on while the app is put away: a foreground service. -->
     <uses-permission android:name="android.permission.FOREGROUND_SERVICE" />
     <uses-permission android:name="android.permission.FOREGROUND_SERVICE_DATA_SYNC" />
+    <!-- Open to other devices (a listener on the phone's networks) while the app is put away. -->
+    <uses-permission android:name="android.permission.FOREGROUND_SERVICE_SPECIAL_USE" />
     <uses-permission android:name="android.permission.WAKE_LOCK" />
     <uses-permission android:name="android.permission.POST_NOTIFICATIONS" />
 
@@ -35,7 +37,11 @@
         <service
           android:name=".WorkService"
           android:exported="false"
-          android:foregroundServiceType="dataSync" />
+          android:foregroundServiceType="dataSync|specialUse">
+          <property
+            android:name="android.app.PROPERTY_SPECIAL_USE_FGS_SUBTYPE"
+            android:value="The app serves itself to the learner's other devices on the local network." />
+        </service>
 
         <provider
           android:name="androidx.core.content.FileProvider"

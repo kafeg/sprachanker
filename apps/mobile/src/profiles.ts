@@ -12,6 +12,7 @@ import {
 import { drizzle } from "drizzle-orm/sql-js";
 import { makeDb, openDb } from "./db.ts";
 import type { Files } from "./files.ts";
+import { NativeFile } from "./host.ts";
 
 type Opened = ReturnType<typeof makeDb>;
 
@@ -64,7 +65,12 @@ function recordingFiles(files: Files, dir: string): RecordingFiles {
       await files.write(file(name), bytes);
       kept.set(name, new Blob([bytes as Uint8Array<ArrayBuffer>]));
     },
-    read: (name) => kept.get(name) as MediaBlob | undefined,
+    // One played on another device: sent from its file by the native side.
+    read: (name) =>
+      (kept.get(name) ??
+        (files.has(file(name))
+          ? new NativeFile({ file: files.abs(file(name)) }, () => files.read(file(name)))
+          : undefined)) as MediaBlob | undefined,
     list: () =>
       files.fs
         .files(files.abs(dir))

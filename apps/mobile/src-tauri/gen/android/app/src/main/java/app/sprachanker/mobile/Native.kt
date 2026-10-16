@@ -16,6 +16,9 @@ import java.io.IOException
 import java.io.OutputStream
 import java.io.RandomAccessFile
 import java.net.HttpURLConnection
+import java.net.Inet4Address
+import java.net.InetAddress
+import java.net.NetworkInterface
 import java.net.URL
 import java.nio.charset.StandardCharsets
 import java.nio.file.DirectoryNotEmptyException
@@ -125,12 +128,52 @@ class Native(private val activity: Activity, private val webView: WebView, priva
       // Stopped a moment later, when nothing began again: a service stopped before it has shown its
       // notification ends the app on Android 12 and later.
       if (!on && working == 0) webView.postDelayed({ synchronized(this) { if (working == 0) WorkService.stop(activity) } }, 2_000)
-      // The page's renderer kept as important as the app while work goes on: else Android freezes it
-      // as soon as the app is put away (measured: the download stood still till the app came back).
-      if (working == 0 || (on && working == 1)) {
-        val keep = working > 0
-        webView.post { webView.setRendererPriorityPolicy(WebView.RENDERER_PRIORITY_IMPORTANT, !keep) }
-      }
+      if (working == 0 || (on && working == 1)) keepRenderer()
+    }
+  }
+
+  private var hosting = false
+
+  /** The page's renderer kept as important as the app while work goes on or the app is open to other
+   *  devices: else Android freezes it as soon as the app is put away (measured: the download stood
+   *  still till the app came back). */
+  private fun keepRenderer() {
+    val keep = working > 0 || hosting
+    webView.post { webView.setRendererPriorityPolicy(WebView.RENDERER_PRIORITY_IMPORTANT, !keep) }
+  }
+
+  /** The app open to other devices (`on`, its listener in the native side): a foreground service
+   *  while it is, its notification in the page's words — `text`, `quit` the button that closes the
+   *  app (WorkService). */
+  @JavascriptInterface fun host(on: Boolean, text: String, quit: String) {
+    guard()
+    synchronized(this) {
+      hosting = on
+      keepRenderer()
+    }
+    WorkService.host(activity, if (on) WorkService.Hosting(text, quit) else null)
+  }
+
+  /** The phone's IPv4 addresses on its networks: "<interface> <address>" a line (loopback and the
+   *  networks that are down left out). */
+  @JavascriptInterface fun addresses(): String {
+    guard()
+    val out = StringBuilder()
+    for (n in NetworkInterface.getNetworkInterfaces() ?: return "") {
+      if (!n.isUp || n.isLoopback) continue
+      for (a in n.inetAddresses) if (a is Inet4Address) out.append(n.name).append(' ').append(a.hostAddress).append('\n')
+    }
+    return out.toString()
+  }
+
+  /** An IPv4 address's name on its network (Tailscale's MagicDNS name), answered to `id` as a JSON
+   *  string: "" when it has none. */
+  @JavascriptInterface fun nameOf(id: Int, ip: String) {
+    guard()
+    if (!Regex("^\\d{1,3}(\\.\\d{1,3}){3}$").matches(ip)) return answer(id, "\"\"")
+    pool.execute {
+      val name = try { InetAddress.getByName(ip).canonicalHostName.trimEnd('.') } catch (e: Throwable) { ip }
+      answer(id, JSONObject.quote(if (name == ip) "" else name))
     }
   }
 

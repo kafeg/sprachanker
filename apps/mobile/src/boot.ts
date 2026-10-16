@@ -3,7 +3,8 @@
 // in the page instead of the network (with the session's cookie kept here: a page may not set one),
 // its media and recordings played from the native side's scheme. On Android the server's storage —
 // decks, files in and out, course downloads, models — runs over the phone's files (the native bridge);
-// a phone without the bridge (iOS so far) says what it lacks.
+// a phone without the bridge (iOS so far) says what it lacks. On Android the app is open to other
+// devices as the computer's server is (host.ts): the native side's listener, answered here.
 import { type DataFs, openLibrary, readAll } from "@sprachanker/course-kit";
 import { libraryOver } from "@sprachanker/course-kit/library-over";
 import {
@@ -17,6 +18,7 @@ import {
   modelStore,
   practiceFiles,
   profileTransferFiles,
+  SESSION_HEADER,
   type ServerDb,
   serverMigrations,
   serverSchema,
@@ -25,8 +27,10 @@ import { drizzle } from "drizzle-orm/sql-js";
 import { bridge, check, latin1, needBridge } from "./bridge.ts";
 import { flushAll, openDb } from "./db.ts";
 import { filesOver, openFiles } from "./files.ts";
-import { FILES, native, setNetFetch } from "./native.ts";
+import { answerOthers, type HostMessage, NativeFile } from "./host.ts";
+import { FILES, native, setNetFetch, startHost } from "./native.ts";
 import { nativeFetch } from "./net.ts";
+import { phoneNetwork } from "./network.ts";
 import { phoneFs } from "./phone-fs.ts";
 import { profileFiles } from "./profiles.ts";
 import { phoneSpeech } from "./speech.ts";
@@ -34,26 +38,18 @@ import { phoneApkg, phoneProfileSql } from "./sql.ts";
 
 /** The app's version, set when the page is built (scripts/build.ts). */
 declare const SPRACHANKER_VERSION: string;
+/** The web app's own files (its build's paths), what other devices load. */
+declare const SPRACHANKER_WEB_FILES: string[];
+/** The notification's words while the app is open to other devices, by language (the catalogs'
+ *  `desktop` section). */
+declare const SPRACHANKER_HOST_WORDS: Record<string, { hosting: string; quit: string }>;
 
 const netFetch = globalThis.fetch.bind(globalThis);
 setNetFetch(netFetch);
-// The web app knows it runs in the phone app (what it does not have here, it does not offer).
+// The web app knows it runs in the phone app (what it does not have here, it does not offer), and
+// whether the app is open to other devices here (Android).
 (globalThis as { sprachankerPhone?: boolean }).sprachankerPhone = true;
-
-/** A file's Blob whose bytes are read only when asked for as a whole (`arrayBuffer`, `bytes`): what
- *  the server reads of a practice recording. A Blob, as what takes one checks; its own data is none,
- *  so what serialises it (a form sent on) sends nothing. */
-class FileBlob extends Blob {
-  constructor(private readonly read: () => Promise<Uint8Array<ArrayBuffer> | undefined>) {
-    super([]);
-  }
-  override async arrayBuffer() {
-    return ((await this.read()) ?? new Uint8Array()).buffer as ArrayBuffer;
-  }
-  override async bytes() {
-    return (await this.read()) ?? new Uint8Array();
-  }
-}
+(globalThis as { sprachankerOpenToOthers?: boolean }).sprachankerOpenToOthers = !!bridge;
 
 /** What the phone's server answers when asked for what it does not have; at the start, nothing. */
 const EMPTY: Record<string, unknown> = {
@@ -109,7 +105,10 @@ function storageOver(
   const models = modelStore(fs, `${root}/models`, nativeFetch);
   return {
     library: openLibrary(fs, `${root}/library`),
-    decks: deckFiles(data, (file) => new FileBlob(() => readAll(fs, file)) as MediaBlob),
+    decks: deckFiles(
+      data,
+      (file) => new NativeFile({ file }, () => readAll(fs, file)) as MediaBlob,
+    ),
     apkg: phoneApkg,
     transfers: profileTransferFiles(data, phoneProfileSql(fs, profiles.live)),
     courseTransfers: courseTransferFiles(data),
@@ -130,6 +129,37 @@ function storageOver(
   };
 }
 
+/** The web app's own files as the server serves them to another device: sent by the native side
+ *  (its page is the web app's own index, without this start). */
+const webFiles = new Set(SPRACHANKER_WEB_FILES);
+const webAssets = async (path: string) =>
+  webFiles.has(path)
+    ? (new NativeFile({ asset: path === "/index.html" ? "/web.html" : path }) as Blob)
+    : undefined;
+
+/** Requests of other devices that come before the server is made wait for it. */
+const early: HostMessage[] = [];
+let answer: (message: HostMessage) => void = (message) => {
+  early.push(message);
+};
+/** The listener (Android), its port; none where it did not start. */
+const hosting = bridge
+  ? startHost((message) => answer(message)).then(
+      ({ port, host }) => {
+        answer = answerOthers(host, () => ready);
+        for (const message of early.splice(0)) answer(message);
+        const words = SPRACHANKER_HOST_WORDS[navigator.language.split("-")[0] ?? ""];
+        const en = SPRACHANKER_HOST_WORDS.en ?? { hosting: "", quit: "" };
+        bridge?.host(true, words?.hosting ?? en.hosting, words?.quit ?? en.quit);
+        return port;
+      },
+      (error: unknown) => {
+        console.error("not open to other devices:", error);
+        return undefined;
+      },
+    )
+  : Promise.resolve(undefined);
+
 async function start() {
   const root = bridge?.root();
   const fs = root ? phoneFs(root, netFetch) : undefined;
@@ -148,8 +178,9 @@ async function start() {
     secretKey = crypto.getRandomValues(new Uint8Array(32));
     await files.write("secret.key", secretKey);
   }
+  const port = await hosting;
   const app = createApp({
-    webAssets: async () => undefined,
+    webAssets,
     library:
       storage?.library ??
       libraryOver(files.abs("library"), files.fs, () =>
@@ -158,8 +189,8 @@ async function start() {
     server,
     profiles,
     // Media are played from the native side's scheme; the server reads one only whole (a practice
-    // recording it hands on), read from the files when it does.
-    mediaBlob: (file) => new FileBlob(() => files.read(file)) as MediaBlob,
+    // recording it hands on), read from the files when it does; another device's sent natively.
+    mediaBlob: (file) => new NativeFile({ file }, () => files.read(file)) as MediaBlob,
     decks: storage?.decks ?? notOnPhone("decks"),
     apkg: storage?.apkg ?? notOnPhone("decks"),
     transfers: storage?.transfers ?? notOnPhone("profile files"),
@@ -172,7 +203,9 @@ async function start() {
     // An LLM provider's requests through the native side too (any address the learner sets).
     fetch: speech.fetchVia(storage ? nativeFetch : netFetch),
     speech: speech.host,
-    listensOn: { hostname: "127.0.0.1", port: 0 },
+    // On every address where the listener started, as the desktop app's server.
+    listensOn: port ? { hostname: "0.0.0.0", port } : { hostname: "127.0.0.1", port: 0 },
+    network: port && bridge ? phoneNetwork(bridge) : undefined,
     sessionInHeader: true,
   });
   document.addEventListener("visibilitychange", () => {
@@ -181,9 +214,6 @@ async function start() {
   return app;
 }
 
-/** The header the server takes and gives the device's session in, where the page can neither send
- *  nor take its cookie (routes/profiles.ts, AppConfig.sessionInHeader). */
-const SESSION_HEADER = "x-sprachanker-session";
 /** The device's session, kept on the device across starts (as a browser keeps the cookie). */
 const SESSION = "sprachanker-session";
 const session = {
