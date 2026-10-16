@@ -147,13 +147,19 @@ fn transcribe(asr: tauri::State<Asr>, request: Request) -> Result<Heard, String>
 #[cfg_attr(mobile, tauri::mobile_entry_point)]
 pub fn run() {
     tauri::Builder::default()
-        // The WebView stays on the app's own pages: a link out goes nowhere (no other site's page
-        // runs beside the app's files).
+        // The WebView stays on the app's own pages — http://tauri.localhost (Android), tauri://localhost
+        // (iOS) —: a link out goes nowhere, so no other site's page ever runs beside the app's files
+        // and its bridge (Native.kt answers the app's own page alone).
         .plugin(
             tauri::plugin::Builder::<tauri::Wry>::new("stay")
                 .on_navigation(|_, url| {
-                    matches!(url.host_str(), Some("tauri.localhost") | Some("localhost"))
-                        || url.scheme() == "tauri"
+                    let host = url.host_str();
+                    url.port().is_none()
+                        && match url.scheme() {
+                            "http" | "https" => host == Some("tauri.localhost"),
+                            "tauri" => host == Some("localhost"),
+                            _ => false,
+                        }
                 })
                 .build(),
         )

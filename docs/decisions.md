@@ -211,6 +211,7 @@ area is built is in its `CLAUDE.md`; work not built yet is in `docs/plan.md`.
 - No CORS, same-origin only. Every mutating request needs the header `X-SprachAnker: 1` (CSRF guard); cookies are `SameSite=Strict`.
 - `X-Forwarded-Proto: https` is believed only for the tailnet name and `--allow-host` names (our proxies), never for a name reached directly. It makes the cookie `Secure`.
 - The CSP loads everything from this server only, no inline scripts, `frame-ancestors 'none'`, `no-referrer`: model output can never make the browser send data to another host.
+- The phone app's WebView is the app's alone (owner, 2026-10-16): only its own pages (a link out goes nowhere), a CSP of what the app needs — its scheme, the media scheme, blob:, data: pictures, WebAssembly, Tauri's IPC; no frame, no other host: the server's code reaches hosts through the native side —, and the native bridge answering only while the app's own page is in the main frame. Android 11 (API 30) is the oldest it runs on: the owner's oldest device.
 - Course HTML is sanitised at normalisation; Markdown renders without raw HTML; a course's or exam's links are http(s) only, so a course bundle never brings a `javascript:` link.
 - API keys never travel in a profile file: they are emptied from its copy of the database, and the export says which it left out.
 - LLM calls: course text and learner input go as delimited data; output is validated against schemas and never executed.
