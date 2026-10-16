@@ -22,7 +22,7 @@ export function OtherDevicesSection() {
   );
 }
 
-/** Settings → General on the phone app: why there are no addresses (its server is inside it). */
+/** Settings → General on a phone app not open to others (iOS so far): why there are no addresses. */
 export function OtherDevicesOnPhone() {
   const { t } = useTranslation();
   return (
@@ -77,7 +77,7 @@ function Addresses({ addresses }: { addresses: ServerAddresses }) {
   // One QR code open at a time: at first the one a phone opens best, if any.
   const [chosen, setChosen] = useState<string | null>();
   const shown = chosen === undefined ? forPhone(addresses) : chosen;
-  const { machine, network, localName, tailnet } = addresses;
+  const { machine, network, localName, tailnet, noServe } = addresses;
   const port = new URL(machine.url).port || "80";
   const row = (address: ServerAddress) => (
     <AddressRow
@@ -97,10 +97,9 @@ function Addresses({ addresses }: { addresses: ServerAddresses }) {
           <>
             {lan.map(row)}
             {lan.some((a) => !a.secure) && (
-              <p className="flex gap-1.5 text-xs text-muted-foreground">
-                <MicOff className="mt-px size-3.5 shrink-0" aria-hidden />
-                {t(tailnet?.https ? "addresses.insecureServed" : "addresses.insecure")}
-              </p>
+              <NoMicrophone
+                text={t(tailnet?.https ? "addresses.insecureServed" : "addresses.insecure")}
+              />
             )}
           </>
         ) : (
@@ -112,7 +111,9 @@ function Addresses({ addresses }: { addresses: ServerAddresses }) {
       </Group>
       <Group title={t("addresses.tailnet")}>
         {!tailnet ? (
-          <p className="text-sm text-muted-foreground">{t("addresses.noTailnet")}</p>
+          <p className="text-sm text-muted-foreground">
+            {t(noServe ? "addresses.noTailnetHere" : "addresses.noTailnet")}
+          </p>
         ) : tailnet.funnel ? (
           <div className="flex gap-3 rounded-xl border border-amber-500/40 bg-amber-500/10 p-3">
             <TriangleAlert className="mt-0.5 size-5 shrink-0 text-amber-600" aria-hidden />
@@ -125,8 +126,12 @@ function Addresses({ addresses }: { addresses: ServerAddresses }) {
           row(tailnet.https)
         ) : (
           <>
-            <Url value={tailnet.name} />
-            <Command text={t("addresses.notServed")} command={`tailscale serve --bg ${port}`} />
+            {tailnet.http ? row(tailnet.http) : <Url value={tailnet.name} />}
+            {noServe ? (
+              tailnet.http && <NoMicrophone text={t("addresses.insecure")} />
+            ) : (
+              <Command text={t("addresses.notServed")} command={`tailscale serve --bg ${port}`} />
+            )}
           </>
         )}
       </Group>
@@ -140,6 +145,16 @@ function Group({ title, children }: { title: string; children: React.ReactNode }
       <h4 className="text-sm font-semibold">{title}</h4>
       <div className="space-y-3">{children}</div>
     </section>
+  );
+}
+
+/** Why the microphone does not work at the addresses above (not a secure context). */
+function NoMicrophone({ text }: { text: string }) {
+  return (
+    <p className="flex gap-1.5 text-xs text-muted-foreground">
+      <MicOff className="mt-px size-3.5 shrink-0" aria-hidden />
+      {text}
+    </p>
   );
 }
 
