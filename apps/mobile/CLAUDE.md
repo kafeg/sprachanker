@@ -115,8 +115,9 @@ src-tauri/
 - Reading aloud's engines are the computer's programs built for the phone and run as the server runs
   them there (the same services, the phone's SpeechHost and PiperHost): Android runs programs only
   from the app's native library folder, so they are packed as `lib*.so` and installed unpacked
-  (`useLegacyPackaging`). They run with the memory killer's score 500 (engines.rs): under pressure
-  they go before the app, a crash ends their process alone; on a phone one Qwen3-TTS model at a time.
+  (`useLegacyPackaging`). A crash ends their process alone, but they keep the app's standing with the
+  memory killer (an app may not change it): the page stops them a minute after the app is put away
+  while none is asked anything; on a phone one Qwen3-TTS model at a time.
 - The device's voices: only those installed on the phone are offered or used — a language set
   without one is read by Google's server, which would send the text away.
 - Android's WebView plays nothing from a range answered by the app's scheme: films go to the player

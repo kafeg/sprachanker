@@ -20,9 +20,6 @@ use tauri::async_runtime::spawn_blocking;
 
 /// How much of the end of what an engine says on stderr is kept.
 const LOG_KEPT: usize = 4000;
-/// The memory killer's score an engine runs with: after the apps in the background (900 and up),
-/// before the app itself — an engine holding gigabytes goes first, the app stays.
-const OOM_SCORE_ADJ: i32 = 500;
 
 struct Running {
     child: Child,
@@ -63,8 +60,8 @@ pub fn engines_built() -> Vec<String> {
         .collect()
 }
 
-/// Starts an engine with its arguments: its pid. It is started by the system's shell, which sets its
-/// memory killer's score (OOM_SCORE_ADJ) and becomes it.
+/// Starts an engine with its arguments: its pid. (Its memory killer's score is the app's when it
+/// starts: an app may not raise it — measured — so the page stops the engines once it is put away.)
 #[tauri::command]
 pub fn engine_spawn(
     engines: tauri::State<Engines>,
@@ -72,12 +69,7 @@ pub fn engine_spawn(
     args: Vec<String>,
 ) -> Result<u32, String> {
     let path = program(&engine).ok_or(format!("{engine}: not in this app"))?;
-    let mut child = Command::new("/system/bin/sh")
-        .arg("-c")
-        .arg(format!(
-            "echo {OOM_SCORE_ADJ} > /proc/self/oom_score_adj; exec \"$0\" \"$@\""
-        ))
-        .arg(path)
+    let mut child = Command::new(path)
         .args(args)
         .stdin(Stdio::null())
         .stdout(Stdio::null())

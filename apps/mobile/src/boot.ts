@@ -198,8 +198,25 @@ async function start() {
   });
   document.addEventListener("visibilitychange", () => {
     if (document.visibilityState === "hidden") void flushAll();
+    stopEnginesAway(speech.idle);
   });
   return app;
+}
+
+/** How long the app is put away before its engines stop. */
+const ENGINES_AWAY_MS = 60_000;
+let away: ReturnType<typeof setTimeout> | undefined;
+/** The engines stopped once the app has been put away a while and none is asked anything: their
+ *  gigabytes would keep the app's own standing with the memory killer (an app may not lower it), so
+ *  the system would end the app first. The next reading starts them again. */
+function stopEnginesAway(idle: () => boolean) {
+  clearTimeout(away);
+  if (document.visibilityState !== "hidden") return;
+  away = setTimeout(() => {
+    if (document.visibilityState !== "hidden") return;
+    if (idle()) void native.enginesStopAll();
+    else stopEnginesAway(idle);
+  }, ENGINES_AWAY_MS);
 }
 
 /** The header the server takes and gives the device's session in, where the page can neither send

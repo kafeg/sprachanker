@@ -75,6 +75,8 @@ export function phoneSpeech(
   const programs = options.programs ?? nativePrograms;
   let loading: Promise<unknown> = Promise.reject(new Error("no model loaded"));
   loading.catch(() => {});
+  /** Requests to the engines under way (none: they may be stopped). */
+  let asking = 0;
   /** The port Whisper was "started" on: answered here, never on the network. */
   let whisperPort = "";
   /** The ports the engines run as programs were started on: asked through the native side. Any other
@@ -139,7 +141,10 @@ export function phoneSpeech(
       signal?.throwIfAborted();
       const path = url.pathname + url.search;
       const asked = programs.http(Number(url.port), request.method, path, body, timeout);
-      const answer = await (signal ? Promise.race([asked, aborted(signal)]) : asked);
+      asking++;
+      const answer = await (signal ? Promise.race([asked, aborted(signal)]) : asked).finally(
+        () => asking--,
+      );
       const bytes = new Uint8Array(answer);
       const status = (bytes[0] ?? 0) * 256 + (bytes[1] ?? 0);
       return new Response(status === 204 ? null : bytes.slice(2), { status });
@@ -161,7 +166,7 @@ export function phoneSpeech(
     return new Response("not found", { status: 404 });
   }
 
-  return { host, fetchVia };
+  return { host, fetchVia, idle: () => asking === 0 };
 }
 
 /** Rejects when `signal` aborts (a request given up: its answer no longer awaited). */
