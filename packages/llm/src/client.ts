@@ -194,6 +194,13 @@ export function withToolNotes(messages: ChatMessage[], notes: string[] | undefin
   );
 }
 
+/** A system prompt with the schema a JSON reply must match, for a provider told it in words (Anthropic's
+ *  API, Claude Code). */
+export const withJsonSchema = (system: string, jsonSchema: ChatRequest["jsonSchema"]) =>
+  jsonSchema
+    ? `${system}\n\nReply with one JSON object matching this JSON Schema, and nothing else:\n${JSON.stringify(jsonSchema.schema)}`
+    : system;
+
 export interface LlmClient {
   /** Chat models the endpoint offers (embedding, image and audio models are left out). */
   models(signal?: AbortSignal): Promise<ModelInfo[]>;

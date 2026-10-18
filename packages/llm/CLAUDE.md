@@ -9,10 +9,12 @@ is the server's job. Web-standard APIs only (fetch, streams), no runtime-specifi
 ```
 src/
   cli.ts           # command-line providers (claude -p, codex exec): command lines (effort per task),
-                   # environment, prompt, output parsing, time limits, one more run of a failed one;
-                   # the process itself is started by a CliRunner the server passes in
+                   # environment, prompt (Claude: a JSON reply's schema in the system prompt), output
+                   # parsing, time limits, one more run of a failed one; the process itself is started
+                   # by a CliRunner the server passes in
   client.ts        # OpenAI-compatible endpoint: models, streamed chat with tool rounds, complete;
-                   # ApiQuirks (what sets a provider apart: reasoning switch, reasoners, token field)
+                   # ApiQuirks (what sets a provider apart: reasoning switch, reasoners, token field);
+                   # withJsonSchema (the schema told in words: Anthropic's API, Claude Code)
   anthropic.ts     # Anthropic's Messages API (fetch only): the chat in its shape, its stream as text and
                    # tool calls, tool rounds with its blocks, paged models, its errors
   http.ts          # what every HTTP provider shares: endpointCaller (errors mapped to LlmError),
@@ -112,6 +114,9 @@ test/              # fake endpoints (no network); fixture course from @sprachank
   StructuredTask, its request inside) for a JSON one —, `<task>Rules` (its standing system prompt,
   through `systemPrompt`) and its context budgets, and is listed in `TASK_PROMPTS` when the learner
   may rewrite its prompt; the real call and the prompt viewer use the same functions.
+- Command-line effort (`effort`, docs/decisions.md): `none` — no thinking — for the checks the learner
+  waits for and every task making a course's practice ahead (their replies hold their own plan);
+  `low` for short checks; unset for teaching replies and conversations.
 - Explanations in the interface language (the request's `language`); target-language text stays in the target language.
 - Standing rules assume no level and no language: the level comes with the data (`levelLine`, the
   knowledge snapshot in `LessonInfo`), and what one target language needs (German's ß, Goethe's

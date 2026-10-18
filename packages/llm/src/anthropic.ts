@@ -11,6 +11,7 @@ import {
   REASONING_ROOM,
   reasoningSwitch,
   sendsSwitch,
+  withJsonSchema,
   withToolNotes,
 } from "./client.ts";
 import { LlmError } from "./errors.ts";
@@ -119,8 +120,7 @@ function systemOf(request: Omit<ChatRequest, "signal" | "runTool">, notes: boole
   const { system } = anthropicMessages(
     notes ? withToolNotes(request.messages, request.toolNotes) : request.messages,
   );
-  if (!request.jsonSchema) return system;
-  return `${system}\n\nReply with one JSON object matching this JSON Schema, and nothing else:\n${JSON.stringify(request.jsonSchema.schema)}`;
+  return withJsonSchema(system, request.jsonSchema);
 }
 
 /** What one request is sent with. */

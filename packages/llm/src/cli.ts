@@ -2,7 +2,7 @@
 // Claude Code (`claude -p`) and Codex (`codex exec`). This module builds their command
 // lines and reads their output; starting the process is the server's (a CliRunner), so this package
 // stays free of runtime APIs. Their own tools stay off: the app gives all context in the prompt.
-import type { ChatMessage, ChatRequest, LlmClient } from "./client.ts";
+import { type ChatMessage, type ChatRequest, type LlmClient, withJsonSchema } from "./client.ts";
 import { LlmError } from "./errors.ts";
 
 export type CliKind = "claude" | "codex";
@@ -126,7 +126,9 @@ const retryable = (error: unknown, json: boolean) =>
   ((error.code === "bad_response" && !/ENOENT|not installed/i.test(error.message)) ||
     (json && error.code === "timeout"));
 
-/** `claude -p` with its system prompt replaced, no tools, MCP servers, settings or saved session. */
+/** `claude -p` with its system prompt replaced, no tools, MCP servers, settings or saved session. A
+ *  JSON reply's schema is in the system prompt (`withJsonSchema`), not `--json-schema`: that flag's
+ *  tool call went wrong one call in ten and was asked again whole (docs/decisions.md). */
 function claudeArgs(
   request: Omit<ChatRequest, "signal" | "runTool">,
   output: "stream-json" | "json",
@@ -147,7 +149,6 @@ function claudeArgs(
     output,
     ...(output === "stream-json" ? ["--include-partial-messages", "--verbose"] : []),
     ...(request.effort === "low" ? ["--effort", "low"] : []),
-    ...(request.jsonSchema ? ["--json-schema", JSON.stringify(request.jsonSchema.schema)] : []),
   ];
 }
 
@@ -183,7 +184,6 @@ const CLAUDE_ENV = {
 function claudeResult(kind: CliKind, result: Record<string, unknown>): string {
   if (result.is_error || result.subtype !== "success")
     throw cliError(kind, String(result.result ?? result.subtype ?? "failed"));
-  if (result.structured_output !== undefined) return JSON.stringify(result.structured_output);
   return String(result.result ?? "");
 }
 
@@ -198,7 +198,7 @@ export function cliRun(
     ? {
         args: claudeArgs(request, output),
         stdin: prompt,
-        files: { "system.txt": system },
+        files: { "system.txt": withJsonSchema(system, request.jsonSchema) },
         env: request.effort === "none" ? { ...CLAUDE_ENV, MAX_THINKING_TOKENS: "0" } : CLAUDE_ENV,
       }
     : {

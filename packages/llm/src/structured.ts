@@ -36,8 +36,8 @@ function parseJson(text: string): unknown {
 }
 
 /** A value with every string's escaped quote (`\"`) made a plain one, and its escaped line breaks
- *  (`\n`) real ones where it has no real one: a model writing through a tool call (Claude Code's
- *  structured output) sometimes escapes them twice, and the learner would see the backslash. */
+ *  (`\n`) real ones where it has no real one: a model sometimes escapes them twice (through a tool
+ *  call most), and the learner would see the backslash. */
 export function unescapedQuotes(value: unknown): unknown {
   if (typeof value === "string") {
     const quotes = value.replaceAll('\\"', '"');
