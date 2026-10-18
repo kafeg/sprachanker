@@ -17,7 +17,6 @@ import { existsSync, mkdirSync, readFileSync, writeFileSync } from "node:fs";
 import { homedir } from "node:os";
 import { join, resolve } from "node:path";
 import { type Browser, chromium, type Locator, type Page, webkit } from "@playwright/test";
-import { CLIENT_HEADERS } from "@sprachanker/schema";
 import { FAKE_LLM_PORT } from "../fake-llm.ts";
 import { checkRoot, speechApp } from "./app.ts";
 

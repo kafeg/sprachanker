@@ -8,7 +8,8 @@ area's CLAUDE.md. How the parts fit: `docs/architecture.md`.
 The product is finished when these are done; nothing else is taken before them.
 1. Only what is ready is shown: the Nicos Weg courses, Leben in Deutschland, the Goethe exams A1–B1;
    everything experimental behind the launch parameter `--experimental`, off by default.
-2. Goethe A1–B1 complete as non-experimental exams (item 1 below: what is left of it).
+2. Goethe A1–B1 complete as non-experimental exams (item 1 below: what is left of it — the owner's
+   own run by voice).
 3. Spoken answers checked against the source's answers as heard: a run over every speaking item of
    Nicos Weg A1 with right answers and the usual variants (own words, another order, "Ja, …") —
    no right answer judged wrong; hearing a course one of its preparation steps beside AI practice.
@@ -38,20 +39,20 @@ and mockups: the owner's page "Goethe в SprachAnker"; background: `docs/researc
   Übungssätze, PDF and MP4) instead of only one Modellsatz per level.
 - Built: practice as a lesson (every exam); Schreiben gone over as an examiner does; Sprechen from a
   script (a deck of cards drawn a card a round, a follow-up part about the part before it); every
-  Goethe exam, A1–B1, ready for learning (owner, 2026-10-18: none experimental). Tried with a real
-  model on A1, A2 and B1 (Schreiben, every Teil's script, A2 Teil 3 said and rated).
+  Goethe exam, A1–B1, ready for learning (owner, 2026-10-18: none experimental); Sprechen held by
+  voice (owner, 2026-10-18): each Teil's time from the Modellsatz shown and, in a mock exam, ending
+  the part; B1's 15 minutes of preparation with notes; a line typed instead of said marked typed.
+  Held end to end by voice with a real model (Sonnet, `bun run speech:exam`: answers read by
+  `say -v Anna` into the page's microphone, heard by Whisper): mock exams of A1, A2 (with Schreiben)
+  and B1 Sprechen, every Teil said and rated; the errors put in were found; the partners without a
+  card of their own gave sensible facts; the scripts' faults found there fixed (A1 T1's learner given
+  a gendered job, A1 T3's card not used, B1 T3's partner presentation missing).
 - Remaining:
-  - A part held by voice in the browser: the learner's lines played into the microphone
-    (`e2e/speech/mic.ts`'s way) through a whole Sprechen part; e2e types the lines today.
-  - Said and rated with a real model: every Sprechen Teil but A2 Teil 3 (A1 T1–T3, A2 T1–T2,
-    B1 T1–T3); whether a partner without a card of its own (A1 T2–T3, A2 T1, B1 T1 and T3: the Teil's
-    one deck) says sensible facts.
-  - A monologue Teil's own time from the Modellsatz (A1 T1, A2 T2, B1 T2): a take is now 3 minutes
-    for any long line (`apps/web/src/llm/exam-part.tsx`, `LONG_MS`); the examiner does not end a Teil
-    when its time is over. Only the modules' times are read (`courses/goethe/src/normalise.ts`).
-  - B1 Sprechen's 15 minutes of preparation with notes (`docs/research/goethe-exams-redesign.md`).
-  - A Sprechen line typed instead of said is not marked as typed.
-- **Accept**: Goethe A2 Sprechen and Schreiben held end to end by voice with a real model.
+  - The owner's own mock exam by voice (A2 first), to judge how it feels and how the ratings match.
+  - A Teil's time for two candidates is the learner's alone (only the learner's turns count it):
+    whether the share should be smaller.
+- **Accept**: Goethe A2 Sprechen and Schreiben held end to end by voice with a real model (done
+  2026-10-18 on a clone; the owner's run left).
 
 ### 2. Releases
 - v0.1 for the owner's family (owner, 2026-10-12: Apple Silicon, macOS 13 and later): released.
