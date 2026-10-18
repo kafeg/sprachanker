@@ -239,6 +239,8 @@ impl Server {
 fn local(url: &Url, port: u16) -> bool {
     match url.scheme() {
         "tauri" | "about" | "blob" | "data" => true,
+        // Windows' WebView2 serves the app's own pages (its start page) at http://tauri.localhost.
+        "http" if cfg!(windows) && url.host_str() == Some("tauri.localhost") => url.port().is_none(),
         "http" => {
             matches!(url.host_str(), Some("127.0.0.1" | "localhost")) && url.port() == Some(port)
         }

@@ -126,7 +126,10 @@ export function profileFiles(dataRoot: string): ProfileFiles {
     remove(id) {
       opened.get(id)?.close();
       opened.delete(id);
-      rmSync(folder(id), { recursive: true, force: true });
+      // SQLite lets the file go once the last statement on it is finalized (they are collected), and
+      // Windows deletes no open file: collected first, the removal tried again while it is held.
+      Bun.gc(true);
+      rmSync(folder(id), { recursive: true, force: true, maxRetries: 10, retryDelay: 100 });
     },
     recordings: (id) => recordingFiles(join(folder(id), "recordings")),
   };

@@ -7,6 +7,10 @@ import { E2E_DATA, E2E_PIPER, E2E_QWEN, SIGNED_IN } from "./paths.ts";
 const PORT = 4590;
 const ALL = !!process.env.CI || !!process.env.E2E_ALL;
 const LOCAL = ["chromium-desktop", "webkit-phone"];
+// Playwright's WebKit for Windows has no media (no microphone, no recorder, sounds not played) and
+// no Windows browser is WebKit: there the app is Chromium's (WebView2, Edge, Chrome) — WebKit is
+// tried on macOS and Linux.
+const WINDOWS = process.platform === "win32";
 // Phone width required by apps/web/CLAUDE.md.
 const phone = { width: 375, height: 812 };
 // The compiled binary (`bun run build:bin`), started from an unrelated folder: everything it serves
@@ -64,7 +68,7 @@ export default defineConfig({
       { name: "chromium-phone", use: { ...devices["Pixel 7"], viewport: phone } },
       { name: "webkit-phone", use: { ...devices["iPhone 15"], viewport: phone } },
     ]
-      .filter((p) => ALL || LOCAL.includes(p.name))
+      .filter((p) => (ALL || LOCAL.includes(p.name)) && !(WINDOWS && p.name.startsWith("webkit")))
       .map((p) => ({
         ...p,
         dependencies: ["signed-in"],
