@@ -24,7 +24,10 @@ const spec = {
       plural: "die Abende",
       back: "вечер",
       audio: "sa-1.wav",
-      examples: [{ sentence: "Guten Abend!", translation: "Добрый вечер!" }, { sentence: "<b>" }],
+      examples: [
+        { sentence: "Guten Abend!", translation: "Добрый вечер!" },
+        { sentence: "<b>[sound:x.mp3]\x1f\nzwei" },
+      ],
       tags: ["thema::zeit"],
     },
     { guid: noteGuid("deutsch-a1 ru k2"), front: "Tschüss", back: "" },
@@ -66,7 +69,7 @@ test("read back by our reader: the deck, the notes' fields, the media by name", 
     'der Abend<div class="plural">die Abende</div>',
     "вечер",
     "[sound:sa-1.wav]",
-    "<div><i>Guten Abend!</i><span>Добрый вечер!</span></div><div><i>&lt;b&gt;</i></div>",
+    "<div><i>Guten Abend!</i><span>Добрый вечер!</span></div><div><i>&lt;b&gt;&#91;sound:x.mp3]<br>zwei</i></div>",
   ]);
   expect(abend?.tags).toEqual(["thema::zeit"]);
   expect(tschuss?.fields).toEqual(["Tschüss", "", "", ""]);
@@ -113,4 +116,11 @@ test("the collection: schema 11, the deck and note type, new cards — none for 
   expect(second?.sfld).toBe("Tschüss");
   expect(second?.csum).toBe(Number.parseInt(hex(sha1(enc("Tschüss"))).slice(0, 8), 16));
   db.close();
+});
+
+test("a name with Anki's subdeck mark stays one deck", () => {
+  const written = writeApkg({ ...spec, name: "Deutsch::A1" }, bunApkgRuntime);
+  const files: Record<string, Uint8Array> = { 0: WAV };
+  for (const e of written.head) files[e.name] = e.bytes;
+  expect(readApkg(zipSync(files), bunApkgRuntime).deckName).toBe("Deutsch:A1");
 });

@@ -11,12 +11,11 @@ import {
   DECK_AUDIO_EXTENSIONS,
   DECK_BUNDLE_MAX_BYTES,
   type DeckMadeExamples,
-  isFindsDeck,
 } from "@sprachanker/schema";
 import { ServiceError } from "../errors.ts";
 import { sha256Hex } from "../security/encoding.ts";
 import type { DeckNote } from "./deck-extras.ts";
-import type { DeckTransferFiles, ZipHead } from "./deck-transfer.ts";
+import { type DeckTransferFiles, deckFileStem, type ZipHead } from "./deck-transfer.ts";
 import { guarded, preparedExports } from "./transfers.ts";
 
 export const APKG_EXTENSION = ".apkg";
@@ -84,15 +83,16 @@ export function createDeckApkg(deps: {
           const source = audioOf(n, deps.readAudio(folder, n.lexeme, n.display.target));
           return source && extensionOf(source.path) ? source : undefined;
         });
-        const wanted = [...new Map(sources.flatMap((s) => (s ? [[s.path, s]] : []))).values()];
+        const keyOf = (s: Source) => `${s.root}/${s.path}`;
+        const wanted = [...new Map(sources.flatMap((s) => (s ? [[keyOf(s), s]] : []))).values()];
         const staged = await guarded(() => files.stageNumbered(wanted));
         try {
           // Each file by a name of its own in Anki's media folder, the same in every export.
           const names = new Map<string, string>();
           for (const at of staged.staged) {
             const s = wanted[at] as Source;
-            const hash = await sha256Hex(`${s.root}/${s.path}`, 16);
-            names.set(s.path, `sprachanker-${hash}.${extensionOf(s.path)}`);
+            const hash = await sha256Hex(keyOf(s), 16);
+            names.set(keyOf(s), `sprachanker-${hash}.${extensionOf(s.path)}`);
           }
           const ai = own.aiExamples();
           const seed = `${folder} ${lang}`;
@@ -105,7 +105,7 @@ export function createDeckApkg(deps: {
               notes: words.map((n, i) => {
                 const { display } = n;
                 const made = ai ? deps.examplesOf(folder, n.lexeme, lang)?.items : undefined;
-                const audio = sources[i] && names.get((sources[i] as Source).path);
+                const audio = sources[i] && names.get(keyOf(sources[i] as Source));
                 const examples = [
                   ...(display.example ? [{ sentence: display.example }] : []),
                   ...(display.examples ?? []),
@@ -127,15 +127,14 @@ export function createDeckApkg(deps: {
           const bytes = files.bytes(staged.id, written.head, paths);
           if (bytes > DECK_BUNDLE_MAX_BYTES) throw new ServiceError("deck_file_too_large", 422);
           const day = new Date(deps.now()).toISOString().slice(0, 10);
-          // As the deck file names it (a Finds deck by its pair, not its profile); a course's by its
-          // edition's language too.
-          const name = isFindsDeck(folder)
-            ? `finds-${lang}-${words[0]?.lang}`
-            : folder.replace(/^course~/, "").replaceAll("~", "-");
+          // As the deck file is named; a course's by its edition's language too.
+          const name = deckFileStem(folder, lang, words[0]?.lang);
           const pair = scope.startsWith("course:") && !name.endsWith(`-${lang}`) ? `-${lang}` : "";
           const fileName = `${name}${pair}-${day}${APKG_EXTENSION}`;
+          // One package waits for each profile: the one made before and not downloaded goes.
+          exports.letGo(profile);
           exports.keep(staged.id, profile, { head: written.head, paths, fileName, bytes });
-          const withAudio = sources.filter((s) => s && names.has(s.path)).length;
+          const withAudio = sources.filter((s) => s && names.has(keyOf(s))).length;
           return { id: staged.id, fileName, bytes, notes: words.length, withAudio };
         } catch (error) {
           files.discard(staged.id);

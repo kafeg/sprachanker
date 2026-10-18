@@ -16,6 +16,7 @@ import {
   type DeckExtrasWord,
   type DeckId,
   findsDeckId,
+  isFindsDeck,
 } from "@sprachanker/schema";
 import { ServiceError } from "../errors.ts";
 import type { BundleFileEntry } from "./course-transfer.ts";
@@ -23,6 +24,13 @@ import { type DeckExtrasStore, extrasMedia, readExtras } from "./deck-extras.ts"
 import type { Decks } from "./decks.ts";
 import { parseJson } from "./stored.ts";
 import { guarded, preparedExports } from "./transfers.ts";
+
+/** What a deck's exported file is named by: a Finds deck by its language pair (not its profile), a
+ *  course's by its key, an imported deck by its id. */
+export const deckFileStem = (folder: string, translationLang?: string, lang?: string) =>
+  isFindsDeck(folder)
+    ? `finds-${translationLang}-${lang}`
+    : folder.replace(/^course~/, "").replaceAll("~", "-");
 
 /** A zip's entry made in memory. */
 export type ZipHead = { name: string; bytes: Uint8Array };
@@ -358,10 +366,7 @@ export function createDeckTransfer(deps: {
           const bytes = files.bytes(staged.id, head, kept);
           if (bytes > DECK_BUNDLE_MAX_BYTES) throw new ServiceError("deck_file_too_large", 422);
           const day = new Date(deps.now()).toISOString().slice(0, 10);
-          const name =
-            kind === "finds" && there.deck
-              ? `finds-${there.deck.translationLang}-${there.deck.lang}`
-              : folder.replace(/^course~/, "").replaceAll("~", "-");
+          const name = deckFileStem(folder, there.deck?.translationLang, there.deck?.lang);
           const fileName = `${name}-${day}${DECK_BUNDLE_EXTENSION}`;
           exports.keep(staged.id, profile, { head, paths: kept, fileName, bytes });
           return { id: staged.id, fileName, bytes };

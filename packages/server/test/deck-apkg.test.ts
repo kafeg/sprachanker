@@ -9,6 +9,30 @@ import { readApkg } from "@sprachanker/anki-export";
 import { bunApkgRuntime } from "@sprachanker/anki-export/testing";
 import { courseDeckFolder } from "@sprachanker/schema";
 import { COURSE, SOUND, withDecks } from "./deck-setup.ts";
+import { deckTransferFiles } from "./storage.ts";
+
+test("an .apkg's audio staged: only files under the decks or the library, by paths of plain names; each the zip's next number", async () => {
+  const api = await withDecks();
+  mkdirSync(join(api.root, "decks", "d", "media", "sub"), { recursive: true });
+  writeFileSync(join(api.root, "decks", "d", "media", "a.wav"), WAV);
+  writeFileSync(join(api.root, "secret.wav"), WAV);
+  const files = deckTransferFiles(api.root);
+  const { id, staged } = await files.stageNumbered([
+    { root: "decks", path: "../secret.wav" },
+    { root: "decks", path: "d/media/a.wav" },
+    { root: "decks", path: "/etc/hosts" },
+    { root: "decks", path: "d\\media\\a.wav" },
+    { root: "decks", path: "d/./media/a.wav" },
+    { root: "decks", path: "d/media/sub" },
+    { root: "library", path: "nope/a.mp3" },
+    { root: "decks", path: "d/media/a.wav" },
+  ]);
+  expect(staged).toEqual([1, 7]);
+  const length = files.bytes(id, [], ["0", "1"]);
+  const zip = new Uint8Array(await new Response(files.stream(id, [], ["0", "1"])).arrayBuffer());
+  expect(zip.length).toBe(length);
+  expect(new TextDecoder().decode(zip)).toContain("RIFF read der Apfel");
+});
 
 type Api = Awaited<ReturnType<typeof withDecks>>;
 const WAV = new TextEncoder().encode("RIFF read der Apfel");

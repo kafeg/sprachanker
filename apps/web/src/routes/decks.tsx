@@ -208,6 +208,8 @@ export function DecksTab({
   const apkgItems = (scope: string, editions: string[]) =>
     editions.map((edition) => {
       const o = all.find((x) => x.scope === scope && x.edition === edition);
+      // A deck without words (an empty Finds) has nothing to export.
+      if (o && !o.words) return null;
       const title = o ? titleOf(o) : name(scope);
       return (
         <DropdownMenuItem key={edition} onSelect={() => apkg.mutate({ scope, edition, title })}>

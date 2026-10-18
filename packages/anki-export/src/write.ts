@@ -143,8 +143,17 @@ const deckJson = (id: number, name: string, mod: number) => ({
   extendRev: 0,
 });
 
+/** Text as a field's HTML: nothing in it read as markup — neither tags nor Anki's own (`[sound:…]`,
+ *  `[latex]`) —, no field separator, its lines kept. */
 const html = (text: string) =>
-  text.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;");
+  text
+    .replace(/&/g, "&amp;")
+    .replace(/</g, "&lt;")
+    .replace(/>/g, "&gt;")
+    .replace(/\[/g, "&#91;")
+    .split("\x1f")
+    .join("")
+    .replace(/\r?\n/g, "<br>");
 
 /** A note's fields as Anki keeps them (HTML). */
 function fieldsOf(note: ApkgNoteSpec) {
@@ -207,7 +216,8 @@ export function writeApkg(
     };
     const decks = {
       1: { ...deckJson(1, "Default", 0), usn: 0 },
-      [spec.deckId]: deckJson(spec.deckId, spec.name, secs),
+      // One deck: "::" would make subdecks of its name.
+      [spec.deckId]: deckJson(spec.deckId, spec.name.replaceAll("::", ":"), secs),
     };
     const conf = {
       nextPos: spec.notes.length + 1,
@@ -237,8 +247,8 @@ export function writeApkg(
     let id = spec.now;
     spec.notes.forEach((note, i) => {
       const fields = fieldsOf(note);
-      // As Anki strips a field for sorting and for its checksum.
-      const sort = stripHtml(fields[0] as string);
+      // The word itself, as text (Anki works both out again as it imports a note).
+      const sort = note.front.trim();
       const noteId = id++;
       db.run("INSERT INTO notes VALUES (?, ?, ?, ?, -1, ?, ?, ?, ?, 0, '')", [
         noteId,
@@ -272,15 +282,6 @@ export function writeApkg(
     db.close();
   }
 }
-
-const stripHtml = (html: string) =>
-  html
-    .replace(/<[^>]*>/g, " ")
-    .replace(/\s+/g, " ")
-    .replace(/&lt;/g, "<")
-    .replace(/&gt;/g, ">")
-    .replace(/&amp;/g, "&")
-    .trim();
 
 /** Anki's checksum of a note's first field: its SHA-1's first 32 bits. */
 const checksum = (text: string) => {
