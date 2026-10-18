@@ -46,27 +46,25 @@ export function AudioPlayer({
   useEffect(() => {
     if (audio.current) audio.current.playbackRate = rate;
   }, [rate]);
-  // Smooth progress while playing: the position the element reports moves in steps (WebKit's by a
-  // quarter of a second, unevenly), so between two reports it is counted on from the last one at the
-  // speed it plays, never going back. Its length is read again each frame: WebKit first guesses a
-  // file's length and corrects it at the end without a durationchange.
+  // Smooth progress while playing: the position the element reports comes late and in uneven steps
+  // (WebKit's), so the thumb runs on a clock of its own — started when the sound really starts (the
+  // first step the element reports), at the speed it plays — and goes back to the element's position
+  // only when they part by more than a third of a second (a seek, a stall). Its length is read again
+  // each frame: WebKit first guesses a file's length and corrects it at the end without an event.
   useEffect(() => {
     if (paused) return;
-    let last = { at: performance.now(), pos: audio.current?.currentTime ?? 0 };
-    let shownPos = last.pos;
+    const start = audio.current?.currentTime ?? 0;
+    let clock: { at: number; pos: number } | undefined;
     let frame = requestAnimationFrame(function tick(now) {
       const a = audio.current;
       if (a) {
-        if (a.currentTime !== last.pos) {
-          // A jump (a seek, back or ahead) is taken as it is; a step forward is counted on from.
-          if (Math.abs(a.currentTime - shownPos) > 0.5) shownPos = a.currentTime;
-          last = { at: now, pos: a.currentTime };
-        }
+        const reported = a.currentTime;
+        if (!clock && reported !== start) clock = { at: now, pos: reported };
+        const counted = clock ? clock.pos + ((now - clock.at) / 1000) * a.playbackRate : start;
+        if (clock && Math.abs(counted - reported) > 0.35) clock = { at: now, pos: reported };
         const length = Number.isFinite(a.duration) ? a.duration : Number.POSITIVE_INFINITY;
-        const counted = last.pos + ((now - last.at) / 1000) * a.playbackRate;
-        // Counted on at most a quarter of a second past the last report (a stall is not run past).
-        shownPos = Math.min(length, Math.max(shownPos, Math.min(counted, last.pos + 0.25)));
-        setTime(shownPos);
+        const shown = clock ? clock.pos + ((now - clock.at) / 1000) * a.playbackRate : start;
+        setTime(Math.min(length, shown));
         setDuration(a.duration);
       }
       frame = requestAnimationFrame(tick);
