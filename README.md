@@ -126,7 +126,8 @@ restart**. Its log is `%LOCALAPPDATA%\app.sprachanker.desktop\logs\serve.log`. T
 To update: Settings → About → **Update and restart** (it asks for your password to install the
 package). Its log is `~/.local/state/sprachanker/serve.log`. Other distributions: the program below.
 
-**Android** (11 or later): download `SprachAnker-<version>-android.apk` on the phone and open it; Android
+**Android** (11 or later, with Android System WebView 111 or later — update it from Google Play if the
+app opens blank): download `SprachAnker-<version>-android.apk` on the phone and open it; Android
 asks to allow installing apps from the browser the first time. The phone app stands alone — courses,
 speech recognition and reading aloud on the phone; an AI model is the only thing it reaches out for.
 To update: Settings → About → **Download and install** (Android asks once to let SprachAnker install

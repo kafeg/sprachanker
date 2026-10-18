@@ -32,26 +32,21 @@ and mockups: the owner's page "Goethe в SprachAnker"; background: `docs/researc
   without turning on experimental sources.
 
 ### 2. Releases
-- In progress, paused (owner, 2026-10-18), on the local branch `releases-wip` (not merged): the app
-  says when a newer version is out (Settings → About); the desktop app updates itself (Tauri's updater,
-  minisign-signed; refused: a changed file, an older version, a wrong signature — tried on macOS);
-  Windows and Linux desktop builds in CI; Android downloads the newer APK and hands it to the system
-  installer, the release APK signed; README per system; the release skill's new flow. Checked: macOS
-  update 0.1.900 → 0.1.901 from a local server; Linux arm64 in Docker (e2e, .deb, a phrase read by Piper
-  and heard by Whisper); the release APK on an emulator. Left: the APK on an Android 15 emulator (an
-  Android 11 emulator's WebView 91 shows a blank page — say the minimum WebView in the README), Windows
-  (Proxmox API refused the token, ghr-* runners off — owllab), `bun run check` + e2e, merge with main,
-  the owner's GitHub secrets (keys in owlproj `secrets/sprachanker`: the APK keystore, the updater's
-  minisign key) and the first release.
 - v0.1 for the owner's family (owner, 2026-10-12: Apple Silicon, macOS 13 and later): released.
   Remaining: tried on another, clean Mac.
-- Every system from one tag (owner, 2026-10-18): built — the program and the desktop app for macOS,
-  Windows and Linux (x64), the Android APK signed with the project's key, latest.json; the apps say when
-  a newer version is out and update themselves (desktop: Tauri's updater, signed; Android: the APK to
-  the system's installer). Tried: the Mac's build and its update from a local endpoint; Linux (arm64,
-  in a container) built, e2e, the .deb started. Remaining: the owner's secrets and the first release
-  of them all; Windows tried in a VM (the app opens, a lesson plays, speech heard) and Linux on x64;
-  the APK's install over the app on a phone.
+- Every system from one tag (owner, 2026-10-18), on the local branch `releases-continue` (not merged):
+  built — the program and the desktop app for macOS, Windows and Linux (x64), the Android APK signed with
+  the project's key, latest.json; the apps say when a newer version is out and update themselves
+  (desktop: Tauri's updater, signed; Android: the APK to the system's installer). Tried: the Mac's build
+  and its update from a local endpoint (a changed file, an older version, a wrong signature refused);
+  Linux (arm64, in a container) built, e2e, the .deb started; the release APK on an Android 15 emulator
+  (WebView 124): it opens and runs, the next release installs over it with the profile kept, an older
+  one and a debug-signed one are refused; the APK download's checks on the emulator (only the
+  project's release downloads, HTTPS, size and sha256, then Android's installer). Remaining: the
+  owner's Actions secrets and the first release of them all (the release skill); Windows tried in a VM
+  (the app opens, a lesson plays, speech heard) — the lab's VMs could not be started from here — and
+  Linux on x64; the owner's phone moved from its debug-signed build to the release key (profile and
+  course files off the phone, uninstall, the release APK, files back — or the debug build kept there).
 - v0.2: a Docker image (engines inside, data in a volume) for a home server.
 - Later: an AppImage (its bundled libraries in the notices), Linux and Windows on arm64, the engines on a
   PC's GPU (Vulkan), Developer ID and Windows code signing (if the owner wants them).
@@ -90,9 +85,6 @@ and mockups: the owner's page "Goethe в SprachAnker"; background: `docs/researc
   chosen in tts-server (system, Turnip, CPU) are in commit 1caf52fb, taken out until measured there;
   or ggml's OpenCL with those two fixed upstream. iOS: Piper and Qwen3-TTS cannot run as programs
   there (in the app's process instead).
-- Reading aloud on the phone with its screen off: the phone sleeps and Qwen3-TTS takes 60–90 s a
-  word instead of 7–11 s (measured on the POCO, 2026-10-18) — hold a partial wake lock while an engine
-  reads (a deck's words, practice made on the phone), let go when idle.
 
 ## Open items in built areas
 Taken along when an item above touches the area, or on request.
