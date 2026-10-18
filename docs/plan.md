@@ -33,11 +33,17 @@ and mockups: the owner's page "Goethe в SprachAnker"; background: `docs/researc
 
 ### 2. Releases
 - v0.1 for the owner's family (owner, 2026-10-12: Apple Silicon, macOS 13 and later): released.
-  Remaining: the app saying when a newer version is out; tried on another, clean Mac.
-- v0.2: Linux builds and a Docker image (engines inside, data in a volume) for a home server.
-- The desktop app (`apps/desktop`, Tauri): macOS built (owner, 2026-10-15; unsigned by choice).
-  Remaining: tried from a release on a clean Mac; Windows and Linux (the engines built there, the
-  e2e on their builds); updates from the app.
+  Remaining: tried on another, clean Mac.
+- Every system from one tag (owner, 2026-10-18): built — the program and the desktop app for macOS,
+  Windows and Linux (x64), the Android APK signed with the project's key, latest.json; the apps say when
+  a newer version is out and update themselves (desktop: Tauri's updater, signed; Android: the APK to
+  the system's installer). Tried: the Mac's build and its update from a local endpoint; Linux (arm64,
+  in a container) built, e2e, the .deb started. Remaining: the owner's secrets and the first release
+  of them all; Windows tried in a VM (the app opens, a lesson plays, speech heard) and Linux on x64;
+  the APK's install over the app on a phone.
+- v0.2: a Docker image (engines inside, data in a volume) for a home server.
+- Later: an AppImage (its bundled libraries in the notices), Linux and Windows on arm64, the engines on a
+  PC's GPU (Vulkan), Developer ID and Windows code signing (if the owner wants them).
 - **Accept** (v0.1): a clean Mac goes from the install command to a lesson with speech checked.
 
 ### 3. AI practice: follow-ups

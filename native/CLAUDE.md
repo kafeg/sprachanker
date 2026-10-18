@@ -1,7 +1,8 @@
 # native/
 
-Platform builds of C/C++ engines used as sidecars — on the computer, and Piper's and Qwen3-TTS's for
-Android phones (the phone app runs them as programs; its Whisper is linked into the app).
+Platform builds of C/C++ engines used as sidecars — on the computer (macOS, Windows, Linux), and
+Piper's and Qwen3-TTS's for Android phones (the phone app runs them as programs; its Whisper is linked
+into the app).
 
 ## Layout
 
@@ -14,15 +15,19 @@ qwen/      # VERSION (a qwentts.cpp commit: it has no tags); out/ (tts-server-<t
            # committed
 scripts/   # build.ts (`bun run build:speech [whisper|piper|qwen]`): clones each pinned tag or commit
            # with submodules, builds whisper-server and tts-server static with Metal and embedded
-           # shaders on macOS and sherpa-onnx-offline-tts static, writes them to <engine>/out/;
+           # shaders on macOS (on the CPU on Windows and Linux: x64 for any CPU with AVX2, no OpenMP,
+           # Windows' C runtime linked in, `.exe`) and sherpa-onnx-offline-tts static, writes them to
+           # <engine>/out/;
            # build:cli runs it and copies them beside the sprachanker binary. The engines (folder, program) and
            # the target triple are the server's (packages/server/src/runtime/engines.ts); macOS 13
-           # and later. `build.ts android [piper|qwen]`: the same programs for arm64 phones with the
+           # and later. `build.ts android [whisper|piper|qwen]`: Whisper's static libraries (the app
+           # links them; with Ninja, in build-android-arm64) and the same programs for arm64 phones with the
            # NDK (stripped, <program>-aarch64-linux-android, 16 KB pages too; sherpa-onnx with the
            # static ONNX Runtime its own Android build takes, its sha256 pinned; ggml with dot
            # product and fp16). tag.ts: the GitHub release an engine's build is kept in (its
-           # version and build.ts's hash) — `.github/workflows/engines.yml` builds an engine only
-           # while its release is missing, the Release workflow downloads them
+           # version and build.ts's hash; a file per system) — `.github/workflows/engines.yml` builds
+           # an engine on each system while its release lacks that system's file, the Release
+           # workflow downloads them
 ```
 
 ## Rules

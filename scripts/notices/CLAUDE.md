@@ -3,22 +3,24 @@
 `THIRD_PARTY_NOTICES.txt`: every third-party component the builds give out — its version, licence,
 copyright, the link to its exact source, the builds it is in —, then each licence text once. Why it
 is shipped and where: `docs/decisions.md` (third-party notices). It lives here, not in one app: it
-spans every build (the program, the Mac app, the Android app) and reads every lockfile.
+spans every build (the program, the desktop apps for macOS, Windows and Linux, the Android app) and
+reads every lockfile.
 
 ## Layout
 
 ```
 notices.ts       # the generator: the inventory, the JavaScript packages of the shipped workspaces
                  # (bun.lock: apps/web, apps/cli, apps/mobile — `dependencies` only; texts from
-                 # node_modules), the Rust crates the desktop and phone apps link (`cargo metadata`,
-                 # normal dependencies, no procedural macros; texts from cargo's registry), rendered
+                 # node_modules), the Rust crates the desktop apps (per target) and the phone app link
+                 # (`cargo metadata`, normal dependencies, no procedural macros; texts from cargo's registry), rendered
                  # sorted, texts deduplicated. `bun scripts/notices/notices.ts <file>...`
 inventory.ts     # hand-kept: the speech engines and what each links (whisper.cpp, sherpa-onnx with
                  # eSpeak NG and its dependencies, qwentts.cpp), Bun, the Android libraries Gradle
                  # resolves, the GPL/LGPL source statement (where each exact source is)
 bun.ts           # what the pinned Bun links, for bun.json: the libraries its build fetches (their
                  # licence files at Bun's pins), its vendored code, JavaScriptCore/WTF (LGPL), the
-                 # crates of its Cargo.lock (texts from crates.io). `bun scripts/notices/bun.ts`
+                 # crates of its Cargo.lock (texts from crates.io), and what it links on Windows and
+                 # Linux only (`systems`: SQLite, ICU; libuv and the windows crates). `bun scripts/notices/bun.ts`
                  # (gh and the network) when Bun moves
 bun.json         # its output, read by inventory.ts
 downloads.ts     # what the app downloads when chosen (models, Piper voices with their licences:
@@ -36,7 +38,7 @@ texts/           # licence texts no package folder holds: the engines' own (copi
 
 - `apps/cli/scripts/build.ts` (build:bin): into the web build (served at `/THIRD_PARTY_NOTICES.txt`,
   embedded) and beside the binary; the release archive takes it from there, the desktop build
-  copies it into `SprachAnker.app/Contents/Resources`.
+  bundles it as a resource (`SprachAnker.app/Contents/Resources`, beside the program elsewhere).
 - `apps/mobile/scripts/build.ts`: into the phone app's `dist/` and the Android project's assets.
 - Needs `bun install` and Rust (`cargo`, `rustc`): crates are read through `cargo metadata`.
 

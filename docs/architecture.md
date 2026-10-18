@@ -44,8 +44,10 @@ not unpacked again. A deck moves on its own (`.sprachanker-deck`: its folder —
 extras.json, the media they name — and a manifest with a hash per file), merged into the deck there.
 
 Model calls go from the server to the provider the learner configured (LM Studio, OpenRouter, any
-OpenAI-compatible server, or a command-line agent); nothing else leaves the machine. The desktop app
-(`apps/desktop`) only runs the same binary and shows a window on it.
+OpenAI-compatible server, or a command-line agent); besides them only the update check goes out
+(GitHub's latest release, every few hours, nothing about the learner: `services/updates.ts`). The
+desktop app (`apps/desktop`) runs the same binary, shows a window on it and updates itself (Tauri's
+updater, the release's files checked against the project's key).
 
 ## Modules and dependencies
 

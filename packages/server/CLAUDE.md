@@ -45,9 +45,9 @@ src/
                      # downloads, a course removed, lesson content), lessons (lesson runs: /api/runs), progress (reset), exams, cards
                      # (a card's examples too), decks (imported: list, preview, import, an upload let go, delete; deck files; read
                      # aloud, examples), settings, notebook, recordings, speech, llm (removable as a whole; words selected kept in
-                     # Finds: /api/llm/finds, their audio after: /finds/audio), network (the addresses the app is reached at); env.ts:
-                     # what a profile's routes read (`c.var.s`, its services; `c.var.profileId`); params.ts: what several take alike
-                     # (a run's id in the path, a batch of events, a deck taken)
+                     # Finds: /api/llm/finds, their audio after: /finds/audio), network (the addresses the app is reached at), updates
+                     # (/api/update, its install); env.ts: what a profile's routes read (`c.var.s`, its services; `c.var.profileId`);
+                     # params.ts: what several take alike (a run's id in the path, a batch of events, a deck taken)
   services/          # index.ts wires them: shared (content, decks, downloads, profiles, devices, network — this machine's tailnet
                      # name for the Host check, the addresses) and each profile's own (`of(id)`, made on first use; what one module
                      # needs of another is a function handed in here). By area:
@@ -94,7 +94,7 @@ src/
                      #   its text: maxTokens), word-voice (each language's voice for words: courses' recordings proposed, one taken —
                      #   a WAV the page decoded —, its reader), local-engines (SpeechHost, VoiceStore, ReadingCache, engineSidecar),
                      #   model-downloads, sidecar (the supervisor), profile-speech, recordings (the learner's audio)
-                     # - downloads: course installs (queue, progress, resume; the installer injected)
+                     # - downloads: course installs (queue, progress, resume; the installer injected); updates (a later release)
   security/          # secrets.ts (AES-GCM sealing of API keys), host.ts (Host check, CSP and security headers), encoding.ts (base64,
                      # base64url, SHA-256)
   media.ts           # Range responses for library and deck folders' media and profile recordings (a type fixed by extension,

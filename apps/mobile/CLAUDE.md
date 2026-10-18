@@ -40,13 +40,14 @@ src/                   # runs in the WebView, before the web app (bundled into d
   piper.ts             # the server's PiperHost: sherpa-onnx's program run per text, its voices
                        # downloaded by the server's storage, unpacked by the native side
   voices.ts            # Android's TextToSpeech (Voices.kt) as the page's speechSynthesis (device voices)
+  update.ts            # the server's UpdateHost: the release's APK, by Updates.kt, to Android's installer
 scripts/
   build.ts             # dist/: the web app's build, boot.js before it, sql.js's wasm, whisper.html;
                        # THIRD_PARTY_NOTICES.txt (scripts/notices) there and in the Android assets
   dev.ts               # dist/ on this Mac with the native side played over a folder (a browser test)
-  phone.ts             # the phone looked after over adb: install (build + adb install), course (a
-                       # course of this Mac's library pushed), practice (its AI practice brought up
-                       # to date), models (Whisper's q8_0), page (an expression in the app's WebView)
+  phone.ts             # the phone looked after over adb: install (build + adb install), apk (the release's,
+                       # signed: no phone), course (a course of this Mac's library pushed), practice (its AI
+                       # practice brought up to date), models (Whisper's q8_0), page (an expression in the WebView)
 www/                   # the Whisper test page (dist/whisper.html; www/phrases: made by
                        # e2e/speech/phrases.ts, not committed)
 src-tauri/
@@ -67,28 +68,27 @@ src-tauri/
                        # Back added (its build outputs ignored); Native.kt (the page's bridge: files —
                        # small things at once —, requests to other hosts by HttpURLConnection, a file
                        # into Downloads by MediaStore), WorkService.kt (a foreground service while work
-                       # goes on or the app is open to others; its Close ends the app), Voices.kt
-                       # (TextToSpeech for the page: installed voices only)
+                       # goes on or the app is open to others; its Close ends the app), Voices.kt (TextToSpeech
+                       # for the page: installed voices only), Updates.kt (a newer APK: downloaded, checked,
+                       # to the installer); build.gradle.kts signs the release with SPRACHANKER_KEYSTORE's key
   gen/apple/           # the iOS project Tauri generated (`cargo tauri ios init`; xcodegen, CocoaPods)
 ```
 
 ## Build and run (Android)
 
-- Once: Rust with the Android targets, the NDK, `cargo install tauri-cli` (2.x), whisper.cpp built
-  for the phone by `bun run speech:android` (the server's version, `native/whisper/VERSION`); Piper's and Qwen3-TTS's programs for the phone —
-  `bun native/scripts/build.ts android` (`native/<engine>/out/<program>-aarch64-linux-android`;
-  `phone.ts install` builds them once).
+- Once: Rust with the Android targets, the NDK, `cargo install tauri-cli` (2.x); whisper.cpp's libraries
+  and Piper's and Qwen3-TTS's programs for the phone — `bun native/scripts/build.ts android`
+  (`native/<engine>/out/<program>-aarch64-linux-android`; `phone.ts install` builds them once).
 - `ANDROID_HOME`, `NDK_HOME` and `JAVA_HOME` (17) set, from `apps/mobile`: `bun scripts/build.ts`,
   `cargo tauri android build --debug --apk --target aarch64`, then
   `adb install -r -d src-tauri/gen/android/app/build/outputs/apk/universal/debug/app-universal-debug.apk`
   (`-d`: the build number may be below the one there; never uninstall — it deletes the app's files).
-- `bun scripts/phone.ts install|course|practice|models` does the above (`ANDROID_SERIAL`: which phone).
+- `bun scripts/phone.ts install|course|practice|models` does the above (`ANDROID_SERIAL`: which phone);
+  `apk`: the release's APK into apk/, signed with the project's key (secrets; the release workflow).
   The app lists its files as it starts: files pushed show after it is started again.
-- The data root is `/sdcard/Android/data/app.sprachanker.mobile/files/` (`adb push` reaches it):
-  `library/<series>/` as on the Mac (a course bundle unpacked), `models/` (q8_0 on Android),
-  `profiles/`, `server.sqlite`, `secret.key`.
-- Only the page changed: touch `src-tauri/src/lib.rs` — the page is built into the binary, and cargo
-  rebuilds it only when the Rust does.
+- The data root is `/sdcard/Android/data/app.sprachanker.mobile/files/` (`adb push` reaches it): `library/<series>/`
+  as on the Mac (a course bundle unpacked), `models/` (q8_0 on Android), `profiles/`, `server.sqlite`, `secret.key`.
+- Only the page changed: touch `src-tauri/src/lib.rs` (the page is in the binary; cargo follows the Rust).
 - The debug build's WebView: Chrome's DevTools after `adb forward tcp:9334 localabstract:webview_devtools_remote_<pid>`.
 
 ## Build and run (iOS simulator)
