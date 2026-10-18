@@ -22,7 +22,11 @@ const NEXT = new Date(2026, 9, 7, 4).getTime();
 test("a new face: again, hard, good stay in the learning steps (1m 10m), easy graduates", () => {
   const due = intervals(undefined, NOW, "c1:recognition");
   expect(due[1] - NOW).toBe(MIN);
-  expect(due[2] - NOW).toBe(6 * MIN);
+  // Anki 26.05: Hard halfway between the steps, 330 s, written "<6m".
+  expect(due[2] - NOW).toBe(330_000);
+  expect(intervalText(due[2] - NOW, { s: "s", m: "m", h: "h", d: "d", mo: "mo", y: "y" })).toBe(
+    "<6m",
+  );
   expect(due[3] - NOW).toBe(10 * MIN);
   expect(due[4] - NOW).toBeGreaterThanOrEqual(DAY);
   expect(review(undefined, 3, NOW, "c1:recognition").state).toBe(1);
@@ -74,6 +78,51 @@ test("as Anki: Easy out of the steps is at least a day more than Good", () => {
   const good = review(again, 3, again.due, f);
   const shown = intervals(good, good.due, f);
   expect([shown[3] - good.due, shown[4] - good.due]).toEqual([DAY, 2 * DAY]);
+});
+
+test("as Anki: Easy out of the steps is fuzzed within its range kept above Good, not set to Good + 1", () => {
+  // A face relearning (stability 2.5, difficulty 5) answered 10 minutes after it lapsed: Anki 26.05
+  // gives these Good/Easy pairs on 60 cards (Easy fuzzed as Good, from Good + 1 up).
+  const anki = new Set(["2/3", "3/4", "3/5", "4/6"]);
+  const relearning: FaceState = {
+    ...state(NOW, 3, 2.5),
+    scheduledDays: 0,
+    reps: 5,
+    lapses: 1,
+    lastReview: NOW - 10 * MIN,
+  };
+  const pairs = new Set<string>();
+  for (let i = 0; i < 60; i++) {
+    const due = intervals(relearning, NOW, `c${i}:recognition`);
+    pairs.add(`${(due[3] - NOW) / DAY}/${(due[4] - NOW) / DAY}`);
+  }
+  expect([...pairs].sort()).toEqual([...anki]);
+});
+
+test("as Anki: a face due in days is due on that learner's day across summer time", () => {
+  const zone = Intl.DateTimeFormat().resolvedOptions().timeZone;
+  try {
+    process.env.TZ = "Europe/Berlin";
+    // Anki: due = today + the interval, today counted from 4 AM. At 3:30 it is still yesterday;
+    // the clocks go forward on 29 March and back on 25 October 2026.
+    for (const [answered, today] of [
+      [new Date(2026, 2, 28, 3, 30), new Date(2026, 2, 27, 4)],
+      [new Date(2026, 2, 28, 4, 30), new Date(2026, 2, 28, 4)],
+      [new Date(2026, 9, 24, 4, 30), new Date(2026, 9, 24, 4)],
+      [new Date(2026, 9, 25, 3, 30), new Date(2026, 9, 24, 4)],
+    ] as const) {
+      const at = answered.getTime();
+      for (const rating of [2, 3, 4] as const) {
+        const s = review({ ...state(at, 2, 3), lastReview: at - 3 * DAY }, rating, at, "c1");
+        const day = new Date(today);
+        day.setDate(day.getDate() + s.scheduledDays);
+        expect(s.scheduledDays).toBeGreaterThan(0);
+        expect(studyDay(s.due).start).toBe(day.getTime());
+      }
+    }
+  } finally {
+    process.env.TZ = zone;
+  }
 });
 
 test("as Anki: the days between answers are the learner's days, which start at 4 AM, not UTC dates", () => {

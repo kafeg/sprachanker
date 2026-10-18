@@ -15,6 +15,7 @@ import {
   dateDiffInDays,
   FSRS,
   type Grade,
+  get_fuzz_range,
   Rating,
   roundTo,
   S_MIN,
@@ -72,14 +73,22 @@ class AnkiFsrs extends FSRS {
   }
 }
 
-/** Anki's steps: Hard on the first step is between the first two, on a later step that step again
- *  (ts-fsrs: between the first two on every step). */
+/** Anki's steps: Hard on the first step is halfway to the second, in whole seconds (1m 10m: 330 s,
+ *  where ts-fsrs rounds to 6 minutes), on a later step that step again (ts-fsrs: between the first
+ *  two on every step). The steps are those ts-fsrs takes for the state (relearning for a review). */
 const ankiSteps: TLearningStepsStrategy = (params, state, step) => {
   const next = BasicLearningStepsStrategy(params, state, step);
-  const steps = state === State.Learning ? params.learning_steps : params.relearning_steps;
+  const steps =
+    state === State.Relearning || state === State.Review
+      ? params.relearning_steps
+      : params.learning_steps;
+  const [first, second] = steps.map(ConvertStepUnitToMinutes);
   const current = steps[step];
-  if (step > 0 && current && next[Rating.Hard])
+  if (!next[Rating.Hard] || !current) return next;
+  if (step > 0)
     next[Rating.Hard] = { scheduled_minutes: ConvertStepUnitToMinutes(current), next_step: step };
+  else if (first !== undefined && second !== undefined)
+    next[Rating.Hard] = { scheduled_minutes: Math.floor((first + second) * 30) / 60, next_step: 0 };
   return next;
 };
 
@@ -121,9 +130,18 @@ const toCard = (s: FaceState, shift: number): Card => ({
     s.lastReview === undefined ? undefined : new Date(s.lastReview + dayShift(s.lastReview)),
 });
 
-/** A face's state from ts-fsrs's, its moments shifted back by the answer's `shift`. */
-const fromCard = (c: Card, shift: number): FaceState => ({
-  due: c.due.getTime() - shift,
+/** `days` of the learner's days after a moment, at the same time of day: a day is not always 24
+ *  hours (summer time). */
+const daysLater = (t: number, days: number) => {
+  const d = new Date(t);
+  d.setDate(d.getDate() + days);
+  return d.getTime();
+};
+
+/** A face's state from ts-fsrs's after an answer at `now`, its moments shifted back by the answer's
+ *  `shift`; a due date days ahead is those days later by the calendar (Anki: today + the interval). */
+const fromCard = (c: Card, now: number, shift: number): FaceState => ({
+  due: c.scheduled_days > 0 ? daysLater(now, c.scheduled_days) : c.due.getTime() - shift,
   stability: c.stability,
   difficulty: c.difficulty,
   scheduledDays: c.scheduled_days,
@@ -147,19 +165,46 @@ export function review(
   const card = state ? toCard(state, shift) : createEmptyCard(at);
   const f = scheduler(params, seed);
   const next = f.next(card, at, rating as Grade).card;
+  if (rating === Rating.Hard && next.state !== State.Review) {
+    // ts-fsrs rounds a step to whole minutes; Anki's Hard on the first step is not (`ankiSteps`).
+    const hard = ankiSteps(f.parameters, card.state, card.learning_steps)[Rating.Hard];
+    if (hard) next.due = new Date(at.getTime() + hard.scheduled_minutes * 60_000);
+  }
   if (rating === 4 && !inReview(state)) {
-    // Anki: Easy out of the steps is at least a day more than Good's interval — the one Good would
-    // get leaving the steps now (ts-fsrs sets them apart only for a review).
+    // Anki: Easy out of the steps is fuzzed at least a day above Good's interval — the one Good
+    // would get leaving the steps now (ts-fsrs sets them apart only for a review).
     const good = f.next(card, at, Rating.Good).card;
     const elapsed = card.last_review && !isNew(state) ? dateDiffInDays(card.last_review, at) : 0;
     const goodDays =
       good.state === State.Review ? good.scheduled_days : f.next_interval(good.stability, elapsed);
-    if (next.scheduled_days <= goodDays) {
-      next.scheduled_days = goodDays + 1;
-      next.due = date_scheduler(at, goodDays + 1, true);
-    }
+    const max = f.parameters.maximum_interval;
+    const easy = Math.min(Math.max(1, Math.round(next.stability * f.interval_modifier)), max);
+    next.scheduled_days = ankiFuzz(easy, goodDays + 1, max, fuzzFactor(f));
+    next.due = date_scheduler(at, next.scheduled_days, true);
   }
-  return fromCard(next, shift);
+  return fromCard(next, now, shift);
+}
+
+/** The fuzz factor (0 to 1) ts-fsrs draws for the answer being scheduled, read back from its widest
+ *  range (to within 1/1828): the one Good's interval was fuzzed by, as Anki fuzzes Easy by Good's. */
+function fuzzFactor(f: FSRS) {
+  const top = f.parameters.maximum_interval;
+  const { min_ivl, max_ivl } = get_fuzz_range(top, 0, top);
+  return (f.apply_fuzz(top, 0) - min_ivl + 0.5) / (max_ivl - min_ivl + 1);
+}
+
+/** An interval in days fuzzed as Anki fuzzes it, kept within [minimum, maximum] (rslib
+ *  `with_review_fuzz`): a day or more each way, more for longer intervals, none under 2.5 days. */
+function ankiFuzz(interval: number, minimum: number, maximum: number, factor: number) {
+  const low = Math.min(minimum, maximum);
+  const ivl = Math.min(Math.max(interval, low), maximum);
+  const part = (start: number, end: number) => Math.max(Math.min(ivl, end) - start, 0);
+  const delta =
+    ivl < 2.5 ? 0 : 1 + 0.15 * part(2.5, 7) + 0.1 * part(7, 20) + 0.05 * part(20, Infinity);
+  const lower = Math.min(Math.max(Math.round(ivl - delta), low), maximum);
+  let upper = Math.min(Math.max(Math.round(ivl + delta), low), maximum);
+  if (upper === lower && upper > 2 && upper < maximum) upper = lower + 1;
+  return Math.floor(lower + factor * (1 + upper - lower));
 }
 
 /** Due times by rating: again, hard, good, easy. */

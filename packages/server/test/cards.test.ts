@@ -74,12 +74,9 @@ test("study as in Anki: card 1 of every note first; a rating moves it to learnin
   expect(first.current).toMatchObject({ face: "recognition", kind: "new", flag: 0, marked: false });
   expect(first.current.display.target).toBe("der Kaffee, die Kaffees");
   expect(first.canUndo).toBe(false);
-  // Again 1m, Hard 6m, Good 10m (the learning steps), Easy days later.
+  // Again 1m, Hard 330 s ("<6m"), Good 10m (the learning steps), Easy days later.
   const now = first.current.due[1] - 60_000;
-  expect([first.current.due[2] - now, first.current.due[3] - now]).toEqual([
-    6 * 60_000,
-    10 * 60_000,
-  ]);
+  expect([first.current.due[2] - now, first.current.due[3] - now]).toEqual([330_000, 10 * 60_000]);
 
   await sendJson("POST", `/api/cards/${first.current.cardId}/review`, {
     id: ulid(),

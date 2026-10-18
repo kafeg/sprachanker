@@ -59,5 +59,8 @@ src/
 - Keep functions small and pure; side effects belong to the server.
 - How a word is compared (heard, typed, misspelt) is language-specific only in data (`text/language-forms.ts`,
   the article lists in `text/normalise.ts`); a language without an entry gets the plain comparison.
+- A ts-fsrs update means comparing review with Anki again (its Python library, the tests' numbers):
+  `srs/index.ts` hard-codes FSRS-6's same-day stability, re-does its Hard step and Easy fuzz, and
+  `dayShift` assumes ts-fsrs counts days by UTC dates.
 - Folders depend one way: `learner/` may read `srs/`, never the reverse (dependency-cruiser
   `engine-folders-one-way`).
