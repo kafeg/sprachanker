@@ -94,6 +94,13 @@ function runtimeOf(dataRoot: string, appVersion: string, profileDbWorker?: strin
   };
 }
 
+/** The runtime of a command working beside a server (practice, heard): no course downloads — one
+ *  it resumed would stop midway as the command ends. */
+function commandRuntime(dataRoot: string, appVersion: string) {
+  const { installer: _downloads, ...runtime } = runtimeOf(dataRoot, appVersion);
+  return runtime;
+}
+
 /** Starts the HTTP server: JSON API under /api, library and deck media and the built web app. A port
  *  something answers on already is refused, whatever address that listens on. */
 export async function startServer(config: ServerConfig): Promise<Listening> {
@@ -128,7 +135,7 @@ export { ENGINES as speechEngines, triple as targetTriple } from "./runtime/engi
  * server — also while one runs (the series' lock keeps their writes apart).
  */
 export function practiceAdmin(dataRoot: string, appVersion = "") {
-  const runtime = runtimeOf(dataRoot, appVersion);
+  const runtime = commandRuntime(dataRoot, appVersion);
   const svc = createServices({
     ...runtime,
     // A server running on the data root keeps its transfers: they are its to sweep.
@@ -174,7 +181,7 @@ const PROGRESS_MS = 5000;
  * server — also while one runs (the series' lock keeps their writes apart).
  */
 export function heardAdmin(dataRoot: string, appVersion = "") {
-  const runtime = runtimeOf(dataRoot, appVersion);
+  const runtime = commandRuntime(dataRoot, appVersion);
   const svc = createServices({
     ...runtime,
     deckTransfers: deckTransferFiles(nodeDataRoot(dataRoot), {

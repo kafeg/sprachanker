@@ -94,7 +94,7 @@ src/
                      #   its text: maxTokens), word-voice (each language's voice for words: courses' recordings proposed, one taken —
                      #   a WAV the page decoded —, its reader), local-engines (SpeechHost, VoiceStore, ReadingCache, engineSidecar),
                      #   model-downloads, sidecar (the supervisor), profile-speech, recordings (the learner's audio), heard (the source's
-                     #   answer recordings heard once into the course: a lesson's as asked, a course's in one go — `sprachanker heard`)
+                     #   answers heard into the course: a lesson's in the background, kept until written; a course's: `sprachanker heard`)
                      # - downloads: course installs (queue, progress, resume; the installer injected)
   security/          # secrets.ts (AES-GCM sealing of API keys), host.ts (Host check, CSP and security headers), encoding.ts (base64, base64url, SHA-256)
   media.ts           # Range responses for library and deck folders' media and profile recordings (a type fixed by extension,

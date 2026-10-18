@@ -1,28 +1,31 @@
 // The source's answers heard into the course: a lesson's as it asks for them, a course's in one go;
 // the answers said aloud then checked against them by the server, without a model.
 import { expect, test } from "bun:test";
-import { existsSync, readFileSync } from "node:fs";
+import { existsSync, mkdirSync, readFileSync, writeFileSync } from "node:fs";
 import { join } from "node:path";
 import { FIXTURE_SERIES } from "@sprachanker/course-fixture";
 import { openLibrary } from "@sprachanker/course-kit";
 import { nodeFs } from "@sprachanker/course-kit/node";
-import { CourseHeard } from "@sprachanker/schema";
+import { CourseHeard, type LessonKey } from "@sprachanker/schema";
 import { ulid } from "ulid";
 import { mediaBlob } from "../src/runtime/bun.ts";
 import { createContent } from "../src/services/content.ts";
-import { createHeard } from "../src/services/heard.ts";
+import { createHeard, type HeardFiles } from "../src/services/heard.ts";
 import type { SpeechHost } from "../src/services/local-engines.ts";
 import { createSpeech } from "../src/services/speech.ts";
 import { setup } from "./setup.ts";
-import { heardFiles } from "./storage.ts";
+import { heardFiles, withSeriesLock } from "./storage.ts";
 
 const LESSON = `${FIXTURE_SERIES}/demo/00-02`;
 const EXERCISE = `${LESSON}/ex-02`;
 const FRAMED = "media/audio/guten-abend-danke.mp3";
 const FREE = "media/audio/hallo-guten-tag.mp3";
+const MODEL = "large-v3-turbo-q5_0";
+const url = `/api/lesson/heard?${new URLSearchParams({ series: FIXTURE_SERIES, key: LESSON })}`;
 
-/** Whisper installed: what it hears of a fixture recording is said by its name (`said`). */
-function machine(said: Record<string, string>) {
+/** Whisper installed: what it hears of a fixture recording is said by its name (`said`); one named
+ *  in `failing` it fails to hear. */
+function machine(said: Record<string, string>, failing: string[] = []) {
   const heard: string[] = [];
   const speech: SpeechHost = {
     freePort: async () => 9913,
@@ -38,6 +41,7 @@ function machine(said: Record<string, string>) {
       const file = (init.body as FormData).get("file") as Blob;
       const name = (await file.text()).replace("sprachanker-fixture:", "");
       heard.push(name);
+      if (failing.includes(name)) return new Response("no", { status: 500 });
       return Response.json({ text: ` ${said[name] ?? ""}\n` });
     }
     return new Response("no", { status: 500 });
@@ -50,21 +54,58 @@ const SAID = {
   "hallo-guten-tag.mp3": "Hallo! Guten Tag!",
 };
 
+/** Until `done` holds (the background's work), a few seconds at most. */
+async function until(done: () => boolean | Promise<boolean>) {
+  for (let i = 0; i < 400; i++) {
+    if (await done()) return;
+    await Bun.sleep(5);
+  }
+  throw new Error("never done");
+}
+
+/** What a lesson's request gives once nothing is being heard any more. */
+async function heardAll(ask: () => Promise<{ heard: Record<string, string>; hearing: boolean }>) {
+  let last = await ask();
+  await until(async () => {
+    last = await ask();
+    return !last.hearing;
+  });
+  return last.heard;
+}
+
+const fileOf = (root: string) => join(root, "library", FIXTURE_SERIES, "heard/demo.json");
+
+/** The heard service over a test library, `files` its writes. */
+async function service(m: ReturnType<typeof machine>, files?: (root: string) => HeardFiles) {
+  const { root } = await setup();
+  const library = openLibrary(nodeFs, join(root, "library"));
+  const heard = createHeard({
+    library,
+    content: createContent(library),
+    speech: createSpeech({ host: m.speech, fetch: m.fetch }),
+    files: (files ?? heardFiles)(root),
+    mediaBlob,
+    now: () => 5,
+    sleep: async () => {},
+  });
+  const lesson = () => heard.lesson(FIXTURE_SERIES, LESSON as LessonKey, MODEL);
+  return { root, heard, lesson };
+}
+
 test("a lesson's answer recordings heard the first time it asks, written into the course, then checked against", async () => {
   const m = machine(SAID);
   const api = await setup({ fetch: m.fetch, speech: m.speech });
   const { getJson, sendJson, root } = api;
-  const url = `/api/lesson/heard?${new URLSearchParams({ series: FIXTURE_SERIES, key: LESSON })}`;
-  expect((await getJson(url)).heard).toEqual({
+  expect(await heardAll(() => getJson(url))).toEqual({
     [FRAMED]: "Guten Abend! Danke, gut. Und dir?",
     [FREE]: "Hallo! Guten Tag!",
   });
-  const file = join(root, "library", FIXTURE_SERIES, "heard/demo.json");
-  const stored = CourseHeard.parse(JSON.parse(readFileSync(file, "utf8")));
+  await until(() => existsSync(fileOf(root)));
+  const stored = CourseHeard.parse(JSON.parse(readFileSync(fileOf(root), "utf8")));
   expect(stored).toMatchObject({ course: `${FIXTURE_SERIES}/demo`, lang: "de" });
-  expect(stored.recordings[FRAMED]?.model).toBe("large-v3-turbo-q5_0");
+  expect(stored.recordings[FRAMED]?.model).toBe(MODEL);
   // Asked again: from the course, nothing heard anew.
-  await getJson(url);
+  expect(await getJson(url)).toMatchObject({ hearing: false });
   expect(m.heard.sort()).toEqual(["guten-abend-danke.mp3", "hallo-guten-tag.mp3"]);
 
   // The server's outcome of an answer said aloud: judged against it, in no score.
@@ -97,23 +138,104 @@ test("a profile that hears no speech gets what is there, nothing heard for it", 
   const m = machine(SAID);
   const { getJson, send } = await setup({ fetch: m.fetch, speech: m.speech });
   await send("PUT", "/api/settings", { key: "speech.recognition", value: false });
-  const url = `/api/lesson/heard?${new URLSearchParams({ series: FIXTURE_SERIES, key: LESSON })}`;
-  expect((await getJson(url)).heard).toEqual({});
+  expect(await getJson(url)).toEqual({ heard: {}, hearing: false });
   expect(m.heard).toEqual([]);
+});
+
+test("the series' lock held (a download) keeps no request waiting: answered from what was heard, written once it is let go", async () => {
+  const m = machine(SAID);
+  const api = await setup({ fetch: m.fetch, speech: m.speech });
+  let release = () => {};
+  const held = withSeriesLock(
+    join(api.root, "library"),
+    FIXTURE_SERIES,
+    () => new Promise<void>((r) => (release = r)),
+  );
+  expect(Object.keys(await heardAll(() => api.getJson(url))).sort()).toEqual([FRAMED, FREE]);
+  expect(existsSync(fileOf(api.root))).toBe(false);
+  // The server checks answers by what it heard, not written yet.
+  const { run } = await api.sendJson("POST", "/api/runs", {
+    series: FIXTURE_SERIES,
+    lessonKey: LESSON,
+    edition: "ru-de",
+  });
+  const said = await api.sendJson("POST", `/api/runs/${run.id}/events`, {
+    events: [
+      {
+        id: ulid(),
+        type: "answered",
+        itemKey: `${EXERCISE}#3`,
+        payload: { answer: { transcript: "Guten Abend, danke gut, und dir" }, attempt: 1, ms: 1 },
+      },
+    ],
+  });
+  expect(Object.values(said.outcomes)[0]).toMatchObject({ spoken: "correct" });
+  release();
+  await held;
+  await until(() => existsSync(fileOf(api.root)));
+});
+
+test("a write another process refused is kept and tried again; a recording that failed is not heard again", async () => {
+  const m = machine(SAID, ["hallo-guten-tag.mp3"]);
+  let busy = true;
+  const { root, lesson } = await service(m, (root) => ({
+    add: (series, heard) =>
+      busy
+        ? Promise.reject(Object.assign(new Error("busy"), { code: "SERIES_BUSY" }))
+        : heardFiles(root).add(series, heard),
+  }));
+  expect(await heardAll(lesson)).toEqual({ [FRAMED]: "Guten Abend! Danke, gut. Und dir?" });
+  expect(existsSync(fileOf(root))).toBe(false);
+  busy = false;
+  expect(await lesson()).toMatchObject({ hearing: false });
+  await until(() => existsSync(fileOf(root)));
+  expect(m.heard.sort()).toEqual(["guten-abend-danke.mp3", "hallo-guten-tag.mp3"]);
+});
+
+test("what Whisper adds is left out; a transcript longer than a file keeps fails alone", async () => {
+  const m = machine({
+    "guten-abend-danke.mp3":
+      "Guten Abend! Danke, gut. Und dir? Untertitel im Auftrag des ZDF, 2020",
+    "hallo-guten-tag.mp3": "Hallo ".repeat(1000),
+  });
+  const { root, lesson } = await service(m);
+  expect(await heardAll(lesson)).toEqual({ [FRAMED]: "Guten Abend! Danke, gut. Und dir?" });
+  await until(() => existsSync(fileOf(root)));
+  expect(
+    Object.keys(CourseHeard.parse(JSON.parse(readFileSync(fileOf(root), "utf8"))).recordings),
+  ).toEqual([FRAMED]);
+});
+
+test("a file of recordings heard that does not read: answers checked without it, heard anew over it", async () => {
+  const m = machine(SAID);
+  const api = await setup({ fetch: m.fetch, speech: m.speech });
+  mkdirSync(join(api.root, "library", FIXTURE_SERIES, "heard"), { recursive: true });
+  writeFileSync(fileOf(api.root), '{"format": 9');
+  const { run } = await api.sendJson("POST", "/api/runs", {
+    series: FIXTURE_SERIES,
+    lessonKey: LESSON,
+    edition: "ru-de",
+  });
+  const res = await api.send("POST", `/api/runs/${run.id}/events`, {
+    events: [
+      {
+        id: ulid(),
+        type: "answered",
+        itemKey: `${EXERCISE}#3`,
+        payload: { answer: { transcript: "Guten Abend" }, attempt: 1, ms: 1 },
+      },
+    ],
+  });
+  expect(res.status).toBe(200);
+  expect(Object.keys(await heardAll(() => api.getJson(url))).sort()).toEqual([FRAMED, FREE]);
+  await until(
+    () => CourseHeard.safeParse(JSON.parse(readFileSync(fileOf(api.root), "utf8"))).success,
+  );
 });
 
 test("a course heard in one go: counted, a recording that completes none of its item's frame not used, heard again on request", async () => {
   const m = machine({ ...SAID, "guten-abend-danke.mp3": "Guten Abend." });
-  const { root } = await setup();
-  const library = openLibrary(nodeFs, join(root, "library"));
-  const heard = createHeard({
-    library,
-    content: createContent(library),
-    speech: createSpeech({ host: m.speech, fetch: m.fetch }),
-    files: heardFiles(root),
-    mediaBlob,
-    now: () => 5,
-  });
+  const { root, heard } = await service(m);
   const report = await heard.course(FIXTURE_SERIES, "demo");
   expect(report).toMatchObject({
     course: `${FIXTURE_SERIES}/demo`,
@@ -128,5 +250,5 @@ test("a course heard in one go: counted, a recording that completes none of its 
   // Again: nothing left to hear; with `again`, every one heard anew.
   expect((await heard.course(FIXTURE_SERIES, "demo")).heard).toBe(0);
   expect((await heard.course(FIXTURE_SERIES, "demo", { again: true })).heard).toBe(2);
-  expect(existsSync(join(root, "library", FIXTURE_SERIES, "heard/demo.json"))).toBe(true);
+  expect(existsSync(fileOf(root))).toBe(true);
 });

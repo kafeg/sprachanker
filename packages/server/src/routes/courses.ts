@@ -31,14 +31,14 @@ export function courseRoutes() {
           return c.json({ lesson, locale: locale ?? null });
         },
       )
-      // The source's answers a lesson's spoken answers are checked by, as heard (made the first
-      // time, while the profile hears speech): by media path.
+      // The source's answers a lesson's spoken answers are checked by, as heard so far (made the
+      // first time, while the profile hears speech): by media path; `hearing` while more come.
       .get(
         "/lesson/heard",
         zod("query", z.object({ series: SeriesKey, key: LessonKey })),
         async (c) => {
           const { series, key } = c.req.valid("query");
-          return c.json({ heard: await c.var.s.heard.lesson(series, key) });
+          return c.json(await c.var.s.heard.lesson(series, key));
         },
       )
       // What can be downloaded, and the downloads (first download, completing it, syncing: one job).

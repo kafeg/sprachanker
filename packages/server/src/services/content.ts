@@ -100,12 +100,19 @@ export function createContent(library: LibraryView) {
     );
 
   const heardKept = createOnce<Record<string, string>>({ keep: true });
-  /** What a course's recordings of the source's answers say, heard once (by media path); none yet:
-   *  empty. */
+  /** What a course's recordings of the source's answers say, heard once (by media path); none yet,
+   *  or a file that does not read (logged; heard again over it): empty — an answer is checked
+   *  without them, never refused. */
   const heard = (series: string, course: string) =>
     heardKept(
       `${series}|${course}`,
-      async () => heardTexts(await library.heard(series, course)),
+      async () =>
+        heardTexts(
+          await library.heard(series, course).catch((error: unknown) => {
+            console.error(`reading the recordings heard of ${series}/${course}:`, error);
+            return undefined;
+          }),
+        ),
       library.heardStamp(series, course),
     );
 

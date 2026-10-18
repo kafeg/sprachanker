@@ -88,10 +88,14 @@ export interface LessonStart {
 export function createLessons({
   store,
   content,
+  heard = content.heard,
   started,
 }: {
   store: RunStore;
   content: Content;
+  /** What a course's recordings of the source's answers say, heard (by media path): as written,
+   *  and heard since (services/heard.ts). */
+  heard?: (series: string, course: string) => Promise<Record<string, string>>;
   /** Told once a lesson's new run is started — not when one is resumed (its AI practice's next variants taken). */
   started?: (lesson: LessonStart) => void;
 }) {
@@ -402,7 +406,7 @@ export function createLessons({
       // Answers are checked in the language the edition teaches (case rules differ); one said aloud
       // against the source's answer as heard, where it was.
       const target = parseEditionId(row.edition).target;
-      const heard = await content.heard(series, parseLessonKey(lesson.key).courseId);
+      const texts = await heard(series, parseLessonKey(lesson.key).courseId);
       // An exercise's snapshot is kept with the first time it was shown in the run.
       const snapshotted = new Set(
         store
@@ -421,7 +425,7 @@ export function createLessons({
             const { exercise, n } = itemOf(e.itemKey);
             let outcome: Outcome;
             try {
-              outcome = checkItem(exercise, n - 1, e.payload.answer, target, heard);
+              outcome = checkItem(exercise, n - 1, e.payload.answer, target, texts);
             } catch {
               throw new ServiceError("answer_does_not_fit");
             }

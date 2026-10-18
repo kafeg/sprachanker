@@ -175,7 +175,12 @@ function profileServices(
   }
   // The lesson's AI practice taken as it starts (the prep is made below, with the AI's services).
   let lessonStarted: (lesson: LessonStart) => void = () => {};
-  const lessons = createLessons({ store, content, started: (lesson) => lessonStarted(lesson) });
+  const lessons = createLessons({
+    store,
+    content,
+    heard: shared.heard.texts,
+    started: (lesson) => lessonStarted(lesson),
+  });
   const exams = createExams({ store, content, settings, now });
   const cards = createCards({
     cards: cardStore,
@@ -267,7 +272,7 @@ function profileServices(
     lessonContext,
     lessonRun: lessons.lessonRun,
     store,
-    heard: (series, lessonKey) => content.heard(series, parseLessonKey(lessonKey).courseId),
+    heard: (series, lessonKey) => shared.heard.texts(series, parseLessonKey(lessonKey).courseId),
     hear: speechOfProfile.hearing({
       file: (series, path) => config.library.mediaFile(series, path),
       blob: config.mediaBlob,
@@ -384,11 +389,13 @@ function profileServices(
     llm,
     explain,
     speaking,
-    /** The source's answers a lesson's items are checked by, as heard: those not heard yet heard
-     *  first while this profile hears speech. */
+    /** The source's answers a lesson's items are checked by, as heard so far: those not heard yet
+     *  heard in the background, with this profile's model while it hears speech. */
     heard: {
-      lesson: (series: string, lessonKey: LessonKey) =>
-        shared.heard.lesson(series, lessonKey, !!speechOfProfile.state().recognition),
+      lesson: (series: string, lessonKey: LessonKey) => {
+        const { recognition, model } = speechOfProfile.state();
+        return shared.heard.lesson(series, lessonKey, (recognition && model) || undefined);
+      },
     },
     examRating,
     examConversation,
