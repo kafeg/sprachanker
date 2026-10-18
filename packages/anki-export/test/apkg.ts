@@ -24,6 +24,14 @@ export const bunApkgRuntime: ApkgRuntime = {
       close: () => db.close(),
     };
   },
+  newSqlite() {
+    const db = new Database(":memory:");
+    return {
+      run: (sql, params = []) => void db.run(sql, params),
+      bytes: () => new Uint8Array(db.serialize()),
+      close: () => db.close(),
+    };
+  },
   zstd(bytes, max) {
     try {
       return new Uint8Array(zstdDecompressSync(bytes, { maxOutputLength: max }));

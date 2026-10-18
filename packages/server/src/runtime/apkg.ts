@@ -1,5 +1,5 @@
-// What reading an .apkg needs of Bun: SQLite from bytes, zstd (the phone app gives sql.js and a
-// zstd decoder of its own).
+// What reading and writing an .apkg needs of Bun: SQLite from bytes and in memory, zstd (the phone
+// app gives sql.js and a zstd decoder of its own).
 import { Database } from "bun:sqlite";
 import { zstdDecompressSync } from "node:zlib";
 import type { ApkgRuntime } from "@sprachanker/anki-export";
@@ -9,6 +9,14 @@ export const apkgRuntime: ApkgRuntime = {
     const db = Database.deserialize(bytes, { readonly: true });
     return {
       all: (sql) => db.query(sql).all() as Array<Record<string, unknown>>,
+      close: () => db.close(),
+    };
+  },
+  newSqlite() {
+    const db = new Database(":memory:");
+    return {
+      run: (sql, params = []) => void db.run(sql, params),
+      bytes: () => new Uint8Array(db.serialize()),
       close: () => db.close(),
     };
   },

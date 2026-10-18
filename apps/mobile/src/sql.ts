@@ -130,11 +130,19 @@ function declaredSize(b: Uint8Array): number | undefined {
   return size === 2 ? n + 256 : n;
 }
 
-/** What reading an .apkg needs of the phone: sql.js from bytes, fzstd. */
+/** What reading and writing an .apkg needs of the phone: sql.js from bytes and new, fzstd. */
 export const phoneApkg: ApkgRuntime = {
   openSqlite(bytes) {
     const db = new (sqlJsNow().Database)(bytes);
     return { all: (sql) => rows(db, sql, []), close: () => db.close() };
+  },
+  newSqlite() {
+    const db = new (sqlJsNow().Database)();
+    return {
+      run: (sql, params = []) => void db.run(sql, params),
+      bytes: () => db.export(),
+      close: () => db.close(),
+    };
   },
   zstd(bytes, max) {
     const size = declaredSize(bytes);

@@ -12,8 +12,17 @@ export interface SqliteReader {
   close(): void;
 }
 
+/** A new database in memory, written by statements, then its file's bytes; closed once read. */
+export interface SqliteWriter {
+  run(sql: string, params?: Array<string | number | null>): void;
+  bytes(): Uint8Array;
+  close(): void;
+}
+
 export interface ApkgRuntime {
   openSqlite(bytes: Uint8Array): SqliteReader;
+  /** A database to write a package's collection into. */
+  newSqlite(): SqliteWriter;
   /** The bytes decompressed; undefined when they would pass `max` bytes. */
   zstd(bytes: Uint8Array, max: number): Uint8Array | undefined;
 }
