@@ -11,7 +11,7 @@ apps/web/src/
   fonts.css        # the faces bundled from @fontsource (Fira: Latin, Cyrillic, Greek; Arabic, Devanagari; Chinese: the system's)
   routes/          # router.tsx (code-based TanStack Router: the gate, then the pages, each but Courses and
                    # Exams loaded when first opened — page.tsx: lazy pages, a failed page's error): courses (/, /downloaded, /catalog), review (/review,
-                   # /review/decks — decks.tsx: a row a deck, its menu's "Export to a file" (made ready, then downloaded) —, /review/words — words.tsx), exams (/exams, /exams/downloaded,
+                   # /review/decks — decks.tsx: a row a deck, its menu's "Export to a file" and "Export for Anki (.apkg)" — a course's in each edition — (made ready, then downloaded) —, /review/words — words.tsx), exams (/exams, /exams/downloaded,
                    # /exams/catalog), course (its map; the course preparation's button among its actions and the panel it opens, an optional feature's steps in it: its `prep` slot), settings, storage (Settings → General's storage),
                    # runs (the lesson and exam runs with the assistant's slots)
   courses/         # course cards (on library/card), the pair and course filters (filterCourses, pure), the course page's hero (progress, source, stats, integrity, sync)
@@ -49,7 +49,7 @@ apps/web/src/
                    # understanding-text (a text, its glossed words — glossed.ts —, its questions answered), mistakes-review (mistakes gone over by type), practice-item (an item the assistant set)
   api/             # client (Hono RPC, hono/client; no codegen) + TanStack Query hooks by area: settings
                    # (the app and its addresses, the profile's settings), courses, downloads, cards, decks (imported; deck files
-                   # exported and imported; a deck's words read aloud, polled while read), notebook,
+                   # exported and imported; an .apkg exported; a deck's words read aloud, polled while read), notebook,
                    # recordings, speech, exams, session (profiles, signing in and out, devices, a profile's file), files (sent with progress, downloaded), update (a newer
                    # version; the desktop shell's install_update — Tauri's IPC, the one command it allows the page); outbox (events in
                    # order, retried, a refused batch dropped; tested), run-events (a lesson's or exam's

@@ -157,6 +157,45 @@ test("Export: a deck's file made ready by the server from its row's menu, asked 
   );
 });
 
+test("Export for Anki: every deck, a course's in each of its editions, named as the app names it; made ready, asked after, downloaded; what it holds said", async () => {
+  const asked = server((path) =>
+    path === "/api/decks/apkg"
+      ? {
+          id: "7a1c2a3b-0000-4000-8000-000000000001",
+          fileName: "sprachanker.test-demo-en-2026-10-19.apkg",
+          bytes: 4096,
+          notes: 5,
+          withAudio: 3,
+        }
+      : {},
+  );
+  // A course's words, nothing made for them yet: for Anki all the same.
+  const { view: rendered, downloads } = decksTab(false);
+  const view = await rendered;
+  await waitFor(() => expect(view.getByText("Demo course")).toBeTruthy());
+  openMenu(view, document.getElementById(deckAnchor(`course:${COURSE}`)) as HTMLElement);
+  fireEvent.click(await view.findByRole("menuitem", { name: "Export for Anki (.apkg)" }));
+  await waitFor(() =>
+    expect(downloads).toEqual([
+      [
+        "/api/decks/apkg/7a1c2a3b-0000-4000-8000-000000000001",
+        "sprachanker.test-demo-en-2026-10-19.apkg",
+      ],
+    ]),
+  );
+  expect(asked).toEqual([
+    `POST /api/decks/apkg {"scope":"course:${COURSE}","edition":"en-de","title":"Demo course"}`,
+    "HEAD /api/decks/apkg/7a1c2a3b-0000-4000-8000-000000000001",
+  ]);
+  expect(view.getByRole("status").textContent).toBe(
+    "Downloading “sprachanker.test-demo-en-2026-10-19.apkg” (4 kB): 5 words, 3 with audio, as new cards — your progress here is not in it.",
+  );
+  // A deck to take has it too.
+  fireEvent.keyDown(document.activeElement as HTMLElement, { key: "Escape" });
+  openMenu(view, document.getElementById("deck-deck-a1-words-def456") as HTMLElement);
+  expect(await view.findByRole("menuitem", { name: "Export for Anki (.apkg)" })).toBeTruthy();
+});
+
 test("Export: a course's words' file only once audio or examples were made for them", async () => {
   const before = await decksTab(false).view;
   await waitFor(() => expect(before.getByText("Demo course")).toBeTruthy());

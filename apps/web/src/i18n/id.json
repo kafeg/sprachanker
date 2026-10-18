@@ -1078,6 +1078,9 @@
       "done": "{deck} diimpor: {words, plural, other {# kata}}."
     },
     "export": "Ekspor ke berkas",
+    "exportApkg": "Ekspor untuk Anki (.apkg)",
+    "exportApkgIn": "Ekspor untuk Anki (.apkg): {pair}",
+    "apkgStarted": "Mengunduh “{file}” ({size}): {words, plural, other {# kata}}, {audio, number} dengan audio, sebagai kartu baru — kemajuanmu di sini tidak ikut.",
     "file": {
       "new": "Kata-katanya menjadi dek yang bisa diambil setiap profil di perangkat ini, beserta audio dan contohnya.",
       "merges": "Dek ini sudah ada di sini: kata yang belum ada ditambahkan, juga audio dan contoh yang belum dimilikinya. Yang sudah ada tetap.",

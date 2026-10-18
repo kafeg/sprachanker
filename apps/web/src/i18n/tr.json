@@ -1078,6 +1078,9 @@
       "done": "{deck} içe aktarıldı: {words, plural, one {# kelime} other {# kelime}}."
     },
     "export": "Dosyaya dışa aktar",
+    "exportApkg": "Anki için dışa aktar (.apkg)",
+    "exportApkgIn": "Anki için dışa aktar (.apkg): {pair}",
+    "apkgStarted": "“{file}” indiriliyor ({size}): {words, plural, one {# kelime} other {# kelime}}, {audio, number} tanesi sesli, yeni kartlar olarak — buradaki ilerlemen içinde değil.",
     "file": {
       "new": "Kelimeleri, bu cihazdaki her profilin alabileceği bir deste olur; sesleri ve örnekleriyle birlikte.",
       "merges": "Bu deste burada zaten var: eksik kelimeleri ve sahip olmadığı sesler ile örnekler eklenir. Elindekiler kalır.",

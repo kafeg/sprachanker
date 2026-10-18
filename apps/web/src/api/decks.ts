@@ -1,7 +1,7 @@
 // Imported decks: the server's list, a deck file uploaded and previewed, its import by
 // the upload's id, a deck deleted; any deck as a file (`.sprachanker-deck`): exported, previewed and
-// imported; any deck's words read aloud by the server (polled while it reads). Taking and leaving one
-// is the profile's (cards.ts).
+// imported; any deck as an Anki package (.apkg), exported; any deck's words read aloud by the server
+// (polled while it reads). Taking and leaving one is the profile's (cards.ts).
 import { type QueryClient, useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import type { InferResponseType } from "hono/client";
 import { useEffect, useRef } from "react";
@@ -63,6 +63,25 @@ export function useExportDeck(
       const ready = await json(api.decks.export.$post({ json: { scope } }));
       await downloadReady(deckExportUrl(ready.id), "deck_export_gone");
       await download(deckExportUrl(ready.id), ready.fileName);
+      return ready;
+    },
+  });
+}
+
+/** Where a deck's Anki package made ready is downloaded (once). */
+export const deckApkgUrl = (id: string) => `/api/decks/apkg/${id}`;
+
+/** A deck the learner sees as an Anki package (.apkg) — a course's in an edition —, named there as
+ *  the app names it: made ready, asked after, then downloaded under its own name. Its name, size, its
+ *  words and those with audio. */
+export function useExportApkg(
+  download: (url: string, fileName: string) => void | Promise<void> = startDownload,
+) {
+  return useMutation({
+    mutationFn: async (input: { scope: string; edition?: string; title: string }) => {
+      const ready = await json(api.decks.apkg.$post({ json: input }));
+      await downloadReady(deckApkgUrl(ready.id), "deck_export_gone");
+      await download(deckApkgUrl(ready.id), ready.fileName);
       return ready;
     },
   });

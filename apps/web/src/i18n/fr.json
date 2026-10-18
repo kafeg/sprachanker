@@ -1078,6 +1078,9 @@
       "done": "{deck} importé : {words, plural, one {# mot} many {# de mots} other {# mots}}."
     },
     "export": "Exporter dans un fichier",
+    "exportApkg": "Exporter pour Anki (.apkg)",
+    "exportApkgIn": "Exporter pour Anki (.apkg) : {pair}",
+    "apkgStarted": "Téléchargement de « {file} » ({size}) : {words, plural, one {# mot} many {# de mots} other {# mots}}, {audio, number} avec audio, en cartes nouvelles — ta progression ici n’y est pas.",
     "file": {
       "new": "Ses mots deviennent un paquet que chaque profil de cet appareil peut prendre, avec leur audio et leurs exemples.",
       "merges": "Ce paquet est déjà ici : les mots qui lui manquent sont ajoutés, ainsi que l’audio et les exemples qu’il n’a pas. Ce qu’il a reste.",

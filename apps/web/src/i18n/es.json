@@ -1078,6 +1078,9 @@
       "done": "Importado {deck}: {words, plural, one {# palabra} other {# palabras}}."
     },
     "export": "Exportar a un archivo",
+    "exportApkg": "Exportar para Anki (.apkg)",
+    "exportApkgIn": "Exportar para Anki (.apkg): {pair}",
+    "apkgStarted": "Descargando «{file}» ({size}): {words, plural, one {# palabra} other {# palabras}}, {audio, number} con audio, como tarjetas nuevas; tu progreso de aquí no va en él.",
     "file": {
       "new": "Sus palabras se convierten en un mazo que cualquier perfil de este dispositivo puede tomar, con su audio y sus ejemplos.",
       "merges": "Este mazo ya está aquí: se añaden las palabras que le faltan, y el audio y los ejemplos que no tiene. Lo que tiene se queda.",

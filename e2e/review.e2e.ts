@@ -1,10 +1,27 @@
 // Review: tabs — Study straight on the cards, Decks (per language and course, as in Anki, the decks
 // to take, a deck file imported), My words — and the guide beside.
+import { readFileSync } from "node:fs";
 import { expect, test } from "@playwright/test";
 import { CLIENT_HEADERS } from "@sprachanker/schema";
 import { beginCourse, post, put } from "./api.ts";
 import { catalogs } from "./catalogs.ts";
 import { E2E_DECK } from "./paths.ts";
+
+/** A zip of stored entries (as the server writes them), entry by entry by the sizes their headers
+ *  give: each name with its bytes. */
+function storedEntries(zip: Buffer) {
+  const out = new Map<string, Buffer>();
+  let at = 0;
+  while (zip.readUInt32LE(at) === 0x04034b50) {
+    const size = zip.readUInt32LE(at + 18);
+    const name = zip.readUInt16LE(at + 26);
+    const extra = zip.readUInt16LE(at + 28);
+    const start = at + 30 + name + extra;
+    out.set(zip.subarray(at + 30, at + 30 + name).toString(), zip.subarray(start, start + size));
+    at = start + size;
+  }
+  return out;
+}
 
 test("review: the cards straight away, Decks to choose another, tap and keys, undo", async ({
   page,
@@ -229,6 +246,23 @@ test("a deck file imported in Decks, taken, studied as a course's deck; exported
   expect(download.suggestedFilename()).toMatch(/\.sprachanker-deck$/);
   const file = test.info().outputPath(download.suggestedFilename());
   await download.saveAs(file);
+  // For Anki too, from the same menu: the collection, then its words' audio by number.
+  await row.getByRole("button", { name: "More" }).click();
+  const forAnki = page.waitForEvent("download");
+  await page.getByRole("menuitem", { name: "Export for Anki (.apkg)" }).click();
+  const apkg = await forAnki;
+  expect(apkg.suggestedFilename()).toMatch(/\.apkg$/);
+  await expect(
+    page.getByRole("status").filter({ hasText: "3 words, 3 with audio, as new cards" }),
+  ).toBeVisible();
+  const entries = storedEntries(readFileSync(await apkg.path()));
+  expect([...entries.keys()]).toEqual(["collection.anki2", "media", "0", "1", "2"]);
+  expect(Object.keys(JSON.parse(entries.get("media")?.toString() ?? "{}"))).toEqual([
+    "0",
+    "1",
+    "2",
+  ]);
+  for (const n of ["0", "1", "2"]) expect(entries.get(n)?.subarray(0, 4).toString()).toBe("RIFF");
   await clear();
   await page.reload();
   await page.locator("input[type=file]").setInputFiles(file);

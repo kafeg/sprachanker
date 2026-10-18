@@ -1078,6 +1078,9 @@
       "done": "{deck} importado: {words, plural, =0 {# palavras} one {# palavra} other {# palavras}}."
     },
     "export": "Exportar para um arquivo",
+    "exportApkg": "Exportar para o Anki (.apkg)",
+    "exportApkgIn": "Exportar para o Anki (.apkg): {pair}",
+    "apkgStarted": "Baixando “{file}” ({size}): {words, plural, =0 {# palavras} one {# palavra} other {# palavras}}, {audio, number} com áudio, como cartões novos — seu progresso aqui não vai nele.",
     "file": {
       "new": "As palavras dele viram um baralho que qualquer perfil deste dispositivo pode pegar, com o áudio e os exemplos.",
       "merges": "Este baralho já está aqui: as palavras que faltam nele são adicionadas, junto com o áudio e os exemplos que ele não tem. O que ele tem fica.",

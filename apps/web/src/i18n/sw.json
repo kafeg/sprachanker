@@ -1078,6 +1078,9 @@
       "done": "Imeingizwa {deck}: {words, plural, one {neno #} other {maneno #}}."
     },
     "export": "Hamisha kwenye faili",
+    "exportApkg": "Hamisha kwa Anki (.apkg)",
+    "exportApkgIn": "Hamisha kwa Anki (.apkg): {pair}",
+    "apkgStarted": "Inapakua “{file}” ({size}): {words, plural, one {neno #} other {maneno #}}, {audio, number} yenye sauti, kama kadi mpya — maendeleo yako hapa hayamo ndani yake.",
     "file": {
       "new": "Maneno yake yanakuwa seti ambayo kila wasifu kwenye kifaa hiki unaweza kuchukua, pamoja na sauti na mifano yake.",
       "merges": "Seti hii tayari iko hapa: maneno inayokosa yanaongezwa, pamoja na sauti na mifano isiyokuwa nayo. Ilicho nacho kinabaki.",

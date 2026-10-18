@@ -1,8 +1,8 @@
 // Review → Decks (owner, 2026-10-15: one row a deck). Each language the profile studies, its counts
 // and Study, then its decks — a course's or an imported one —, each in a row: its counts, Study and a
-// menu (more new cards today, leave it, export it to a file, delete an imported one); how many of its
-// words are cards (the rest added); how its audio and examples stand in a line that opens what makes
-// them. Below, the decks to take — none of their words cards yet —, the same way; a deck file
+// menu (more new cards today, leave it, export it to a file or for Anki — a course's in each of its
+// editions —, delete an imported one); how many of its words are cards (the rest added); how its audio
+// and examples stand in a line that opens what makes them. Below, the decks to take — none of their words cards yet —, the same way; a deck file
 // imported above all.
 
 import { useLocation } from "@tanstack/react-router";
@@ -10,7 +10,7 @@ import { ChevronDown, MoreHorizontal, Play } from "lucide-react";
 import { useEffect, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { useDeckActions, useDeckOffers, useDecks } from "@/api/cards.ts";
-import { useDeleteDeck, useExportDeck } from "@/api/decks.ts";
+import { useDeleteDeck, useExportApkg, useExportDeck } from "@/api/decks.ts";
 import { DeckAudio } from "@/study/deck-audio.tsx";
 import { DeckImport } from "@/study/deck-import.tsx";
 import { deckAnchor } from "@/study/deck-link.tsx";
@@ -160,6 +160,7 @@ export function DecksTab({
   const actions = useDeckActions();
   const remove = useDeleteDeck();
   const exported = useExportDeck(download);
+  const apkg = useExportApkg(download);
   const bytes = useBytes();
   const name = useDeckName();
   const titleOf = useOfferTitle();
@@ -203,6 +204,19 @@ export function DecksTab({
         {t("decks.export")}
       </DropdownMenuItem>
     );
+  // Every deck for Anki: a course's in each of its editions (named as each is), named in Anki so.
+  const apkgItems = (scope: string, editions: string[]) =>
+    editions.map((edition) => {
+      const o = all.find((x) => x.scope === scope && x.edition === edition);
+      const title = o ? titleOf(o) : name(scope);
+      return (
+        <DropdownMenuItem key={edition} onSelect={() => apkg.mutate({ scope, edition, title })}>
+          {editions.length > 1
+            ? t("decks.exportApkgIn", { pair: pairName(edition) })
+            : t("decks.exportApkg")}
+        </DropdownMenuItem>
+      );
+    });
   const removeItem = (o: Offer) =>
     o.deck && (
       <DropdownMenuItem
@@ -298,6 +312,7 @@ export function DecksTab({
                             {t("decks.leave")}
                           </DropdownMenuItem>
                           {offer && exportItem(offer)}
+                          {apkgItems(deck.scope, deck.editions)}
                           {offer && removeItem(offer)}
                         </>,
                       )}
@@ -336,13 +351,13 @@ export function DecksTab({
                   >
                     {o.mine ? t("decks.takeRest", { count: o.words - o.mine }) : t("decks.take")}
                   </Button>
-                  {(exportItem(o) || o.deck) &&
-                    menu(
-                      <>
-                        {exportItem(o)}
-                        {removeItem(o)}
-                      </>,
-                    )}
+                  {menu(
+                    <>
+                      {exportItem(o)}
+                      {apkgItems(o.scope, [o.edition])}
+                      {removeItem(o)}
+                    </>,
+                  )}
                 </div>
                 <DeckExtras offer={o} scope={o.scope} />
               </li>
@@ -352,6 +367,17 @@ export function DecksTab({
       )}
       {actions.take.isError && (
         <p className="text-sm text-wrong">{errorText(t, actions.take.error)}</p>
+      )}
+      {apkg.isError && <p className="text-sm text-wrong">{errorText(t, apkg.error)}</p>}
+      {apkg.data && (
+        <p className="text-sm text-muted-foreground" role="status">
+          {t("decks.apkgStarted", {
+            file: apkg.data.fileName,
+            size: bytes(apkg.data.bytes),
+            words: apkg.data.notes,
+            audio: apkg.data.withAudio,
+          })}
+        </p>
       )}
       {exported.isError && <p className="text-sm text-wrong">{errorText(t, exported.error)}</p>}
       {exported.data && (

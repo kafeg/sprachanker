@@ -1078,6 +1078,9 @@
       "done": "Zaimportowano {deck}: {words, plural, one {# słowo} few {# słowa} many {# słów} other {# słowa}}."
     },
     "export": "Eksportuj do pliku",
+    "exportApkg": "Eksportuj dla Anki (.apkg)",
+    "exportApkgIn": "Eksportuj dla Anki (.apkg): {pair}",
+    "apkgStarted": "Pobieranie „{file}” ({size}): {words, plural, one {# słowo} few {# słowa} many {# słów} other {# słowa}}, {audio, number} z dźwiękiem, jako nowe karty — twoich postępów stąd w nim nie ma.",
     "file": {
       "new": "Jej słowa staną się talią, którą może wziąć każdy profil na tym urządzeniu, razem z audio i przykładami.",
       "merges": "Ta talia już tu jest: brakujące w niej słowa zostaną dodane, a także audio i przykłady, których nie ma. To, co ma, zostaje.",

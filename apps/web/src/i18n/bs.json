@@ -1078,6 +1078,9 @@
       "done": "Uvezen špil {deck}: {words, plural, one {# riječ} few {# riječi} other {# riječi}}."
     },
     "export": "Izvezi u datoteku",
+    "exportApkg": "Izvezi za Anki (.apkg)",
+    "exportApkgIn": "Izvezi za Anki (.apkg): {pair}",
+    "apkgStarted": "Preuzima se „{file}“ ({size}): {words, plural, one {# riječ} few {# riječi} other {# riječi}}, {audio, number} sa zvukom, kao nove kartice — tvoj napredak ovdje nije u njoj.",
     "file": {
       "new": "Njegove riječi postaju špil koji svaki profil na ovom uređaju može uzeti, sa zvukom i primjerima.",
       "merges": "Ovaj špil je već ovdje: dodaju se riječi koje mu nedostaju, kao i zvuk i primjeri koje nema. Ono što ima ostaje.",

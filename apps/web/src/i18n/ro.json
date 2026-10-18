@@ -1078,6 +1078,9 @@
       "done": "{deck} importat: {words, plural, one {# cuvânt} few {# cuvinte} other {# de cuvinte}}."
     },
     "export": "Exportă într-un fișier",
+    "exportApkg": "Exportă pentru Anki (.apkg)",
+    "exportApkgIn": "Exportă pentru Anki (.apkg): {pair}",
+    "apkgStarted": "Se descarcă „{file}” ({size}): {words, plural, one {# cuvânt} few {# cuvinte} other {# de cuvinte}}, {audio, number} cu sunet, ca fișe noi — progresul tău de aici nu e în el.",
     "file": {
       "new": "Cuvintele lui devin un pachet pe care orice profil de pe acest dispozitiv îl poate lua, cu audio și exemple.",
       "merges": "Acest pachet e deja aici: se adaugă cuvintele care îi lipsesc, precum și audio și exemplele pe care nu le are. Ce are rămâne.",

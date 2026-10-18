@@ -1078,6 +1078,9 @@
       "done": "Importálva: {deck}, {words, plural, one {# szó} other {# szó}}."
     },
     "export": "Exportálás fájlba",
+    "exportApkg": "Exportálás Ankihoz (.apkg)",
+    "exportApkgIn": "Exportálás Ankihoz (.apkg): {pair}",
+    "apkgStarted": "„{file}” letöltése ({size}): {words, plural, one {# szó} other {# szó}}, ebből {audio, number} hanggal, új kártyákként — az itteni haladásod nincs benne.",
     "file": {
       "new": "A szavai paklivá válnak, amelyet az eszköz bármelyik profilja felvehet, hanggal és példákkal együtt.",
       "merges": "Ez a pakli már itt van: a hiányzó szavai bekerülnek, és a hang meg a példák is, amelyek nincsenek meg neki. Ami megvan, marad.",

@@ -1078,6 +1078,9 @@
       "done": "Imported {deck}: {words, plural, one {# word} other {# words}}."
     },
     "export": "Export to a file",
+    "exportApkg": "Export for Anki (.apkg)",
+    "exportApkgIn": "Export for Anki (.apkg): {pair}",
+    "apkgStarted": "Downloading “{file}” ({size}): {words, plural, one {# word} other {# words}}, {audio, number} with audio, as new cards — your progress here is not in it.",
     "file": {
       "new": "Its words become a deck every profile on this device can take, with their audio and examples.",
       "merges": "This deck is here already: the words it lacks are added, with the audio and examples it has none of. What it has stays.",

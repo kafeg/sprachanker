@@ -1078,6 +1078,9 @@
       "done": "{deck} importiert: {words, plural, one {# Wort} other {# Wörter}}."
     },
     "export": "Als Datei exportieren",
+    "exportApkg": "Für Anki exportieren (.apkg)",
+    "exportApkgIn": "Für Anki exportieren (.apkg): {pair}",
+    "apkgStarted": "„{file}“ wird heruntergeladen ({size}): {words, plural, one {# Wort} other {# Wörter}}, {audio, number} mit Audio, als neue Karten – dein Fortschritt hier ist nicht darin.",
     "file": {
       "new": "Seine Wörter werden ein Stapel, den jedes Profil auf diesem Gerät übernehmen kann, mit Audio und Beispielen.",
       "merges": "Diesen Stapel gibt es hier schon: Die Wörter, die ihm fehlen, kommen dazu, ebenso Audio und Beispiele, die er nicht hat. Was er hat, bleibt.",
