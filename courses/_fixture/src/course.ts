@@ -318,6 +318,14 @@ export const speakingLesson: Lesson = {
       items: [
         { text: "Guten Tag!", media: { audio: audio("guten-tag") } },
         { answerAudio: audio("hallo-guten-tag") },
+        // A question answered after a frame of the source's, its answer recorded (heard into the
+        // course: the engine checks what is said against it).
+        {
+          prompt: "Guten Abend. Wie geht es dir?",
+          media: { audio: audio("wie-geht-es-dir") },
+          reference: ["Guten Abend. Danke, gut ..."],
+          answerAudio: audio("guten-abend-danke"),
+        },
       ],
     }),
     exercise(SPEAKING, 3, {

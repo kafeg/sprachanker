@@ -8,6 +8,7 @@ import {
   type Exam,
   type ExamKey,
   type ExamSources,
+  heardTexts,
   type Lesson,
   type LessonKey,
   type LocaleCourse,
@@ -98,8 +99,19 @@ export function createContent(library: LibraryView) {
       library.lessonStamp(series, key, edition),
     );
 
+  const heardKept = createOnce<Record<string, string>>({ keep: true });
+  /** What a course's recordings of the source's answers say, heard once (by media path); none yet:
+   *  empty. */
+  const heard = (series: string, course: string) =>
+    heardKept(
+      `${series}|${course}`,
+      async () => heardTexts(await library.heard(series, course)),
+      library.heardStamp(series, course),
+    );
+
   return {
     lesson,
+    heard,
     /** What a run going on reads of its course (`read`): refused `course_gone` (409) when its course
      *  (`course`, the run's) is not on this computer any more — the run's events wait for it to be
      *  downloaded again. */

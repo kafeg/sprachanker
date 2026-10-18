@@ -37,6 +37,7 @@ import { parseJson } from "./services/stored.ts";
 import { courseTransferFiles } from "./storage/course-transfer.ts";
 import { deckTransferFiles } from "./storage/deck-transfer.ts";
 import { deckFiles } from "./storage/decks.ts";
+import { heardFiles } from "./storage/heard.ts";
 import {
   courseInstaller,
   type ImportRequest,
@@ -80,6 +81,7 @@ function runtimeOf(dataRoot: string, appVersion: string, profileDbWorker?: strin
     courseTransfers: courseTransferFiles(data),
     deckTransfers: deckTransferFiles(data),
     practice: practiceFiles(data),
+    heard: heardFiles(data),
     appVersion,
     // Outside the data root, so a copied data folder does not carry usable API keys.
     secretKey: secretKey(join(appDataDir(), "secret.key")),
@@ -165,6 +167,33 @@ export function practiceAdmin(dataRoot: string, appVersion = "") {
   };
 }
 const PROGRESS_MS = 5000;
+
+/**
+ * A course's recordings of the source's answers heard into it from the command line (`sprachanker
+ * heard`), with the best Whisper model installed: the services over the data root without the HTTP
+ * server — also while one runs (the series' lock keeps their writes apart).
+ */
+export function heardAdmin(dataRoot: string, appVersion = "") {
+  const runtime = runtimeOf(dataRoot, appVersion);
+  const svc = createServices({
+    ...runtime,
+    deckTransfers: deckTransferFiles(nodeDataRoot(dataRoot), {
+      sweeps: () => !serverOn(dataRoot),
+    }),
+    fetch,
+    now: Date.now,
+    random: Math.random,
+    listensOn: { hostname: "127.0.0.1", port: 0 },
+  });
+  return {
+    courses: () => runtime.library.courses(),
+    hear: (
+      series: string,
+      course: string,
+      options: { again?: boolean; progress?: (done: number, total: number) => void },
+    ) => svc.heard.course(series, course, options),
+  };
+}
 
 /** Checks every installed course of the data root (course-kit verify). */
 export const verifyData = (dataRoot: string) =>

@@ -27,6 +27,7 @@ import type { CourseTransferFiles } from "./services/course-transfer.ts";
 import type { DeckTransferFiles } from "./services/deck-transfer.ts";
 import type { DeckFiles } from "./services/decks.ts";
 import type { CourseInstaller } from "./services/downloads.ts";
+import type { HeardFiles } from "./services/heard.ts";
 import { createServices } from "./services/index.ts";
 import type { CliHost, LmStudioHost } from "./services/llm.ts";
 import type { ReadingCache, SpeechHost } from "./services/local-engines.ts";
@@ -59,6 +60,8 @@ export interface AppConfig {
   deckTransfers: DeckTransferFiles;
   /** A course's practice written (runtime adapter: `library/<series>/practice/`). */
   practice?: PracticeFiles;
+  /** A course's recordings heard written (runtime adapter: `library/<series>/heard/`). */
+  heard?: HeardFiles;
   appVersion: string;
   /** 32-byte key that seals the profiles' API keys. */
   secretKey: Uint8Array;

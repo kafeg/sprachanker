@@ -7,6 +7,7 @@ import { bunProfileSql } from "../src/runtime/profile-sql.ts";
 import * as course from "../src/storage/course-transfer.ts";
 import * as deck from "../src/storage/deck-transfer.ts";
 import * as decks from "../src/storage/decks.ts";
+import * as heard from "../src/storage/heard.ts";
 import * as installer from "../src/storage/installer.ts";
 import * as practice from "../src/storage/practice.ts";
 import * as profile from "../src/storage/profile-transfer.ts";
@@ -18,6 +19,7 @@ export const deckTransferFiles = (root: string, options?: TransferOptions) =>
   deck.deckTransferFiles(nodeDataRoot(root), options);
 export const deckFiles = (root: string) => decks.deckFiles(nodeDataRoot(root), mediaBlob);
 export const practiceFiles = (root: string) => practice.practiceFiles(nodeDataRoot(root));
+export const heardFiles = (root: string) => heard.heardFiles(nodeDataRoot(root));
 export const profileTransferFiles = (
   root: string,
   options?: TransferOptions & { settleMs?: number },

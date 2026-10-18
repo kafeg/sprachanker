@@ -21,6 +21,7 @@ import {
   courseTransferFiles,
   deckFiles,
   deckTransferFiles,
+  heardFiles,
   practiceFiles,
   profileTransferFiles,
 } from "./storage.ts";
@@ -79,6 +80,7 @@ export async function setup(
     courseTransfers: options.courseTransfers?.(root) ?? courseTransferFiles(root, ROOMY),
     deckTransfers: deckTransferFiles(root, ROOMY),
     practice: practiceFiles(root),
+    heard: heardFiles(root),
     appVersion: "test",
     secretKey: new Uint8Array(32).fill(7),
     fetch: options.fetch,

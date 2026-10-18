@@ -10,6 +10,7 @@ import {
   type LessonKey,
   lessonOrder,
   parseEditionId,
+  parseLessonKey,
 } from "@sprachanker/schema";
 import type { ProfileDb } from "../db/profile/db.ts";
 import type { ServerDb } from "../db/server/db.ts";
@@ -38,6 +39,7 @@ import { createExams } from "./exams.ts";
 import { createExplain } from "./explain.ts";
 import { createFinds } from "./finds.ts";
 import { createGoingOver } from "./going-over.ts";
+import { createHeard, type Heard, type HeardFiles } from "./heard.ts";
 import { createLessonContext } from "./lesson-context.ts";
 import { createLessonJournal } from "./lesson-journal.ts";
 import { createLessons, type LessonStart } from "./lessons.ts";
@@ -104,6 +106,8 @@ export interface ServicesConfig {
   deckTransfers: DeckTransferFiles;
   /** A course's practice written (runtime adapter); without it none is made. */
   practice?: PracticeFiles;
+  /** A course's recordings heard written (runtime adapter); without it none is heard. */
+  heard?: HeardFiles;
   /** The imported decks' folders, and what reading a package needs of the runtime. */
   decks: DeckFiles;
   apkg: ApkgRuntime;
@@ -136,6 +140,7 @@ function profileServices(
     qwenTts: QwenTts;
     wordVoice: WordVoice;
     practiceJobs: PracticeJobs;
+    heard: Heard;
   },
   profileId: string,
   db: ProfileDb,
@@ -262,6 +267,7 @@ function profileServices(
     lessonContext,
     lessonRun: lessons.lessonRun,
     store,
+    heard: (series, lessonKey) => content.heard(series, parseLessonKey(lessonKey).courseId),
     hear: speechOfProfile.hearing({
       file: (series, path) => config.library.mediaFile(series, path),
       blob: config.mediaBlob,
@@ -378,6 +384,12 @@ function profileServices(
     llm,
     explain,
     speaking,
+    /** The source's answers a lesson's items are checked by, as heard: those not heard yet heard
+     *  first while this profile hears speech. */
+    heard: {
+      lesson: (series: string, lessonKey: LessonKey) =>
+        shared.heard.lesson(series, lessonKey, !!speechOfProfile.state().recognition),
+    },
     examRating,
     examConversation,
     examples,
@@ -545,6 +557,15 @@ export function createServices(config: ServicesConfig) {
   // Downloads a restart interrupted go on.
   downloads.resume().catch((error: unknown) => console.error("resuming downloads:", error));
   const speech = createSpeech({ host: config.speech, fetch: config.fetch });
+  // The source's answers heard once into the courses, the same for every profile.
+  const heard = createHeard({
+    library: config.library,
+    content,
+    speech,
+    ...(config.heard && { files: config.heard }),
+    mediaBlob: config.mediaBlob,
+    now,
+  });
   const readAloud = createReadAloud({ host: config.piper, readings: config.readings });
   const qwenTts = createQwenTts({
     host: config.speech,
@@ -617,6 +638,7 @@ export function createServices(config: ServicesConfig) {
     downloads,
     courseTransfer,
     profileTransfer,
+    heard,
     speech,
     network: createNetwork({ host: config.network, listensOn: config.listensOn, now }),
     profiles,
@@ -646,6 +668,7 @@ export function createServices(config: ServicesConfig) {
             speech,
             readAloud,
             practiceJobs,
+            heard,
             qwenTts,
             wordVoice,
           },

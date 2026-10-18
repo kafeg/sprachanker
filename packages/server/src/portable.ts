@@ -20,6 +20,7 @@ export type { SidecarProcess } from "./services/sidecar.ts";
 export { courseTransferFiles } from "./storage/course-transfer.ts";
 export { deckTransferFiles } from "./storage/deck-transfer.ts";
 export { deckFiles } from "./storage/decks.ts";
+export { heardFiles } from "./storage/heard.ts";
 export { courseInstaller } from "./storage/installer.ts";
 export { downloadChecked, modelStore, removeParts, voiceStore } from "./storage/model-files.ts";
 export { practiceFiles } from "./storage/practice.ts";

@@ -14,6 +14,7 @@ import {
   type DataRoot,
   deckFiles,
   deckTransferFiles,
+  heardFiles,
   type MediaBlob,
   modelStore,
   practiceFiles,
@@ -122,6 +123,7 @@ function storageOver(
     courseTransfers: courseTransferFiles(data),
     deckTransfers: deckTransferFiles(data),
     practice: practiceFiles(data),
+    heard: heardFiles(data),
     installer: {
       ...installer,
       run: (series, course, hooks) =>

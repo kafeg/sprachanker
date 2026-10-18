@@ -120,8 +120,8 @@ test("speaking: a source's answer to say word for word is the word diff's (404);
         (p: { exercise?: { key: string } }) => p.exercise?.key === EXERCISE,
       );
       exercise.items.push(
-        { key: `${EXERCISE}#3`, prompt: "Wie geht's?", reference: ["Mir geht es gut."] },
-        { key: `${EXERCISE}#4`, prompt: "Was trinkst du?", reference: ["Ich trinke …"] },
+        { key: `${EXERCISE}#4`, prompt: "Wie geht's?", reference: ["Mir geht es gut."] },
+        { key: `${EXERCISE}#5`, prompt: "Was trinkst du?", reference: ["Ich trinke …"] },
       );
       writeFileSync(path, JSON.stringify(lesson));
     },
@@ -146,11 +146,11 @@ test("speaking: a source's answer to say word for word is the word diff's (404);
       runId,
       language: "ru",
     });
-  expect((await ask(2)).status).toBe(404);
+  expect((await ask(3)).status).toBe(404);
   expect(m.bodies).toHaveLength(0);
-  const framed = await ask(3);
+  const framed = await ask(4);
   expect(framed.status).toBe(200);
-  expect(await framed.json()).toMatchObject({ itemKey: `${EXERCISE}#4` });
+  expect(await framed.json()).toMatchObject({ itemKey: `${EXERCISE}#5` });
   const prompt = (m.bodies[0]?.messages as Array<{ content: string }> | undefined)?.[1]?.content;
   expect(prompt).toContain("The source's answer: Ich trinke …");
 });

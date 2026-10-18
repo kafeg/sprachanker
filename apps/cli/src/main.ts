@@ -8,6 +8,7 @@ import {
   courseAdmin,
   directoryAssets,
   fileAssets,
+  heardAdmin,
   importCourse,
   practiceAdmin,
   profileAdmin,
@@ -57,6 +58,10 @@ Commands:
          a course's AI practice made by a profile's model and voices, as the course page's button
          makes it: each lesson's steps filled up to --count variants (started again: goes on where it stopped)
          (Listening and role-plays recorded by Qwen3-TTS); --status: how much there is
+  heard [<series/course>...] [--again] [--data <dir>]
+         the recordings of the source's answers heard once by Whisper (the best model installed) into
+         each course given, else every one: answers said aloud are checked against them without a
+         model; the app hears a lesson's by itself the first time; --again: every one heard anew
   version
          the version of this binary
   backup [--data <dir>] --to <folder>
@@ -499,6 +504,46 @@ async function practiceCommand(args: string[]): Promise<void> {
   process.exit();
 }
 
+async function heardCommand(args: string[]): Promise<void> {
+  const { values, positionals } = parseArgs({
+    args,
+    allowPositionals: true,
+    options: { data: { type: "string" }, again: { type: "boolean", default: false } },
+  });
+  const admin = heardAdmin(resolveDataRoot(values.data), VERSION);
+  const keys = positionals.length
+    ? positionals
+    : admin.courses().map((c) => `${c.series}/${c.course}`);
+  for (const key of keys) {
+    const course = admin.courses().find((c) => `${c.series}/${c.course}` === key);
+    if (!course) throw new Error(`no course ${key} (sprachanker courses lists them)`);
+    let shown = 0;
+    const report = await admin
+      .hear(course.series, course.course, {
+        again: values.again,
+        progress: (done, total) => {
+          if (done - shown >= 50 || done === total) {
+            shown = done;
+            console.log(`${key}: ${done}/${total}`);
+          }
+        },
+      })
+      .catch((error: unknown) => {
+        throw inWords(error, {
+          speech_unavailable:
+            "no Whisper model on this computer: download one in the app (Settings → Speech)",
+        });
+      });
+    if (!report.items) continue;
+    console.log(
+      `${key}: ${report.items} items with the source's answer recorded, ${report.recordings} recordings — ${report.heard} heard now, ${report.reused} taken from another course, ${report.failed} failed (${report.model}, ${Math.round(report.ms / 1000)} s); ${report.used} items checked by it, ${report.notUsed} not (the recording does not complete the item's frame)`,
+    );
+    if (report.failed) process.exitCode = 1;
+  }
+  // The speech engine it started goes with it.
+  process.exit();
+}
+
 const PRACTICE_ERRORS: Record<string, string> = {
   practice_busy:
     "this course's practice is being made already (the app, or another command): wait for it",
@@ -561,6 +606,9 @@ async function run(argv: string[], embedded?: Embedded): Promise<void> {
       break;
     case "backup":
       backupCommand(rest);
+      break;
+    case "heard":
+      await heardCommand(rest);
       break;
     case "practice":
       await practiceCommand(rest);

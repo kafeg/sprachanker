@@ -399,8 +399,10 @@ export function createLessons({
         content.lesson(series, row.contextKey as LessonKey),
       );
       const locale = await content.localeLesson(series, lesson.key, row.edition);
-      // Answers are checked in the language the edition teaches (case rules differ).
+      // Answers are checked in the language the edition teaches (case rules differ); one said aloud
+      // against the source's answer as heard, where it was.
       const target = parseEditionId(row.edition).target;
+      const heard = await content.heard(series, parseLessonKey(lesson.key).courseId);
       // An exercise's snapshot is kept with the first time it was shown in the run.
       const snapshotted = new Set(
         store
@@ -419,7 +421,7 @@ export function createLessons({
             const { exercise, n } = itemOf(e.itemKey);
             let outcome: Outcome;
             try {
-              outcome = checkItem(exercise, n - 1, e.payload.answer, target);
+              outcome = checkItem(exercise, n - 1, e.payload.answer, target, heard);
             } catch {
               throw new ServiceError("answer_does_not_fit");
             }

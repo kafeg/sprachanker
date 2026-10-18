@@ -1,7 +1,9 @@
 // An answer said aloud without a line to say: what the recogniser heard,
 // checked by the configured model against the item, its question and the source's answer — both heard
-// from the course's recordings. A check is an `llm_verdict` (`task: speaking`) on the item in the lesson
-// run, for what was heard: asked once per answer, shown again without asking.
+// from the course's recordings (the source's answer as heard into the course, where it was: heard.ts).
+// Asked only where the engine could not judge the answer, or by the learner ("Why?"). A check is an
+// `llm_verdict` (`task: speaking`) on the item in the lesson run, for what was heard: asked once per
+// answer, shown again without asking.
 
 import { linesToSay } from "@sprachanker/engine";
 import {
@@ -39,6 +41,8 @@ export function createSpeaking(deps: {
   store: RunStore;
   /** What a course recording says, heard with the profile's recogniser; undefined without one. */
   hear: (series: string, path: string, lang: string) => Promise<string | undefined>;
+  /** The source's answers heard into the course (by media path): the sample is not heard again. */
+  heard?: (series: string, lessonKey: LessonKey) => Promise<Record<string, string>>;
 }) {
   const { llm, store } = deps;
   /** Answers being checked, by run, item and what was heard. */
@@ -71,7 +75,13 @@ export function createSpeaking(deps: {
     const { locale } = ctx;
     const hear = (path: string | undefined) =>
       path ? deps.hear(request.series, path, ctx.target) : Promise.resolve(undefined);
-    const [question, sample] = await Promise.all([hear(item.media?.audio), hear(item.answerAudio)]);
+    const kept = item.answerAudio
+      ? (await deps.heard?.(request.series, request.lessonKey))?.[item.answerAudio]
+      : undefined;
+    const [question, sample] = await Promise.all([
+      hear(item.media?.audio),
+      kept !== undefined ? kept : hear(item.answerAudio),
+    ]);
     return {
       input: {
         language: request.language,
