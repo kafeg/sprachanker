@@ -70,24 +70,24 @@ test("claude: streamed text deltas, own system prompt, no tools or settings", as
   expect(run.args.join(" ")).toContain("--system-prompt-file system.txt");
 });
 
-test("claude: structured output from the JSON result; errors as LlmError", async () => {
+test("claude: a JSON reply as the result's text, its schema in the system prompt; errors as LlmError", async () => {
   const ok = fakeRunner([
-    event({
-      type: "result",
-      subtype: "success",
-      is_error: false,
-      structured_output: { verdict: "good" },
-    }),
+    event({ type: "result", subtype: "success", is_error: false, result: '{"verdict":"good"}' }),
   ]);
   const schema = { type: "object" };
   const reply = await cliClient("claude", ok.run).complete({
     model: "haiku",
-    messages: [{ role: "user", content: "x" }],
+    messages: [
+      { role: "system", content: "Judge it." },
+      { role: "user", content: "x" },
+    ],
     jsonSchema: { name: "t", schema },
   });
   expect(JSON.parse(reply)).toEqual({ verdict: "good" });
-  expect(ok.runs[0]?.args).toEqual(
-    expect.arrayContaining(["--json-schema", JSON.stringify(schema)]),
+  // No structured-output tool: a tool call's JSON went wrong one call in ten, asked again whole.
+  expect(ok.runs[0]?.args).not.toContain("--json-schema");
+  expect(ok.runs[0]?.files?.["system.txt"]).toBe(
+    `Judge it.\n\nReply with one JSON object matching this JSON Schema, and nothing else:\n${JSON.stringify(schema)}`,
   );
 
   const denied = fakeRunner([
@@ -201,7 +201,7 @@ function runsAs(
   return { run, count: () => n };
 }
 const json = (value: unknown) =>
-  event({ type: "result", subtype: "success", is_error: false, structured_output: value });
+  event({ type: "result", subtype: "success", is_error: false, result: JSON.stringify(value) });
 const ask = { model: "sonnet", messages: [{ role: "user" as const, content: "x" }] };
 const schema = { jsonSchema: { name: "t", schema: { type: "object" } } };
 
