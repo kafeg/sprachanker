@@ -56,7 +56,11 @@ export function bunProfileSql(
         };
         const timer = setTimeout(() => done("damaged"), ms);
         worker.onmessage = (event: MessageEvent<Settled>) => done(event.data);
-        worker.onerror = () => done("damaged");
+        // A worker that could not start or failed is said in the log: the file is refused either way.
+        worker.onerror = (event) => {
+          console.error("making a profile file ready:", event.message);
+          done("damaged");
+        };
         worker.postMessage({ file, endpoints });
       });
     },

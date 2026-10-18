@@ -7,6 +7,9 @@ export const ERROR_CODES = [
   "missing_client_header",
   "unknown_host",
   "not_found",
+  // Updates: none newer to install, or its download or install failed.
+  "no_update",
+  "update_failed",
   "invalid_request",
   "request_too_large",
   "length_required",
