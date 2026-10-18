@@ -2,7 +2,8 @@
 // marks 2 and 3): the Exams section, the state chosen, a mock exam drawn, answered, handed in, its
 // result and the Notebook; practice with each answer checked by Check, as in a lesson.
 import { expect, type Locator, type Page, test } from "@playwright/test";
-import { put } from "./api.ts";
+import { MODELL } from "@sprachanker/course-fixture";
+import { noExamRunGoing, put } from "./api.ts";
 
 /** The run's list of questions: beside it on a wide screen, in the sheet its button opens on a phone
  *  (`done` closes the sheet again). */
@@ -157,6 +158,8 @@ test("a language exam: a module alone, then the whole — each question with its
   page,
   request,
 }) => {
+  // A run another test left going would turn Begin into Continue: none going.
+  await noExamRunGoing(request, MODELL);
   // Without the assistant here: the speaking part is answered as any open answer (typed or said).
   await put(request, "/api/settings", { key: "llm.offIn", value: ["exam"] });
   await page.route("**/media/audio/*.mp3", (route) =>

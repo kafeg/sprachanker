@@ -186,3 +186,14 @@ export async function fakeMicrophone(page: Page) {
     }`,
   });
 }
+
+/** The fixture's language exam left with no run going (a mock exam or practice a test began and left
+ *  open would show "Continue" to the next test): its run going, if any, finished. */
+export async function noExamRunGoing(request: APIRequestContext, exam: string, edition = "en-de") {
+  const page = await request.get(`/api/exams/page?${new URLSearchParams({ exam, edition })}`, {
+    headers: { ...CLIENT_HEADERS },
+  });
+  if (!page.ok()) return;
+  const { active } = (await page.json()) as { active?: { id: string } | null };
+  if (active) await post(request, `/api/exams/runs/${active.id}/finish`, {});
+}

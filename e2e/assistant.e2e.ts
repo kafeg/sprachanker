@@ -11,6 +11,7 @@ import {
   fillPractice,
   freshLessonRun,
   goToStep,
+  noExamRunGoing,
   openStep,
   post,
   practiceTaken,
@@ -31,6 +32,11 @@ test.beforeEach(async ({ request }) => {
   await post(request, "/api/progress/reset", { series, course, lesson: DEMO_LESSON });
   await freshLessonRun(request);
   await practiceTaken(request, "writing");
+});
+
+// A test that begins the fixture's exam and leaves it going must not leave it to the next one.
+test.afterEach(async ({ request }) => {
+  await noExamRunGoing(request, MODELL);
 });
 
 test("explain a mistake, ask the tutor, check a text", async ({ page, request }) => {
