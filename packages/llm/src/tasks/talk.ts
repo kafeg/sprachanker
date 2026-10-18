@@ -131,6 +131,7 @@ export function talkCardTask(input: TalkInput): StructuredTask<MonologueReply> {
       ],
       temperature: 0.8,
       maxTokens: 1500,
+      effort: "none",
     },
   };
 }
@@ -204,6 +205,7 @@ export function talkCuesTask(input: CuesInput): StructuredTask<TalkCues> {
       ],
       temperature: 0.3,
       maxTokens: 1200,
+      effort: "none",
     },
   };
 }

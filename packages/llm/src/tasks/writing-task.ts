@@ -153,6 +153,7 @@ export function writingTaskTask(input: WritingTaskInput): StructuredTask<Writing
       temperature: 0.8,
       maxTokens: 600,
       reasoning: false,
+      effort: "none",
     },
   };
 }

@@ -20,6 +20,7 @@ import {
   type DraftRating,
   draftLines,
   draftProblem,
+  fewWords,
   practiceThird,
   settledQuestions,
   type UnderstandingDraft,
@@ -193,6 +194,14 @@ test("understanding_draft: the lesson, the grammar met and ahead, its script, th
   const data2 = String(again.request.messages[1]?.content);
   expect(data2).toContain("<draft>\nTitle: В пекарне");
   expect(data2).toContain('"Ich frage zweimal" makes no sense');
+  // A course of A2 starts after A1: its first lesson's few listed words are not all the learner knows.
+  const a2 = { ...INPUT, lesson: { ...LESSON, level: "A2" } };
+  expect(fewWords(INPUT.lesson)).toBe(true);
+  expect(fewWords(a2.lesson)).toBe(false);
+  const data3 = String(
+    understandingDraftTask({ ...a2, genre: CONVERSATION, areas: [] }).request.messages[1]?.content,
+  );
+  expect(data3).not.toContain("The learner knows very few words yet");
 });
 
 test("draftLines: a dialogue's lines by speaker (bold names too), one person's paragraphs said by them, a written text's", () => {
@@ -249,6 +258,20 @@ test("draftProblem: a course character, a title in the learnt language, a length
   );
   const short = { ...DRAFT, text: "Anna: Hallo!\nHerr Brandt: Hallo!" };
   expect(draftProblem(short, input)).toBe("the text about 40–70 words long (it has 2)");
+  // A role-play's second person, the learner, is named by their role in the text's language.
+  type Person = UnderstandingDraft["people"][number];
+  const [anna, baker] = DRAFT.people as [Person, Person];
+  const caller = (name: string) => ({
+    ...DRAFT,
+    people: [anna, { ...baker, name }],
+    text: DRAFT.text.replaceAll(`${baker.name}:`, `${name}:`),
+  });
+  const roleplay = { ...input, purpose: "roleplay" } as const;
+  expect(draftProblem(caller("Kunde"), roleplay)).toBeUndefined();
+  expect(draftProblem(caller("покупатель"), roleplay)).toBe(
+    `the second person's "name" is their role in German, one word as the text writes it`,
+  );
+  expect(draftProblem(caller("покупатель"), input)).toBeUndefined();
   const model = scripted([nico, DRAFT]);
   expect(await runStructured(model.client, "m", understandingDraftTask(input))).toEqual(DRAFT);
   expect(model.sent[1]).toContain("none of the course's characters (Nico)");

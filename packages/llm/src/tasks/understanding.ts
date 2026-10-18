@@ -78,9 +78,11 @@ const PLACE_QUESTIONS: Record<CourseThird, string> = {
   late: "As at the middle, and one or two on the gist or a reason (why someone calls, what is decided, how someone feels).",
 };
 
-/** Whether the learner knows very few words yet (a course's first lessons): its start genres, and
- *  a text about only what those words say. */
-export const fewWords = (lesson: Pick<LessonInfo, "vocab" | "knownWords">) =>
+/** Whether the learner knows very few words yet (an A1 course's first lessons): its start genres,
+ *  and a text about only what those words say. A course of A2 on starts after the level below it,
+ *  whose words its own lessons do not list. */
+export const fewWords = (lesson: Pick<LessonInfo, "vocab" | "knownWords" | "level">) =>
+  cefrOf(lesson.level) === "A1" &&
   lesson.vocab.length + (lesson.knownWords?.length ?? 0) < FEW_WORDS;
 
 /** The learner's third of the course as practice reads it: from A2 on never "early". */
@@ -146,7 +148,7 @@ const PURPOSE_TEXT: Record<TextPurpose, string> = {
   reply:
     'The learner will answer this text in writing: it is written to them (they are its reader, never named, never in "people") and asks, offers or invites something they can answer — a question or two, a request, a choice to make. A chat is a group chat the learner is in: its other members write, the last messages asking the learner.',
   roleplay:
-    'The learner will play the second person in "people" by voice: that person has no name: their "name" in "people" and before their lines is their role, one word in the language of the text (a customer, a guest, a neighbour), and they say short, simple lines a learner at this level can say; the first person leads, asks and answers. Every line of the second person is one the learner can say from a short hint.',
+    'The learner will play the second person in "people" by voice: that person has no name: their "name" in "people" and before their lines is their role, one word in the language of the text, as it writes it (a customer, a guest, a neighbour: never a word of the language the learner speaks, in its letters or in Latin ones), and they say short, simple lines a learner at this level can say; the first person leads, asks and answers. Every line of the second person is one the learner can say from a short hint.',
 };
 
 export function understandingTextRules(
@@ -158,7 +160,7 @@ export function understandingTextRules(
   return [
     `You write a short text in ${t} for a learner who speaks ${l}: something people really read or hear, in the genre given, on the lesson's topic, at the learner's level. Plan it first, then write it:`,
     `- "setting": in ${l}, a few words naming what the text is and where, nothing of what it says ("A voice message", "A letter from a friend", "A conversation at a café"): the learner sees it before reading or hearing.`,
-    `- "title" and "situation" (one sentence: who, where, why) in ${l}, shown after the questions are answered.`,
+    `- "title" and "situation" (one sentence: who, where, why) in ${l}, shown after the questions are answered: the title too is the learner's heading in ${l}, never the text's own in ${t}.`,
     `- "people": who speaks or writes — "name" (a first name, or a title and a surname, written as in the text), "gender" ("f" or "m"), "age" ("young": a teenager or a student; "adult"; "senior") and "role" (in ${l}). People made up for this text, never a character of the course (their names are given with the lesson); no child speaks.`,
     `- "beats": in ${l}, what happens, 3 to 6 short points. A situation people are really in, where they behave as people there do: they say or ask only what it needs, address each other as people there do (a stranger or an official politely), each line answers or follows the one before, and the text has a point — something is asked and answered, arranged, told, decided or changed.`,
     `- "facts": 5 to 10 things a reader or listener can find in the text, short, in ${t}: names, times, prices, places, numbers, what someone wants, decides or does.`,
@@ -243,6 +245,8 @@ export function understandingDraftTask(input: DraftInput): StructuredTask<Unders
       ],
       temperature: 0.9,
       maxTokens: 3000,
+      // Its plan is in the reply (people, beats, facts): no thinking before it (owner, 2026-10-18).
+      effort: "none",
     },
   };
 }
@@ -330,11 +334,18 @@ function charactersIn(said: string[], characters: string[]) {
 }
 
 /** What a valid draft falls short of: a course character in it, a title or situation not in the
- *  learner's language (told by script where the two languages' differ), a length far from the one
- *  asked. Asked again once, then kept (the judge rates it then). */
+ *  learner's language (told by script where the two languages' differ), a role-play's role the
+ *  learner plays not in the text's, a length far from the one asked. Asked again once, then kept
+ *  (the judge rates it then). */
 export function draftProblem(
   draft: UnderstandingDraft,
-  { language, target, lesson, genre }: Pick<DraftInput, "language" | "target" | "lesson" | "genre">,
+  {
+    language,
+    target,
+    lesson,
+    genre,
+    purpose,
+  }: Pick<DraftInput, "language" | "target" | "lesson" | "genre" | "purpose">,
 ): string | undefined {
   const said = [draft.situation, draft.text, ...draft.people.map((p) => p.name)];
   const named = charactersIn(said, lesson.characters ?? []);
@@ -347,6 +358,9 @@ export function draftProblem(
     )
   )
     return `"setting", "title" and "situation" in ${languageName(language)}`;
+  const role = purpose === "roleplay" ? draft.people[1]?.name : undefined;
+  if (role && writtenIn(role, target, language) === false)
+    return `the second person's "name" is their role in ${languageName(target)}, one word as the text writes it`;
   const [from, to] = textWords(genre, lesson.level, practiceThird(lesson));
   const words = wordCount(draftLines(draft, genre).lines);
   if (words < from * 0.6 || words > to * 1.5)
@@ -431,6 +445,8 @@ export function understandingJudgeTask(input: JudgeInput): StructuredTask<Unders
       ],
       temperature: 0,
       maxTokens: 2000,
+      // Each draft's gist first, then its points: no thinking before it (owner, 2026-10-18).
+      effort: "none",
     },
   };
 }
@@ -558,6 +574,8 @@ export function understandingQuestionsTask(
       ],
       temperature: 0.4,
       maxTokens: 2500,
+      // Two checks read them again: no thinking before it (owner, 2026-10-18).
+      effort: "none",
     },
   };
 }

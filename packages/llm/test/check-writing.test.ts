@@ -49,9 +49,9 @@ const input: WritingInput = {
 test("writing_task: a situation and three points from the lesson's goals, its length by the level, the exam's way said with the data", () => {
   const { name, request, schema } = writingTaskTask({ language: "ru", target: "de", lesson });
   expect(name).toBe("writing_task");
-  // A task that teaches keeps a command-line agent's default effort; the check, which the learner
-  // waits for, thinks not.
-  expect(request.effort).toBeUndefined();
+  // Neither thinks before its reply: the task is made ahead, its reply short (owner, 2026-10-18); the
+  // check, which the learner waits for.
+  expect(request.effort).toBe("none");
   expect(checkWritingTask(input).request.effort).toBe("none");
   const [system, user] = request.messages.map((m) => String(m.content));
   for (const part of [
