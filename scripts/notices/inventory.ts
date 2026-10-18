@@ -530,9 +530,4 @@ export const SOURCE_OFFER = [
   "To relink the program with a changed library: build Bun from its source with that library",
   "(Bun's statement below says how), then build the program from SprachAnker's source at your",
   "version with that Bun (`bun run build:bin`).",
-  "",
-  "Written offer: for three years after we last gave out a build, anyone may ask for the complete",
-  "corresponding source of these GPL and LGPL components as built into it, by opening an issue at",
-  "https://github.com/kafeg/sprachanker/issues; we provide it at no more than the cost of",
-  "physically performing the transfer.",
 ].join("\n");

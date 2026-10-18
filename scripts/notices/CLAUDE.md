@@ -15,7 +15,7 @@ notices.ts       # the generator: the inventory, the JavaScript packages of the 
                  # sorted, texts deduplicated. `bun scripts/notices/notices.ts <file>...`
 inventory.ts     # hand-kept: the speech engines and what each links (whisper.cpp, sherpa-onnx with
                  # eSpeak NG and its dependencies, qwentts.cpp), Bun, the Android libraries Gradle
-                 # resolves, the GPL/LGPL source statement and written offer
+                 # resolves, the GPL/LGPL source statement (where each exact source is)
 bun.ts           # what the pinned Bun links, for bun.json: the libraries its build fetches (their
                  # licence files at Bun's pins), its vendored code, JavaScriptCore/WTF (LGPL), the
                  # crates of its Cargo.lock (texts from crates.io). `bun scripts/notices/bun.ts`
