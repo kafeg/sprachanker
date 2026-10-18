@@ -138,17 +138,18 @@ export function createLessons({
   };
 
   /**
-   * A lesson run's events as they are read: its answers said aloud kept without the engine's verdict
-   * (from before it judged them) judged now, as a new answer is checked (engine `judgedEvents`: in the
+   * A lesson run's events as they are read: its answers said aloud (a transcript) judged now — a
+   * verdict kept is that day's check —, as a new answer is checked (engine `judgedEvents`: in the
    * language the edition teaches, against the source's answers as heard) — the same marks wherever
    * the run is read. The lesson no longer installed: its exercises as the run showed them.
    */
   async function judged(row: RunRow, events: TypedEvent[]): Promise<TypedEvent[]> {
+    // Answers heard (a transcript) are judged on every read: their kept verdict is that day's check.
     const unjudged = events.some(
       (e) =>
         e.type === "answered" &&
         e.payload.outcome.result === "unscored" &&
-        !e.payload.outcome.spoken,
+        !!(e.payload.answer as { transcript?: string } | undefined)?.transcript?.trim(),
     );
     if (!row.edition || !unjudged) return events;
     const key = row.contextKey as LessonKey;

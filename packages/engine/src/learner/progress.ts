@@ -93,14 +93,19 @@ export function judgedOutcome(
   answer: unknown,
   outcome: Outcome,
 ): Outcome {
-  if (outcome.result !== "unscored" || outcome.spoken || !transcriptOf(answer)?.trim())
-    return outcome;
+  // Judged again even with a verdict kept: what is stored is the check of its day, read through today's
+  // (a rule made fairer marks old answers fairly too; events are never rewritten).
+  if (outcome.result !== "unscored" || !transcriptOf(answer)?.trim()) return outcome;
   const { exercise: key, n } = parseItemKey(itemKey as ItemKey);
   const exercise = judge.exercise(key);
   if (exercise?.type !== "speech_selfrate") return outcome;
   try {
     const now = checkItem(exercise, n - 1, answer, judge.lang, judge.heard);
-    return now.spoken ? now : outcome;
+    return now.spoken
+      ? now
+      : outcome.spoken
+        ? { ...outcome, spoken: undefined, ownWords: undefined }
+        : outcome;
   } catch {
     // An answer that no longer fits its item (the lesson changed): as it was kept.
     return outcome;

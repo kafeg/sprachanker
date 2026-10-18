@@ -128,9 +128,9 @@ export const sentencesOf = (text: string) =>
  *  never trusted). */
 export function spokenAnswers(
   lang: string,
-  item: { text?: string; reference?: string[] },
+  item: { text?: string; reference?: string[]; prompt?: string },
   heard?: string,
-): { answers: string[]; frames: Frame[]; exact: boolean } | undefined {
+): { answers: string[]; frames: Frame[]; exact: boolean; prompt?: string } | undefined {
   const lines = linesToSay(item);
   if (lines) return { answers: lines, frames: [], exact: true };
   if (!heard?.trim() || SPELLED.test(heard) || !checkedByHeard(item)) return undefined;
@@ -141,7 +141,7 @@ export function spokenAnswers(
     : { frames: [], plain: [] as string[] };
   if (!frames.length) {
     const answers = [...plain, heard.trim(), ...(sentences.length > 1 ? sentences : [])];
-    return { answers: [...new Set(answers)], frames, exact: false };
+    return { answers: [...new Set(answers)], frames, exact: false, prompt: item.prompt };
   }
   const fits = (text: string) => frames.some((f) => completes(lang, f, text));
   const runs: string[] = [];
@@ -153,7 +153,7 @@ export function spokenAnswers(
       break;
     }
   return runs.length
-    ? { answers: [...new Set([...runs, ...plain])], frames, exact: false }
+    ? { answers: [...new Set([...runs, ...plain])], frames, exact: false, prompt: item.prompt }
     : undefined;
 }
 export type SpokenAnswers = NonNullable<ReturnType<typeof spokenAnswers>>;
@@ -200,8 +200,14 @@ export function judgeSpoken(
   if (verdict === "correct" || target.exact) return { verdict, diff };
   if (target.frames.some((f) => completes(lang, f, transcript)))
     return { verdict: "correct", ownWords: true, diff };
+  // Wrong only when what was said is the question said back: like the item's prompt and missing the
+  // frame. A short right answer misses the frame's opening words too ("Danke, gut. Und Ihnen?" for
+  // "Guten Morgen. Danke, gut ...?"), so missing them alone is never wrong; without a prompt to compare
+  // with, never wrong.
   const missed =
     target.frames.length &&
     Math.max(...target.frames.map((f) => frameWordsSaid(lang, f, transcript))) <= FRAME_MISSED;
-  return { verdict: missed ? "wrong" : "partial", diff };
+  const saidBack =
+    !!target.prompt?.trim() && spokenCheck(lang, [target.prompt], transcript).verdict !== "wrong";
+  return { verdict: missed && saidBack ? "wrong" : "partial", diff };
 }

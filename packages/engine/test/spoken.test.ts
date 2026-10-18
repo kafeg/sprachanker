@@ -84,7 +84,7 @@ describe("spokenAnswers", () => {
 describe("judgeSpoken", () => {
   const framed = spokenAnswers(
     "de",
-    { reference: ["Guten Abend. Danke, gut ...?"] },
+    { reference: ["Guten Abend. Danke, gut ...?"], prompt: "Guten Abend. Wie geht es Ihnen?" },
     "Guten Abend! Danke, gut! Und Ihnen?",
   );
   const free = spokenAnswers("de", {}, "Ich trinke gern Tee.");
@@ -92,8 +92,11 @@ describe("judgeSpoken", () => {
   test.each<[string, string, string | undefined]>([
     ["the source's answer said", "Guten Abend. Danke, gut. Und Ihnen?", "correct"],
     ["the frame completed otherwise", "Guten Abend. Danke, gut. Wie geht es Ihnen?", "correct"],
-    // The question said back: the frame's words missed.
+    // The question said back: like the prompt, the frame's words missed.
     ["the question repeated", "Guten Abend! Wie geht es Ihnen?", "wrong"],
+    // A short right answer misses the frame's opening words too: never wrong.
+    ["a short answer", "Danke, gut. Und Ihnen?", "partial"],
+    ["a shorter one", "Danke, gut.", "partial"],
   ])("a frame: %s", (_, said, verdict) =>
     expect(judgeSpoken("de", framed, said).verdict).toBe(verdict as never),
   );
@@ -115,8 +118,8 @@ describe("judgeSpoken", () => {
 });
 
 describe("a right answer is never wrong", () => {
-  const judge = (reference: string, heard: string, said: string) => {
-    const target = spokenAnswers("de", { reference: [reference] }, heard);
+  const judge = (reference: string, heard: string, said: string, prompt?: string) => {
+    const target = spokenAnswers("de", { reference: [reference], prompt }, heard);
     if (!target) throw new Error(`no answers for ${reference}`);
     return judgeSpoken("de", target, said).verdict;
   };
@@ -149,11 +152,25 @@ describe("a right answer is never wrong", () => {
       "Das kostet 2 Euro 50.",
       "correct",
     ],
-    // The frame's words mostly missed: wrong.
-    ["Ich heiße ...", "Ich heiße Nico.", "Wie heißt du?", "wrong"],
+    // Short right answers without the frame's opening words: "almost" at worst, never wrong.
+    ["Ich komme aus ...", "Ich komme aus Spanien.", "Aus Spanien.", "partial"],
+    ["Ich wohne in ...", "Ich wohne in Berlin.", "In Köln.", "partial"],
+    ["Ich trinke ...", "Ich trinke Kaffee.", "Kaffee.", "partial"],
+    ["Ich heiße ...", "Ich heiße Nico.", "Mein Name ist Anna.", "partial"],
+    ["Das ist ... (die Brille)", "Das ist die Brille.", "Die Brille.", "partial"],
+    // No prompt to compare with: never wrong.
+    ["Ich heiße ...", "Ich heiße Nico.", "Wie heißt du?", "partial"],
   ])("%j said as %j", (reference, heard, said, verdict) =>
     expect(judge(reference, heard, said)).toBe(verdict as never),
   );
+  test("wrong only for the question said back (like the item's prompt)", () => {
+    expect(judge("Ich heiße ...", "Ich heiße Nico.", "Wie heißt du?", "Wie heißt du?")).toBe(
+      "wrong",
+    );
+    expect(judge("Ich heiße ...", "Ich heiße Nico.", "Ich bin Anna.", "Wie heißt du?")).toBe(
+      "partial",
+    );
+  });
   test.each<[string, string, string, string | undefined]>([
     // English as German: numbers in digits and short forms are not heard.
     ["I am ... years old.", "I am twenty-one years old.", "I'm 21 years old.", "correct"],

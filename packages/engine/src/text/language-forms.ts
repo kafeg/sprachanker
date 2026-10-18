@@ -24,7 +24,10 @@ const FORMS: Record<string, LanguageForms> = {
       [/'s$/, "es"],
       [/^ein(?=hundert|tausend)/, ""],
     ],
-    spellings: [[/ß/g, "ss"]],
+    spellings: [
+      [/ß/g, "ss"],
+      [/^tschüs$/, "tschüss"],
+    ],
     nounsCapitalised: true,
   },
   en: {
