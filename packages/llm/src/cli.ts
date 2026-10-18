@@ -127,10 +127,8 @@ const retryable = (error: unknown, json: boolean) =>
     (json && error.code === "timeout"));
 
 /** `claude -p` with its system prompt replaced, no tools, MCP servers, settings or saved session. A
- *  JSON reply's schema is in the system prompt, not `--json-schema` (owner, 2026-10-18): through that
- *  flag the reply is a tool call, which one call in ten got wrong (a field left out, the whole JSON in
- *  one string, markup in it) and Claude Code asked again whole; as text the same replies were valid
- *  but one in 24 (asked again by the app), with a third fewer tokens written. */
+ *  JSON reply's schema is in the system prompt (`withJsonSchema`), not `--json-schema`: that flag's
+ *  tool call went wrong one call in ten and was asked again whole (docs/decisions.md). */
 function claudeArgs(
   request: Omit<ChatRequest, "signal" | "runTool">,
   output: "stream-json" | "json",

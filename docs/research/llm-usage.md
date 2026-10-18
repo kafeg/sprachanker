@@ -8,7 +8,8 @@ proposed is item 5 of `docs/plan.md`.
 Shared by every call: a structured task is asked again once when its reply is invalid or falls short
 of its quality check (1–2 calls); command-line providers retry a failed process once; time limits per
 attempt 90 s, longer for the text generator's drafts and judge (180 s), `writing_check` and
-`scene_setup` (150 s), questions and going over mistakes (120 s).
+`scene_setup` (150 s), questions and going over mistakes (120 s). A course's practice is made without thinking; Claude Code's
+JSON replies come as text (measured below).
 
 | # | Task · service | What it does | Started by | Course data or engine instead? | Calls · wait | Recommendation |
 |---|---|---|---|---|---|---|
@@ -48,3 +49,56 @@ no model.
   inside a word ("einmal/zweimal/…"). A1 (uk) afterwards: 358 of 359 taken from A1 (ru), 1 s.
 - What stays the model's: items whose recording does not complete their frame, items with no frame
   whose answer differs from the source's (it may be the learner's own), and "Why is this wrong?".
+
+## A lesson's practice with Claude Code, measured (2026-10-18)
+
+Asked by the owner after Nicos Weg A1's practice (77 lessons × 3 variants of each step, Claude Code
+· sonnet on a Max plan) took about 12.7 hours of making and much of a week's limits. Measured on
+Nicos Weg A2's first lesson (`dw.nicos-weg/a2-ru/00-01`, ru-de), its four steps made three variants
+each as a course's job makes them (three units at a time), on a clone of the data: a `claude`
+wrapper first on `PATH` kept each run's prompt, its arguments and the result's `usage` (tokens,
+thinking tokens, `total_cost_usd` — the API's price, a measure of the plan's limits too).
+
+What one lesson costs (one run each; how many drafts pass the judge varies from run to run):
+
+| | before | thinking off, A2's start, titles | + JSON as text |
+|---|---|---|---|
+| calls | 71 | 62 | 59 |
+| tokens written (of them thinking) | 184k (125k) | 64k (0) | 40k (0) |
+| tokens read | 369k | 282k | 188k |
+| price at the API's rates | $4.08 | $2.01 | $1.39 |
+| the lesson made in (calls' own time) | 13.2 min (40 min) | 5.7 min (18 min) | 4.2 min (15 min) |
+
+Where it went before: the judge $1.01 (85% of what it wrote was thinking), drafts $2.25 (27 drafts
+and 10 asked again for 11 texts kept), questions $0.43 (84% thinking), the rest $0.39. The waste:
+- **Thinking** on tasks whose reply holds its own plan (a draft's people, beats and facts; the
+  judge's gist of each draft). Replayed on the same prompts without it: drafts 2.3k → 0.9k tokens
+  written, the judge 6.0k → 1.2k, questions 4.1k → 0.6k; the judge passed as many drafts (12 of 27
+  with thinking, 14 of 27 without; at `--effort low` 16 of 24), the texts and questions alike.
+- **Titles in German**: a third of the drafts wrote their title in the learnt language and were
+  asked again whole; with the rule saying so, one in nine (and none in the lesson made after).
+- **A2's first lesson read as a course's start**: its own lessons list none of A1's words, so the
+  prompt said the learner knows very few words and only start genres were drawn — texts the judge
+  failed as dull or forced.
+- **Claude Code's structured output** (`--json-schema`): the reply is a tool call, and one call in
+  ten sent it wrong (`setting` left out, the whole JSON as one string, parameter markup inside);
+  Claude Code asked again with everything resent — a fifth of the price. As text, the schema in the
+  system prompt: 39 of 40 valid (one asked again by the app), a third fewer tokens written.
+
+What stays: three drafts side by side and the judge (about half the drafts pass, so a step of three
+texts takes one to three rounds), the questions read again with and without the text, the
+Qwen3-TTS recordings (no model). The texts after the changes, read side by side with the earlier
+ones: as coherent, more varied at A2 (letters, small ads, podcasts, three people talking where
+before only chats and notices), the questions as good. Seen in both and not from these changes: a
+judge passing a German slip ("Rufen wir nächste Woche mal"), a role-play hint marking the learner's
+gender ("приехал").
+
+Projected for the courses to come (77 lessons each; B1, the `de-de` edition, has longer texts:
+about a third more tokens assumed):
+
+| course | before | after |
+|---|---|---|
+| A2 | ~$315 at API rates, ~17 h | ~$105, ~5.5 h |
+| B1 | ~$420, ~22 h | ~$140, ~7 h |
+
+A course's practice now costs about a third of what A1's did, in the plan's limits as in time.

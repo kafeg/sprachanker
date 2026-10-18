@@ -77,6 +77,17 @@ and mockups: the owner's page "Goethe в SprachAnker"; background: `docs/researc
   have gathered.
 - A live conversation with the model in the Tutor section (`apps/web/src/llm/dialogue.tsx` and the
   `scene` tasks are kept for it).
+- A course from A2 on knows the level below's words: the knowledge snapshot of its first lessons
+  lists none (A1's words in the series' course before it; the "very few words" start is A1's only).
+- Seen in the practice measured (`docs/research/llm-usage.md`): a role-play's hint marking the
+  learner's gender with a past verb and no "ты" ("Скажи, что приехал…": the gender check's data);
+  the judge passing a German slip now and then.
+- Claude Code's JSON as text is measured on drafts, the judge and questions: the checks the learner
+  waits for (`writing_check`, `talk_check`, `speaking_check`, `exam_rating`) to be gone through on
+  the next `ai-practice-check` run.
+- Open for the owner: about half the drafts pass the judge, so a step of three texts takes one to
+  three rounds of three drafts; a cheaper model for the read-again checks would need a route per
+  task (deferred on purpose).
 
 ### 4. Phone app (owner, 2026-10-14)
 - Built on Android (`apps/mobile`): the web app and the server's code in the app (sql.js over the

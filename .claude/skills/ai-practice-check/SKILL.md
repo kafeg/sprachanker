@@ -34,7 +34,8 @@ Judges the AI practice as a learner meets it, with the model chosen in Settings,
 7. Report to the owner: what was walked, what was good, what was fixed, what is left (with examples quoted).
 
 ## Gotchas
-- A text takes 1–4 min (drafts, judge, questions, checks): run lessons in parallel; never set a fetch timeout.
+- A text takes 1–2 min (drafts, judge, questions, checks): run lessons in parallel; never set a fetch timeout.
+- A change to a practice task changes its price → measure one lesson's tokens before a whole course: a `claude` wrapper first on `PATH` keeps each run's prompt and its result's `usage` (`docs/research/llm-usage.md`).
 - `no draft passed` on a course's first lesson → few words known → expected now and then; Writing then sets its task without a message.
 - A port in use → an earlier run's server is still up → `pkill -f "serve --port 4598"` (walk) or 4597 (texts).
 
