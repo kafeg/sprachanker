@@ -1,17 +1,14 @@
-// A course's AI practice on its page (owner, 2026-10-14): how much of each step its lessons have —
-// made once, kept with the course, taken by the lessons without a model and carried to other devices
-// with it —, and making more for every lesson in one go: the steps, how many of each (1–3), the job's
-// progress and Stop. Making needs an AI model; Listening, Qwen3-TTS to record it. Opened by its button
-// among the course's actions (owner, 2026-10-15), which says how far a job is meanwhile.
-import { Sparkles } from "lucide-react";
+// A course's AI practice, a step of its preparation (owner, 2026-10-14; one place with the others,
+// 2026-10-18: library/course-prep.tsx): how much of each step its lessons have — made once, kept with
+// the course, taken by the lessons without a model and carried to other devices with it —, and making
+// more for every lesson in one go: the steps, how many of each (1–3), the job's progress and Stop.
+// Making needs an AI model; Listening, Qwen3-TTS to record it. The preparation's button says how far a
+// job is meanwhile (CoursePracticeRunning).
 import { useState } from "react";
 import { useTranslation } from "react-i18next";
-import { quietButton } from "@/library/upkeep.tsx";
 import { Choice } from "@/ui/choice.tsx";
 import { Button } from "@/ui/components/button.tsx";
 import { Checkbox } from "@/ui/components/checkbox.tsx";
-import { Panel } from "@/ui/panel.tsx";
-import { cn } from "@/ui/utils.ts";
 import { usePracticeCourse, useStartPracticeCourse, useStopPracticeCourse } from "./api.ts";
 import { ErrorLine } from "./parts.tsx";
 import { useLlm } from "./setup-api.ts";
@@ -21,33 +18,16 @@ type Step = (typeof STEPS)[number];
 
 type Ids = { series: string; course: string; edition: string };
 
-/** The button among the course's actions that opens the course's practice under its head. */
-export function CoursePracticeButton({
-  open,
-  onToggle,
-  ...what
-}: Ids & { open: boolean; onToggle(): void }) {
+/** How far a job making the course's practice is, on the preparation's button (none: no job runs). */
+export function CoursePracticeRunning(what: Ids) {
   const { t } = useTranslation();
-  const state = usePracticeCourse(what);
-  if (!state.data?.lessons) return null;
-  const { job } = state.data;
-  const running = job && (job.state === "running" || job.state === "stopping");
+  const job = usePracticeCourse(what).data?.job;
+  if (job?.state !== "running" && job?.state !== "stopping") return null;
   return (
-    <Button
-      variant="outline"
-      aria-expanded={open}
-      aria-controls="course-practice"
-      onClick={onToggle}
-      className={cn(quietButton, "h-11", open && "border-solid text-foreground")}
-    >
-      <Sparkles />
-      {t("practice.course.title")}
-      {running && (
-        <span className="text-muted-foreground tabular-nums">
-          · {t("practice.course.progress", { done: job.done, total: job.total })}
-        </span>
-      )}
-    </Button>
+    <span className="text-muted-foreground tabular-nums">
+      · {t("practice.course.title")}{" "}
+      {t("practice.course.progress", { done: job.done, total: job.total })}
+    </span>
   );
 }
 
@@ -76,9 +56,9 @@ export function CoursePractice({
   const toggle = (step: Step, on: boolean) =>
     setSteps((now) => (on ? [...now, step] : now.filter((s) => s !== step)));
   return (
-    <Panel id="course-practice" className="space-y-3">
+    <section id="course-practice" className="space-y-3">
       <div className="flex flex-wrap items-baseline gap-x-2">
-        <h2 className="text-lg font-bold">{t("practice.course.title")}</h2>
+        <h3 className="font-semibold">{t("practice.course.title")}</h3>
         <span className="text-sm text-muted-foreground">
           {running && job
             ? t("practice.course.progress", { done: job.done, total: job.total })
@@ -176,6 +156,6 @@ export function CoursePractice({
           </div>
         )}
       </div>
-    </Panel>
+    </section>
   );
 }

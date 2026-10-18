@@ -1795,5 +1795,25 @@
     "had": "Zaten kartlarında var",
     "audioMaking": "Ses hazırlanıyor",
     "listen": "Dinle"
+  },
+  "prep": {
+    "title": "Kurs hazırlığı",
+    "intro": "Kurs kurulduktan sonra bu cihazda bir kez yapılır ve kursla birlikte saklanır; böylece dersler onu hazır bulur.",
+    "stop": "Durdur",
+    "heard": {
+      "title": "Kayıtlı cevaplar",
+      "what": "Kursun kayıtlı cevapları, konuşma tanıma ile bir kez dinlenir: söylediğin yapay zekâ olmadan bunlarla karşılaştırılır.",
+      "ready": "{heard, number} / {total, number} cevap hazır",
+      "short": "cevaplar {heard, number} / {total, number}",
+      "running": "Dinleniyor: ders {done, number} / {total, number}",
+      "queued": "Başka bir kurs dinlenirken bekliyor.",
+      "waiting": "Bir konuşma modeli bekliyor (Ayarlar → Konuşma): biri indirilir indirilmez kendiliğinden devam eder.",
+      "stopped": "Durduruldu.",
+      "continue": "Devam et",
+      "failed": "{count, plural, one {# dinlenemedi} other {# dinlenemedi}}",
+      "retry": "Tekrar dene",
+      "start": "Dinle",
+      "missing": "{count, plural, one {# kayıt henüz indirilmedi} other {# kayıt henüz indirilmedi}}"
+    }
   }
 }

@@ -1795,5 +1795,25 @@
     "had": "Ya está en tus tarjetas",
     "audioMaking": "Preparando el audio",
     "listen": "Escuchar"
+  },
+  "prep": {
+    "title": "Preparación del curso",
+    "intro": "Se hace una vez en este dispositivo tras instalar el curso y se guarda con él, para que sus lecciones lo tengan listo.",
+    "stop": "Detener",
+    "heard": {
+      "title": "Respuestas grabadas",
+      "what": "Las respuestas grabadas del curso, oídas una vez por el reconocimiento de voz: lo que dices se compara con ellas sin IA.",
+      "ready": "{heard, number} de {total, number} respuestas listas",
+      "short": "respuestas {heard, number} de {total, number}",
+      "running": "Oyendo: lección {done, number} de {total, number}",
+      "queued": "Esperando mientras se oye otro curso.",
+      "waiting": "Esperando un modelo de voz (Ajustes → Voz): en cuanto se descargue uno, sigue solo.",
+      "stopped": "Detenido.",
+      "continue": "Continuar",
+      "failed": "{count, plural, one {# no se pudo oír} other {# no se pudieron oír}}",
+      "retry": "Reintentar",
+      "start": "Oírlas",
+      "missing": "{count, plural, one {# grabación aún no descargada} other {# grabaciones aún no descargadas}}"
+    }
   }
 }

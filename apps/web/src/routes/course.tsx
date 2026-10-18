@@ -4,13 +4,14 @@
 import { lessonOrder, parseLessonKey } from "@sprachanker/schema";
 import { Link } from "@tanstack/react-router";
 import { Check, CheckCircle2, CircleDot } from "lucide-react";
-import { Suspense, useState } from "react";
+import { useState } from "react";
 import { useTranslation } from "react-i18next";
 import { mediaUrl } from "@/api/client.ts";
 import { useCourseMap } from "@/api/courses.ts";
 import { useCourseEdition } from "@/api/edition.ts";
 import { CourseHero } from "@/courses/hero.tsx";
 import { CourseGone } from "@/library/course-gone.tsx";
+import { CoursePrep, CoursePrepButton, type CoursePrepStep } from "@/library/course-prep.tsx";
 import { CourseMedia } from "@/ui/course-html.tsx";
 import { ErrorState, Loading, Page } from "@/ui/page.tsx";
 import { cn } from "@/ui/utils.ts";
@@ -76,27 +77,20 @@ function LessonCard({
   );
 }
 
-type CourseIds = { series: string; course: string; edition: string };
-/** What an optional feature adds to a course's page (the AI assistant: the course's practice): a
- *  button among the course's actions, and what it opens under the course's head. */
-export type CourseExtra = {
-  Button: React.ComponentType<CourseIds & { open: boolean; onToggle(): void }>;
-  Panel: React.ComponentType<CourseIds>;
-};
-
 export function CoursePage({
   series,
   course,
-  extra: Extra,
+  prep,
 }: {
   series: string;
   course: string;
-  extra?: CourseExtra;
+  /** The steps optional features add to the course's preparation (the AI assistant's practice). */
+  prep?: CoursePrepStep[];
 }) {
   const { t } = useTranslation();
   const { courses, info, edition } = useCourseEdition(series, course);
   const map = useCourseMap(series, course, edition);
-  const [extraOpen, setExtraOpen] = useState(false);
+  const [prepOpen, setPrepOpen] = useState(false);
   useWindowPlace(t("windowTitle.course"));
   if (courses.isPending) return <Loading />;
   if (!info) return <CourseGone series={series} course={course} />;
@@ -120,24 +114,20 @@ export function CoursePage({
           next={next ? { key: next, title: titles[next] ?? next } : undefined}
           started={!!info?.started}
           actions={
-            Extra &&
             edition && (
-              <Suspense fallback={null}>
-                <Extra.Button
-                  series={series}
-                  course={course}
-                  edition={edition}
-                  open={extraOpen}
-                  onToggle={() => setExtraOpen((open) => !open)}
-                />
-              </Suspense>
+              <CoursePrepButton
+                series={series}
+                course={course}
+                edition={edition}
+                steps={prep}
+                open={prepOpen}
+                onToggle={() => setPrepOpen((open) => !open)}
+              />
             )
           }
         />
-        {Extra && edition && extraOpen && (
-          <Suspense fallback={null}>
-            <Extra.Panel series={series} course={course} edition={edition} />
-          </Suspense>
+        {edition && prepOpen && (
+          <CoursePrep series={series} course={course} edition={edition} steps={prep} />
         )}
         <ol className="relative space-y-8 before:absolute before:top-2 before:bottom-2 before:start-[15px] before:w-0.5 before:bg-border">
           {index.units.map((unit) => {

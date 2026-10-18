@@ -1,6 +1,6 @@
 // A course on "My courses" and "Downloaded": the library's card (library/card) with the lessons
-// done in its band, the title and publisher, on "Downloaded" its check and sync, the lesson to go on
-// with, and the way in.
+// done in its band, the title and publisher, on "Downloaded" its check and sync (and its answers being
+// heard, while they are), the lesson to go on with, and the way in.
 import { editionSetting, parseLessonKey } from "@sprachanker/schema";
 import { Link } from "@tanstack/react-router";
 import { ArrowRight, BookOpen } from "lucide-react";
@@ -10,6 +10,7 @@ import { useEdition } from "@/api/edition.ts";
 import { useSetSetting } from "@/api/settings.ts";
 import { CourseExport } from "@/library/bundle.tsx";
 import { LibraryCard, PublisherLink } from "@/library/card.tsx";
+import { HeardLine } from "@/library/course-prep.tsx";
 import { CourseRemove, CourseUpkeep } from "@/library/upkeep.tsx";
 import { Button } from "@/ui/components/button.tsx";
 import { usePercent } from "@/ui/format.ts";
@@ -72,10 +73,13 @@ export function CourseCard({
         )}
       </p>
       {upkeep && (
-        <CourseUpkeep series={course.series} course={course.course}>
-          <CourseExport series={course.series} course={course.course} edition={edition} />
-          <CourseRemove series={course.series} course={course.course} title={title} />
-        </CourseUpkeep>
+        <>
+          <CourseUpkeep series={course.series} course={course.course}>
+            <CourseExport series={course.series} course={course.course} edition={edition} />
+            <CourseRemove series={course.series} course={course.course} title={title} />
+          </CourseUpkeep>
+          <HeardLine series={course.series} course={course.course} compact />
+        </>
       )}
       {next && nextTitle && (
         <p className="mt-3 line-clamp-2 text-sm" title={nextTitle}>
