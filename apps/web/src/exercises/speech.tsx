@@ -62,20 +62,20 @@ function Heard({
       </p>
       {check?.diff && verdict && verdict !== "correct" && (
         <p {...inLang(lang)} className="flex flex-wrap gap-x-1.5 gap-y-1 text-lg leading-relaxed">
-          {check.diff
-            .filter((d) => d.op !== "extra")
-            .map((d, i) => (
-              <span
-                // biome-ignore lint/suspicious/noArrayIndexKey: the words of one fixed phrase
-                key={i}
-                className={cn(
-                  "rounded px-1",
-                  d.op === "equal" ? "text-correct" : "bg-wrong-soft text-wrong",
-                )}
-              >
-                {d.expected ?? d.actual}
-              </span>
-            ))}
+          {/* The answer's words, right or missed; a word said beyond them struck through. */}
+          {check.diff.map((d, i) => (
+            <span
+              // biome-ignore lint/suspicious/noArrayIndexKey: the words of one fixed phrase
+              key={i}
+              className={cn(
+                "rounded px-1",
+                d.op === "equal" ? "text-correct" : "bg-wrong-soft text-wrong",
+                d.op === "extra" && "line-through",
+              )}
+            >
+              {d.expected ?? d.actual}
+            </span>
+          ))}
         </p>
       )}
     </div>
