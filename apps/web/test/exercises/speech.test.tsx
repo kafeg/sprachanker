@@ -1,6 +1,7 @@
 import { afterEach, expect, test } from "bun:test";
 import type { ItemKey } from "@sprachanker/schema";
 import { act, fireEvent } from "@testing-library/react";
+import { useState } from "react";
 import { SpeechProvider } from "../../src/audio/context.ts";
 import { HeardAnswers } from "../../src/exercises/shared.tsx";
 import { SpeechRepeat, SpeechSelfrate } from "../../src/exercises/speech.tsx";
@@ -320,6 +321,47 @@ test("the source's answer is not offered before the first try", async () => {
     </SpeechProvider>,
   );
   expect(view.queryByRole("button", { name: "Hear the right answer" })).toBeNull();
+});
+
+test("the right answer only once the answer is checked: not while the take is heard, nor while it waits to be heard", async () => {
+  setSecure(true);
+  const mic = microphone(0.2);
+  const framed = {
+    key: item.key,
+    reference: ["Guten Abend. Danke, gut ..."],
+    answerAudio: "media/audio/answer.mp3",
+  };
+  const heard = {
+    texts: { "media/audio/answer.mp3": "Guten Abend! Danke, gut. Und dir?" },
+    pending: false,
+  };
+  function Held() {
+    const [answer, setAnswer] = useState<{ recording?: string; transcript?: string }>();
+    return <SpeechSelfrate item={framed} answer={answer} onAnswer={setAnswer} url={(p) => p} />;
+  }
+  const slow = slowHost();
+  const view = await renderApp(
+    <SpeechProvider value={slow.value}>
+      <TargetLang value="de">
+        <HeardAnswers.Provider value={heard}>
+          <Held />
+        </HeardAnswers.Provider>
+      </TargetLang>
+    </SpeechProvider>,
+  );
+  await recordTake(view);
+  expect(view.getByText("Listening to it…")).toBeTruthy();
+  expect(view.queryByText("Correct answer:")).toBeNull();
+  // Kept before it is heard (hearing slow): still no right answer.
+  await later();
+  expect(view.getByText(/^Not heard yet/)).toBeTruthy();
+  expect(view.queryByText("Correct answer:")).toBeNull();
+  await act(async () => slow.hear("Guten Abend, danke gut, und dir"));
+  expect(view.getByText("You said it")).toBeTruthy();
+  expect(view.getByText("Correct answer:")).toBeTruthy();
+  expect(view.getByRole("button", { name: "Hear the right answer" })).toBeTruthy();
+  view.unmount();
+  mic.restore();
 });
 
 test("saying a phrase: shown at once; without recognition the microphone says why; what was heard checked against it", async () => {

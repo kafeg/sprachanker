@@ -202,6 +202,8 @@ test("an answer said aloud checked against the source's answer as heard, without
     await page.waitForTimeout(1200);
     await card.getByRole("button", { name: "Stop recording" }).click();
   };
+  // The right answer only once the answer is checked.
+  await expect(card.getByText("Correct answer:")).toHaveCount(0);
   await say();
   await expect(
     card.getByText("Not the answer asked for: compare with the right answer"),

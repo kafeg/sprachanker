@@ -290,15 +290,18 @@ export function SpeechSelfrate({
 
   const attempted = answer !== undefined || !!take;
   const textShown = readOnly || !listen || attempted || reveal;
-  // The right answer once the learner has tried (their answer first): the source's as heard — its
-  // runs that complete the frame, or the whole of it — and its recording.
+  // Checked: the answer as it stays — what was heard shown with its verdict, or a take kept with
+  // nothing to hear in it —, not while it is being heard.
+  const checked = readOnly || (answer !== undefined && !saving && !takes.late);
+  // The right answer once the answer is checked, as other exercises reveal theirs after Check: the
+  // source's as heard — its runs that complete the frame, or the whole of it — and its recording.
   const rightText =
     target && !target.exact && heardText
       ? target.frames.length
         ? target.answers
         : [heardText.trim()]
       : [];
-  const right = (readOnly || attempted) && (!!item.answerAudio || rightText.length > 0) && (
+  const right = checked && (!!item.answerAudio || rightText.length > 0) && (
     <div className="space-y-1.5 rounded-xl border px-4 py-3">
       <p className="text-sm text-muted-foreground">{t("lesson.correctAnswer")}</p>
       {rightText.length > 0 && (

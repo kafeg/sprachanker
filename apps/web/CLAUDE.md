@@ -27,7 +27,7 @@ apps/web/src/
                    # works: the method, buttons, card types, actions, keys), review-settings (Settings →
                    # Review: daily limits, retention, card types, how it works); slots (what optional features add: a deck's AI examples on cards and under decks)
   exercises/       # one renderer per exercise type (index.tsx; speech: the speaking ones — an answer said aloud judged, the right
-                   # answer shown after the first try, HeardAnswers: the source's answers as heard, from the player); dnd (chips
+                   # answer shown once it is checked, HeardAnswers: the source's answers as heard, from the player); dnd (chips
                    # placed by drag or tap); item-card (an item with its prompt, media and renderer:
                    # answered in the player, read-only in the Notebook); no API calls
   exams/           # exams: card (the list's), page (an exam's: modes, the latest mock exam, sources),
