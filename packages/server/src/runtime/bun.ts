@@ -165,7 +165,8 @@ export const vacuumInto = (sqlite: Database, target: string) =>
 
 /** A SQLite file in WAL mode with its migrations applied (backed up first). */
 function openSqlite(file: string, list: Migration[], now: number) {
-  mkdirSync(dirname(file), { recursive: true });
+  // An in-memory database has no folder (Bun on Windows refuses to make "." again: EEXIST).
+  if (file !== ":memory:") mkdirSync(dirname(file), { recursive: true });
   const sqlite = new Database(file, { create: true, strict: true });
   // Another connection writing (the command line beside a server, a daily copy) is waited for, not
   // failed at once.
