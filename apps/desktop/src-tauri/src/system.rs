@@ -126,10 +126,16 @@ fn words(line: &str) -> Vec<String> {
 
 #[cfg(target_os = "linux")]
 pub fn service(home: &Path) -> Option<Service> {
-    let file = user_home().join(".config/systemd/user").join(UNIT);
+    // Where install.sh writes it: XDG_CONFIG_HOME (when absolute), else ~/.config.
+    let config = std::env::var_os("XDG_CONFIG_HOME")
+        .map(PathBuf::from)
+        .filter(|p| p.is_absolute())
+        .unwrap_or_else(|| user_home().join(".config"));
+    let file = config.join("systemd/user").join(UNIT);
     let body = fs::read_to_string(&file).ok()?;
     let exec = body.lines().find_map(|l| l.trim().strip_prefix("ExecStart="))?;
-    let args = words(exec);
+    // systemd's %% is a folder's own %.
+    let args: Vec<String> = words(exec).into_iter().map(|w| w.replace("%%", "%")).collect();
     let after = |flag: &str| {
         let at = args.iter().position(|a| a == flag)?;
         args.get(at + 1).cloned()

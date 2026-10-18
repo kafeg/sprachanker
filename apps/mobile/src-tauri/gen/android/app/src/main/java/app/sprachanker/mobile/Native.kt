@@ -151,6 +151,21 @@ class Native(private val activity: Activity, private val webView: WebView, priva
     }
   }
 
+  /** The page started (again, a reload): what a page before it began and can no longer end — its
+   *  work, its readings — let go. */
+  @JavascriptInterface fun pageStarted() {
+    guard()
+    synchronized(this) {
+      if (working > 0) {
+        working = 0
+        WorkService.stop(activity)
+      }
+      reading = 0
+      WorkService.awake(activity, "reading", false)
+      keepRenderer()
+    }
+  }
+
   private var hosting = false
 
   /** The page's renderer kept as important as the app while work goes on, an engine reads or the app

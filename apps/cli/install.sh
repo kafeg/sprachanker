@@ -32,7 +32,10 @@ argument() {
   if [[ $SYSTEM == Darwin && -f "$PLIST" ]]; then
     tr -d '\n' <"$PLIST" | sed -n "s|.*<string>$flag</string> *<string>\([^<]*\)</string>.*|\1|p"
   elif [[ $SYSTEM == Linux && -f "$UNIT_FILE" ]]; then
-    sed -n "s|^ExecStart=.* $flag \"\{0,1\}\([^\" ]*\)\"\{0,1\}.*|\1|p" "$UNIT_FILE"
+    # A quoted value whole (a folder with spaces), else up to the next space; systemd's %% back to %.
+    sed -n -e "s|^ExecStart=.* $flag \"\([^\"]*\)\".*|\1|p;t" -e "s|^ExecStart=.* $flag \([^\" ]*\).*|\1|p" "$UNIT_FILE" |
+      sed 's/%%/%/g'
+
   fi
 }
 HOME_DIR="${SPRACHANKER_HOME:-$(argument --data)}"
@@ -133,17 +136,20 @@ PLIST
   launchctl bootstrap "$DOMAIN" "$PLIST"
 elif command -v systemctl >/dev/null && systemctl --user show-environment >/dev/null 2>&1; then
   mkdir -p "$(dirname "$UNIT_FILE")"
+  # systemd reads % as its specifiers: a folder's own % written %%.
+  unit_bin="${BIN//%/%%}"
+  unit_home="${HOME_DIR//%/%%}"
   cat >"$UNIT_FILE" <<UNIT
 [Unit]
 Description=SprachAnker
 
 [Service]
-ExecStart="$BIN/sprachanker" serve --data "$HOME_DIR" --host $HOST --port $PORT
-WorkingDirectory=$BIN
+ExecStart="$unit_bin/sprachanker" serve --data "$unit_home" --host "$HOST" --port "$PORT"
+WorkingDirectory=$unit_bin
 Restart=always
 RestartSec=2
-StandardOutput=append:$BIN/serve.log
-StandardError=append:$BIN/serve.log
+StandardOutput=append:$unit_bin/serve.log
+StandardError=append:$unit_bin/serve.log
 
 [Install]
 WantedBy=default.target

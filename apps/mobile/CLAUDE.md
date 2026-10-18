@@ -69,8 +69,8 @@ src-tauri/
                        # once —, requests to other hosts, a file into Downloads, `reading`), WorkService.kt (a
                        # foreground service while work goes on or the app is open to others, its Close ends
                        # the app; `awake`: the CPU's wake locks), Voices.kt (TextToSpeech: installed voices),
-                       # Updates.kt (a newer APK: downloaded, checked, to the installer); build.gradle.kts
-                       # signs the release with SPRACHANKER_KEYSTORE's key
+                       # Updates.kt (a newer APK: downloaded, checked, to the installer); the release build
+                       # unsigned (phone.ts `sign` signs it apart, the key in no build's environment)
   gen/apple/           # the iOS project Tauri generated (`cargo tauri ios init`; xcodegen, CocoaPods)
 ```
 
@@ -85,7 +85,7 @@ src-tauri/
 - A release-signed APK installs over a debug-signed one only after an uninstall (another key): move a
   learner's courses and profiles off first (profile and course files), or keep the debug build there.
 - `bun scripts/phone.ts install|course|practice|models` does the above (`ANDROID_SERIAL`: which phone); `apk`: the
-  release's APK into apk/, signed with the project's key (secrets; the release workflow). The app lists its
+  release's APK into apk/, unsigned; `sign`: signed with the project's key, its certificate checked. The app lists its
   files as it starts: files pushed show after it is started again.
 - The data root is `/sdcard/Android/data/app.sprachanker.mobile/files/` (`adb push` reaches it): `library/<series>/`
   as on the Mac (a course bundle unpacked), `models/` (q8_0 on Android), `profiles/`, `server.sqlite`, `secret.key`.

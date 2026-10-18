@@ -14,11 +14,6 @@ val tauriProperties = Properties().apply {
     }
 }
 
-// The release build signed with the project's key, so that each version installs over the one before:
-// the keystore's path and passwords from the environment (the release workflow's secrets; the key is
-// kept out of the repository). Without them a release build is left unsigned.
-val keystore: String? = System.getenv("SPRACHANKER_KEYSTORE")
-
 android {
     compileSdk = 37
     namespace = "app.sprachanker.mobile"
@@ -29,16 +24,6 @@ android {
         targetSdk = 37
         versionCode = tauriProperties.getProperty("tauri.android.versionCode", "1").toInt()
         versionName = tauriProperties.getProperty("tauri.android.versionName", "1.0")
-    }
-    if (keystore != null) {
-        signingConfigs {
-            create("release") {
-                storeFile = file(keystore)
-                storePassword = System.getenv("SPRACHANKER_KEYSTORE_PASSWORD")
-                keyAlias = System.getenv("SPRACHANKER_KEY_ALIAS") ?: "sprachanker"
-                keyPassword = System.getenv("SPRACHANKER_KEYSTORE_PASSWORD")
-            }
-        }
     }
     buildTypes {
         getByName("debug") {
@@ -54,7 +39,6 @@ android {
             }
         }
         getByName("release") {
-            if (keystore != null) signingConfig = signingConfigs.getByName("release")
             optimization {
                enable = true
             }

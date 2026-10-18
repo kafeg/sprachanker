@@ -184,7 +184,8 @@ async function start() {
   const server = drizzle(sqlite.db, { schema: serverSchema }) as ServerDb;
   const profiles = await profileFiles(files);
   const engines = await native.enginesBuilt();
-  // Engines a page before this one started (a reload) have no owner now.
+  // Engines a page before this one started (a reload) have no owner now, nor its work and readings.
+  bridge?.pageStarted();
   if (engines.length) await native.enginesStopAll();
   const storage = fs && root ? storageOver(fs, root, profiles, engines) : undefined;
   const speech = phoneSpeech(storage?.models ?? notOnPhone("speech models"), {

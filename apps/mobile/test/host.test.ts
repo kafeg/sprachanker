@@ -3,7 +3,13 @@
 // handed on and its header kept back, a file of the app's left to the native side, a body pulled as
 // the server reads it, a device gone mid-answer.
 import { expect, test } from "bun:test";
-import { answerOthers, type HostMessage, type HostNative, NativeFile } from "../src/host.ts";
+import {
+  answerOthers,
+  asksInstall,
+  type HostMessage,
+  type HostNative,
+  NativeFile,
+} from "../src/host.ts";
 
 type Answer = {
   status: number;
@@ -225,6 +231,42 @@ test("a host a browser would not send is refused", async () => {
     expect(fake.answers.get(1)?.status).toBe(400);
   }
   expect(asked).toBe(false);
+});
+
+test("the newer version's install refused to another device however its path is spelt; the rest answered", async () => {
+  const fake = fakeNative();
+  const asked: string[] = [];
+  const listen = answerOthers(fake.native, async () => ({
+    fetch: (request: Request) => {
+      asked.push(`${request.method} ${new URL(request.url).pathname}`);
+      return new Response("x");
+    },
+  }));
+  const spellings: Array<[string, string]> = [
+    ["POST", "/api/update/install"],
+    ["post", "/api/update/install"],
+    ["POST", "/api/./update/install"],
+    ["POST", "/api/x/../update/install"],
+    ["POST", "/api/%2e/update/install"],
+    ["POST", "/api/update/%69nstall"],
+    ["POST", "/api/update/install?x=1"],
+    ["POST", "/api/update/install#a"],
+    ["POST", "/API/Update/Install/"],
+    ["POST", "//api//update/install"],
+    ["PUT", "/api/update/install"],
+    ["POST", "/api/update/%E0%A4%A"],
+  ];
+  for (const [method, path] of spellings) {
+    fake.answers.clear();
+    listen(head(path, [], method));
+    await new Promise((r) => setTimeout(r, 5));
+    expect([method, path, fake.answers.get(1)?.status]).toEqual([method, path, 403]);
+  }
+  expect(asked).toEqual([]);
+  listen(head("/api/update"));
+  await new Promise((r) => setTimeout(r, 5));
+  expect(asked).toEqual(["GET /api/update"]);
+  expect(asksInstall(new Request("http://h/api/update/install"))).toBe(false);
 });
 
 test("the device gone: the server's body stopped mid-answer; a request not answered yet aborted", async () => {

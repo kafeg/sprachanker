@@ -55,12 +55,14 @@ class Updates(private val activity: Activity, private val webView: WebView, priv
     }
   }
 
-  /** The APK in the app's cache (the one before it removed), its bytes summed as they come. */
+  /** The APK in the app's cache, named by its sha256 (others there removed), its bytes summed as they
+   *  come; one already there and whole is taken again (a second tap: the installer may be reading it). */
   private fun download(url: String, sha256: String, size: Long): File {
     val dir = File(activity.cacheDir, "updates")
-    dir.deleteRecursively()
     dir.mkdirs()
-    val apk = File(dir, "SprachAnker.apk")
+    val apk = File(dir, "$sha256.apk")
+    dir.listFiles()?.forEach { if (it != apk) it.deleteRecursively() }
+    if (apk.length() == size && sumOf(apk) == sha256) return apk
     var target = URL(url)
     var connection: HttpURLConnection
     var hops = 0
@@ -78,30 +80,56 @@ class Updates(private val activity: Activity, private val webView: WebView, priv
         connection.disconnect()
         continue
       }
-      if (status != 200) throw IOException("HTTP $status")
+      if (status != 200) {
+        connection.disconnect()
+        throw IOException("HTTP $status")
+      }
       break
     }
     val digest = MessageDigest.getInstance("SHA-256")
     var total = 0L
-    connection.inputStream.use { input ->
-      apk.outputStream().use { output ->
-        val buffer = ByteArray(1 shl 16)
-        while (true) {
-          val n = input.read(buffer)
-          if (n < 0) break
-          total += n
-          if (total > size) throw IOException("larger than the release says")
-          digest.update(buffer, 0, n)
-          output.write(buffer, 0, n)
+    try {
+      connection.inputStream.use { input ->
+        apk.outputStream().use { output ->
+          val buffer = ByteArray(1 shl 16)
+          while (true) {
+            val n = input.read(buffer)
+            if (n < 0) break
+            total += n
+            if (total > size) throw IOException("larger than the release says")
+            digest.update(buffer, 0, n)
+            output.write(buffer, 0, n)
+          }
         }
       }
+    } catch (e: IOException) {
+      apk.delete()
+      throw e
+    } finally {
+      connection.disconnect()
     }
-    val sum = digest.digest().joinToString("") { "%02x".format(it) }
+    val sum = hex(digest.digest())
     if (total != size || sum != sha256) {
       apk.delete()
       throw IOException("the download is not the release's file")
     }
     return apk
+  }
+
+  private fun hex(bytes: ByteArray) = bytes.joinToString("") { "%02x".format(it) }
+
+  /** A file's sha256 (hex). */
+  private fun sumOf(file: File): String {
+    val digest = MessageDigest.getInstance("SHA-256")
+    file.inputStream().use { input ->
+      val buffer = ByteArray(1 shl 16)
+      while (true) {
+        val n = input.read(buffer)
+        if (n < 0) break
+        digest.update(buffer, 0, n)
+      }
+    }
+    return hex(digest.digest())
   }
 
   /** Android's screen to let this app install apps, waited on (two minutes at most). */

@@ -3,6 +3,7 @@
 // GitHub over HTTPS, takes only a later version, downloads the file for this system and checks it
 // against the minisign key in tauri.conf.json — and the version it was signed for — before it is
 // installed; then the app starts again.
+use std::sync::atomic::{AtomicBool, Ordering};
 use std::sync::Arc;
 
 use tauri::{AppHandle, Manager};
@@ -17,8 +18,21 @@ fn failed(step: &str, error: impl std::fmt::Display) -> String {
     said
 }
 
+/// An update under way: a second (a reloaded page, a second click) is refused — two replacing the
+/// app at once could leave it broken.
+static INSTALLING: AtomicBool = AtomicBool::new(false);
+
 #[tauri::command]
 pub async fn install_update(app: AppHandle) -> Result<(), String> {
+    if INSTALLING.swap(true, Ordering::SeqCst) {
+        return Err(failed("installing", "an update is under way already"));
+    }
+    let done = install(&app).await;
+    INSTALLING.store(false, Ordering::SeqCst);
+    done
+}
+
+async fn install(app: &AppHandle) -> Result<(), String> {
     let update = app
         .updater()
         .map_err(|e| failed("the updater", e))?

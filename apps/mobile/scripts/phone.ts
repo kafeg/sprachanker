@@ -1,17 +1,18 @@
 // The phone app looked after from this Mac over adb (Wi-Fi or a cable), until the app does it
 // itself: built (Whisper and reading aloud's engines for the phone too) and installed; a course of this Mac's library put on the phone (exported as a
 // bundle by the `sprachanker` command, unpacked, pushed — only what the phone lacks); a course's
-// AI practice brought up to date; Whisper's models put there. `apk`: the release's APK, signed with
-// the project's key (SPRACHANKER_KEYSTORE, SPRACHANKER_KEYSTORE_PASSWORD; the release workflow's),
-// into apk/ — no phone needed.
-//   bun scripts/phone.ts install | apk
+// AI practice brought up to date; Whisper's models put there. `apk`: the release's APK, unsigned, into
+// apk/ — no phone needed; `sign`: that APK signed with the project's key (SPRACHANKER_KEYSTORE,
+// SPRACHANKER_KEYSTORE_PASSWORD: the release workflow's, in that step alone — no build sees the key)
+// and checked to carry the project's certificate.
+//   bun scripts/phone.ts install | apk | sign
 //   bun scripts/phone.ts course dw.nicos-weg/a1-ru --editions ru-de
 //   bun scripts/phone.ts practice dw.nicos-weg/a1-ru --editions ru-de
 //   bun scripts/phone.ts models
 //   bun scripts/phone.ts page 'location.href' | @file.js   (an expression in the app's page, over DevTools)
 // `ANDROID_SERIAL` picks the phone; `SPRACHANKER_DATA` the Mac's data root (~/SprachAnker).
 import { execFileSync } from "node:child_process";
-import { copyFileSync, existsSync, mkdirSync, readdirSync, rmSync } from "node:fs";
+import { copyFileSync, existsSync, mkdirSync, readdirSync, renameSync, rmSync } from "node:fs";
 import { homedir, tmpdir } from "node:os";
 import { join } from "node:path";
 import { $ } from "bun";
@@ -92,17 +93,43 @@ async function install() {
 }
 
 /** The release's APK, signed with the project's key, as the release names it. */
+/** The release's APKs are put here, named as the release names them. */
+const apkDir = join(here, "apk");
+
+/** The release's APK, unsigned (`sign` signs it), as the release names it. */
 async function releaseApk() {
-  if (!process.env.SPRACHANKER_KEYSTORE)
-    throw new Error(
-      "SPRACHANKER_KEYSTORE (and its password) not set: the release key signs the APK",
-    );
   const { apk, version } = await build(true);
-  const out = join(here, "apk");
-  rmSync(out, { recursive: true, force: true });
-  mkdirSync(out, { recursive: true });
-  copyFileSync(apk, join(out, `SprachAnker-${version}-android.apk`));
-  console.log(`${out}/SprachAnker-${version}-android.apk`);
+  rmSync(apkDir, { recursive: true, force: true });
+  mkdirSync(apkDir, { recursive: true });
+  copyFileSync(apk, join(apkDir, `SprachAnker-${version}-android.apk`));
+  console.log(`${apkDir}/SprachAnker-${version}-android.apk`);
+}
+
+/** The certificate every release APK is signed with (its SHA-256): Android installs a newer APK over
+ *  the app only with the same one. A key other than the project's is refused here. */
+const RELEASE_CERT = "793f5235897fc2e85777c98a32f14bdb45a6f12de3dfba9b91ee4883aa2b9967";
+
+/** The APK in apk/ aligned and signed with the release key, then checked to carry its certificate. */
+async function signApk() {
+  const keystore = process.env.SPRACHANKER_KEYSTORE;
+  if (!keystore || !process.env.SPRACHANKER_KEYSTORE_PASSWORD)
+    throw new Error("SPRACHANKER_KEYSTORE and SPRACHANKER_KEYSTORE_PASSWORD: the release key");
+  const name = readdirSync(apkDir).find((f) => f.endsWith("-android.apk"));
+  if (!name) throw new Error(`no APK in ${apkDir} (bun scripts/phone.ts apk)`);
+  const env = androidEnv();
+  const tools = join(env.ANDROID_HOME, "build-tools");
+  const newest = readdirSync(tools).sort((a, b) => a.localeCompare(b, "en", { numeric: true }));
+  const tool = (program: string) => join(tools, newest.at(-1) ?? "", program);
+  const apk = join(apkDir, name);
+  const aligned = `${apk}.aligned`;
+  await $`${tool("zipalign")} -f -p 4 ${apk} ${aligned}`;
+  renameSync(aligned, apk);
+  // The password from the environment by name: never on a command line.
+  await $`${tool("apksigner")} sign --ks ${keystore} --ks-key-alias ${process.env.SPRACHANKER_KEY_ALIAS ?? "sprachanker"} --ks-pass env:SPRACHANKER_KEYSTORE_PASSWORD --key-pass env:SPRACHANKER_KEYSTORE_PASSWORD ${apk}`;
+  const certs = await $`${tool("apksigner")} verify --print-certs ${apk}`.text();
+  if (!certs.includes(`certificate SHA-256 digest: ${RELEASE_CERT}`))
+    throw new Error(`${name} is not signed with the project's release key`);
+  console.log(`${apk}: signed with the release key`);
 }
 
 /** A course's bundle exported from this Mac's library and unpacked: its folder (the series'). */
@@ -217,6 +244,7 @@ async function evaluate(expression: string) {
 const [what, arg] = process.argv.slice(2);
 if (what === "install") await install();
 else if (what === "apk") await releaseApk();
+else if (what === "sign") await signApk();
 else if (what === "course" && arg) await course(arg);
 else if (what === "practice" && arg) await practice(arg);
 else if (what === "models") models();
