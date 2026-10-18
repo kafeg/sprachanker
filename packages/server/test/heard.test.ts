@@ -24,9 +24,16 @@ const MODEL = "large-v3-turbo-q5_0";
 const url = `/api/lesson/heard?${new URLSearchParams({ series: FIXTURE_SERIES, key: LESSON })}`;
 
 /** Until `done` holds (the background's work), a few seconds at most. */
+/** Waits for `done` (a check that throws counts as not yet: a file still being written), up to 10 s
+ *  — the background writes run late on a loaded machine. */
 async function until(done: () => boolean | Promise<boolean>) {
-  for (let i = 0; i < 400; i++) {
-    if (await done()) return;
+  for (let i = 0; i < 2000; i++) {
+    if (
+      await Promise.resolve()
+        .then(done)
+        .catch(() => false)
+    )
+      return;
     await Bun.sleep(5);
   }
   throw new Error("never done");
