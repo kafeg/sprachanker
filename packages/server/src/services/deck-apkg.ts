@@ -132,7 +132,7 @@ export function createDeckApkg(deps: {
           const name = isFindsDeck(folder)
             ? `finds-${lang}-${words[0]?.lang}`
             : folder.replace(/^course~/, "").replaceAll("~", "-");
-          const pair = scope.startsWith("course:") ? `-${lang}` : "";
+          const pair = scope.startsWith("course:") && !name.endsWith(`-${lang}`) ? `-${lang}` : "";
           const fileName = `${name}${pair}-${day}${APKG_EXTENSION}`;
           exports.keep(staged.id, profile, { head: written.head, paths, fileName, bytes });
           const withAudio = sources.filter((s) => s && names.has(s.path)).length;
