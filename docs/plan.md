@@ -143,6 +143,7 @@ its page is opened (today: at the next start, or when the page asks); the German
 irregular verbs of engine `text/words.ts` (a model's word form checked) as language data too.
 
 ## Open items in built areas
+- Speech on a CPU without AVX2 (an old PC, a VM): the engines crash on the first model and the learner sees only "the engine failed" — say that this computer's processor cannot run them (seen on a Windows VM, 2026-10-18).
 Taken along when an item above touches the area, or on request.
 - Library: a key map for the providers that still number by position (DW and the providers using
   `openKeyMap` keep keys when the source reorders); `normalise <series>` from `raw/` offline;

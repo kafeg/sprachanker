@@ -56,6 +56,7 @@ gh secret set ANDROID_KEYSTORE_PASSWORD -R kafeg/sprachanker < <secrets>/android
 ## Trying a build on the lab's VMs (before a tag)
 The lab's Windows 10 VM `ghr-win10` and Debian 11 VM `ghr-deb11` are the owner's work build machines: one VM at a time, started and shut down through the Proxmox API, reached over SSH (how, and the keys: the owner's private lab notes). Toolchains in the user's profile; the checkout stays for the next run:
 - `ghr-win10`: `~\sprachanker` (Bun in `~\.bun`, Rust in `~\.cargo`; Visual Studio 2022 and CMake are the VM's own); its log `~\sprachanker-build.log`.
+  ⚠️ Speech (Whisper, Qwen) needs AVX2: its CPU type is `x86-64-v2-AES` (none) — for a speech test set it to `x86-64-v3`, then restart Windows from inside (`shutdown /r`: Fast Startup keeps the old CPU state through an API shutdown or reboot); set it back after, shutting down from inside (`shutdown /s`).
   ```powershell
   $env:PATH="$env:USERPROFILE\.bun\bin;$env:USERPROFILE\.cargo\bin;$env:PATH"; cd ~\sprachanker
   git fetch <bundle or origin> <branch>; git checkout -B <branch> FETCH_HEAD
