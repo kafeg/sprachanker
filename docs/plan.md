@@ -88,6 +88,21 @@ and mockups: the owner's page "Goethe в SprachAnker"; background: `docs/researc
   word instead of 7–11 s (measured on the POCO, 2026-10-18) — hold a partial wake lock while an engine
   reads (a deck's words, practice made on the phone), let go when idle.
 
+### 5. Fewer model calls where the course or the engine can answer (owner, 2026-10-18)
+The audit of every model call: `docs/research/llm-usage.md`. Done: a spoken answer is checked by the
+engine against the source's answer heard into the course (the AI only where it cannot judge, or on
+"Why?"). Proposed, for the owner to choose:
+- The selection bar's Translate: the installed lessons' words, the decks and the learner's cards
+  looked up first (by lexeme and form); the model only for words and phrases none has.
+- An exam's speaking script made once per exam item and hint language, not once per run.
+- "Why is this wrong?" kept by item, answer and language across passes, not per run; a deck's word
+  examples taken from the course's sentences first.
+- The old Dialogue's routes, service and prompts removed (no screen reaches them).
+- `exam_rating` and `speaking_check` without thinking, as the other checks the learner waits for.
+Follow-ups of the spoken check: numbers as words in a frame ("von acht … zwölf") do not meet
+Whisper's digits — such recordings are not used yet; the right answer's text in the Notebook's pass
+and item history (its recording is there).
+
 ## Open items in built areas
 Taken along when an item above touches the area, or on request.
 - Library: a key map for the providers that still number by position (DW and the providers using

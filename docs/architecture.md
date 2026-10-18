@@ -119,7 +119,9 @@ gets the types through Hono RPC (`AppType`), no codegen.
   proposed, taken, cloned); `read-aloud` (Piper's voices,
   a text read as a WAV); what they share in `local-engines` (the runtime's SpeechHost, the reading
   cache Piper and Qwen3-TTS both keep their WAVs in) and `model-downloads`; `profile-speech` (a profile's
-  choices applied); `recordings` (the learner's audio per profile). The runtime side: `runtime/engines.ts`
+  choices applied); `recordings` (the learner's audio per profile); `heard` (the source's answer
+  recordings heard once by Whisper into the course, `library/<series>/heard/`: the engine checks an
+  answer said aloud against them, the AI only where it cannot judge). The runtime side: `runtime/engines.ts`
   (where each engine is, their processes), `speech.ts`, `piper.ts`, `model-files.ts`, `readings.ts`.
 - **Profiles** (`profiles`, `devices`): every profile equal, never nameless; a device signs in by
   choosing a profile and keeps a revocable token; server matters are the `sprachanker profiles`

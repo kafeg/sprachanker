@@ -9,8 +9,12 @@ No network, no filesystem, no `Date.now` — time and randomness are parameters.
 src/
   compose/        # steps.ts: the lesson plan as steps (going over mistakes only with some:
                   # practiceInPlan), what is done, where a run resumes
-  check/          # index.ts: checkItem(exercise, item, answer) → Outcome (+ diff, parts), one case per
-                  # type; itemScored; answers.ts: checked or not, an answer complete, the words said;
+  check/          # index.ts: checkItem(exercise, item, answer, lang, heard?) → Outcome (+ diff, parts),
+                  # one case per type; itemScored; outcome.ts: graders and words against references
+                  # (spokenCheck); spoken.ts: an answer said aloud judged against the line to say or
+                  # the source's answer as heard (a frame completed, the shortest runs of sentences:
+                  # spokenAnswers, judgeSpoken); answers.ts: checked or not, an answer complete, the
+                  # words said, the recording an item is checked by (answerToHear);
                   # understanding.ts: Understanding's questions as items of their types, its stage;
                   # mistake-items.ts: going over mistakes' new items as items of their types, a
                   # review's items numbered across its groups, where the learner is
@@ -20,7 +24,8 @@ src/
   learner/        # mistakes, practice (how each AI practice step went: its first work marked as an
                   # exercise), going-over (a run's mistakes to go over in the lesson and whether it has
                   # any; a mistake's wrong parts only, grouped by type, those said aloud and
-                  # Understanding's listed only), lesson progress, study days (activity: counted by
+                  # Understanding's listed only), lesson progress (an exercise's mark: a spoken answer by its check —
+                  # the engine's, else the model's —, answerMark), study days (activity: counted by
                   # module, the run's kind, the time each took); series: a span cut into bars (days, weeks, months) for the
                   # Notebook's pictures; planned: rule mastery, can-do
   exam/           # exams: the settings as an exam reads them, the questions open to a learner (a

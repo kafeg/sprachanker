@@ -26,7 +26,8 @@ apps/web/src/
                    # read aloud by the server: who reads them, generate, remove, regenerate, progress, stop; a deck taken: its line), examples (a word's own and the AI's: one line each, played; the card shows one at a time), deck-link (a card's way to its deck: audio, examples to make; an icon in its corner on a phone), word-sheet (a word with cards in full: forms, faces, answers), guide (how review
                    # works: the method, buttons, card types, actions, keys), review-settings (Settings →
                    # Review: daily limits, retention, card types, how it works); slots (what optional features add: a deck's AI examples on cards and under decks)
-  exercises/       # one renderer per exercise type (index.tsx; speech: the speaking ones); dnd (chips
+  exercises/       # one renderer per exercise type (index.tsx; speech: the speaking ones — an answer said aloud judged, the right
+                   # answer shown after the first try, HeardAnswers: the source's answers as heard, from the player); dnd (chips
                    # placed by drag or tap); item-card (an item with its prompt, media and renderer:
                    # answered in the player, read-only in the Notebook); no API calls
   exams/           # exams: card (the list's), page (an exam's: modes, the latest mock exam, sources),

@@ -22,7 +22,7 @@ src/
                      # course-transfer.ts (bundles, one path everywhere: a course or every group (exportAll) zipped as streamed from
                      # the library; read as they come, what the library lacks written as it passes, checked and installed by
                      # course-kit's bundle.ts under the lock, verified; one stopped midway undone at the start); decks.ts (deck folders written whole: replaceFolder; extras.json, media;
-                     # .apkg uploads); deck-transfer.ts (deck files: zipped, read, unpacked, placed); practice.ts (addPractice, locked);
+                     # .apkg uploads); deck-transfer.ts (deck files: zipped, read, unpacked, placed); practice.ts (addPractice, locked); heard.ts (addHeard, locked);
                      # readings.ts (what was read aloud, kept in cache/tts: made once, stopped once no request waits)
   runtime/           # Bun/Node adapters: listen, web assets, sqlite, secret key, data-root.ts (one server per data root: server.pid;
                      # nodeDataRoot over Node's files); process-name.ts (`ps` names a pid); lmstudio.ts (detect, `lms server start`);
@@ -42,7 +42,7 @@ src/
                      # a request that does not validate)
   routes/            # one file per API area, mounted by app.ts: profiles (who is studying, signing in and out, a profile file
                      # imported — before the session check; the profile itself, its export — after it), courses (courses, catalog,
-                     # downloads, a course removed, lesson content), lessons (lesson runs: /api/runs), progress (reset), exams, cards
+                     # downloads, a course removed, lesson content, a lesson's answers heard), lessons (lesson runs: /api/runs), progress (reset), exams, cards
                      # (a card's examples too), decks (imported: list, preview, import, an upload let go, delete; deck files; read
                      # aloud, examples), settings, notebook, recordings, speech, llm (removable as a whole; words selected kept in
                      # Finds: /api/llm/finds, their audio after: /finds/audio), network (the addresses the app is reached at); env.ts:
@@ -93,10 +93,10 @@ src/
                      #   scripts/piper-voices.ts), qwen-tts (the Base model for words a process of its own; every reading capped by
                      #   its text: maxTokens), word-voice (each language's voice for words: courses' recordings proposed, one taken —
                      #   a WAV the page decoded —, its reader), local-engines (SpeechHost, VoiceStore, ReadingCache, engineSidecar),
-                     #   model-downloads, sidecar (the supervisor), profile-speech, recordings (the learner's audio)
+                     #   model-downloads, sidecar (the supervisor), profile-speech, recordings (the learner's audio), heard (the source's
+                     #   answer recordings heard once into the course: a lesson's as asked, a course's in one go — `sprachanker heard`)
                      # - downloads: course installs (queue, progress, resume; the installer injected)
-  security/          # secrets.ts (AES-GCM sealing of API keys), host.ts (Host check, CSP and security headers), encoding.ts (base64,
-                     # base64url, SHA-256)
+  security/          # secrets.ts (AES-GCM sealing of API keys), host.ts (Host check, CSP and security headers), encoding.ts (base64, base64url, SHA-256)
   media.ts           # Range responses for library and deck folders' media and profile recordings (a type fixed by extension,
                      # sandboxed: mediaType); body limits (JSON 1 MB — every route but those taking a file —, audio); a large file's
                      # length as announced (none: no file)

@@ -11,7 +11,8 @@ src/main.ts         # serve, import, verify, profiles (the server's profile matt
                     # every one with --all: a file a group, checked that each course is in one; a file
                     # imported, each course of it said; one removed — the server's refusals in words), practice
                     # (a course's AI practice made for every lesson by a profile's model: steps,
-                    # count 1–3; --status), backup, version; main(argv, embedded?) — also
+                    # count 1–3; --status), heard (a course's recordings of the source's answers heard
+                    # by Whisper into it; --again), backup, version; main(argv, embedded?) — also
                     # runs from sources
 src/version.ts      # the version reported: set when compiled, counted from git from the sources
 install.sh          # the installer published with each release (curl … | bash): Apple Silicon only; the
