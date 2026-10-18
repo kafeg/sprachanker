@@ -65,7 +65,7 @@ and mockups: the owner's page "Goethe в SprachAnker"; background: `docs/researc
 - iOS: the same app runs in the simulator (a course offline, films, practice); next on an iPhone —
   Xcode with an Apple ID, developer mode, whisper.cpp with Metal / Core ML —, the weekly re-sign.
 - Reading aloud on the phone: Qwen3-TTS on a phone's GPU. Not on the POCO's Adreno 640 (2026-10-18):
-  Mesa's Turnip loads in the engine's own process without root or adrenotools (Vulkan 1.3), but ggml's
+  Mesa's Turnip loads in the engine's own process without root or adrenotools (LineageOS 22.2, Vulkan 1.3), but ggml's
   Vulkan backend needs 16-bit storage buffers, which the Adreno 640 lacks under Turnip and Qualcomm's
   driver alike; ggml's OpenCL backend (Qualcomm's OpenCL 2.0 there) stops on qwentts.cpp's graph —
   a kernel without its 3D-image pragma, Q8_0 get_rows not in its kernels. Next: a phone with Adreno
