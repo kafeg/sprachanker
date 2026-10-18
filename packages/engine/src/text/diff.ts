@@ -14,10 +14,10 @@ export const bareWord = (word: string) => word.replace(/^[\p{P}\p{S}]+|[\p{P}\p{
 
 /** Words only, as written (a text shown corrected keeps its final mark): a dash or a lone mark is
  *  no word (a recogniser never writes one). */
-const words = (text: string) => writtenTokens(text).filter((t) => bareWord(t) !== "");
+export const gradedWords = (text: string) => writtenTokens(text).filter((t) => bareWord(t) !== "");
 
 /** A word as it sounds: case and hyphens are not heard ("Good-bye", "goodbye"). */
-const heard = (lang: string, word: string) =>
+export const wordAsHeard = (lang: string, word: string) =>
   bareWord(word).replace(/-/g, "").toLocaleLowerCase(lang);
 
 /**
@@ -32,18 +32,19 @@ export function wordDiff(
   actual: string,
   spoken = false,
 ): WordDiff {
-  const ref = words(reference);
-  const got = words(actual);
+  const ref = gradedWords(reference);
+  const got = gradedWords(actual);
   const eq = (i: number, j: number) =>
     spoken
-      ? heard(lang, ref[i] as string) === heard(lang, got[j] ?? "")
+      ? wordAsHeard(lang, ref[i] as string) === wordAsHeard(lang, got[j] ?? "")
       : wordMatches(lang, ref, i, got[j] ?? "", { strip: bareWord });
   // Words joined differently: two of the reference as one heard (2:1), or one as two (1:2).
   const joined = (a: string[], i: number, b: string[], j: number) =>
     spoken &&
     i + 1 < a.length &&
     j < b.length &&
-    heard(lang, a[i] as string) + heard(lang, a[i + 1] as string) === heard(lang, b[j] as string);
+    wordAsHeard(lang, a[i] as string) + wordAsHeard(lang, a[i + 1] as string) ===
+      wordAsHeard(lang, b[j] as string);
   const step = (i: number, j: number): [number, number] | undefined =>
     eq(i, j)
       ? [1, 1]

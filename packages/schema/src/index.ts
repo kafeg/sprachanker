@@ -8,6 +8,7 @@ export * from "./enrichment.ts";
 export * from "./errors.ts";
 export * from "./exam.ts";
 export * from "./exercise/index.ts";
+export * from "./heard.ts";
 export * from "./keys.ts";
 export * from "./lang.ts";
 export * from "./learner.ts";

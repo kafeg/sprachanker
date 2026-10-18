@@ -13,6 +13,7 @@ import {
   type CourseBundleCourse,
   CourseBundleManifest,
   type CourseKey,
+  courseBundleVersion,
   type KeyMapFile,
   type MediaIndex,
 } from "@sprachanker/schema";
@@ -182,7 +183,7 @@ export function createCourseTransfer(deps: {
     const paths = staged.files.map((f) => f.path);
     const manifest = JSON.stringify({
       format: COURSE_BUNDLE_FORMAT,
-      version: COURSE_BUNDLE_VERSION,
+      version: courseBundleVersion(paths),
       appVersion: deps.appVersion,
       exportedAt: now(),
       courses: staged.courses,

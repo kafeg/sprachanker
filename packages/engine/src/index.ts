@@ -1,6 +1,7 @@
 export * from "./check/answers.ts";
 export * from "./check/index.ts";
 export * from "./check/mistake-items.ts";
+export * from "./check/spoken.ts";
 export * from "./check/understanding.ts";
 export * from "./compose/steps.ts";
 export * from "./exam/conversation.ts";

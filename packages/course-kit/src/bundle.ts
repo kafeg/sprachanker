@@ -7,17 +7,20 @@ import {
   bundlePathCourse,
   type CourseBundleManifest,
   CourseBundlePath,
+  CourseHeard,
   CourseIndex,
   courseIdOf,
   EditionId,
   Exam,
   ExamSources,
+  heardPath,
   KeyMapFile,
   Lesson,
   LocaleCourse,
   LocaleExam,
   LocaleLesson,
   MediaIndex,
+  mergeHeard,
   mergePractice,
   PracticeLesson,
   practiceRecordings,
@@ -43,9 +46,12 @@ export interface BundleFile {
 const isLibraryJson = (path: string) =>
   path.startsWith("canonical/") ||
   path.startsWith("locale/") ||
-  (path.startsWith("practice/") && path.endsWith(".json"));
+  (path.startsWith("practice/") && path.endsWith(".json")) ||
+  isHeardJson(path);
 /** A practice's lesson file (not one of its recordings). */
 const isPracticeJson = (path: string) => path.startsWith("practice/") && path.endsWith(".json");
+/** A course's recordings heard. */
+const isHeardJson = (path: string) => path.startsWith("heard/") && path.endsWith(".json");
 
 /** A file of a bundle that is never rewritten where it is: a media file (other content gets another
  *  name) or a practice recording. Its library files and source copies are: a later import or practice
@@ -150,6 +156,8 @@ async function courseContent(
     const lesson = PracticeLesson.safeParse(await readJson(fs, joinPath(seriesDir, path)));
     for (const r of lesson.success ? practiceRecordings(lesson.data) : []) recorded.add(r);
   }
+  // Its recordings heard, whatever editions: they are the course's.
+  const heard = fs.stat(joinPath(seriesDir, heardPath(index.key))) ? [heardPath(index.key)] : [];
   const lessons = index.units.some((u) => u.lessons.length);
   return {
     course: index.key,
@@ -157,7 +165,7 @@ async function courseContent(
     editions: chosen,
     source: index.source ?? null,
     titles,
-    json: [...json, ...practice],
+    json: [...json, ...practice, ...heard],
     media: present(named, (p) => library.mediaFile(series, p)),
     copies: [
       ...present(raw, (p) => library.rawFile(series, p)),
@@ -421,6 +429,7 @@ function kindOf(path: string): {
   file: (value: never) => LibraryFile;
 } {
   if (isPracticeJson(path)) return { schema: PracticeLesson, file: libraryFile.practice };
+  if (isHeardJson(path)) return { schema: CourseHeard, file: libraryFile.heard };
   const locale = path.startsWith("locale/");
   if (path.endsWith("/course.json"))
     return locale
@@ -495,6 +504,8 @@ export async function checkBundle(fs: DataFs, files: string, manifest: CourseBun
       for (const r of practiceRecordings(parsed.data as PracticeLesson)) recorded.add(r);
       continue;
     }
+    // Recordings heard are text by media path: they name no file the bundle must hold.
+    if (isHeardJson(path)) continue;
     mediaPaths(parsed.data, named);
     if (path.includes("/sources/"))
       for (const d of (parsed.data as ExamSources).documents) if (d.raw) raw.add(d.raw);
@@ -572,7 +583,8 @@ interface InstallJournal {
   folders: Array<{ prefix: string; had: boolean }>;
   /** The series' files it rewrites (media.json, keys.json): each kept aside as it was, if it was. */
   state: string[];
-  /** Lessons' practice it merges into (`had`: there before; the old one kept aside). */
+  /** Files it merges into — lessons' practice, courses' recordings heard — (`had`: there before; the
+   *  old one kept aside). */
   practice: Array<{ path: string; had: boolean }>;
 }
 
@@ -661,10 +673,22 @@ export async function installBundle(options: {
   ].filter((r) => JSON.stringify(r.value) !== JSON.stringify(r.was));
   const changed = courses.flatMap((c) => c.folders.filter((f) => f.was !== f.now));
   const placed = [...[...plan.unpack].filter((p) => !isLibraryJson(p)), ...plan.link.keys()];
-  // Each lesson's practice merged with the one here; the variants it brings, by course.
-  const practice: Array<{ path: string; had: boolean; value: PracticeLesson }> = [];
+  // Each lesson's practice merged with the one here, and each course's recordings heard; the
+  // practice variants it brings, by course.
+  const practice: Array<{ path: string; had: boolean; value: unknown }> = [];
   const brought = new Map<string, number>();
   for (const f of manifest.files) {
+    if (isHeardJson(f.path)) {
+      const theirs = CourseHeard.parse(await readJson(fs, joinPath(files, f.path)));
+      const target = joinPath(seriesDir, f.path);
+      const ours = fs.stat(target)
+        ? CourseHeard.safeParse(await readJson(fs, target)).data
+        : undefined;
+      const value = ours ? mergeHeard(ours, theirs) : theirs;
+      const count = (h?: CourseHeard) => Object.keys(h?.recordings ?? {}).length;
+      if (!ours || count(value) > count(ours)) practice.push({ path: f.path, had: !!ours, value });
+      continue;
+    }
     if (!isPracticeJson(f.path)) continue;
     const theirs = PracticeLesson.parse(await readJson(fs, joinPath(files, f.path)));
     const target = joinPath(seriesDir, f.path);

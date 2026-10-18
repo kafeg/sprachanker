@@ -12,6 +12,7 @@ import {
   type Outcome,
   parseItemKey,
   type Run,
+  type SpokenCheck,
   type TypedEvent,
 } from "@sprachanker/schema";
 import { itemScored } from "../check/index.ts";
@@ -49,9 +50,64 @@ export interface ExerciseResult {
 
 const exerciseOf = (itemKey: string) => parseItemKey(itemKey as ItemKey).exercise;
 
-/** Answers and skips of a run per exercise key. */
+/** A model's verdict on an answer said aloud, as an item's result. */
+export const SPOKEN_RESULT: Record<SpokenCheck["verdict"], "correct" | "partial" | "wrong"> = {
+  good: "correct",
+  minor_errors: "partial",
+  major_errors: "wrong",
+  off_task: "wrong",
+};
+
+/** The model's checks of spoken answers in a run, by item and what was heard; the latest counts. */
+export function spokenChecks(events: TypedEvent[]) {
+  const checks = new Map<string, SpokenCheck>();
+  for (const e of events)
+    if (e.type === "llm_verdict" && e.itemKey && e.payload.task === "speaking")
+      checks.set(`${e.itemKey}\n${e.payload.input}`, e.payload.result);
+  return checks;
+}
+
+/** What was heard of an answer said aloud, if anything. */
+const transcriptOf = (answer: unknown) => {
+  const t = (answer as { transcript?: unknown } | undefined)?.transcript;
+  return typeof t === "string" ? t : undefined;
+};
+
+/**
+ * What an answer marks its item as: its outcome's result; for one said aloud (unscored, in no
+ * score), the engine's judgement of what was heard (`spoken`), else the model's check of the same
+ * words — the engine decides where it can, the model only where it could not (owner, 2026-10-18).
+ * Undefined: nothing marks it (recorded only).
+ */
+export function answerMark(
+  itemKey: string,
+  answer: unknown,
+  outcome: Outcome,
+  checks: Map<string, SpokenCheck>,
+): Outcome["result"] | undefined {
+  return outcome.result !== "unscored"
+    ? outcome.result
+    : spokenMark(itemKey, answer, outcome, checks);
+}
+
+function spokenMark(
+  itemKey: string,
+  answer: unknown,
+  outcome: Outcome,
+  checks: Map<string, SpokenCheck>,
+) {
+  if (outcome.spoken) return outcome.spoken;
+  const heard = transcriptOf(answer);
+  const check = heard !== undefined ? checks.get(`${itemKey}\n${heard}`) : undefined;
+  return check && SPOKEN_RESULT[check.verdict];
+}
+
+/** Answers and skips of a run per exercise key. An answer said aloud kept before it was heard (a
+ *  take heard late) gives way as the first attempt to the item's first answer that was heard. Its
+ *  first attempt marked by the model's check of it carries that mark as `spoken`. */
 export function exerciseResults(events: TypedEvent[]): Record<string, ExerciseResult> {
   const results: Record<string, ExerciseResult> = {};
+  const firstAnswers = new Map<string, unknown>();
   for (const e of events) {
     if ((e.type !== "answered" && e.type !== "item_skipped") || !e.itemKey) continue;
     results[exerciseOf(e.itemKey)] ??= { first: {}, last: {}, skipped: [], skippedFirst: [] };
@@ -63,14 +119,32 @@ export function exerciseResults(events: TypedEvent[]): Record<string, ExerciseRe
       continue;
     }
     const { answer, outcome } = e.payload;
+    const unheard =
+      e.itemKey in r.first &&
+      r.first[e.itemKey]?.result === "unscored" &&
+      transcriptOf(firstAnswers.get(e.itemKey)) === undefined &&
+      transcriptOf(answer) !== undefined;
     // Only the first attempt counts; skipping an item first is its first attempt.
-    if (outcome && !(e.itemKey in r.first) && !r.skippedFirst.includes(e.itemKey))
+    if (outcome && (unheard || (!(e.itemKey in r.first) && !r.skippedFirst.includes(e.itemKey)))) {
       r.first[e.itemKey] = outcome;
+      firstAnswers.set(e.itemKey, answer);
+    }
     r.last[e.itemKey] = { answer, outcome };
     r.skipped = r.skipped.filter((k) => k !== e.itemKey);
   }
+  const checks = spokenChecks(events);
+  if (checks.size)
+    for (const r of Object.values(results))
+      for (const [key, o] of Object.entries(r.first)) {
+        const mark =
+          o.result === "unscored" && !o.spoken && spokenMark(key, firstAnswers.get(key), o, checks);
+        if (mark) r.first[key] = { ...o, spoken: mark };
+      }
   return results;
 }
+
+/** What an exercise's first attempt marks an item as (`answerMark`, its model's check carried in). */
+const markOf = (o: Outcome) => (o.result !== "unscored" ? o.result : o.spoken);
 
 /** Items that would have been scored but were skipped at their first attempt (answered later or
  *  not): they count as wrong (score 0). */
@@ -81,19 +155,20 @@ const missed = (exercise: Exercise, r: ExerciseResult) =>
 
 /**
  * An exercise's state in a run: not worked yet (undefined), `skipped` (moved on without an answer and
- * nothing in it is scored), `done` (answered, nothing scored — self-rated, a free answer without a
- * rubric), `correct` (every scored item right at the first attempt) or `wrong` (a mistake, or a
- * scored item skipped: skipping what is checked is not knowing it).
+ * nothing in it is scored), `done` (answered, nothing marked — recorded only, a free answer without
+ * a rubric), `correct` (every marked item right at the first attempt) or `wrong` (a mistake, or a
+ * scored item skipped: skipping what is checked is not knowing it). An answer said aloud is marked
+ * by its check (`answerMark`) though it scores nothing.
  */
 export function exerciseState(exercise: Exercise, r: ExerciseResult | undefined) {
   if (!r) return undefined;
-  const scored = Object.values(r.first).filter((o) => o.result !== "unscored");
+  const marks = Object.values(r.first).flatMap((o) => markOf(o) ?? []);
   const skippedScored = missed(exercise, r);
-  if (!scored.length && !skippedScored.length) {
+  if (!marks.length && !skippedScored.length) {
     if (Object.keys(r.last).length) return "done";
     return r.skipped.length ? "skipped" : undefined;
   }
-  return scored.every((o) => o.result === "correct") && !skippedScored.length ? "correct" : "wrong";
+  return marks.every((m) => m === "correct") && !skippedScored.length ? "correct" : "wrong";
 }
 export type ExerciseState = NonNullable<ReturnType<typeof exerciseState>>;
 
@@ -135,7 +210,8 @@ export function firstTry(exercise: Exercise, r: ExerciseResult | undefined) {
  *  the first try. */
 export function exerciseMark(exercise: Exercise, r: ExerciseResult | undefined) {
   const state = exerciseState(exercise, r);
-  return state === "wrong" && firstTry(exercise, r).correct > 0 ? ("partial" as const) : state;
+  const someRight = Object.values(r?.first ?? {}).some((o) => markOf(o) === "correct");
+  return state === "wrong" && someRight ? ("partial" as const) : state;
 }
 export type ExerciseMark = NonNullable<ReturnType<typeof exerciseMark>>;
 

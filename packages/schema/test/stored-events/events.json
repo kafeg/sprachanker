@@ -137,6 +137,27 @@
           "score": 0
         }
       }
+    },
+    {
+      "since": "2026-10-18",
+      "payload": {
+        "answer": {
+          "recording": "01HZY0000000000000000000AC",
+          "transcript": "Guten Morgen! Wie geht es Ihnen?"
+        },
+        "attempt": 1,
+        "ms": 4000,
+        "outcome": {
+          "result": "unscored",
+          "score": 0,
+          "spoken": "wrong",
+          "diff": [
+            { "op": "equal", "expected": "Guten", "actual": "Guten" },
+            { "op": "equal", "expected": "Morgen!", "actual": "Morgen!" },
+            { "op": "wrong", "expected": "Danke,", "actual": "Wie" }
+          ]
+        }
+      }
     }
   ],
   "item_skipped": [

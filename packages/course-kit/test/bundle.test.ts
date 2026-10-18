@@ -20,8 +20,10 @@ import {
   COURSE_BUNDLE_VERSION,
   CourseBundleManifest,
   type CourseKey,
+  courseBundleVersion,
   courseIdOf,
   type ExamSources,
+  heardTexts,
   MediaIndex,
   type PracticeLesson,
 } from "@sprachanker/schema";
@@ -647,5 +649,53 @@ test("a bundle's practice is checked: a recording no variant names, an edition i
   const en = { ...bundle.manifest, courses: [{ ...only(bundle), editions: ["en-de"] }] };
   expect((await checkBundle(nodeFs, bundle.files, en)).join()).toContain(
     "practice/ru-de/basic/00-01.json: not where its keys put it",
+  );
+});
+
+/** The course's recordings heard, as the server's job writes them. */
+const heardOf = (recordings: Record<string, string>, course: string = COURSE) =>
+  prettyJson({
+    format: 1,
+    course,
+    lang: "de",
+    recordings: Object.fromEntries(
+      Object.entries(recordings).map(([path, text]) => [path, { text, model: "m", heardAt: 1 }]),
+    ),
+  });
+
+test("a course's recordings heard travel in its bundle (version 3); installed, ours stay and theirs are added", async () => {
+  const { root, series } = await library();
+  put(
+    join(series, "heard/basic.json"),
+    heardOf({ "media/audio/a.mp3": "Theirs a.", "media/audio/b.mp3": "Theirs b." }),
+  );
+  const bundle = await bundled(root);
+  const paths = bundle.manifest.files.map((f) => f.path);
+  expect(paths).toContain("heard/basic.json");
+  expect(courseBundleVersion(paths)).toBe(3);
+  expect(courseBundleVersion(paths.filter((p) => !p.startsWith("heard/")))).toBe(2);
+
+  const other = dir();
+  await install(other, await bundled((await library()).root));
+  put(join(other, MINI_SERIES, "heard/basic.json"), heardOf({ "media/audio/a.mp3": "Ours a." }));
+  await install(other, bundle);
+  const merged = await openLibrary(nodeFs, other).heard(MINI_SERIES, "basic");
+  expect(heardTexts(merged)).toEqual({
+    "media/audio/a.mp3": "Ours a.",
+    "media/audio/b.mp3": "Theirs b.",
+  });
+});
+
+test("a bundle's recordings heard are checked: their schema and their course", async () => {
+  const { root, series } = await library();
+  put(join(series, "heard/basic.json"), heardOf({ "media/audio/a.mp3": "A." }));
+  const bundle = await bundled(root);
+  put(join(bundle.files, "heard/basic.json"), heardOf({ "media/a.mp3": "A." }));
+  expect((await checkBundle(nodeFs, bundle.files, bundle.manifest)).join()).toContain(
+    "heard/basic.json: does not fit its schema",
+  );
+  put(join(bundle.files, "heard/basic.json"), heardOf({}, TWIN));
+  expect((await checkBundle(nodeFs, bundle.files, bundle.manifest)).join()).toContain(
+    "heard/basic.json: not where its keys put it",
   );
 });

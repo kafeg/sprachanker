@@ -6,6 +6,7 @@ export * from "./exercise-draft.ts";
 export * from "./files.ts";
 export * from "./fingerprint.ts";
 export * from "./hash.ts";
+export * from "./heard.ts";
 export * from "./html.ts";
 export * from "./http.ts";
 export * from "./importing.ts";

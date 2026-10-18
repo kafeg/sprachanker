@@ -17,5 +17,9 @@ export const Outcome = z.object({
   diff: z.array(TokenDiff).optional(),
   /** Each part right or not: gaps by gap id, match pairs by left id (what the item marks). */
   parts: z.record(z.string(), z.boolean()).optional(),
+  /** An answer said aloud to a speaking item, as the engine judged what was heard against the line
+   *  to say or the source's answer as heard (`unscored` still: a spoken check counts in no score,
+   *  only in the exercise's mark). None: nothing to judge it by, or the engine could not decide. */
+  spoken: z.enum(["correct", "partial", "wrong"]).optional(),
 });
 export type Outcome = z.infer<typeof Outcome>;

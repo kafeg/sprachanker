@@ -1,11 +1,13 @@
 // The provider contract: what an importer gets, what it reports, and how normalised files are
 // written. Shared by every course provider so the server treats them alike.
 import {
+  CourseHeard,
   CourseIndex,
   type CourseSource,
   courseIdOf,
   Exam,
   ExamSources,
+  heardPath,
   issuesText,
   Lesson,
   LocaleCourse,
@@ -157,6 +159,11 @@ export const libraryFile = {
       value,
     };
   },
+  heard: (value: CourseHeard): LibraryFile => ({
+    path: heardPath(value.course),
+    schema: CourseHeard,
+    value,
+  }),
   examSources: (value: ExamSources): LibraryFile => ({
     path: `canonical/${examSourcesFile(value.exam)}`,
     schema: ExamSources,

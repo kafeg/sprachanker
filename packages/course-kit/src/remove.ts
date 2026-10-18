@@ -3,7 +3,7 @@
 // are one file per content in a series, shared — a course's videos may be its other editions' too).
 // The media index forgets the files removed (a download fetches them again); the key map stays, so a
 // course installed again keeps its keys and the learner's progress meets it, and so does its practice
-// made by the model (`practice/`). The series' lock is the
+// made by the model (`practice/`) and its recordings heard (`heard/`). The series' lock is the
 // caller's.
 import { EditionId, MediaIndex, SeriesKey, Slug } from "@sprachanker/schema";
 import { courseBundleContent } from "./bundle.ts";
@@ -48,10 +48,12 @@ export async function removeCourse(
     for (const f of content?.files ?? []) used.add(f.path);
   }
   const media = own.files.filter((f) => f.path.startsWith("media/"));
-  // Its practice stays (as the key map): made over hours, it is the course's again once it is back.
+  // Its practice and recordings heard stay (as the key map): made over hours, they are the course's
+  // again once it is back.
   const gone = own.files.filter(
     (f) =>
       !f.path.startsWith("practice/") &&
+      !f.path.startsWith("heard/") &&
       (!f.path.startsWith("media/") || (!unknown && !used.has(f.path))),
   );
   let bytes = 0;

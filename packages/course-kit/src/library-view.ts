@@ -1,6 +1,7 @@
 // What the app reads from the library (library.ts implements it over the data folder). No Node APIs
 // here: the server's runtime-agnostic app imports this module alone (`@sprachanker/course-kit/view`).
 import type {
+  CourseHeard,
   CourseIndex,
   EditionId,
   Exam,
@@ -54,6 +55,10 @@ export interface LibraryView {
   practiceLessons(series: string, course: string, edition: string): string[];
   /** Absolute file of a practice recording, or undefined when it does not exist or is none. */
   practiceFile(series: string, path: string): string | undefined;
+  /** What a course's recordings of the source's answers say, heard once (`heard/…`), if any. */
+  heard(series: string, course: string): Promise<CourseHeard | undefined>;
+  /** The same as `lessonStamp` for a course's recordings heard. */
+  heardStamp(series: string, course: string): string;
   /** Verifies one installed course: integrity and counts (verify.ts). */
   check(series: string, course: string): Promise<CourseReport>;
 }

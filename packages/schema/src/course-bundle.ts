@@ -13,8 +13,12 @@ import { KeyMapFile, MediaIndex, portableName, storableMedia } from "./library-s
 
 export const COURSE_BUNDLE_FORMAT = "sprachanker-course";
 /** Bumped when a bundle of this version could not be read by an app that reads the previous one
- *  (2: several courses a bundle; a bundle of 1, one course, is read no more). */
-export const COURSE_BUNDLE_VERSION = 2;
+ *  (2: several courses a bundle; a bundle of 1, one course, is read no more; 3: a course's recordings
+ *  heard, `heard/` — a bundle without them is written as 2 still, so an app that reads 2 takes it). */
+export const COURSE_BUNDLE_VERSION = 3;
+/** The version a bundle of these paths is written as: the oldest that reads it. */
+export const courseBundleVersion = (paths: readonly string[]) =>
+  paths.some((p) => p.startsWith("heard/")) ? COURSE_BUNDLE_VERSION : 2;
 export const COURSE_BUNDLE_EXTENSION = ".sprachanker-course";
 /** A bundle is at most this large (a DW course is under 5 GB, videos and all; its other languages add
  *  their texts only; all of Nicos Weg is some 10 GB). */
@@ -31,13 +35,15 @@ const PLACES = new RegExp(
     `|locale/${EDITION}/${SLUG}/(?:course\\.json|${LESSON_FILE}|${EXAM_FILE})` +
     "|media/[^/]+/[^/]+" +
     `|raw/${EDITION}/${SLUG}(?:/[^/]+)+` +
-    `|practice/${EDITION}/${SLUG}/(?:\\d{2,}-\\d{2,}\\.json|\\d{2,}-\\d{2,}/${SLUG}\\.wav))$`,
+    `|practice/${EDITION}/${SLUG}/(?:\\d{2,}-\\d{2,}\\.json|\\d{2,}-\\d{2,}/${SLUG}\\.wav)` +
+    `|heard/${SLUG}\\.json)$`,
 );
 
 /** A file a bundle may hold, as its path in the series folder: a course's canonical files, an
  *  edition's locale files, a media file the media store could keep (its kind's extensions only), a
  *  source copy kept in `raw/<edition>/<course>/`, an edition's practice made once and its recordings
- *  (`practice/<edition>/<course>/`). Nothing else: every name
+ *  (`practice/<edition>/<course>/`), the course's recordings heard (`heard/<course>.json`). Nothing
+ *  else: every name
  *  portable (no `..`, nothing a disk refuses), no folder of another kind. */
 export const CourseBundlePath = z
   .string()
@@ -50,10 +56,12 @@ export const CourseBundlePath = z
   );
 
 /** The course a bundle path is of (its id): its folder under `canonical/`, `locale/<edition>/`,
- *  `raw/<edition>/`, `practice/<edition>/` (undefined for a media file: the series'). */
+ *  `raw/<edition>/`, `practice/<edition>/`, its file in `heard/` (undefined for a media file: the
+ *  series'). */
 export const bundlePathCourse = (path: string) => {
   const parts = path.split("/");
   if (parts[0] === "canonical") return parts[1];
+  if (parts[0] === "heard") return parts[1]?.replace(/\.json$/, "");
   return parts[0] === "locale" || parts[0] === "raw" || parts[0] === "practice"
     ? parts[2]
     : undefined;
@@ -83,7 +91,7 @@ export type CourseBundleCourse = z.infer<typeof CourseBundleCourse>;
 export const CourseBundleManifest = z.strictObject({
   format: z.literal(COURSE_BUNDLE_FORMAT),
   /** A newer version than the app reads is refused (`course_bundle_from_newer_app`). */
-  version: z.literal(COURSE_BUNDLE_VERSION),
+  version: z.union([z.literal(2), z.literal(COURSE_BUNDLE_VERSION)]),
   appVersion: z.string().max(40),
   exportedAt: z.number(),
   /** Its courses, of one series, each once. */

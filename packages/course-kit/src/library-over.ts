@@ -2,6 +2,7 @@
 // phone app: its own files). Files are validated against the schemas on read; an invalid file is an
 // error, never partially used. No Node APIs: paths are POSIX, joined here.
 import {
+  CourseHeard,
   CourseIndex,
   EditionId,
   Exam,
@@ -97,6 +98,9 @@ export function libraryOver(
         : joinPath(seriesDir(series), "locale", named(EditionId, edition), courseId);
     return joinPath(where, "exams", `${slug}.json`);
   };
+  /** A course's recordings heard (`heard/<course>.json`). */
+  const heardFile = (series: string, course: string) =>
+    joinPath(seriesDir(series), "heard", `${named(Slug, course)}.json`);
   const stamp = (file: string) => {
     const stat = fs.stat(file);
     return stat ? `${stat.size}:${stat.mtimeMs}` : "";
@@ -189,6 +193,11 @@ export function libraryOver(
       const file = joinPath(seriesDir(series), path);
       return fs.exists(file) ? file : undefined;
     },
+    async heard(series, course) {
+      const file = heardFile(series, course);
+      return fs.exists(file) ? read(CourseHeard, file) : undefined;
+    },
+    heardStamp: (series, course) => stamp(heardFile(series, course)),
     mediaFile: (series, path) => inside(series, "media", path),
     check(series, course) {
       const editions = view

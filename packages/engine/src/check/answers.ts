@@ -57,9 +57,9 @@ export function answerComplete(exercise: Exercise, index: number, answer: unknow
 
 /** A source's answer that is a frame to complete, not a line to say word for word: an ellipsis, a
  *  gap or words in brackets ("Ich trinke …", "Nein, das ist ... (die Brille)", "(seit – zwei Monate)"). */
-const FRAME = /…|\.\.\.|_{2,}|[([]/;
+export const FRAME = /…|\.\.\.|_{2,}|[([]/;
 /** A word spelled letter by letter ("E-M-M-A"): no word diff hears it so. */
-const SPELLED = /(?<![\p{L}-])\p{L}(?:-\p{L}){2,}(?![\p{L}-])/u;
+export const SPELLED = /(?<![\p{L}-])\p{L}(?:-\p{L}){2,}(?![\p{L}-])/u;
 const ALTERNATIVES = /\s+\/\s+/;
 
 /**
@@ -79,11 +79,27 @@ export function linesToSay(item: { text?: string; reference?: string[] }): strin
   return lines.length && lines.every((s) => s && !SPELLED.test(s)) ? lines : undefined;
 }
 
-/** What was heard of an answer said aloud to a speaking item with no line to say (`linesToSay`: the
- *  AI checks it); undefined for anything else, or nothing heard. */
-export function spokenFreely(exercise: Exercise, index: number, answer: unknown) {
+/** The recording of the source's answer a speaking item's answers are checked by, once heard
+ *  (`heardTexts`): an item with no line to say that has one. */
+export function answerToHear(exercise: Exercise, index: number): string | undefined {
   const item = exercise.items[index] as ItemOf<"speech_selfrate"> | undefined;
-  if (exercise.type !== "speech_selfrate" || !item || linesToSay(item)) return undefined;
+  if (exercise.type !== "speech_selfrate" || !item?.answerAudio || linesToSay(item))
+    return undefined;
+  return item.answerAudio;
+}
+
+/** What was heard of an answer said aloud to a speaking item with no line to say (`linesToSay`) whose
+ *  outcome the engine did not judge — no source's answer heard to judge it by, or one it could not
+ *  decide on (`spoken` absent): the AI checks it. Undefined for anything else, or nothing heard. */
+export function spokenFreely(
+  exercise: Exercise,
+  index: number,
+  answer: unknown,
+  outcome?: { spoken?: string },
+) {
+  const item = exercise.items[index] as ItemOf<"speech_selfrate"> | undefined;
+  if (exercise.type !== "speech_selfrate" || !item || linesToSay(item) || outcome?.spoken)
+    return undefined;
   const transcript = (answer as { transcript?: unknown } | undefined)?.transcript;
   return typeof transcript === "string" && transcript.trim() ? transcript : undefined;
 }

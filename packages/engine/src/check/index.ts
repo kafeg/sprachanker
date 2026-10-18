@@ -17,12 +17,16 @@ import {
   SpeechRepeatAnswer,
   SpeechSelfrateAnswer,
 } from "@sprachanker/schema";
-import { type WordDiff, wordDiff } from "../text/diff.ts";
 import { endsSentence, isEmptyGap, sameText, tokens } from "../text/normalise.ts";
-import { isChecked, linesToSay } from "./answers.ts";
+import { isChecked } from "./answers.ts";
+import { binary, graded, textOutcome } from "./outcome.ts";
+import { judgeSpoken, spokenAnswers } from "./spoken.ts";
 
-/** Share of reference words needed for `partial` in dictation and speech. */
-const PARTIAL_WORDS = 0.8;
+export { spokenCheck } from "./outcome.ts";
+
+/** The source's answers as heard from their recordings, by media path (schema `heardTexts`): what a
+ *  speaking item's answer said aloud is checked against where it has no line to say. */
+export type HeardTexts = Readonly<Record<string, string>>;
 
 /**
  * What an option shows: its text as written (only whitespace evened out — "Berlin?" and "Berlin."
@@ -38,42 +42,6 @@ const sameOption = (options: Option[], a: string | undefined, b: string | undefi
   a === b ||
   (a !== undefined &&
     content(options.find((o) => o.id === a)) === content(options.find((o) => o.id === b)));
-
-const binary = (ok: boolean) => ({ result: ok ? "correct" : "wrong", score: ok ? 1 : 0 }) as const;
-const graded = (score: number, partialFrom = 0) =>
-  ({
-    result: score >= 1 ? "correct" : score > partialFrom && score > 0 ? "partial" : "wrong",
-    score: Math.max(0, Math.min(1, score)),
-  }) as const;
-
-/** The reference the answer is closest to: an exact one first, then the best score. */
-function bestDiff(lang: string, references: string[], actual: string, spoken: boolean) {
-  const exact = (d: WordDiff) => d.diff.every((x) => x.op === "equal");
-  const better = (a: WordDiff, b: WordDiff) =>
-    exact(a) !== exact(b) ? exact(b) : b.score > a.score;
-  return references
-    .map((r) => wordDiff(lang, r, actual, spoken))
-    .reduce((a, b) => (better(a, b) ? b : a));
-}
-
-/** An answer against its references (dictation typed; `spoken`: what a recogniser heard). */
-function textOutcome(lang: string, references: string[], actual: string, spoken: boolean) {
-  const { diff, score } = bestDiff(lang, references, actual, spoken);
-  const exact = diff.every((d) => d.op === "equal");
-  return { ...(exact ? binary(true) : graded(Math.min(score, 0.99), PARTIAL_WORDS - 0.001)), diff };
-}
-
-/** How a spoken phrase went: every word heard ("correct"), most of them — at least 80%,
- *  "partial" — or too few ("wrong"). Shown on a recorded speaking item, which counts in no score. */
-type SpokenVerdict = "correct" | "partial" | "wrong";
-
-/** What was heard against the line to say (or the closest of its alternatives): the words matched
- *  and missed, and the verdict. */
-export function spokenCheck(lang: string, reference: string | string[], transcript: string) {
-  const references = typeof reference === "string" ? [reference] : reference;
-  const { diff, result } = textOutcome(lang, references, transcript, true);
-  return { diff, verdict: result as SpokenVerdict };
-}
 
 /** Whether `words` contains `phrase` as whole words in a row (case aside). */
 function saysPhrase(lang: string, words: string[], phrase: string) {
@@ -118,14 +86,16 @@ export function itemScored(exercise: Exercise, index: number): boolean {
 }
 
 /**
- * Outcome of `answer` for item `index` of `exercise`. `lang` is the target language (case rules).
- * Throws on an answer of the wrong shape.
+ * Outcome of `answer` for item `index` of `exercise`. `lang` is the target language (case rules);
+ * `heard`: the source's answers as heard, for speaking items without a line to say. Throws on an
+ * answer of the wrong shape.
  */
 export function checkItem(
   exercise: Exercise,
   index: number,
   answer: unknown,
   lang: string,
+  heard?: HeardTexts,
 ): Outcome {
   const item = exercise.items[index];
   if (!item) throw new Error(`${exercise.key} has no item ${index + 1}`);
@@ -228,13 +198,19 @@ export function checkItem(
       return { ...rubric(it, text || speech?.transcript || "", lang) };
     }
     case "speech_selfrate": {
-      // Recorded and, with recognition, heard: the words compared with the line to say, still in no
-      // score.
-      const lines = linesToSay(item as ItemOf<"speech_selfrate">);
+      // Recorded and, with recognition, heard: judged against the line to say or the source's answer
+      // as heard — the exercise's mark, still in no score.
+      const it = item as ItemOf<"speech_selfrate">;
       const { transcript } = SpeechSelfrateAnswer.parse(answer);
-      const heard =
-        lines && transcript !== undefined ? spokenCheck(lang, lines, transcript) : undefined;
-      return { result: "unscored", score: 0, ...(heard && { diff: heard.diff }) };
+      const target = spokenAnswers(lang, it, it.answerAudio && heard?.[it.answerAudio]);
+      const judged =
+        target && transcript?.trim() ? judgeSpoken(lang, target, transcript) : undefined;
+      return {
+        result: "unscored",
+        score: 0,
+        ...(judged && { diff: judged.diff }),
+        ...(judged?.verdict && { spoken: judged.verdict }),
+      };
     }
     case "unknown":
       return { result: "unscored", score: 0 };

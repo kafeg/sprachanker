@@ -42,6 +42,8 @@ export interface MistakeToGoOver {
   answer: unknown;
   /** An answer said aloud: the model's correction of what was heard. */
   corrected?: string;
+  /** An answer said aloud the engine judged: what was heard against the answer it was closest to. */
+  diff?: TokenDiff[];
   /** An Understanding question: whether its text was heard (else read), the text's lines. */
   text?: { heard: boolean; lines: string[] };
 }
@@ -303,7 +305,8 @@ function itemParts(m: MistakeToGoOver, lang: string): WrongPart[] {
       return words(checked.diff ?? [], () => "spoken");
     case "speech_selfrate": {
       const heard = read(SpeechSelfrateAnswer)?.transcript;
-      if (heard === undefined || m.corrected === undefined) return [];
+      if (heard === undefined) return [];
+      if (m.corrected === undefined) return words(m.diff ?? [], () => "spoken");
       return words(wordDiff(lang, m.corrected, heard, true).diff, () => "spoken");
     }
     default:
@@ -411,6 +414,7 @@ export function mistakesToGoOver(
               index: m.index,
               answer: m.answer,
               ...(m.corrected !== undefined && { corrected: m.corrected }),
+              ...(m.diff && { diff: m.diff }),
             },
           ]
         : [];

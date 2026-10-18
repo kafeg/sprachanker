@@ -99,14 +99,17 @@ test("the series' only course removed: no empty folder nor a media index naming 
   expect(openLibrary(nodeFs, root).courses()).toEqual([]);
 });
 
-test("a course removed keeps its practice made by the model: the course downloaded again has it", async () => {
+test("a course removed keeps its practice made by the model and its recordings heard: the course downloaded again has them", async () => {
   const root = mkdtempSync(join(tmpdir(), "sprachanker-remove-"));
   const series = await writeMiniLibrary(root);
   mkdirSync(join(series, "practice/ru-de/basic/00-01"), { recursive: true });
   writeFileSync(join(series, "practice/ru-de/basic/00-01.json"), "{}");
   writeFileSync(join(series, "practice/ru-de/basic/00-01/aaaaaaaa.wav"), "wav");
+  mkdirSync(join(series, "heard"), { recursive: true });
+  writeFileSync(join(series, "heard/basic.json"), "{}");
   await removeCourse(nodeFs, root, MINI_SERIES, "basic");
   expect(existsSync(join(series, "canonical/basic"))).toBe(false);
   expect(readFileSync(join(series, "practice/ru-de/basic/00-01/aaaaaaaa.wav"), "utf8")).toBe("wav");
   expect(existsSync(join(series, "practice/ru-de/basic/00-01.json"))).toBe(true);
+  expect(existsSync(join(series, "heard/basic.json"))).toBe(true);
 });
