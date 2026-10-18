@@ -123,6 +123,7 @@ function step(root: string, m: ReturnType<typeof whisper>) {
     heard,
     files,
     model: () => speech.modelFor(undefined),
+    engine: () => true,
     courses: () => library.courses(),
     now: () => 7,
     pause: async () => {},
@@ -161,7 +162,7 @@ test("stopped, a course stays stopped across a restart until started again", asy
   const { root } = await setup();
   const one = step(root, whisper(SAID, [], { installed: false }));
   await one.sweep();
-  expect((await one.state(FIXTURE_SERIES, "demo")).waiting).toBe(true);
+  expect((await one.state(FIXTURE_SERIES, "demo")).waiting).toBe("model");
   expect((await one.stop(FIXTURE_SERIES, "demo")).stopped).toBe(true);
 
   const m = whisper(SAID);
@@ -173,4 +174,45 @@ test("stopped, a course stays stopped across a restart until started again", asy
   await two.start(FIXTURE_SERIES, "demo");
   await until(async () => (await two.state(FIXTURE_SERIES, "demo")).heard === 2);
   expect((await two.state(FIXTURE_SERIES, "demo")).stopped).toBe(false);
+});
+
+test("started again while it stops: the stop forgotten, the rest heard once the job has ended", async () => {
+  const { root } = await setup();
+  const m = whisper(SAID);
+  let release = () => {};
+  m.state.gate = new Promise<void>((r) => (release = r));
+  const one = step(root, m);
+  await one.sweep();
+  await until(() => m.heard.length === 1);
+  expect((await one.stop(FIXTURE_SERIES, "demo")).job?.state).toBe("stopping");
+  await one.start(FIXTURE_SERIES, "demo");
+  m.state.gate = undefined;
+  release();
+  await until(async () => (await one.state(FIXTURE_SERIES, "demo")).heard === 2);
+  expect((await one.state(FIXTURE_SERIES, "demo")).stopped).toBe(false);
+});
+
+test("no engine here: the course waits for one, not for a model", async () => {
+  const { root } = await setup();
+  const library = openLibrary(nodeFs, join(root, "library"));
+  const m = whisper(SAID);
+  const heard = createHeard({
+    library,
+    content: createContent(library),
+    speech: createSpeech({ host: m.speech, fetch: m.fetch }),
+    files: heardFiles(root),
+    mediaBlob,
+    now: () => 5,
+  });
+  const hearing = createHearing({
+    heard,
+    files: heardFiles(root),
+    model: () => undefined,
+    engine: () => false,
+    courses: () => library.courses(),
+    now: () => 7,
+    pause: async () => {},
+  });
+  await hearing.sweep();
+  expect((await hearing.state(FIXTURE_SERIES, "demo")).waiting).toBe("engine");
 });

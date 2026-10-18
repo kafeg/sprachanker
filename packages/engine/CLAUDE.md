@@ -56,7 +56,7 @@ src/
 - Derivations from events (learner/, exam/, srs/day.ts) are deterministic: same events → same result; they
   read `TypedEvent`s and narrow on `type`, never casting a payload.
 - Keep functions small and pure; side effects belong to the server.
-- Nothing language-specific in code paths: what differs by language is data (`text/language-forms.ts`,
+- How a word is compared (heard, typed, misspelt) is language-specific only in data (`text/language-forms.ts`,
   the article lists in `text/normalise.ts`); a language without an entry gets the plain comparison.
 - Folders depend one way: `learner/` may read `srs/`, never the reverse (dependency-cruiser
   `engine-folders-one-way`).

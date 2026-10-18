@@ -1816,7 +1816,7 @@
     "heard": {
       "title": "Записанные ответы",
       "what": "Записанные в курсе ответы один раз распознаются речью: сказанное вами сверяется с ними без ИИ.",
-      "ready": "{heard, number} из {total, number} ответов готово",
+      "ready": "{heard, number} из {total, plural, one {# ответа} few {# ответов} many {# ответов} other {# ответа}} готово",
       "short": "ответы {heard, number} из {total, number}",
       "running": "Распознаётся: урок {done, number} из {total, number}",
       "queued": "Ждёт, пока распознаётся другой курс.",

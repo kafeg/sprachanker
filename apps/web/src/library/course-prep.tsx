@@ -121,12 +121,14 @@ export function HeardLine({
   const { job } = state;
   const left = state.recordings - state.heard - state.missing;
   const run = (stop?: boolean) => action.mutate({ series, course, stop });
-  if (compact && !working(state) && !state.waiting) return null;
+  if (compact && !working(state) && !state.waiting && job?.state !== "queued") return null;
   const idle =
     job?.state === "queued" ? (
       <p className="text-muted-foreground">{t("prep.heard.queued")}</p>
     ) : state.waiting ? (
-      <p className="text-muted-foreground">{t("prep.heard.waiting")}</p>
+      <p className="text-muted-foreground">
+        {state.waiting === "engine" ? t("error.speech_unavailable") : t("prep.heard.waiting")}
+      </p>
     ) : compact ? null : state.stopped && left > 0 ? (
       <div className="flex flex-wrap items-center gap-2">
         <span className="text-muted-foreground">{t("prep.heard.stopped")}</span>

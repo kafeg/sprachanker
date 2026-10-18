@@ -159,6 +159,9 @@ export function createSpeech(deps: {
       host?.models.remove(model.file);
     },
 
+    /** Whether whisper-server is built here (a model aside). */
+    built: () => !!binary(),
+
     /** The model the engine runs now (a learner's: work in the background takes it rather than swap
      *  in another), if any. */
     loaded: () => engine.setup(),

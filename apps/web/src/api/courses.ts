@@ -58,7 +58,9 @@ export const useCourseHeard = (series: string, course: string) =>
   useQuery({
     queryKey: ["course-heard", series, course],
     queryFn: () => fetchCourseHeard(series, course),
-    refetchInterval: (q) => (hearingGoes(q.state.data) ? 1500 : false),
+    // While it waits for a model, slowly: one downloaded in Settings starts it.
+    refetchInterval: (q) =>
+      hearingGoes(q.state.data) ? 1500 : q.state.data?.waiting === "model" ? 10_000 : false,
   });
 
 /** Starts hearing a course's answers (those that failed tried again) or stops it. */

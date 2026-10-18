@@ -1823,10 +1823,10 @@
       "waiting": "Aguardando um modelo de fala (Configurações → Fala): assim que um for baixado, continua sozinho.",
       "stopped": "Parado.",
       "continue": "Continuar",
-      "failed": "{count, plural, one {# não pôde ser ouvida} other {# não puderam ser ouvidas}}",
+      "failed": "{count, plural, one {# não pôde ser ouvida} many {# não puderam ser ouvidas} other {# não puderam ser ouvidas}}",
       "retry": "Tentar de novo",
       "start": "Ouvir",
-      "missing": "{count, plural, one {# gravação ainda não baixada} other {# gravações ainda não baixadas}}"
+      "missing": "{count, plural, one {# gravação ainda não baixada} many {# gravações ainda não baixadas} other {# gravações ainda não baixadas}}"
     }
   }
 }

@@ -1816,7 +1816,7 @@
     "heard": {
       "title": "Записані відповіді",
       "what": "Записані в курсі відповіді один раз розпізнаються мовленням: сказане вами звіряється з ними без ШІ.",
-      "ready": "{heard, number} з {total, number} відповідей готово",
+      "ready": "{heard, number} з {total, plural, one {# відповіді} few {# відповідей} many {# відповідей} other {# відповіді}} готово",
       "short": "відповіді {heard, number} з {total, number}",
       "running": "Розпізнається: урок {done, number} з {total, number}",
       "queued": "Чекає, поки розпізнається інший курс.",

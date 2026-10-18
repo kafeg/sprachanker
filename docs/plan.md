@@ -121,7 +121,8 @@ answer's text in the Notebook's pass and item history (its recording is there); 
 forms (engine `text/language-forms.ts`) for a language once a course of it checks answers said aloud;
 the course preparation's hearing giving way to a learner's take (a take now waits for the recording
 being heard, a second or two); a course imported by the command line heard by a running server before
-its page is opened (today: at the next start, or when the page asks).
+its page is opened (today: at the next start, or when the page asks); the German participle's "ge-" and
+irregular verbs of engine `text/words.ts` (a model's word form checked) as language data too.
 
 ## Open items in built areas
 Taken along when an item above touches the area, or on request.

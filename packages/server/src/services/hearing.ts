@@ -20,9 +20,12 @@ type Target = { series: string; course: string };
 /** A lesson whose recordings are heard. */
 type Unit = { lessonKey: LessonKey };
 
-/** Recordings failing one after another that mean the engine fails, not they: the job stops, and
- *  they are not remembered as failed. */
+/** Recordings failing one after another that mean the engine may fail, not they: the job stops with
+ *  the engine's error (they are remembered as failed — a few —, tried again by the learner's start). */
 const FAILING = 5;
+/** A course whose standing shows something left and nothing working on it is looked at again when
+ *  its state is asked for, this long after its last look at most (media come in by another way). */
+const RELOOK_MS = 30_000;
 
 const keyOf = (t: JobTarget) => `${t.series}/${t.course}`;
 
@@ -31,6 +34,9 @@ export function createHearing(deps: {
   files: Pick<HeardFiles, "marker" | "mark">;
   /** The model to hear with now: none while no model (or no engine) is installed. */
   model(): string | undefined;
+  /** Whether recognition runs here at all (its engine built, the course files written): without it
+   *  a model downloaded changes nothing. */
+  engine(): boolean;
   /** The installed courses. */
   courses(): Target[];
   now(): number;
@@ -39,11 +45,11 @@ export function createHearing(deps: {
 }) {
   const pause = deps.pause ?? (() => new Promise<void>((r) => setTimeout(r, 0)));
   const jobs = createCourseJobs<Target, Unit>({ now: deps.now, oneAtATime: true });
-  /** Courses looked at in this server's life; waiting for a model; to look at again once their job
-   *  ends (changed while it ran). */
-  const looked = new Set<string>();
-  const waiting = new Set<string>();
-  const again = new Set<string>();
+  /** Courses looked at in this server's life (when); waiting for a model, or for an engine; to look
+   *  at again once their job ends (changed while it ran; `true`: the learner's start). */
+  const looked = new Map<string, number>();
+  const waiting = new Map<string, "model" | "engine">();
+  const again = new Map<string, boolean>();
   /** A look going on, by course: asked twice, made once. */
   const looking = new Map<string, Promise<void>>();
 
@@ -70,7 +76,11 @@ export function createHearing(deps: {
         if (have[path] !== undefined) counts.heard++;
         else if (!deps.heard.onDisk(t.series, path)) counts.missing++;
         else if (failedWith(marker, path, model)) counts.failed++;
-        else left.set(lessonKey, [...(left.get(lessonKey) ?? []), path]);
+        else {
+          const some = left.get(lessonKey);
+          if (some) some.push(path);
+          else left.set(lessonKey, [path]);
+        }
       }
     return { ...counts, left, marker, model };
   }
@@ -80,12 +90,15 @@ export function createHearing(deps: {
   async function lookNow(t: Target, asked: boolean) {
     const k = keyOf(t);
     if (!installed(t)) return forget(t);
-    if (jobs.active(t)) return void again.add(k);
-    looked.add(k);
+    // The learner's start forgets a stop at once, a job still stopping too (looked at again after).
     if (asked) deps.files.mark(t.series, t.course, undefined);
+    if (jobs.active(t)) return void again.set(k, asked || (again.get(k) ?? false));
+    looked.set(k, deps.now());
     const { left, marker, model } = await standing(t);
+    // Removed meanwhile: nothing started for it.
+    if (!installed(t)) return forget(t);
     if (marker.stopped || !left.size) return void waiting.delete(k);
-    if (!model) return void waiting.add(k);
+    if (!model) return void waiting.set(k, deps.engine() ? "model" : "engine");
     waiting.delete(k);
     let streak: string[] = [];
     const { ended } = jobs.start(
@@ -94,13 +107,19 @@ export function createHearing(deps: {
       async ({ lessonKey }, job) => {
         const now = deps.model();
         if (!now) {
-          waiting.add(k);
+          waiting.set(k, deps.engine() ? "model" : "engine");
           return void jobs.stop(t);
         }
-        // What a lesson heard meanwhile is left out (hearPaths skips it).
+        // What a lesson heard meanwhile is left out (hearPaths skips it). Another model taken meanwhile
+        // (a learner's) ends the lesson rather than swap the engine back for each recording: the rest
+        // is looked at again after the job.
         const failed: NonNullable<HeardMarker["failed"]> = {};
+        let swapped = false;
         await deps.heard.hearPaths(t.series, t.course, left.get(lessonKey) ?? [], now, {
-          stopped: () => job.state !== "running" || streak.length >= FAILING,
+          stopped: () => {
+            if (deps.model() !== now) swapped = true;
+            return job.state !== "running" || streak.length >= FAILING || swapped;
+          },
           onFailed: (path) => {
             streak.push(path);
             failed[path] = { model: now, at: deps.now() };
@@ -109,12 +128,12 @@ export function createHearing(deps: {
             if (streak.at(-1) !== path) streak = [];
           },
         });
+        if (swapped && !again.has(k)) again.set(k, false);
         if (streak.length >= FAILING) {
-          for (const path of streak) delete failed[path];
           streak = [];
           jobs.stop(t, "speech_engine_failed");
         }
-        if (Object.keys(failed).length && jobs.get(t) === job) {
+        if (Object.keys(failed).length && jobs.get(t) === job && installed(t)) {
           // A stop asked meanwhile is on disk: kept.
           const was = deps.files.marker(t.series, t.course) ?? {};
           deps.files.mark(t.series, t.course, { ...was, failed: { ...was.failed, ...failed } });
@@ -125,7 +144,13 @@ export function createHearing(deps: {
       await deps.heard
         .finish(t.series, t.course)
         .catch((error: unknown) => console.error(`writing what ${k} heard:`, error));
-      if (again.delete(k)) await lookLogged(t);
+      const asked = again.get(k);
+      if (asked !== undefined) {
+        again.delete(k);
+        await look(t, asked).catch((error: unknown) =>
+          console.error(`looking at what ${k} has to hear:`, error),
+        );
+      }
     });
   }
 
@@ -159,14 +184,18 @@ export function createHearing(deps: {
      *  stopped; its job. Looked at the first time it is asked for (in the background). */
     async state(series: string, course: string) {
       const t = { series, course };
-      if (!looked.has(keyOf(t)) && !looking.has(keyOf(t))) void lookLogged(t);
-      const { left: _, marker, model: __, ...counts } = await standing(t);
-      return {
-        ...counts,
-        waiting: waiting.has(keyOf(t)),
-        stopped: !!marker.stopped,
-        job: jobs.get(t),
-      };
+      const k = keyOf(t);
+      const { left, marker, model: _, ...counts } = await standing(t);
+      const job = jobs.get(t);
+      // The first time; or something left with nothing on it (not stopped, no job but one done).
+      const idle = !jobs.active(t) && !waiting.has(k) && !marker.stopped && !job?.error;
+      const last = looked.get(k);
+      if (
+        !looking.has(k) &&
+        (last === undefined || (idle && left.size && deps.now() - last >= RELOOK_MS))
+      )
+        void lookLogged(t);
+      return { ...counts, waiting: waiting.get(k) ?? false, stopped: !!marker.stopped, job };
     },
 
     /** Every course's job. */
@@ -186,7 +215,7 @@ export function createHearing(deps: {
 
     /** A speech model installed: the courses waiting for one go on. */
     async modelReady() {
-      for (const k of [...waiting]) {
+      for (const k of [...waiting.keys()]) {
         const [series = "", course = ""] = k.split("/");
         await lookLogged({ series, course });
       }

@@ -594,8 +594,8 @@ export function createServices(config: ServicesConfig) {
   const hearing = createHearing({
     heard,
     files: heardFiles ?? { marker: () => undefined, mark() {} },
-    model: () =>
-      heardFiles && speech.state().engine ? speech.modelFor(speech.loaded()) : undefined,
+    engine: () => !!heardFiles && speech.built(),
+    model: () => (heardFiles && speech.built() ? speech.modelFor(speech.loaded()) : undefined),
     courses: () => config.library.courses(),
     now,
   });

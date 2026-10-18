@@ -123,7 +123,8 @@ export const SAID = {
 };
 
 /** A machine with whisper-server: what it hears of a fixture recording is said by its name (`said`);
- *  one named in `failing` it fails to hear (every one while `state.broken`). `installed`: whether its
+ *  one named in `failing` it fails to hear (every one while `state.broken`; each waits for
+ *  `state.gate`). `installed`: whether its
  *  models are there (false: none until one is downloaded). */
 export function whisper(
   said: Record<string, string>,
@@ -131,7 +132,12 @@ export function whisper(
   options: { installed?: boolean } = {},
 ) {
   const heard: string[] = [];
-  const state = { installed: options.installed ?? true, broken: false };
+  const state = {
+    installed: options.installed ?? true,
+    broken: false,
+    /** Held: each recording waits for it before it is answered. */
+    gate: undefined as Promise<void> | undefined,
+  };
   const speech: SpeechHost = {
     freePort: async () => 9913,
     whisper: {
@@ -152,6 +158,7 @@ export function whisper(
       const file = (init.body as FormData).get("file") as Blob;
       const name = (await file.text()).replace("sprachanker-fixture:", "");
       heard.push(name);
+      await state.gate;
       if (state.broken || failing.includes(name)) return new Response("no", { status: 500 });
       return Response.json({ text: ` ${said[name] ?? ""}\n` });
     }

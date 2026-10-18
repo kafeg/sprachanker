@@ -6,6 +6,7 @@
 // on this server (`oneAtATime`: the rest queued). The server's: every profile sees the same jobs. Its
 // steps: AI practice (practice: by the profile that started it, its model and voices) and the source's
 // answers heard (hearing.ts: Whisper).
+import type { ErrorCode } from "@sprachanker/schema";
 import { ServiceError } from "../errors.ts";
 
 /** Which course (and edition) a job prepares. */
@@ -40,11 +41,14 @@ export function createCourseJobs<W extends JobTarget, U>(deps: {
   sleep?: (ms: number) => Promise<void>;
   /** One job at a time of this step on this server (it shares an engine), the rest queued. */
   oneAtATime?: boolean;
+  /** What a start is refused with while the course's job is queued or runs. */
+  busy?: ErrorCode;
 }) {
   const sleep = deps.sleep ?? ((ms: number) => new Promise((r) => setTimeout(r, ms)));
   type Job = CourseJob<W, U>;
   const jobs = new Map<string, Job>();
-  const waiting: Array<() => void> = [];
+  /** Jobs queued for their turn, in order, each told whether it runs (false: stopped meanwhile). */
+  const queue: Array<{ job: Job; go: (runs: boolean) => void }> = [];
   let running = 0;
   const key = (t: JobTarget) => `${t.series}/${t.course}${t.edition ? ` ${t.edition}` : ""}`;
   const active = (job: Job | undefined) =>
@@ -70,15 +74,13 @@ export function createCourseJobs<W extends JobTarget, U>(deps: {
     job.startedAt = deps.now();
   }
 
-  /** Waits for a queued job's turn (false: it was stopped meanwhile, the turn passed on). */
-  async function turn(job: Job) {
-    await new Promise<void>((r) => waiting.push(r));
-    if (job.state !== "queued") {
-      waiting.shift()?.();
-      return false;
+  /** The next queued job given its turn at once (none runs): a start meanwhile queues behind it. */
+  function next() {
+    while (!running && queue.length) {
+      const entry = queue.shift() as (typeof queue)[number];
+      if (entry.job.state === "queued") take(entry.job);
+      entry.go(entry.job.state === "running");
     }
-    take(job);
-    return true;
   }
 
   async function run(
@@ -87,7 +89,14 @@ export function createCourseJobs<W extends JobTarget, U>(deps: {
     make: (u: U, job: Job) => Promise<void>,
     parallel: number,
   ) {
-    if (job.state === "queued" && !(await turn(job))) return;
+    if (
+      job.state === "queued" &&
+      !(await new Promise<boolean>((go) => {
+        queue.push({ job, go });
+        next();
+      }))
+    )
+      return;
     try {
       let next = 0;
       const worker = async () => {
@@ -110,7 +119,7 @@ export function createCourseJobs<W extends JobTarget, U>(deps: {
     } finally {
       if (deps.oneAtATime) {
         running--;
-        waiting.shift()?.();
+        next();
       }
     }
   }
@@ -129,7 +138,7 @@ export function createCourseJobs<W extends JobTarget, U>(deps: {
      *  course (and edition) is queued or runs. Its end is `done` (or `stopped`). */
     start(what: W, units: U[], make: (unit: U, job: Job) => Promise<void>, parallel = 1) {
       const k = key(what);
-      if (active(jobs.get(k))) throw new ServiceError("practice_busy", 409);
+      if (active(jobs.get(k))) throw new ServiceError(deps.busy ?? "practice_busy", 409);
       const job = {
         ...what,
         total: units.length,
@@ -141,7 +150,7 @@ export function createCourseJobs<W extends JobTarget, U>(deps: {
         endedAt: null,
       } as Job;
       jobs.set(k, job);
-      if (!deps.oneAtATime || !running) take(job);
+      if (!deps.oneAtATime || (!running && !queue.length)) take(job);
       const ended = run(job, units, make, parallel).catch((error: unknown) => {
         console.error(`preparing ${k}:`, error);
       });
@@ -156,6 +165,9 @@ export function createCourseJobs<W extends JobTarget, U>(deps: {
       else if (job?.state === "queued") {
         job.state = "stopped";
         job.endedAt = deps.now();
+        // Out of the queue: its end is now.
+        const i = queue.findIndex((e) => e.job === job);
+        if (i >= 0) queue.splice(i, 1)[0]?.go(false);
       } else return job ?? null;
       if (error) job.error = error;
       return job;

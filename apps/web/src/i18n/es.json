@@ -1823,10 +1823,10 @@
       "waiting": "Esperando un modelo de voz (Ajustes → Voz): en cuanto se descargue uno, sigue solo.",
       "stopped": "Detenido.",
       "continue": "Continuar",
-      "failed": "{count, plural, one {# no se pudo oír} other {# no se pudieron oír}}",
+      "failed": "{count, plural, one {# no se pudo oír} many {# no se pudieron oír} other {# no se pudieron oír}}",
       "retry": "Reintentar",
       "start": "Oírlas",
-      "missing": "{count, plural, one {# grabación aún no descargada} other {# grabaciones aún no descargadas}}"
+      "missing": "{count, plural, one {# grabación aún no descargada} many {# grabaciones aún no descargadas} other {# grabaciones aún no descargadas}}"
     }
   }
 }
