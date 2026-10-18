@@ -226,10 +226,13 @@ export const SCHREIBEN_L1 = table([
   [2, "bar"],
 ]);
 
-/** A speaking module: questions to introduce oneself, cards by theme, candidate A's and B's cards with
- *  a calendar's text page each, and a page listing the criteria' maxima (one for every part). */
+/** A speaking module: its time, one part's and the preparation's; questions to introduce oneself,
+ *  cards by theme, candidate A's and B's cards with a calendar's text page each, and a page listing
+ *  the criteria' maxima (one for every part). */
 export const SPRECHEN = `<html><body><h1><a id="Inhalt"></a></h1>
 <p>Reguläre Prüfungszeit: 12 Minuten</p>
+<p>In Aufgabe 2 stellen Sie Fragen (circa 3 Minuten).</p>
+<p>Reguläre Vorbereitungszeit: 15 Minuten.</p>
 <h3>Teil 1</h3><p>Sich vorstellen.</p><h4>Name?</h4><h4>Alter?</h4>
 <h3>Teil 2</h3><p>Fragen stellen.</p>
 <p><img src="../medien/x/k1.gif" alt="Karte mit Kopfbereich: Test, Thema Essen und Inhaltsbereich: Brot"/></p>

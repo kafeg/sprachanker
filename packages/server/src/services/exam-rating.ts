@@ -41,7 +41,7 @@ export function createExamRating(deps: { llm: Llm; store: RunStore; exams: Exams
   /** The answer to rate and what the task gets: the exam, the task as set, the criteria named. */
   async function input(request: ExamRatingRequest) {
     const found = await deps.exams.openAnswer(request.runId, request.itemKey);
-    const { run, exam, locale, item, text, said } = found;
+    const { run, exam, locale, item, text, said, timeUp } = found;
     // A mock exam still running is the learner's alone: no help before it is handed in.
     if (run.plan.mode === "test" && found.row.status !== "finished")
       throw new ServiceError("exam_test_running", 409);
@@ -85,8 +85,9 @@ export function createExamRating(deps: { llm: Llm; store: RunStore; exams: Exams
       itemKey: request.itemKey,
     })[0];
     if (script && said && item.type === "respond" && item.input === "speech") {
-      task.conversation = scriptConversation(script.result, said);
+      task.conversation = scriptConversation(script.result, said, !!timeUp);
       task.spoken = true;
+      if (timeUp) task.timeUp = true;
       task.criteria = task.criteria.filter((c) => !selfRated(c));
       return { task, text };
     }

@@ -28,6 +28,11 @@
             "exclusiveMinimum": 0,
             "maximum": 9007199254740991
           },
+          "preparationSec": {
+            "type": "integer",
+            "exclusiveMinimum": 0,
+            "maximum": 9007199254740991
+          },
           "scaleTo": {
             "type": "number",
             "exclusiveMinimum": 0
@@ -91,6 +96,11 @@
           "module": {
             "type": "string",
             "pattern": "^[a-z0-9]+(?:-[a-z0-9]+)*$"
+          },
+          "timeLimitSec": {
+            "type": "integer",
+            "exclusiveMinimum": 0,
+            "maximum": 9007199254740991
           },
           "text": {
             "type": "string"

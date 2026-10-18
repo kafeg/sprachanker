@@ -110,3 +110,62 @@ test("a speaking part: its script written once and kept in the run; said through
   expect(asked).toContain("Then list the errors in the learner's (A) lines");
   expect(rated.result.corrections).toEqual([RATED.corrections[0]]);
 });
+
+test("a part said in part when its time ran out, a line typed: the rating knows both; the module's notes kept while it runs", async () => {
+  const ai = model();
+  const api = await setup({ fetch: ai.fetch });
+  await api.send("PUT", "/api/llm/providers/custom", { baseUrl: "http://127.0.0.1:9/v1" });
+  await api.send("PUT", "/api/llm/route", { provider: "custom", model: "m" });
+  const { run } = await api.sendJson("POST", "/api/exams/runs", {
+    exam: MODELL,
+    edition: "en-de",
+    mode: "test",
+    module: "sprechen",
+  });
+  // The module's preparation: notes on its questions; none on another module's, nor of a module
+  // without a preparation.
+  const notes = (payload: unknown) =>
+    api.send("POST", `/api/exams/runs/${run.id}/events`, {
+      events: [{ id: ulid(), type: "exam_notes", payload }],
+    });
+  expect((await notes({ module: "sprechen", notes: { [m("p1")]: "Schwimmen?" } })).status).toBe(
+    200,
+  );
+  expect((await notes({ module: "sprechen", notes: { [m("s3")]: "x" } })).status).toBe(400);
+  expect((await notes({ module: "schreiben", notes: {} })).status).toBe(400);
+  const state = await api.getJson(`/api/exams/runs/${run.id}`);
+  expect(state.events.find((e: { type: string }) => e.type === "exam_notes")?.payload).toEqual({
+    module: "sprechen",
+    notes: { [m("p1")]: "Schwimmen?" },
+  });
+
+  const body = { runId: run.id, itemKey: m("p1"), language: "ru" };
+  await api.sendJson("POST", "/api/llm/exam-part", body);
+  await api.sendJson("POST", `/api/exams/runs/${run.id}/events`, {
+    events: [
+      {
+        id: ulid(),
+        type: "answered",
+        itemKey: m("p1"),
+        payload: {
+          answer: {
+            text: "Was du machst am Wochenende?",
+            lines: [{ transcript: "Was du machst am Wochenende?", typed: true }],
+            timeUp: true,
+          },
+          attempt: 1,
+          ms: 1,
+        },
+      },
+    ],
+  });
+  await api.sendJson("POST", `/api/exams/runs/${run.id}/finish`, {});
+  await api.sendJson("POST", "/api/llm/exam-rating", body);
+  const asked = ai.bodies[1]?.messages.map((x) => x.content).join("\n") ?? "";
+  expect(asked).toContain("Learner (A) (typed): Was du machst am Wochenende?");
+  // Ended by the examiner: the lines up to the place not said, then the closing line.
+  expect(asked).toContain("Partner (B): Ich gehe schwimmen. Und du?");
+  expect(asked).not.toContain("Ich lese gern");
+  expect(asked).toContain("Examiner: Danke. Das war Teil 1.");
+  expect(asked).toContain("The part's time ran out");
+});

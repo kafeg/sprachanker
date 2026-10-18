@@ -4,6 +4,7 @@
 import { expect, test } from "bun:test";
 import type { ExamPart } from "@sprachanker/schema";
 import {
+  conversationText,
   examConversationRules,
   examPartTask,
   scriptConversation,
@@ -67,6 +68,24 @@ test("said through: the script's lines with what was said in the learner's place
     { speaker: "partner", text: "Hast du um zwei Zeit?" },
     { speaker: "learner", text: "Um zwei ich habe Zeit." },
     { speaker: "partner", text: "Schade, da schwimme ich. Um vier?" },
+    { speaker: "examiner", text: "Danke." },
+  ]);
+});
+
+test("a line typed marked as typed; a part the examiner ended has no lines after the first place not said but the closing", () => {
+  const typed = scriptConversation(SCRIPT, [{ text: "Um zwei ich habe Zeit.", typed: true }], true);
+  expect(typed).toEqual([
+    { speaker: "examiner", text: "Teil 3. Finden Sie einen Termin." },
+    { speaker: "partner", text: "Hast du um zwei Zeit?" },
+    { speaker: "learner", text: "Um zwei ich habe Zeit.", typed: true },
+    { speaker: "partner", text: "Schade, da schwimme ich. Um vier?" },
+    { speaker: "examiner", text: "Danke." },
+  ]);
+  expect(conversationText(typed)[2]).toBe("Learner (A) (typed): Um zwei ich habe Zeit.");
+  // Nothing said before the time ran out: the opening and the closing.
+  expect(scriptConversation(SCRIPT, [], true)).toEqual([
+    { speaker: "examiner", text: "Teil 3. Finden Sie einen Termin." },
+    { speaker: "partner", text: "Hast du um zwei Zeit?" },
     { speaker: "examiner", text: "Danke." },
   ]);
 });

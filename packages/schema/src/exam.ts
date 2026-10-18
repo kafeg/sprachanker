@@ -97,7 +97,7 @@ export const examLang = (edition: string | null | undefined): Lang =>
 export const Exam = z.strictObject({
   format: format(EXAM_FORMAT),
   key: ExamKey,
-  /** The whole exam's time (with modules: theirs together). */
+  /** The whole exam's time (with modules: theirs together, their preparation too). */
   timeLimitSec: z.number().int().positive(),
   /** The exam's modules in the order they are taken, each timed, its points scaled to `scaleTo`
    *  (Goethe A1: 15 points to 25); sections name theirs. None: one test (Leben in Deutschland). */
@@ -106,6 +106,9 @@ export const Exam = z.strictObject({
       z.strictObject({
         id: ExamModuleId,
         timeLimitSec: z.number().int().positive(),
+        /** Time to prepare before its Teile, with notes, as its page states (Goethe B1 Sprechen: 15
+         *  minutes); a mock exam's time has it too. */
+        preparationSec: z.number().int().positive().optional(),
         scaleTo: z.number().positive().optional(),
         /** Its scaled points rounded to whole points (Goethe B1: 29 → 97). */
         round: z.boolean().optional(),
@@ -123,6 +126,9 @@ export const Exam = z.strictObject({
        *  (`{ tag: "federalState", setting: "exam.federalState" }`). */
       filter: z.strictObject({ tag: z.string().min(1), setting: z.string().min(1) }).nullable(),
       module: ExamModuleId.optional(),
+      /** The Teil's own time, as its page states it (Goethe Sprechen: A1 Teil 1 "circa 5 Minuten",
+       *  B1 Aufgabe 2 "circa 3 Minuten"); none: an equal share of its module's (engine `teilTime`). */
+      timeLimitSec: z.number().int().positive().optional(),
       /** A text the Teil's questions share (target language; paragraphs by blank lines). */
       text: z.string().optional(),
       /** The Teil's recording or picture. */

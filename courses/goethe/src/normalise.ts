@@ -202,11 +202,12 @@ export function normaliseLevel(level: Level, pages: LevelPages): Normalised {
     return { file, id, solutions: readSolutions(page ?? "") };
   };
   /** A module timed as its page says, scaled as the exam scales it. */
-  const timed = (module: ModuleId, minutes: number) => {
+  const timed = (module: ModuleId, minutes: number, preparation?: number) => {
     if (!minutes) problems.push(`${level.course} ${module}: no time stated`);
     modules.push({
       id: module,
       timeLimitSec: minutes * 60,
+      ...(preparation && { preparationSec: preparation * 60 }),
       scaleTo: level.scaleTo,
       ...(level.rounding === "modules" && { round: true }),
     });
@@ -233,7 +234,11 @@ export function normaliseLevel(level: Level, pages: LevelPages): Normalised {
 
     if (module === "sprechen") {
       const speaking = readSpeaking(html);
-      timed(module, speaking.intro.map(minutesIn).find((m) => !Number.isNaN(m)) ?? 0);
+      timed(
+        module,
+        speaking.intro.map(minutesIn).find((m) => !Number.isNaN(m)) ?? 0,
+        speaking.preparation,
+      );
       const numbers = [...new Set(speaking.parts.map((p) => p.number))];
       for (const n of numbers) {
         const parts = speaking.parts.filter((p) => p.number === n);
@@ -265,6 +270,7 @@ export function normaliseLevel(level: Level, pages: LevelPages): Normalised {
           pool: [own.item.key],
           draw: 1,
           filter: null,
+          ...(speaking.minutes[n] && { timeLimitSec: (speaking.minutes[n] as number) * 60 }),
           ...(own.text && { text: own.text }),
           ...(own.letters.length && { letters: own.letters }),
         });
@@ -530,7 +536,7 @@ export function normaliseLevel(level: Level, pages: LevelPages): Normalised {
     }
   }
 
-  const together = modules.reduce((n, m) => n + m.timeLimitSec, 0);
+  const together = modules.reduce((n, m) => n + m.timeLimitSec + (m.preparationSec ?? 0), 0);
   const all = modules.map((m) => m.id as ModuleId);
   // The regulations' own marks when every module they name is here; else 60 % of each module (taken
   // apart) or of all.

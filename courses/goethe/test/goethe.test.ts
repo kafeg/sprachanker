@@ -7,7 +7,7 @@ import { moduleOf, normaliseLevel } from "../src/normalise.ts";
 import { optionFor } from "../src/options.ts";
 import { audioList, readLongdesc, readPage } from "../src/page.ts";
 import { readSolutions } from "../src/solutions.ts";
-import { readSpeaking } from "../src/speaking.ts";
+import { partMinutes, readSpeaking } from "../src/speaking.ts";
 import { readWriting } from "../src/writing.ts";
 import { writingPrompt } from "../src/writing-exam.ts";
 import {
@@ -393,8 +393,14 @@ test("speaking normalised: a part per number, the learner's cards, the partner's
   const locale = LocaleExam.parse(
     out.files.find((f) => f.path.includes("locale/de-de/a1/exams"))?.value,
   );
-  expect(exam.modules).toEqual([{ id: "sprechen", timeLimitSec: 720, scaleTo: 25 }]);
+  // The module's time and its preparation's; a part's own time where the page states it.
+  expect(exam.modules).toEqual([
+    { id: "sprechen", timeLimitSec: 720, preparationSec: 900, scaleTo: 25 },
+  ]);
+  expect(exam.timeLimitSec).toBe(720 + 900);
   const section = (n: number) => exam.sections.find((s) => s.key.endsWith(`/s-sprechen-${n}`));
+  expect(section(2)?.timeLimitSec).toBe(180);
+  expect(section(1)?.timeLimitSec).toBeUndefined();
   const item = (n: number) => exam.items.find((i) => i.key.endsWith(`/q-sprechen-${n}`));
   expect(exam.sections).toHaveLength(3);
   // The level's criteria where the page lists none for the part.
@@ -428,6 +434,28 @@ test("speaking normalised: a part per number, the learner's cards, the partner's
   expect(locale.items[item(3)?.key as never]?.criteria).toEqual({
     aussprache: { title: "Aussprache (Aufgabe 1, 2, 3)" },
   });
+});
+
+test("a speaking page's parts' minutes: named by their part, else each part's in order", () => {
+  expect(
+    partMinutes([
+      "Reguläre Prüfungszeit: 15 Minuten",
+      "Produktion circa 5 Minuten",
+      "Sich vorstellen.",
+      "Produktion circa 4 Minuten",
+    ]),
+  ).toEqual({ 1: 5, 2: 4 });
+  expect(
+    partMinutes([
+      "Reguläre Prüfungszeit (zwei Teilnehmende): 15 Minuten",
+      "In Aufgabe 1 planen Sie etwas (circa 3 Minuten).",
+      "In Aufgabe 3 sprechen Sie über Ihr Thema (circa 2 Minuten).",
+      "Reguläre Vorbereitungszeit: 15 Minuten.",
+    ]),
+  ).toEqual({ 1: 3, 3: 2 });
+  expect(partMinutes(["Reguläre Prüfungszeit: circa 15 Minuten für zwei Teilnehmende."])).toEqual(
+    {},
+  );
 });
 
 test("the regulations' pass marks when their modules are all there", () => {

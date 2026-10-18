@@ -355,13 +355,28 @@ export const ExamRun = RunHeader.extend({
 });
 export type ExamRun = z.infer<typeof ExamRun>;
 
-/** An exam run's event as the client sends it: an answer to one of its questions. */
-export const ExamEventInput = z.object({
-  id: Ulid,
-  type: z.literal("answered"),
-  itemKey: ExamItemKey,
-  payload: AnsweredInput,
+/** A module's preparation in an exam run (owner, 2026-10-18: Goethe B1 Sprechen's 15 minutes) as it
+ *  stands: the learner's notes on each of its questions, and whether the Teile were begun. The
+ *  latest counts; the first is when the preparation began. */
+export const ExamNotesPayload = z.object({
+  module: ExamModuleId,
+  notes: z.record(ExamItemKey, z.string().max(4000)),
+  /** The Teile begun: the preparation is over (also when its time ran out). */
+  done: z.literal(true).optional(),
 });
+export type ExamNotesPayload = z.infer<typeof ExamNotesPayload>;
+
+/** An exam run's event as the client sends it: an answer to one of its questions, or a module's
+ *  preparation (no question's). */
+export const ExamEventInput = z.discriminatedUnion("type", [
+  z.object({
+    id: Ulid,
+    type: z.literal("answered"),
+    itemKey: ExamItemKey,
+    payload: AnsweredInput,
+  }),
+  z.object({ id: Ulid, type: z.literal("exam_notes"), payload: ExamNotesPayload }),
+]);
 export type ExamEventInput = z.infer<typeof ExamEventInput>;
 
 /** Every event type with the schema of its stored payload: written and read through these. */
@@ -397,6 +412,7 @@ export const EVENT_PAYLOADS = {
   card_review: CardReviewPayload,
   card_undo: CardUndoPayload,
   exam_rated: ExamRatedPayload,
+  exam_notes: ExamNotesPayload,
   practice_answered: PracticeAnsweredPayload,
 } as const;
 export type EventType = keyof typeof EVENT_PAYLOADS;

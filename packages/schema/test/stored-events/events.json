@@ -152,9 +152,21 @@
           "score": 0,
           "spoken": "wrong",
           "diff": [
-            { "op": "equal", "expected": "Guten", "actual": "Guten" },
-            { "op": "equal", "expected": "Morgen!", "actual": "Morgen!" },
-            { "op": "wrong", "expected": "Danke,", "actual": "Wie" }
+            {
+              "op": "equal",
+              "expected": "Guten",
+              "actual": "Guten"
+            },
+            {
+              "op": "equal",
+              "expected": "Morgen!",
+              "actual": "Morgen!"
+            },
+            {
+              "op": "wrong",
+              "expected": "Danke,",
+              "actual": "Wie"
+            }
           ]
         }
       }
@@ -174,10 +186,47 @@
           "spoken": "correct",
           "ownWords": true,
           "diff": [
-            { "op": "equal", "expected": "Ich", "actual": "Ich" },
-            { "op": "equal", "expected": "heiße", "actual": "heiße" },
-            { "op": "wrong", "expected": "Nico.", "actual": "Anna." }
+            {
+              "op": "equal",
+              "expected": "Ich",
+              "actual": "Ich"
+            },
+            {
+              "op": "equal",
+              "expected": "heiße",
+              "actual": "heiße"
+            },
+            {
+              "op": "wrong",
+              "expected": "Nico.",
+              "actual": "Anna."
+            }
           ]
+        }
+      }
+    },
+    {
+      "since": "2026-10-18",
+      "payload": {
+        "answer": {
+          "text": "Hallo!\nIch lese gern.",
+          "lines": [
+            {
+              "transcript": "Hallo!",
+              "recording": "01HZY0000000000000000000AB"
+            },
+            {
+              "transcript": "Ich lese gern.",
+              "typed": true
+            }
+          ],
+          "timeUp": true
+        },
+        "attempt": 1,
+        "ms": 1000,
+        "outcome": {
+          "result": "unscored",
+          "score": 0
         }
       }
     }
@@ -1157,6 +1206,25 @@
         },
         "by": "assistant",
         "model": "claude-x"
+      }
+    }
+  ],
+  "exam_notes": [
+    {
+      "since": "2026-10-18",
+      "payload": {
+        "module": "sprechen",
+        "notes": {
+          "goethe.zertifikat/b1/exam-modellsatz/q-sprechen-1": "Mittwoch 17 Uhr, Blumen"
+        }
+      }
+    },
+    {
+      "since": "2026-10-18",
+      "payload": {
+        "module": "sprechen",
+        "notes": {},
+        "done": true
       }
     }
   ],

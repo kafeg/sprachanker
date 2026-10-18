@@ -14,7 +14,12 @@ import { learnerWordsProblem, NEUTRAL, type RulesInput, systemPrompt } from "./r
 export interface ConversationLine {
   speaker: "examiner" | "partner" | "learner";
   text: string;
+  /** A learner's line typed instead of said. */
+  typed?: boolean;
 }
+
+/** What the learner said in a place: as heard, or typed instead. */
+export type SaidText = string | { text: string; typed?: boolean };
 
 /** A part held live before scripts, as kept (`llm_turn`s on its question) by speaker; the
  *  learner's ending — an empty line — is none. */
@@ -26,22 +31,38 @@ export const conversationOf = (turns: LlmTurnPayload[]): ConversationLine[] =>
   );
 
 /** A part said from its script: the script's lines, the learner's places with what was said there
- *  (in order; a place not said left out). */
-export const scriptConversation = (part: ExamPart, said: string[]): ConversationLine[] => {
+ *  (in order; a place not said left out — and, `ended`, every line after the last one said: the
+ *  examiner ended the part there, but for its closing line). */
+export const scriptConversation = (
+  part: ExamPart,
+  said: SaidText[],
+  ended = false,
+): ConversationLine[] => {
   let n = 0;
-  return part.lines.flatMap((l): ConversationLine[] => {
+  // Ended before every place was said: the lines up to the first place not said, then the
+  // examiner's closing line (the script's last, where it is the examiner's).
+  const places = part.lines.flatMap((l, i) => (l.speaker === "learner" ? [i] : []));
+  const cut = ended ? places[said.length] : undefined;
+  const closing = part.lines.at(-1);
+  const lines =
+    cut === undefined
+      ? part.lines
+      : [...part.lines.slice(0, cut), ...(closing?.speaker === "examiner" ? [closing] : [])];
+  return lines.flatMap((l): ConversationLine[] => {
     if (l.speaker !== "learner") return [{ speaker: l.speaker, text: l.text }];
-    const text = said[n++]?.trim();
-    return text ? [{ speaker: "learner", text }] : [];
+    const at = said[n++];
+    const text = (typeof at === "string" ? at : at?.text)?.trim();
+    const typed = typeof at === "object" && at.typed;
+    return text ? [{ speaker: "learner", text, ...(typed && { typed: true }) }] : [];
   });
 };
 
 const speakerName = { examiner: "Examiner", partner: "Partner (B)", learner: "Learner (A)" };
 
 /** A conversation as the prompts give it: a line each, its speaker named in English (as the rules
- *  are), never in the interface's language. */
+ *  are), never in the interface's language; a learner's line typed instead of said marked so. */
 export const conversationText = (lines: ConversationLine[]) =>
-  lines.map((l) => `${speakerName[l.speaker]}: ${l.text}`);
+  lines.map((l) => `${speakerName[l.speaker]}${l.typed ? " (typed)" : ""}: ${l.text}`);
 
 export interface ExamPartInput extends RulesInput {
   language: Lang;

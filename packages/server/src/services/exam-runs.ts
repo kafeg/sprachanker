@@ -134,7 +134,13 @@ export function createExamRuns({
   /** A run's events as the learner may see them: a mock exam still running keeps its outcomes to
    *  itself (they would give the answers away). */
   const shownEvents = (run: ExamRun) => {
-    const list = store.events(run.id, ["answered", "exam_rated", "llm_verdict", "llm_turn"]);
+    const list = store.events(run.id, [
+      "answered",
+      "exam_rated",
+      "exam_notes",
+      "llm_verdict",
+      "llm_turn",
+    ]);
     if (run.plan.mode === "practice" || run.status !== "active") return list;
     return list.map((e) => {
       if (e.type !== "answered") return e;
@@ -220,13 +226,20 @@ export function createExamRuns({
       answer?.type === "answered" ? (answer.payload.answer as { text?: unknown }).text : undefined;
     if (typeof text !== "string") throw new ServiceError("invalid_request");
     const locale = await localeOf(run.exam, run.edition);
-    // A speaking part said line by line: each line as said (a line typed may hold a line break).
-    const lines =
-      (answer?.type === "answered" &&
-        (answer.payload.answer as { lines?: Array<{ transcript?: unknown }> }).lines) ||
-      undefined;
-    const said = Array.isArray(lines)
-      ? lines.map((l) => (typeof l?.transcript === "string" ? l.transcript : ""))
+    // A speaking part said line by line: each line as said (a line typed may hold a line break),
+    // marked where it was typed; whether the examiner ended it when its time ran out.
+    const given =
+      answer?.type === "answered"
+        ? (answer.payload.answer as {
+            lines?: Array<{ transcript?: unknown; typed?: unknown }>;
+            timeUp?: unknown;
+          })
+        : undefined;
+    const said = Array.isArray(given?.lines)
+      ? given.lines.map((l) => ({
+          text: typeof l?.transcript === "string" ? l.transcript : "",
+          ...(l?.typed === true && { typed: true }),
+        }))
       : undefined;
     return {
       row,
@@ -236,6 +249,7 @@ export function createExamRuns({
       item: { ...item, criteria: item.criteria },
       text,
       ...(said && { said }),
+      ...(given?.timeUp === true && { timeUp: true }),
     };
   }
 
@@ -326,6 +340,18 @@ export function createExamRuns({
         const parsed = ExamEventInput.safeParse(raw);
         if (!parsed.success) throw new ServiceError("invalid_event");
         const e = parsed.data;
+        // A module's preparation: its notes on the run's questions of that module.
+        if (e.type === "exam_notes") {
+          const of = (k: string) =>
+            exam.sections.find((s) => s.key === run.plan.sections[k as ExamItemKey]);
+          const fits =
+            exam.modules?.some((m) => m.id === e.payload.module && m.preparationSec) &&
+            Object.keys(e.payload.notes).every(
+              (k) => asked.has(k) && of(k)?.module === e.payload.module,
+            );
+          if (!fits) throw new ServiceError("no_such_item");
+          return { ...e, itemKey: null };
+        }
         const question = asked.has(e.itemKey) ? questionOf(exam, run, e.itemKey) : undefined;
         if (!question) throw new ServiceError("no_such_item");
         let outcome: Outcome;

@@ -1,6 +1,13 @@
 // The exams through the API: the installed exams with the learner's standing, an exam's
 // page, and a run — started, read, answered (through an outbox, as a lesson's answers go), handed in.
-import type { ExamKey, ExamMode, ExamRun, Outcome, TypedEvent } from "@sprachanker/schema";
+import type {
+  ExamKey,
+  ExamMode,
+  ExamNotesPayload,
+  ExamRun,
+  Outcome,
+  TypedEvent,
+} from "@sprachanker/schema";
 import { type QueryClient, useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { useMemo } from "react";
 import { ulid } from "ulid";
@@ -51,12 +58,14 @@ export function useStartExam() {
 }
 
 /** An answer on its way: its event and the run it belongs to. */
-interface Queued {
-  id: string;
-  type: "answered";
-  itemKey: string;
-  payload: { answer: unknown; attempt: number; ms: number };
-}
+type Queued =
+  | {
+      id: string;
+      type: "answered";
+      itemKey: string;
+      payload: { answer: unknown; attempt: number; ms: number };
+    }
+  | { id: string; type: "exam_notes"; payload: ExamNotesPayload };
 
 /** The run's outbox (api/run-events, as a lesson's): the server's outcomes (practice's) and
  *  attempts take the place of the local ones. */
@@ -84,7 +93,10 @@ export function useExamRun(runId: string) {
       // Answers still on their way stay shown.
       const pending = outbox
         .pending()
-        .map((e) => ({ ...e, runId, ts: Date.now(), cardId: null }) as unknown as TypedEvent);
+        .map(
+          (e) =>
+            ({ itemKey: null, ...e, runId, ts: Date.now(), cardId: null }) as unknown as TypedEvent,
+        );
       return { ...state, events: [...state.events, ...pending] };
     },
   });
@@ -133,10 +145,28 @@ export function useExamRun(runId: string) {
     outbox.push([event]);
     void outbox.flush();
   };
+  /** A module's preparation kept as it stands (its notes, its Teile begun): shown at once, sent in
+   *  order. */
+  const prepare = (payload: ExamNotesPayload) => {
+    const event: Queued = { id: ulid(), type: "exam_notes", payload };
+    client.setQueryData<ExamRunState>(
+      runKey(runId),
+      (s) =>
+        s && {
+          ...s,
+          events: [
+            ...s.events,
+            { ...event, runId, ts: Date.now(), itemKey: null, cardId: null } as TypedEvent,
+          ],
+        },
+    );
+    outbox.push([event]);
+    void outbox.flush();
+  };
   /** The run's events as they are this moment (an answer just recorded included, before the page
    *  shows it). */
   const eventsNow = () => client.getQueryData<ExamRunState>(runKey(runId))?.events ?? [];
-  return { query, answer, finish, eventsNow };
+  return { query, answer, prepare, finish, eventsNow };
 }
 
 /** Events kept elsewhere in the run (the assistant's proposal, a conversation's lines), shown with

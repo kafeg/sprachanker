@@ -431,12 +431,13 @@ const modellItem = (id: string, rest: Record<string, unknown>) =>
 export const modellExam: Exam = {
   format: EXAM_FORMAT,
   key: MODELL,
-  timeLimitSec: 420,
+  timeLimitSec: 480,
   modules: [
     { id: "hoeren", timeLimitSec: 120, scaleTo: 25 },
     { id: "lesen", timeLimitSec: 180, scaleTo: 25 },
     { id: "schreiben", timeLimitSec: 60, scaleTo: 25 },
-    { id: "sprechen", timeLimitSec: 60, scaleTo: 25 },
+    // A minute to prepare with notes before its Teil (Goethe B1's shape).
+    { id: "sprechen", timeLimitSec: 60, preparationSec: 60, scaleTo: 25 },
   ],
   sections: [
     {

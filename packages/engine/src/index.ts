@@ -6,6 +6,7 @@ export * from "./check/understanding.ts";
 export * from "./compose/steps.ts";
 export * from "./exam/conversation.ts";
 export * from "./exam/index.ts";
+export * from "./exam/timing.ts";
 export * from "./learner/activity.ts";
 export * from "./learner/going-over.ts";
 export * from "./learner/mistakes.ts";

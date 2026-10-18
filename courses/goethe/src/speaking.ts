@@ -30,6 +30,11 @@ export interface SpeakingPart {
 
 export interface SpeakingModule {
   intro: string[];
+  /** Each part's minutes as the intro states them, by its number ("Produktion circa 5 Minuten" in
+   *  the parts' order; "In Aufgabe 2 präsentieren Sie ein Thema (circa 3 Minuten)"). */
+  minutes: Record<number, number>;
+  /** The minutes to prepare before the parts ("Reguläre Vorbereitungszeit: 15 Minuten"). */
+  preparation?: number;
   parts: SpeakingPart[];
   /** The criteria the page lists, with the parts they judge ("Aufgabe 1, 2, 3": all three). */
   criteria: Array<{ parts: number[]; title: string; max: number }>;
@@ -41,6 +46,26 @@ const NOT_THE_TEST = /^(Konzept\/Koordination|©|\.{3}$)/;
 const ROLE = /Prüfungsteilnehmer\/-in\s+([AB])\b/;
 /** "maximal 8 Punkte - Erfüllung". */
 const MAXIMUM = /^maximal\s+(\d+(?:,\d+)?)\s+Punkte?\s*[-–]\s*(.+)$/;
+
+const PART_MINUTES = /circa\s+(\d+)\s+Minuten/i;
+const PREPARATION = /Vorbereitungszeit[^:]*:\s*(?:circa\s*)?(\d+)\s*Minuten/i;
+
+/** The parts' minutes the intro states: a line naming its part ("In Aufgabe 1 … (circa 3
+ *  Minuten)"), else the next part's in order (A1: "Produktion circa 5 Minuten" a part); the whole
+ *  test's and the preparation's are not a part's. */
+export function partMinutes(intro: string[]): Record<number, number> {
+  const out: Record<number, number> = {};
+  let next = 1;
+  for (const line of intro) {
+    const minutes = PART_MINUTES.exec(line)?.[1];
+    if (!minutes || /Prüfungszeit|Vorbereitungszeit/i.test(line)) continue;
+    const named = /\b(?:Teil|Aufgabe)\s+(\d+)/.exec(line)?.[1];
+    const part = named ? Number(named) : next;
+    out[part] = Number(minutes);
+    next = part + 1;
+  }
+  return out;
+}
 
 /** What a card's picture says, from its description. */
 export function cardText(alt: string): string {
@@ -116,5 +141,12 @@ export function readSpeaking(html: string): SpeakingModule {
     }
     parts.push(part);
   });
-  return { intro, parts, criteria };
+  const preparation = intro.map((l) => PREPARATION.exec(l)?.[1]).find(Boolean);
+  return {
+    intro,
+    minutes: partMinutes(intro),
+    ...(preparation && { preparation: Number(preparation) }),
+    parts,
+    criteria,
+  };
 }

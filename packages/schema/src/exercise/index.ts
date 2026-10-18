@@ -15,7 +15,7 @@ export { correctOptions, GapChoiceAnswer, GapTextAnswer } from "./gap.ts";
 export { MatchAnswer } from "./match.ts";
 export { joinParts, OrderAnswer, partsAreSentences } from "./order.ts";
 export { Outcome, TokenDiff } from "./outcome.ts";
-export { RespondAnswer } from "./respond.ts";
+export { RespondAnswer, SaidLine } from "./respond.ts";
 export {
   DictationAnswer,
   recordingsOf,

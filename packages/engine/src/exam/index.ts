@@ -156,9 +156,11 @@ export function drawExam(
   );
 }
 
-/** The time a mock exam has: its module's, or the whole exam's. */
-export const timeOf = (exam: Exam, module?: string) =>
-  exam.modules?.find((m) => m.id === module)?.timeLimitSec ?? exam.timeLimitSec;
+/** The time a mock exam has: its module's with its preparation, or the whole exam's. */
+export function timeOf(exam: Exam, module?: string) {
+  const own = exam.modules?.find((m) => m.id === module);
+  return own ? own.timeLimitSec + (own.preparationSec ?? 0) : exam.timeLimitSec;
+}
 
 /** Each question's section: the first whose pool holds it (a run's plan keeps it). */
 export function sectionsOf(exam: Exam, keys: ExamItemKey[]): Record<ExamItemKey, ExamSectionKey> {

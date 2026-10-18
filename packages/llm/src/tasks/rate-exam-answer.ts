@@ -42,6 +42,8 @@ export interface ExamAnswerInput extends RulesInput {
   written?: boolean;
   /** A speaking part said from its script: its errors in the learner's lines listed too. */
   spoken?: boolean;
+  /** A speaking part the examiner ended when its time ran out, before every place was said. */
+  timeUp?: boolean;
   /** The task's content points (its instructions' bullets), in order. */
   contentPoints?: string[];
 }
@@ -51,7 +53,12 @@ export const EXAM_CORRECTIONS = 3;
 
 /** What a speaking part's examiner adds to the rating: the errors in the learner's lines. */
 const spokenOver = (input: ExamAnswerInput) => [
-  `Then list the errors in the learner's (A) lines: "corrections", at most 10, the most important first, each "wrong" quoting the learner's words as heard, "right", "explanation" in ${languageName(input.language)}. What was said was heard by a speech recogniser: punctuation, capitals and numbers in digits are its own, never errors; a word that sounds alike and makes no sense there was misheard — no correction for it. Never correct what is correct. No errors: an empty list.`,
+  ...(input.timeUp
+    ? [
+        "The part's time ran out before the learner said all of it: the examiner ended it there. What the learner did not say is missing, as in the exam.",
+      ]
+    : []),
+  `Then list the errors in the learner's (A) lines: "corrections", at most 10, the most important first, each "wrong" quoting the learner's words as heard, "right", "explanation" in ${languageName(input.language)}. What was said was heard by a speech recogniser: punctuation, capitals and numbers in digits are its own, never errors; a word that sounds alike and makes no sense there was misheard — no correction for it. A line marked "(typed)" was typed instead of said (nothing could hear it): rate it as said, and its spelling is the learner's own. Never correct what is correct. No errors: an empty list.`,
 ];
 
 /** What a written answer's examiner adds to the rating (data with the request: the standing rules
