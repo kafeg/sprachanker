@@ -101,6 +101,18 @@ export function useExercise({
           ? { for: "item recording", n: Number(unheard.slice("item-".length)) + 1 }
           : undefined;
   const ms = () => Date.now() - shownAt.current;
+  /** A take's outcome as the server stored it, once it has — it may have heard the source's answer
+   *  this page had not yet —, in place of the one checked here. */
+  const storedSpoken = (local: typeof outcomes) =>
+    local &&
+    Object.fromEntries(
+      Object.entries(local).map(([i, o]) => {
+        const last = stored?.last[exercise.items[Number(i)]?.key ?? ""];
+        const same =
+          last?.outcome && JSON.stringify(last.answer) === JSON.stringify(answers[Number(i)]);
+        return [i, same ? (last.outcome as Outcome) : o];
+      }),
+    );
 
   const check = () => {
     // Not waiting: every open item has a complete answer (an item left out is skipped, not checked).
@@ -121,7 +133,7 @@ export function useExercise({
   return {
     scored,
     answers,
-    outcomes,
+    outcomes: spoken ? storedSpoken(outcomes) : outcomes,
     checking,
     waiting,
     /** Check can be pressed: every item still open is answered and its recordings were played. */

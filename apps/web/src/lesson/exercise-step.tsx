@@ -2,12 +2,13 @@
 // "Check" opens once every item is answered and every recording has been played (use-exercise.ts);
 // a checked item's card takes the result's colour on its left edge, with its own controls beside it: why
 // wrong, answer again, and the item's earlier attempts in every pass (the Notebook's item history).
-import { type HeardTexts, linesToSay, spokenFreely } from "@sprachanker/engine";
+import { linesToSay, spokenFreely } from "@sprachanker/engine";
 import type { Exercise, ItemOf, LocaleExercise } from "@sprachanker/schema";
 import { History, RotateCcw, Sparkles } from "lucide-react";
-import { useRef, useState } from "react";
+import { useContext, useRef, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { ItemCard, SharedPrompt, severalNote, sharedPrompt } from "@/exercises/item-card.tsx";
+import { HeardAnswers } from "@/exercises/shared.tsx";
 import { ItemHistory } from "@/library/item-history.tsx";
 import { Button } from "@/ui/components/button.tsx";
 import { Tooltip, TooltipContent, TooltipTrigger } from "@/ui/components/tooltip.tsx";
@@ -82,8 +83,6 @@ interface StepProps {
   /** An answer said aloud without a phrase to say, as heard (the LLM's check), if available: by
    *  itself where the engine could not judge it, else when the learner asks why. */
   spoken?(index: number, transcript: string): React.ReactNode;
-  /** The source's answers as heard, which spoken answers are checked against (the lesson's). */
-  heard?: { texts: HeardTexts; pending: boolean };
 }
 
 /** What was heard of an answer said aloud. */
@@ -106,16 +105,17 @@ export function ExerciseStep({
   onNext,
   explain,
   spoken,
-  heard,
 }: StepProps) {
   const lang = useRequiredTargetLang();
   const { t } = useTranslation();
+  // The source's answers as heard, which spoken answers are checked against (the player's).
+  const heard = useContext(HeardAnswers);
   const ex = useExercise({
     exercise,
     stored,
     readOnly,
     lang,
-    heardTexts: heard?.texts,
+    heardTexts: heard.texts,
     onAnswered,
   });
   const speaking = exercise.type === "speech_selfrate";
@@ -182,7 +182,7 @@ export function ExerciseStep({
           // The AI checks by itself only what the engine could not judge (not while the source's
           // answers are still being heard); a judged answer only when the learner asks why.
           const freely = spokenFreely(exercise, i, answers[i], outcome);
-          const said = spoken && !heard?.pending && freely;
+          const said = spoken && !heard.pending && freely;
           const askable = spoken && heardAnswer && !linesToSay(item as ItemOf<"speech_selfrate">);
           // "Why?" is the explaining place's (`explain` given while the AI answers there).
           const why = marked && !right && explain && (!speaking || (askable && !freely));

@@ -3,7 +3,7 @@
 import { judgeSpoken, linesToSay, spokenAnswers, spokenCheck } from "@sprachanker/engine";
 import type { TokenDiff } from "@sprachanker/schema";
 import { Check, CircleDot, RotateCcw } from "lucide-react";
-import { useContext, useEffect, useRef, useState } from "react";
+import { useContext, useEffect, useMemo, useRef, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { useSpeechHost } from "@/audio/context.ts";
 import { MicButton } from "@/audio/mic-button.tsx";
@@ -246,6 +246,7 @@ export function SpeechSelfrate({
   locale,
   answer,
   onAnswer,
+  outcome,
   listen = false,
   heard = true,
   readOnly,
@@ -253,36 +254,51 @@ export function SpeechSelfrate({
 }: RendererProps<"speech_selfrate">) {
   const lang = useTargetLang();
   const { t } = useTranslation();
+  const lines = useMemo(() => linesToSay(item), [item]);
   const takes = useTakes(lang, readOnly, onAnswer, {
-    expected: linesToSay(item),
+    expected: lines,
     answered: answer !== undefined,
   });
   const { host, take, saving, recorder } = takes;
   const [reveal, setReveal] = useState(false);
   const heardAnswers = useContext(HeardAnswers);
+  const heardText = item.answerAudio ? heardAnswers.texts[item.answerAudio] : undefined;
   // What an answer is checked against: the line to say, or the source's answer as heard. Without a
   // language known the words still compare ("und": undetermined).
-  const target = spokenAnswers(
-    lang || "und",
-    item,
-    item.answerAudio && heardAnswers.texts[item.answerAudio],
+  const target = useMemo(
+    () => spokenAnswers(lang || "und", item, heardText),
+    [lang, item, heardText],
   );
   const transcript = answer?.transcript;
-  const check =
-    target && transcript?.trim() ? judgeSpoken(lang || "und", target, transcript) : undefined;
+  // The check as kept with the answer (the server's, once it has it; the Notebook's), else made here.
+  const check = useMemo(
+    () =>
+      outcome
+        ? { verdict: outcome.spoken, ownWords: outcome.ownWords, diff: outcome.diff }
+        : target && transcript?.trim()
+          ? judgeSpoken(lang || "und", target, transcript)
+          : undefined,
+    [outcome, target, transcript, lang],
+  );
   // Heard and checked: begun again by "Try again" (the step's), not by a new take over it.
   const locked = !readOnly && !!transcript?.trim();
   // The source's answer being heard still: the microphone waits for it (its check needs it).
   const preparing =
-    heardAnswers.pending && item.answerAudio && !linesToSay(item) && !target ? true : undefined;
+    heardAnswers.pending && item.answerAudio && !lines && heardText === undefined
+      ? true
+      : undefined;
 
   const attempted = answer !== undefined || !!take;
   const textShown = readOnly || !listen || attempted || reveal;
   // The right answer once the learner has tried (their answer first): the source's as heard — its
   // runs that complete the frame, or the whole of it — and its recording.
   const rightText =
-    target && !target.exact ? (item.reference ? target.answers : target.answers.slice(0, 1)) : [];
-  const right = (readOnly || attempted) && (item.answerAudio || rightText.length) && (
+    target && !target.exact && heardText
+      ? target.frames.length
+        ? target.answers
+        : [heardText.trim()]
+      : [];
+  const right = (readOnly || attempted) && (!!item.answerAudio || rightText.length > 0) && (
     <div className="space-y-1.5 rounded-xl border px-4 py-3">
       <p className="text-sm text-muted-foreground">{t("lesson.correctAnswer")}</p>
       {rightText.length > 0 && (
@@ -377,10 +393,13 @@ export function SpeechSelfrate({
         </div>
       )}
       {transcript !== undefined && !saving && (
-        <Heard lang={lang} check={check} exact={!!target?.exact} transcript={transcript} />
+        <Heard lang={lang} check={check} exact={!!lines} transcript={transcript} />
       )}
       {right}
-      {!readOnly && !locked && <TakeStatus takes={takes} attempted={attempted} heard={heard} />}
+      {/* Locked, it still says what failed (a take not saved). */}
+      {!readOnly && (!locked || takes.unsaved) && (
+        <TakeStatus takes={takes} attempted={attempted} heard={heard} />
+      )}
     </div>
   );
 }

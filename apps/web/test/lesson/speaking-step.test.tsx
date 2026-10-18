@@ -71,7 +71,6 @@ const render = (transcript: string, spoken = (_: number, said: string) => <p>AI:
             onNext={() => {}}
             spoken={spoken}
             explain={() => <p>explain</p>}
-            heard={heard}
           />
         </HeardAnswers.Provider>
       </TargetLang>
@@ -134,7 +133,6 @@ test("a right spoken answer: no why to ask; an answer the engine cannot judge go
           onBack={() => {}}
           onNext={() => {}}
           spoken={(_, said) => <p>AI: {said}</p>}
-          heard={{ texts: {}, pending: false }}
         />
       </TargetLang>
     </SpeechProvider>,

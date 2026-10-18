@@ -57,7 +57,10 @@ export function LessonPlayer({
   );
   const heard = useLessonHeard(series, key, hearsAnswers);
   const heardAnswers = useMemo(
-    () => ({ texts: heard.data ?? {}, pending: hearsAnswers && heard.isPending }),
+    () => ({
+      texts: heard.data?.heard ?? {},
+      pending: hearsAnswers && (heard.isPending || !!heard.data?.hearing),
+    }),
     [heard.data, hearsAnswers, heard.isPending],
   );
   const practice = slots.practice?.useKinds({ series, lessonKey: key, edition });
@@ -206,7 +209,6 @@ export function LessonPlayer({
                     last={flow.ids[flow.at + 1] === "summary"}
                     url={url}
                     onAnswered={run.answer}
-                    heard={heardAnswers}
                     onBack={back}
                     onNext={next}
                     explain={

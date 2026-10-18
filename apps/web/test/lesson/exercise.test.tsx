@@ -146,6 +146,39 @@ test("a spoken answer checked against the source's answer as heard: its outcome 
   expect(sent).toHaveLength(1);
 });
 
+test("a take's outcome as the server stored it takes the place of the one checked here", () => {
+  const selfrate = {
+    ...exercise,
+    type: "speech_selfrate",
+    items: [{ key: `${KEY}#1`, answerAudio: "media/audio/a.mp3", reference: ["Ich trinke …"] }],
+  } as unknown as Exercise;
+  const { result, rerender } = renderHook(
+    ({ stored }: { stored?: Parameters<typeof useExercise>[0]["stored"] }) =>
+      useExercise({
+        exercise: selfrate,
+        stored,
+        readOnly: false,
+        lang: "de",
+        onAnswered: () => {},
+      }),
+    { initialProps: {} },
+  );
+  const take = { transcript: "Ich trinke Tee" };
+  // Checked here before the source's answer was heard: no verdict.
+  act(() => result.current.answer(0, take));
+  expect(result.current.outcomes?.[0]?.spoken).toBeUndefined();
+  const server = { result: "unscored", score: 0, spoken: "correct" } as const;
+  rerender({
+    stored: {
+      first: {},
+      last: { [`${KEY}#1`]: { answer: take, outcome: server } },
+      skipped: [],
+      skippedFirst: [],
+    },
+  });
+  expect(result.current.outcomes?.[0]?.spoken).toBe("correct");
+});
+
 test("a finished run is read-only: nothing to check", () => {
   const { result } = exerciseHook(exercise, undefined, true);
   expect([result.current.checking, result.current.waiting]).toEqual([false, undefined]);

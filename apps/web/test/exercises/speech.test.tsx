@@ -234,6 +234,79 @@ test("the source's answer heard: what was said judged against it, the right answ
   mic.restore();
 });
 
+test("the check kept with the answer is shown, not one made again here: the Notebook's, the server's", async () => {
+  setSecure(true);
+  const framed = {
+    key: item.key,
+    reference: ["Guten Abend. Danke, gut ..."],
+    answerAudio: "media/audio/answer.mp3",
+  };
+  const answer = { recording: "01K00000000000000000000000", transcript: "Guten Abend!" };
+  // In the Notebook no source's answer is at hand: the verdict and words from the outcome.
+  const kept = await renderApp(
+    <SpeechProvider value={host()}>
+      <TargetLang value="de">
+        <SpeechSelfrate
+          item={framed}
+          answer={answer}
+          outcome={{
+            result: "unscored",
+            score: 0,
+            spoken: "wrong",
+            diff: [
+              { op: "equal", expected: "Guten", actual: "Guten" },
+              { op: "missing", expected: "Danke" },
+            ],
+          }}
+          onAnswer={() => {}}
+          url={(p) => p}
+          readOnly
+        />
+      </TargetLang>
+    </SpeechProvider>,
+  );
+  expect(kept.getByText("Not the answer asked for: compare with the right answer")).toBeTruthy();
+  expect(kept.getByText("Danke")).toBeTruthy();
+  kept.unmount();
+  // Heard texts that would judge it otherwise do not overrule the outcome.
+  const server = await renderApp(
+    <SpeechProvider value={host()}>
+      <TargetLang value="de">
+        <HeardAnswers.Provider
+          value={{ texts: { "media/audio/answer.mp3": "Guten Abend!" }, pending: false }}
+        >
+          <SpeechSelfrate
+            item={framed}
+            answer={answer}
+            outcome={{ result: "unscored", score: 0 }}
+            onAnswer={() => {}}
+            url={(p) => p}
+            readOnly
+          />
+        </HeardAnswers.Provider>
+      </TargetLang>
+    </SpeechProvider>,
+  );
+  expect(server.queryByText(/You said it|Not the answer/)).toBeNull();
+});
+
+test("an item with no answer recorded and no text to show shows no right answer, nor a stray number", async () => {
+  setSecure(true);
+  const view = await renderApp(
+    <SpeechProvider value={host()}>
+      <SpeechSelfrate
+        item={{ key: item.key, prompt: "Wie heißt du?" }}
+        answer={{ recording: "01K00000000000000000000000" }}
+        onAnswer={() => {}}
+        url={(p) => p}
+        readOnly
+      />
+    </SpeechProvider>,
+  );
+  expect(view.queryByText("Correct answer:")).toBeNull();
+  expect(view.container.innerHTML).not.toContain(">0<");
+});
+
 test("the source's answer is not offered before the first try", async () => {
   setSecure(true);
   const view = await renderApp(
