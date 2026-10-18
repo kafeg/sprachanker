@@ -64,12 +64,15 @@ and mockups: the owner's page "Goethe в SprachAnker"; background: `docs/researc
   with the Mac's server (`docs/decisions.md`); an update of the app over Wi-Fi from the Mac.
 - iOS: the same app runs in the simulator (a course offline, films, practice); next on an iPhone —
   Xcode with an Apple ID, developer mode, whisper.cpp with Metal / Core ML —, the weekly re-sign.
-- Reading aloud on the phone: Qwen3-TTS on a phone's GPU — ggml's Vulkan needs Vulkan 1.2 (the
-  POCO's Adreno 640 on Android 11 has 1.1), its OpenCL backend targets newer Adrenos. The POCO on
-  Android 15 (LineageOS 22.2, 2026-10-16): the loader gives Vulkan 1.3, the Adreno 640's driver still
-  1.1. Next: bring Mesa's Turnip driver (Vulkan 1.3 on Adreno 6xx) with the app and load it without root
-  through adrenotools, as emulators do — measure Qwen3-TTS on it and ship it if faster and stable (the
-  CPU kept where neither driver serves); also on a stronger phone; iOS: Piper and Qwen3-TTS cannot run as programs there (in the app's process instead).
+- Reading aloud on the phone: Qwen3-TTS on a phone's GPU. Not on the POCO's Adreno 640 (2026-10-18):
+  Mesa's Turnip loads in the engine's own process without root or adrenotools (Vulkan 1.3), but ggml's
+  Vulkan backend needs 16-bit storage buffers, which the Adreno 640 lacks under Turnip and Qualcomm's
+  driver alike; ggml's OpenCL backend (Qualcomm's OpenCL 2.0 there) stops on qwentts.cpp's graph —
+  a kernel without its 3D-image pragma, Q8_0 get_rows not in its kernels. Next: a phone with Adreno
+  650 or later (Turnip gives 16-bit storage there) or another GPU — the Turnip build and the driver
+  chosen in tts-server (system, Turnip, CPU) are in commit 1caf52fb, taken out until measured there;
+  or ggml's OpenCL with those two fixed upstream. iOS: Piper and Qwen3-TTS cannot run as programs
+  there (in the app's process instead).
 
 ## Open items in built areas
 Taken along when an item above touches the area, or on request.

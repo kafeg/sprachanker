@@ -74,10 +74,9 @@ src-tauri/
 
 ## Build and run (Android)
 
-- Once: Rust with the Android targets, the NDK, `cargo install tauri-cli` (2.x), whisper.cpp built
-  for the phone by `bun run speech:android` (the server's version, `native/whisper/VERSION`); Piper's and Qwen3-TTS's programs for the phone —
-  `bun native/scripts/build.ts android` (`native/<engine>/out/<program>-aarch64-linux-android`;
-  `phone.ts install` builds them once).
+- Once: Rust with the Android targets, the NDK, `cargo install tauri-cli` (2.x), whisper.cpp built for the
+  phone by `bun run speech:android` (the server's version, `native/whisper/VERSION`); Piper's and Qwen3-TTS's
+  programs for the phone — `bun native/scripts/build.ts android` (`phone.ts install` builds them once).
 - `ANDROID_HOME`, `NDK_HOME` and `JAVA_HOME` (17) set, from `apps/mobile`: `bun scripts/build.ts`,
   `cargo tauri android build --debug --apk --target aarch64`, then
   `adb install -r -d src-tauri/gen/android/app/build/outputs/apk/universal/debug/app-universal-debug.apk`
@@ -90,6 +89,7 @@ src-tauri/
 - Only the page changed: touch `src-tauri/src/lib.rs` — the page is built into the binary, and cargo
   rebuilds it only when the Rust does.
 - The debug build's WebView: Chrome's DevTools after `adb forward tcp:9334 localabstract:webview_devtools_remote_<pid>`.
+- An engine timed over adb: with the screen on — off, the phone sleeps between packets (a reading took minutes).
 
 ## Build and run (iOS simulator)
 
