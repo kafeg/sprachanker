@@ -57,7 +57,8 @@ src/
                        # parts only (wrongPartLine)
     exam-conversation.ts # exam_part: a speaking part's script from the Teil's cards — the examiner's lines,
                        # the partner's from their card, the learner's places (hint, a good line);
-                       # scriptConversation (said through, for the rating)
+                       # scriptConversation (said through, for the rating: a line typed marked, a part
+                       # the examiner ended when its time ran out)
     explain-mistake.ts # explain_mistake: prompt + call (where its topic was taught)
     mistake-items.ts   # mistake_items: going over mistakes — an explanation and new items per type of
                        # mistakes (the engine's groups), each item checked for its type;

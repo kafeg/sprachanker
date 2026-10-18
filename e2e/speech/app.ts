@@ -8,14 +8,20 @@ import { join, resolve } from "node:path";
 
 const binary = resolve(import.meta.dirname, "../../apps/cli/dist/sprachanker");
 
-/** The app on `port` over `root` (made anew), signed in; `stop` ends it. */
-export async function speechApp(root: string, port: number) {
+/** The app on `port` over `root` (made anew), signed in; `stop` ends it. `before` readies its data
+ *  root before the app starts (a library cloned in). */
+export async function speechApp(
+  root: string,
+  port: number,
+  options: { before?(data: string): void } = {},
+) {
   const models = process.env.SPRACHANKER_MODELS ?? join(homedir(), "SprachAnker", "models");
   const base = `http://127.0.0.1:${port}`;
   rmSync(root, { recursive: true, force: true });
   mkdirSync(join(root, "data"), { recursive: true });
   if (!existsSync(models)) throw new Error(`no models at ${models} (set SPRACHANKER_MODELS)`);
   execFileSync("cp", ["-c", "-R", models, join(root, "data", "models")]);
+  options.before?.(join(root, "data"));
   // Its app-data folder (the secret key) inside the throwaway root, never the machine's.
   const server = spawn(binary, ["serve", "--port", String(port), "--data", join(root, "data")], {
     stdio: "ignore",

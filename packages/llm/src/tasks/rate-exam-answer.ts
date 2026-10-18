@@ -144,6 +144,8 @@ function rateExamAnswerRequest(input: ExamAnswerInput): TaskRequest {
     temperature: 0.2,
     maxTokens: input.written || input.spoken ? 3000 : 1500,
     reasoning: false,
+    // The learner waits for it, as for Writing's check: no thinking (owner, 2026-10-18).
+    effort: "none",
   };
 }
 

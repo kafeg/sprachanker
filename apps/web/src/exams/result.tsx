@@ -333,14 +333,14 @@ function GivenText({ answer }: { answer?: RespondAnswer }) {
     <div className="space-y-1 rounded-xl bg-muted/60 p-4">
       {answer.lines.map((l, i) => (
         // biome-ignore lint/suspicious/noArrayIndexKey: the lines said, in order
-        <p key={i} className="whitespace-pre-line">
-          {l.transcript}
+        <div key={i} className="flex flex-wrap items-baseline gap-x-2">
+          <p className="whitespace-pre-line">{l.transcript}</p>
           {l.typed && (
-            <span className="ms-2 inline-flex items-center gap-1 text-xs text-muted-foreground">
+            <span className="inline-flex items-center gap-1 text-xs text-muted-foreground">
               <Keyboard className="size-3.5" /> {t("exams.conversation.typed")}
             </span>
           )}
-        </p>
+        </div>
       ))}
       {answer.timeUp && (
         <p className="text-sm text-muted-foreground">{t("exams.conversation.ended")}</p>

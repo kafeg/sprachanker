@@ -39,6 +39,7 @@
     "speech:check": "bun run build:cli && bun run --filter @sprachanker/e2e speech:check",
     "speech:levels": "bun run build:cli && bun run --filter @sprachanker/e2e speech:levels",
     "speech:mic": "bun run build:cli && bun run --filter @sprachanker/e2e speech:mic",
+    "speech:exam": "bun run build:cli && bun run --filter @sprachanker/e2e speech:exam",
     "speech:phone": "bun run build:cli && bun run --filter @sprachanker/e2e speech:phone",
     "speech:android": "bun run build:cli && bun run --filter @sprachanker/e2e speech:android",
     "practice:texts": "bun run --filter @sprachanker/e2e practice:texts",

@@ -72,10 +72,15 @@ export function createExamConversation(deps: {
         .filter((s) => s.module === section?.module)
         .map((s) => {
           const l = locale?.sections[s.key];
+          // What candidate B had there too (their slides: the presentation the learner answers).
+          const theirs = s.pool
+            .map((k) => exam.items.find((i) => i.key === k)?.partner)
+            .filter(Boolean);
           return [
             l?.title ?? s.key,
             l?.instructions ?? "",
             ...(s.letters ?? []).map((c) => c.text ?? ""),
+            ...theirs.map((p) => `Candidate B's: ${p}`),
           ]
             .filter(Boolean)
             .join("\n");

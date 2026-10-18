@@ -307,9 +307,23 @@ const SPOKEN_RATING = {
   feedback: "FAKE: mind the word order.",
   corrections: [{ wrong: "du machst", right: "machst du", explanation: "FAKE: verb second." }],
 };
-/** An open answer rated: a speaking part's or a note's. */
-const examRating = (prompt: string) =>
-  prompt.includes("Learner (A):") ? SPOKEN_RATING : EXAM_RATING;
+/** The criteria a prompt asks to rate, each at its best level ("- erfuellung (Erfüllung) — voiding:
+ *  8; 6; …"). */
+const askedCriteria = (prompt: string) =>
+  [...prompt.matchAll(/^- ([a-z0-9-]+) \(.*\)(?: — voiding)?: ([\d.]+)/gm)].map((m) => ({
+    id: m[1] as string,
+    points: Number(m[2]),
+    reason: "FAKE: rated at its best.",
+  }));
+/** An open answer rated: a speaking part's (a line typed marked so) or a note's; an exam the fixture
+ *  is not (the voice check's Goethe) by the criteria its prompt asks for. */
+const examRating = (prompt: string) => {
+  const rating = /Learner \(A\)/.test(prompt) ? SPOKEN_RATING : EXAM_RATING;
+  const asked = askedCriteria(prompt);
+  return asked.some((c) => !rating.criteria.some((r) => r.id === c.id))
+    ? { ...rating, criteria: asked }
+    : rating;
+};
 
 /** A speaking part's script: the examiner opens, the learner asks (from the card), the partner
  *  answers, the examiner closes. */

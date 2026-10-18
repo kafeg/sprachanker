@@ -21,7 +21,8 @@ src/
                      # imported deck, Finds —, its manifest, the paths it may hold, its size limit
   common.ts          # sha256, media paths, media, library paths, localized text, `format` literal
   canonical.ts       # course index, lesson, vocab entries, unmapped
-  exam.ts            # exam, sections, pools, thresholds; a question as a one-item exercise, an exam's language
+  exam.ts            # exam, sections (a Teil's own time), pools, thresholds, modules (a preparation's time); a
+                     # question as a one-item exercise, an exam's language
   locale.ts          # localised course/lesson/exam texts per edition (same key paths as canonical)
   exercise/          # item fields and stored answers per type, grouped by family; outcome.ts; index.ts (union,
                      # ItemOf; exports what other modules use — a type's item and exercise schemas stay inside)
@@ -30,7 +31,8 @@ src/
   learner.ts         # runs (RunHeader: what every run is; lesson and exam runs extend it; status and end
                      # reason), event payloads per event type (EVENT_PAYLOADS; TypedEvent: an event typed
                      # by its type; llm_verdict a union by task; practice_answered: an answer to a
-                     # question the AI set), step ids and AI practice kinds, cards
+                     # question the AI set; exam_notes: a module's preparation), step ids and AI practice
+                     # kinds, cards
   assistant.ts       # the AI's answers as kept: corrections, writing tasks and checks, spoken checks,
                      # word examples, scene setups, an exam answer's proposed rating, a speaking part's
                      # script, Understanding's texts with their questions, mistakes reviews (wrong

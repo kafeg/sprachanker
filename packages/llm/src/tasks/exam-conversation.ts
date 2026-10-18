@@ -102,6 +102,9 @@ export function examConversationRules(
     "A part that follows up an earlier one (feedback and questions on the learner's presentation) is about what the learner did there, as <earlier> gives it.",
     `- "examiner": the examiner's fixed lines in ${t}: opening the part briefly and formally, giving the turn, closing it; never helping or correcting.`,
     `- "partner": candidate B's lines in ${t}, natural at the exam's level: from what <partner> gives them (their card, their calendar), answering the learner's questions and asking theirs; plausible details of their own where the card leaves them open.`,
+    "- Without <partner>, candidate B has no card of their own: where they ask, they draw a card of the same deck that the learner did not get; where they answer, they give concrete facts about themselves as a real adult would (a place, a time, a job, a number, a reason), consistent through the part — never the learner's facts or the card's word echoed back, never a question answered with a question.",
+    "- In a part planned together, candidate B makes proposals of their own and turns one down with a reason before agreeing, as candidates do.",
+    "- Where the learner gives feedback on candidate B's presentation and asks about it, B first sums it up in a few sentences of their own, from their slides in <earlier>.",
     `- "learner": each place where the learner speaks, in order: "text" is what a good candidate says there at the exam's level, in ${t}, fitting the lines before and after it; "hint" in ${l} says what to say there — the intent and the card's word or fact to use —, never the ${t} words. The examiner's and the partner's "hint" is empty.`,
     `- The partner's and the examiner's lines go on as the learner's good lines would have it, but never depend on an exact word: what the learner says in their own words must still fit.`,
     `- "examiner.gender" and "partner.gender" ("f" or "m"), different where the part has both; "partner.name" a first name (given even where the partner does not speak).`,
@@ -130,6 +133,10 @@ function examPartRequest(input: ExamPartInput): TaskRequest {
     ],
     temperature: 0.5,
     maxTokens: 4000,
+    reasoning: false,
+    // The learner waits at "Begin the part"; the reply holds its own plan (each line in its order):
+    // no thinking (owner, 2026-10-18).
+    effort: "none",
   };
 }
 

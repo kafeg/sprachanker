@@ -36,7 +36,8 @@ src/
                   # question's line), a mock exam drawn, practice's order, each
                   # question's state, readiness, a question checked, a run's result (a result read
                   # on the exam's scale: withScore); conversation.ts: a speaking part's latest
-                  # conversation and its answer
+                  # conversation and its answer; timing.ts: a Teil's own time (else its share of
+                  # the module's), a module's preparation as a run's events hold it
   speech/         # voices.ts: a server voice's gender and age; a text's people given voices
                   # (castVoices), a speaker's gender by name (speakerVoices, older texts); a text's
                   # pieces read aloud (readingPieces: the web's requests, the server's read ahead)

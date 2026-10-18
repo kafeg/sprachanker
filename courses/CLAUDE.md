@@ -90,7 +90,7 @@ courses/
                        # Sprechen page as its parts), teile (Teile and questions), solutions (a Teil's
                        # solution page), options (an answer matched to its option), writing (the Schreiben
                        # page: tasks, forms, criteria), writing-exam (its Teile as sections), speaking (the
-                       # Sprechen page: parts, cards, candidate A's and B's), speaking-exam (its parts as
+                       # Sprechen page: parts and their minutes, the preparation's, cards, candidate A's and B's), speaking-exam (its parts as
                        # sections), criteria (an open answer's rubric), normalise, import; test/pages.ts
                        # synthetic
   voa-lets-learn-english/ # VOA Learning English «Let's Learn English» (en → en, levels 1–2): videos, transcript,

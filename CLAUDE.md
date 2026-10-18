@@ -110,6 +110,9 @@ alternatives without updating that list.
 - `bun run speech:check` — speech round-trip: the corpus read by Qwen3-TTS, heard by Whisper (the Mac,
   models in `~/SprachAnker/models`) · `bun run speech:levels` — short answers at four levels and noise
   through the app: the table the silence thresholds are set by (again on a whisper.cpp update)
+- `bun run speech:exam` — a Goethe exam's Sprechen held by voice: answers read by `say -v Anna` played
+  as the page's microphone, heard by Whisper, rated (`EXAM_LEVELS`, `EXAM_MODE`, `EXAM_MODEL`: fake or
+  claude-code:sonnet, `EXAM_BROWSER`, `EXAM_PHONE`, `EXAM_WRITE`; report.md and screenshots in `EXAM_OUT`); the Mac
 - `bun run speech:mic` — answers read aloud played as Chromium's microphone into the page's recorder
   (at once, and after a Mac's 1.3 s of start-up silence): the first word heard, "recording" shown
   only once the microphone is live (the Mac, models in `~/SprachAnker/models`)

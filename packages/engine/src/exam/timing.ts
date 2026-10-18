@@ -48,6 +48,7 @@ export function preparationLeft(
   now: number,
 ): number | undefined {
   if (preparation.done) return undefined;
-  const left = (preparation.began ?? now) + seconds * 1000 - now;
+  // Never more than all of it (a clock a moment ahead of the one that kept its start).
+  const left = Math.min(seconds * 1000, (preparation.began ?? now) + seconds * 1000 - now);
   return left > 0 ? left : undefined;
 }

@@ -55,7 +55,7 @@ src/
                      # - lessons: lessons (lesson runs, progress, standing), lesson-journal (passes, a pass in full, an item across
                      #   passes), mistakes
                      # - exams: exams (the standing in each, the exams', an exam's Notebook page) over exam-runs (mock exams and
-                     #   practice taken; overdue ones handed in on reading)
+                     #   practice taken; overdue ones handed in on reading; a module's preparation notes)
                      # - review: cards (from lesson words or an imported deck; decks taken, left; relinking; what a card shows in a
                      #   deck: `shown`), study (Anki's decks, queue, ratings, undo, bury, suspend, flags, marks; standing, a review
                      #   day in full), words, decks (imported .apkg decks, server-wide: preview, import — the same deck again updated

@@ -359,9 +359,18 @@ test("a speaking part said from its script: the examiner and the partner speak, 
   await page.getByRole("button", { name: "Speaking" }).click();
   await page.getByRole("button", { name: /^Begin/ }).click();
   await expect(page).toHaveURL(/\/run\//);
+  // The module's minute to prepare: the Teil's task and card, notes written; then the Teil with them.
+  await expect(page.getByRole("heading", { name: "Preparation: Speaking" })).toBeVisible();
+  await expect(page.getByRole("timer")).toContainText("left to prepare");
   await expect(page.getByText("Wochenende?")).toBeVisible();
+  await page.getByRole("textbox").fill("Schwimmen? Kino?");
+  await page.getByRole("button", { name: "Begin the parts" }).click();
+  await expect(page.getByText("Your notes from the preparation")).toBeVisible();
+  await expect(page.getByText("Schwimmen? Kino?")).toBeVisible();
   await page.getByRole("button", { name: "Begin the part" }).click();
   await expect(page.getByText("FAKE: Bitte fragen Sie Ihren Partner.")).toBeVisible();
+  // The Teil's time, running at the learner's turn.
+  await expect(page.getByRole("timer")).toContainText("left for this part");
   // A mock exam gives the cards only, never the hints; the partner's line comes once the learner's
   // is said (typed here: nothing hears in the test).
   await expect(page.getByText("FAKE: ask about the weekend")).toHaveCount(0);
@@ -370,6 +379,8 @@ test("a speaking part said from its script: the examiner and the partner speak, 
   await page.getByRole("button", { name: "Keep it" }).click();
   await expect(page.getByText("FAKE: Ich gehe schwimmen.")).toBeVisible();
   await expect(page.getByText("FAKE: Danke. Das war Teil 1.")).toBeVisible();
+  // Typed where nothing hears: marked so.
+  await expect(page.getByText("Typed, not said")).toBeVisible();
   // Said through: the part is the answer; handed in, it waits to be rated.
   await expect(page.getByText("1/1", { exact: true })).toBeVisible();
   await page.getByRole("button", { name: "Hand in" }).filter({ visible: true }).first().click();
@@ -384,6 +395,7 @@ test("a speaking part said from its script: the examiner and the partner speak, 
   await page.getByRole("link", { name: /Model test/ }).click();
   await page.getByRole("button", { name: "Speaking" }).click();
   await page.getByRole("button", { name: "Practise" }).click();
+  await page.getByRole("button", { name: "Begin the parts" }).click();
   await page.getByRole("button", { name: "Begin the part" }).click();
   await expect(page.getByText("FAKE: ask about the weekend").first()).toBeVisible();
   const check = page.getByRole("button", { name: "Check", exact: true }).filter({ visible: true });
@@ -393,4 +405,54 @@ test("a speaking part said from its script: the examiner and the partner speak, 
   await check.click();
   await expect(page.getByText(/A good way to say it/)).toBeVisible();
   await expect(page.getByText(/Proposed by the AI assistant/)).toBeVisible();
+});
+
+test("a speaking part by voice: each place said into the microphone, heard and kept, nothing marked typed; a mock exam's part ended by the examiner when its time is over", async ({
+  page,
+}) => {
+  // Recognition on, as if a model were installed: what is heard is fixed.
+  await fakeMicrophone(page);
+  await page.route("**/api/speech", async (route) => {
+    const state = await (await route.fetch()).json();
+    await route.fulfill({ json: { ...state, recognition: true, model: "small-q5_1" } });
+  });
+  await page.route("**/api/speech/transcribe?*", (route) =>
+    route.fulfill({ json: { text: "Was machst du am Wochenende?", ms: 5 } }),
+  );
+  await page.clock.install();
+  await page.goto("/exams/downloaded");
+  await page.getByRole("link", { name: /Model test/ }).click();
+  await page.getByRole("button", { name: "Speaking" }).click();
+  await page.getByRole("button", { name: "Practise" }).click();
+  await page.getByRole("button", { name: "Begin the parts" }).click();
+  await page.getByRole("button", { name: "Begin the part" }).click();
+  await page.getByRole("button", { name: "Record yourself" }).click();
+  // Long enough for the fake microphone's tone to be in the take under load.
+  await page.waitForTimeout(2500);
+  await page.getByRole("button", { name: "Stop recording" }).click();
+  await expect(page.getByText("Heard:")).toBeVisible();
+  await page.getByRole("button", { name: "Keep it" }).click();
+  await expect(page.getByText("FAKE: Ich gehe schwimmen.")).toBeVisible();
+  await expect(page.getByText("Was machst du am Wochenende?", { exact: true })).toBeVisible();
+  await expect(page.getByText("Typed, not said")).toHaveCount(0);
+
+  // A mock exam: the Teil's minute runs out at the learner's turn — the examiner ends the part,
+  // nothing said kept as the answer.
+  await page.goto("/exams/downloaded");
+  await page.getByRole("link", { name: /Model test/ }).click();
+  await page.getByRole("button", { name: "Speaking" }).click();
+  await page.getByRole("button", { name: /^Begin/ }).click();
+  await page.getByRole("button", { name: "Begin the parts" }).click();
+  await page.getByRole("button", { name: "Begin the part" }).click();
+  await expect(page.getByRole("button", { name: "Record yourself" })).toBeVisible();
+  // Running once the examiner's line is read.
+  await expect(page.getByRole("timer")).toContainText("0:5");
+  await page.clock.fastForward("01:05");
+  await expect(page.getByText("Time is up: the examiner ended the part.")).toBeVisible();
+  await expect(page.getByText("FAKE: Danke. Das war Teil 1.")).toBeVisible();
+  await expect(page.getByRole("button", { name: "Record yourself" })).toHaveCount(0);
+  await expect(page.getByText("1/1", { exact: true })).toBeVisible();
+  // Handed in: the part ended by its time, nothing said.
+  await page.getByRole("button", { name: "Hand in" }).filter({ visible: true }).first().click();
+  await expect(page.getByText("Time is up: the examiner ended the part.")).toBeVisible();
 });

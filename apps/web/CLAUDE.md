@@ -36,8 +36,8 @@ apps/web/src/
                    # navigator (the run's plan by Teil), result, catalog (a compact list, a question
                    # opened with its answer), state-select, questions (a question as an exercise, the
                    # latest answers, questions by Teil), teil (a Teil's header and material; a question's
-                   # card), recording (a mock exam's: plays limited), rating (an open answer by its
-                   # criteria, a proposal shown chosen), slots (the AI's proposal, the conversation), use-exam
+                   # card), recording (a mock exam's: plays limited), rating (an open answer by its criteria, a proposal shown chosen), slots (the
+                   # AI's proposal, the conversation), use-exam, preparation (a module's before its Teile: tasks, notes, its time)
   notebook/        # the Notebook: page (progress, the study days' calendar with totals, every module's
                    # standing — standing.tsx shows them alike, a module adding only titles, links and
                    # pictures: pictures.tsx, bars over the span), lesson (passes), pass (in full), compare,
@@ -66,7 +66,7 @@ apps/web/src/
                    # pure model-filter; LM Studio), "Why is this wrong?", tutor (the chat view; the lesson's
                    # header panel — History: tutor-history), going-over (the run's mistakes, in the summary), tutor-section (the Tutor
                    # section: its chats, a chat and its language — a new one's chosen in a SelectField), understanding (Reading and Listening, done as an exercise: what it is, the text or its recording in the course's player, Check in the step bar, then what it was about), writing (a message answered, Check in the step bar), talk (Speaking: a monologue card or a role-play said line by line, Check in the step bar), dialogue (the Dialogue: goal card, lines read aloud, summary — no step since Speaking, kept for the Tutor section, plan); practice-next (a step's "Another version": the course's next variant, none left: no button), course-practice (a step of the course's preparation: what its lessons have, made for every lesson — a job's progress, Stop; its progress on the preparation's button); dialogue-line: a line said and heard, or typed, spoken-check (the AI's check under an answer said aloud), word-examples (a deck's: on a card, under a deck — the slots); selection-translate (the selection bar's "Translate": the words learnt shown with their translation at once, kept in Finds, their audio made after — a spinner —, then played); exam-assistant (an exam run's slots): exam-rating ("Propose a
-                   # rating"), exam-part (a speaking part said from its script: the examiner and the partner read aloud, the learner's places said in turn, hints in practice only);
+                   # rating"), exam-part (a speaking part said from its script: the examiner and the partner read aloud, the learner's places said in turn, hints in practice only; the Teil's time at the learner's turns, a mock exam's ended by it; a line typed marked);
                    # settings-section (Settings → AI assistant), lmstudio-section, prompts-info (where it
                    # works; the prompts under Advanced), prompt-view (a request as sent), context-meter
                    # (the tutor's context gauge), assistant-label (which AI answers); parts.tsx: chat

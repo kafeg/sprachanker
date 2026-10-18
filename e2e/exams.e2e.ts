@@ -222,6 +222,11 @@ test("a language exam: a module alone, then the whole — each question with its
     },
   ];
   for (const [i, answer] of answers.entries()) {
+    // Speaking's minute to prepare (Goethe B1's shape) before its Teil.
+    if (i === 9) {
+      await expect(page.getByRole("heading", { name: "Preparation: Speaking" })).toBeVisible();
+      await page.getByRole("button", { name: "Begin the parts" }).click();
+    }
     await expect(page.getByText(`Question ${i + 1} of 10`)).toBeVisible();
     if (i === 2) {
       // Part 2's recording plays once.
