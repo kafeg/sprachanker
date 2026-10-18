@@ -611,7 +611,18 @@
     "source": "Código-fonte no GitHub",
     "notices": "Componentes de terceiros e licenças",
     "noticesIntro": "O SprachAnker é construído com estes componentes, cada um com a sua própria licença; os textos das licenças seguem a lista.",
-    "noticesMissing": "Esta compilação não inclui a lista: ela acompanha as compilações distribuídas — o programa, a app para Mac e a app para Android."
+    "noticesMissing": "Esta compilação não inclui a lista: ela acompanha as compilações distribuídas — o programa, as apps de computador e a app para Android.",
+    "newer": "Já saiu o SprachAnker {version}.",
+    "whatsNew": "Novidades",
+    "updateRestart": "Atualizar e reiniciar",
+    "updating": "A atualizar…",
+    "updateOnComputer": "Atualize-o na app SprachAnker do computador onde ele corre.",
+    "updateInstall": "Transferir e instalar",
+    "updateInstallHint": "Na primeira vez, o Android pede para permitir que o SprachAnker instale apps; os seus cursos e progresso mantêm-se.",
+    "updateIos": "Compile a nova versão com o Xcode, como indica o README.",
+    "updateArchive": "Transfira o novo arquivo para Windows e descompacte-o por cima do programa antigo, com o programa parado.",
+    "updateCommand": "Execute isto no computador, num terminal:",
+    "copyCommand": "Copiar o comando"
   },
   "addresses": {
     "title": "Outros dispositivos",
@@ -1467,7 +1478,9 @@
     "understanding_busy": "Um texto para esta lição está sendo escrito. Aguarde.",
     "talk_busy": "Uma tarefa desta lição já está sendo preparada ou verificada. Aguarde.",
     "practice_busy": "A prática do curso está sendo preparada. Aguarde até terminar.",
-    "practice_needs_voice": "Os textos para ouvir e as encenações são gravados com o Qwen3-TTS. Configure-o em Configurações → Fala."
+    "practice_needs_voice": "Os textos para ouvir e as encenações são gravados com o Qwen3-TTS. Configure-o em Configurações → Fala.",
+    "no_update": "Não há uma versão mais recente para instalar.",
+    "update_failed": "Não foi possível transferir ou instalar a atualização. Tente mais tarde."
   },
   "exams": {
     "tabs": {

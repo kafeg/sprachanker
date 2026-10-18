@@ -133,13 +133,46 @@ class Native(private val activity: Activity, private val webView: WebView, priva
     }
   }
 
+  private var reading = 0
+
+  /** An engine began reading aloud (`on`) or ended — Qwen3-TTS's or Piper's program at work (a
+   *  deck's words, practice made on the phone, a reading): the CPU kept running while any reads, so
+   *  a reading with the screen off takes as long as with it on (asleep, the phone took minutes a
+   *  word). Let go a moment after the last, when no other began; at most READING_MS after the last
+   *  began (a page gone mid-reading). */
+  @JavascriptInterface fun reading(on: Boolean) {
+    guard()
+    synchronized(this) {
+      reading = maxOf(0, reading + if (on) 1 else -1)
+      if (on) WorkService.awake(activity, "reading", true, READING_MS)
+      if (!on && reading == 0)
+        webView.postDelayed({ synchronized(this) { if (reading == 0) WorkService.awake(activity, "reading", false) } }, 2_000)
+      if (reading == 0 || (on && reading == 1)) keepRenderer()
+    }
+  }
+
+  /** The page started (again, a reload): what a page before it began and can no longer end — its
+   *  work, its readings — let go. */
+  @JavascriptInterface fun pageStarted() {
+    guard()
+    synchronized(this) {
+      if (working > 0) {
+        working = 0
+        WorkService.stop(activity)
+      }
+      reading = 0
+      WorkService.awake(activity, "reading", false)
+      keepRenderer()
+    }
+  }
+
   private var hosting = false
 
-  /** The page's renderer kept as important as the app while work goes on or the app is open to other
-   *  devices: else Android freezes it as soon as the app is put away (measured: the download stood
-   *  still till the app came back). */
+  /** The page's renderer kept as important as the app while work goes on, an engine reads or the app
+   *  is open to other devices: else Android freezes it as soon as the app is put away or the screen
+   *  goes off (measured: the download stood still till the app came back). */
   private fun keepRenderer() {
-    val keep = working > 0 || hosting
+    val keep = working > 0 || reading > 0 || hosting
     webView.post { webView.setRendererPriorityPolicy(WebView.RENDERER_PRIORITY_IMPORTANT, !keep) }
   }
 
@@ -527,5 +560,7 @@ class Native(private val activity: Activity, private val webView: WebView, priva
   companion object {
     /** The app's own page's origin (Tauri's on Android). */
     const val ORIGIN = "http://tauri.localhost"
+    /** The longest a reading holds the CPU awake: longer than an engine is waited for (speech.ts). */
+    const val READING_MS = 5 * 60_000L
   }
 }

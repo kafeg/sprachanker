@@ -126,7 +126,20 @@ export function profileFiles(dataRoot: string): ProfileFiles {
     remove(id) {
       opened.get(id)?.close();
       opened.delete(id);
-      rmSync(folder(id), { recursive: true, force: true });
+      // SQLite lets the file go once the last statement on it is finalized (they are collected), and
+      // Windows deletes no open file: collected first, the removal tried again while it is held (Bun's
+      // rmSync has no retries of its own).
+      Bun.gc(true);
+      for (let attempt = 1; ; attempt++) {
+        try {
+          rmSync(folder(id), { recursive: true, force: true });
+          break;
+        } catch (error) {
+          const code = (error as { code?: string }).code ?? "";
+          if (attempt === 20 || !["EBUSY", "EPERM", "ENOTEMPTY"].includes(code)) throw error;
+          Bun.sleepSync(100);
+        }
+      }
     },
     recordings: (id) => recordingFiles(join(folder(id), "recordings")),
   };
@@ -162,7 +175,8 @@ export const vacuumInto = (sqlite: Database, target: string) =>
 
 /** A SQLite file in WAL mode with its migrations applied (backed up first). */
 function openSqlite(file: string, list: Migration[], now: number) {
-  mkdirSync(dirname(file), { recursive: true });
+  // An in-memory database has no folder (Bun on Windows refuses to make "." again: EEXIST).
+  if (file !== ":memory:") mkdirSync(dirname(file), { recursive: true });
   const sqlite = new Database(file, { create: true, strict: true });
   // Another connection writing (the command line beside a server, a daily copy) is waited for, not
   // failed at once.

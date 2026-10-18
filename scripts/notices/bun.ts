@@ -1,8 +1,10 @@
 // What Bun — compiled into the program — links, with each part's licence texts, for the Bun release
-// package.json pins: the libraries its build fetches (scripts/build/deps at its tag; those built for
-// macOS), its own vendored code, JavaScriptCore/WebKit (LGPL) and the Rust crates of its Cargo.lock
-// (procedural macros and other systems' crates left out). Written to bun.json, read by inventory.ts;
-// run again when Bun moves (check.ts fails until then). Needs `gh` (GitHub's API) and the network.
+// package.json pins: the libraries its build fetches (scripts/build/deps at its tag), its own vendored
+// code, JavaScriptCore/WebKit (LGPL), the Rust crates of its Cargo.lock (procedural macros and crates
+// of systems we do not build for left out), and what it links on Windows and Linux only (`systems`:
+// SQLite and ICU, which macOS has as system libraries, and libuv and the windows crates on Windows).
+// Written to bun.json, read by inventory.ts; run again when Bun moves (check.ts fails until then).
+// Needs `gh` (GitHub's API) and the network.
 //   bun scripts/notices/bun.ts
 import { mkdtempSync, readFileSync, rmSync, writeFileSync } from "node:fs";
 import { tmpdir } from "node:os";
@@ -43,6 +45,7 @@ async function licences(repo: string, ref: string, dir = "") {
   return texts;
 }
 
+type System = "windows" | "linux";
 interface Part {
   name: string;
   version: string;
@@ -50,6 +53,8 @@ interface Part {
   copyright?: string;
   source: string;
   texts: number[];
+  /** Linked only on these systems. */
+  systems?: System[];
 }
 const texts: string[] = [];
 const textId = (t: string) => {
@@ -62,8 +67,8 @@ const textId = (t: string) => {
 const parts: Part[] = [];
 const add = (p: Omit<Part, "texts">, t: string[]) => parts.push({ ...p, texts: t.map(textId) });
 
-// The libraries Bun's build fetches: the pin of each (its <NAME>_COMMIT), those not limited to
-// another system (`enabled:` naming windows, or SQLite built in only where the system has none).
+// The libraries Bun's build fetches: the pin of each (its <NAME>_COMMIT); one `enabled:` on Windows
+// alone is marked so (SQLite, built in where the system has none, is added after).
 const LIBRARY: Record<
   string,
   { name: string; licence: string; copyright?: string; standard?: string }
@@ -85,6 +90,7 @@ const LIBRARY: Record<
     copyright: "This software is based in part on the work of the Independent JPEG Group.",
   },
   libspng: { name: "libspng", licence: "BSD-2-Clause" },
+  libuv: { name: "libuv (Bun's fork)", licence: "MIT and others (its LICENSE-extra)" },
   libwebp: { name: "libwebp", licence: "BSD-3-Clause" },
   lolhtml: { name: "lol-html (Bun's fork)", licence: "BSD-3-Clause" },
   lshpack: { name: "ls-hpack", licence: "MIT" },
@@ -120,7 +126,8 @@ for (const n of deps) {
   const repo = source.match(/repo:\s*"([^"]+)"/)?.[1];
   const commit = source.match(/_COMMIT\s*=\s*"([^"]+)"/)?.[1];
   const enabled = source.match(/enabled:\s*([^,\n]+)/)?.[1] ?? "";
-  if (!repo || !commit || /windows|staticSqlite/.test(enabled)) continue;
+  if (!repo || !commit || /staticSqlite/.test(enabled)) continue;
+  const systems: System[] | undefined = /windows/.test(enabled) ? ["windows"] : undefined;
   const known = LIBRARY[dep];
   if (!known) throw new Error(`Bun ${BUN} builds ${dep} (${repo}): name it in bun.ts's LIBRARY`);
   const t = await licences(repo, commit);
@@ -130,10 +137,31 @@ for (const n of deps) {
   if (!t.length) throw new Error(`${repo}@${commit}: no licence file`);
   if (dep === "zstd") t.splice(0, t.length, ...t.filter((x) => !/GNU GENERAL PUBLIC/.test(x)));
   add(
-    { ...known, version: `commit ${commit}`, source: `https://github.com/${repo}/tree/${commit}` },
+    {
+      ...known,
+      version: `commit ${commit}`,
+      source: `https://github.com/${repo}/tree/${commit}`,
+      systems,
+    },
     t,
   );
 }
+
+// SQLite, built in on Windows and Linux (macOS's own is used there): the amalgamation in Bun's tree.
+const sqlite = (await file("oven-sh/bun", TAG, "src/jsc/bindings/sqlite/sqlite3_local.h"))?.match(
+  /#define SQLITE_VERSION\s+"([^"]+)"/,
+)?.[1];
+if (!sqlite) throw new Error("SQLite's version not found in Bun's tree");
+add(
+  {
+    name: "SQLite",
+    version: sqlite,
+    licence: "blessing (public domain)",
+    source: `https://github.com/oven-sh/bun/tree/${TAG}/src/jsc/bindings/sqlite`,
+    systems: ["windows", "linux"],
+  },
+  [readFileSync(join(import.meta.dir, "texts", "sqlite.txt"), "utf8")],
+);
 
 // Bun's own vendored code, and the work its transpiler is ported from.
 for (const [name, path] of [
@@ -181,9 +209,28 @@ add(
   [lgpl, apple],
 );
 
+// ICU, linked into Bun's WebKit on Windows and Linux (macOS's own is used there): the release its
+// WebKit build downloads.
+const icu = (await file("oven-sh/WebKit", webkit, "Dockerfile"))?.match(
+  /unicode-org\/icu\/releases\/download\/(release-[\d.]+)\//,
+)?.[1];
+if (!icu) throw new Error("ICU's release not found in WebKit's build");
+add(
+  {
+    name: "ICU (International Components for Unicode)",
+    version: icu.replace("release-", ""),
+    licence: "Unicode-3.0",
+    copyright: "Copyright © 2016 and later Unicode, Inc. and others",
+    source: `https://github.com/unicode-org/icu/tree/${icu}/icu4c`,
+    systems: ["windows", "linux"],
+  },
+  await licences("unicode-org/icu", icu),
+);
+
 // The Rust crates of Bun's Cargo.lock, each crate's own licence files.
 const lock = (await file("oven-sh/bun", TAG, "Cargo.lock")) as string;
-const OTHER_SYSTEMS = /^(windows|winapi|wasm|wasi|wit-|js-sys|web-sys|r-efi|hermit-abi)/;
+const OTHER_SYSTEMS = /^(wasm|wasi|wit-|js-sys|web-sys|r-efi|hermit-abi)/;
+const WINDOWS_ONLY = /^(windows|winapi)/;
 const work = mkdtempSync(join(tmpdir(), "bun-crates-"));
 for (const m of lock.matchAll(
   /\[\[package\]\]\nname = "([^"]+)"\nversion = "([^"]+)"\nsource = "registry/g,
@@ -208,6 +255,7 @@ for (const m of lock.matchAll(
       licence,
       copyright: authors || undefined,
       source: `https://crates.io/crates/${name}/${version}`,
+      systems: WINDOWS_ONLY.test(name) ? ["windows"] : undefined,
     },
     // As the generator reads a crate: the chosen licence's files, else the standard text.
     readTexts(dir, chosen(licence)),

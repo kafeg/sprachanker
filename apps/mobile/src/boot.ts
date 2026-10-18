@@ -39,6 +39,7 @@ import { phonePiper } from "./piper.ts";
 import { profileFiles } from "./profiles.ts";
 import { phoneSpeech } from "./speech.ts";
 import { phoneApkg, phoneProfileSql } from "./sql.ts";
+import { phoneUpdate } from "./update.ts";
 import { installVoices } from "./voices.ts";
 
 /** The app's version, set when the page is built (scripts/build.ts). */
@@ -185,7 +186,8 @@ async function start() {
   const server = drizzle(sqlite.db, { schema: serverSchema }) as ServerDb;
   const profiles = await profileFiles(files);
   const engines = await native.enginesBuilt();
-  // Engines a page before this one started (a reload) have no owner now.
+  // Engines a page before this one started (a reload) have no owner now, nor its work and readings.
+  bridge?.pageStarted();
   if (engines.length) await native.enginesStopAll();
   const storage = fs && root ? storageOver(fs, root, profiles, engines) : undefined;
   const speech = phoneSpeech(storage?.models ?? notOnPhone("speech models"), {
@@ -231,6 +233,8 @@ async function start() {
     piper: storage?.piper,
     readings: storage?.readings,
     sessionInHeader: true,
+    // A newer release: Android's APK installed by the native side; iOS's app built again by hand.
+    update: phoneUpdate(!!bridge),
   });
   document.addEventListener("visibilitychange", () => {
     if (document.visibilityState === "hidden") void flushAll();

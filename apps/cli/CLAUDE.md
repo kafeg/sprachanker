@@ -15,13 +15,14 @@ src/main.ts         # serve, import, verify, profiles (the server's profile matt
                     # by Whisper into it; --again), backup, version; main(argv, embedded?) — also
                     # runs from sources
 src/version.ts      # the version reported: set when compiled, counted from git from the sources
-install.sh          # the installer published with each release (curl … | bash): Apple Silicon only; the
-                    # program into ~/SprachAnker/bin, a LaunchAgent, a backup before an update
-                    # (README's Install; docs/decisions.md)
+install.sh          # the installer published with each release (curl … | bash): a Mac with Apple Silicon
+                    # or Linux on x64; the program into ~/SprachAnker/bin, a LaunchAgent or a systemd
+                    # user unit, a backup before an update; run again it keeps the folder, port and
+                    # address it set (the update command About shows; README's Install; docs/decisions.md)
 scripts/version.ts  # the app's version: MAJOR.MINOR of package.json, the commit count third (printed when run;
                     # the desktop's and the phone's builds take it too)
 scripts/build.ts    # bun run build:bin (build:cli after build:speech): embeds the web build, compiles dist/sprachanker
-                    # with the version
+                    # (sprachanker.exe on Windows) with the version
                     # (the server's profile-db Worker a second entry, its name handed in), copies the
                     # speech engines built in native/ beside it (whisper-server, Piper's
                     # sherpa-onnx-offline-tts, Qwen3-TTS's tts-server); THIRD_PARTY_NOTICES.txt

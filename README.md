@@ -9,8 +9,8 @@ catalogues into a library on your own machine, then study them in one interface:
 with exercises checked as you go, flashcards with spaced repetition, speaking checked by speech
 recognition, and practice set by any AI model you connect — a local one or a cloud one.
 
-> **Status:** used daily by its authors for German, in the Mac app or the browser on a Mac with Apple
-> Silicon (the only platform for now); phones over Tailscale work and are being tried out. What comes next:
+> **Status:** used daily by its authors for German, in the Mac app and on phones (the Android app,
+> phones' browsers over Tailscale). Apps for Windows and Linux are built with each release. What comes next:
 > [`docs/plan.md`](docs/plan.md). The decisions behind it: [`docs/decisions.md`](docs/decisions.md).
 
 ## Why
@@ -75,7 +75,8 @@ SprachAnker keeps the real course and adds what it lacks:
 **Several people, several devices**
 - Profiles keep each learner's progress apart; a profile can be moved to another computer as a file.
 - Phones open the same server through your local network or Tailscale (HTTPS, so the microphone
-  works) and can install it as an app.
+  works) and can install it as an app; the Android app also stands alone, a course and its speech
+  on the phone.
 
 The interface speaks 19 languages, including Arabic and Persian (right to left).
 
@@ -101,21 +102,52 @@ lessons, review and exams work without any model.
 
 ## Install
 
-**Macs with Apple Silicon (M1 and later), macOS 13 or later, only for now.** Linux, a Docker image and Windows come
-later ([`docs/plan.md`](docs/plan.md)).
+Every [release](https://github.com/kafeg/sprachanker/releases/latest) has the app for each system. The
+app is the server too: it starts at login and stays in the tray (the menu bar on a Mac) when its window
+is closed — Quit there stops it —, so phones reach it. It says when a newer version is out (a dot on
+Settings; Settings → General → About) and updates itself from there, checked against the project's
+signing key first. None of the builds is signed by Apple or Microsoft, so each system warns once.
 
-**The app:** download `SprachAnker-<version>-macos-arm64.dmg` from the
-[latest release](https://github.com/kafeg/sprachanker/releases/latest), drag SprachAnker into
-Applications and open it. It is not notarised: the first time, and again after each update, macOS
-refuses — open System Settings → Privacy & Security and click **Open Anyway** next to SprachAnker; it
-asks for the microphone again after an update too. The app runs the server: it starts at
-login and stays in the menu bar when its window is closed (Quit there stops it), so phones reach it as
-below. It replaces the installer's server below if you had it;
-its log is `~/Library/Logs/SprachAnker/serve.log`. To update, quit it (menu bar icon → Quit) and
-install the newer release over it. To remove it, quit it, delete it from Applications and
-`~/Library/LaunchAgents/SprachAnker.plist` (its start at login); your data stays in `~/SprachAnker`.
+**macOS** (Apple Silicon, macOS 13 or later): download `SprachAnker-<version>-macos-arm64.dmg`, drag
+SprachAnker into Applications and open it. The first time macOS refuses it: open System Settings →
+Privacy & Security and click **Open Anyway** next to SprachAnker. To update: Settings → About →
+**Update and restart** (macOS may ask for the microphone again). Its log is
+`~/Library/Logs/SprachAnker/serve.log`. To remove it, quit it, delete it from Applications and
+`~/Library/LaunchAgents/SprachAnker.plist` (its start at login).
 
-**Without a window** (a server only, not beside the app), open Terminal and run:
+**Windows** (10 or 11, x64): download `SprachAnker-<version>-windows-x64-setup.exe` and run it; it
+installs for you alone, without an administrator. SmartScreen says "Windows protected your PC": **More
+info** → **Run anyway**. The first time it starts, Windows Firewall asks whether it may be reached on
+networks: allow private networks for phones at home. To update: Settings → About → **Update and
+restart**. Its log is `%LOCALAPPDATA%\app.sprachanker.desktop\logs\serve.log`. To remove it: Settings → Apps.
+
+**Linux** (x64, Debian, Ubuntu 22.04 or later and their kin): download
+`SprachAnker-<version>-linux-x64.deb` and run `sudo apt install ./SprachAnker-<version>-linux-x64.deb`.
+To update: Settings → About → **Update and restart** (it asks for your password to install the
+package). Its log is `~/.local/state/sprachanker/serve.log`. Other distributions: the program below.
+
+**Android** (11 or later, with Android System WebView 111 or later — update it from Google Play if the
+app opens blank): download `SprachAnker-<version>-android.apk` on the phone and open it; Android
+asks to allow installing apps from the browser the first time. The phone app stands alone — courses,
+speech recognition and reading aloud on the phone; an AI model is the only thing it reaches out for.
+To update: Settings → About → **Download and install** (Android asks once to let SprachAnker install
+apps); your courses and progress stay.
+
+**iPhone and iPad**: not in the App Store. The phone app can be built with Xcode and a free Apple ID
+(`apps/mobile/CLAUDE.md`), but such an app stops after 7 days until it is built and installed again,
+and on iOS it holds courses and practice offline only, for now. The simple way is the browser, below.
+
+**A phone's browser** opens the app of a computer at the computer's address: Settings → General →
+Other devices shows the addresses and QR codes (the Android app has the same, to be opened from other
+devices). Add it to the home screen to have it as an app. Over plain HTTP — a home network's address
+such as `http://192.168.1.20:4580` — the browser gives the page no microphone; answers said aloud need
+HTTPS: Tailscale, below.
+
+**The computer and phones over Tailscale**: with [Tailscale](https://tailscale.com) on the computer and
+the phones, `tailscale serve` gives the computer's server an HTTPS address on your tailnet — the phones
+reach it at home and away, microphone included; Other devices shows how.
+
+**Without a window** (a server only, on a Mac or a Linux PC; not beside the app), open a terminal and run:
 
 ```bash
 curl -fsSL https://github.com/kafeg/sprachanker/releases/latest/download/install.sh | bash
@@ -124,35 +156,44 @@ curl -fsSL https://github.com/kafeg/sprachanker/releases/latest/download/install
 It downloads the latest release, starts SprachAnker and opens it in your browser at
 `http://127.0.0.1:4580`. There you choose your language, make a profile, set up speech (its models
 download from there) and, if you like, an AI model; then download a course from Courses → Available.
-SprachAnker starts by itself at login. To update, run the same command again.
+SprachAnker starts by itself at login (a LaunchAgent on macOS, a systemd user unit on Linux; for a
+server that runs before anyone logs in: `loginctl enable-linger`). To update, run the same command
+again (Settings → About shows it when a newer version is out). On Windows, unpack
+`sprachanker-windows-x64.zip` into a folder and run `sprachanker.exe serve --data
+%USERPROFILE%\SprachAnker`; to update, unpack the newer one over it with the program stopped.
 
-What goes where:
+What goes where (the program; the apps keep the same data folder):
 
 | Where | What |
 |---|---|
 | `~/SprachAnker/bin/` | the program: `sprachanker` (the server with the web app inside) and the speech engines beside it — `whisper-server` (recognition), `sherpa-onnx-offline-tts` (Piper voices), `tts-server` (Qwen3-TTS); `serve.log` |
-| `~/SprachAnker/` | your data: `library/` (downloaded courses and exams), `profiles/` (each learner's progress and recordings), `decks/` (imported Anki decks, your Finds, the audio and examples made for decks' words), `models/` (speech models and voices), `cache/`, `server.sqlite` with its daily copies |
-| `~/Library/Application Support/SprachAnker/secret.key` | the key your AI providers' API keys are stored encrypted with |
-| `~/Library/LaunchAgents/app.sprachanker.server.plist` | starts the server at login and again if it stops |
+| `~/SprachAnker/` (Windows: `%USERPROFILE%\SprachAnker`) | your data: `library/` (downloaded courses and exams), `profiles/` (each learner's progress and recordings), `decks/` (imported Anki decks, your Finds, the audio and examples made for decks' words), `models/` (speech models and voices), `cache/`, `server.sqlite` with its daily copies |
+| `~/Library/Application Support/SprachAnker/secret.key` (Windows: `%APPDATA%\SprachAnker`, Linux: `~/.local/share/sprachanker`) | the key your AI providers' API keys are stored encrypted with |
+| `~/Library/LaunchAgents/app.sprachanker.server.plist` (Linux: `~/.config/systemd/user/sprachanker.service`) | starts the server at login and again if it stops |
 | `~/SprachAnker-backups/` | a copy of your data made before each update (databases, recordings, decks, the key) |
 
 The archive is about 40 MB; with a course, speech models and voices expect 3–5 GB, every course 20 GB
 and more. Settings: `SPRACHANKER_HOME` (another folder), `SPRACHANKER_PORT`, `SPRACHANKER_HOST=0.0.0.0`
 (phones on the local network, without the microphone), `SPRACHANKER_VERSION=vX.Y.Z` (a given release)
-before `bash`, e.g. `curl … | SPRACHANKER_PORT=4600 bash`.
+before `bash`, e.g. `curl … | SPRACHANKER_PORT=4600 bash`; running it again keeps them.
 
-**Phones** open the same server over Tailscale (HTTPS, so the microphone works): Settings → General →
-Other devices shows how, with QR codes.
-
-**Remove** it (your data stays in `~/SprachAnker` until you delete it):
+**Remove** it (your data stays in `~/SprachAnker` until you delete it). macOS:
 
 ```bash
 launchctl bootout gui/$(id -u)/app.sprachanker.server; rm ~/Library/LaunchAgents/app.sprachanker.server.plist; rm -rf ~/SprachAnker/bin
 ```
 
+Linux:
+
+```bash
+systemctl --user disable --now sprachanker.service; rm ~/.config/systemd/user/sprachanker.service; rm -rf ~/SprachAnker/bin
+```
+
 ## Build from source
 
-Requirements: [Bun](https://bun.sh), and `cmake` with a C++ compiler for the speech engines.
+Requirements: [Bun](https://bun.sh), and `cmake` with a C++ compiler for the speech engines (on
+Windows Visual Studio's; on Linux `ninja` too for the phone's). The desktop app also needs Rust
+(`bun run build:desktop`); the phone app: `apps/mobile/CLAUDE.md`.
 
 ```bash
 bun install
@@ -165,8 +206,9 @@ apps/cli/dist/sprachanker serve --data ~/SprachAnker
 ## Privacy
 
 Your data — progress, recordings, profiles — stays in the data folder on your machine. The only
-things that leave it are the requests to the AI provider you configured, and downloads from the
-course publishers' sites. API keys are stored encrypted and never put into a profile file.
+things that leave it are the requests to the AI provider you configured, downloads from the course
+publishers' sites, and a look at the latest release on GitHub every few hours (nothing about you goes
+with it). API keys are stored encrypted and never put into a profile file.
 
 ## For developers
 
