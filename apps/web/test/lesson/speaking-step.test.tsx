@@ -96,7 +96,57 @@ test("a wrong spoken answer: its verdict and the right answer, Try again, the AI
   expect(view.queryByText(/^Not the answer asked for/)).toBeNull();
 });
 
-test("a right spoken answer: no why to ask; an answer the engine cannot judge goes to the AI by itself", async () => {
+test("an answer neither right nor the question said back: its words against the closest answer, almost — never the AI by itself", async () => {
+  const near = await render("Guten Abend. Danke, sehr gut. Und dir?");
+  expect(near.getByText("Almost: a few words missing")).toBeTruthy();
+  expect(near.queryByText(/^AI:/)).toBeNull();
+  await act(async () => {
+    fireEvent.click(near.getByRole("button", { name: "Why is this wrong?" }));
+  });
+  expect(near.getByText("AI: Guten Abend. Danke, sehr gut. Und dir?")).toBeTruthy();
+  near.unmount();
+
+  // Kept with no verdict of the engine (from before it judged them): the source's answer heard,
+  // so the AI is still not asked by itself.
+  const old = await renderApp(
+    <SpeechProvider value={host}>
+      <TargetLang value="de">
+        <HeardAnswers.Provider value={heard}>
+          <ExerciseStep
+            exercise={exercise}
+            index={0}
+            total={3}
+            url={(p) => p}
+            stored={
+              exerciseResults([
+                {
+                  id: "e1",
+                  runId: "r",
+                  type: "answered",
+                  itemKey: `${KEY}#1`,
+                  ts: 1,
+                  payload: {
+                    answer: { transcript: "Guten Abend! Danke! Gut! Und dir?" },
+                    attempt: 1,
+                    ms: 1,
+                    outcome: { result: "unscored", score: 0 },
+                  },
+                } as unknown as TypedEvent,
+              ])[KEY]
+            }
+            onAnswered={() => {}}
+            onBack={() => {}}
+            onNext={() => {}}
+            spoken={(_, said) => <p>AI: {said}</p>}
+          />
+        </HeardAnswers.Provider>
+      </TargetLang>
+    </SpeechProvider>,
+  );
+  expect(old.queryByText(/^AI:/)).toBeNull();
+});
+
+test("a right spoken answer: no why to ask; an answer nothing here can check goes to the AI by itself", async () => {
   const right = await render("Guten Abend, danke gut, und dir");
   expect(right.getByText("You said it")).toBeTruthy();
   expect(right.queryByRole("button", { name: "Why is this wrong?" })).toBeNull();

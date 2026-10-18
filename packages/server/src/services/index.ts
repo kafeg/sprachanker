@@ -221,7 +221,7 @@ function profileServices(
     now,
   });
   const words = createWords({ cards: cardStore, store, shown: cards.shown });
-  const mistakes = createMistakes(store);
+  const mistakes = createMistakes(store, lessons.judged);
   const lessonContext = createLessonContext(content);
   const tutor = createTutor({
     store,
@@ -355,6 +355,7 @@ function profileServices(
     store,
     content,
     cards: cardStore,
+    judged: lessons.judged,
     chats: (lessonKey) => tutor.chats(lessonKey, Number.POSITIVE_INFINITY),
     scenes: (lessonKey) => scenes.list(lessonKey, Number.POSITIVE_INFINITY),
   });

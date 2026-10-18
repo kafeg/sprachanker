@@ -99,7 +99,7 @@ export function createCoursesContext(deps: {
     // The latest mistakes in those lessons, newest first, each named by its lesson.
     const courseOf = new Map(recent.map((l) => [l.key as string, l.course]));
     const mistakes: TutorMistake[] = [];
-    for (const m of deps.mistakes.list({ lessons: recent.map((l) => l.key) })) {
+    for (const m of await deps.mistakes.list({ lessons: recent.map((l) => l.key) })) {
       if (mistakes.length >= MISTAKES) break;
       const c = courseOf.get(m.lessonKey);
       if (c)

@@ -81,7 +81,7 @@ interface StepProps {
   /** Help with a wrong item (the LLM explanation), if available: shown under it when asked for. */
   explain?(index: number, answer: unknown): React.ReactNode;
   /** An answer said aloud without a phrase to say, as heard (the LLM's check), if available: by
-   *  itself where the engine could not judge it, else when the learner asks why. */
+   *  itself where nothing here can check it, else when the learner asks why. */
   spoken?(index: number, transcript: string): React.ReactNode;
 }
 
@@ -181,9 +181,10 @@ export function ExerciseStep({
           const marked = !!mark;
           const right = mark === "correct";
           const heardAnswer = speaking ? heardOf(answers[i]) : undefined;
-          // The AI checks by itself only what the engine could not judge (not while the source's
-          // answers are still being heard); a judged answer only when the learner asks why.
-          const freely = spokenFreely(exercise, i, answers[i], outcome);
+          // The AI checks by itself only what nothing here can check — no line to say, no source's
+          // answer heard (not while those are still being heard); an answer the engine judges
+          // (owner, 2026-10-18: by its words, as a line repeated) only when the learner asks why.
+          const freely = spokenFreely(exercise, i, answers[i], lang, heard.texts);
           const said = spoken && !heard.pending && freely;
           const askable = spoken && heardAnswer && !linesToSay(item as ItemOf<"speech_selfrate">);
           // "Why?" is the explaining place's (`explain` given while the AI answers there).

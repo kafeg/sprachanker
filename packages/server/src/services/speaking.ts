@@ -1,7 +1,8 @@
 // An answer said aloud without a line to say: what the recogniser heard,
 // checked by the configured model against the item, its question and the source's answer — both heard
 // from the course's recordings (the source's answer as heard into the course, where it was: heard.ts).
-// Asked only where the engine could not judge the answer, or by the learner ("Why?"). A check is an
+// Asked by the page only: by itself where nothing can check the answer (no source's answer heard),
+// else when the learner asks "Why?" (owner, 2026-10-18); the server asks nothing by itself. A check is an
 // `llm_verdict` (`task: speaking`) on the item in the lesson run, for what was heard: asked once per
 // answer, shown again without asking.
 

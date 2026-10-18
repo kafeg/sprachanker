@@ -52,8 +52,8 @@ src/
                      # needs of another is a function handed in here). By area:
                      # - stores: run-store (the only code on runs and events), card-store (on cards and card_state); over the run
                      #   store answers (numbered) and verdicts (kept, read)
-                     # - lessons: lessons (lesson runs, progress, standing), lesson-journal (passes, a pass in full, an item across
-                     #   passes), mistakes
+                     # - lessons: lessons (lesson runs — read with answers said aloud from before judged: `judged` —, progress,
+                     #   standing), lesson-journal (passes, a pass in full, an item across passes), mistakes
                      # - exams: exams (the standing in each, the exams', an exam's Notebook page) over exam-runs (mock exams and
                      #   practice taken; overdue ones handed in on reading; a module's preparation notes)
                      # - review: cards (from lesson words or an imported deck; decks taken, left; relinking; what a card shows in a

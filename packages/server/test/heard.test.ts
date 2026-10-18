@@ -1,5 +1,6 @@
 // The source's answers heard into the course: a lesson's as it asks for them, a course's in one go;
 // the answers said aloud then checked against them by the server, without a model.
+import { Database } from "bun:sqlite";
 import { expect, test } from "bun:test";
 import { existsSync, mkdirSync, readFileSync, writeFileSync } from "node:fs";
 import { join } from "node:path";
@@ -110,6 +111,29 @@ test("a lesson's answer recordings heard the first time it asks, written into th
     events: [answered("Guten Abend, danke gut, und dir")],
   });
   expect(Object.values(right.outcomes)[0]).toMatchObject({ spoken: "correct" });
+
+  // Kept as before the engine judged spoken answers (no `spoken`): judged as the run is read —
+  // the player's run, the Notebook's pass and item, the mistakes.
+  new Database(join(root, "profiles/local/profile.sqlite"))
+    .query(
+      "UPDATE events SET payload_json = json_set(payload_json, '$.outcome', json('{\"result\":\"unscored\",\"score\":0}')) WHERE type = 'answered'",
+    )
+    .run();
+  const query = new URLSearchParams({ series: FIXTURE_SERIES, lessonKey: LESSON });
+  const spokenOf = (events: Array<{ type: string; payload: { outcome?: { spoken?: string } } }>) =>
+    events.filter((e) => e.type === "answered").map((e) => e.payload.outcome?.spoken);
+  expect(spokenOf((await getJson(`/api/runs/lesson?${query}`)).state.events)).toEqual([
+    "wrong",
+    "correct",
+  ]);
+  expect(spokenOf((await getJson(`/api/notebook/passes/${run.id}`)).events)).toEqual([
+    "wrong",
+    "correct",
+  ]);
+  const item = await getJson(`/api/notebook/item?itemKey=${encodeURIComponent(`${EXERCISE}#3`)}`);
+  expect(
+    item.passes[0].answers.map((a: { outcome: { spoken?: string } }) => a.outcome.spoken),
+  ).toEqual(["wrong", "correct"]);
 });
 
 test("a profile that hears no speech gets what is there, nothing heard for it", async () => {

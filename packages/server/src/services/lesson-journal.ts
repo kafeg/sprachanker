@@ -11,6 +11,7 @@ import {
   lessonOf,
   parseItemKey,
   seriesOf,
+  type TypedEvent,
   type VerdictTask,
 } from "@sprachanker/schema";
 import { ServiceError } from "../errors.ts";
@@ -39,6 +40,8 @@ export function createLessonJournal(deps: {
   store: RunStore;
   content: Content;
   cards: CardStore;
+  /** A run's events as read, its answers said aloud judged (the lessons service). */
+  judged: (row: RunRow, events: TypedEvent[]) => Promise<TypedEvent[]>;
   /** The lesson's chats and scenes, every one (the tutor's and the scenes' services). */
   chats: (lessonKey: LessonKey) => HeldChat[];
   scenes: (lessonKey: LessonKey) => HeldScene[];
@@ -141,7 +144,7 @@ export function createLessonJournal(deps: {
       const held = heldDuring(lessonKey, [row]).get(row.id);
       return {
         run: toRun(row),
-        events: store.events(runId),
+        events: await deps.judged(row, store.events(runId)),
         lesson: now?.lesson ?? null,
         locale: now?.locale ?? null,
         explanations: verdicts(store, "explain", { runIds: [runId] }),
@@ -159,27 +162,29 @@ export function createLessonJournal(deps: {
 
     /** One item in every pass that answered it, newest pass first: each answer with its outcome, and
      *  the explanations kept for it. */
-    item(itemKey: ItemKey) {
+    async item(itemKey: ItemKey) {
       const lessonKey = lessonOf(parseItemKey(itemKey).exercise);
       const where = { kind: "lesson" as const, about: lessonKey, itemKey };
       const answered = store.eventsWhere({ types: ["answered"], ascending: true, ...where });
       const explained = verdicts(store, "explain", where);
       const spoken = verdicts(store, "speaking", where);
-      return store.list("lesson", lessonKey).flatMap((row) => {
-        const answers = answered
-          .filter((e) => e.runId === row.id)
-          .map((e) => payloadOf<AnsweredPayload>(e));
-        if (!answers.length) return [];
-        return [
-          {
-            runId: row.id,
-            startedAt: row.startedAt,
-            answers,
-            explanations: explained.filter((v) => v.runId === row.id).reverse(),
-            spoken: spoken.filter((v) => v.runId === row.id),
-          },
-        ];
-      });
+      const passes = await Promise.all(
+        store.list("lesson", lessonKey).map(async (row) => {
+          const own = answered.filter((e) => e.runId === row.id);
+          const answers = (await deps.judged(row, own)).map((e) => payloadOf<AnsweredPayload>(e));
+          if (!answers.length) return [];
+          return [
+            {
+              runId: row.id,
+              startedAt: row.startedAt,
+              answers,
+              explanations: explained.filter((v) => v.runId === row.id).reverse(),
+              spoken: spoken.filter((v) => v.runId === row.id),
+            },
+          ];
+        }),
+      );
+      return passes.flat();
     },
   };
 }

@@ -28,8 +28,8 @@ export function notebookRoutes() {
     .get("/passes/:id", zod("param", RunParam), async (c) =>
       c.json(await c.var.s.lessonJournal.pass(c.req.valid("param").id)),
     )
-    .get("/item", zod("query", z.object({ itemKey: ItemKey })), (c) =>
-      c.json({ passes: c.var.s.lessonJournal.item(c.req.valid("query").itemKey) }),
+    .get("/item", zod("query", z.object({ itemKey: ItemKey })), async (c) =>
+      c.json({ passes: await c.var.s.lessonJournal.item(c.req.valid("query").itemKey) }),
     )
     .get(
       "/review/:id",

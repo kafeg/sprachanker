@@ -1,6 +1,6 @@
 // What the player asks of an item's answer before it checks it: whether the
-// exercise is checked at all, whether an answer is complete enough to check, and what was heard of an
-// answer said aloud with no phrase to say. Pure: the web's player and the Notebook read these.
+// exercise is checked at all, whether an answer is complete enough to check, and the lines a speaking
+// item is said as. Pure: the web's player and the Notebook read these.
 import type {
   Exercise,
   GapChoiceAnswer,
@@ -95,20 +95,4 @@ export function linesToSay(item: { text?: string; reference?: string[] }): strin
     .flatMap((s) => (reference || !s.includes("\n") ? alternativesOf(s) : [s]))
     .map((s) => s.trim());
   return lines.length && lines.every((s) => s && !SPELLED.test(s)) ? lines : undefined;
-}
-
-/** What was heard of an answer said aloud to a speaking item with no line to say (`linesToSay`) whose
- *  outcome the engine did not judge — no source's answer heard to judge it by, or one it could not
- *  decide on (`spoken` absent): the AI checks it. Undefined for anything else, or nothing heard. */
-export function spokenFreely(
-  exercise: Exercise,
-  index: number,
-  answer: unknown,
-  outcome?: { spoken?: string },
-) {
-  const item = exercise.items[index] as ItemOf<"speech_selfrate"> | undefined;
-  if (exercise.type !== "speech_selfrate" || !item || linesToSay(item) || outcome?.spoken)
-    return undefined;
-  const transcript = (answer as { transcript?: unknown } | undefined)?.transcript;
-  return typeof transcript === "string" && transcript.trim() ? transcript : undefined;
 }

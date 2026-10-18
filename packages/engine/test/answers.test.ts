@@ -36,10 +36,10 @@ test("complete enough to check: every pair and part, one typed gap, text typed",
 
 test("what was heard of an answer said aloud with no phrase to say", () => {
   const speaking = ex("speech_selfrate", [{ text: "Guten Tag!" }, {}]);
-  expect(spokenFreely(speaking, 1, { transcript: "Hallo" })).toBe("Hallo");
-  expect(spokenFreely(speaking, 1, { transcript: " " })).toBeUndefined();
-  expect(spokenFreely(speaking, 0, { transcript: "Guten Tag" })).toBeUndefined();
-  expect(spokenFreely(ex("respond", [{}]), 0, { transcript: "Hallo" })).toBeUndefined();
+  expect(spokenFreely(speaking, 1, { transcript: "Hallo" }, "de")).toBe("Hallo");
+  expect(spokenFreely(speaking, 1, { transcript: " " }, "de")).toBeUndefined();
+  expect(spokenFreely(speaking, 0, { transcript: "Guten Tag" }, "de")).toBeUndefined();
+  expect(spokenFreely(ex("respond", [{}]), 0, { transcript: "Hallo" }, "de")).toBeUndefined();
 });
 
 test("a speaking item's line to say: the source's answer, else its phrase; a frame leaves it open", () => {
@@ -65,10 +65,10 @@ test("a speaking item's line to say: the source's answer, else its phrase; a fra
     { reference: ["Ja, ich habe ..."] },
     { reference: ["Ich habe zwei Brüder."] },
   ]);
-  expect(spokenFreely(speaking, 0, { transcript: "Ja, ich habe eine Schwester" })).toBe(
+  expect(spokenFreely(speaking, 0, { transcript: "Ja, ich habe eine Schwester" }, "de")).toBe(
     "Ja, ich habe eine Schwester",
   );
-  expect(spokenFreely(speaking, 1, { transcript: "Ich habe zwei Brüder" })).toBeUndefined();
+  expect(spokenFreely(speaking, 1, { transcript: "Ich habe zwei Brüder" }, "de")).toBeUndefined();
 });
 
 test("a phrase to repeat is said as written: brackets are its words, alternatives only on one line", () => {

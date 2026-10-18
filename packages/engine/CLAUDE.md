@@ -13,8 +13,9 @@ src/
                   # one case per type; itemScored; outcome.ts: graders and words against references
                   # (spokenCheck); spoken.ts: an answer said aloud judged against the line to say or
                   # the source's answer as heard (a frame completed, the shortest runs of sentences:
-                  # spokenAnswers, judgeSpoken; no verdict where unsure), the recording an item is
-                  # checked by (answerToHear); answers.ts: checked or not, an answer complete, the
+                  # spokenAnswers, judgeSpoken; neither right nor clearly missed: its words against
+                  # the closest answer, never wrong), what only the AI can check (spokenFreely), the
+                  # recording an item is checked by (answerToHear); answers.ts: checked or not, an answer complete, the
                   # words said (a line's alternatives);
                   # understanding.ts: Understanding's questions as items of their types, its stage;
                   # mistake-items.ts: going over mistakes' new items as items of their types, a
@@ -29,7 +30,8 @@ src/
                   # exercise), going-over (a run's mistakes to go over in the lesson and whether it has
                   # any; a mistake's wrong parts only, grouped by type, those said aloud and
                   # Understanding's listed only), lesson progress (an exercise's mark: a spoken answer by its check —
-                  # the engine's, else the model's —, answerMark), study days (activity: counted by
+                  # the engine's, else the model's —, answerMark; answers from before the engine judged
+                  # them judged as a run is read: judgedEvents), study days (activity: counted by
                   # module, the run's kind, the time each took); series: a span cut into bars (days, weeks, months) for the
                   # Notebook's pictures; planned: rule mastery, can-do
   exam/           # exams: the settings as an exam reads them, the questions open to a learner (a

@@ -75,7 +75,7 @@ export function createTutorTools(deps: {
           const list = await deps.lessonContext.mistakes(
             series,
             edition,
-            deps.mistakes.list({ lesson: key, limit: 15 }),
+            await deps.mistakes.list({ lesson: key, limit: 15 }),
             (await map).titles,
           );
           return { mistakes: list.map(mistakeLine) };

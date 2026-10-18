@@ -4,6 +4,7 @@ import {
   checkItem,
   courseProgress,
   exerciseResults,
+  judgedEvents,
   LESSON_WORK,
   lessonCoverage,
   lessonDone,
@@ -136,10 +137,34 @@ export function createLessons({
     return undefined;
   };
 
+  /**
+   * A lesson run's events as they are read: its answers said aloud kept without the engine's verdict
+   * (from before it judged them) judged now, as a new answer is checked (engine `judgedEvents`: in the
+   * language the edition teaches, against the source's answers as heard) — the same marks wherever
+   * the run is read. The lesson no longer installed: its exercises as the run showed them.
+   */
+  async function judged(row: RunRow, events: TypedEvent[]): Promise<TypedEvent[]> {
+    const unjudged = events.some(
+      (e) =>
+        e.type === "answered" &&
+        e.payload.outcome.result === "unscored" &&
+        !e.payload.outcome.spoken,
+    );
+    if (!row.edition || !unjudged) return events;
+    const key = row.contextKey as LessonKey;
+    const series = seriesOf(key);
+    const [lesson, texts] = await Promise.all([
+      content.lesson(series, key).catch(() => undefined),
+      heard(series, parseLessonKey(key).courseId).catch(() => undefined),
+    ]);
+    const lang = parseEditionId(row.edition).target;
+    return judgedEvents(events, { lang, heard: texts, lesson });
+  }
+
   /** A run as the player opens it: the run, its events, and the page to go on with (where the last
    *  exercise shown is in the lesson now). */
   const openState = async (row: RunRow) => {
-    const list = store.events(row.id);
+    const list = await judged(row, store.events(row.id));
     const key = row.contextKey as LessonKey;
     const lesson = await content.lesson(seriesOf(key), key).catch(() => undefined);
     return { run: toRun(row), events: list, resumePage: resumePage(list, lesson) };
@@ -342,9 +367,10 @@ export function createLessons({
     /** The run the lesson shows, with its events (for the tutor). */
     async shown(lessonKey: LessonKey): Promise<{ run: Run; events: TypedEvent[] } | undefined> {
       const row = await shownRun(lessonKey);
-      return row && { run: toRun(row), events: store.events(row.id) };
+      return row && { run: toRun(row), events: await judged(row, store.events(row.id)) };
     },
 
+    judged,
     lessonStates,
 
     /**

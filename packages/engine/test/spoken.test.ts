@@ -7,6 +7,7 @@ import {
   completes,
   exerciseMark,
   exerciseResults,
+  judgedEvents,
   judgeSpoken,
   mistakesOf,
   sentencesOf,
@@ -105,10 +106,9 @@ describe("judgeSpoken", () => {
   });
   test.each<[string, string | undefined]>([
     ["Ich trinke gern Tee", "correct"],
-    // Unlike the source's answer: maybe the learner's own — not judged (the AI's, where set up).
-    ["Ich mag Kaffee", undefined],
-    // A word more than the source's: not judged either, never "words missing".
-    ["Ich trinke sehr gern Tee", undefined],
+    // Unlike the source's answer: maybe the learner's own — at most "almost", never wrong.
+    ["Ich mag Kaffee", "partial"],
+    ["Ich trinke sehr gern Tee", "partial"],
   ])("no frame: %j", (said, verdict) =>
     expect(judgeSpoken("de", free, said).verdict).toBe(verdict as never),
   );
@@ -131,14 +131,14 @@ describe("a right answer is never wrong", () => {
       "Ich mache zweimal im Jahr Urlaub.",
       "correct",
     ],
-    // Words around the frame, another order: not judged (the AI checks).
-    ["Ich trinke ...", "Ich trinke Kaffee.", "Ja, ich trinke Tee.", undefined],
-    ["Ich trinke ...", "Ich trinke Kaffee.", "Am liebsten trinke ich Tee.", undefined],
+    // Words around the frame, another order: compared with the closest answer, "almost" at worst.
+    ["Ich trinke ...", "Ich trinke Kaffee.", "Ja, ich trinke Tee.", "partial"],
+    ["Ich trinke ...", "Ich trinke Kaffee.", "Am liebsten trinke ich Tee.", "partial"],
     [
       "Ich heiße ... und komme aus ...",
       "Ich heiße Nico und komme aus Spanien.",
       "Ich heiße Anna und ich komme aus Polen.",
-      undefined,
+      "partial",
     ],
     // How it is written is not heard: ß and ss, "geht's", numbers in digits.
     ["Wie geht es ...?", "Wie geht es dir?", "Wie geht's dir?", "correct"],
@@ -164,7 +164,7 @@ describe("a right answer is never wrong", () => {
     if (!target) throw new Error(`no answers for ${reference}`);
     expect(judgeSpoken("en", target, said).verdict).toBe(verdict as never);
   });
-  test("a frame of gaps only is none: the source's answer as heard, unlike it not judged", () => {
+  test('a frame of gaps only is none: the source\'s answer as heard, unlike it "almost"', () => {
     const target = spokenAnswers(
       "de",
       { reference: ["(seit – zwei Monate)"] },
@@ -173,7 +173,7 @@ describe("a right answer is never wrong", () => {
     expect(target).toMatchObject({ answers: ["Seit zwei Monaten."], frames: [] });
     if (!target) return;
     expect(judgeSpoken("de", target, "Seit zwei Monaten").verdict).toBe("correct");
-    expect(judgeSpoken("de", target, "Ich weiß nicht").verdict).toBeUndefined();
+    expect(judgeSpoken("de", target, "Ich weiß nicht").verdict).toBe("partial");
   });
   test('" / " inside brackets is the hint\'s, not two frames', () => {
     const target = spokenAnswers(
@@ -253,14 +253,19 @@ describe("checkItem with the source's answers heard", () => {
     expect(checkItem(exercise, 2, { transcript: "Bis morgen" }, "de").spoken).toBe("correct");
     expect(checkItem(exercise, 0, { recording: "r" }, "de", heard).spoken).toBeUndefined();
   });
-  test("the AI checks only what the engine did not judge", () => {
+  test("the AI checks by itself only what nothing here can check", () => {
+    // The source's answer heard: the engine judges every answer, the AI only on "Why?".
     const said = { transcript: "Ich mag Kaffee" };
-    const o = checkItem(exercise, 1, said, "de", heard);
-    expect(spokenFreely(exercise, 1, said, o)).toBe("Ich mag Kaffee");
-    const right = { transcript: "Ich trinke gern Tee" };
-    expect(
-      spokenFreely(exercise, 1, right, checkItem(exercise, 1, right, "de", heard)),
-    ).toBeUndefined();
+    expect(checkItem(exercise, 1, said, "de", heard).spoken).toBe("partial");
+    expect(spokenFreely(exercise, 1, said, "de", heard)).toBeUndefined();
+    const own = { transcript: "Guten Abend. Danke, sehr gut. Und Ihnen?" };
+    expect(checkItem(exercise, 0, own, "de", heard).spoken).toBe("partial");
+    expect(spokenFreely(exercise, 0, own, "de", heard)).toBeUndefined();
+    // A line to say: never the AI's.
+    expect(spokenFreely(exercise, 2, { transcript: "Bis morgen" }, "de")).toBeUndefined();
+    // Nothing heard of the source's answer (a frame alone, nothing at all): the AI's.
+    expect(spokenFreely(exercise, 0, own, "de")).toBe(own.transcript);
+    expect(spokenFreely(exercise, 1, said, "de")).toBe("Ich mag Kaffee");
   });
 });
 
@@ -330,11 +335,12 @@ describe("the mark of a spoken answer", () => {
     expect(exerciseMark(exercise, exerciseResults(events)[exercise.key])).toBe("correct");
     expect(mistakesOf([{ events }])).toEqual([]);
   });
-  test("the model's check marks what the engine did not judge", () => {
+  test("the model's check marks what the engine could not judge", () => {
     const k2 = "s.x/c/00-01/ex-02#2";
     const answer = said("Ich mag Kaffee");
     const events = [
-      answered(k2, answer, checkItem(exercise, 1, answer, "de", heard)),
+      // The source's answer not heard: nothing for the engine to judge it by.
+      answered(k2, answer, checkItem(exercise, 1, answer, "de")),
       {
         id: "v",
         runId: "r",
@@ -354,5 +360,110 @@ describe("the mark of a spoken answer", () => {
     // Recorded only (nothing heard): done, no mark.
     const kept = [answered(k2, { recording: "r" }, { result: "unscored", score: 0 })];
     expect(exerciseMark(exercise, exerciseResults(kept)[exercise.key])).toBe("done");
+  });
+});
+
+describe("answers said aloud kept from before the engine judged them", () => {
+  // As the owner's profile kept them (Nicos Weg A1, 2026-10-16/17): `unscored` with a word diff of the
+  // line to say, or nothing, and what was heard — no `spoken`.
+  const lines = {
+    key: "s.x/c/00-03/ex-06",
+    type: "speech_selfrate",
+    fingerprint: "0".repeat(64),
+    newWords: [],
+    ruleIds: [],
+    items: [
+      { key: "s.x/c/00-03/ex-06#1", text: "Auf Wiedersehen!" },
+      { key: "s.x/c/00-03/ex-06#2", text: "Mach’s gut!" },
+    ],
+  } as unknown as Exercise;
+  const framed = {
+    ...lines,
+    key: "s.x/c/00-03/ex-09",
+    items: [
+      {
+        key: "s.x/c/00-03/ex-09#1",
+        prompt: "Guten Morgen. Wie geht es Ihnen?",
+        reference: ["Guten Morgen. Danke, gut ...?"],
+        answerAudio: "media/audio/answer-9.mp3",
+      },
+    ],
+  } as unknown as Exercise;
+  const lesson = { pages: [{ exercise: lines }, { exercise: framed }] } as never;
+  const sourceHeard = { "media/audio/answer-9.mp3": "Guten Morgen! Danke! Gut! Und Ihnen?" };
+  let n = 0;
+  const kept = (itemKey: string, transcript: string, outcome: object): TypedEvent =>
+    ({
+      id: `k${++n}`,
+      runId: "r",
+      type: "answered",
+      itemKey,
+      ts: n,
+      payload: {
+        answer: { recording: `rec${n}`, transcript },
+        attempt: 1,
+        ms: 1000,
+        outcome: { result: "unscored", score: 0, ...outcome },
+      },
+    }) as unknown as TypedEvent;
+  const said = [
+    kept("s.x/c/00-03/ex-06#1", "Auf Wiedersehen.", {
+      diff: [
+        { op: "equal", expected: "Auf", actual: "Auf" },
+        { op: "equal", expected: "Wiedersehen!", actual: "Wiedersehen." },
+      ],
+    }),
+    kept("s.x/c/00-03/ex-06#2", "Mach's gut!", {
+      diff: [
+        { op: "equal", expected: "Mach's", actual: "Mach's" },
+        { op: "equal", expected: "gut!", actual: "gut!" },
+      ],
+    }),
+  ];
+
+  test("read as kept, nothing marks them: the exercise only done", () => {
+    expect(exerciseMark(lines, exerciseResults(said)[lines.key])).toBe("done");
+  });
+  test("judged as they are read, by the check a new answer gets: marked", () => {
+    const judged = judgedEvents(said, { lang: "de", lesson });
+    expect(exerciseMark(lines, exerciseResults(judged)[lines.key])).toBe("correct");
+    expect(exerciseResults(judged)[lines.key]?.last["s.x/c/00-03/ex-06#1"]?.outcome).toEqual(
+      checkItem(lines, 0, { recording: "rec1", transcript: "Auf Wiedersehen." }, "de"),
+    );
+    // A line said wrong first: a mistake, its words against the line.
+    const wrong = judgedEvents(
+      [said[0] as TypedEvent, kept("s.x/c/00-03/ex-06#2", "Macht gut!", {})],
+      { lang: "de", lesson },
+    );
+    expect(exerciseMark(lines, exerciseResults(wrong)[lines.key])).toBe("partial");
+    const [mistake] = mistakesOf([{ events: wrong }]);
+    expect([mistake?.itemKey as string, mistake?.result, !!mistake?.diff]).toEqual([
+      "s.x/c/00-03/ex-06#2",
+      "wrong",
+      true,
+    ]);
+  });
+  test("a frame, by the source's answer as heard: the question said back wrong, no AI", () => {
+    const back = kept("s.x/c/00-03/ex-09#1", "Guten Morgen! Wie geht es Ihnen?", {});
+    const [judged] = judgedEvents([back], { lang: "de", heard: sourceHeard, lesson });
+    expect(judged?.type === "answered" && judged.payload.outcome.spoken).toBe("wrong");
+    const answer = { transcript: "Guten Morgen! Danke! Gut! Und Ihnen?" };
+    expect(spokenFreely(framed, 0, answer, "de", sourceHeard)).toBeUndefined();
+    expect(checkItem(framed, 0, answer, "de", sourceHeard).spoken).toBe("correct");
+    // The source's answer not heard yet: as kept, nothing to judge it by.
+    expect(judgedEvents([back], { lang: "de", lesson })[0]).toBe(back);
+  });
+  test("the exercise as the run showed it, before the lesson as it is now", () => {
+    const shown = {
+      id: "p",
+      runId: "r",
+      type: "page_shown",
+      itemKey: null,
+      ts: 0,
+      payload: { pageIndex: 0, exerciseKey: lines.key, snapshot: { exercise: lines } },
+    } as unknown as TypedEvent;
+    const changed = { pages: [{ exercise: { ...lines, items: [{ text: "Hallo!" }] } }] } as never;
+    const judged = judgedEvents([shown, ...said], { lang: "de", lesson: changed });
+    expect(exerciseMark(lines, exerciseResults(judged)[lines.key])).toBe("correct");
   });
 });

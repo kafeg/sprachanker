@@ -121,7 +121,7 @@ export function createTutor(deps: {
     const session = await deps.session(lessonKey);
     const here = session ? mistakesOf([{ events: session.events }]) : [];
     const results = exerciseResults(session?.events ?? []);
-    const others = deps.mistakes.list().filter((m) => m.lessonKey !== lessonKey);
+    const others = (await deps.mistakes.list()).filter((m) => m.lessonKey !== lessonKey);
     return {
       lesson: ctx.lesson,
       locale: ctx.locale,

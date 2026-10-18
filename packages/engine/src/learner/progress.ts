@@ -15,7 +15,7 @@ import {
   type SpokenCheck,
   type TypedEvent,
 } from "@sprachanker/schema";
-import { itemScored } from "../check/index.ts";
+import { checkItem, type HeardTexts, itemScored } from "../check/index.ts";
 
 export interface LessonProgress {
   /** What the lesson is now: `in_progress` while a run with work in it is open (also when the lesson is
@@ -73,11 +73,68 @@ const transcriptOf = (answer: unknown) => {
   return typeof t === "string" ? t : undefined;
 };
 
+/** What answers said aloud are judged by as a run is read: the language they are said in, the
+ *  source's answers as heard (by media path), and the exercise each was given to. */
+export interface SpokenJudge {
+  lang: string;
+  heard?: HeardTexts;
+  exercise(exerciseKey: string): Exercise | undefined;
+}
+
+/**
+ * An answer said aloud as the engine judges it now: one kept with what was heard but without the
+ * engine's verdict (`spoken`) — given before the engine judged such answers, or before it judged
+ * them all — judged from what was heard and its item by the check a new answer gets (`checkItem`),
+ * so runs from before are marked as runs now are. Any other outcome as it was kept.
+ */
+export function judgedOutcome(
+  judge: SpokenJudge,
+  itemKey: string,
+  answer: unknown,
+  outcome: Outcome,
+): Outcome {
+  if (outcome.result !== "unscored" || outcome.spoken || !transcriptOf(answer)?.trim())
+    return outcome;
+  const { exercise: key, n } = parseItemKey(itemKey as ItemKey);
+  const exercise = judge.exercise(key);
+  if (exercise?.type !== "speech_selfrate") return outcome;
+  try {
+    const now = checkItem(exercise, n - 1, answer, judge.lang, judge.heard);
+    return now.spoken ? now : outcome;
+  } catch {
+    // An answer that no longer fits its item (the lesson changed): as it was kept.
+    return outcome;
+  }
+}
+
+/** A run's events with its answers said aloud judged (`judgedOutcome`) against the exercise as the
+ *  run showed it (its snapshot), else as the lesson has it now. */
+export function judgedEvents(
+  events: TypedEvent[],
+  judge: Omit<SpokenJudge, "exercise"> & { lesson?: Lesson | null },
+): TypedEvent[] {
+  const shown = new Map<string, Exercise>();
+  for (const e of events)
+    if (e.type === "page_shown" && e.payload.snapshot)
+      shown.set(e.payload.snapshot.exercise.key, e.payload.snapshot.exercise);
+  const full: SpokenJudge = {
+    ...judge,
+    exercise: (key) =>
+      shown.get(key) ?? judge.lesson?.pages.find((p) => p.exercise.key === key)?.exercise,
+  };
+  return events.map((e) => {
+    if (e.type !== "answered" || !e.itemKey) return e;
+    const outcome = judgedOutcome(full, e.itemKey, e.payload.answer, e.payload.outcome);
+    return outcome === e.payload.outcome ? e : { ...e, payload: { ...e.payload, outcome } };
+  });
+}
+
 /**
  * What an answer marks its item as: its outcome's result; for one said aloud (unscored, in no
- * score), the engine's judgement of what was heard (`spoken`), else the model's check of the same
- * words — the engine decides where it can, the model only where it could not (owner, 2026-10-18).
- * Undefined: nothing marks it (recorded only).
+ * score), the engine's judgement of what was heard (`spoken`; a run read through `judgedEvents`
+ * has it for answers from before), else the model's check of the same words — the engine decides
+ * where it can, the model only where nothing could (owner, 2026-10-18). Undefined: nothing marks it
+ * (recorded only).
  */
 export function answerMark(
   itemKey: string,

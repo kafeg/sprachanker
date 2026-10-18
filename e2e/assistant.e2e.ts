@@ -264,7 +264,7 @@ test("a deck's words given examples in Decks; a card and the word's sheet show t
   await expect(answer.getByText("Examples by the AI · fake-model")).toBeVisible();
 });
 
-test("an answer said aloud is checked by the AI from what was heard on request, kept in the run", async ({
+test("an answer said aloud: its words against the source's answer, almost; the AI only on Why, kept in the run", async ({
   page,
   request,
 }) => {
@@ -288,20 +288,28 @@ test("an answer said aloud is checked by the AI from what was heard on request, 
   await free.getByRole("button", { name: "Stop recording" }).click();
 
   await expect(free.getByText("Hallo gute Tag")).toBeVisible();
-  // Checked by itself, nothing to press.
-  await expect(free.getByText("Small mistakes")).toBeVisible();
-  await expect(free.getByText("FAKE: nearly there.")).toBeVisible();
-  await expect(free.getByText(/FAKE: der Tag → guten Tag/)).toBeVisible();
-  // The course's own answer, after one's own.
+  // Checked by its words, as a line repeated (owner, 2026-10-18): almost, the word misheard marked;
+  // the right answer after the check. The AI not by itself.
+  await expect(free.getByText("Almost: a few words missing")).toBeVisible();
   await expect(free.getByRole("button", { name: "Hear the right answer" })).toBeVisible();
-
   const runs = await (
     await request.get(`/api/runs/lesson?series=sprachanker.fixture&lessonKey=${lesson}`)
   ).json();
-  const kept = await (
-    await request.get(`/api/llm/speaking?lessonKey=${lesson}&runId=${runs.state.run.id}`)
-  ).json();
-  expect(kept.checks.map((c: { input: string }) => c.input)).toEqual(["Hallo gute Tag"]);
+  const checks = async () =>
+    (
+      await (
+        await request.get(`/api/llm/speaking?lessonKey=${lesson}&runId=${runs.state.run.id}`)
+      ).json()
+    ).checks.map((c: { input: string }) => c.input);
+  await page.waitForTimeout(500);
+  expect(await checks()).toEqual([]);
+  await expect(free.getByText("Small mistakes")).toHaveCount(0);
+  // Asked why: the AI's check.
+  await free.getByRole("button", { name: "Why is this wrong?" }).click();
+  await expect(free.getByText("Small mistakes")).toBeVisible();
+  await expect(free.getByText("FAKE: nearly there.")).toBeVisible();
+  await expect(free.getByText(/FAKE: der Tag → guten Tag/)).toBeVisible();
+  expect(await checks()).toEqual(["Hallo gute Tag"]);
 });
 
 test("a handed-in mock exam's note: the AI proposes its rating with reasons, the learner takes it", async ({

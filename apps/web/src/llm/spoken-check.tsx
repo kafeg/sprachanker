@@ -1,6 +1,7 @@
-// An answer said aloud without a phrase to say, checked by the model from what was heard: asked by
-// itself as the words are heard (owner, 2026-10-15; a button before), once for the same words; kept
-// in the lesson run and shown again without asking. Nothing is shown while no assistant is set up.
+// An answer said aloud without a phrase to say, checked by the model from what was heard: asked as it
+// is shown — by itself only where nothing else can check the answer (owner, 2026-10-15), else on the
+// learner's "Why?" (owner, 2026-10-18) —, once for the same words; kept in the lesson run and shown
+// again without asking. Nothing is shown while no assistant is set up.
 import { type ExerciseKey, itemKey, type TypedEvent } from "@sprachanker/schema";
 import { Sparkles } from "lucide-react";
 import { useEffect, useRef } from "react";
