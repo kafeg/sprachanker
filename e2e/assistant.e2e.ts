@@ -452,6 +452,11 @@ test("a speaking part by voice: each place said into the microphone, heard and k
   await expect(page.getByText("FAKE: Danke. Das war Teil 1.")).toBeVisible();
   await expect(page.getByRole("button", { name: "Record yourself" })).toHaveCount(0);
   await expect(page.getByText("1/1", { exact: true })).toBeVisible();
+  // To look at (E2E_SHOTS: a folder): the part its time ended.
+  if (process.env.E2E_SHOTS)
+    await page.screenshot({
+      path: `${process.env.E2E_SHOTS}/time-up-${test.info().project.name}.png`,
+    });
   // Handed in: the part ended by its time, nothing said.
   await page.getByRole("button", { name: "Hand in" }).filter({ visible: true }).first().click();
   await expect(page.getByText("Time is up: the examiner ended the part.")).toBeVisible();
