@@ -90,6 +90,7 @@ src-tauri/
   as on the Mac (a course bundle unpacked), `models/` (q8_0 on Android), `profiles/`, `server.sqlite`, `secret.key`.
 - Only the page changed: touch `src-tauri/src/lib.rs` (the page is in the binary; cargo follows the Rust).
 - The debug build's WebView: Chrome's DevTools after `adb forward tcp:9334 localabstract:webview_devtools_remote_<pid>`.
+- An engine timed over adb: with the screen on — off, the phone sleeps between packets (a reading took minutes).
 
 ## Build and run (iOS simulator)
 
