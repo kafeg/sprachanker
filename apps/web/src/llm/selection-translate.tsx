@@ -6,6 +6,7 @@
 // itself; the play button says them again. The selection menu's optional actions
 // (audio/selection-menu.tsx: `extra`).
 import { Languages, LoaderCircle, Volume2 } from "lucide-react";
+import { useEffect, useRef } from "react";
 import { useTranslation } from "react-i18next";
 import { fileUrl } from "@/api/client.ts";
 import type { Picked } from "@/audio/selection-menu.tsx";
@@ -23,7 +24,6 @@ export function SelectionTranslate({ picked }: { picked: Picked }) {
   const speaker = useSpeaker();
   const find = useFind();
   const made = useFindAudio();
-  if (!llm.data?.model) return null;
   type Found = NonNullable<typeof find.data>;
   const id = (found: Found) => `find:${found.target}`;
   /** The words said: their audio in Finds, else read now. */
@@ -34,25 +34,31 @@ export function SelectionTranslate({ picked }: { picked: Picked }) {
         ? [{ text: found.target, lang: found.lang, src: fileUrl(audio) }]
         : wordsSaid(found.target, found.lang),
     );
-  /** Shown: their audio played once it is there — made for Finds first when it is still to be. */
-  const shown = (found: Found) => {
-    if (found.audio || !found.word) return void play(found, found.audio);
-    made.mutate(found.word, {
-      onSuccess: ({ audio }) => void play(found, audio),
-      onError: () => void play(found, null),
-    });
-  };
   const found = find.data;
   const audio = found?.audio ?? made.data?.audio;
+  // Shown: their audio played once it is there — made for Finds first when it is still to be. Started by
+  // what was found, not by the request's callback (one a busy page may never call).
+  const started = useRef(false);
+  useEffect(() => {
+    if (!found || started.current) return;
+    started.current = true;
+    if (found.audio || !found.word) void play(found, found.audio);
+    else made.mutate(found.word);
+  });
+  const played = useRef(false);
+  useEffect(() => {
+    if (!found || played.current || (!made.isSuccess && !made.isError)) return;
+    played.current = true;
+    void play(found, made.data?.audio ?? null);
+  });
   // Translated: pressed again, said again — the model is not asked twice.
   const translate = () =>
     found
       ? play(found, audio)
-      : find.mutate(
-          { text: picked.text, context: picked.context, lang: picked.lang },
-          { onSuccess: shown },
-        );
-  const making = made.isPending || (!!found && speaker.waiting === id(found));
+      : find.mutate({ text: picked.text, context: picked.context, lang: picked.lang });
+  const toMake = !!found && !found.audio && !!found.word && made.isIdle;
+  if (!llm.data?.model) return null;
+  const making = toMake || made.isPending || (!!found && speaker.waiting === id(found));
   return (
     <>
       <Button variant="ghost" size="sm" loading={find.isPending} onClick={translate}>

@@ -96,7 +96,12 @@ test("with a model the bar has one action, Translate: the card shown at once, ke
     const view = await selected(llm);
     // One action: Translate reads the language learnt aloud itself.
     expect(view.queryByText("Read aloud")).toBeNull();
-    fireEvent.click(view.getByRole("button", { name: /Translate/ }));
+    {
+      // As a finger or a mouse presses it: the bar keeps itself while pressed (KEPT_MS).
+      const translate = view.getByRole("button", { name: /Translate/ });
+      fireEvent.pointerDown(translate);
+      fireEvent.click(translate);
+    }
     // The translation as soon as the model answered, its audio still being made.
     await view.findByText("Added to Finds", {}, { timeout: 10_000 });
     expect(view.getByText("die Situation").getAttribute("lang")).toBe("de");
@@ -146,7 +151,12 @@ test("a word among the cards already: said so; a failure in words, with Try agai
         });
   }) as typeof fetch;
   const view = await selected(llm);
-  fireEvent.click(view.getByRole("button", { name: /Translate/ }));
+  {
+    // As a finger or a mouse presses it: the bar keeps itself while pressed (KEPT_MS).
+    const translate = view.getByRole("button", { name: /Translate/ });
+    fireEvent.pointerDown(translate);
+    fireEvent.click(translate);
+  }
   const retry = await view.findByRole("button", { name: "Try again" });
   fail = false;
   fireEvent.click(retry);
