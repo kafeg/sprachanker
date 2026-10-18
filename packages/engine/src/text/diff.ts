@@ -1,7 +1,7 @@
 // Word diff between a reference and an answer (dictation, speech).
 import type { TokenDiff } from "@sprachanker/schema";
+import { applied, formsOf } from "./language-forms.ts";
 import { wordMatches, writtenTokens } from "./normalise.ts";
-import { germanNumber } from "./numbers.ts";
 
 export interface WordDiff {
   diff: TokenDiff[];
@@ -17,14 +17,15 @@ export const bareWord = (word: string) => word.replace(/^[\p{P}\p{S}]+|[\p{P}\p{
  *  no word (a recogniser never writes one). */
 export const gradedWords = (text: string) => writtenTokens(text).filter((t) => bareWord(t) !== "");
 
-/** A word as it sounds: case and hyphens are not heard ("Good-bye", "goodbye"), nor "ß" from "ss";
- *  in German a number in digits is its word ("50", "fünfzig"; "einhundert" is "hundert") and "'s"
- *  is "es" ("geht's": two words joined, as wordDiff and a frame join them). */
+/** A word as it sounds: case and hyphens are not heard ("Good-bye", "goodbye"), nor how the
+ *  language writes it (language-forms.ts): a number in digits is its words ("50", "fünfzig"; "21",
+ *  "twentyone"), a short form is said in full ("geht's", "gehtes": two words joined, as wordDiff and a
+ *  frame join them), spellings of one sound are one ("ß", "ss"). */
 export function wordAsHeard(lang: string, word: string) {
+  const forms = formsOf(lang);
   const w = bareWord(word).replace(/-/g, "").toLocaleLowerCase(lang);
-  if (!lang.startsWith("de")) return w.replace(/ß/g, "ss");
-  const said = (germanNumber(w) ?? w).replace(/'s$/, "es").replace(/^ein(?=hundert|tausend)/, "");
-  return said.replace(/ß/g, "ss");
+  const said = (/^\d{1,4}$/.test(w) && forms.number?.(Number(w))) || w;
+  return applied(applied(said, forms.said), forms.spellings);
 }
 
 /**

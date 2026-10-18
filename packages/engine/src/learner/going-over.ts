@@ -31,6 +31,7 @@ import {
 import { checkItem } from "../check/index.ts";
 import { questionPhase, understandingExercise } from "../check/understanding.ts";
 import { bareWord, wordDiff } from "../text/diff.ts";
+import { applied, formsOf } from "../text/language-forms.ts";
 import { mistakesOf } from "./mistakes.ts";
 
 /** A mistake to go over: the item as the pass showed it, the first answer to it. */
@@ -105,14 +106,8 @@ const plainText = (html: string) =>
     .replace(/\s+/g, " ")
     .trim();
 
-/** What a language writes two ways and is the same word (data, per language): German's ß as ss. */
-const SAME_SPELLING: Record<string, Array<[RegExp, string]>> = {
-  de: [[/ß/g, "ss"]],
-};
-
-/** A word with the language's spellings of one sound made one. */
-const spelt = (w: string, lang: string) =>
-  (SAME_SPELLING[lang] ?? []).reduce((s, [from, to]) => s.replace(from, to), w);
+/** A word with the language's spellings of one sound made one (language-forms.ts: German's ß as ss). */
+const spelt = (w: string, lang: string) => applied(w, formsOf(lang).spellings);
 
 /** Without accents, umlauts and other marks. */
 const unmarked = (w: string) => w.normalize("NFD").replace(/\p{M}/gu, "").normalize("NFC");
