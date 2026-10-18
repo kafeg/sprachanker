@@ -1,3 +1,4 @@
+import type { HeardTexts } from "@sprachanker/engine";
 import type { LocaleItem, Option, Outcome } from "@sprachanker/schema";
 import { Check, ChevronDown, X } from "lucide-react";
 import { createContext, useContext, useEffect, useMemo } from "react";
@@ -32,6 +33,14 @@ export const ShuffleSeed = createContext("");
 /** A multiple choice's "several can be right" is said above the items (or by the exercise): not in
  *  each card. */
 export const SeveralSaid = createContext(false);
+
+/** The source's answers as heard from their recordings (by media path), which a speaking item's
+ *  answer is checked against and shown as the right answer; `pending` while they are being heard
+ *  (the microphone waits). The lesson player provides them. */
+export const HeardAnswers = createContext<{ texts: HeardTexts; pending: boolean }>({
+  texts: {},
+  pending: false,
+});
 
 /** `items` in an order fixed by `seed` (display order is not the canonical order). Pure. */
 export function shuffled<T>(items: T[], seed: string): T[] {

@@ -130,7 +130,7 @@
       "partial": "kısmen doğru"
     },
     "correctAnswer": "Doğru cevap:",
-    "answerAudio": "Cevabı dinle",
+    "answerAudio": "Doğru cevabı dinle",
     "itemsList": "Maddeler",
     "answerAll": "Tüm maddeleri cevapla · {done, number} / {total, number}",
     "listenFirst": "Önce kaydı dinle",
@@ -1239,6 +1239,8 @@
     "saving": "Kaydediliyor…",
     "notSaved": "Kayıt saklanamadı; yine de sayılır.",
     "again": "İkisini de dinle. Değiştirmek için yeniden kaydet.",
+    "tryAgain": "Tekrar dene",
+    "preparing": "Doğru cevap hazırlanıyor…",
     "howTo": "Mikrofona dokun, söyle, yeniden dokun.",
     "mic": {
       "insecure": "Mikrofon yalnızca güvenli bir adreste (https) çalışır; örneğin Tailscale’in bu bilgisayara verdiği adreste.",
@@ -1330,7 +1332,9 @@
     "verdict": {
       "correct": "Doğru söyledin",
       "partial": "Neredeyse: birkaç kelime eksik",
-      "wrong": "Tekrar dene: dinle ve bir kez daha söyle"
+      "wrong": "Tekrar dene: dinle ve bir kez daha söyle",
+      "otherwise": "Kalıp doğru, kelimeler senin: doğru cevapla karşılaştır",
+      "wrongAnswer": "İstenen cevap bu değil: doğru cevapla karşılaştır"
     },
     "model": {
       "large-v3-turbo-q5_0": "Whisper large-v3 turbo — doğru",
@@ -1340,7 +1344,6 @@
     "notHeardShort": "Tanınamadı. Tekrar dene.",
     "nothingHeard": "Hiçbir şey duyulmadı. Biraz daha yüksek sesle tekrar söyle.",
     "starting": "Ses başlatılıyor… ilk okuma yarım dakika sürebilir.",
-    "answerSample": "Örnek",
     "aiChecking": "Yapay zekâ cevabını kontrol ediyor…",
     "needsRecognition": "Bir cümleyi söylemek için konuşma tanıma gerekir: Ayarlar → Konuşma bölümünden aç.",
     "languageUnknown": "Bu kursun dili bilinmiyor, bu yüzden söylediklerin duyulamıyor.",

@@ -25,6 +25,18 @@ export const useLesson = (series: string, key: string, edition: string | undefin
     queryFn: () => json(api.lesson.$get({ query: { series, key, edition: edition as string } })),
   });
 
+/** The source's answers a lesson's spoken answers are checked by, as heard (by media path): the
+ *  server hears those it lacks the first time (seconds), so it is asked only for a lesson that has
+ *  any (`enabled`). */
+export const useLessonHeard = (series: string, key: string, enabled: boolean) =>
+  useQuery({
+    queryKey: ["lesson-heard", series, key],
+    enabled,
+    staleTime: Number.POSITIVE_INFINITY,
+    queryFn: async () =>
+      (await json(api.lesson.heard.$get({ query: { series, key: key as LessonKey } }))).heard,
+  });
+
 /** A course's check (files on disk, consistent); `enabled` false until asked for (a check found
  *  before shows all the same). */
 export const useCourseCheck = (series: string, course: string, enabled = true) =>

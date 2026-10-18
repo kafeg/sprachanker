@@ -130,7 +130,7 @@
       "partial": "częściowo dobrze"
     },
     "correctAnswer": "Prawidłowa odpowiedź:",
-    "answerAudio": "Posłuchaj odpowiedzi",
+    "answerAudio": "Posłuchaj prawidłowej odpowiedzi",
     "itemsList": "Zadania",
     "answerAll": "Odpowiedz na wszystkie zadania · {done, number} z {total, number}",
     "listenFirst": "Najpierw odtwórz nagranie",
@@ -1239,6 +1239,8 @@
     "saving": "Zapisywanie…",
     "notSaved": "Nie udało się zapisać nagrania; mimo to się liczy.",
     "again": "Posłuchaj obu. Nagraj ponownie, by je zastąpić.",
+    "tryAgain": "Spróbuj jeszcze raz",
+    "preparing": "Przygotowuję prawidłową odpowiedź…",
     "howTo": "Stuknij mikrofon, powiedz to, stuknij ponownie.",
     "mic": {
       "insecure": "Mikrofon działa tylko pod bezpiecznym adresem (https), np. takim, jaki temu komputerowi daje Tailscale.",
@@ -1330,7 +1332,9 @@
     "verdict": {
       "correct": "Udało się",
       "partial": "Prawie: brakuje kilku słów",
-      "wrong": "Spróbuj ponownie: posłuchaj i powiedz to jeszcze raz"
+      "wrong": "Spróbuj ponownie: posłuchaj i powiedz to jeszcze raz",
+      "otherwise": "Forma jest dobra, słowa twoje: porównaj z prawidłową odpowiedzią",
+      "wrongAnswer": "To nie ta odpowiedź: porównaj z prawidłową"
     },
     "model": {
       "large-v3-turbo-q5_0": "Whisper large-v3 turbo — dokładny",
@@ -1340,7 +1344,6 @@
     "notHeardShort": "Nie udało się rozpoznać. Spróbuj ponownie.",
     "nothingHeard": "Nic nie było słychać. Powiedz to jeszcze raz, trochę głośniej.",
     "starting": "Uruchamianie głosu… pierwsze czytanie może potrwać pół minuty.",
-    "answerSample": "Wzór",
     "aiChecking": "AI sprawdza twoją odpowiedź…",
     "needsRecognition": "Do wypowiadania zdań potrzebne jest rozpoznawanie mowy: włącz je w Ustawieniach → Mowa.",
     "languageUnknown": "Język tego kursu jest nieznany, więc tego, co mówisz, nie da się rozpoznać.",

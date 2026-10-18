@@ -3,7 +3,7 @@
 // keys choose in, and what checking, answering an item again, retrying, skipping and leaving record
 // (a take, the answer of a speaking item, at once: a reload or a tab a phone discarded keeps it).
 // The screen (exercise-step.tsx) draws it; this hook holds the rules, tested on their own.
-import { answerComplete, checkItem } from "@sprachanker/engine";
+import { answerComplete, checkItem, type HeardTexts } from "@sprachanker/engine";
 import type { Exercise, Outcome } from "@sprachanker/schema";
 import { useRef, useState } from "react";
 import { isCheckedHere, toHear } from "@/exercises/index.tsx";
@@ -26,6 +26,7 @@ export function useExercise({
   stored,
   readOnly,
   lang,
+  heardTexts,
   onAnswered,
 }: {
   exercise: Exercise;
@@ -34,10 +35,16 @@ export function useExercise({
   readOnly: boolean;
   /** The language answers are checked in (case rules differ). */
   lang: string;
+  /** The source's answers as heard, a speaking item's answer is checked against. */
+  heardTexts?: HeardTexts;
   onAnswered: Answered;
 }) {
   const scored = isCheckedHere(exercise.type);
-  // Reopened: the latest answers of the run and, for checked exercises, their outcomes.
+  /** Speaking oneself: each take recorded at once, its outcome kept for the card (the spoken check
+   *  marks it, in no score) — no Check. */
+  const spoken = exercise.type === "speech_selfrate";
+  // Reopened: the latest answers of the run and, for checked exercises and spoken ones, their
+  // outcomes.
   const [answers, setAnswers] = useState<Record<number, unknown>>(() =>
     Object.fromEntries(
       exercise.items.flatMap((item, i) =>
@@ -50,7 +57,7 @@ export function useExercise({
       const outcome = stored?.last[item.key]?.outcome;
       return outcome ? [[i, outcome] as const] : [];
     });
-    return scored && restored.length ? Object.fromEntries(restored) : undefined;
+    return (scored || spoken) && restored.length ? Object.fromEntries(restored) : undefined;
   });
   const shownAt = useRef(Date.now());
   /** The answers recorded as they were given (takes), by item: leaving records them no more. */
@@ -102,7 +109,7 @@ export function useExercise({
       i,
       itemKey: exercise.items[i]?.key as string,
       answer: answers[i],
-      outcome: checkItem(exercise, i, answers[i], lang),
+      outcome: checkItem(exercise, i, answers[i], lang, heardTexts),
     }));
     setOutcomes((prev) => ({
       ...prev,
@@ -134,16 +141,14 @@ export function useExercise({
       setAnswers((prev) => ({ ...prev, [i]: value }));
       // One choice answers the item: the number keys go on to the next one.
       setTouched(exercise.type === "single_choice" ? undefined : i);
-      // A take is kept with the run as it is made, with what was heard (the AI's check of it is
-      // kept on its own): not only when the learner moves on.
+      // A take is kept with the run as it is made, with what was heard and its check (the AI's
+      // check of it is kept on its own): not only when the learner moves on.
       const itemKey = exercise.items[i]?.key;
-      if (exercise.type === "speech_selfrate" && !scored && !readOnly && itemKey) {
+      if (spoken && !readOnly && itemKey) {
         recorded.current[i] = value;
-        onAnswered(
-          [{ itemKey, answer: value, outcome: checkItem(exercise, i, value, lang) }],
-          [],
-          ms(),
-        );
+        const outcome = checkItem(exercise, i, value, lang, heardTexts);
+        setOutcomes((prev) => ({ ...prev, [i]: outcome }));
+        onAnswered([{ itemKey, answer: value, outcome }], [], ms());
       }
     },
     check,
@@ -189,7 +194,9 @@ export function useExercise({
       const skipped: string[] = [];
       exercise.items.forEach((item, i) => {
         if (answers[i] === undefined) {
-          if (!stored?.skipped.includes(item.key)) skipped.push(item.key);
+          // Begun again and left: its take stays its answer, nothing skipped.
+          const had = recorded.current[i] !== undefined || !!stored?.last[item.key];
+          if (!had && !stored?.skipped.includes(item.key)) skipped.push(item.key);
         } else if (
           answers[i] !== stored?.last[item.key]?.answer &&
           answers[i] !== recorded.current[i]
@@ -197,7 +204,7 @@ export function useExercise({
           rated.push({
             itemKey: item.key,
             answer: answers[i],
-            outcome: checkItem(exercise, i, answers[i], lang),
+            outcome: checkItem(exercise, i, answers[i], lang, heardTexts),
           });
         }
       });

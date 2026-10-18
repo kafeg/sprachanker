@@ -2,8 +2,8 @@
 // "Check" opens once every item is answered and every recording has been played (use-exercise.ts);
 // a checked item's card takes the result's colour on its left edge, with its own controls beside it: why
 // wrong, answer again, and the item's earlier attempts in every pass (the Notebook's item history).
-import { spokenFreely } from "@sprachanker/engine";
-import type { Exercise, LocaleExercise } from "@sprachanker/schema";
+import { type HeardTexts, linesToSay, spokenFreely } from "@sprachanker/engine";
+import type { Exercise, ItemOf, LocaleExercise } from "@sprachanker/schema";
 import { History, RotateCcw, Sparkles } from "lucide-react";
 import { useRef, useState } from "react";
 import { useTranslation } from "react-i18next";
@@ -79,9 +79,18 @@ interface StepProps {
   onNext(): void;
   /** Help with a wrong item (the LLM explanation), if available: shown under it when asked for. */
   explain?(index: number, answer: unknown): React.ReactNode;
-  /** An answer said aloud without a phrase to say, as heard (the LLM's check), if available. */
+  /** An answer said aloud without a phrase to say, as heard (the LLM's check), if available: by
+   *  itself where the engine could not judge it, else when the learner asks why. */
   spoken?(index: number, transcript: string): React.ReactNode;
+  /** The source's answers as heard, which spoken answers are checked against (the lesson's). */
+  heard?: { texts: HeardTexts; pending: boolean };
 }
+
+/** What was heard of an answer said aloud. */
+const heardOf = (answer: unknown) => {
+  const t = (answer as { transcript?: unknown } | undefined)?.transcript;
+  return typeof t === "string" && t.trim() ? t : undefined;
+};
 
 export function ExerciseStep({
   exercise,
@@ -97,10 +106,19 @@ export function ExerciseStep({
   onNext,
   explain,
   spoken,
+  heard,
 }: StepProps) {
   const lang = useRequiredTargetLang();
   const { t } = useTranslation();
-  const ex = useExercise({ exercise, stored, readOnly, lang, onAnswered });
+  const ex = useExercise({
+    exercise,
+    stored,
+    readOnly,
+    lang,
+    heardTexts: heard?.texts,
+    onAnswered,
+  });
+  const speaking = exercise.type === "speech_selfrate";
   const { answers, outcomes, checking, waiting } = ex;
   const primary = () => {
     if (checking) return ex.check();
@@ -156,9 +174,17 @@ export function ExerciseStep({
       <ol aria-label={t("lesson.itemsList")} className="space-y-6 pb-2">
         {exercise.items.map((item, i) => {
           const outcome = outcomes?.[i];
-          const marked = outcome && outcome.result !== "unscored";
-          const right = outcome?.result === "correct";
-          const said = spoken && spokenFreely(exercise, i, answers[i]);
+          // An answer said aloud is marked by its check, though it scores nothing.
+          const mark = outcome && (outcome.result !== "unscored" ? outcome.result : outcome.spoken);
+          const marked = !!mark;
+          const right = mark === "correct";
+          const heardAnswer = speaking ? heardOf(answers[i]) : undefined;
+          // The AI checks by itself only what the engine could not judge (not while the source's
+          // answers are still being heard); a judged answer only when the learner asks why.
+          const freely = spokenFreely(exercise, i, answers[i], outcome);
+          const said = spoken && !heard?.pending && freely;
+          const askable = spoken && heardAnswer && !linesToSay(item as ItemOf<"speech_selfrate">);
+          const why = marked && !right && (speaking ? askable && !freely : explain);
           return (
             // Card · controls: the card keeps its size when checked; only an explanation asked
             // for adds a panel under it.
@@ -183,7 +209,7 @@ export function ExerciseStep({
                 severalAbove={!!several}
               />
               <div className="col-start-1 flex gap-1.5 pt-2 empty:hidden sm:col-start-2 sm:flex-col">
-                {marked && !right && explain && (
+                {why && (
                   <ItemControl
                     label={t("lesson.why")}
                     pressed={ex.explaining.has(i)}
@@ -192,7 +218,8 @@ export function ExerciseStep({
                     <Sparkles className="size-4" />
                   </ItemControl>
                 )}
-                {marked && !readOnly && (
+                {/* A spoken answer is begun again by its own button, under it. */}
+                {marked && !readOnly && !speaking && (
                   <ItemControl label={t("lesson.answerAgain")} onClick={() => ex.answerAgain(i)}>
                     <RotateCcw className="size-4" />
                   </ItemControl>
@@ -206,10 +233,21 @@ export function ExerciseStep({
                   </ItemControl>
                 )}
               </div>
-              {ex.explaining.has(i) && explain && (
+              {ex.explaining.has(i) && !speaking && explain && (
                 <div className="col-start-1">{explain(i, answers[i])}</div>
               )}
               {said && <div className="col-start-1">{spoken(i, said)}</div>}
+              {ex.explaining.has(i) && !said && askable && heardAnswer && (
+                <div className="col-start-1">{spoken(i, heardAnswer)}</div>
+              )}
+              {/* Heard and checked: said again from the start (its first take keeps the mark). */}
+              {heardAnswer && !readOnly && (
+                <div className="col-start-1 pt-2">
+                  <Button variant="outline" onClick={() => ex.answerAgain(i)}>
+                    <RotateCcw className="size-4" /> {t("speech.tryAgain")}
+                  </Button>
+                </div>
+              )}
             </li>
           );
         })}
@@ -238,7 +276,9 @@ export function ExerciseStep({
             : undefined
         }
         extra={
+          // A spoken answer has its own "Try again", under it.
           outcomes &&
+          !speaking &&
           !readOnly && (
             <Button
               variant="outline"

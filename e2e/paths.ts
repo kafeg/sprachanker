@@ -20,3 +20,7 @@ export const E2E_VOICE = "de_DE-thorsten-medium";
 /** Qwen3-TTS's tts-server on paper (written by fixture-data.ts, named to the server by
  *  SPRACHANKER_QWEN): a short silent WAV for any text; its small model "installed" beside it. */
 export const E2E_QWEN = join(tmpdir(), "sprachanker-e2e-qwen.ts");
+
+/** The fixture's framed speaking item's answer recording as heard (written by fixture-data.ts into
+ *  the course: the server has no Whisper in the e2e run). */
+export const E2E_HEARD = { text: "Guten Abend! Danke, gut. Und dir?", model: "e2e", heardAt: 1 };

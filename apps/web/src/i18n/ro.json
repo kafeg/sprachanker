@@ -130,7 +130,7 @@
       "partial": "parțial corect"
     },
     "correctAnswer": "Răspunsul corect:",
-    "answerAudio": "Ascultă răspunsul",
+    "answerAudio": "Ascultă răspunsul corect",
     "itemsList": "Itemi",
     "answerAll": "Răspunde la fiecare item · {done, number} din {total, number}",
     "listenFirst": "Ascultă mai întâi înregistrarea",
@@ -1239,6 +1239,8 @@
     "saving": "Se salvează…",
     "notSaved": "Înregistrarea nu a putut fi salvată; contează oricum.",
     "again": "Ascultă-le pe amândouă. Înregistrează-te din nou ca s-o înlocuiești.",
+    "tryAgain": "Încearcă încă o dată",
+    "preparing": "Se pregătește răspunsul corect…",
     "howTo": "Atinge microfonul, vorbește, atinge din nou.",
     "mic": {
       "insecure": "Microfonul funcționează doar la o adresă securizată (https), cum e cea pe care Tailscale o dă acestui computer.",
@@ -1330,7 +1332,9 @@
     "verdict": {
       "correct": "Ai spus-o",
       "partial": "Aproape: lipsesc câteva cuvinte",
-      "wrong": "Încearcă din nou: ascultă și spune încă o dată"
+      "wrong": "Încearcă din nou: ascultă și spune încă o dată",
+      "otherwise": "Forma e corectă, cuvintele sunt ale tale: compară cu răspunsul corect",
+      "wrongAnswer": "Nu e răspunsul cerut: compară cu cel corect"
     },
     "model": {
       "large-v3-turbo-q5_0": "Whisper large-v3 turbo — precis",
@@ -1340,7 +1344,6 @@
     "notHeardShort": "Nu s-a putut recunoaște. Încearcă din nou.",
     "nothingHeard": "Nu s-a auzit nimic. Spune din nou, puțin mai tare.",
     "starting": "Vocea pornește… prima citire poate dura o jumătate de minut.",
-    "answerSample": "Model",
     "aiChecking": "AI-ul îți verifică răspunsul…",
     "needsRecognition": "Ca să spui o frază ai nevoie de recunoașterea vorbirii: activeaz-o în Setări → Vorbire.",
     "languageUnknown": "Limba acestui curs nu e cunoscută, așa că ce spui nu poate fi auzit.",

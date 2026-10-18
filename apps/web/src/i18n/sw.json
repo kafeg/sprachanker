@@ -130,7 +130,7 @@
       "partial": "sahihi kwa sehemu"
     },
     "correctAnswer": "Jibu sahihi:",
-    "answerAudio": "Sikiliza jibu",
+    "answerAudio": "Sikiliza jibu sahihi",
     "itemsList": "Vipengele",
     "answerAll": "Jibu kila kipengele · {done, number} kati ya {total, number}",
     "listenFirst": "Sikiliza rekodi kwanza",
@@ -1239,6 +1239,8 @@
     "saving": "Inahifadhi…",
     "notSaved": "Rekodi haikuweza kuhifadhiwa; inahesabiwa hata hivyo.",
     "again": "Sikiliza zote mbili. Rekodi tena ili kuibadilisha.",
+    "tryAgain": "Jaribu tena",
+    "preparing": "Jibu sahihi linaandaliwa…",
     "howTo": "Gusa maikrofoni, tamka, gusa tena.",
     "mic": {
       "insecure": "Maikrofoni inafanya kazi kwenye anwani salama (https) tu, kama ile ambayo Tailscale inaipa kompyuta hii.",
@@ -1330,7 +1332,9 @@
     "verdict": {
       "correct": "Umeitamka",
       "partial": "Karibu: maneno machache yamekosekana",
-      "wrong": "Jaribu tena: sikiliza na uitamke mara nyingine"
+      "wrong": "Jaribu tena: sikiliza na uitamke mara nyingine",
+      "otherwise": "Muundo ni sahihi, maneno ni yako: linganisha na jibu sahihi",
+      "wrongAnswer": "Si jibu lililoulizwa: linganisha na jibu sahihi"
     },
     "model": {
       "large-v3-turbo-q5_0": "Whisper large-v3 turbo — sahihi",
@@ -1340,7 +1344,6 @@
     "notHeardShort": "Haikuweza kutambuliwa. Jaribu tena.",
     "nothingHeard": "Hakuna kilichosikika. Sema tena, kwa sauti kubwa kidogo.",
     "starting": "Sauti inaanzishwa… usomaji wa kwanza unaweza kuchukua nusu dakika.",
-    "answerSample": "Mfano",
     "aiChecking": "AI inakagua jibu lako…",
     "needsRecognition": "Kutamka sentensi kunahitaji utambuzi wa sauti: uwashe katika Mipangilio → Sauti.",
     "languageUnknown": "Lugha ya kozi hii haijulikani, kwa hiyo unachosema hakiwezi kusikika.",

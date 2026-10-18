@@ -130,7 +130,7 @@
       "partial": "djelimično tačno"
     },
     "correctAnswer": "Tačan odgovor:",
-    "answerAudio": "Poslušaj odgovor",
+    "answerAudio": "Poslušaj tačan odgovor",
     "itemsList": "Zadaci",
     "answerAll": "Odgovori na sve zadatke · {done, number} od {total, number}",
     "listenFirst": "Prvo pusti snimak",
@@ -1239,6 +1239,8 @@
     "saving": "Čuvam…",
     "notSaved": "Snimak se nije mogao sačuvati; svejedno se računa.",
     "again": "Poslušaj oba. Snimi ponovo da ga zamijeniš.",
+    "tryAgain": "Pokušaj još jednom",
+    "preparing": "Pripremam tačan odgovor…",
     "howTo": "Dodirni mikrofon, izgovori, dodirni ponovo.",
     "mic": {
       "insecure": "Mikrofon radi samo na sigurnoj adresi (https), kao što je ona koju Tailscale daje ovom računaru.",
@@ -1330,7 +1332,9 @@
     "verdict": {
       "correct": "Tačno izgovoreno",
       "partial": "Skoro: nedostaje nekoliko riječi",
-      "wrong": "Pokušaj ponovo: poslušaj i izgovori još jednom"
+      "wrong": "Pokušaj ponovo: poslušaj i izgovori još jednom",
+      "otherwise": "Oblik je tačan, riječi su tvoje: uporedi s tačnim odgovorom",
+      "wrongAnswer": "To nije traženi odgovor: uporedi s tačnim"
     },
     "model": {
       "large-v3-turbo-q5_0": "Whisper large-v3 turbo — precizan",
@@ -1340,7 +1344,6 @@
     "notHeardShort": "Nije se moglo prepoznati. Pokušaj ponovo.",
     "nothingHeard": "Ništa se nije čulo. Reci to ponovo, malo glasnije.",
     "starting": "Glas se pokreće… prvo čitanje može trajati pola minute.",
-    "answerSample": "Uzorak",
     "aiChecking": "AI provjerava tvoj odgovor…",
     "needsRecognition": "Za izgovaranje fraze potrebno je prepoznavanje govora: uključi ga u Postavkama → Govor.",
     "languageUnknown": "Jezik ovog kursa nije poznat, pa se ne može čuti šta govoriš.",

@@ -130,7 +130,7 @@
       "partial": "teilweise richtig"
     },
     "correctAnswer": "Lösung:",
-    "answerAudio": "Lösung anhören",
+    "answerAudio": "Richtige Antwort anhören",
     "itemsList": "Aufgaben",
     "answerAll": "Beantworte alle Aufgaben · {done, number} von {total, number}",
     "listenFirst": "Hör dir zuerst die Aufnahme an",
@@ -1239,6 +1239,8 @@
     "saving": "Wird gespeichert …",
     "notSaved": "Die Aufnahme ließ sich nicht speichern; sie zählt trotzdem.",
     "again": "Hör beide an. Eine neue Aufnahme ersetzt die alte.",
+    "tryAgain": "Noch einmal versuchen",
+    "preparing": "Die richtige Antwort wird vorbereitet …",
     "howTo": "Tippe aufs Mikrofon, sprich, tippe noch einmal.",
     "mic": {
       "insecure": "Das Mikrofon funktioniert nur unter einer sicheren Adresse (https), etwa der, die Tailscale diesem Computer gibt.",
@@ -1330,7 +1332,9 @@
     "verdict": {
       "correct": "Geschafft",
       "partial": "Fast: ein paar Wörter fehlen",
-      "wrong": "Noch einmal: hör zu und sprich nach"
+      "wrong": "Noch einmal: hör zu und sprich nach",
+      "otherwise": "Die Form stimmt, die Wörter sind deine: vergleiche mit der richtigen Antwort",
+      "wrongAnswer": "Nicht die gefragte Antwort: vergleiche mit der richtigen"
     },
     "model": {
       "large-v3-turbo-q5_0": "Whisper large-v3 turbo — genau",
@@ -1340,7 +1344,6 @@
     "notHeardShort": "Das ließ sich nicht erkennen. Versuch es noch einmal.",
     "nothingHeard": "Es war nichts zu hören. Sag es noch einmal, etwas lauter.",
     "starting": "Die Stimme startet… das erste Vorlesen kann eine halbe Minute dauern.",
-    "answerSample": "Muster",
     "aiChecking": "Die KI prüft deine Antwort …",
     "needsRecognition": "Für das Nachsprechen braucht es die Spracherkennung: Schalte sie unter Einstellungen → Sprechen ein.",
     "languageUnknown": "Die Sprache dieses Kurses ist unbekannt, deshalb kann das Gesagte nicht erkannt werden.",

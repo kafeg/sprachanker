@@ -2,6 +2,7 @@ import { afterEach, expect, test } from "bun:test";
 import type { ItemKey } from "@sprachanker/schema";
 import { act, fireEvent } from "@testing-library/react";
 import { SpeechProvider } from "../../src/audio/context.ts";
+import { HeardAnswers } from "../../src/exercises/shared.tsx";
 import { SpeechRepeat, SpeechSelfrate } from "../../src/exercises/speech.tsx";
 import { TargetLang } from "../../src/ui/target-lang.ts";
 import { renderApp } from "../render.tsx";
@@ -136,7 +137,7 @@ test("what was heard: the verdict and the words missed against the phrase; a fre
   expect(free.getByText("Tschüss, gute Reise!")).toBeTruthy();
   expect(free.queryByText(/You said it|Almost|Try again/)).toBeNull();
   // The source's own answer, after the learner's.
-  expect(free.getByRole("button", { name: "Sample" })).toBeTruthy();
+  expect(free.getByRole("button", { name: "Hear the right answer" })).toBeTruthy();
   free.unmount();
 
   // An answer to a question: heard against the source's line (the closer alternative), shown at
@@ -173,6 +174,66 @@ test("what was heard: the verdict and the words missed against the phrase; a fre
   expect(framed.queryByText(/You said it|Almost|Try again/)).toBeNull();
 });
 
+test("the source's answer heard: what was said judged against it, the right answer shown with its text and recording; the microphone waits while it is being heard", async () => {
+  setSecure(true);
+  const framed = {
+    key: item.key,
+    prompt: "Guten Abend. Wie geht es dir?",
+    reference: ["Guten Abend. Danke, gut ..."],
+    answerAudio: "media/audio/answer.mp3",
+  };
+  const heard = {
+    texts: { "media/audio/answer.mp3": "Guten Abend! Danke, gut. Und dir?" },
+    pending: false,
+  };
+  const show = (transcript: string) =>
+    renderApp(
+      <SpeechProvider value={host()}>
+        <TargetLang value="de">
+          <HeardAnswers.Provider value={heard}>
+            <SpeechSelfrate
+              item={framed}
+              answer={{ recording: "01K00000000000000000000000", transcript }}
+              onAnswer={() => {}}
+              url={(p) => p}
+            />
+          </HeardAnswers.Provider>
+        </TargetLang>
+      </SpeechProvider>,
+    );
+  const wrong = await show("Guten Abend! Wie geht es dir?");
+  expect(wrong.getByText("Not the answer asked for: compare with the right answer")).toBeTruthy();
+  expect(wrong.getByText("Correct answer:")).toBeTruthy();
+  expect(wrong.getByText("Guten Abend! Danke, gut. Und dir?")).toBeTruthy();
+  expect(wrong.getByRole("button", { name: "Hear the right answer" })).toBeTruthy();
+  // Heard and checked: begun again by the step's "Try again", not by a new take over it.
+  expect(wrong.queryByRole("button", { name: "Record yourself" })).toBeNull();
+  wrong.unmount();
+  const own = await show("Guten Abend. Danke, gut. Und wie geht es dir?");
+  expect(own.getByText(/^The frame is right, the words are your own/)).toBeTruthy();
+  own.unmount();
+  const right = await show("Guten Abend, danke gut, und dir");
+  expect(right.getByText("You said it")).toBeTruthy();
+  right.unmount();
+
+  const mic = microphone(0.2);
+  const waiting = await renderApp(
+    <SpeechProvider value={host()}>
+      <TargetLang value="de">
+        <HeardAnswers.Provider value={{ texts: {}, pending: true }}>
+          <SpeechSelfrate item={framed} answer={undefined} onAnswer={() => {}} url={(p) => p} />
+        </HeardAnswers.Provider>
+      </TargetLang>
+    </SpeechProvider>,
+  );
+  expect(
+    waiting.getByRole("button", { name: "Record yourself" }).getAttribute("aria-disabled"),
+  ).toBe("true");
+  expect(waiting.getAllByText("Getting the right answer ready…").length).toBeGreaterThan(0);
+  waiting.unmount();
+  mic.restore();
+});
+
 test("the source's answer is not offered before the first try", async () => {
   setSecure(true);
   const view = await renderApp(
@@ -185,7 +246,7 @@ test("the source's answer is not offered before the first try", async () => {
       />
     </SpeechProvider>,
   );
-  expect(view.queryByRole("button", { name: "Sample" })).toBeNull();
+  expect(view.queryByRole("button", { name: "Hear the right answer" })).toBeNull();
 });
 
 test("saying a phrase: shown at once; without recognition the microphone says why; what was heard checked against it", async () => {
@@ -385,7 +446,7 @@ test("a take neither kept nor heard (both failing) is no answer over an earlier 
       <TargetLang value="de">
         <SpeechSelfrate
           item={item}
-          answer={{ recording: "01K00000000000000000000000", transcript: "Guten Tag" }}
+          answer={{ recording: "01K00000000000000000000000" }}
           onAnswer={(a) => answers.push(a)}
           url={(p) => p}
         />

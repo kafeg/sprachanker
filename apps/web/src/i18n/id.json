@@ -130,7 +130,7 @@
       "partial": "sebagian benar"
     },
     "correctAnswer": "Jawaban benar:",
-    "answerAudio": "Dengarkan jawabannya",
+    "answerAudio": "Dengarkan jawaban yang benar",
     "itemsList": "Soal",
     "answerAll": "Jawab semua soal · {done, number} dari {total, number}",
     "listenFirst": "Putar rekamannya dulu",
@@ -1239,6 +1239,8 @@
     "saving": "Menyimpan…",
     "notSaved": "Rekaman tidak bisa disimpan; tetap dihitung.",
     "again": "Dengarkan keduanya. Rekam lagi untuk menggantinya.",
+    "tryAgain": "Coba lagi",
+    "preparing": "Menyiapkan jawaban yang benar…",
     "howTo": "Ketuk mikrofon, ucapkan, ketuk lagi.",
     "mic": {
       "insecure": "Mikrofon hanya berfungsi di alamat aman (https), seperti alamat yang diberikan Tailscale untuk komputer ini.",
@@ -1330,7 +1332,9 @@
     "verdict": {
       "correct": "Kamu berhasil mengucapkannya",
       "partial": "Hampir: ada beberapa kata yang kurang",
-      "wrong": "Coba lagi: dengarkan dan ucapkan sekali lagi"
+      "wrong": "Coba lagi: dengarkan dan ucapkan sekali lagi",
+      "otherwise": "Bentuknya benar, kata-katanya milikmu: bandingkan dengan jawaban yang benar",
+      "wrongAnswer": "Bukan jawaban yang diminta: bandingkan dengan jawaban yang benar"
     },
     "model": {
       "large-v3-turbo-q5_0": "Whisper large-v3 turbo — akurat",
@@ -1340,7 +1344,6 @@
     "notHeardShort": "Ucapan tidak bisa dikenali. Coba lagi.",
     "nothingHeard": "Tidak ada yang terdengar. Ucapkan lagi, sedikit lebih keras.",
     "starting": "Menyiapkan suara… bacaan pertama bisa memakan setengah menit.",
-    "answerSample": "Contoh",
     "aiChecking": "AI sedang memeriksa jawaban kamu…",
     "needsRecognition": "Mengucapkan frasa memerlukan pengenalan ucapan: aktifkan di Pengaturan → Ucapan.",
     "languageUnknown": "Bahasa kursus ini tidak diketahui, jadi ucapan kamu tidak bisa dikenali.",

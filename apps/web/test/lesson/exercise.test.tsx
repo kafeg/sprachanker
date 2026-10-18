@@ -121,6 +121,31 @@ test("a speaking exercise: each take recorded as it is made, the rest skipped on
   expect(sent[2]?.[1]).toEqual([`${KEY}#2`]);
 });
 
+test("a spoken answer checked against the source's answer as heard: its outcome kept for the card; begun again and left, nothing skipped", () => {
+  const selfrate = {
+    ...exercise,
+    type: "speech_selfrate",
+    items: [{ key: `${KEY}#1`, answerAudio: "media/audio/a.mp3", reference: ["Ich trinke …"] }],
+  } as unknown as Exercise;
+  const sent: Array<Parameters<Answered>> = [];
+  const { result } = renderHook(() =>
+    useExercise({
+      exercise: selfrate,
+      readOnly: false,
+      lang: "de",
+      heardTexts: { "media/audio/a.mp3": "Ich trinke Tee." },
+      onAnswered: (...a) => sent.push(a),
+    }),
+  );
+  act(() => result.current.answer(0, { transcript: "Ich trinke Tee" }));
+  expect(result.current.outcomes?.[0]).toMatchObject({ result: "unscored", spoken: "correct" });
+  expect(sent[0]?.[0][0]?.outcome.spoken).toBe("correct");
+  act(() => result.current.answerAgain(0));
+  expect(result.current.outcomes).toBeUndefined();
+  act(() => result.current.leave());
+  expect(sent).toHaveLength(1);
+});
+
 test("a finished run is read-only: nothing to check", () => {
   const { result } = exerciseHook(exercise, undefined, true);
   expect([result.current.checking, result.current.waiting]).toEqual([false, undefined]);

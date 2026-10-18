@@ -130,7 +130,7 @@
       "partial": "en partie juste"
     },
     "correctAnswer": "Bonne réponse :",
-    "answerAudio": "Écouter la réponse",
+    "answerAudio": "Écouter la bonne réponse",
     "itemsList": "Éléments",
     "answerAll": "Réponds à chaque élément · {done, number} sur {total, number}",
     "listenFirst": "Écoute d’abord l’enregistrement",
@@ -1239,6 +1239,8 @@
     "saving": "Sauvegarde…",
     "notSaved": "L’enregistrement n’a pas pu être sauvegardé ; il compte quand même.",
     "again": "Écoute les deux. Enregistre-toi à nouveau pour le remplacer.",
+    "tryAgain": "Réessayer",
+    "preparing": "Préparation de la bonne réponse…",
     "howTo": "Touche le micro, parle, touche à nouveau.",
     "mic": {
       "insecure": "Le micro ne fonctionne qu’à une adresse sécurisée (https), comme celle que Tailscale donne à cet ordinateur.",
@@ -1330,7 +1332,9 @@
     "verdict": {
       "correct": "Tu l’as dit",
       "partial": "Presque : il manque quelques mots",
-      "wrong": "Réessaie : écoute et redis-le"
+      "wrong": "Réessaie : écoute et redis-le",
+      "otherwise": "La forme est juste, les mots sont les tiens : compare avec la bonne réponse",
+      "wrongAnswer": "Ce n’est pas la réponse demandée : compare avec la bonne"
     },
     "model": {
       "large-v3-turbo-q5_0": "Whisper large-v3 turbo — précis",
@@ -1340,7 +1344,6 @@
     "notHeardShort": "Rien n’a pu être reconnu. Réessaie.",
     "nothingHeard": "Rien n’a été entendu. Redis-le, un peu plus fort.",
     "starting": "La voix démarre… la première lecture peut prendre une demi-minute.",
-    "answerSample": "Modèle",
     "aiChecking": "L’IA vérifie ta réponse…",
     "needsRecognition": "Dire une phrase nécessite la reconnaissance vocale : active-la dans Réglages → Parole.",
     "languageUnknown": "La langue de ce cours n’est pas connue, ce que tu dis ne peut donc pas être entendu.",

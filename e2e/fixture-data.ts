@@ -4,9 +4,11 @@
 import { mkdirSync, rmSync, truncateSync, writeFileSync } from "node:fs";
 import { join } from "node:path";
 import { buildApkg } from "@sprachanker/anki-export/testing";
-import { writeFixtureLibrary } from "@sprachanker/course-fixture";
+import { FIXTURE_SERIES, writeFixtureLibrary } from "@sprachanker/course-fixture";
+import { addHeard } from "@sprachanker/course-kit";
 import { nodeFs } from "@sprachanker/course-kit/node";
-import { E2E_DATA, E2E_DECK, E2E_PIPER, E2E_QWEN, E2E_VOICE } from "./paths.ts";
+import type { CourseKey } from "@sprachanker/schema";
+import { E2E_DATA, E2E_DECK, E2E_HEARD, E2E_PIPER, E2E_QWEN, E2E_VOICE } from "./paths.ts";
 
 /** Piper as the server runs it (`--output-filename=<wav>` among its arguments): 0.2 s of silence,
  *  22.05 kHz 16-bit mono. */
@@ -46,6 +48,16 @@ const QWEN_FILES = [
 if (import.meta.main) {
   rmSync(E2E_DATA, { recursive: true, force: true });
   await writeFixtureLibrary(nodeFs, join(E2E_DATA, "library"));
+  // The fixture's answer recordings as Whisper would hear them (made by the server's hearing, which
+  // has no Whisper here): its speaking items are checked against them.
+  await addHeard(nodeFs, join(E2E_DATA, "library"), FIXTURE_SERIES, {
+    course: `${FIXTURE_SERIES}/demo` as CourseKey,
+    lang: "de",
+    recordings: {
+      "media/audio/guten-abend-danke.mp3": E2E_HEARD,
+      "media/audio/hallo-guten-tag.mp3": { text: "Hallo, guten Tag!", model: "e2e", heardAt: 1 },
+    },
+  });
   writeFileSync(E2E_PIPER, FAKE_PIPER, { mode: 0o755 });
   const voice = join(E2E_DATA, "models", "voices", E2E_VOICE);
   mkdirSync(voice, { recursive: true });

@@ -1,6 +1,7 @@
 // The exercise renderers in the player: answering by tap, drag and keyboard, and what each waits for.
 import { expect, test } from "@playwright/test";
 import { DEMO_LESSON, drag, fakeMicrophone, freshLessonRun, goToStep, openStep } from "./api.ts";
+import { E2E_HEARD } from "./paths.ts";
 
 const SPEAKING_LESSON = "sprachanker.fixture/demo/00-02";
 
@@ -174,4 +175,53 @@ test("speaking: listen first, then record oneself and play it back; the phrase s
   // Kept in the profile: Settings → General → Storage counts it.
   await page.goto("/settings#general");
   await expect(page.getByText(/^\d+ recordings? · /)).toBeVisible();
+});
+
+test("an answer said aloud checked against the source's answer as heard, without a model: wrong, its right answer, Try again, right", async ({
+  page,
+  request,
+}) => {
+  await fakeMicrophone(page);
+  await page.route("**/wie-geht-es-dir.mp3", (route) =>
+    route.fulfill({ contentType: "audio/wav", body: silentWav() }),
+  );
+  // Recognition on, as if a model were installed: what is "heard" is fixed, take by take.
+  const said = ["Guten Abend! Wie geht es dir?", "Guten Abend, danke gut, und dir"];
+  await page.route("**/api/speech", async (route) => {
+    const state = await (await route.fetch()).json();
+    await route.fulfill({ json: { ...state, recognition: true, model: "small-q5_1" } });
+  });
+  await page.route("**/api/speech/transcribe?*", (route) =>
+    route.fulfill({ json: { text: said.shift() ?? "", ms: 5 } }),
+  );
+  await openStep(page, "Repeat", SPEAKING_LESSON);
+  const card = page.locator("ol > li").nth(2);
+  await card.getByRole("button", { name: /^Play:/ }).click();
+  const say = async () => {
+    await card.getByRole("button", { name: "Record yourself" }).click();
+    await page.waitForTimeout(1200);
+    await card.getByRole("button", { name: "Stop recording" }).click();
+  };
+  await say();
+  await expect(
+    card.getByText("Not the answer asked for: compare with the right answer"),
+  ).toBeVisible();
+  await expect(card.getByText("Correct answer:")).toBeVisible();
+  await expect(card.getByText(E2E_HEARD.text)).toBeVisible();
+  await expect(card.getByRole("button", { name: "Hear the right answer" })).toBeVisible();
+  await card.getByRole("button", { name: "Try again" }).click();
+  await say();
+  await expect(card.getByText("You said it")).toBeVisible();
+  // The server's outcomes alike: the first take wrong (the step's mark), the second right.
+  const res = await request.get(
+    `/api/runs/lesson?series=sprachanker.fixture&lessonKey=${SPEAKING_LESSON}`,
+  );
+  const { state } = await res.json();
+  const spoken = state.events
+    .filter(
+      (e: { type: string; itemKey?: string }) =>
+        e.type === "answered" && e.itemKey?.endsWith("ex-02#3"),
+    )
+    .map((e: { payload: { outcome: { spoken?: string } } }) => e.payload.outcome.spoken);
+  expect(spoken).toEqual(["wrong", "correct"]);
 });

@@ -130,7 +130,7 @@
       "partial": "partly right"
     },
     "correctAnswer": "Correct answer:",
-    "answerAudio": "Hear the answer",
+    "answerAudio": "Hear the right answer",
     "itemsList": "Items",
     "answerAll": "Answer every item · {done, number} of {total, number}",
     "listenFirst": "Play the recording first",
@@ -1239,6 +1239,8 @@
     "saving": "Saving…",
     "notSaved": "The recording couldn't be saved; it counts anyway.",
     "again": "Listen to both. Record again to replace it.",
+    "tryAgain": "Try again",
+    "preparing": "Getting the right answer ready…",
     "howTo": "Tap the microphone, say it, tap again.",
     "mic": {
       "insecure": "The microphone works only at a secure address (https), such as the one Tailscale gives this computer.",
@@ -1330,7 +1332,9 @@
     "verdict": {
       "correct": "You said it",
       "partial": "Almost: a few words missing",
-      "wrong": "Try again: listen and say it once more"
+      "wrong": "Try again: listen and say it once more",
+      "otherwise": "The frame is right, the words are your own: compare with the right answer",
+      "wrongAnswer": "Not the answer asked for: compare with the right answer"
     },
     "model": {
       "large-v3-turbo-q5_0": "Whisper large-v3 turbo — accurate",
@@ -1340,7 +1344,6 @@
     "notHeardShort": "It couldn't be recognised. Try again.",
     "nothingHeard": "Nothing was heard. Say it again, a little louder.",
     "starting": "Starting the voice… the first reading can take half a minute.",
-    "answerSample": "Sample",
     "aiChecking": "The AI is checking your answer…",
     "needsRecognition": "Saying a phrase needs speech recognition: turn it on in Settings → Speech.",
     "languageUnknown": "The language of this course is not known, so what you say cannot be heard.",

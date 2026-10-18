@@ -130,7 +130,7 @@
       "partial": "részben helyes"
     },
     "correctAnswer": "Helyes válasz:",
-    "answerAudio": "A válasz meghallgatása",
+    "answerAudio": "A helyes válasz meghallgatása",
     "itemsList": "Részfeladatok",
     "answerAll": "Válaszolj minden részfeladatra · {done, number}/{total, number}",
     "listenFirst": "Előbb játszd le a felvételt",
@@ -1239,6 +1239,8 @@
     "saving": "Mentés…",
     "notSaved": "A felvételt nem sikerült menteni; így is beszámít.",
     "again": "Hallgasd meg mindkettőt. Új felvétellel lecserélheted.",
+    "tryAgain": "Próbáld újra",
+    "preparing": "A helyes válasz előkészítése…",
     "howTo": "Koppints a mikrofonra, mondd ki, koppints újra.",
     "mic": {
       "insecure": "A mikrofon csak biztonságos (https) címen működik, például azon, amelyet a Tailscale ad ennek a számítógépnek.",
@@ -1330,7 +1332,9 @@
     "verdict": {
       "correct": "Sikerült",
       "partial": "Majdnem: néhány szó hiányzik",
-      "wrong": "Próbáld újra: hallgasd meg, és mondd el még egyszer"
+      "wrong": "Próbáld újra: hallgasd meg, és mondd el még egyszer",
+      "otherwise": "A szerkezet jó, a szavak a sajátjaid: vesd össze a helyes válasszal",
+      "wrongAnswer": "Nem ez a kérdezett válasz: vesd össze a helyessel"
     },
     "model": {
       "large-v3-turbo-q5_0": "Whisper large-v3 turbo — pontos",
@@ -1340,7 +1344,6 @@
     "notHeardShort": "Nem sikerült felismerni. Próbáld újra.",
     "nothingHeard": "Semmi sem hallatszott. Mondd el újra, kicsit hangosabban.",
     "starting": "Indul a hang… az első felolvasás fél percig is tarthat.",
-    "answerSample": "Minta",
     "aiChecking": "Az MI ellenőrzi a válaszodat…",
     "needsRecognition": "Egy mondat kimondásához beszédfelismerés kell: kapcsold be itt: Beállítások → Beszéd.",
     "languageUnknown": "A kurzus nyelve nem ismert, ezért nem hallható, mit mondasz.",

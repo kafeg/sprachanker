@@ -1,8 +1,9 @@
 // Speaking exercises: SpeechSelfrate (saying it oneself after the original, one's take beside
 // it) and SpeechRepeat (a phrase said and checked by the words heard); their takes and what was heard.
-import { linesToSay, spokenCheck } from "@sprachanker/engine";
+import { judgeSpoken, linesToSay, spokenAnswers, spokenCheck } from "@sprachanker/engine";
+import type { TokenDiff } from "@sprachanker/schema";
 import { Check, CircleDot, RotateCcw } from "lucide-react";
-import { useEffect, useRef, useState } from "react";
+import { useContext, useEffect, useRef, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { useSpeechHost } from "@/audio/context.ts";
 import { MicButton } from "@/audio/mic-button.tsx";
@@ -14,36 +15,42 @@ import { clock } from "@/ui/format.ts";
 import { keptTogether } from "@/ui/line-breaks.ts";
 import { useTargetLang } from "@/ui/target-lang.ts";
 import { cn } from "@/ui/utils.ts";
+import { HeardAnswers } from "./shared.tsx";
 import type { RendererProps } from "./types.ts";
 
-/** What the recogniser heard: against the line to say (the closest of its alternatives), its
- *  words matched and missed with a verdict; for a free answer, just the words heard. In no score. */
+/** What the recogniser heard: judged against the line to say or the source's answer (the closest of
+ *  them), its words matched and missed with a verdict; not judged (an answer of one's own), just the
+ *  words heard. In no score. `exact`: against a line to say (said again after the original). */
 function Heard({
   lang,
-  reference,
+  check,
+  exact,
   transcript,
 }: {
   lang?: string;
-  reference?: string | string[];
+  check?: { verdict?: "correct" | "partial" | "wrong"; otherwise?: true; diff: TokenDiff[] };
+  exact: boolean;
   transcript: string;
 }) {
   const { t } = useTranslation();
-  // Without a language known the words still compare ("und": undetermined).
-  const check = reference ? spokenCheck(lang || "und", reference, transcript) : undefined;
-  const Icon =
-    check?.verdict === "correct" ? Check : check?.verdict === "partial" ? CircleDot : RotateCcw;
+  const verdict = check?.verdict;
+  const Icon = verdict === "correct" ? Check : verdict === "partial" ? CircleDot : RotateCcw;
+  const said =
+    verdict === "partial" && check?.otherwise
+      ? "otherwise"
+      : verdict === "wrong" && !exact
+        ? "wrongAnswer"
+        : verdict;
   return (
     <div className="space-y-1.5 rounded-xl bg-muted/60 px-4 py-3" aria-live="polite">
-      {check && (
+      {said && (
         <p
           className={cn(
             "flex items-center gap-1.5 font-medium",
-            check.verdict === "correct"
-              ? "text-correct"
-              : check.verdict === "wrong" && "text-wrong",
+            verdict === "correct" ? "text-correct" : verdict === "wrong" && "text-wrong",
           )}
         >
-          <Icon className="size-4" /> {t(`speech.verdict.${check.verdict}`)}
+          <Icon className="size-4" /> {t(`speech.verdict.${said}`)}
         </p>
       )}
       <p className="text-sm text-muted-foreground">
@@ -52,7 +59,7 @@ function Heard({
           {transcript || t("speech.heardNothing")}
         </span>
       </p>
-      {check && check.verdict !== "correct" && (
+      {check && verdict && verdict !== "correct" && (
         <p {...inLang(lang)} className="flex flex-wrap gap-x-1.5 gap-y-1 text-lg leading-relaxed">
           {check.diff
             .filter((d) => d.op !== "extra")
@@ -251,14 +258,42 @@ export function SpeechSelfrate({
   });
   const { host, take, saving, recorder } = takes;
   const [reveal, setReveal] = useState(false);
+  const heardAnswers = useContext(HeardAnswers);
+  // What an answer is checked against: the line to say, or the source's answer as heard. Without a
+  // language known the words still compare ("und": undetermined).
+  const target = spokenAnswers(
+    lang || "und",
+    item,
+    item.answerAudio && heardAnswers.texts[item.answerAudio],
+  );
+  const transcript = answer?.transcript;
+  const check =
+    target && transcript?.trim() ? judgeSpoken(lang || "und", target, transcript) : undefined;
+  // Heard and checked: begun again by "Try again" (the step's), not by a new take over it.
+  const locked = !readOnly && !!transcript?.trim();
+  // The source's answer being heard still: the microphone waits for it (its check needs it).
+  const preparing =
+    heardAnswers.pending && item.answerAudio && !linesToSay(item) && !target ? true : undefined;
 
   const attempted = answer !== undefined || !!take;
   const textShown = readOnly || !listen || attempted || reveal;
-  // The source's own answer, once the learner has tried (their answer first, then the model one).
-  const sample =
-    item.answerAudio && (readOnly || attempted) ? (
-      <TakeButton src={url(item.answerAudio)} label={t("speech.answerSample")} />
-    ) : null;
+  // The right answer once the learner has tried (their answer first): the source's as heard — its
+  // runs that complete the frame, or the whole of it — and its recording.
+  const rightText =
+    target && !target.exact ? (item.reference ? target.answers : target.answers.slice(0, 1)) : [];
+  const right = (readOnly || attempted) && (item.answerAudio || rightText.length) && (
+    <div className="space-y-1.5 rounded-xl border px-4 py-3">
+      <p className="text-sm text-muted-foreground">{t("lesson.correctAnswer")}</p>
+      {rightText.length > 0 && (
+        <p {...inLang(lang)} className="whitespace-pre-line text-lg font-medium text-pretty">
+          {keptTogether(rightText.join("\n"))}
+        </p>
+      )}
+      {item.answerAudio && (
+        <TakeButton src={url(item.answerAudio)} label={t("lesson.answerAudio")} />
+      )}
+    </div>
+  );
 
   return (
     <div className="space-y-3">
@@ -315,17 +350,18 @@ export function SpeechSelfrate({
           ) : answer ? (
             t("speech.recordedNotKept")
           ) : null}
-          {sample}
         </p>
       ) : (
         <div className="flex flex-wrap items-start justify-center gap-4">
-          <MicButton
-            recorder={recorder.state}
-            level={recorder.level}
-            waiting={heard ? undefined : "speech.listenFirst"}
-            onStart={() => void recorder.start()}
-            onStop={recorder.stop}
-          />
+          {!locked && (
+            <MicButton
+              recorder={recorder.state}
+              level={recorder.level}
+              waiting={!heard ? "speech.listenFirst" : preparing && "speech.preparing"}
+              onStart={() => void recorder.start()}
+              onStop={recorder.stop}
+            />
+          )}
           {take ? (
             <TakeButton
               src={take.url}
@@ -337,13 +373,13 @@ export function SpeechSelfrate({
               <KeptTake id={answer.recording} label={t("speech.mine")} className="mt-1.5" />
             )
           )}
-          {sample && <span className="mt-1.5">{sample}</span>}
         </div>
       )}
-      {answer?.transcript !== undefined && !saving && (
-        <Heard lang={lang} reference={linesToSay(item)} transcript={answer.transcript} />
+      {transcript !== undefined && !saving && (
+        <Heard lang={lang} check={check} exact={!!target?.exact} transcript={transcript} />
       )}
-      {!readOnly && <TakeStatus takes={takes} attempted={attempted} heard={heard} />}
+      {right}
+      {!readOnly && !locked && <TakeStatus takes={takes} attempted={attempted} heard={heard} />}
     </div>
   );
 }
@@ -409,7 +445,12 @@ export function SpeechRepeat({
         </div>
       )}
       {answer && !saving && (
-        <Heard lang={lang} reference={item.text} transcript={answer.speech.transcript} />
+        <Heard
+          lang={lang}
+          check={spokenCheck(lang || "und", item.text, answer.speech.transcript)}
+          exact
+          transcript={answer.speech.transcript}
+        />
       )}
       {!readOnly && !outcome && <TakeStatus takes={takes} attempted={attempted} heard={heard} />}
     </div>
