@@ -4,6 +4,21 @@ What is left to build. The owner adds features a few at a time: an item comes in
 for it and leaves when it is built — its decisions go to `docs/decisions.md`, its structure to the
 area's CLAUDE.md. How the parts fit: `docs/architecture.md`.
 
+## Ready: what is left (owner, 2026-10-18)
+The product is finished when these are done; nothing else is taken before them.
+1. Only what is ready is shown: the Nicos Weg courses, Leben in Deutschland, the Goethe exams A1–B1;
+   everything experimental behind the launch parameter `--experimental`, off by default.
+2. Goethe A1–B1 complete as non-experimental exams (item 1 below: what is left of it).
+3. Spoken answers checked against the source's answers as heard: a run over every speaking item of
+   Nicos Weg A1 with right answers and the usual variants (own words, another order, "Ja, …") —
+   no right answer judged wrong; hearing a course one of its preparation steps beside AI practice.
+4. AI practice made for Nicos Weg A2 and B1 — after its making is measured and made cheaper (the
+   CLI's thinking, drafts, context sent).
+5. Releases for every system with updates from the app (item 2 below); the owner's phone moved to
+   the release-signed app (its profile exported and imported).
+- **Accept**: a clean machine of each system (macOS, Windows, Linux, Android) goes from the release
+  to a Nicos Weg lesson with speech checked and AI practice, and takes the next release as an update.
+
 ## Next
 
 ### 1. Goethe exams: Sprechen and Schreiben as the real exam (owner, 2026-10-12)
