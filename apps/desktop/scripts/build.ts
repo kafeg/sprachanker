@@ -2,13 +2,12 @@
 // (apps/cli/dist, made by `bun run build:bin`) put into the Tauri shell as its sidecars, the third-party
 // notices among its resources (on macOS also the microphone's question in each language of the web
 // app's catalogs), then bundled for this system into dist/:
-// - macOS: the .app, signed ad hoc (no Developer ID: owner, 2026-10-15), as a zip and a dmg;
+// - macOS: the .app, signed ad hoc (no Developer ID: owner, 2026-10-15), as a zip and a dmg, and as
+//   the .app.tar.gz the app updates itself from;
 // - Windows: an installer (NSIS, for the user alone: no administrator);
 // - Linux: a .deb (WebKitGTK and GTK the system's: an AppImage would carry them, and their licences
 //   and sources with them).
-// With TAURI_SIGNING_PRIVATE_KEY (and its _PASSWORD) set — the release's — each file the app updates
-// itself from is signed beside it (`.sig`: the .app's .tar.gz, the installer, the .deb),
-// for latest.ts to list.
+// The update files are signed after it by sign.ts, so the updater's key is in no build's environment.
 //   bun scripts/build.ts            (root: bun run build:desktop builds the binary first)
 import {
   copyFileSync,
@@ -44,7 +43,8 @@ if (!triple) throw new Error("rustc names no host");
 for (const file of [`sprachanker${exe}`, "THIRD_PARTY_NOTICES.txt"])
   if (!existsSync(join(cli, file))) throw new Error(`no ${cli}/${file}: bun run build:bin first`);
 
-// Sidecars as Tauri wants them: each named for the target; the bundle drops the suffix.
+// Sidecars as Tauri wants them: each named for the target; the bundle drops the suffix. The engines
+// get the app's prefix: a .deb puts them in /usr/bin, where whisper-server could be another package's.
 rmSync(binaries, { recursive: true, force: true });
 mkdirSync(binaries, { recursive: true });
 copyFileSync(join(cli, `sprachanker${exe}`), join(binaries, `sprachanker-${triple}${exe}`));
@@ -52,7 +52,7 @@ for (const engine of ["whisper-server", "sherpa-onnx-offline-tts", "tts-server"]
   const file = `${engine}-${triple}${exe}`;
   if (!existsSync(join(cli, file)))
     throw new Error(`no ${file} beside the binary: bun run build:speech`);
-  copyFileSync(join(cli, file), join(binaries, file));
+  copyFileSync(join(cli, file), join(binaries, `sprachanker-${file}`));
 }
 
 // Resources: the third-party notices of the build (build:bin's, beside the binary) — in a Mac app's
@@ -82,9 +82,8 @@ if (system === "macos") {
 
 // The binary's version (MAJOR.MINOR.<commits>: apps/cli/scripts/version.ts) is the app's too.
 const version = (await $`bun ${join(here, "../cli/scripts/version.ts")}`.text()).trim();
-const signed = !!process.env.TAURI_SIGNING_PRIVATE_KEY;
 const bundles = { macos: "app", windows: "nsis", linux: "deb" }[system];
-const config = { version, bundle: { resources, createUpdaterArtifacts: signed } };
+const config = { version, bundle: { resources } };
 // Tauri's command line pinned in package.json (as the Rust crates are in Cargo.toml).
 await $`bun x tauri build --bundles ${bundles} --config ${JSON.stringify(config)} -- --locked`
   .cwd(here)
@@ -95,11 +94,8 @@ const arch = triple.startsWith("aarch64") ? "arm64" : "x64";
 const base = `SprachAnker-${version}-${system}-${arch}`;
 rmSync(out, { recursive: true, force: true });
 mkdirSync(out, { recursive: true });
-/** A bundle's file into dist/ under its release name, with its signature when it has one. */
-function take(from: string, name: string) {
-  copyFileSync(from, join(out, name));
-  if (existsSync(`${from}.sig`)) copyFileSync(`${from}.sig`, join(out, `${name}.sig`));
-}
+/** A bundle's file into dist/ under its release name. */
+const take = (from: string, name: string) => copyFileSync(from, join(out, name));
 /** The one file of a bundle's folder ending so. */
 function found(folder: string, ending: string) {
   const name = readdirSync(join(bundled, folder)).find((n) => n.endsWith(ending));
@@ -109,7 +105,13 @@ function found(folder: string, ending: string) {
 
 if (system === "macos") {
   const app = join(bundled, "macos/SprachAnker.app");
-  if (signed) take(join(bundled, "macos/SprachAnker.app.tar.gz"), `${base}.app.tar.gz`);
+  // The update file: the .app at the archive's top, as Tauri's updater unpacks it (no AppleDouble files).
+  await $`tar -czf ${join(out, `${base}.app.tar.gz`)} -C ${join(bundled, "macos")} SprachAnker.app`.env(
+    {
+      ...process.env,
+      COPYFILE_DISABLE: "1",
+    },
+  );
   await $`ditto -c -k --sequesterRsrc --keepParent ${app} ${join(out, `${base}.zip`)}`;
   // The dmg: the app and a link to Applications, to drag it there.
   const stage = join(out, "dmg");

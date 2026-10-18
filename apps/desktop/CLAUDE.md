@@ -29,8 +29,10 @@ src-tauri/
   build.rs             # Tauri's build (the app's command named: an app manifest); the shell's words: the web
                        # catalogs' `desktop` section, embedded
   tauri.conf.json      # app.sprachanker.desktop (its version given by the build: the binary's); externalBin: the
-                       # binary and the engines; the updater's endpoint and public key; signed ad hoc on macOS
+                       # binary and the engines (sprachanker-<engine>: a .deb puts them in /usr/bin); the updater's endpoint
+                       # and public key; signed ad hoc on macOS
   Info.plist           # the microphone's question (English; the build adds each catalog's language)
+  .cargo/config.toml   # Windows: the C runtime linked in (nothing to install beside the app)
   icons/               # from icons/app-icon.png (apps/web/scripts/icons.ts: macOS's grid), `tauri icon`
 www/index.html         # the start page: the name and a spinner; why the server did not start (after #)
 scripts/build.ts       # the app for this system from apps/cli/dist (build:bin's) — the sidecars copied into
@@ -50,7 +52,7 @@ test/                  # latest.json's making
 - `SPRACHANKER_HOME`, `SPRACHANKER_PORT`, `SPRACHANKER_HOST` move the server (as the installer reads
   them). A run with `SPRACHANKER_HOME` set (a test's: `SprachAnker.app/Contents/MacOS/sprachanker-desktop`
   with it) is a second app: no single instance, no login start, the installer's service left alone.
-- The server's log: `~/Library/Logs/SprachAnker/serve.log` (Windows: `%LOCALAPPDATA%\SprachAnker`,
+- The server's log: `~/Library/Logs/SprachAnker/serve.log` (Windows: `%LOCALAPPDATA%\app.sprachanker.desktop\logs`,
   Linux: `~/.local/state/sprachanker`); a test run's: `<SPRACHANKER_HOME>/serve.log`.
 - The updater tried locally: a build with `--config` setting `plugins.updater.endpoints` to a local
   latest.json and `dangerousInsecureTransportProtocol: true`, never in a release. The updater refuses

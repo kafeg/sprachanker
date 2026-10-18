@@ -27,13 +27,15 @@ export const ENGINES = {
 } as const;
 export type EngineName = keyof typeof ENGINES;
 
-/** Where an engine's program is, if it is anywhere. */
+/** Where an engine's program is, if it is anywhere: beside the binary as the program's archive and
+ *  the desktop app have it (the app's with its prefix: a .deb puts them in /usr/bin). */
 export function engineAt(name: EngineName) {
   const { folder, program, env } = ENGINES[name];
   return [
     process.env[env],
     join(dirname(process.execPath), `${program}-${triple}${EXE}`),
     join(dirname(process.execPath), `${program}${EXE}`),
+    join(dirname(process.execPath), `sprachanker-${program}${EXE}`),
     join(import.meta.dir, "../../../../native", folder, "out", `${program}-${triple}${EXE}`),
   ].find((p): p is string => !!p && existsSync(p));
 }
@@ -105,7 +107,7 @@ function stopLeftOver(file: string) {
     .filter((n) => Number.isInteger(n) && n > 0);
   for (const pid of pids) {
     try {
-      // Without its name (Windows) the pid alone is not trusted enough to stop it.
+      // Without its name the pid alone is not trusted enough to stop it.
       const name = processName(pid);
       if (name && (name.includes(ENGINES.whisper.program) || name.includes(ENGINES.qwen.program)))
         process.kill(pid);

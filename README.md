@@ -119,7 +119,7 @@ Privacy & Security and click **Open Anyway** next to SprachAnker. To update: Set
 installs for you alone, without an administrator. SmartScreen says "Windows protected your PC": **More
 info** → **Run anyway**. The first time it starts, Windows Firewall asks whether it may be reached on
 networks: allow private networks for phones at home. To update: Settings → About → **Update and
-restart**. Its log is `%LOCALAPPDATA%\SprachAnker\serve.log`. To remove it: Settings → Apps.
+restart**. Its log is `%LOCALAPPDATA%\app.sprachanker.desktop\logs\serve.log`. To remove it: Settings → Apps.
 
 **Linux** (x64, Debian, Ubuntu 22.04 or later and their kin): download
 `SprachAnker-<version>-linux-x64.deb` and run `sudo apt install ./SprachAnker-<version>-linux-x64.deb`.

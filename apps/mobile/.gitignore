@@ -3,3 +3,4 @@ src-tauri/gen/schemas/
 www/phrases/
 dist/
 apk/
+src-tauri/gen/android/.kotlin/

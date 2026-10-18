@@ -25,7 +25,7 @@ src/
                      # .apkg uploads); deck-transfer.ts (deck files: zipped, read, unpacked, placed); practice.ts (addPractice, locked);
                      # readings.ts (what was read aloud, kept in cache/tts: made once, stopped once no request waits)
   runtime/           # Bun/Node adapters: listen, web assets, sqlite, secret key, data-root.ts (one server per data root: server.pid;
-                     # nodeDataRoot over Node's files); process-name.ts (`ps` names a pid); lmstudio.ts (detect, `lms server start`);
+                     # nodeDataRoot over Node's files); process-name.ts (`ps`, `tasklist` name a pid); lmstudio.ts (detect, `lms server start`);
                      # engines.ts (the engines built in native/ — also read by the build scripts —, their processes going with the
                      # server), model-files.ts (storage's over Node), speech.ts (whisper-server, Qwen3-TTS's tts-server), piper.ts
                      # (Piper's voices and runs), readings.ts (storage's reading cache over Node); backup.ts (a copy of each database a day; a backup on request); profile-sql.ts (ProfileSql

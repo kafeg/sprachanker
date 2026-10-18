@@ -10,6 +10,7 @@ import androidx.core.content.FileProvider
 import java.io.File
 import java.io.IOException
 import java.net.HttpURLConnection
+import java.net.URI
 import java.net.URL
 import java.security.MessageDigest
 import java.util.concurrent.Executors
@@ -36,7 +37,7 @@ class Updates(private val activity: Activity, private val webView: WebView, priv
     guard()
     pool.execute {
       val failure = try {
-        if (!url.startsWith(RELEASES)) throw IOException("not a release of the app: $url")
+        if (!isRelease(url)) throw IOException("not a release of the app: $url")
         if (!Regex("^[0-9a-f]{64}$").matches(sha256)) throw IOException("no sha256 for $url")
         val apk = download(url, sha256, size)
         if (!activity.packageManager.canRequestPackageInstalls()) allowInstalls()
@@ -116,7 +117,20 @@ class Updates(private val activity: Activity, private val webView: WebView, priv
     }
   }
 
+  /** A release download of the app's own: parsed, normalised, unchanged by it (no `..` or escapes
+   *  climbing out), over HTTPS. */
+  private fun isRelease(url: String): Boolean {
+    if (Regex("%2e|\\.\\.|\\\\", RegexOption.IGNORE_CASE).containsMatchIn(url)) return false
+    return try {
+      val uri = URI(url)
+      uri.normalize() == uri && uri.scheme == "https" && uri.host == "github.com" && uri.rawUserInfo == null &&
+        uri.port == -1 && (uri.rawPath ?: "").startsWith(RELEASES_PATH)
+    } catch (e: Exception) {
+      false
+    }
+  }
+
   companion object {
-    const val RELEASES = "https://github.com/kafeg/sprachanker/releases/download/"
+    const val RELEASES_PATH = "/kafeg/sprachanker/releases/download/"
   }
 }

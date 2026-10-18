@@ -106,6 +106,11 @@ export function answerOthers(
     going.set(m.id, controller);
     let answered = false;
     try {
+      // A newer version is installed from the phone's own page only, never at another device's word.
+      if (m.method === "POST" && m.path.split("?")[0] === "/api/update/install") {
+        answered = true;
+        return await native.answer(m.id, 403, [], null, false);
+      }
       const request = requestOf(m, controller.signal);
       if (!request) {
         answered = true;

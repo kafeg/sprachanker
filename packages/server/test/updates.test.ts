@@ -3,6 +3,7 @@ import {
   CHECK_EVERY_MS,
   createUpdates,
   isNewer,
+  isUnder,
   RELEASE_FILES,
   RELEASES_LATEST,
   RETRY_MS,
@@ -86,6 +87,32 @@ describe("versions", () => {
     expect(isNewer("0.1.999", "0.2.0")).toBe(false);
     expect(isNewer("1.0", "0.1.1")).toBe(false);
     expect(isNewer("9.9.9", "dev")).toBe(false);
+  });
+});
+
+describe("release addresses", () => {
+  test("only the project's own release downloads over HTTPS, however written", () => {
+    expect(isUnder(`${RELEASE_FILES}v1.2.3/a.apk`, RELEASE_FILES)).toBe(true);
+    for (const bad of [
+      `${RELEASE_FILES}../../../other/x/releases/download/v1/a.apk`,
+      `${RELEASE_FILES}%2e%2e/%2E%2E/other/a.apk`,
+      "http://github.com/kafeg/sprachanker/releases/download/v1/a.apk",
+      "https://github.com.evil.example/kafeg/sprachanker/releases/download/v1/a.apk",
+      "https://user@github.com/kafeg/sprachanker/releases/download/v1/a.apk",
+      "https://github.com/kafeg/sprachanker-fork/releases/download/v1/a.apk",
+      "not a url",
+    ])
+      expect(isUnder(bad, RELEASE_FILES)).toBe(false);
+  });
+
+  test("a release whose page is elsewhere is no update", async () => {
+    const updates = createUpdates({
+      version: "0.2.600",
+      update: program,
+      fetch: releases(() => release("0.3.700", { html_url: "javascript:alert(1)" })).fetch,
+      now: () => 0,
+    });
+    expect((await updates.status()).newer).toBeUndefined();
   });
 });
 

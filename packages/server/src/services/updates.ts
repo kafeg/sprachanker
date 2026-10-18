@@ -10,6 +10,27 @@ import { ServiceError } from "../errors.ts";
 export const RELEASES_LATEST = "https://api.github.com/repos/kafeg/sprachanker/releases/latest";
 /** Where every release's files are: a file from anywhere else is never installed. */
 export const RELEASE_FILES = "https://github.com/kafeg/sprachanker/releases/download/";
+/** Where a release's page is: another address is never linked. */
+const RELEASE_PAGES = "https://github.com/kafeg/sprachanker/releases/";
+
+/** Whether an address, parsed (not compared as text: `..` or its escapes could climb out), is
+ *  under `base` over HTTPS. */
+export function isUnder(address: string, base: string) {
+  if (/%2e|\.\.|\\/i.test(address)) return false;
+  try {
+    const url = new URL(address);
+    const root = new URL(base);
+    return (
+      url.protocol === "https:" &&
+      url.host === root.host &&
+      !url.username &&
+      !url.password &&
+      url.pathname.startsWith(root.pathname)
+    );
+  } catch {
+    return false;
+  }
+}
 /** A check that answered is kept this long; one that failed is tried again after RETRY_MS. */
 export const CHECK_EVERY_MS = 6 * 3600_000;
 export const RETRY_MS = 30 * 60_000;
@@ -89,7 +110,7 @@ interface Latest {
 /** A release's files that may be installed: from the release's own downloads, over HTTPS. */
 function filesOf(release: z.infer<typeof Release>): ReleaseFile[] {
   return release.assets
-    .filter((a) => a.browser_download_url.startsWith(RELEASE_FILES))
+    .filter((a) => isUnder(a.browser_download_url, RELEASE_FILES))
     .map((a) => ({
       name: a.name,
       url: a.browser_download_url,
@@ -111,7 +132,7 @@ export function createUpdates(config: UpdatesConfig) {
       if (!res.ok) throw new Error(`HTTP ${res.status}`);
       const release = Release.parse(await res.json());
       const latest =
-        release.draft || release.prerelease
+        release.draft || release.prerelease || !isUnder(release.html_url, RELEASE_PAGES)
           ? undefined
           : {
               version: release.tag_name.replace(/^v/, ""),

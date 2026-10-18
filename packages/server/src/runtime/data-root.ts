@@ -12,8 +12,9 @@ import { processName } from "./process-name.ts";
 const pidFile = (dataRoot: string) => join(dataRoot, "server.pid");
 
 /**
- * Whether `pid` is a running SprachAnker (the binary, or Bun running it from sources). `ps` names the
- * process (POSIX); elsewhere a live pid is taken as one.
+ * Whether `pid` is a running SprachAnker (the binary, or Bun running it from sources), as `ps` or
+ * Windows' `tasklist` names the process: a pid file the desktop app's forced stop left (Windows) whose
+ * pid the system gave another program is stale.
  */
 export function sprachAnkerRuns(pid: number): boolean {
   try {
@@ -22,7 +23,6 @@ export function sprachAnkerRuns(pid: number): boolean {
     // EPERM: it runs, as another user.
     if ((error as NodeJS.ErrnoException).code !== "EPERM") return false;
   }
-  if (process.platform === "win32") return true;
   return /sprachanker|\bbun\b/i.test(processName(pid) ?? "");
 }
 

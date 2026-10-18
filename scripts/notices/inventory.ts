@@ -196,7 +196,7 @@ export const NATIVE: Component[] = [
     source: `https://github.com/microsoft/onnxruntime/tree/v${ONNX_RUNTIME}`,
     builds: ALL,
     where: IN_SHERPA,
-    note: `Built by https://github.com/csukuangfj/onnxruntime-libs/releases/tag/v${ONNX_RUNTIME} (osx-arm64 and android-arm64-v8a static libraries; Microsoft's own win-x64 and linux-x64 releases of it). Its third-party notices follow its licence.`,
+    note: `Built by https://github.com/csukuangfj/onnxruntime-libs/releases/tag/v${ONNX_RUNTIME} (osx-arm64, win-x64, linux-x64 and android-arm64-v8a static libraries). Its third-party notices follow its licence.`,
     texts: [text("onnxruntime"), text("onnxruntime-third-party")],
   },
   {

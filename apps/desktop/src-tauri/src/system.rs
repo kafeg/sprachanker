@@ -27,7 +27,7 @@ pub fn quiet(command: &mut Command) -> &mut Command {
 }
 
 /// The server's log: the system's place for logs (~/Library/Logs/SprachAnker on a Mac,
-/// %LOCALAPPDATA%\SprachAnker on Windows, ~/.local/state/sprachanker on Linux); a run on another
+/// %LOCALAPPDATA%\app.sprachanker.desktop\logs on Windows — not the installer's program folder —, ~/.local/state/sprachanker on Linux); a run on another
 /// folder (a test's) keeps its own there, never mixed into the app's.
 pub fn log_file() -> PathBuf {
     if let Some(home) = std::env::var_os("SPRACHANKER_HOME") {
@@ -39,7 +39,7 @@ pub fn log_file() -> PathBuf {
         std::env::var_os("LOCALAPPDATA")
             .map(PathBuf::from)
             .unwrap_or_else(|| user_home().join("AppData/Local"))
-            .join("SprachAnker")
+            .join("app.sprachanker.desktop/logs")
     } else {
         std::env::var_os("XDG_STATE_HOME")
             .map(PathBuf::from)
