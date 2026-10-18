@@ -72,12 +72,14 @@ export async function removeCourse(
     await writeFileAtomic(fs, indexFile, JSON.stringify(kept, null, 1));
   }
   for (const f of gone) fs.remove(f.file);
-  // The course's folders whole (a file a bundle would not hold, too), then the download's marker.
+  // The course's folders whole (a file a bundle would not hold, too), then the download's marker and
+  // the hearing step's (its recordings heard stay, as its practice).
   fs.remove(joinPath(seriesDir, "canonical", courseId));
   for (const edition of own.courses[0]?.editions ?? [])
     if (EditionId.safeParse(edition).success)
       fs.remove(joinPath(seriesDir, "locale", edition, courseId));
   fs.remove(joinPath(seriesDir, ".downloads", `${courseId}.json`));
+  fs.remove(joinPath(seriesDir, ".heard", `${courseId}.json`));
   // Nothing left behind empty: a media index naming nothing, folders holding nothing.
   const left = fs.readText(indexFile);
   if (left !== undefined && !Object.keys(JSON.parse(left)).length) fs.remove(indexFile);

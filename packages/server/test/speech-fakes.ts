@@ -115,3 +115,47 @@ export function qwen(
   };
   return { host, asked, registered, kept, files, talkers, exitAll, voices, spawned: () => spawned };
 }
+
+/** What Whisper hears of the fixture's two answer recordings. */
+export const SAID = {
+  "guten-abend-danke.mp3": "Guten Abend! Danke, gut. Und dir?",
+  "hallo-guten-tag.mp3": "Hallo! Guten Tag!",
+};
+
+/** A machine with whisper-server: what it hears of a fixture recording is said by its name (`said`);
+ *  one named in `failing` it fails to hear (every one while `state.broken`). `installed`: whether its
+ *  models are there (false: none until one is downloaded). */
+export function whisper(
+  said: Record<string, string>,
+  failing: string[] = [],
+  options: { installed?: boolean } = {},
+) {
+  const heard: string[] = [];
+  const state = { installed: options.installed ?? true, broken: false };
+  const speech: SpeechHost = {
+    freePort: async () => 9913,
+    whisper: {
+      binary: () => "/opt/whisper-server",
+      spawn: () => ({ exited: new Promise(() => {}), kill() {} }),
+    },
+    models: {
+      path: (file) => (state.installed ? `/models/${file}` : undefined),
+      async download() {
+        state.installed = true;
+      },
+      remove() {},
+    },
+  };
+  const fetch = (async (url: string, init: RequestInit) => {
+    if (url === "http://127.0.0.1:9913/health") return new Response("ok");
+    if (url === "http://127.0.0.1:9913/inference") {
+      const file = (init.body as FormData).get("file") as Blob;
+      const name = (await file.text()).replace("sprachanker-fixture:", "");
+      heard.push(name);
+      if (state.broken || failing.includes(name)) return new Response("no", { status: 500 });
+      return Response.json({ text: ` ${said[name] ?? ""}\n` });
+    }
+    return new Response("no", { status: 500 });
+  }) as unknown as typeof globalThis.fetch;
+  return { speech, fetch, heard, state };
+}

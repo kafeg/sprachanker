@@ -9,7 +9,7 @@ Depends on nothing (zod only). Every other module imports types from here.
 src/
   lang.ts            # Lang, edition ids, a language's writing direction (languageDir: the web's and e2e's)
   library-state.ts   # the importer's and server's own files beside a series: media.json, keys.json, a
-                     # download's marker (checked when read, no `format`)
+                     # download's marker, the hearing step's marker (checked when read, no `format`)
   keys.ts            # key schemas (branded), builders, parsers, lemma slugs, Slug (the ids made of
                      # one: a course's, a module's, a pass mark's), part of speech, gender, option ids;
                      # a headword's shape and a German noun's gender (the lexeme's rules: courses, decks)

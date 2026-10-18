@@ -41,6 +41,20 @@ export function courseRoutes() {
           return c.json(await c.var.s.heard.lesson(series, key));
         },
       )
+      // The course preparation step hearing the source's answers: how many of the course's answer
+      // recordings are heard (ready to check by), failed, missing; its job; started and stopped.
+      .get("/course/heard", zod("query", CourseRef), async (c) => {
+        const { series, course } = c.req.valid("query");
+        return c.json(await c.var.s.hearing.state(series, course));
+      })
+      .post("/course/heard", zod("json", CourseRef), async (c) => {
+        const { series, course } = c.req.valid("json");
+        return c.json(await c.var.s.hearing.start(series, course));
+      })
+      .post("/course/heard/stop", zod("json", CourseRef), async (c) => {
+        const { series, course } = c.req.valid("json");
+        return c.json(await c.var.s.hearing.stop(series, course));
+      })
       // What can be downloaded, and the downloads (first download, completing it, syncing: one job).
       .get("/catalog", async (c) => {
         const installed = new Set((await c.var.s.content.courses()).map((c) => c.key));

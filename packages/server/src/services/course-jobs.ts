@@ -1,53 +1,56 @@
-// A course's practice made in one go (owner, 2026-10-14: a button on the course's page and the
-// command line): a job per course and edition — its lessons in course order, each step filled up to
-// `count` (1–3) in the course's practice by the profile that started it (its model, its voices),
-// several units at a time —; one job of a course's edition at a time, stopped on request, a unit
-// that fails recorded and the job going on. The server's: every profile sees it.
-import type { LessonKey } from "@sprachanker/schema";
+// A course's preparation made in one go (owner, 2026-10-18: one machinery for every step that makes
+// something into a course after it is installed): a step's job per course (and edition, where the step
+// is made per edition) works through its units — a lesson's AI practice step, a lesson's recordings of
+// the source's answers heard —, several at a time where the step allows; stopped on request, a unit
+// that fails recorded and the job going on. A step whose jobs share one engine runs one job at a time
+// on this server (`oneAtATime`: the rest queued). The server's: every profile sees the same jobs. Its
+// steps: AI practice (practice: by the profile that started it, its model and voices) and the source's
+// answers heard (hearing.ts: Whisper).
 import { ServiceError } from "../errors.ts";
-import type { PracticeStepName } from "./practice.ts";
 
-/** One lesson's step to make: how many of it. */
-export interface PracticeUnit {
-  lessonKey: LessonKey;
-  step: PracticeStepName;
-  count: number;
-}
-
-export interface PracticeJob {
+/** Which course (and edition) a job prepares. */
+export interface JobTarget {
   series: string;
   course: string;
-  edition: string;
-  steps: PracticeStepName[];
-  count: number;
+  edition?: string;
+}
+
+export type CourseJob<W extends JobTarget, U> = W & {
   /** Units in all, units done (made or failed). */
   total: number;
   done: number;
   /** The units being made now. */
-  current: PracticeUnit[];
-  failed: Array<PracticeUnit & { error: string }>;
-  state: "running" | "stopping" | "stopped" | "done";
+  current: U[];
+  failed: Array<U & { error: string }>;
+  /** `queued`: behind another job of its step (one at a time). */
+  state: "queued" | "running" | "stopping" | "stopped" | "done";
   startedAt: number;
   endedAt: number | null;
-}
+  /** Why it was stopped, when not on request (the engine failing). */
+  error?: string;
+};
 
-/** Units made at a time on a provider that answers several calls at once (each unit's drafts are
- *  side by side already). */
-export const PRACTICE_PARALLEL = 3;
-
-/** A lesson's step being made by its own button meanwhile is waited for, this often, this long. */
+/** A unit busy elsewhere (a lesson's own button making the same step) is waited for, this often, this
+ *  long. */
 const BUSY_WAIT_MS = 3000;
 const BUSY_TRIES = 40;
 
-export function createPracticeJobs(deps: {
+export function createCourseJobs<W extends JobTarget, U>(deps: {
   now: () => number;
   sleep?: (ms: number) => Promise<void>;
+  /** One job at a time of this step on this server (it shares an engine), the rest queued. */
+  oneAtATime?: boolean;
 }) {
   const sleep = deps.sleep ?? ((ms: number) => new Promise((r) => setTimeout(r, ms)));
-  const jobs = new Map<string, PracticeJob>();
-  const key = (series: string, course: string, edition: string) => `${series}/${course} ${edition}`;
+  type Job = CourseJob<W, U>;
+  const jobs = new Map<string, Job>();
+  const waiting: Array<() => void> = [];
+  let running = 0;
+  const key = (t: JobTarget) => `${t.series}/${t.course}${t.edition ? ` ${t.edition}` : ""}`;
+  const active = (job: Job | undefined) =>
+    job?.state === "queued" || job?.state === "running" || job?.state === "stopping";
 
-  /** A unit made, a lesson's own button making the same step waited for. */
+  /** A unit made, one busy elsewhere waited for. */
   async function attempt(make: () => Promise<void>) {
     for (let tries = 1; ; tries++) {
       try {
@@ -60,71 +63,109 @@ export function createPracticeJobs(deps: {
     }
   }
 
+  /** Takes a turn to run (one job at a time: when none runs) — the job running from now. */
+  function take(job: Job) {
+    if (deps.oneAtATime) running++;
+    job.state = "running";
+    job.startedAt = deps.now();
+  }
+
+  /** Waits for a queued job's turn (false: it was stopped meanwhile, the turn passed on). */
+  async function turn(job: Job) {
+    await new Promise<void>((r) => waiting.push(r));
+    if (job.state !== "queued") {
+      waiting.shift()?.();
+      return false;
+    }
+    take(job);
+    return true;
+  }
+
   async function run(
-    job: PracticeJob,
-    units: PracticeUnit[],
-    make: (u: PracticeUnit) => Promise<void>,
+    job: Job,
+    units: U[],
+    make: (u: U, job: Job) => Promise<void>,
     parallel: number,
   ) {
-    let next = 0;
-    const worker = async () => {
-      for (let unit = units[next++]; unit && job.state !== "stopping"; unit = units[next++]) {
-        job.current.push(unit);
-        try {
-          await attempt(() => make(unit as PracticeUnit));
-        } catch (error) {
-          const message = error instanceof ServiceError ? error.code : (error as Error).message;
-          job.failed.push({ ...unit, error: message });
+    if (job.state === "queued" && !(await turn(job))) return;
+    try {
+      let next = 0;
+      const worker = async () => {
+        for (let unit = units[next++]; unit && job.state === "running"; unit = units[next++]) {
+          const u = unit as U;
+          job.current.push(u);
+          try {
+            await attempt(() => make(u, job));
+          } catch (error) {
+            const message = error instanceof ServiceError ? error.code : (error as Error).message;
+            job.failed.push({ ...u, error: message });
+          }
+          job.current = job.current.filter((c) => c !== u);
+          job.done++;
         }
-        job.current = job.current.filter((u) => u !== unit);
-        job.done++;
+      };
+      await Promise.all(Array.from({ length: Math.max(1, parallel) }, worker));
+      job.state = job.state === "stopping" ? "stopped" : "done";
+      job.endedAt = deps.now();
+    } finally {
+      if (deps.oneAtATime) {
+        running--;
+        waiting.shift()?.();
       }
-    };
-    await Promise.all(Array.from({ length: Math.max(1, parallel) }, worker));
-    job.state = job.state === "stopping" ? "stopped" : "done";
-    job.endedAt = deps.now();
+    }
   }
 
   return {
-    /** A course's edition's job, the latest (running or ended), if any. */
-    get: (series: string, course: string, edition: string): PracticeJob | null =>
-      jobs.get(key(series, course, edition)) ?? null,
+    /** A course's job of this step, the latest (queued, running or ended), if any. */
+    get: (target: JobTarget): Job | null => jobs.get(key(target)) ?? null,
 
-    /** Starts a job over `units`, each made by `make`, `parallel` at a time; refused while one of
-     *  the course's edition runs. Its end is `done` (or `stopped`). */
-    start(
-      what: Pick<PracticeJob, "series" | "course" | "edition" | "steps" | "count">,
-      units: PracticeUnit[],
-      make: (unit: PracticeUnit) => Promise<void>,
-      parallel = 1,
-    ) {
-      const k = key(what.series, what.course, what.edition);
-      const running = jobs.get(k);
-      if (running && (running.state === "running" || running.state === "stopping"))
-        throw new ServiceError("practice_busy", 409);
-      const job: PracticeJob = {
+    /** Every job of this step, newest first. */
+    list: () => [...jobs.values()].sort((a, b) => b.startedAt - a.startedAt),
+
+    /** Whether a job of the course is queued or running. */
+    active: (target: JobTarget) => active(jobs.get(key(target))),
+
+    /** Starts a job over `units`, each made by `make`, `parallel` at a time; refused while one of the
+     *  course (and edition) is queued or runs. Its end is `done` (or `stopped`). */
+    start(what: W, units: U[], make: (unit: U, job: Job) => Promise<void>, parallel = 1) {
+      const k = key(what);
+      if (active(jobs.get(k))) throw new ServiceError("practice_busy", 409);
+      const job = {
         ...what,
         total: units.length,
         done: 0,
         current: [],
         failed: [],
-        state: "running",
+        state: "queued",
         startedAt: deps.now(),
         endedAt: null,
-      };
+      } as Job;
       jobs.set(k, job);
+      if (!deps.oneAtATime || !running) take(job);
       const ended = run(job, units, make, parallel).catch((error: unknown) => {
-        console.error(`practice of ${k}:`, error);
+        console.error(`preparing ${k}:`, error);
       });
       return { job, ended };
     },
 
-    /** Stops a course's edition's job after the unit being made. */
-    stop(series: string, course: string, edition: string) {
-      const job = jobs.get(key(series, course, edition));
+    /** Stops a course's job after the units being made (one queued at once); `error`: why, when
+     *  not on request. */
+    stop(target: JobTarget, error?: string) {
+      const job = jobs.get(key(target));
       if (job?.state === "running") job.state = "stopping";
-      return job ?? null;
+      else if (job?.state === "queued") {
+        job.state = "stopped";
+        job.endedAt = deps.now();
+      } else return job ?? null;
+      if (error) job.error = error;
+      return job;
+    },
+
+    /** A course's job let go (the course removed): one running stops after its units. */
+    forget(target: JobTarget) {
+      this.stop(target);
+      jobs.delete(key(target));
     },
   };
 }
-export type PracticeJobs = ReturnType<typeof createPracticeJobs>;
+export type CourseJobs<W extends JobTarget, U> = ReturnType<typeof createCourseJobs<W, U>>;

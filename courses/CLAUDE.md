@@ -38,7 +38,7 @@ packages/course-kit/src/
                        # recordings beside it under the lesson's folder
   heard.ts             # a course's recordings of the source's answers heard (`heard/<course>.json`): added,
                        # one heard again replaced (bundles merge it, removal keeps it, as practice)
-  remove.ts            # removeCourse: a course's folders and the media no other course of its series
+  remove.ts            # removeCourse: a course's folders (its download's and hearing's markers) and the media no other course of its series
                        # names; media.json forgets them (gone when it names nothing), empty folders
                        # go, keys.json stays
   bundle.ts            # course bundles, the library's side: what a bundle of a series' courses holds
