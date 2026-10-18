@@ -23,9 +23,9 @@ import android.os.Process
 // both a minute or so after). A download holds the CPU awake too; serving others does not (a request
 // from the network wakes it). Stopped when neither goes on; the system may still end it (low memory).
 // Closing the app — the notification's button, or taking it off the recent apps — ends it all.
+// `awake`: the CPU's wake locks, the download's and an engine's reading (Native.kt), none needing the
+// service.
 class WorkService : Service() {
-  private var lock: PowerManager.WakeLock? = null
-
   override fun onBind(intent: Intent?): IBinder? = null
 
   override fun onCreate() {
@@ -73,11 +73,7 @@ class WorkService : Service() {
           (if (open != null) ServiceInfo.FOREGROUND_SERVICE_TYPE_SPECIAL_USE else 0)
       else ServiceInfo.FOREGROUND_SERVICE_TYPE_DATA_SYNC
     startForeground(1, notification.build(), type)
-    if (doing != null && lock == null) {
-      lock = (getSystemService(Context.POWER_SERVICE) as PowerManager)
-        .newWakeLock(PowerManager.PARTIAL_WAKE_LOCK, "sprachanker:work")
-        .also { it.acquire(6 * 60 * 60 * 1000L) }
-    } else if (doing == null) release()
+    awake(this, "work", doing != null, 6 * 60 * 60 * 1000L)
   }
 
   // Android 15 ends a data sync's time after six hours: the download is no longer told about (it
@@ -103,10 +99,7 @@ class WorkService : Service() {
     Handler(Looper.getMainLooper()).postDelayed({ Process.killProcess(Process.myPid()) }, 1_000)
   }
 
-  private fun release() {
-    lock?.let { if (it.isHeld) it.release() }
-    lock = null
-  }
+  private fun release() = awake(this, "work", false)
 
   override fun onDestroy() {
     if (running === this) running = null
@@ -127,6 +120,22 @@ class WorkService : Service() {
     /** The service while it runs: changed in place (starting it again from the background may be
      *  refused). */
     @Volatile private var running: WorkService? = null
+    private val locks = HashMap<String, PowerManager.WakeLock>()
+
+    /** The CPU kept running with the screen off (a partial wake lock, `tag`: "work", "reading") or
+     *  let go. Held `ms` at most from the last time it was asked for: one never let go (a page gone)
+     *  ends by itself. */
+    fun awake(context: Context, tag: String, on: Boolean, ms: Long = 0) {
+      synchronized(locks) {
+        if (on) {
+          locks.getOrPut(tag) {
+            (context.applicationContext.getSystemService(Context.POWER_SERVICE) as PowerManager)
+              .newWakeLock(PowerManager.PARTIAL_WAKE_LOCK, "sprachanker:$tag")
+              .also { it.setReferenceCounted(false) }
+          }.acquire(ms)
+        } else locks.remove(tag)?.let { if (it.isHeld) it.release() }
+      }
+    }
 
     fun start(context: Context, text: String) {
       work = text
