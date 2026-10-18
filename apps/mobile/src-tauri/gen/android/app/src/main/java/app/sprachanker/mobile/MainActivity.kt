@@ -40,6 +40,8 @@ class MainActivity : TauriActivity() {
     webView.addJavascriptInterface(native, "sprachankerNativeBridge")
     // The device's voices for reading aloud (the WebView gives the page none), to the app's page alone.
     webView.addJavascriptInterface(Voices(this, webView, native::guard), "sprachankerVoices")
+    // A newer version installed from the page: the release's APK handed to Android's installer.
+    webView.addJavascriptInterface(Updates(this, webView, native::guard), "sprachankerUpdates")
     onBackPressedDispatcher.addCallback(this, object : OnBackPressedCallback(true) {
       override fun handleOnBackPressed() {
         webView.evaluateJavascript(

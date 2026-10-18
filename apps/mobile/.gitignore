@@ -2,3 +2,4 @@ src-tauri/target/
 src-tauri/gen/schemas/
 www/phrases/
 dist/
+apk/

@@ -1,15 +1,17 @@
 // The phone app looked after from this Mac over adb (Wi-Fi or a cable), until the app does it
-// itself: built (reading aloud's engines too) and installed; a course of this Mac's library put on the phone (exported as a
+// itself: built (Whisper and reading aloud's engines for the phone too) and installed; a course of this Mac's library put on the phone (exported as a
 // bundle by the `sprachanker` command, unpacked, pushed — only what the phone lacks); a course's
-// AI practice brought up to date; Whisper's models put there.
-//   bun scripts/phone.ts install
+// AI practice brought up to date; Whisper's models put there. `apk`: the release's APK, signed with
+// the project's key (SPRACHANKER_KEYSTORE, SPRACHANKER_KEYSTORE_PASSWORD; the release workflow's),
+// into apk/ — no phone needed.
+//   bun scripts/phone.ts install | apk
 //   bun scripts/phone.ts course dw.nicos-weg/a1-ru --editions ru-de
 //   bun scripts/phone.ts practice dw.nicos-weg/a1-ru --editions ru-de
 //   bun scripts/phone.ts models
 //   bun scripts/phone.ts page 'location.href' | @file.js   (an expression in the app's page, over DevTools)
 // `ANDROID_SERIAL` picks the phone; `SPRACHANKER_DATA` the Mac's data root (~/SprachAnker).
 import { execFileSync } from "node:child_process";
-import { existsSync, mkdirSync, readdirSync, rmSync } from "node:fs";
+import { copyFileSync, existsSync, mkdirSync, readdirSync, rmSync } from "node:fs";
 import { homedir, tmpdir } from "node:os";
 import { join } from "node:path";
 import { $ } from "bun";
@@ -39,38 +41,68 @@ function androidEnv() {
   const java =
     process.env.JAVA_HOME ??
     execFileSync("/usr/libexec/java_home", ["-v", "17"], { encoding: "utf8" }).trim();
+  // native/scripts/build.ts takes the NDK from here too.
   const path = [
     "/opt/homebrew/opt/rustup/bin",
     join(homedir(), ".cargo", "bin"),
     process.env.PATH ?? "",
   ].join(":");
-  return { ...process.env, ANDROID_HOME: sdk, NDK_HOME: ndk, JAVA_HOME: java, PATH: path };
+  return {
+    ...process.env,
+    ANDROID_HOME: sdk,
+    NDK_HOME: ndk,
+    ANDROID_NDK_HOME: process.env.ANDROID_NDK_HOME ?? ndk,
+    JAVA_HOME: java,
+    PATH: path,
+  };
 }
 
-async function install() {
+/** The app's APK built — debug, or the release's (signed when SPRACHANKER_KEYSTORE is set) — with
+ *  its version: Whisper's libraries and reading aloud's engines for the phone built once first
+ *  (src-tauri/build.rs links and packs them). */
+async function build(release: boolean) {
   await $`bun scripts/build.ts`.cwd(here);
-  // Reading aloud's engines for the phone, built once (src-tauri/build.rs packs them).
   const engines = join(here, "../../native");
-  if (
-    !existsSync(join(engines, "piper/out/sherpa-onnx-offline-tts-aarch64-linux-android")) ||
-    !existsSync(join(engines, "qwen/out/tts-server-aarch64-linux-android"))
-  )
-    await $`bun ${join(engines, "scripts/build.ts")} android`.env(androidEnv());
+  const built = [
+    "whisper/out/whisper-server",
+    "piper/out/sherpa-onnx-offline-tts",
+    "qwen/out/tts-server",
+  ].every((program) => existsSync(join(engines, `${program}-aarch64-linux-android`)));
+  if (!built) await $`bun ${join(engines, "scripts/build.ts")} android`.env(androidEnv());
   // The page is built into the binary: cargo rebuilds it only when the Rust changes.
   await $`touch src-tauri/src/lib.rs`.cwd(here);
   // The app's version and Android's build number: MAJOR.MINOR.<commits>, the commits.
   const version = (await $`bun ${join(here, "../cli/scripts/version.ts")}`.text()).trim();
   const config = { version, bundle: { android: { versionCode: Number(version.split(".")[2]) } } };
-  await $`cargo tauri android build --debug --apk --target aarch64 --config ${JSON.stringify(config)}`
+  const kind = release ? "release" : "debug";
+  await $`cargo tauri android build ${release ? [] : ["--debug"]} --apk --target aarch64 --config ${JSON.stringify(config)}`
     .cwd(here)
     .env(androidEnv());
-  const apk = join(
-    here,
-    "src-tauri/gen/android/app/build/outputs/apk/universal/debug/app-universal-debug.apk",
-  );
+  const outputs = join(here, `src-tauri/gen/android/app/build/outputs/apk/universal/${kind}`);
+  const apk = readdirSync(outputs).find((f) => f.endsWith(".apk"));
+  if (!apk) throw new Error(`no APK in ${outputs}`);
+  return { apk: join(outputs, apk), version };
+}
+
+async function install() {
+  const { apk } = await build(false);
   // `-d`: a build numbered below the one there (Tauri numbered 0.1.0 as 1000) replaces it, its data
   // kept — never uninstalled: that would take the app's files (courses, profiles) with it.
   console.log(adb("install", "-r", "-d", apk).trim());
+}
+
+/** The release's APK, signed with the project's key, as the release names it. */
+async function releaseApk() {
+  if (!process.env.SPRACHANKER_KEYSTORE)
+    throw new Error(
+      "SPRACHANKER_KEYSTORE (and its password) not set: the release key signs the APK",
+    );
+  const { apk, version } = await build(true);
+  const out = join(here, "apk");
+  rmSync(out, { recursive: true, force: true });
+  mkdirSync(out, { recursive: true });
+  copyFileSync(apk, join(out, `SprachAnker-${version}-android.apk`));
+  console.log(`${out}/SprachAnker-${version}-android.apk`);
 }
 
 /** A course's bundle exported from this Mac's library and unpacked: its folder (the series'). */
@@ -184,6 +216,7 @@ async function evaluate(expression: string) {
 
 const [what, arg] = process.argv.slice(2);
 if (what === "install") await install();
+else if (what === "apk") await releaseApk();
 else if (what === "course" && arg) await course(arg);
 else if (what === "practice" && arg) await practice(arg);
 else if (what === "models") models();
@@ -191,7 +224,7 @@ else if (what === "page" && arg)
   await evaluate(arg.startsWith("@") ? await Bun.file(arg.slice(1)).text() : arg);
 else {
   console.log(
-    "bun scripts/phone.ts install | course <series/course> [--editions e] | practice <series/course> [--editions e] | models | page <expression>",
+    "bun scripts/phone.ts install | apk | course <series/course> [--editions e] | practice <series/course> [--editions e] | models | page <expression>",
   );
   process.exit(1);
 }

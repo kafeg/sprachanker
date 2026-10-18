@@ -38,6 +38,7 @@ import { phonePiper } from "./piper.ts";
 import { profileFiles } from "./profiles.ts";
 import { phoneSpeech } from "./speech.ts";
 import { phoneApkg, phoneProfileSql } from "./sql.ts";
+import { phoneUpdate } from "./update.ts";
 import { installVoices } from "./voices.ts";
 
 /** The app's version, set when the page is built (scripts/build.ts). */
@@ -229,6 +230,8 @@ async function start() {
     piper: storage?.piper,
     readings: storage?.readings,
     sessionInHeader: true,
+    // A newer release: Android's APK installed by the native side; iOS's app built again by hand.
+    update: phoneUpdate(!!bridge),
   });
   document.addEventListener("visibilitychange", () => {
     if (document.visibilityState === "hidden") void flushAll();

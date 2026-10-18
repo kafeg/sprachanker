@@ -8,7 +8,7 @@
 // two minutes counts as failed. Results in the root's results.json and results.md, written as they
 // come. `bun run speech:android` (`ANDROID_SERIAL` picks the phone).
 import { execFileSync, spawn } from "node:child_process";
-import { existsSync, mkdirSync, readdirSync, readFileSync, statSync, writeFileSync } from "node:fs";
+import { existsSync, mkdirSync, readFileSync, statSync, writeFileSync } from "node:fs";
 import { homedir } from "node:os";
 import { join } from "node:path";
 import { checkRoot } from "./app.ts";
@@ -36,46 +36,21 @@ const adb = (...args: string[]) => {
   return execFileSync("adb", [...(serial ? ["-s", serial] : []), ...args], { encoding: "utf8" });
 };
 
-/** whisper-server for the phone, built with the NDK beside this Mac's build of the same sources. */
+/** whisper-server for the phone: the app's whisper.cpp built with the NDK (native/scripts/build.ts
+ *  android whisper — the static libraries the phone app links, and this program). */
 function phoneServer() {
-  const src = join(cache, `whisper.cpp-${version}`);
-  if (!existsSync(src))
-    throw new Error(`no whisper.cpp sources at ${src}: bun run build:speech first`);
-  const build = join(src, "build-android-arm64");
-  const out = join(build, "bin", "whisper-server");
-  if (existsSync(out)) return out;
-  const ndks = join(homedir(), "Library", "Android", "sdk", "ndk");
-  const ndk =
-    process.env.ANDROID_NDK_HOME ??
-    (existsSync(ndks) ? join(ndks, readdirSync(ndks).sort().at(-1) ?? "") : "");
-  if (!ndk || !existsSync(ndk)) throw new Error("no Android NDK (set ANDROID_NDK_HOME)");
-  execFileSync(
-    "cmake",
-    [
-      "-S",
-      src,
-      "-B",
-      build,
-      "-G",
-      "Ninja",
-      `-DCMAKE_TOOLCHAIN_FILE=${join(ndk, "build", "cmake", "android.toolchain.cmake")}`,
-      "-DANDROID_ABI=arm64-v8a",
-      "-DANDROID_PLATFORM=android-28",
-      "-DCMAKE_BUILD_TYPE=Release",
-      "-DBUILD_SHARED_LIBS=OFF",
-      "-DWHISPER_BUILD_SERVER=ON",
-      "-DWHISPER_BUILD_EXAMPLES=ON",
-      "-DWHISPER_BUILD_TESTS=OFF",
-      "-DWHISPER_SDL2=OFF",
-      "-DGGML_OPENMP=OFF",
-      "-DGGML_NATIVE=OFF",
-      "-DGGML_CPU_ARM_ARCH=armv8.2-a+dotprod+fp16",
-    ],
-    { stdio: "inherit" },
+  const out = join(
+    import.meta.dirname,
+    "../../native/whisper/out/whisper-server-aarch64-linux-android",
   );
-  execFileSync("cmake", ["--build", build, "--target", "whisper-server", "-j", "8"], {
-    stdio: "inherit",
-  });
+  if (!existsSync(out))
+    execFileSync(
+      "bun",
+      [join(import.meta.dirname, "../../native/scripts/build.ts"), "android", "whisper"],
+      {
+        stdio: "inherit",
+      },
+    );
   return out;
 }
 
