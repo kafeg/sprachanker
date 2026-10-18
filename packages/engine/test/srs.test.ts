@@ -53,6 +53,59 @@ test("good through the steps graduates; forgetting relearns for 10 minutes and c
   ]);
 });
 
+// The numbers below are Anki 26.05's (its Python library, FSRS on, default settings, no fuzz).
+
+test("as Anki: Hard on a later learning step repeats the step, and a same-day Hard lowers stability", () => {
+  const f = "c1:recognition";
+  const first = review(undefined, 3, NOW, f);
+  const at = NOW + 10 * MIN;
+  expect(intervals(first, at, f)[2] - at).toBe(10 * MIN);
+  const hard = review(first, 2, at, f);
+  expect(hard.stability).toBeCloseTo(1.3334, 3);
+  const good = review(hard, 3, hard.due, f);
+  expect([good.state, good.scheduledDays]).toEqual([2, 1]);
+  expect(good.stability).toBeCloseTo(1.3748, 3);
+});
+
+test("as Anki: Easy out of the steps is at least a day more than Good", () => {
+  const f = "c1:recognition";
+  const again = review(undefined, 1, NOW, f);
+  expect(intervals(again, again.due, f)[4] - again.due).toBe(2 * DAY);
+  const good = review(again, 3, again.due, f);
+  const shown = intervals(good, good.due, f);
+  expect([shown[3] - good.due, shown[4] - good.due]).toEqual([DAY, 2 * DAY]);
+});
+
+test("as Anki: the days between answers are the learner's days, which start at 4 AM, not UTC dates", () => {
+  // Put back as the zone itself: without TZ, Bun reads UTC, not the machine's zone.
+  const zone = Intl.DateTimeFormat().resolvedOptions().timeZone;
+  const f = "c1:recognition";
+  /** A face learned at a time of day, and Good on it at another. */
+  const goodAfter = (learned: Date, answered: Date) => {
+    const first = review(undefined, 3, learned.getTime() - 10 * MIN, f);
+    return review(review(first, 3, learned.getTime(), f), 3, answered.getTime(), f).stability;
+  };
+  try {
+    process.env.TZ = "Europe/Moscow";
+    // Learned at 3:30 (yesterday's learner's day, today's UTC date) and at 4:30, answered at 16:30.
+    expect(goodAfter(new Date(2026, 9, 7, 3, 30), new Date(2026, 9, 7, 16, 30))).toBeCloseTo(
+      7.3193,
+      2,
+    );
+    expect(goodAfter(new Date(2026, 9, 7, 4, 30), new Date(2026, 9, 7, 16, 30))).toBeCloseTo(
+      2.3065,
+      3,
+    );
+    // An evening and the next morning are a day apart wherever the learner is.
+    process.env.TZ = "America/New_York";
+    const evening = goodAfter(new Date(2026, 9, 6, 21), new Date(2026, 9, 7, 8));
+    process.env.TZ = "Europe/Moscow";
+    expect(evening).toBeCloseTo(goodAfter(new Date(2026, 9, 6, 21), new Date(2026, 9, 7, 8)), 6);
+  } finally {
+    process.env.TZ = zone;
+  }
+});
+
 test("interval text as in Anki", () => {
   const u = { s: "s", m: "m", h: "h", d: "d", mo: "mo", y: "y" };
   expect(intervalText(MIN, u)).toBe("<1m");
@@ -113,6 +166,27 @@ test("queue: learning due first, then reviews mixed with new cards; counts as in
   // Spread evenly: a new card after every review here (two of each).
   expect(queue.slice(1).map((e) => e.kind)).toEqual(["review", "new", "review", "new"]);
   expect(counts).toEqual({ new: 2, learning: 2, review: 2 });
+});
+
+test("queue: as the day's cards are answered, new ones stay mixed in as in Anki's order for the day", () => {
+  // Anki 26.05 builds the day's queue once: 64 reviews and 20 new cards come in this order.
+  const anki = `${"RRRN".repeat(10)}RRRRN${"RRRN".repeat(9)}RRR`;
+  let faces: QueueFace[] = [
+    ...Array.from({ length: 64 }, (_, i) => face(`r${i}`, { state: state(NOW - DAY, 2) })),
+    ...Array.from({ length: 20 }, (_, i) => face(`n${i}`, { position: i })),
+  ];
+  let newToday = 0;
+  let reviewsToday = 0;
+  let shown = "";
+  for (let i = 0; i < 84; i++) {
+    const [next] = studyQueue(faces, { now: NOW, nextDay: NEXT, newToday, reviewsToday }).queue;
+    if (!next) break;
+    shown += next.kind === "new" ? "N" : "R";
+    if (next.kind === "new") newToday++;
+    else reviewsToday++;
+    faces = faces.filter((f) => f.cardId !== next.cardId);
+  }
+  expect(shown).toBe(anki);
 });
 
 test("queue: a face in FSRS's own new state is new", () => {

@@ -1,16 +1,27 @@
 // Spaced repetition as in Anki: FSRS scheduling of each card face via
 // ts-fsrs (learning steps 1m 10m, relearning 10m, fuzz), and Anki's study queue — learning cards first,
 // then reviews mixed with new cards within the day's limits, learning cards up to 20 minutes early when
-// nothing else is left. Pure: the caller passes the time and the day's boundaries.
+// nothing else is left. Pure: the caller passes the time and the day's boundaries. Where ts-fsrs differs
+// from Anki's scheduler (fsrs-rs and Anki's steps), Anki's way is kept: see `AnkiFsrs`, `ankiSteps`,
+// `dayShift` and `review`.
 import { CardFace, type CardRating, type FaceState, SETTING_DEFAULTS } from "@sprachanker/schema";
 import {
   type AbstractScheduler,
+  BasicLearningStepsStrategy,
   type Card,
+  ConvertStepUnitToMinutes,
   createEmptyCard,
-  fsrs,
+  date_scheduler,
+  dateDiffInDays,
+  FSRS,
   type Grade,
+  Rating,
+  roundTo,
+  S_MIN,
+  State,
   type StepUnit,
   StrategyMode,
+  type TLearningStepsStrategy,
 } from "ts-fsrs";
 import { inReview, isFirstLearning, isLearning, isNew } from "./state.ts";
 
@@ -50,24 +61,54 @@ export interface SrsParams {
   retention?: number;
 }
 
+/** FSRS as Anki runs it (fsrs-rs): an answer the same day may not lower stability when Good or Easy,
+ *  but Hard may; ts-fsrs keeps Hard from lowering it too. */
+class AnkiFsrs extends FSRS {
+  override next_short_term_stability(s: number, g: Grade) {
+    const w = this.parameters.w;
+    const sinc = s ** -(w[19] ?? 0) * Math.exp((w[17] ?? 0) * (g - 3 + (w[18] ?? 0)));
+    const masked = g >= Rating.Good ? Math.max(sinc, 1) : sinc;
+    return roundTo(Math.min(Math.max(s * masked, S_MIN), 36_500), 8);
+  }
+}
+
+/** Anki's steps: Hard on the first step is between the first two, on a later step that step again
+ *  (ts-fsrs: between the first two on every step). */
+const ankiSteps: TLearningStepsStrategy = (params, state, step) => {
+  const next = BasicLearningStepsStrategy(params, state, step);
+  const steps = state === State.Learning ? params.learning_steps : params.relearning_steps;
+  const current = steps[step];
+  if (step > 0 && current && next[Rating.Hard])
+    next[Rating.Hard] = { scheduled_minutes: ConvertStepUnitToMinutes(current), next_step: step };
+  return next;
+};
+
 /**
  * The scheduler for one face. Its fuzz is seeded by the face (`seed`, e.g. "<card id>:<face>") and
  * its review count, as Anki seeds it by card: the interval a button shows is the one the answer gets,
  * whenever the learner answers.
  */
 const scheduler = (params: SrsParams, seed: string) =>
-  fsrs({
+  new AnkiFsrs({
     request_retention: params.retention ?? SRS_DEFAULTS.retention,
     enable_fuzz: true,
     learning_steps: [...SRS_DEFAULTS.learningSteps],
     relearning_steps: [...SRS_DEFAULTS.relearningSteps],
-  }).useStrategy(StrategyMode.SEED, function (this: AbstractScheduler) {
-    // ts-fsrs keeps the card being scheduled in a protected field (as its own id strategy reads it).
-    return `${seed}_${(Reflect.get(this, "current") as Card).reps}`;
-  });
+  })
+    .useStrategy(StrategyMode.LEARNING_STEPS, ankiSteps)
+    .useStrategy(StrategyMode.SEED, function (this: AbstractScheduler) {
+      // ts-fsrs keeps the card being scheduled in a protected field (as its own id strategy reads it).
+      return `${seed}_${(Reflect.get(this, "current") as Card).reps}`;
+    });
 
-const toCard = (s: FaceState): Card => ({
-  due: new Date(s.due),
+/** ts-fsrs counts the days between answers by UTC dates, Anki by the learner's days (from 4 AM local
+ *  time): ts-fsrs is given each moment this much later, so that its UTC date is the learner's day. */
+const dayShift = (t: number) =>
+  -new Date(t).getTimezoneOffset() * 60_000 - SRS_DEFAULTS.dayStartHour * 3_600_000;
+
+/** A face's state as ts-fsrs takes it, its moments shifted (`dayShift`); `shift` is the answer's. */
+const toCard = (s: FaceState, shift: number): Card => ({
+  due: new Date(s.due + shift),
   stability: s.stability,
   difficulty: s.difficulty,
   elapsed_days: 0,
@@ -76,11 +117,13 @@ const toCard = (s: FaceState): Card => ({
   reps: s.reps,
   lapses: s.lapses,
   state: s.state,
-  last_review: s.lastReview === undefined ? undefined : new Date(s.lastReview),
+  last_review:
+    s.lastReview === undefined ? undefined : new Date(s.lastReview + dayShift(s.lastReview)),
 });
 
-const fromCard = (c: Card): FaceState => ({
-  due: c.due.getTime(),
+/** A face's state from ts-fsrs's, its moments shifted back by the answer's `shift`. */
+const fromCard = (c: Card, shift: number): FaceState => ({
+  due: c.due.getTime() - shift,
   stability: c.stability,
   difficulty: c.difficulty,
   scheduledDays: c.scheduled_days,
@@ -88,7 +131,7 @@ const fromCard = (c: Card): FaceState => ({
   reps: c.reps,
   lapses: c.lapses,
   state: c.state,
-  ...(c.last_review ? { lastReview: c.last_review.getTime() } : {}),
+  ...(c.last_review ? { lastReview: c.last_review.getTime() - shift } : {}),
 });
 
 /** A face's state after a rating; a face never reviewed starts new. `seed` names the face. */
@@ -99,8 +142,24 @@ export function review(
   seed: string,
   params: SrsParams = {},
 ): FaceState {
-  const card = state ? toCard(state) : createEmptyCard(new Date(now));
-  return fromCard(scheduler(params, seed).next(card, new Date(now), rating as Grade).card);
+  const shift = dayShift(now);
+  const at = new Date(now + shift);
+  const card = state ? toCard(state, shift) : createEmptyCard(at);
+  const f = scheduler(params, seed);
+  const next = f.next(card, at, rating as Grade).card;
+  if (rating === 4 && !inReview(state)) {
+    // Anki: Easy out of the steps is at least a day more than Good's interval — the one Good would
+    // get leaving the steps now (ts-fsrs sets them apart only for a review).
+    const good = f.next(card, at, Rating.Good).card;
+    const elapsed = card.last_review && !isNew(state) ? dateDiffInDays(card.last_review, at) : 0;
+    const goodDays =
+      good.state === State.Review ? good.scheduled_days : f.next_interval(good.stability, elapsed);
+    if (next.scheduled_days <= goodDays) {
+      next.scheduled_days = goodDays + 1;
+      next.due = date_scheduler(at, goodDays + 1, true);
+    }
+  }
+  return fromCard(next, shift);
 }
 
 /** Due times by rating: again, hard, good, easy. */
@@ -277,13 +336,17 @@ export function studyQueue(faces: QueueFace[], limits: QueueLimits) {
     .sort((a, b) => faceOrder(a.face) - faceOrder(b.face) || a.position - b.position)
     .map((f): QueueEntry => ({ cardId: f.cardId, face: f.face, kind: "new", due: now }));
 
-  // Anki's "mix with reviews": new cards spread evenly among the reviews.
+  // Anki's "mix with reviews" (its Intersperser): new cards spread evenly among the reviews, in the
+  // order Anki builds once for the day — so it goes on from the reviews and new cards answered today.
+  const doneReviews = limits.reviewsToday ?? 0;
+  const doneNew = limits.newToday ?? 0;
+  const ratio = (doneReviews + reviews.length + 1) / (doneNew + fresh.length + 1);
   const mixed: QueueEntry[] = [];
-  const step = fresh.length ? (reviews.length + fresh.length) / fresh.length : 0;
   let r = 0;
   let n = 0;
-  for (let i = 0; i < reviews.length + fresh.length; i++) {
-    const takeNew = n < fresh.length && (r >= reviews.length || i + 1 >= (n + 1) * step);
+  while (r < reviews.length || n < fresh.length) {
+    const takeNew =
+      n < fresh.length && (r >= reviews.length || (doneNew + n + 1) * ratio < doneReviews + r + 1);
     mixed.push(takeNew ? (fresh[n++] as QueueEntry) : (reviews[r++] as QueueEntry));
   }
 
