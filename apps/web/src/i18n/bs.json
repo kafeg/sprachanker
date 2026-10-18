@@ -695,7 +695,8 @@
     "recordingsKept": "{count, plural, =0 {nijedan nije sačuvan} one {{n} snimak · {size}} few {{n} snimka · {size}} other {{n} snimaka · {size}}}",
     "deleteRecordings": "Obriši sve",
     "deleteRecordingsTitle": "Obrisati sve snimke?",
-    "deleteRecordingsBody": "Tvoji snimci će biti obrisani s ovog uređaja. Tvoji odgovori i napredak ostaju. Ovo se ne može poništiti."
+    "deleteRecordingsBody": "Tvoji snimci će biti obrisani s ovog uređaja. Tvoji odgovori i napredak ostaju. Ovo se ne može poništiti.",
+    "notShown": "Drugi kursevi sačuvani ovdje, ne prikazuju se (eksperimentalni)"
   },
   "windowTitle": {
     "course": "Kurs",

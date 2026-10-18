@@ -695,7 +695,8 @@
     "recordingsKept": "{count, plural, =0 {keine gespeichert} one {{n} Aufnahme · {size}} other {{n} Aufnahmen · {size}}}",
     "deleteRecordings": "Alle löschen",
     "deleteRecordingsTitle": "Alle Aufnahmen löschen?",
-    "deleteRecordingsBody": "Deine Aufnahmen werden von diesem Gerät gelöscht. Antworten und Fortschritt bleiben. Das lässt sich nicht rückgängig machen."
+    "deleteRecordingsBody": "Deine Aufnahmen werden von diesem Gerät gelöscht. Antworten und Fortschritt bleiben. Das lässt sich nicht rückgängig machen.",
+    "notShown": "Weitere hier gespeicherte Kurse, nicht angezeigt (experimentell)"
   },
   "windowTitle": {
     "course": "Kurs",

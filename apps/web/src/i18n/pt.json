@@ -695,7 +695,8 @@
     "recordingsKept": "{count, plural, =0 {nenhuma guardada} one {{n} gravação · {size}} other {{n} gravações · {size}}}",
     "deleteRecordings": "Excluir todas",
     "deleteRecordingsTitle": "Excluir todas as gravações?",
-    "deleteRecordingsBody": "As suas gravações serão excluídas deste dispositivo. As suas respostas e o seu progresso ficam. Isso não pode ser desfeito."
+    "deleteRecordingsBody": "As suas gravações serão excluídas deste dispositivo. As suas respostas e o seu progresso ficam. Isso não pode ser desfeito.",
+    "notShown": "Outros cursos guardados aqui, não mostrados (experimentais)"
   },
   "windowTitle": {
     "course": "Curso",

@@ -55,7 +55,7 @@ struct Place {
 /// The place: `SPRACHANKER_HOME`, `SPRACHANKER_PORT`, `SPRACHANKER_HOST` as the installer reads them,
 /// else what the app keeps in `<home>/desktop.json` — the port and address of the installer's server
 /// it took over, kept from then on —, else ~/SprachAnker on 4580, all addresses.
-fn place(taken_over: Option<(Option<u16>, Option<String>)>) -> Place {
+fn place(taken_over: Option<(Option<u16>, Option<String>, bool)>) -> Place {
     let home = std::env::var("SPRACHANKER_HOME")
         .map(PathBuf::from)
         .unwrap_or_else(|_| user_home().join("SprachAnker"));
@@ -66,13 +66,17 @@ fn place(taken_over: Option<(Option<u16>, Option<String>)>) -> Place {
             .and_then(|s| serde_json::from_str(&s).ok())
             .unwrap_or_default()
     };
-    if let Some((port, host)) = taken_over {
+    if let Some((port, host, experimental)) = taken_over {
         let mut kept = read_kept();
         if !kept.is_object() {
             kept = serde_json::json!({});
         }
         kept["port"] = serde_json::json!(port);
         kept["host"] = serde_json::json!(host);
+        // The service's --experimental goes on; one already kept is never cleared.
+        if experimental {
+            kept["experimental"] = serde_json::json!(true);
+        }
         let _ = fs::create_dir_all(&home);
         let _ = fs::write(&kept_file, kept.to_string());
     }
@@ -303,7 +307,7 @@ fn main() {
     let test_run = std::env::var_os("SPRACHANKER_HOME").is_some();
     let default_home = user_home().join("SprachAnker");
     let service = if test_run { None } else { system::service(&default_home) };
-    let place = place(service.as_ref().map(|s| (s.port, s.host.clone())));
+    let place = place(service.as_ref().map(|s| (s.port, s.host.clone(), s.experimental)));
     let port = place.port;
     let hidden = std::env::args().any(|a| a == HIDDEN);
     let server = Arc::new(Server {

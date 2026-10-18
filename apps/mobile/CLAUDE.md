@@ -43,7 +43,7 @@ src/                   # runs in the WebView, before the web app (bundled into d
   update.ts            # the server's UpdateHost: the release's APK, by Updates.kt, to Android's installer
 scripts/
   build.ts             # dist/: the web app's build, boot.js before it, sql.js's wasm, whisper.html;
-                       # THIRD_PARTY_NOTICES.txt there and in the Android assets; SPRACHANKER_EXPERIMENTAL=1: --experimental
+                       # THIRD_PARTY_NOTICES.txt (scripts/notices) there and in the Android assets; SPRACHANKER_EXPERIMENTAL=1: --experimental
   dev.ts               # dist/ on this Mac with the native side played over a folder (a browser test)
   phone.ts             # the phone looked after over adb: install (build + adb install), apk (the release's,
                        # signed: no phone), course (a course of this Mac's library pushed), practice (its AI

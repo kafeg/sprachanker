@@ -695,7 +695,8 @@
     "recordingsKept": "{count, plural, =0 {saklanan kayıt yok} one {{n} kayıt · {size}} other {{n} kayıt · {size}}}",
     "deleteRecordings": "Tümünü sil",
     "deleteRecordingsTitle": "Tüm kayıtlar silinsin mi?",
-    "deleteRecordingsBody": "Kayıtların bu cihazdan silinecek. Cevapların ve ilerlemen kalır. Bu işlem geri alınamaz."
+    "deleteRecordingsBody": "Kayıtların bu cihazdan silinecek. Cevapların ve ilerlemen kalır. Bu işlem geri alınamaz.",
+    "notShown": "Burada tutulan, gösterilmeyen diğer kurslar (deneysel)"
   },
   "windowTitle": {
     "course": "Kurs",

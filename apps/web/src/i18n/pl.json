@@ -695,7 +695,8 @@
     "recordingsKept": "{count, plural, =0 {brak zapisanych} one {{n} nagranie · {size}} few {{n} nagrania · {size}} many {{n} nagrań · {size}} other {{n} nagrania · {size}}}",
     "deleteRecordings": "Usuń wszystkie",
     "deleteRecordingsTitle": "Usunąć wszystkie nagrania?",
-    "deleteRecordingsBody": "Twoje nagrania zostaną usunięte z tego urządzenia. Twoje odpowiedzi i postępy zostaną. Tej operacji nie można cofnąć."
+    "deleteRecordingsBody": "Twoje nagrania zostaną usunięte z tego urządzenia. Twoje odpowiedzi i postępy zostaną. Tej operacji nie można cofnąć.",
+    "notShown": "Inne kursy zapisane tutaj, niewyświetlane (eksperymentalne)"
   },
   "windowTitle": {
     "course": "Kurs",

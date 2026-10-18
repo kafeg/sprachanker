@@ -49,11 +49,13 @@ pub fn log_file() -> PathBuf {
     dir.join("serve.log")
 }
 
-/// The installer's service for the data folder, if there is one: its file, port and address.
+/// The installer's service for the data folder, if there is one: its file, port and address, and
+/// whether it ran the server with `--experimental`.
 pub struct Service {
     pub file: PathBuf,
     pub port: Option<u16>,
     pub host: Option<String>,
+    pub experimental: bool,
 }
 
 /// The LaunchAgent `install.sh` makes on a Mac.
@@ -74,7 +76,12 @@ pub fn service(home: &Path) -> Option<Service> {
         let rest = &rest[rest.find("<string>")? + "<string>".len()..];
         Some(rest[..rest.find("</string>")?].to_string())
     };
-    Some(Service { port: after("--port").and_then(|p| p.parse().ok()), host: after("--host"), file })
+    Some(Service {
+        port: after("--port").and_then(|p| p.parse().ok()),
+        host: after("--host"),
+        experimental: body.contains("<string>--experimental</string>"),
+        file,
+    })
 }
 
 /// The installer's LaunchAgent stopped and removed: the app runs the folder's server now.
@@ -143,7 +150,12 @@ pub fn service(home: &Path) -> Option<Service> {
     if after("--data").map(PathBuf::from).as_deref() != Some(home) {
         return None;
     }
-    Some(Service { port: after("--port").and_then(|p| p.parse().ok()), host: after("--host"), file })
+    Some(Service {
+        port: after("--port").and_then(|p| p.parse().ok()),
+        host: after("--host"),
+        experimental: args.iter().any(|a| a == "--experimental"),
+        file,
+    })
 }
 
 /// The installer's unit stopped, disabled and removed: the app runs the folder's server now.

@@ -595,7 +595,8 @@ export function createServices(config: ServicesConfig) {
   });
   // The voice words are read with, taken from a course's recording: every profile's.
   const wordVoice = createWordVoice({
-    content,
+    // Recordings proposed from the courses listed only (an experimental one with --experimental).
+    content: { courses: async () => (await content.courses()).filter((c) => listed(c.key)) },
     library: config.library,
     qwen: qwenTts,
     store: config.speech?.wordVoices,

@@ -695,7 +695,8 @@
     "recordingsKept": "{count, plural, =0 {aucun conservé} one {{n} enregistrement · {size}} many {{n} enregistrements · {size}} other {{n} enregistrements · {size}}}",
     "deleteRecordings": "Tout supprimer",
     "deleteRecordingsTitle": "Supprimer tous les enregistrements ?",
-    "deleteRecordingsBody": "Tes enregistrements seront supprimés de cet appareil. Tes réponses et ta progression restent. Action irréversible."
+    "deleteRecordingsBody": "Tes enregistrements seront supprimés de cet appareil. Tes réponses et ta progression restent. Action irréversible.",
+    "notShown": "Autres cours conservés ici, non affichés (expérimentaux)"
   },
   "windowTitle": {
     "course": "Cours",

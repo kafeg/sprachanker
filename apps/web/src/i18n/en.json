@@ -695,7 +695,8 @@
     "recordingsKept": "{count, plural, =0 {none kept} one {{n} recording · {size}} other {{n} recordings · {size}}}",
     "deleteRecordings": "Delete all",
     "deleteRecordingsTitle": "Delete all recordings?",
-    "deleteRecordingsBody": "Your recordings will be deleted from this device. Your answers and progress stay. This cannot be undone."
+    "deleteRecordingsBody": "Your recordings will be deleted from this device. Your answers and progress stay. This cannot be undone.",
+    "notShown": "Other courses kept here, not shown (experimental)"
   },
   "windowTitle": {
     "course": "Course",

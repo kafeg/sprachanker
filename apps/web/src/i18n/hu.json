@@ -695,7 +695,8 @@
     "recordingsKept": "{count, plural, =0 {nincs megőrzött felvétel} one {{n} felvétel · {size}} other {{n} felvétel · {size}}}",
     "deleteRecordings": "Összes törlése",
     "deleteRecordingsTitle": "Törlöd az összes felvételt?",
-    "deleteRecordingsBody": "A felvételeid törlődnek erről az eszközről. A válaszaid és a haladásod megmaradnak. Ez nem vonható vissza."
+    "deleteRecordingsBody": "A felvételeid törlődnek erről az eszközről. A válaszaid és a haladásod megmaradnak. Ez nem vonható vissza.",
+    "notShown": "Más itt tárolt kurzusok, amelyek nem látszanak (kísérleti)"
   },
   "windowTitle": {
     "course": "Kurzus",

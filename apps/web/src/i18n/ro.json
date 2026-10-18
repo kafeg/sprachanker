@@ -695,7 +695,8 @@
     "recordingsKept": "{count, plural, =0 {niciuna păstrată} one {{n} înregistrare · {size}} few {{n} înregistrări · {size}} other {{n} de înregistrări · {size}}}",
     "deleteRecordings": "Șterge tot",
     "deleteRecordingsTitle": "Ștergi toate înregistrările?",
-    "deleteRecordingsBody": "Înregistrările tale vor fi șterse de pe acest dispozitiv. Răspunsurile și progresul tău rămân. Acțiunea nu poate fi anulată."
+    "deleteRecordingsBody": "Înregistrările tale vor fi șterse de pe acest dispozitiv. Răspunsurile și progresul tău rămân. Acțiunea nu poate fi anulată.",
+    "notShown": "Alte cursuri păstrate aici, neafișate (experimentale)"
   },
   "windowTitle": {
     "course": "Curs",

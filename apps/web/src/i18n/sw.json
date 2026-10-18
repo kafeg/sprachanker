@@ -695,7 +695,8 @@
     "recordingsKept": "{count, plural, =0 {hakuna iliyohifadhiwa} one {rekodi {n} · {size}} other {rekodi {n} · {size}}}",
     "deleteRecordings": "Futa zote",
     "deleteRecordingsTitle": "Ufute rekodi zote?",
-    "deleteRecordingsBody": "Rekodi zako zitafutwa kwenye kifaa hiki. Majibu na maendeleo yako yanabaki. Hatua hii haiwezi kutenduliwa."
+    "deleteRecordingsBody": "Rekodi zako zitafutwa kwenye kifaa hiki. Majibu na maendeleo yako yanabaki. Hatua hii haiwezi kutenduliwa.",
+    "notShown": "Kozi nyingine zilizohifadhiwa hapa, hazionyeshwi (za majaribio)"
   },
   "windowTitle": {
     "course": "Kozi",

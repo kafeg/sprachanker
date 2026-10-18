@@ -734,18 +734,25 @@ describe("course check and downloads", () => {
       approxBytes: 1e6,
       ...(experimental && { experimental }),
     });
+    const runs: string[] = [];
     const installer: CourseInstaller = {
       remove: async () => ({ files: 0, bytes: 0 }),
       // The fixture course installed is experimental; another series ready.
       offers: () => [offer(FIXTURE_SERIES, "demo", true), offer("x.ready", "one")],
-      run: async () => ({ failedMedia: [], goneMedia: [], normalised: {} }),
-      unfinished: async () => [],
+      run: async (series, course) => {
+        runs.push(`${series}/${course}`);
+        return { failedMedia: [], goneMedia: [], normalised: {} };
+      },
+      // Its download a restart interrupted: resumed only where it is offered.
+      unfinished: async () => [{ series: FIXTURE_SERIES, course: "demo" }],
       storage: async () => ({ dataRoot: "/data", series: [], free: 1 }),
     };
     const catalog = async (api: Awaited<ReturnType<typeof setup>>) =>
       ((await api.getJson("/api/catalog")) as Array<{ key: string }>).map((o) => o.key);
 
     const off = await setup({ installer });
+    await Bun.sleep(1);
+    expect(runs).toEqual([]);
     expect((await off.getJson("/api/health")).experimental).toBe(false);
     expect(await catalog(off)).toEqual(["x.ready/one"]);
     expect(await off.getJson("/api/courses")).toEqual([]);
@@ -760,6 +767,8 @@ describe("course check and downloads", () => {
     expect((await off.getJson(`/api/lesson?${query}`)).lesson.key).toBe(LESSON);
 
     const on = await setup({ installer, experimental: true });
+    await Bun.sleep(1);
+    expect(runs).toEqual([`${FIXTURE_SERIES}/demo`]);
     expect((await on.getJson("/api/health")).experimental).toBe(true);
     expect(await catalog(on)).toEqual([`${FIXTURE_SERIES}/demo`, "x.ready/one"]);
     expect((await on.getJson("/api/courses")).map((c: { key: string }) => c.key)).toEqual([

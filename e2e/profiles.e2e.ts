@@ -24,10 +24,10 @@ test("a new profile: who is studying, then the onboarding step by step to Course
   await page.getByRole("button", { name: "Cancel" }).click();
   await expect(page.getByRole("heading", { name: "Who is studying?" })).toBeVisible();
   await page.getByRole("button", { name: /New profile/ }).click();
-  // Welcome: where the courses come from, experimental sources off; the name and colour.
+  // Welcome: where the courses come from, nothing experimental to turn on; the name and colour.
   await expect(page.getByRole("heading", { name: "Welcome" })).toBeVisible();
   await expect(page.getByText(/downloaded straight from their publishers/)).toBeVisible();
-  await expect(page.getByText(/Settings → General → Experimental/)).toBeVisible();
+  await expect(page.getByText(/Experimental/)).toHaveCount(0);
   await expect(page.getByRole("combobox", { name: "Interface language" })).toHaveCount(0);
   const name = page.getByRole("textbox", { name: "Name or nickname" });
   await expect(page.getByRole("button", { name: "Next" })).toBeDisabled();

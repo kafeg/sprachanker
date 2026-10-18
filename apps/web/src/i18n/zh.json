@@ -695,7 +695,8 @@
     "recordingsKept": "{count, plural, =0 {未保存录音} other {{n}段录音 · {size}}}",
     "deleteRecordings": "全部删除",
     "deleteRecordingsTitle": "删除所有录音？",
-    "deleteRecordingsBody": "你的录音将从这台设备上删除。你的答案和进度会保留。此操作无法撤销。"
+    "deleteRecordingsBody": "你的录音将从这台设备上删除。你的答案和进度会保留。此操作无法撤销。",
+    "notShown": "保存在此但未显示的其他课程（实验性）"
   },
   "windowTitle": {
     "course": "课程",

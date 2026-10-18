@@ -695,7 +695,8 @@
     "recordingsKept": "{count, plural, =0 {tidak ada yang disimpan} other {{n} rekaman · {size}}}",
     "deleteRecordings": "Hapus semua",
     "deleteRecordingsTitle": "Hapus semua rekaman?",
-    "deleteRecordingsBody": "Rekaman kamu akan dihapus dari perangkat ini. Jawaban dan progres kamu tetap ada. Tindakan ini tidak bisa dibatalkan."
+    "deleteRecordingsBody": "Rekaman kamu akan dihapus dari perangkat ini. Jawaban dan progres kamu tetap ada. Tindakan ini tidak bisa dibatalkan.",
+    "notShown": "Kursus lain yang disimpan di sini, tidak ditampilkan (eksperimental)"
   },
   "windowTitle": {
     "course": "Kursus",

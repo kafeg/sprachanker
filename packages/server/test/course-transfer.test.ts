@@ -22,6 +22,7 @@ import { strFromU8, strToU8, unzipSync, zipSync } from "fflate";
 import { ulid } from "ulid";
 import { courseAdmin } from "../src/index.ts";
 import { bundleName } from "../src/services/course-transfer.ts";
+import type { CourseInstaller } from "../src/services/downloads.ts";
 import { ROOMY, setup } from "./setup.ts";
 import { courseTransferFiles, withSeriesLock } from "./storage.ts";
 import { until } from "./until.ts";
@@ -165,6 +166,36 @@ test("a course exported and imported into another data root: installed, verified
   expect(again.courses[0].status).toBe("same");
   expect(again.media).toEqual({ added: 0, kept: result.media.added });
   expect(libraryOf(b)).toEqual(before);
+});
+
+test("a bundle of an experimental course into a server started without --experimental: installed, said not listed; with it, listed", async () => {
+  const { bytes } = await exported(await setup());
+  // The fixture course as a provider's experimental offer.
+  const installer: CourseInstaller = {
+    offers: () => [
+      {
+        series: FIXTURE_SERIES,
+        course: "demo",
+        edition: "ru-de",
+        title: "Demo",
+        source: { publisher: "X", url: "https://x.test", licence: "public-domain" },
+        approxBytes: 1,
+        experimental: true,
+      },
+    ],
+    run: async () => ({ failedMedia: [], goneMedia: [], normalised: {} }),
+    remove: async () => ({ files: 0, bytes: 0 }),
+    unfinished: async () => [],
+    storage: async () => ({ dataRoot: "/data", series: [], free: 1 }),
+  };
+  const off = await setup({ empty: true, installer });
+  const hidden = await read(importInto(off, bytes));
+  expect(hidden.courses[0]).toMatchObject({ key: COURSE, status: "added", hidden: true });
+  expect(await read(off.get("/api/courses"))).toEqual([]);
+  const on = await setup({ empty: true, installer, experimental: true });
+  const listed = await read(importInto(on, bytes));
+  expect(listed.courses[0].hidden).toBeUndefined();
+  expect((await read(on.get("/api/courses"))).map((c: { key: string }) => c.key)).toEqual([COURSE]);
 });
 
 test("a bundle whose content differs replaces the course; the learner's progress stays", async () => {
