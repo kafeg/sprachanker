@@ -100,8 +100,15 @@ export function DialogueLine({
 
   const problem = micProblem(micState(), recorder.state);
   const typing = !host?.recognition || !!problem;
+  // A line typed and not sent yet is one waiting to be sent, as a take heard is.
   const state: LineState =
-    recorder.state === "recording" ? "recording" : hearing ? "hearing" : heard ? "heard" : "idle";
+    recorder.state === "recording"
+      ? "recording"
+      : hearing
+        ? "hearing"
+        : heard || (typing && typed.trim())
+          ? "heard"
+          : "idle";
   // biome-ignore lint/correctness/useExhaustiveDependencies: told as it changes, not as the callback does
   useEffect(() => onState?.(state), [state]);
   const sendHeard = (h: Heard) =>

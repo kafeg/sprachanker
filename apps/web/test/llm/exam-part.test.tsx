@@ -132,8 +132,8 @@ test("a mock exam: the examiner ends the part when its time is over — what was
     (a) => given.push(a),
   );
   say(v, "Was machst du am Wochenende?");
-  await v.findByText("Time is up: the examiner ended the part.", {}, { timeout: 3000 });
-  expect(v.getByText("Danke.")).toBeTruthy();
+  await v.findByText("Danke.", {}, { timeout: 3000 });
+  expect(v.getByText("Time is up: the examiner ended the part.")).toBeTruthy();
   expect(v.queryByPlaceholderText("Your line…")).toBeNull();
   expect(v.queryByText("Start again")).toBeNull();
   expect(given).toEqual([
@@ -150,4 +150,23 @@ test("a mock exam: the examiner ends the part when its time is over — what was
   expect(again.queryByText("Ich gehe schwimmen.")).toBeTruthy();
   expect(again.queryByPlaceholderText("Your line…")).toBeNull();
   again.unmount();
+});
+
+test("a mock exam: a line typed but not kept when the time runs out is taken as it is, the answer given once", async () => {
+  const given: Array<RespondAnswer | undefined> = [];
+  const v = await view(
+    { hints: false, seconds: 1, timed: true, events: scriptAs("01K7A0Z8ZQ4J1V2W3X4Y5Z6A74") },
+    (a) => given.push(a),
+  );
+  fireEvent.change(v.getByPlaceholderText("Your line…"), { target: { value: "Was machst du?" } });
+  // Ended: the examiner's closing line.
+  await v.findByText("Danke.", {}, { timeout: 3000 });
+  expect(given).toEqual([
+    {
+      text: "Was machst du?",
+      lines: [{ transcript: "Was machst du?", typed: true }],
+      timeUp: true,
+    },
+  ]);
+  v.unmount();
 });

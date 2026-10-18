@@ -117,4 +117,11 @@ test("a script made better: the partner's question answered by the learner next;
     ),
   } as ExamPart;
   expect(scriptQuality(office, "de")).toBeUndefined();
+  const named = {
+    ...SCRIPT,
+    lines: SCRIPT.lines.map((l) =>
+      l.speaker === "learner" ? { ...l, text: "Hallo, ich bin Martin." } : l,
+    ),
+  } as ExamPart;
+  expect(scriptQuality(named, "de")).toBeUndefined();
 });

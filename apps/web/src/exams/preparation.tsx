@@ -54,11 +54,15 @@ export function Preparation({
   const latest = useRef(notes);
   latest.current = notes;
   const timer = useRef<ReturnType<typeof setTimeout>>(undefined);
+  /** The notes last kept (sent, or as they came). */
+  const sent = useRef(JSON.stringify(kept));
   /** Kept now, if anything changed since. */
   const keep = () => {
     clearTimeout(timer.current);
-    const now = latest.current;
-    if (JSON.stringify(now) !== JSON.stringify(kept)) onNotes(now);
+    const now = JSON.stringify(latest.current);
+    if (now === sent.current) return;
+    sent.current = now;
+    onNotes(latest.current);
   };
   // biome-ignore lint/correctness/useExhaustiveDependencies: what is unsaved goes as the page does
   useEffect(() => () => keep(), []);
@@ -121,6 +125,8 @@ export function Preparation({
         size="lg"
         onClick={() => {
           clearTimeout(timer.current);
+          // Begun with them: nothing more to keep as the page goes.
+          sent.current = JSON.stringify(latest.current);
           onBegin(latest.current);
         }}
       >

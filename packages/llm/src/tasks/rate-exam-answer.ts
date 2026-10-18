@@ -230,6 +230,8 @@ export const rateExamAnswerTask = (input: ExamAnswerInput): StructuredTask<ExamR
 export const cleanExamProposal = (
   proposal: ExamRatingProposal,
   answer: string,
+  /** A spoken part's lines typed instead of said: their spelling is the learner's own. */
+  typed: string[] = [],
 ): ExamRatingProposal => {
   if (!proposal.corrections) return proposal;
   const corrections = proposal.corrections
@@ -240,7 +242,9 @@ export const cleanExamProposal = (
   if (proposal.corrected === undefined)
     return {
       ...proposal,
-      corrections: corrections.filter((c) => words(c.wrong) !== words(c.right)),
+      corrections: corrections.filter(
+        (c) => words(c.wrong) !== words(c.right) || typed.some((t) => quotes(t, c.wrong)),
+      ),
     };
   return {
     ...proposal,

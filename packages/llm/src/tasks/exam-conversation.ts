@@ -104,7 +104,6 @@ export function examConversationRules(
     `- "partner": candidate B's lines in ${t}, natural at the exam's level: from what <partner> gives them (their card, their calendar), answering the learner's questions and asking theirs; plausible details of their own where the card leaves them open.`,
     "- Without <partner>, candidate B has no card of their own: where they ask, they draw a card of the same deck that the learner did not get; where they answer, they give concrete facts about themselves as a real adult would (a place, a time, a job, a number, a reason), consistent through the part — never the learner's facts or the card's word echoed back, never a question answered with a question.",
     "- In a part planned together, candidate B makes proposals of their own and turns one down with a reason before agreeing, as candidates do.",
-    "- Where the learner gives feedback on candidate B's presentation and asks about it, B first sums it up in a few sentences of their own, from their slides in <earlier>.",
     `- "learner": each place where the learner speaks, in order: "text" is what a good candidate says there at the exam's level, in ${t}, fitting the lines before and after it; "hint" in ${l} says what to say there — the intent and the card's word or fact to use —, never the ${t} words. The examiner's and the partner's "hint" is empty.`,
     `- Where the learner tells about themselves (who they are, their life, their own experience), the facts are the learner's own: the hint names what to tell (name, age, country, job…), never facts to take on; "text" is one example of a candidate's facts, with nothing that marks a gender (a job said as where one works or what one does, never a job word with a woman's or a man's form).`,
     `- The partner's and the examiner's lines go on as the learner's good lines would have it, but never depend on an exact word: what the learner says in their own words must still fit.`,
@@ -169,7 +168,9 @@ function scriptProblem(part: ExamPart): string | undefined {
 /** A job word of a woman's or a man's form in what the learner says of themselves, by the language
  *  spoken (data): the learner's gender is unknown. */
 const GENDERED_SELF: Partial<Record<Lang, RegExp>> = {
-  de: /\b(?:bin|als)\s+(?:eine?\s+)?[A-ZÄÖÜ][a-zäöüß]+(?:in|frau|mann|schwester)\b/,
+  // A job's woman's form (-erin, -istin, -entin, -ärztin …) or one of the commonest men's, never a
+  // first name (Martin, Karin).
+  de: /\b(?:bin|als)\s+(?:eine?\s+)?(?:[A-ZÄÖÜ][a-zäöüß]*(?:erin|eurin|istin|antin|entin|ärztin|frau|mann|schwester)|Lehrer|Arzt|Student|Verkäufer|Kellner|Ingenieur|Programmierer|Krankenpfleger|Friseur|Koch|Mechaniker|Fahrer)\b/,
 };
 
 /** What makes a valid script better: the partner's question answered by the learner next, the

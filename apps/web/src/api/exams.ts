@@ -10,7 +10,7 @@ import type {
 } from "@sprachanker/schema";
 import { type QueryClient, useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { useMemo } from "react";
-import { ulid } from "ulid";
+import { decodeTime, ulid } from "ulid";
 import { api, json } from "./client.ts";
 import { runOutbox, useRunOutbox } from "./run-events.ts";
 
@@ -91,12 +91,18 @@ export function useExamRun(runId: string) {
     queryFn: async (): Promise<ExamRunState> => {
       const state = withSkew(await json(api.exams.runs[":id"].$get({ param: { id: runId } })));
       // Answers still on their way stay shown.
-      const pending = outbox
-        .pending()
-        .map(
-          (e) =>
-            ({ itemKey: null, ...e, runId, ts: Date.now(), cardId: null }) as unknown as TypedEvent,
-        );
+      // Each as of when it was made (its id's time) on the server's clock: a preparation's start
+      // stays where it was.
+      const pending = outbox.pending().map(
+        (e) =>
+          ({
+            itemKey: null,
+            ...e,
+            runId,
+            ts: decodeTime(e.id) + state.skew,
+            cardId: null,
+          }) as unknown as TypedEvent,
+      );
       return { ...state, events: [...state.events, ...pending] };
     },
   });
@@ -156,7 +162,8 @@ export function useExamRun(runId: string) {
           ...s,
           events: [
             ...s.events,
-            { ...event, runId, ts: Date.now(), itemKey: null, cardId: null } as TypedEvent,
+            // On the server's clock, as the time left is read.
+            { ...event, runId, ts: Date.now() + s.skew, itemKey: null, cardId: null } as TypedEvent,
           ],
         },
     );

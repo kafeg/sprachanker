@@ -345,6 +345,7 @@ export function createExamRuns({
           const of = (k: string) =>
             exam.sections.find((s) => s.key === run.plan.sections[k as ExamItemKey]);
           const fits =
+            (!run.plan.module || run.plan.module === e.payload.module) &&
             exam.modules?.some((m) => m.id === e.payload.module && m.preparationSec) &&
             Object.keys(e.payload.notes).every(
               (k) => asked.has(k) && of(k)?.module === e.payload.module,

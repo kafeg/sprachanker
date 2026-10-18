@@ -131,6 +131,9 @@ function Said({
   const places = part.lines.flatMap((l, n) => (l.speaker === "learner" ? [n] : []));
   // What was said: as it was (an answer given, a draft), then as it is said now.
   const [said, setSaid] = useState<SaidLine[]>(() => initial?.lines ?? []);
+  // What was said as it is this moment (a line kept in the same moment the time ran out).
+  const saidNow = useRef(said);
+  saidNow.current = said;
   // Ended by the examiner, its time over (a mock exam's): no place more.
   const [ended, setEnded] = useState(!!initial?.timeUp);
   const done = checked;
@@ -158,6 +161,8 @@ function Said({
   // does not run.
   const heard = useRef(said.length || ended ? (shown.at(-1) ?? -1) : -1);
   const [reading, setReading] = useState(false);
+  /** The latest reading: one cut short by the next does not end the next's. */
+  const readingNow = useRef(0);
   useEffect(() => {
     if (done) return;
     const last = shown.at(-1) ?? -1;
@@ -169,7 +174,10 @@ function Said({
     heard.current = last;
     if (!lines.length) return;
     setReading(true);
-    void speaker.say(`${id}-${last}`, lines.map(spoken)).finally(() => setReading(false));
+    const n = ++readingNow.current;
+    void speaker
+      .say(`${id}-${last}`, lines.map(spoken))
+      .finally(() => n === readingNow.current && setReading(false));
   });
 
   // The Teil's time: it runs at the learner's turn, but while a take is heard.
@@ -203,7 +211,7 @@ function Said({
   useEffect(() => {
     if (!ending || line !== "idle") return;
     setEnded(true);
-    onSaid(answerOf(said, true));
+    onSaid(answerOf(saidNow.current, true));
   }, [ending, line]);
 
   const name = (speaker: string) =>

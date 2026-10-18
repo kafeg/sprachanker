@@ -132,4 +132,15 @@ test("a spoken part's corrections: one only of capitals or punctuation is the re
     said,
   );
   expect(kept.corrections?.map((c) => c.right)).toEqual(["ich habe"]);
+  // A line typed instead: its spelling is the learner's own, kept.
+  const typed = cleanExamProposal(
+    {
+      criteria: [],
+      feedback: "",
+      corrections: [{ wrong: "fotografieren", right: "Fotografieren", explanation: "a noun" }],
+    },
+    said,
+    ["Mein Hobby ist fotografieren."],
+  );
+  expect(typed.corrections).toHaveLength(1);
 });

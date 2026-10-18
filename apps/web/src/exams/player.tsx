@@ -235,8 +235,13 @@ function Running({
       began.current = prepModule;
       onPrepare({ module: prepModule, notes: {} });
     } else if (mode === "test" && preparation.began && prepLeft === undefined)
-      onPrepare({ module: prepModule, notes: preparation.notes, done: true });
-  }, [prepModule, preparing, preparation, prepLeft, mode, onPrepare]);
+      // The notes as kept this moment (the preparation's last ones, sent as it closed).
+      onPrepare({
+        module: prepModule,
+        notes: preparationIn(eventsNow(), prepModule).notes,
+        done: true,
+      });
+  }, [prepModule, preparing, preparation, prepLeft, mode, onPrepare, eventsNow]);
   if (!here) return null;
   const { item, section } = here;
   const given = answers.get(item.key);
@@ -304,23 +309,26 @@ function Running({
       {conversation}
     </section>
   ) : (
-    <QuestionCard
-      key={item.key}
-      item={item}
-      label={label}
-      plays={mode === "test" ? section?.plays : undefined}
-      {...(checking && {
-        draft: drafts[item.key],
-        onDraft: (a: unknown) => setDrafts((d) => ({ ...d, [item.key]: a })),
-      })}
-      active
-      run={runId}
-      answer={given?.answer}
-      // Practice shows each answer checked; a mock exam none until handed in.
-      outcome={mode === "practice" ? given?.outcome : undefined}
-      url={url}
-      onAnswer={mode === "practice" && given ? undefined : send}
-    />
+    <>
+      {notes}
+      <QuestionCard
+        key={item.key}
+        item={item}
+        label={label}
+        plays={mode === "test" ? section?.plays : undefined}
+        {...(checking && {
+          draft: drafts[item.key],
+          onDraft: (a: unknown) => setDrafts((d) => ({ ...d, [item.key]: a })),
+        })}
+        active
+        run={runId}
+        answer={given?.answer}
+        // Practice shows each answer checked; a mock exam none until handed in.
+        outcome={mode === "practice" ? given?.outcome : undefined}
+        url={url}
+        onAnswer={mode === "practice" && given ? undefined : send}
+      />
+    </>
   );
   // Practice rates an open answer once it is given: the assistant goes over it at once (its proposal),
   // the learner takes it or rates by the criteria.

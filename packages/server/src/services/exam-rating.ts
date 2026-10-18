@@ -42,6 +42,8 @@ export function createExamRating(deps: { llm: Llm; store: RunStore; exams: Exams
   async function input(request: ExamRatingRequest) {
     const found = await deps.exams.openAnswer(request.runId, request.itemKey);
     const { run, exam, locale, item, text, said, timeUp } = found;
+    /** A spoken part's lines typed instead of said. */
+    const typed: string[] = [];
     // A mock exam still running is the learner's alone: no help before it is handed in.
     if (run.plan.mode === "test" && found.row.status !== "finished")
       throw new ServiceError("exam_test_running", 409);
@@ -86,10 +88,11 @@ export function createExamRating(deps: { llm: Llm; store: RunStore; exams: Exams
     })[0];
     if (script && said && item.type === "respond" && item.input === "speech") {
       task.conversation = scriptConversation(script.result, said, !!timeUp);
+      typed.push(...said.flatMap((l) => (l.typed ? [l.text] : [])));
       task.spoken = true;
       if (timeUp) task.timeUp = true;
       task.criteria = task.criteria.filter((c) => !selfRated(c));
-      return { task, text };
+      return { task, text, typed };
     }
     // A speaking part held live before scripts, answered by its conversation (not another way, the
     // assistant switched off after it): rated with what the learner answered.
@@ -100,7 +103,7 @@ export function createExamRating(deps: { llm: Llm; store: RunStore; exams: Exams
         .map((e) => payloadOf<LlmTurnPayload>(e)),
     );
     if (conversationAnswer(held) === text) task.conversation = conversationOf(held);
-    return { task, text };
+    return { task, text, typed };
   }
 
   /** Proposals kept in a run (`input`: the answer rated), newest first. */
@@ -115,13 +118,13 @@ export function createExamRating(deps: { llm: Llm; store: RunStore; exams: Exams
     ): Promise<
       Verdict<"exam"> & { /** The event kept, for the run's page. */ event?: TypedEvent }
     > {
-      const { task, text } = await input(request);
+      const { task, text, typed } = await input(request);
       const same = kept(request.runId, request.itemKey).find((r) => r.input === text);
       if (same) return same;
       return rating.run(`${request.runId}|${request.itemKey}|${text}`, true, async () => {
         const rated = await llm.structured(rateExamAnswerTask(task));
         const { model, latencyMs } = rated;
-        const result = cleanExamProposal(rated.result, text);
+        const result = cleanExamProposal(rated.result, text, typed);
         const { event, verdict } = keepVerdict(
           store,
           request.runId,
