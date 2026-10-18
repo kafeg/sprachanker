@@ -5,7 +5,12 @@
 import { createHash } from "node:crypto";
 import { readFileSync } from "node:fs";
 import { join } from "node:path";
-import { ENGINES, type EngineName, triple } from "../../packages/server/src/runtime/engines.ts";
+import {
+  ENGINES,
+  type EngineName,
+  EXE,
+  triple,
+} from "../../packages/server/src/runtime/engines.ts";
 
 const name = process.argv[2] as EngineName;
 const engine = ENGINES[name];
@@ -22,6 +27,6 @@ console.log(
   JSON.stringify({
     tag: `engine-${name}-${version}-${script}`,
     out: join(root, engine.folder, "out"),
-    file: `${engine.program}-${triple}`,
+    file: `${engine.program}-${triple}${EXE}`,
   }),
 );

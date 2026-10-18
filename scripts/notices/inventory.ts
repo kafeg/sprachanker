@@ -7,9 +7,10 @@
 import { existsSync, readFileSync } from "node:fs";
 import { join } from "node:path";
 
-/** The builds given out: the program's archive (the program and the speech engines), the Mac app
- *  (the same program and engines inside), the Android app. */
-export const BUILDS = ["program", "mac", "android"] as const;
+/** The builds given out: the program's archive (the program and the speech engines, for each
+ *  computer), the desktop apps (the same program and engines inside: Mac, Windows, Linux), the
+ *  Android app. */
+export const BUILDS = ["program", "mac", "windows", "linux", "android"] as const;
 export type Build = (typeof BUILDS)[number];
 
 export type Group = "native" | "runtime" | "js" | "rust" | "android" | "download";
@@ -46,8 +47,10 @@ export function spdx(id: string) {
     .join("\n");
 }
 
-const ALL: Build[] = ["program", "mac", "android"];
-const COMPUTER: Build[] = ["program", "mac"];
+/** The desktop apps, each with the program inside. */
+export const DESKTOP: Build[] = ["mac", "windows", "linux"];
+const COMPUTER: Build[] = ["program", ...DESKTOP];
+const ALL: Build[] = [...COMPUTER, "android"];
 
 // whisper.cpp — the program's whisper-server; on Android linked into the app (asr.c).
 const WHISPER = "v1.9.5";
@@ -193,7 +196,7 @@ export const NATIVE: Component[] = [
     source: `https://github.com/microsoft/onnxruntime/tree/v${ONNX_RUNTIME}`,
     builds: ALL,
     where: IN_SHERPA,
-    note: `Built by https://github.com/csukuangfj/onnxruntime-libs/releases/tag/v${ONNX_RUNTIME} (osx-arm64 and android-arm64-v8a static libraries). Its third-party notices follow its licence.`,
+    note: `Built by https://github.com/csukuangfj/onnxruntime-libs/releases/tag/v${ONNX_RUNTIME} (osx-arm64 and android-arm64-v8a static libraries; Microsoft's own win-x64 and linux-x64 releases of it). Its third-party notices follow its licence.`,
     texts: [text("onnxruntime"), text("onnxruntime-third-party")],
   },
   {
@@ -346,7 +349,13 @@ const bunParts = (
     : { bun: "", parts: [], texts: [] }
 ) as {
   bun: string;
-  parts: Array<Omit<Component, "group" | "builds" | "texts"> & { texts: number[] }>;
+  parts: Array<
+    Omit<Component, "group" | "builds" | "texts"> & {
+      texts: number[];
+      /** Linked only on these systems (else on every one). */
+      systems?: Array<"windows" | "linux">;
+    }
+  >;
   texts: string[];
 };
 
@@ -360,15 +369,17 @@ export const RUNTIME: Component[] = [
     source: `https://github.com/oven-sh/bun/tree/bun-v${bunParts.bun}`,
     builds: COMPUTER,
     where: "the sprachanker program (bun build --compile)",
-    note: "Bun's own statement of what it links follows; each part is listed below with its texts. On macOS Bun uses the system's SQLite and ICU.",
+    note: "Bun's own statement of what it links follows; each part is listed below with its texts. On macOS Bun uses the system's SQLite and ICU; on Windows and Linux they are linked in (listed below).",
     texts: [text("bun"), spdx("MIT")],
   },
   ...bunParts.parts.map(
-    (part): Component => ({
+    ({ systems, ...part }): Component => ({
       ...part,
       group: "runtime",
-      builds: COMPUTER,
-      where: "the sprachanker program, in Bun",
+      builds: systems ? ["program", ...systems] : COMPUTER,
+      where: systems
+        ? `the sprachanker program on ${systems.map((s) => (s === "windows" ? "Windows" : "Linux")).join(" and ")}, in Bun`
+        : "the sprachanker program, in Bun",
       texts: part.texts.map((i) => bunParts.texts[i] as string),
     }),
   ),
@@ -513,8 +524,8 @@ export const ANDROID_RESOLVED_WITH_TAURI = "2.12.1";
 export const SOURCE_OFFER = [
   "Source code for the GPL and LGPL components",
   "",
-  "sherpa-onnx-offline-tts (beside the program, in SprachAnker.app/Contents/MacOS, and in the",
-  "Android app as lib/arm64-v8a/libsa_piper.so) links eSpeak NG, which is under the GNU General",
+  "sherpa-onnx-offline-tts (beside the program, inside the desktop apps, and in the Android app as",
+  "lib/arm64-v8a/libsa_piper.so) links eSpeak NG, which is under the GNU General",
   "Public License version 3 or later; so that program as a whole is under the GPL. SprachAnker",
   "starts it as a separate program and is itself under the MIT licence. Its complete corresponding",
   "source is: sherpa-onnx at the version below with the sources its build fetches, each listed",

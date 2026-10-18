@@ -15,7 +15,13 @@
   "bundle": {
     "active": true,
     "targets": ["app"],
-    "icon": ["icons/32x32.png", "icons/128x128.png", "icons/128x128@2x.png", "icons/icon.icns"],
+    "icon": [
+      "icons/32x32.png",
+      "icons/128x128.png",
+      "icons/128x128@2x.png",
+      "icons/icon.icns",
+      "icons/icon.ico"
+    ],
     "externalBin": [
       "binaries/sprachanker",
       "binaries/whisper-server",
@@ -25,7 +31,28 @@
     "category": "Education",
     "macOS": {
       "minimumSystemVersion": "13.0",
-      "signingIdentity": "-"
+      "signingIdentity": "-",
+      "hardenedRuntime": false
+    },
+    "windows": {
+      "nsis": {
+        "installMode": "currentUser"
+      }
+    },
+    "linux": {
+      "deb": {
+        "section": "education"
+      }
+    }
+  },
+  "plugins": {
+    "updater": {
+      "pubkey": "dW50cnVzdGVkIGNvbW1lbnQ6IG1pbmlzaWduIHB1YmxpYyBrZXk6IEZCRTEzMkRFRkI5NEFDN0YKUldSL3JKVDczakxoKzBIQyt5U05aYUg4ZjZtMWIxQzVUdTlTa1I3MWl4ekZFNWtSeHBLVnU2T00K",
+      "endpoints": ["https://github.com/kafeg/sprachanker/releases/latest/download/latest.json"],
+      "requireSignedVersion": true,
+      "windows": {
+        "installMode": "passive"
+      }
     }
   }
 }

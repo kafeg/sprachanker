@@ -15,6 +15,7 @@ import {
   BUILDS,
   type Build,
   type Component,
+  DESKTOP,
   type Group,
   NATIVE,
   RUNTIME,
@@ -175,7 +176,7 @@ const person = (p: Person | undefined) => (typeof p === "string" ? p : p?.name);
  *  the phone app's page (with the server's code in it) the Android app. */
 const WORKSPACE_BUILDS: Array<[string, Build[]]> = [
   ["apps/web", [...BUILDS]],
-  ["apps/cli", ["program", "mac"]],
+  ["apps/cli", ["program", ...DESKTOP]],
   ["apps/mobile", ["android"]],
 ];
 
@@ -283,6 +284,8 @@ const cargoEnv = () => ({
 export async function rustComponents(root = ROOT): Promise<Component[]> {
   const apps: Array<[string, string, Build[]]> = [
     ["apps/desktop/src-tauri", "aarch64-apple-darwin", ["mac"]],
+    ["apps/desktop/src-tauri", "x86_64-pc-windows-msvc", ["windows"]],
+    ["apps/desktop/src-tauri", "x86_64-unknown-linux-gnu", ["linux"]],
     ["apps/mobile/src-tauri", "aarch64-linux-android", ["android"]],
   ];
   const crates = new Map<string, Component>();
@@ -346,6 +349,8 @@ export async function rustComponents(root = ROOT): Promise<Component[]> {
 const BUILD_NAMES: Record<Build, string> = {
   program: "program",
   mac: "Mac app",
+  windows: "Windows app",
+  linux: "Linux app",
   android: "Android app",
 };
 
@@ -356,7 +361,7 @@ const GROUPS: Array<[Group, string]> = [
     "js",
     "JavaScript libraries (the app's pages; the server's code in the program and the Android app)",
   ],
-  ["rust", "Rust crates (the Mac app's window; the Android app)"],
+  ["rust", "Rust crates (the desktop apps' window; the Android app)"],
   ["android", "Android libraries (the Android app)"],
   ["download", "Downloaded by the app when you choose them (not part of any build)"],
 ];
@@ -383,8 +388,8 @@ export function render(components: Component[], downloads = ""): string {
     "",
     "SprachAnker is under the MIT licence (https://github.com/kafeg/sprachanker). Its builds carry the",
     "components below, each under its own licence. The builds: “program” — the sprachanker program",
-    "and the speech engines beside it (sprachanker-macos-arm64.tar.gz); “Mac app” — SprachAnker.app,",
-    "the same program and engines inside; “Android app” — the APK.",
+    "and the speech engines beside it (sprachanker-<system>-<arch> archives); “Mac app”, “Windows app”,",
+    "“Linux app” — the desktop app, the same program and engines inside; “Android app” — the APK.",
     "",
     SOURCE_OFFER,
     "",

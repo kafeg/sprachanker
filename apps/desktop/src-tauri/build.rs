@@ -1,9 +1,13 @@
-// Tauri's build, and the shell's few words (the tray's, a failure's) taken from the web app's
+// Tauri's build — the app's one command (`install_update`) named, so that capabilities/ decide who
+// may call it —, and the shell's few words (the tray's, a failure's) taken from the web app's
 // catalogs — their `desktop` section in every language — into strings.json, which main.rs embeds.
 use std::{collections::BTreeMap, fs, path::Path};
 
 fn main() {
-    tauri_build::build();
+    tauri_build::try_build(tauri_build::Attributes::new().app_manifest(
+        tauri_build::AppManifest::new().commands(&["install_update"]),
+    ))
+    .expect("Tauri's build");
     let dir = Path::new("../../web/src/i18n");
     println!("cargo:rerun-if-changed={}", dir.display());
     let mut strings = BTreeMap::new();

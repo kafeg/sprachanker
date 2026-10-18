@@ -1,8 +1,9 @@
 name: Engines
 
-# Each speech engine built at its pinned version (native/<engine>/VERSION) for Macs with Apple Silicon
-# and kept as a pre-release of its own (`bun native/scripts/tag.ts <engine>` names it) — built only
-# while no such release is there. The Release workflow takes the engines from there.
+# Each speech engine built at its pinned version (native/<engine>/VERSION) for each system the
+# releases have — Macs with Apple Silicon, Windows and Linux on x64 — and kept as a pre-release of its
+# own (`bun native/scripts/tag.ts <engine>` names it), a file per system; a system's file is built only
+# while the release lacks it. The Release workflow takes the engines from there.
 on:
   push:
     branches: [main]
@@ -15,27 +16,37 @@ jobs:
       fail-fast: false
       matrix:
         engine: [whisper, piper, qwen]
-    runs-on: macos-15
+        runner: [macos-15, windows-2022, ubuntu-22.04]
+    runs-on: ${{ matrix.runner }}
     timeout-minutes: 120
     permissions:
       contents: write
     env:
       GH_TOKEN: ${{ github.token }}
+    defaults:
+      run:
+        shell: bash
     steps:
       - uses: actions/checkout@v7
       - uses: oven-sh/setup-bun@v2 # version from packageManager in package.json
-      - name: Its release
+      - name: Its release and file
         id: release
         run: |
           info=$(bun native/scripts/tag.ts ${{ matrix.engine }})
-          echo "tag=$(jq -r .tag <<<"$info")" >> "$GITHUB_OUTPUT"
-          echo "file=$(jq -r .out <<<"$info")/$(jq -r .file <<<"$info")" >> "$GITHUB_OUTPUT"
-          if gh release view "$(jq -r .tag <<<"$info")" >/dev/null 2>&1; then echo "have=1" >> "$GITHUB_OUTPUT"; fi
+          tag=$(jq -r .tag <<<"$info"); file=$(jq -r .file <<<"$info")
+          echo "tag=$tag" >> "$GITHUB_OUTPUT"
+          echo "path=$(jq -r .out <<<"$info")/$file" >> "$GITHUB_OUTPUT"
+          if gh release view "$tag" --json assets -q '.assets[].name' 2>/dev/null | grep -qx "$file"; then
+            echo "have=1" >> "$GITHUB_OUTPUT"
+          fi
       - if: steps.release.outputs.have != '1'
         run: bun native/scripts/build.ts ${{ matrix.engine }}
+      # The three systems' jobs share the release: whichever comes first makes it.
       - if: steps.release.outputs.have != '1'
-        run: >
-          gh release create "${{ steps.release.outputs.tag }}" --prerelease
-          --title "${{ steps.release.outputs.tag }}"
-          --notes "A speech engine of SprachAnker, built for Macs with Apple Silicon (macOS 13 and later)."
-          "${{ steps.release.outputs.file }}"
+        run: |
+          tag="${{ steps.release.outputs.tag }}"
+          gh release view "$tag" >/dev/null 2>&1 ||
+            gh release create "$tag" --prerelease --title "$tag" \
+              --notes "A speech engine of SprachAnker, a file per system: Macs with Apple Silicon (macOS 13 and later), Windows and Linux on x64 (a CPU with AVX2)." ||
+            gh release view "$tag" >/dev/null
+          gh release upload "$tag" "${{ steps.release.outputs.path }}" --clobber

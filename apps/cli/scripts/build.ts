@@ -5,7 +5,7 @@
 // Usage: bun apps/cli/scripts/build.ts   (after `bun run build:web`)
 import { copyFileSync, existsSync, rmSync } from "node:fs";
 import { join, relative, resolve } from "node:path";
-import { PROFILE_DB_WORKER, speechEngines, targetTriple } from "@sprachanker/server";
+import { PROFILE_DB_WORKER, programSuffix, speechEngines, targetTriple } from "@sprachanker/server";
 import { $, Glob } from "bun";
 import { appVersion } from "./version.ts";
 
@@ -13,7 +13,7 @@ const cliDir = resolve(import.meta.dir, "..");
 const webDist = resolve(cliDir, "../web/dist");
 const outDir = join(cliDir, "dist");
 const entry = join(outDir, "entry.ts");
-const outfile = join(outDir, "sprachanker");
+const outfile = join(outDir, `sprachanker${programSuffix}`);
 
 if (!existsSync(join(webDist, "index.html"))) {
   throw new Error(`${webDist}/index.html not found; run \`bun run build:web\` first`);
@@ -70,7 +70,7 @@ copyFileSync(join(webDist, NOTICES), join(outDir, NOTICES));
 
 // The speech engines built for this machine only: the binary compiled here runs here.
 for (const { folder, program } of Object.values(speechEngines)) {
-  const engine = `${program}-${targetTriple}`;
+  const engine = `${program}-${targetTriple}${programSuffix}`;
   const built = resolve(cliDir, "../../native", folder, "out", engine);
   if (existsSync(built)) {
     copyFileSync(built, join(outDir, engine));

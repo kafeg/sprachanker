@@ -1,22 +1,34 @@
 name: Release
 
-# A tag vX.Y.N (the build's version: MAJOR.MINOR of apps/cli/package.json, N its commits — apps/cli/scripts/version.ts) builds the binary on a Mac with Apple Silicon,
-# the speech engines taken from their releases (the Engines workflow), runs the e2e against that build,
-# puts that build into the desktop app (apps/desktop: a zip and a dmg, signed ad hoc; the third-party
-# notices inside, as beside the binary in the archive) and makes a draft
-# release with the app, the archive and the installer; the release skill writes its notes and publishes it. Run by hand (Actions → Release →
-# Run workflow), the same build's archive is kept as the run's artifact instead.
+# A tag vX.Y.N (the build's version: MAJOR.MINOR of apps/cli/package.json, N its commits —
+# apps/cli/scripts/version.ts) builds the release on each system it is for:
+# - on a Mac (Apple Silicon), Windows and Linux (x64): the binary with the speech engines taken from
+#   their releases (the Engines workflow), the e2e against that build, the program's archive, and the
+#   desktop app on it (apps/desktop: a zip and a dmg, an installer, a .deb), each file
+#   the app updates itself from signed with the updater's key (secret TAURI_SIGNING_PRIVATE_KEY);
+# - the Android app, signed with the project's release key (secret ANDROID_KEYSTORE_BASE64);
+# then a draft release with all of them, latest.json (what the desktop app's updater reads) and the
+# installer; the release skill writes its notes and publishes it. Run by hand (Actions → Release →
+# Run workflow), the builds are kept as the run's artifacts instead.
 on:
   push:
     tags: ["v*"]
   workflow_dispatch:
 
 jobs:
-  macos-arm64:
-    runs-on: macos-15
-    timeout-minutes: 60
-    permissions:
-      contents: write
+  computer:
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - { runner: macos-15, system: macos, arch: arm64, triple: aarch64-apple-darwin }
+          - { runner: windows-2022, system: windows, arch: x64, triple: x86_64-pc-windows-msvc }
+          - { runner: ubuntu-22.04, system: linux, arch: x64, triple: x86_64-unknown-linux-gnu }
+    runs-on: ${{ matrix.runner }}
+    timeout-minutes: 90
+    defaults:
+      run:
+        shell: bash
     steps:
       - uses: actions/checkout@v7
         with:
@@ -26,6 +38,11 @@ jobs:
         if: github.ref_type == 'tag'
         run: test "v$(bun apps/cli/scripts/version.ts)" = "$GITHUB_REF_NAME"
       - run: bun install --frozen-lockfile
+      - name: Linux libraries (the desktop app's WebKitGTK and tray)
+        if: matrix.system == 'linux'
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y libwebkit2gtk-4.1-dev libayatana-appindicator3-dev librsvg2-dev libssl-dev patchelf file
       - name: Speech engines, from their releases
         env:
           GH_TOKEN: ${{ github.token }}
@@ -34,42 +51,99 @@ jobs:
             info=$(bun native/scripts/tag.ts "$e")
             tag=$(jq -r .tag <<<"$info"); out=$(jq -r .out <<<"$info"); file=$(jq -r .file <<<"$info")
             gh release download "$tag" -p "$file" -D "$out" --clobber ||
-              { echo "::error::no release $tag: run the Engines workflow"; exit 1; }
+              { echo "::error::no $file in release $tag: run the Engines workflow"; exit 1; }
             chmod +x "$out/$file"
           done
       - name: Install Playwright browsers
         working-directory: e2e
-        run: bunx playwright install chromium webkit
+        run: bunx playwright install --with-deps chromium webkit
       - name: Build web and binary, run e2e on the build
         run: bun run e2e
-      - name: Archive
+      - name: The program's archive
         working-directory: apps/cli/dist
-        run: tar -czf ../sprachanker-macos-arm64.tar.gz sprachanker *-apple-darwin THIRD_PARTY_NOTICES.txt
+        run: |
+          name=sprachanker-${{ matrix.system }}-${{ matrix.arch }}
+          if [ "${{ matrix.system }}" = windows ]; then
+            pwsh -Command "Compress-Archive -Path sprachanker.exe,*-${{ matrix.triple }}.exe,THIRD_PARTY_NOTICES.txt -DestinationPath ../$name.zip"
+          else
+            tar -czf "../$name.tar.gz" sprachanker *-${{ matrix.triple }} THIRD_PARTY_NOTICES.txt
+          fi
       - uses: Swatinem/rust-cache@v2
         with:
           workspaces: apps/desktop/src-tauri
       - name: Desktop app
-        run: bun run --filter @sprachanker/desktop build
-      - if: github.ref_type != 'tag'
-        uses: actions/upload-artifact@v7
-        with:
-          name: sprachanker-macos-arm64
-          path: |
-            apps/cli/sprachanker-macos-arm64.tar.gz
-            apps/cli/install.sh
-            apps/desktop/dist/*.zip
-            apps/desktop/dist/*.dmg
-      - name: Draft release
-        if: github.ref_type == 'tag'
         env:
-          GH_TOKEN: ${{ github.token }}
-        run: >
-          gh release create "$GITHUB_REF_NAME" --draft --title "$GITHUB_REF_NAME" --generate-notes
-          apps/desktop/dist/*.dmg apps/desktop/dist/*.zip
-          apps/cli/sprachanker-macos-arm64.tar.gz apps/cli/install.sh
+          TAURI_SIGNING_PRIVATE_KEY: ${{ secrets.TAURI_SIGNING_PRIVATE_KEY }}
+          TAURI_SIGNING_PRIVATE_KEY_PASSWORD: ${{ secrets.TAURI_SIGNING_PRIVATE_KEY_PASSWORD }}
+        run: bun run --filter @sprachanker/desktop build
+      - uses: actions/upload-artifact@v7
+        with:
+          name: sprachanker-${{ matrix.system }}-${{ matrix.arch }}
+          path: |
+            apps/cli/sprachanker-*.tar.gz
+            apps/cli/sprachanker-*.zip
+            apps/desktop/dist/SprachAnker-*
       - if: failure()
         uses: actions/upload-artifact@v7
         with:
-          name: playwright-traces
+          name: playwright-traces-${{ matrix.system }}
           path: e2e/test-results/
           if-no-files-found: ignore
+
+  android:
+    runs-on: ubuntu-22.04
+    timeout-minutes: 90
+    steps:
+      - uses: actions/checkout@v7
+        with:
+          fetch-depth: 0
+      - uses: oven-sh/setup-bun@v2
+      - run: bun install --frozen-lockfile
+      - name: Rust for the phone, Tauri's command line (the crates' version), Ninja
+        run: |
+          rustup target add aarch64-linux-android
+          cargo install tauri-cli --version 2.12.1 --locked
+          sudo apt-get update && sudo apt-get install -y ninja-build
+      - name: The release key
+        env:
+          ANDROID_KEYSTORE_BASE64: ${{ secrets.ANDROID_KEYSTORE_BASE64 }}
+        run: |
+          test -n "$ANDROID_KEYSTORE_BASE64" || { echo "::error::no ANDROID_KEYSTORE_BASE64 secret"; exit 1; }
+          echo "$ANDROID_KEYSTORE_BASE64" | base64 -d > "$RUNNER_TEMP/release.jks"
+      - name: The APK (Whisper and reading aloud's engines built for the phone)
+        env:
+          SPRACHANKER_KEYSTORE: ${{ runner.temp }}/release.jks
+          SPRACHANKER_KEYSTORE_PASSWORD: ${{ secrets.ANDROID_KEYSTORE_PASSWORD }}
+        working-directory: apps/mobile
+        # The runner's own Java 17 and newest NDK.
+        run: |
+          export JAVA_HOME="$JAVA_HOME_17_X64" NDK_HOME="$ANDROID_NDK_LATEST_HOME" ANDROID_NDK_HOME="$ANDROID_NDK_LATEST_HOME"
+          bun scripts/phone.ts apk
+      - uses: actions/upload-artifact@v7
+        with:
+          name: sprachanker-android
+          path: apps/mobile/apk/SprachAnker-*-android.apk
+
+  publish:
+    if: github.ref_type == 'tag'
+    needs: [computer, android]
+    runs-on: ubuntu-22.04
+    permissions:
+      contents: write
+    steps:
+      - uses: actions/checkout@v7
+      - uses: oven-sh/setup-bun@v2
+      - uses: actions/download-artifact@v7
+        with:
+          pattern: sprachanker-*
+          path: release
+          merge-multiple: true
+      - name: Draft release
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          mkdir out
+          find release -type f -exec cp {} out/ \;
+          cp apps/cli/install.sh out/
+          bun apps/desktop/scripts/latest.ts "$GITHUB_REF_NAME" out
+          gh release create "$GITHUB_REF_NAME" --draft --title "$GITHUB_REF_NAME" --generate-notes out/*
