@@ -109,7 +109,7 @@ test("choices: number keys answer the next item to answer; the answer spoken onc
   await expect(items.nth(1).locator("[role=button][aria-pressed=true]")).toHaveCount(1);
   await expect(items.nth(0).locator("[role=button][aria-pressed=true]")).toHaveCount(1);
   // The answer, spoken, is offered once checked: before, it would give it away.
-  const hear = items.nth(0).getByRole("button", { name: "Hear the answer" });
+  const hear = items.nth(0).getByRole("button", { name: "Hear the right answer" });
   await expect(hear).toHaveCount(0);
   await page.getByRole("button", { name: "Check", exact: true }).click();
   await expect(hear).toHaveCount(1);

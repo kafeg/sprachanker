@@ -293,7 +293,7 @@ test("an answer said aloud is checked by the AI from what was heard on request, 
   await expect(free.getByText("FAKE: nearly there.")).toBeVisible();
   await expect(free.getByText(/FAKE: der Tag → guten Tag/)).toBeVisible();
   // The course's own answer, after one's own.
-  await expect(free.getByRole("button", { name: "Sample" })).toBeVisible();
+  await expect(free.getByRole("button", { name: "Hear the right answer" })).toBeVisible();
 
   const runs = await (
     await request.get(`/api/runs/lesson?series=sprachanker.fixture&lessonKey=${lesson}`)
