@@ -30,7 +30,10 @@ const UI = process.env.EXAM_UI ?? "en";
 const PORT = Number(process.env.EXAM_PORT ?? 4920);
 const ROOT = checkRoot(`sprachanker-speech-exam-${PORT}`);
 const OUT = process.env.EXAM_OUT ?? join(ROOT, "out");
-const SHOTS = join(OUT, `shots-${process.env.EXAM_BROWSER ?? "chromium"}-${PHONE ? "phone" : "desktop"}`);
+const SHOTS = join(
+  OUT,
+  `shots-${process.env.EXAM_BROWSER ?? "chromium"}-${PHONE ? "phone" : "desktop"}`,
+);
 const WRITE = process.env.EXAM_WRITE === "1";
 const LIBRARY = process.env.SPRACHANKER_LIBRARY ?? join(homedir(), "SprachAnker", "library");
 const SERIES = "goethe.zertifikat";
@@ -66,7 +69,15 @@ function withMistake(text: string) {
 
 /** A line read by the Mac's German voice: a 16 kHz WAV. */
 function said(text: string, file: string) {
-  execFileSync("say", ["-v", "Anna", "-o", file, "--data-format=LEI16@16000", "--file-format=WAVE", text]);
+  execFileSync("say", [
+    "-v",
+    "Anna",
+    "-o",
+    file,
+    "--data-format=LEI16@16000",
+    "--file-format=WAVE",
+    text,
+  ]);
   return readFileSync(file);
 }
 
@@ -82,7 +93,10 @@ const log = (line: string) => {
 };
 const shot = async (page: Page, name: string) => {
   mkdirSync(SHOTS, { recursive: true });
-  await page.screenshot({ path: join(SHOTS, `${name}.png`), fullPage: true });
+  // A whole page where it is read as one (the preparation, the result); else the screen as the
+  // learner has it (the part's newest lines in view).
+  const whole = /preparation|result/.test(name);
+  await page.screenshot({ path: join(SHOTS, `${name}.png`), fullPage: whole });
 };
 
 async function fakeModel(): Promise<ChildProcess | undefined> {
@@ -271,7 +285,9 @@ async function main() {
               await page.waitForTimeout(seconds * 1000 + 1500);
               const stop = region.getByRole("button", { name: L("speech.stop") });
               if (await stop.isVisible()) await stop.click();
-              const heard = region.getByText(L("speech.heard")).locator("xpath=following-sibling::p[1]");
+              const heard = region
+                .getByText(L("speech.heard"))
+                .locator("xpath=following-sibling::p[1]");
               await heard.waitFor({ timeout: 60_000 });
               const text = (await heard.textContent())?.trim() ?? "";
               if (p === 0) await shot(page, `${level}-${teil}-b-heard`);
@@ -288,13 +304,19 @@ async function main() {
             log(`- said through in ${Math.round((Date.now() - started) / 1000)} s`);
             await shot(page, `${level}-${teil}-c-said`);
             if (MODE === "practice") {
-              await visible(page.getByRole("button", { name: L("lesson.check"), exact: true })).click();
+              await visible(
+                page.getByRole("button", { name: L("lesson.check"), exact: true }),
+              ).click();
               await proposal(itemKey, `${level}-${teil}`);
               await shot(page, `${level}-${teil}-d-rated`);
               if (n < items.length - 1)
-                await visible(page.getByRole("button", { name: L("exams.next"), exact: true })).click();
+                await visible(
+                  page.getByRole("button", { name: L("exams.next"), exact: true }),
+                ).click();
             } else if (n < items.length - 1)
-              await visible(page.getByRole("button", { name: L("exams.next"), exact: true })).click();
+              await visible(
+                page.getByRole("button", { name: L("exams.next"), exact: true }),
+              ).click();
           }
         }
         if (MODE === "test") {
@@ -328,7 +350,9 @@ async function main() {
             )?.payload;
             if (kept) {
               const r = kept.result;
-              log(`\n**Rating of ${what}** (${kept.model}, ${Math.round(kept.latencyMs / 1000)} s):`);
+              log(
+                `\n**Rating of ${what}** (${kept.model}, ${Math.round(kept.latencyMs / 1000)} s):`,
+              );
               for (const c of r.criteria) log(`- ${c.id}: ${c.points} — ${c.reason}`);
               for (const c of r.corrections ?? [])
                 log(`- correction: «${c.wrong}» → «${c.right}» (${c.explanation})`);

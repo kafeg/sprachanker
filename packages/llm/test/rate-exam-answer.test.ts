@@ -2,7 +2,11 @@ import { expect, test } from "bun:test";
 import type { ChatRequest, LlmClient } from "../src/client.ts";
 import { runStructured } from "../src/structured.ts";
 import { conversationOf } from "../src/tasks/exam-conversation.ts";
-import { rateExamAnswerRules, rateExamAnswerTask } from "../src/tasks/rate-exam-answer.ts";
+import {
+  cleanExamProposal,
+  rateExamAnswerRules,
+  rateExamAnswerTask,
+} from "../src/tasks/rate-exam-answer.ts";
 
 const input = {
   language: "ru",
@@ -112,4 +116,20 @@ test("points not among a criterion's levels, or a criterion left out, are repair
   expect(twice.seen[1]?.messages.at(-1)?.content).toContain(
     "wann: points must be one of 3, 1.5, 0",
   );
+});
+
+test("a spoken part's corrections: one only of capitals or punctuation is the recogniser's, dropped", () => {
+  const said = "Mein Hobby ist fotografieren. Ich hat keinen Bleistift.";
+  const kept = cleanExamProposal(
+    {
+      criteria: [],
+      feedback: "",
+      corrections: [
+        { wrong: "fotografieren", right: "Fotografieren", explanation: "a noun" },
+        { wrong: "ich hat", right: "ich habe", explanation: "haben" },
+      ],
+    },
+    said,
+  );
+  expect(kept.corrections?.map((c) => c.right)).toEqual(["ich habe"]);
 });

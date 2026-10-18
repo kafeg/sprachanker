@@ -5,7 +5,7 @@
 import type { Correction } from "@sprachanker/schema";
 
 /** The words alone: case, punctuation and spacing aside (a recogniser chooses them). */
-const words = (text: string) =>
+export const words = (text: string) =>
   text
     .toLowerCase()
     .replace(/[^\p{L}\p{N}]+/gu, " ")

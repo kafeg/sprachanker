@@ -97,8 +97,8 @@ export function examConversationRules(
   const { language: l, target: t } = names;
   return [
     `You write the script of a speaking part of a ${t} language exam, as the exam runs it: the examiner ("examiner") leads, the other candidate ("partner", candidate B) takes part, and the learner is candidate A ("learner"), who speaks in their places.`,
-    "Follow the part's task exactly: who speaks, who asks, who answers, in which order, how many rounds, as the exam's examiners hold this part. A part where the candidate talks alone (telling about oneself, about a card, a presentation) has one long learner line, then what the exam asks next (a question of the examiner or the partner, the learner's answer).",
-    "Cards given as a set are the deck the candidates draw from: each draws one card a round, as many rounds as <rated> shows (a question and an answer each, a request and a reaction each) — never every card of the deck.",
+    "Follow the part's task exactly: who speaks, who asks, who answers, in which order, how many rounds, as the exam's examiners hold this part. A part where the candidate talks alone (telling about oneself, about a card, a presentation) has one long learner line, then what the exam asks next: one or two follow-up questions of the examiner or the partner, each with the learner's answer — never the card's points asked again one by one.",
+    "Cards given as a set are the deck the candidates draw from: each draws one card a round, as many rounds as <rated> shows (a question and an answer each, a request and a reaction each) — never every card of the deck. The learner's line uses the very card they drew, its word as it is, and the partner answers that very line; the examiner gives each turn once.",
     "A part that follows up an earlier one (feedback and questions on the learner's presentation) is about what the learner did there, as <earlier> gives it.",
     `- "examiner": the examiner's fixed lines in ${t}: opening the part briefly and formally, giving the turn, closing it; never helping or correcting.`,
     `- "partner": candidate B's lines in ${t}, natural at the exam's level: from what <partner> gives them (their card, their calendar), answering the learner's questions and asking theirs; plausible details of their own where the card leaves them open.`,
@@ -106,6 +106,7 @@ export function examConversationRules(
     "- In a part planned together, candidate B makes proposals of their own and turns one down with a reason before agreeing, as candidates do.",
     "- Where the learner gives feedback on candidate B's presentation and asks about it, B first sums it up in a few sentences of their own, from their slides in <earlier>.",
     `- "learner": each place where the learner speaks, in order: "text" is what a good candidate says there at the exam's level, in ${t}, fitting the lines before and after it; "hint" in ${l} says what to say there — the intent and the card's word or fact to use —, never the ${t} words. The examiner's and the partner's "hint" is empty.`,
+    `- Where the learner tells about themselves (who they are, their life, their own experience), the facts are the learner's own: the hint names what to tell (name, age, country, job…), never facts to take on; "text" is one example of a candidate's facts, with nothing that marks a gender (a job said as where one works or what one does, never a job word with a woman's or a man's form).`,
     `- The partner's and the examiner's lines go on as the learner's good lines would have it, but never depend on an exact word: what the learner says in their own words must still fit.`,
     `- "examiner.gender" and "partner.gender" ("f" or "m"), different where the part has both; "partner.name" a first name (given even where the partner does not speak).`,
     `- At most ${SCRIPT_LINES} lines. ${NEUTRAL}`,
@@ -123,6 +124,11 @@ function examPartRequest(input: ExamPartInput): TaskRequest {
     ...(input.rated?.length ? ["<rated>", ...input.rated, "</rated>"] : []),
     ...(input.earlier?.length
       ? ["<earlier>", clip(input.earlier.join("\n\n"), B.earlier), "</earlier>"]
+      : []),
+    ...(input.earlier?.some((e) => e.includes("Candidate B's:"))
+      ? [
+          "Where the learner gives feedback on candidate B's presentation, B first presents it in a few sentences from their slides in <earlier> — the learner answers only what B said.",
+        ]
       : []),
     `Remember: the whole part in order; the examiner's and the partner's lines in ${languageName(input.target)}; every learner line with its hint in ${languageName(input.language)}.`,
   ].join("\n");
@@ -160,6 +166,28 @@ function scriptProblem(part: ExamPart): string | undefined {
   return undefined;
 }
 
+/** A job word of a woman's or a man's form in what the learner says of themselves, by the language
+ *  spoken (data): the learner's gender is unknown. */
+const GENDERED_SELF: Partial<Record<Lang, RegExp>> = {
+  de: /\b(?:bin|als)\s+(?:eine?\s+)?[A-ZÄÖÜ][a-zäöüß]+(?:in|frau|mann|schwester)\b/,
+};
+
+/** What makes a valid script better: the partner's question answered by the learner next, the
+ *  learner's own facts with nothing marking a gender. */
+export function scriptQuality(part: ExamPart, target: Lang): string | undefined {
+  const unanswered = part.lines.findIndex(
+    (l, i) =>
+      l.speaker === "partner" && /\?\s*$/.test(l.text) && part.lines[i + 1]?.speaker !== "learner",
+  );
+  if (unanswered >= 0)
+    return `line ${unanswered + 1}: the partner's question to the learner is answered in the learner's next line, before anyone else speaks`;
+  const gendered = GENDERED_SELF[target];
+  const marked = part.lines.find((l) => l.speaker === "learner" && gendered?.test(l.text));
+  if (marked)
+    return `"${marked.text.slice(0, 60)}…": the learner's job said without a woman's or a man's form (where one works, what one does)`;
+  return undefined;
+}
+
 /** A script as kept: hints only on the learner's lines, the partner left out where they never
  *  speak. */
 export const scriptOf = (part: ExamPart): ExamPart => {
@@ -182,6 +210,6 @@ export const examPartTask = (input: ExamPartInput): StructuredTask<ExamPart> => 
     const hints = part.lines.flatMap((l) => (l.speaker === "learner" && l.hint ? [l.hint] : []));
     if (hints.some((h) => writtenIn(h, input.language, input.target) === false))
       return `every learner line's "hint" in ${languageName(input.language)}`;
-    return learnerWordsProblem(hints, input.language);
+    return learnerWordsProblem(hints, input.language) ?? scriptQuality(part, input.target);
   },
 });

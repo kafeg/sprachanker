@@ -8,6 +8,7 @@ import {
   examConversationRules,
   examPartTask,
   scriptConversation,
+  scriptQuality,
 } from "../src/tasks/exam-conversation.ts";
 
 const input = {
@@ -88,4 +89,32 @@ test("a line typed marked as typed; a part the examiner ended has no lines after
     { speaker: "partner", text: "Hast du um zwei Zeit?" },
     { speaker: "examiner", text: "Danke." },
   ]);
+});
+
+test("a script made better: the partner's question answered by the learner next; the learner's job without a gender's form", () => {
+  expect(scriptQuality(SCRIPT, "de")).toBeUndefined();
+  const unanswered = {
+    ...SCRIPT,
+    lines: [
+      SCRIPT.lines[0],
+      SCRIPT.lines[1],
+      { speaker: "examiner", text: "Und Sie?" },
+      ...SCRIPT.lines.slice(2),
+    ],
+  } as ExamPart;
+  expect(scriptQuality(unanswered, "de")).toContain("answered in the learner's next line");
+  const nurse = {
+    ...SCRIPT,
+    lines: SCRIPT.lines.map((l) =>
+      l.speaker === "learner" ? { ...l, text: "Ich bin Krankenschwester in Berlin." } : l,
+    ),
+  } as ExamPart;
+  expect(scriptQuality(nurse, "de")).toContain("without a woman's or a man's form");
+  const office = {
+    ...SCRIPT,
+    lines: SCRIPT.lines.map((l) =>
+      l.speaker === "learner" ? { ...l, text: "Ich bin in Berlin und arbeite im Krankenhaus." } : l,
+    ),
+  } as ExamPart;
+  expect(scriptQuality(office, "de")).toBeUndefined();
 });

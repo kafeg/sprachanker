@@ -8,7 +8,7 @@ import type { TaskRequest } from "../client.ts";
 import type { StructuredTask } from "../structured.ts";
 import { clip, languageName, languageNames, newest } from "../text.ts";
 import { SPELLING } from "./check-writing.ts";
-import { quotes, unlistedChange } from "./corrections.ts";
+import { quotes, unlistedChange, words } from "./corrections.ts";
 import { type ConversationLine, conversationText } from "./exam-conversation.ts";
 import { genderFreeReply } from "./gender.ts";
 import { learnerWordsProblem, NEUTRAL, type RulesInput, systemPrompt } from "./rules.ts";
@@ -235,8 +235,13 @@ export const cleanExamProposal = (
   const corrections = proposal.corrections
     .filter((c) => c.wrong.trim() !== c.right.trim() && quotes(answer, c.wrong))
     .slice(0, EXAM_CORRECTIONS);
-  // A spoken part's corrections stand alone: what was said is shown line by line.
-  if (proposal.corrected === undefined) return { ...proposal, corrections };
+  // A spoken part's corrections stand alone: what was said is shown line by line; one only of
+  // capitals or punctuation is the recogniser's, never the learner's (owner, 2026-10-18).
+  if (proposal.corrected === undefined)
+    return {
+      ...proposal,
+      corrections: corrections.filter((c) => words(c.wrong) !== words(c.right)),
+    };
   return {
     ...proposal,
     corrections,
