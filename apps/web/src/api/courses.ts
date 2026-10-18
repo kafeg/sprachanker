@@ -52,10 +52,16 @@ export const useCourseCheck = (series: string, course: string, enabled = true) =
     queryFn: () => json(api.course.check.$get({ query: { series, course } })),
   });
 
-/** Every course the providers offer, with its state (available, downloading, incomplete, ready). */
+/** Every course the providers offer, with its state (available, downloading, incomplete, ready) —
+ *  the experimental ones only from a server started with --experimental. */
 export const useCatalog = () =>
   useQuery({ queryKey: ["catalog"], meta: STATIC, queryFn: () => json(api.catalog.$get()) });
 export type CatalogRow = NonNullable<ReturnType<typeof useCatalog>["data"]>[number];
+
+/** What a section offers to download: its kind of offer (exams in Exams, courses in Courses), not
+ *  installed. */
+export const offersOf = (catalog: CatalogRow[] | undefined, section: "courses" | "exams") =>
+  (catalog ?? []).filter((o) => !o.installed && (o.kind === "exam") === (section === "exams"));
 
 /** The data folder and the space each series takes. */
 export const useStorage = () =>

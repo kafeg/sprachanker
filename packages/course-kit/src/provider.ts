@@ -64,8 +64,8 @@ export interface CourseProvider {
   id: string;
   series: string;
   /** Ready for learning: its courses are shown as they are — all of them, or those listed (by
-   *  course id). A course not ready is experimental — shown only when the learner turns its source
-   *  on (Settings → General → Experimental). */
+   *  course id). A course not ready is experimental — offered and listed only by a server started
+   *  with `--experimental`. */
   stable?: true | readonly string[];
   offers: CourseOffer[];
   import(options: ImportOptions): Promise<ImportReport>;

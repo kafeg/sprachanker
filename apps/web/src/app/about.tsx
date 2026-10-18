@@ -54,7 +54,8 @@ function ThirdPartyNotices({
 
 export function AboutSection() {
   const { t } = useTranslation();
-  const version = useAppInfo().data?.version;
+  const info = useAppInfo().data;
+  const version = info?.version;
   const [notices, setNotices] = useState(false);
   return (
     <Panel id="about" title={t("about.title")} className="space-y-2">
@@ -65,6 +66,8 @@ export function AboutSection() {
             {t("about.version")}: <span className="tabular-nums">{version}</span>
           </li>
         )}
+        {/* Started with --experimental (developers, testers): said, with what it means. */}
+        {info?.experimental && <li>{t("about.experimental")}</li>}
         <li>{t("about.licence")}</li>
         <li>
           <a href={REPOSITORY} target="_blank" rel="noreferrer" className={linkClass}>

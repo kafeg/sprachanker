@@ -47,6 +47,9 @@ struct Place {
     home: PathBuf,
     port: u16,
     host: String,
+    /// `serve --experimental`: `"experimental": true` in desktop.json (or `SPRACHANKER_EXPERIMENTAL=1`,
+    /// which the server reads itself).
+    experimental: bool,
 }
 
 /// The installer's LaunchAgent for this folder, if there is one: its file, port and address.
@@ -74,15 +77,25 @@ fn place(taken_over: Option<(Option<u16>, Option<String>)>) -> Place {
         .map(PathBuf::from)
         .unwrap_or_else(|_| user_home().join("SprachAnker"));
     let kept_file = home.join("desktop.json");
+    let read_kept = || -> serde_json::Value {
+        fs::read_to_string(&kept_file)
+            .ok()
+            .and_then(|s| serde_json::from_str(&s).ok())
+            .unwrap_or_default()
+    };
     if let Some((port, host)) = taken_over {
+        let mut kept = read_kept();
+        if !kept.is_object() {
+            kept = serde_json::json!({});
+        }
+        kept["port"] = serde_json::json!(port);
+        kept["host"] = serde_json::json!(host);
         let _ = fs::create_dir_all(&home);
-        let _ = fs::write(&kept_file, serde_json::json!({ "port": port, "host": host }).to_string());
+        let _ = fs::write(&kept_file, kept.to_string());
     }
-    let kept: serde_json::Value = fs::read_to_string(&kept_file)
-        .ok()
-        .and_then(|s| serde_json::from_str(&s).ok())
-        .unwrap_or_default();
+    let kept = read_kept();
     Place {
+        experimental: kept["experimental"].as_bool() == Some(true),
         port: std::env::var("SPRACHANKER_PORT")
             .ok()
             .and_then(|p| p.parse().ok())
@@ -208,10 +221,15 @@ impl Server {
         fs::create_dir_all(log.parent().unwrap())?;
         fs::create_dir_all(&place.home)?;
         let out = OpenOptions::new().create(true).append(true).open(&log)?;
-        Command::new(program)
+        let mut command = Command::new(program);
+        command
             .args(["serve", "--data"])
             .arg(&place.home)
-            .args(["--host", &place.host, "--port", &place.port.to_string()])
+            .args(["--host", &place.host, "--port", &place.port.to_string()]);
+        if place.experimental {
+            command.arg("--experimental");
+        }
+        command
             .current_dir(&place.home)
             .stdout(out.try_clone()?)
             .stderr(out)

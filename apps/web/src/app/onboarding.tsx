@@ -1,5 +1,5 @@
 // A profile's onboarding: the profile — welcome, where the courses come
-// from, experimental sources off until turned on, name (never empty) and colour — → the AI assistant
+// from, name (never empty) and colour — → the AI assistant
 // (a slot: the llm folder's own settings) → speech (as Settings → Speech: the microphone, recognition,
 // reading aloud) → a tour → choosing a course (among those downloaded, if any). A new profile is made by
 // the first step's Next and signed in; the router then opens the onboarding again for it, at the step
@@ -23,7 +23,6 @@ import { Button } from "@/ui/components/button.tsx";
 import { errorText } from "@/ui/error-text.ts";
 import { Panel } from "@/ui/panel.tsx";
 import { cn } from "@/ui/utils.ts";
-import { useShown } from "./experimental.ts";
 import { NameAndColour } from "./name-colour.tsx";
 import { Tour } from "./tour.tsx";
 
@@ -33,10 +32,9 @@ type Step = (typeof STEPS)[number];
 /** The tour, and where finishing goes once the courses are known: those downloaded (shown), else
  *  those to download (also when they cannot be read). */
 function TourStep({ onTarget }: { onTarget(to: "/downloaded" | "/catalog"): void }) {
-  const { shown, ready } = useShown();
   const courses = useCourses();
-  const known = ready && (courses.isSuccess || courses.isError);
-  const downloaded = (courses.data ?? []).some((c) => shown("courses", c.series, c.course));
+  const known = courses.isSuccess || courses.isError;
+  const downloaded = (courses.data ?? []).length > 0;
   useEffect(() => {
     if (known) onTarget(downloaded ? "/downloaded" : "/catalog");
   }, [known, downloaded, onTarget]);
@@ -135,7 +133,6 @@ export function Onboarding({
             <p className="text-lg">{t("onboarding.profile.text")}</p>
             <Panel as="div" className="space-y-2 text-sm text-muted-foreground">
               <p>{t("onboarding.profile.sources")}</p>
-              <p>{t("onboarding.profile.experimental")}</p>
             </Panel>
             <h2 className="pt-2 text-xl font-semibold">{t("onboarding.profile.name")}</h2>
             <NameAndColour

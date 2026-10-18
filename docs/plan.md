@@ -19,17 +19,24 @@ and mockups: the owner's page "Goethe в SprachAnker"; background: `docs/researc
 - Practice mode as a lesson: Check in the step bar until a question is answered and checked, then
   Next (every exam, Leben in Deutschland too). A mock exam keeps Next: nothing is checked before
   hand-in, as in the real exam.
-- Goethe A1 out of the experimental sources once its Sprechen works: "experimental" by course, not
-  only by source (A2 and B1 stay experimental).
 - Open for the owner: whether exams need the practice mode at all; more original sets (Goethe's
   Übungssätze, PDF and MP4) instead of only one Modellsatz per level.
 - Built: practice as a lesson (every exam); Schreiben gone over as an examiner does; Sprechen from a
-  script (a deck of cards drawn a card a round, a follow-up part about the part before it); A1 out of
-  the experimental sources. Tried with a real model on A1, A2 and B1 (Schreiben, every Teil's script,
-  A2 Teil 3 said and rated). Remaining: a part held by voice in the browser, the learner's lines
-  played into the microphone.
-- **Accept**: Goethe A2 Sprechen and Schreiben held end to end by voice with a real model; A1 shown
-  without turning on experimental sources.
+  script (a deck of cards drawn a card a round, a follow-up part about the part before it); every
+  Goethe exam, A1–B1, ready for learning (owner, 2026-10-18: none experimental). Tried with a real
+  model on A1, A2 and B1 (Schreiben, every Teil's script, A2 Teil 3 said and rated).
+- Remaining:
+  - A part held by voice in the browser: the learner's lines played into the microphone
+    (`e2e/speech/mic.ts`'s way) through a whole Sprechen part; e2e types the lines today.
+  - Said and rated with a real model: every Sprechen Teil but A2 Teil 3 (A1 T1–T3, A2 T1–T2,
+    B1 T1–T3); whether a partner without a card of its own (A1 T2–T3, A2 T1, B1 T1 and T3: the Teil's
+    one deck) says sensible facts.
+  - A monologue Teil's own time from the Modellsatz (A1 T1, A2 T2, B1 T2): a take is now 3 minutes
+    for any long line (`apps/web/src/llm/exam-part.tsx`, `LONG_MS`); the examiner does not end a Teil
+    when its time is over. Only the modules' times are read (`courses/goethe/src/normalise.ts`).
+  - B1 Sprechen's 15 minutes of preparation with notes (`docs/research/goethe-exams-redesign.md`).
+  - A Sprechen line typed instead of said is not marked as typed.
+- **Accept**: Goethe A2 Sprechen and Schreiben held end to end by voice with a real model.
 
 ### 2. Releases
 - In progress, paused (owner, 2026-10-18), on the local branch `releases-wip` (not merged): the app

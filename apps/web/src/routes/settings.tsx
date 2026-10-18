@@ -1,9 +1,9 @@
 // Settings: five tabs in one row, as a section's — General (language, theme, other devices,
-// storage with the recordings kept, about, experimental), Profile (name, sign-in, devices, switching,
+// storage with the recordings kept, about), Profile (name, sign-in, devices, switching,
 // deleting), Review (daily limits, retention, card types), Speech (microphone, recognition, reading
 // aloud), AI assistant (providers, models, LM Studio, where it works; its prompts under Advanced).
-// The open tab is kept in the URL hash; a section's own (#prompts, #other-devices, #about,
-// #experimental) opens its tab there, a folded one opened.
+// The open tab is kept in the URL hash; a section's own (#prompts, #other-devices, #about) opens its
+// tab there, a folded one opened.
 import { useIsFetching } from "@tanstack/react-query";
 import { useLocation, useNavigate } from "@tanstack/react-router";
 import { useEffect, useRef } from "react";
@@ -11,7 +11,6 @@ import { useTranslation } from "react-i18next";
 import { inPhoneApp, openToOthers } from "@/api/client.ts";
 import { useSetSetting, useSetting } from "@/api/settings.ts";
 import { AboutSection } from "@/app/about.tsx";
-import { ExperimentalSettings } from "@/app/experimental-settings.tsx";
 import { LanguageSwitch } from "@/app/language-switch.tsx";
 import { OtherDevicesOnPhone, OtherDevicesSection } from "@/app/other-devices.tsx";
 import { ProfileSettings } from "@/app/profile-settings.tsx";
@@ -33,7 +32,6 @@ type Tab = (typeof TABS)[number];
 const SECTIONS: Record<string, Tab> = {
   prompts: "ai",
   about: "general",
-  experimental: "general",
   "other-devices": "general",
 };
 const tabOf = (hash: string): Tab =>
@@ -73,7 +71,6 @@ function General() {
       {inPhoneApp && !openToOthers ? <OtherDevicesOnPhone /> : <OtherDevicesSection />}
       <StorageSection />
       <AboutSection />
-      <ExperimentalSettings />
     </div>
   );
 }

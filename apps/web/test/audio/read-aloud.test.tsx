@@ -106,7 +106,7 @@ const installed = (...editions: string[]): [unknown[], unknown] => [
   editions.map((edition) => ({ series: "dw.nicos-weg", edition, installed: true })),
 ];
 
-test("the languages read aloud: those the courses and exams here teach, else those the shown catalogue does; and the interface's", () => {
+test("the languages read aloud: those the courses and exams here teach, else those the catalogue does; and the interface's", () => {
   const langs = (data: Array<[unknown[], unknown]>) => {
     const client = queryClient(data);
     return renderHook(() => useReadLanguages(), {
@@ -118,7 +118,6 @@ test("the languages read aloud: those the courses and exams here teach, else tho
   const offers = [
     { series: "dw.nicos-weg", edition: "ru-de" },
     { series: "lid", edition: "de-de", kind: "exam" },
-    { series: "coerll.dib", edition: "en-fr", experimental: true },
   ];
   const here = [
     { series: "dw.nicos-weg", edition: "en-ru", installed: true },

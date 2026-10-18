@@ -60,7 +60,7 @@ SprachAnker keeps the real course and adds what it lacks:
   (`.sprachanker-deck`) with the audio and examples made for its words.
 
 **Exams**
-- Goethe-Zertifikat A1–B1 model papers (A2 and B1 experimental) and the *Leben in Deutschland* test: mock exams under exam
+- Goethe-Zertifikat A1–B1 model papers and the *Leben in Deutschland* test: mock exams under exam
   conditions, practice question by question, open answers rated by the official criteria (by you or
   proposed by the AI).
 
@@ -85,12 +85,10 @@ The interface speaks 19 languages, including Arabic and Persian (right to left).
 |---|---|---|
 | Deutsche Welle — *Nicos Weg* | German A1–B1, explained in 19 languages | yes |
 | BAMF — *Leben in Deutschland* | the citizenship test, all states' questions | yes |
-| Goethe-Institut — Goethe-Zertifikat | A1 model paper (A2, B1: experimental) | yes |
-| Deutsche Welle — *Deutschtrainer* | German A1–A2 vocabulary | experimental |
-| COERLL — *Deutsch im Blick* (CC BY 4.0) | German, first year at university | experimental |
-| Lingust, VOA | English for Russian speakers; VOA *Let's Learn English* | experimental |
+| Goethe-Institut — Goethe-Zertifikat | A1, A2 and B1 model papers | yes |
 
-Experimental sources appear once you turn them on in Settings → Experimental.
+Other sources are being tried out (Deutschtrainer, Deutsch im Blick, Lingust, VOA): the app shows
+them only when started for testing (For developers below).
 
 ## AI models
 
@@ -180,6 +178,19 @@ bun run dev      # server on 127.0.0.1:4580 and Vite
 bun run check    # typecheck, lint, dependency rules, tests
 bun run e2e      # Playwright against the compiled binary
 ```
+
+**Experimental courses (testers).** Courses and exams not ready for learning (Deutschtrainer,
+Deutsch im Blick, Lingust, VOA) are hidden unless the server is started with `--experimental`; off
+by default everywhere. Installed ones keep their files and progress while hidden.
+- The program: `sprachanker serve --experimental`, or `SPRACHANKER_EXPERIMENTAL=1` in its environment
+  (`SPRACHANKER_EXPERIMENTAL=1 bun run dev` from sources; a LaunchAgent: `--experimental` in its
+  `ProgramArguments`).
+- The desktop app: `"experimental": true` in `~/SprachAnker/desktop.json` (the app's data folder),
+  then quit and open the app.
+- The Android app: built with `SPRACHANKER_EXPERIMENTAL=1` (`SPRACHANKER_EXPERIMENTAL=1 bun scripts/build.ts`
+  in `apps/mobile`).
+
+Settings → About says when it is on; the experimental offers are marked as such.
 
 ## Content and licences
 

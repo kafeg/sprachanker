@@ -37,6 +37,8 @@ scripts/build.ts       # the .app from apps/cli/dist (build:bin's) — the sidec
 - `SPRACHANKER_HOME`, `SPRACHANKER_PORT`, `SPRACHANKER_HOST` move the server (as the installer reads
   them). A run with `SPRACHANKER_HOME` set (a test's: `SprachAnker.app/Contents/MacOS/sprachanker-desktop`
   with it) is a second app: no single instance, no login start, the installer's LaunchAgent left alone.
+- `"experimental": true` in `<home>/desktop.json` starts the server with `--experimental` (kept when
+  the LaunchAgent is taken over; `SPRACHANKER_EXPERIMENTAL=1` reaches the server too).
 - The server's log: `~/Library/Logs/SprachAnker/serve.log`.
 - A release (`.github/workflows/release.yml`) builds the app on the e2e's build and attaches the zip
   and the dmg; `deploy-local` replaces `/Applications/SprachAnker.app` when it is there.

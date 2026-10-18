@@ -3,9 +3,8 @@
 // the pair and course filters. A course teaches one language to speakers of one language (its edition);
 // another pair of the same source course is a course of its own.
 import { useTranslation } from "react-i18next";
-import { useCatalog, useCourses } from "@/api/courses.ts";
+import { offersOf, useCatalog, useCourses } from "@/api/courses.ts";
 import { useSettings } from "@/api/settings.ts";
-import { offersOf, useShown } from "@/app/experimental.ts";
 import { CourseCard, MyCourseCard } from "@/courses/card.tsx";
 import { shownCount } from "@/courses/filter.ts";
 import { FILTERS, useCourseFilters } from "@/courses/filters.tsx";
@@ -26,14 +25,10 @@ const PATH: Record<CoursesTab, "/" | "/downloaded" | "/catalog"> = {
 function useCourseList() {
   const courses = useCourses();
   const settings = useSettings();
-  const { shown, ready } = useShown();
-  if (courses.isPending || settings.isPending || !ready) return { state: <Loading /> };
+  if (courses.isPending || settings.isPending) return { state: <Loading /> };
   if (courses.isError)
     return { state: <ErrorState error={courses.error} onRetry={() => courses.refetch()} /> };
-  return {
-    all: courses.data.filter((c) => shown("courses", c.series, c.course)),
-    settings: settings.data ?? {},
-  };
+  return { all: courses.data, settings: settings.data ?? {} };
 }
 
 /** Each tab's cards: a started course (its editions), an installed edition, an offer. */
@@ -66,10 +61,10 @@ const availableCards = (offers: Offer[]) =>
 
 export function CoursesPage({ tab }: { tab: CoursesTab }) {
   const { t, i18n } = useTranslation();
-  const { shown, ready } = useShown();
   const settings = useSettings().data ?? {};
-  const all = (useCourses().data ?? []).filter((c) => shown("courses", c.series, c.course));
-  const offers = offersOf(useCatalog().data, "courses", shown);
+  const all = useCourses().data ?? [];
+  const catalog = useCatalog();
+  const offers = offersOf(catalog.data, "courses");
   // Each tab counts what it shows, its filters applied.
   const counted = <T extends { titles: string[]; editions: string[] }>(
     id: CoursesTab,
@@ -86,7 +81,7 @@ export function CoursesPage({ tab }: { tab: CoursesTab }) {
       tab={tab}
       paths={PATH}
       label={(id) => t(`courses.tabs.${id}`)}
-      counts={ready ? count : undefined}
+      counts={catalog.isPending ? undefined : count}
     >
       {tab === "mine" ? <MyCourses /> : tab === "downloaded" ? <Downloaded /> : <Available />}
     </LibraryTabPage>
@@ -119,7 +114,6 @@ function MyCourses() {
 function Downloaded() {
   const { t } = useTranslation();
   const list = useCourseList();
-  const { shown } = useShown();
   if (!list.all) return list.state;
   // Each edition of an installed course is a card of its own.
   const cards = downloadedCards(list.all);
@@ -139,7 +133,7 @@ function Downloaded() {
         />
       )}
       {/* A course exported on another computer. */}
-      <CourseImport hidden={(series, course) => !shown("courses", series, course)} />
+      <CourseImport />
     </>
   );
 }
@@ -148,12 +142,12 @@ function Available() {
   const { t } = useTranslation();
   const list = useCourseList();
   const catalog = useCatalog();
-  const { shown } = useShown();
   if (!list.all) return list.state;
-  // Not "all downloaded" when the catalogue failed (while it loads, the list waits: useShown).
+  if (catalog.isPending) return <Loading />;
+  // Not "all downloaded" when the catalogue failed.
   if (catalog.isError)
     return <ErrorState error={catalog.error} onRetry={() => catalog.refetch()} />;
-  const cards = availableCards(offersOf(catalog.data, "courses", shown));
+  const cards = availableCards(offersOf(catalog.data, "courses"));
   if (!cards.length) return <NoneHere text={t("courses.allDownloaded")} />;
   return (
     <FilteredCards

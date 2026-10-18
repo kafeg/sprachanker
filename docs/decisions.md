@@ -17,6 +17,7 @@ area is built is in its `CLAUDE.md`; work not built yet is in `docs/plan.md`.
 - A profile keeps no languages of its own (owner, 2026-10-10): what it learns is the courses it takes; UI language is independent of course languages.
 - Constraints: macOS on Apple Silicon first, Windows and Linux supported by design; iOS microphone in a PWA needs a secure context (HTTPS).
 - Success measure for extensibility: a new course source needs only a new provider folder, no engine or UI changes except new exercise types.
+- Nothing experimental in the interface by default (owner, 2026-10-18: "the product normal and finished"): what is not ready — today the experimental courses — is offered and listed only by a server started with `--experimental`, one switch the server holds and tells the web (`/api/health`); more may be put under it later. Off by default everywhere; no learner setting turns it on. The program: `serve --experimental` or `$SPRACHANKER_EXPERIMENTAL=1`; the desktop app: `"experimental": true` in the data folder's `desktop.json`, read at its start (a Finder-started app sees no shell environment); the phone app: a build made with `SPRACHANKER_EXPERIMENTAL=1`.
 
 ## Course content and the law
 
@@ -52,7 +53,7 @@ area is built is in its `CLAUDE.md`; work not built yet is in `docs/plan.md`.
 - Lexeme part of speech and gender come from what the source states, never guessed; otherwise every provider uses `shapeHeadword`, so one entry is one lexeme in every course.
 - A card follows its vocab key (lesson + lemma): a lemma corrected at the source is another word, and the old card keeps its progress.
 - A language pair of a source course is a separate course (DW `a1-ru`, `a1-en`): the source publishes them separately and they differ. Editions only for true translations.
-- Ready for learning: DW Nicos Weg, Leben in Deutschland and Goethe A1 (owner, 2026-10-10; A1 2026-10-12); every other course is experimental, shown only when its source is enabled in Settings.
+- Ready for learning: DW Nicos Weg (every level and edition), Leben in Deutschland and every Goethe exam, A1–B1 (owner, 2026-10-10; Goethe A1 2026-10-12, A2 and B1 2026-10-18); every other course is experimental (Product and scope: `--experimental`). Without the switch an experimental course installed is hidden from the lists and the catalogue, not downloaded or resumed; its files and the learner's progress in it stay.
 - Every provider's courses are offered in Courses → Available, unfiltered until the learner narrows them; nothing sets a filter for them (owner, 2026-10-08, 2026-10-10).
 - A medium the source answers 404/410 for is "not at the source": reported, retried next run, but it never leaves the course incomplete.
 - Removing a course is never blocked, even mid-lesson (owner, 2026-10-12): the only alternative would delete learner data; its runs wait (409 `course_gone`) until it returns.
@@ -256,7 +257,7 @@ area is built is in its `CLAUDE.md`; work not built yet is in `docs/plan.md`.
 - Every screen has explicit empty and error states, each with the action that fixes it.
 - On phones, action bars and tab rows keep to one row. Each nav label must fit a sixth of 375 px in every language; if not, it gets a `nav.short.*` name.
 - Before the learner answers, Understanding says only what kind of text it is ("A voice message"), never what it says.
-- Experimental sources stay hidden until switched on, and are presented as an experiment, not exam preparation.
+- Experimental courses, where shown (`--experimental`), are presented as an experiment, not exam preparation: their offers say so, Settings → About says the mode is on.
 - Content languages are independent of the interface language. Target-language text carries its own `lang` and `dir` (`inLang`).
 - The language list names each language in itself, ordered by script as Wikipedia does, with no language favoured.
 - Fira Sans is used because one face covers Latin, Cyrillic and Greek, so mixed sentences share a font (Barlow lacked Cyrillic). Other scripts use fallback faces.

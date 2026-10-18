@@ -24,9 +24,11 @@ const DEFAULT_PORT = 4580;
 const USAGE = `Usage: sprachanker <command>
 
 Commands:
-  serve  [--data <dir>] [--host <address>] [--port <number>] [--allow-host <name>]...
+  serve  [--data <dir>] [--host <address>] [--port <number>] [--allow-host <name>]... [--experimental]
          start the server (default 127.0.0.1:${DEFAULT_PORT}); it answers to this machine's names
-         (localhost, IPs, .local, its host name, its tailnet name) and to each --allow-host
+         (localhost, IPs, .local, its host name, its tailnet name) and to each --allow-host;
+         --experimental (or $SPRACHANKER_EXPERIMENTAL=1): courses not ready for learning offered
+         and listed too, for developers and testers
   import <provider> [--data <dir>] [--courses a1,a2] [--editions ru-de,en-de] [--refresh]
          download and normalise a course; re-running fetches only what is missing
          providers: ${providerIds().join(", ")}
@@ -96,6 +98,7 @@ export function serveOptions(args: string[]) {
       host: { type: "string", default: "127.0.0.1" },
       port: { type: "string", default: String(DEFAULT_PORT) },
       "allow-host": { type: "string", multiple: true, default: [] },
+      experimental: { type: "boolean", default: false },
     },
   });
   const port = Number(values.port);
@@ -107,7 +110,15 @@ export function serveOptions(args: string[]) {
     if (!HOST_NAME.test(host)) throw new Error(`invalid --allow-host: ${name} (a host name only)`);
     return host;
   });
-  return { hostname: values.host, port, dataRoot: resolveDataRoot(values.data), allowHosts };
+  // Off by default; the flag, or the environment (the desktop app, a LaunchAgent), turns it on.
+  const experimental = values.experimental || process.env.SPRACHANKER_EXPERIMENTAL === "1";
+  return {
+    hostname: values.host,
+    port,
+    dataRoot: resolveDataRoot(values.data),
+    allowHosts,
+    experimental,
+  };
 }
 
 async function serve(args: string[], webAssets: WebAssets, profileDbWorker?: string) {

@@ -24,7 +24,8 @@ test("a new profile: welcome, the sources, name and the first colour no profile 
   );
   expect(view.getByRole("heading", { level: 1 }).textContent).toBe("Welcome");
   expect(view.getByText(/straight from their publishers/)).toBeTruthy();
-  expect(view.getByText(/Settings → General → Experimental/)).toBeTruthy();
+  // Nothing experimental is offered to turn on (a server's --experimental, not the learner's).
+  expect(view.queryByText(/Experimental/)).toBeNull();
   expect(view.queryByRole("group", { name: "Interface language" })).toBeNull();
   expect(progress(view)).toBe("Step 1 of 4");
   const pressed = (name: string) => view.getByRole("button", { name }).getAttribute("aria-pressed");

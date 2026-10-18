@@ -63,9 +63,6 @@ export const LEARNER_SETTINGS = {
   "llm.debugPrompts": z.boolean(),
   /** The places the assistant is turned off in (none by default): they are not shown. */
   "llm.offIn": z.array(z.enum(AI_PLACES)).max(AI_PLACES.length),
-  /** What is experimental and turned on (Settings → General → Experimental; owner, 2026-10-10): a section
-   *  (`courses`, `exams`) and within it each source by its series (`courses:coerll.dib`). */
-  "experimental.on": z.array(z.string().min(1).max(120)).max(200),
   /** The Review settings. */
   "srs.newPerDay": z.number().int().min(0).max(9999),
   "srs.reviewsPerDay": z.number().int().min(0).max(9999),
@@ -123,7 +120,6 @@ export const SETTING_DEFAULTS = {
   audioRate: 1,
   "llm.debugPrompts": false,
   "llm.offIn": [],
-  "experimental.on": [],
   "speech.recognition": true,
   "speech.readEngine": "qwen",
   "speech.readRate": 1,

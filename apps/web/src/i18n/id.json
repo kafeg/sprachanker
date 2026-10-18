@@ -234,7 +234,6 @@
       "aiShort": "AI"
     },
     "prompts": "Prompt",
-    "experimental": "Eksperimental",
     "advanced": "Lanjutan"
   },
   "llm": {
@@ -611,7 +610,8 @@
     "source": "Kode sumber di GitHub",
     "notices": "Komponen pihak ketiga dan lisensi",
     "noticesIntro": "SprachAnker dibangun dengan komponen-komponen ini, masing-masing dengan lisensinya sendiri; teks lisensi ada setelah daftar.",
-    "noticesMissing": "Build ini tidak memuat daftar: daftar disertakan pada build yang dibagikan — program, aplikasi Mac, dan aplikasi Android."
+    "noticesMissing": "Build ini tidak memuat daftar: daftar disertakan pada build yang dibagikan — program, aplikasi Mac, dan aplikasi Android.",
+    "experimental": "Mode eksperimental (--experimental): kursus dan ujian yang belum siap untuk belajar juga ditampilkan. Jangan mengandalkannya untuk persiapan."
   },
   "addresses": {
     "title": "Perangkat lain",
@@ -670,7 +670,8 @@
       "body": "Pelajaran dan medianya dihapus dari disk (media yang dipakai kursus lain tetap ada). Kemajuan, buku catatan, dan kata-katamu tetap ada; unduh lagi untuk melanjutkan.",
       "bodyExam": "Soal dan medianya dihapus dari disk (media yang dipakai kursus lain tetap ada). Ujian percobaan, latihan, dan buku catatanmu tetap ada; unduh lagi untuk melanjutkan.",
       "confirm": "Hapus"
-    }
+    },
+    "experimental": "Eksperimental: belum siap untuk belajar"
   },
   "storage": {
     "title": "Penyimpanan",
@@ -982,7 +983,6 @@
       "title": "Selamat datang",
       "text": "SprachAnker menyatukan kursus bahasa sungguhan dalam satu pemutar, memeriksa jawaban kamu, menyimpan kata-kata kamu dalam pengulangan berjarak, dan bisa menghadirkan tutor AI. Semuanya tetap di perangkat ini.",
       "sources": "Kursus diunduh langsung dari situs web penerbitnya (Deutsche Welle dan lainnya) untuk penggunaan pribadi kamu. Patuhi ketentuan mereka; SprachAnker tidak berafiliasi dengan mereka.",
-      "experimental": "Kursus dan ujian yang masih diuji coba tetap tersembunyi sampai kamu mengaktifkannya di Pengaturan → Umum → Eksperimental.",
       "name": "Kamu mau dipanggil apa?"
     },
     "assistant": {
@@ -1611,20 +1611,6 @@
     },
     "choose": "Pilih ujian"
   },
-  "experimental": {
-    "disclaimerTitle": "Eksperimen, bukan sarana persiapan",
-    "disclaimer": "Yang kamu aktifkan di sini masih diuji coba: isinya mungkin tidak lengkap atau salah terbaca, penilaiannya mungkin berbeda dari aslinya. Jangan mengandalkannya untuk mempersiapkan kursus atau ujian.",
-    "section": {
-      "courses": "Kursus",
-      "exams": "Ujian"
-    },
-    "sectionHint": {
-      "courses": "Kursus tambahan untuk diunduh, ditampilkan di Kursus",
-      "exams": "Ujian tambahan untuk diunduh, ditampilkan di Ujian"
-    },
-    "none": "Tidak ada yang eksperimental di sini.",
-    "more": "{count, plural, other {# lainnya}}"
-  },
   "examples": {
     "newWords": "Baru di sini:",
     "by": "Contoh dari AI · {model}"
@@ -1666,8 +1652,7 @@
       "replaced": "“{title}” sekarang versi dari berkas; kemajuanmu tetap tersimpan.",
       "verified": "Diperiksa: semua berkas ada.",
       "problems": "Diperiksa: {count, plural, other {# masalah ditemukan}} — “Periksa” di kartunya menampilkannya.",
-      "experimental": "Ini eksperimen: tidak ditampilkan sampai sumbernya dinyalakan.",
-      "turnOn": "Pengaturan → Umum → Eksperimen"
+      "hidden": "Ini belum siap untuk belajar, jadi hanya ditampilkan bila SprachAnker dijalankan dengan --experimental."
     }
   },
   "understanding": {

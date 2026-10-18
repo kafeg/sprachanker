@@ -53,8 +53,10 @@ export function createExams(deps: {
   content: Content;
   settings: Settings;
   now: () => number;
+  /** Whether an installed course is listed (an experimental one only on a server started so). */
+  listed?: (key: string) => boolean;
 }) {
-  const { content } = deps;
+  const { content, listed = () => true } = deps;
   const runs = createExamRuns(deps);
   const { setting, answersIn, runsOf, examOf, localeOf, worked, settleOverdue } = runs;
 
@@ -156,12 +158,12 @@ export function createExams(deps: {
       };
     },
 
-    /** The installed exams — of exam courses and of courses that have one — with the learner's
-     *  standing; titles by edition. */
+    /** The installed exams listed — of exam courses and of courses that have one — with the
+     *  learner's standing; titles by edition. */
     async list() {
       await settleOverdue();
       const out = [];
-      for (const course of await content.courses())
+      for (const course of (await content.courses()).filter((c) => listed(c.key)))
         for (const key of course.exams) {
           const titles: Record<string, string> = {};
           for (const edition of course.editions) {

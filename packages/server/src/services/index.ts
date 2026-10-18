@@ -31,7 +31,12 @@ import { createDeckExtras, type DeckExtrasStore } from "./deck-extras.ts";
 import { createDeckTransfer, type DeckTransfer, type DeckTransferFiles } from "./deck-transfer.ts";
 import { createDecks, type DeckFiles, type Decks } from "./decks.ts";
 import { createDevices } from "./devices.ts";
-import { type CourseInstaller, createDownloads, type Downloads } from "./downloads.ts";
+import {
+  type CourseInstaller,
+  createDownloads,
+  type Downloads,
+  experimentalSwitch,
+} from "./downloads.ts";
 import { createExamConversation } from "./exam-conversation.ts";
 import { createExamRating } from "./exam-rating.ts";
 import { createExamples } from "./examples.ts";
@@ -94,6 +99,8 @@ export interface ServicesConfig {
   lmStudio?: LmStudioHost;
   cli?: CliHost;
   installer?: CourseInstaller;
+  /** Experimental courses offered and listed (`serve --experimental`): `experimentalSwitch`. */
+  experimental?: boolean;
   speech?: SpeechHost;
   piper?: PiperHost;
   /** Readings kept (Piper's and Qwen3-TTS's); without it each is made again. */
@@ -141,6 +148,8 @@ function profileServices(
     wordVoice: WordVoice;
     practiceJobs: PracticeJobs;
     heard: Heard;
+    /** Whether an installed course is listed (an experimental one only with `--experimental`). */
+    listed: (key: string) => boolean;
   },
   profileId: string,
   db: ProfileDb,
@@ -180,8 +189,9 @@ function profileServices(
     content,
     heard: shared.heard.texts,
     started: (lesson) => lessonStarted(lesson),
+    listed: shared.listed,
   });
-  const exams = createExams({ store, content, settings, now });
+  const exams = createExams({ store, content, settings, now, listed: shared.listed });
   const cards = createCards({
     cards: cardStore,
     store,
@@ -512,8 +522,9 @@ export function createServices(config: ServicesConfig) {
   const relink = (s: ProfileServices) =>
     s.cards.relink().catch((error: unknown) => console.error("relinking cards:", error));
 
+  const { installer, listed } = experimentalSwitch(config.installer, !!config.experimental);
   const downloads = createDownloads({
-    installer: config.installer,
+    installer,
     now,
     onEnd: () => {
       for (const s of open.values()) void relink(s);
@@ -611,6 +622,7 @@ export function createServices(config: ServicesConfig) {
     onInstalled: () => {
       for (const s of open.values()) void relink(s);
     },
+    listed,
   });
 
   // Decks moved as files (the server's, as decks are); cards follow their words after one.
@@ -678,6 +690,7 @@ export function createServices(config: ServicesConfig) {
             heard,
             qwenTts,
             wordVoice,
+            listed,
           },
           profileId,
           config.profiles.open(profileId),

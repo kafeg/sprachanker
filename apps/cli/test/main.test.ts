@@ -61,6 +61,23 @@ test("serve answers to the names given by --allow-host, each a host name", async
   ]);
 });
 
+test("serve --experimental, or $SPRACHANKER_EXPERIMENTAL=1, turns the experimental courses on; off by default", () => {
+  const data = mkdtempSync(join(tmpdir(), "sprachanker-cli-"));
+  const before = process.env.SPRACHANKER_EXPERIMENTAL;
+  try {
+    delete process.env.SPRACHANKER_EXPERIMENTAL;
+    expect(serveOptions(["--data", data]).experimental).toBe(false);
+    expect(serveOptions(["--data", data, "--experimental"]).experimental).toBe(true);
+    process.env.SPRACHANKER_EXPERIMENTAL = "1";
+    expect(serveOptions(["--data", data]).experimental).toBe(true);
+    process.env.SPRACHANKER_EXPERIMENTAL = "0";
+    expect(serveOptions(["--data", data]).experimental).toBe(false);
+  } finally {
+    if (before === undefined) delete process.env.SPRACHANKER_EXPERIMENTAL;
+    else process.env.SPRACHANKER_EXPERIMENTAL = before;
+  }
+});
+
 test("profiles export and import: a profile moved to another data root as a file", async () => {
   const from = mkdtempSync(join(tmpdir(), "sprachanker-cli-"));
   const to = mkdtempSync(join(tmpdir(), "sprachanker-cli-"));

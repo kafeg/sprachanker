@@ -234,7 +234,6 @@
       "aiShort": "AI"
     },
     "prompts": "Prompts",
-    "experimental": "Experimental",
     "advanced": "Advanced"
   },
   "llm": {
@@ -611,7 +610,8 @@
     "source": "Source code on GitHub",
     "notices": "Third-party components and licences",
     "noticesIntro": "SprachAnker is built with these components, each under its own licence; the licence texts follow the list.",
-    "noticesMissing": "This build carries no list: it is made by the builds that are given out — the program, the Mac app and the Android app."
+    "noticesMissing": "This build carries no list: it is made by the builds that are given out — the program, the Mac app and the Android app.",
+    "experimental": "Experimental mode (--experimental): courses and exams not ready for learning are shown too. Don't rely on them to prepare."
   },
   "addresses": {
     "title": "Other devices",
@@ -670,7 +670,8 @@
       "body": "Its lessons and media are deleted from the disk (media another course uses stay). Your progress, Notebook and words stay; download it again to go on.",
       "bodyExam": "Its questions and media are deleted from the disk (media another course uses stay). Your mock exams, practice and Notebook stay; download it again to go on.",
       "confirm": "Remove"
-    }
+    },
+    "experimental": "Experimental: not ready for learning"
   },
   "storage": {
     "title": "Storage",
@@ -982,7 +983,6 @@
       "title": "Welcome",
       "text": "SprachAnker puts real language courses in one player, checks your answers, keeps your words in spaced repetition and can bring in an AI tutor. Everything stays on this device.",
       "sources": "Courses are downloaded straight from their publishers' websites (Deutsche Welle and others) for your personal use. Respect their terms; SprachAnker is not affiliated with them.",
-      "experimental": "Courses and exams still being tried out stay hidden until you turn them on in Settings → General → Experimental.",
       "name": "What should we call you?"
     },
     "assistant": {
@@ -1611,20 +1611,6 @@
     },
     "choose": "Choose an exam"
   },
-  "experimental": {
-    "disclaimerTitle": "An experiment, not a way to prepare",
-    "disclaimer": "What you turn on here is being tried out: its content may be incomplete or read wrongly, its scoring may differ from the real thing. Don't rely on it to prepare for a course or an exam.",
-    "section": {
-      "courses": "Courses",
-      "exams": "Exams"
-    },
-    "sectionHint": {
-      "courses": "More courses to download, shown in Courses",
-      "exams": "More exams to download, shown in Exams"
-    },
-    "none": "Nothing experimental here.",
-    "more": "{count, plural, one {# more} other {# more}}"
-  },
   "examples": {
     "newWords": "New here:",
     "by": "Examples by the AI · {model}"
@@ -1666,8 +1652,7 @@
       "replaced": "“{title}” is now the file's version; your progress is kept.",
       "verified": "Checked: every file is there.",
       "problems": "Checked: {count, plural, one {# problem found} other {# problems found}} — “Check” on its card lists them.",
-      "experimental": "It is an experiment, so it is not listed until its source is turned on.",
-      "turnOn": "Settings → General → Experimental"
+      "hidden": "It is not ready for learning yet, so it is listed only when SprachAnker is started with --experimental."
     }
   },
   "understanding": {

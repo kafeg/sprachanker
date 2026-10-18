@@ -95,7 +95,7 @@ src/
                      #   a WAV the page decoded —, its reader), local-engines (SpeechHost, VoiceStore, ReadingCache, engineSidecar),
                      #   model-downloads, sidecar (the supervisor), profile-speech, recordings (the learner's audio), heard (the source's
                      #   answers heard into the course: a lesson's in the background, kept until written; a course's: `sprachanker heard`)
-                     # - downloads: course installs (queue, progress, resume; the installer injected)
+                     # - downloads: course installs (queue, progress, resume; the installer injected); experimentalSwitch (`--experimental`)
   security/          # secrets.ts (AES-GCM sealing of API keys), host.ts (Host check, CSP and security headers), encoding.ts (base64, base64url, SHA-256)
   media.ts           # Range responses for library and deck folders' media and profile recordings (a type fixed by extension,
                      # sandboxed: mediaType); body limits (JSON 1 MB — every route but those taking a file —, audio); a large file's

@@ -3,7 +3,6 @@
 // "Import from a file": the file sent with its progress, the server's check, then the course installed
 // (or found the same, or replaced with the learner's progress kept) and what its check found.
 import { useMutation, useQueryClient } from "@tanstack/react-query";
-import { Link } from "@tanstack/react-router";
 import { Download, Upload } from "lucide-react";
 import { useRef, useState } from "react";
 import { useTranslation } from "react-i18next";
@@ -87,14 +86,7 @@ type Phase =
   | { at: "failed"; error: unknown };
 
 /** "Import from a file" on the Downloaded tabs (Courses', Exams'). */
-export function CourseImport({
-  hidden,
-  upload = uploadCourse,
-}: {
-  /** A series this tab does not list (an experiment not turned on): the result says how to see it. */
-  hidden?(series: string, course: string): boolean;
-  upload?: typeof uploadCourse;
-}) {
+export function CourseImport({ upload = uploadCourse }: { upload?: typeof uploadCourse }) {
   const { t } = useTranslation();
   const client = useQueryClient();
   const input = useRef<HTMLInputElement>(null);
@@ -158,26 +150,19 @@ export function CourseImport({
       {phase?.at === "failed" && (
         <p className="text-center text-sm text-wrong">{errorText(t, phase.error)}</p>
       )}
-      {phase?.at === "done" && <Imported result={phase.result} hidden={hidden} />}
+      {phase?.at === "done" && <Imported result={phase.result} />}
     </div>
   );
 }
 
-/** The courses installed: each how, what its check found, and — an experiment not turned on —
- *  where to turn it on to see it. */
-function Imported({
-  result,
-  hidden,
-}: {
-  result: ImportedCourse;
-  hidden?(series: string, course: string): boolean;
-}) {
+/** The courses installed: each how, what its check found, and — experimental, on a server started
+ *  without --experimental — that it is not listed. */
+function Imported({ result }: { result: ImportedCourse }) {
   const { t } = useTranslation();
   return (
     <Panel className="w-full space-y-3" as="div">
       {result.courses.map((course, i) => {
         const title = course.editions.map((e) => course.titles[e]).find(Boolean) ?? course.key;
-        const [series = "", key = ""] = course.key.split("/");
         return (
           <div key={course.key} className="space-y-1">
             <p className="font-semibold" {...(i === 0 && { role: "status" })}>
@@ -190,17 +175,8 @@ function Imported({
                 ? t("bundle.import.problems", { count: course.check.problems })
                 : t("bundle.import.verified")}
             </p>
-            {hidden?.(series, key) && (
-              <p className="text-sm">
-                {t("bundle.import.experimental")}{" "}
-                <Link
-                  to="/settings"
-                  hash="experimental"
-                  className="underline pointer-coarse:min-h-11"
-                >
-                  {t("bundle.import.turnOn")}
-                </Link>
-              </p>
+            {"hidden" in course && course.hidden && (
+              <p className="text-sm">{t("bundle.import.hidden")}</p>
             )}
           </div>
         );

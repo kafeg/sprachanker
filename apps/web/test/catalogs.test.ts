@@ -217,7 +217,6 @@ const SAME_AS_ENGLISH: Record<string, string[]> = {
     "course.stats.video",
     "settings.tabs.general",
     "settings.prompts",
-    "settings.experimental",
     "tutor.title",
     "nav.tutor",
     "prompt.button",
@@ -302,7 +301,6 @@ const SAME_AS_ENGLISH: Record<string, string[]> = {
   ],
   pt: [
     "settings.prompts",
-    "settings.experimental",
     "tutor.title",
     "nav.tutor",
     "prompt.button",
@@ -318,7 +316,6 @@ const SAME_AS_ENGLISH: Record<string, string[]> = {
   ],
   ro: [
     "settings.tabs.general",
-    "settings.experimental",
     "llm.model",
     "llm.list.context",
     "prompt.button",

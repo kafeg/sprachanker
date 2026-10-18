@@ -65,6 +65,8 @@ export interface ServerConfig {
   /** The Worker that makes an imported profile's database ready, as the compiled binary embeds it;
    *  from sources the server finds its own (PROFILE_DB_WORKER). */
   profileDbWorker?: string;
+  /** `--experimental`: courses not ready for learning offered and listed too (AppConfig). */
+  experimental?: boolean;
 }
 
 /** The runtime adapters over a data root: what the app and the command line's services run on. */
@@ -114,6 +116,7 @@ export async function startServer(config: ServerConfig): Promise<Listening> {
     // given (`--allow-host`); its tailnet name is read from Tailscale (`network`).
     hosts: [hostname(), `${hostname()}.local`, config.hostname],
     allowHosts: config.allowHosts,
+    experimental: config.experimental,
     listensOn: { hostname: config.hostname, port: config.port },
     network: networkHost(),
   });

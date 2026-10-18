@@ -5,7 +5,7 @@ The `sprachanker` binary. Depends on `packages/server` only; commands call the s
 ## Layout
 
 ```
-src/main.ts         # serve, import, verify, profiles (the server's profile matters: list, registration
+src/main.ts         # serve (--experimental or $SPRACHANKER_EXPERIMENTAL=1: docs/decisions.md), import, verify, profiles (the server's profile matters: list, registration
                     # on|off, delete; a profile exported to a file, a file imported — the server's
                     # refusals in words), courses (those installed; one exported to a file, or
                     # every one with --all: a file a group, checked that each course is in one; a file

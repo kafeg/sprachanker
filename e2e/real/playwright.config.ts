@@ -32,7 +32,8 @@ export default defineConfig({
     launchOptions: { args: media },
   },
   webServer: {
-    command: `"${binary}" serve --port ${PORT} --data "${REAL_DATA}"`,
+    // Every course installed walked, the experimental ones too.
+    command: `"${binary}" serve --port ${PORT} --data "${REAL_DATA}" --experimental`,
     cwd: tmpdir(),
     url: `http://127.0.0.1:${PORT}/api/health`,
     reuseExistingServer: false,

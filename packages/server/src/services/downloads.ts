@@ -64,6 +64,32 @@ const LOG_LINES = 200;
 const LISTED_LOG_LINES = 15;
 const keyOf = (series: string, course: string): string => courseKey(series as SeriesKey, course);
 
+/**
+ * What this server shows (owner, 2026-10-18): a course its provider does not declare ready for
+ * learning — experimental — only when the server was started with `--experimental`. Without it such a
+ * course is neither offered nor downloaded (the installer's offers leave it out) nor listed
+ * (`listed`); one installed keeps its files and the learner's progress in it.
+ */
+export function experimentalSwitch(installer: CourseInstaller | undefined, experimental: boolean) {
+  const hidden = new Set(
+    experimental
+      ? []
+      : (installer?.offers() ?? [])
+          .filter((o) => o.experimental)
+          .map((o) => keyOf(o.series, o.course)),
+  );
+  return {
+    installer:
+      installer && hidden.size
+        ? {
+            ...installer,
+            offers: () => installer.offers().filter((o) => !hidden.has(keyOf(o.series, o.course))),
+          }
+        : installer,
+    listed: (key: string) => !hidden.has(key),
+  };
+}
+
 export function createDownloads(deps: {
   installer?: CourseInstaller;
   now: () => number;

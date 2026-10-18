@@ -79,6 +79,9 @@ export interface AppConfig {
   readings?: ReadingCache;
   /** Downloads courses (the runtime passes the providers in); without it, nothing can be downloaded. */
   installer?: CourseInstaller;
+  /** Started with `--experimental`: courses not ready for learning offered and listed too, and the
+   *  web told so (`/api/health`); off by default (owner, 2026-10-18). */
+  experimental?: boolean;
   now?: () => number;
   /** Chance in [0, 1): what the AI practice draws (a text's genre, ideas, voices); tests fix it. */
   random?: () => number;
@@ -123,7 +126,15 @@ export function createApp(config: AppConfig) {
       await next();
     })
     .use("*", (c, next) => (FILE_ROUTES.test(c.req.path) ? next() : jsonBody(c, next)))
-    .get("/health", (c) => c.json({ status: "ok" as const, version: config.appVersion }))
+    // That it answers, its version, and whether it was started with --experimental: the one switch
+    // the web reads for what is experimental.
+    .get("/health", (c) =>
+      c.json({
+        status: "ok" as const,
+        version: config.appVersion,
+        experimental: config.experimental === true,
+      }),
+    )
     // Who is studying, signing in and out: before the session check.
     .route("/", sessionRoutes(svc, { inHeader: config.sessionInHeader }))
     // Everything after it is a profile's: the device's session names it (401 without one).

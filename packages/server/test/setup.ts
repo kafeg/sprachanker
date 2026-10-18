@@ -41,6 +41,8 @@ export async function setup(
     lmStudio?: LmStudioHost;
     cli?: CliHost;
     installer?: CourseInstaller;
+    /** Started with `--experimental`. */
+    experimental?: boolean;
     speech?: SpeechHost;
     piper?: PiperHost;
     readings?: ReadingCache;
@@ -87,6 +89,7 @@ export async function setup(
     lmStudio: options.lmStudio,
     cli: options.cli,
     installer: options.installer,
+    experimental: options.experimental,
     speech: options.speech,
     piper: options.piper,
     readings: options.readings,

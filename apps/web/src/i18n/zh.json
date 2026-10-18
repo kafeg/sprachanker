@@ -234,7 +234,6 @@
       "aiShort": "AI"
     },
     "prompts": "提示词",
-    "experimental": "实验功能",
     "advanced": "高级"
   },
   "llm": {
@@ -611,7 +610,8 @@
     "source": "GitHub上的源代码",
     "notices": "第三方组件与许可证",
     "noticesIntro": "SprachAnker 使用这些组件构建，每个组件都有自己的许可证；许可证全文附在列表之后。",
-    "noticesMissing": "此版本不含该列表：它随对外发布的版本提供——程序、Mac 应用和 Android 应用。"
+    "noticesMissing": "此版本不含该列表：它随对外发布的版本提供——程序、Mac 应用和 Android 应用。",
+    "experimental": "实验模式（--experimental）：尚不适合学习的课程和考试也会显示。请勿依赖它们来备考。"
   },
   "addresses": {
     "title": "其他设备",
@@ -670,7 +670,8 @@
       "body": "它的课程和媒体文件将从磁盘删除（其他课程使用的媒体文件会保留）。你的进度、笔记本和单词都会保留；重新下载即可继续。",
       "bodyExam": "它的题目和媒体文件将从磁盘删除（其他课程使用的媒体文件会保留）。你的模拟考试、练习和笔记本都会保留；重新下载即可继续。",
       "confirm": "删除"
-    }
+    },
+    "experimental": "实验性：尚不适合学习"
   },
   "storage": {
     "title": "存储",
@@ -982,7 +983,6 @@
       "title": "欢迎",
       "text": "SprachAnker把真实的语言课程集中在一个播放器里，检查你的答案，用间隔重复帮你记住单词，还可以引入AI辅导老师。所有数据都留在这台设备上。",
       "sources": "课程直接从出版方网站（德国之声等）下载，仅供你个人使用。请遵守其使用条款；SprachAnker与它们没有任何关联。",
-      "experimental": "仍在试验中的课程和考试默认隐藏，可在“设置 → 通用 → 实验功能”中开启。",
       "name": "我们该怎么称呼你？"
     },
     "assistant": {
@@ -1611,20 +1611,6 @@
     },
     "choose": "选择考试"
   },
-  "experimental": {
-    "disclaimerTitle": "这是实验，不是备考方式",
-    "disclaimer": "在此开启的内容仍在试验中：内容可能不完整或读取有误，评分也可能与真实情况不同。请勿依赖它来准备课程或考试。",
-    "section": {
-      "courses": "课程",
-      "exams": "考试"
-    },
-    "sectionHint": {
-      "courses": "更多可下载的课程，显示在“课程”中",
-      "exams": "更多可下载的考试，显示在“考试”中"
-    },
-    "none": "这里没有实验内容。",
-    "more": "{count, plural, other {另有#个}}"
-  },
   "examples": {
     "newWords": "新单词：",
     "by": "AI生成的例句 · {model}"
@@ -1666,8 +1652,7 @@
       "replaced": "“{title}”现在是文件中的版本；你的进度保留。",
       "verified": "已检查：所有文件都在。",
       "problems": "已检查：{count, plural, other {发现#个问题}} — 点其卡片上的“检查”可查看。",
-      "experimental": "这是实验性内容：在开启其来源之前不会显示。",
-      "turnOn": "设置 → 常规 → 实验"
+      "hidden": "它尚不适合学习，因此只有在以 --experimental 启动 SprachAnker 时才会显示。"
     }
   },
   "understanding": {

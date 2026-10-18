@@ -234,7 +234,6 @@
       "aiShort": "AI"
     },
     "prompts": "Promptovi",
-    "experimental": "Eksperimentalno",
     "advanced": "Napredno"
   },
   "llm": {
@@ -611,7 +610,8 @@
     "source": "Izvorni kod na GitHubu",
     "notices": "Komponente trećih strana i licence",
     "noticesIntro": "SprachAnker je izgrađen od ovih komponenti, svaka pod svojom licencom; tekstovi licenci slijede nakon liste.",
-    "noticesMissing": "Ova verzija nema listu: nose je verzije koje se dijele — program, aplikacija za Mac i aplikacija za Android."
+    "noticesMissing": "Ova verzija nema listu: nose je verzije koje se dijele — program, aplikacija za Mac i aplikacija za Android.",
+    "experimental": "Eksperimentalni način (--experimental): prikazuju se i kursevi i ispiti koji još nisu spremni za učenje. Ne oslanjaj se na njih u pripremi."
   },
   "addresses": {
     "title": "Drugi uređaji",
@@ -670,7 +670,8 @@
       "body": "Njegove lekcije i mediji brišu se s diska (mediji koje koristi drugi kurs ostaju). Tvoj napredak, bilježnica i riječi ostaju; preuzmi ga ponovo da nastaviš.",
       "bodyExam": "Njegova pitanja i mediji brišu se s diska (mediji koje koristi drugi kurs ostaju). Tvoji probni ispiti, vježbanje i bilježnica ostaju; preuzmi ga ponovo da nastaviš.",
       "confirm": "Ukloni"
-    }
+    },
+    "experimental": "Eksperimentalno: još nije spremno za učenje"
   },
   "storage": {
     "title": "Pohrana",
@@ -982,7 +983,6 @@
       "title": "Dobro došli",
       "text": "SprachAnker stavlja prave jezičke kurseve u jedan plejer, provjerava tvoje odgovore, čuva tvoje riječi u ponavljanju s razmacima i može uključiti AI tutora. Sve ostaje na ovom uređaju.",
       "sources": "Kursevi se preuzimaju direktno s web-stranica njihovih izdavača (Deutsche Welle i drugi) za tvoju ličnu upotrebu. Poštuj njihove uslove; SprachAnker nije povezan s njima.",
-      "experimental": "Kursevi i ispiti koji se još isprobavaju ostaju skriveni dok ih ne uključiš u Postavkama → Opće → Eksperimentalno.",
       "name": "Kako da te zovemo?"
     },
     "assistant": {
@@ -1611,20 +1611,6 @@
     },
     "choose": "Izaberi ispit"
   },
-  "experimental": {
-    "disclaimerTitle": "Eksperiment, ne način pripreme",
-    "disclaimer": "Ono što ovdje uključiš još se isprobava: sadržaj može biti nepotpun ili pogrešno pročitan, bodovanje se može razlikovati od stvarnog. Ne oslanjaj se na to u pripremi za kurs ili ispit.",
-    "section": {
-      "courses": "Kursevi",
-      "exams": "Ispiti"
-    },
-    "sectionHint": {
-      "courses": "Još kurseva za preuzimanje, prikazanih u Kursevima",
-      "exams": "Još ispita za preuzimanje, prikazanih u Ispitima"
-    },
-    "none": "Ovdje nema ničega eksperimentalnog.",
-    "more": "{count, plural, one {još #} few {još #} other {još #}}"
-  },
   "examples": {
     "newWords": "Novo ovdje:",
     "by": "Primjeri od AI · {model}"
@@ -1666,8 +1652,7 @@
       "replaced": "„{title}“ je sada verzija iz datoteke; tvoj napredak ostaje.",
       "verified": "Provjereno: sve datoteke su tu.",
       "problems": "Provjereno: {count, plural, one {pronađen # problem} few {pronađena # problema} other {pronađeno # problema}} — „Provjeri“ na njegovoj kartici ih prikazuje.",
-      "experimental": "Ovo je eksperiment: ne prikazuje se dok se njegov izvor ne uključi.",
-      "turnOn": "Postavke → Opće → Eksperimenti"
+      "hidden": "Još nije spremno za učenje, pa se prikazuje samo kad je SprachAnker pokrenut s --experimental."
     }
   },
   "understanding": {

@@ -117,6 +117,10 @@ export function OfferCard({ offer }: { offer: CatalogEntry }) {
         <p className="truncate text-sm text-muted-foreground">
           {t(`course.licence.${offer.source.licence}`)}
         </p>
+        {/* Offered only by a server started with --experimental: presented as an experiment. */}
+        {offer.experimental && (
+          <p className="text-sm text-amber-700 dark:text-amber-400">{t("download.experimental")}</p>
+        )}
         <div className="mt-auto pt-4">
           {busy && job ? (
             <>

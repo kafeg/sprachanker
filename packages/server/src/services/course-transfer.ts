@@ -105,6 +105,8 @@ export function createCourseTransfer(deps: {
   now: () => number;
   /** Called when a course was installed from a bundle: its files may have changed. */
   onInstalled?: () => void;
+  /** Whether an installed course is listed (an experimental one only on a server started so). */
+  listed?: (key: string) => boolean;
 }) {
   const { files, now } = deps;
   /** Exports made ready: the server's (any profile may download one by its id). */
@@ -168,6 +170,8 @@ export function createCourseTransfer(deps: {
         titles: c.titles,
         status: done.get(c.course)?.status ?? ("same" as const),
         check: done.get(c.course)?.check ?? { problems: 0, missing: 0 },
+        // Installed but not listed: experimental, on a server started without --experimental.
+        ...(deps.listed?.(c.course) === false && { hidden: true as const }),
       })),
       media: installed.media,
     };

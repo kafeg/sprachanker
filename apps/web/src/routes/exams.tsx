@@ -2,10 +2,9 @@
 // library's tab page) — My exams (begun), Downloaded (installed: exam courses and the exams of courses)
 // and Available (exams a provider offers that are not here yet).
 import { useTranslation } from "react-i18next";
-import { useCatalog } from "@/api/courses.ts";
+import { offersOf, useCatalog } from "@/api/courses.ts";
 import { useEdition } from "@/api/edition.ts";
 import { type ExamRow, useExams } from "@/api/exams.ts";
-import { offersOf, useShown } from "@/app/experimental.ts";
 import { ExamCard } from "@/exams/card.tsx";
 import { CourseImport } from "@/library/bundle.tsx";
 import { OfferCard } from "@/library/card.tsx";
@@ -22,17 +21,17 @@ const PATH: Record<ExamsTab, "/exams" | "/exams/downloaded" | "/exams/catalog"> 
 export function ExamsPage({ tab }: { tab: ExamsTab }) {
   const { t } = useTranslation();
   const exams = useExams();
-  const { shown, ready } = useShown();
-  const all = (exams.data ?? []).filter((e) => shown("exams", e.series, e.course));
+  const all = exams.data ?? [];
   const catalog = useCatalog();
-  const offers = offersOf(catalog.data, "exams", shown);
+  const ready = !catalog.isPending;
+  const offers = offersOf(catalog.data, "exams");
   const count: Record<ExamsTab, number> = {
     mine: all.filter((e) => e.started).length,
     downloaded: all.length,
     available: offers.length,
   };
   const list = (rows: ExamRow[], empty: React.ReactNode) =>
-    exams.isPending || !ready ? (
+    exams.isPending ? (
       <Loading />
     ) : exams.isError ? (
       <ErrorState error={exams.error} onRetry={() => exams.refetch()} />
@@ -74,7 +73,7 @@ export function ExamsPage({ tab }: { tab: ExamsTab }) {
             />,
           )}
           {/* An exam exported on another computer. */}
-          <CourseImport hidden={(series, course) => !shown("exams", series, course)} />
+          <CourseImport />
         </>
       )}
       {tab === "available" &&

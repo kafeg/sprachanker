@@ -234,7 +234,6 @@
       "aiShort": "MI"
     },
     "prompts": "Promptok",
-    "experimental": "Kísérleti",
     "advanced": "Haladó"
   },
   "llm": {
@@ -611,7 +610,8 @@
     "source": "Forráskód a GitHubon",
     "notices": "Külső összetevők és licencek",
     "noticesIntro": "A SprachAnker ezekből az összetevőkből épül, mindegyik a saját licence alatt; a licencszövegek a lista után következnek.",
-    "noticesMissing": "Ebben a buildben nincs lista: a terjesztett buildek tartalmazzák — a program, a Mac-app és az Android-app."
+    "noticesMissing": "Ebben a buildben nincs lista: a terjesztett buildek tartalmazzák — a program, a Mac-app és az Android-app.",
+    "experimental": "Kísérleti mód (--experimental): a még tanulásra nem kész kurzusok és vizsgák is látszanak. Ne ezekre építs a felkészülésben."
   },
   "addresses": {
     "title": "Más eszközök",
@@ -670,7 +670,8 @@
       "body": "A leckéi és médiafájljai törlődnek a lemezről (a más kurzus által használt médiafájlok maradnak). Az előrehaladásod, a jegyzetfüzeted és a szavaid megmaradnak; a folytatáshoz töltsd le újra.",
       "bodyExam": "A kérdései és médiafájljai törlődnek a lemezről (a más kurzus által használt médiafájlok maradnak). A próbavizsgáid, a gyakorlásaid és a jegyzetfüzeted megmaradnak; a folytatáshoz töltsd le újra.",
       "confirm": "Eltávolítás"
-    }
+    },
+    "experimental": "Kísérleti: még nem kész a tanulásra"
   },
   "storage": {
     "title": "Tárhely",
@@ -982,7 +983,6 @@
       "title": "Üdvözlünk",
       "text": "A SprachAnker valódi nyelvtanfolyamokat gyűjt egy lejátszóba, ellenőrzi a válaszaidat, időzített ismétléssel gyakoroltatja a szavaidat, és MI-tutort is bevonhat. Minden ezen az eszközön marad.",
       "sources": "A kurzusok közvetlenül a kiadóik weboldaláról (Deutsche Welle és mások) töltődnek le, személyes használatra. Tartsd tiszteletben a feltételeiket; a SprachAnker nem áll kapcsolatban velük.",
-      "experimental": "A még kipróbálás alatt álló kurzusok és vizsgák rejtve maradnak, amíg be nem kapcsolod őket itt: Beállítások → Általános → Kísérleti.",
       "name": "Hogyan szólítsunk?"
     },
     "assistant": {
@@ -1611,20 +1611,6 @@
     },
     "choose": "Válassz vizsgát"
   },
-  "experimental": {
-    "disclaimerTitle": "Kísérlet, nem felkészülési eszköz",
-    "disclaimer": "Amit itt bekapcsolsz, az még kipróbálás alatt áll: a tartalma hiányos vagy hibásan beolvasott lehet, a pontozása eltérhet a valóditól. Ne erre építs, ha kurzusra vagy vizsgára készülsz.",
-    "section": {
-      "courses": "Kurzusok",
-      "exams": "Vizsgák"
-    },
-    "sectionHint": {
-      "courses": "További letölthető kurzusok, a Kurzusok között jelennek meg",
-      "exams": "További letölthető vizsgák, a Vizsgák között jelennek meg"
-    },
-    "none": "Itt nincs semmi kísérleti.",
-    "more": "{count, plural, one {még #} other {még #}}"
-  },
   "examples": {
     "newWords": "Új itt:",
     "by": "Példák az MI-től · {model}"
@@ -1666,8 +1652,7 @@
       "replaced": "„{title}” most a fájlban lévő változat; a haladásod megmarad.",
       "verified": "Ellenőrizve: minden fájl megvan.",
       "problems": "Ellenőrizve: {count, plural, one {# probléma található} other {# probléma található}} – a kártyáján az „Ellenőrzés” felsorolja őket.",
-      "experimental": "Ez kísérlet: addig nem látszik, amíg a forrását be nem kapcsolod.",
-      "turnOn": "Beállítások → Általános → Kísérletek"
+      "hidden": "Még nem kész a tanulásra, ezért csak akkor látszik, ha a SprachAnker --experimental kapcsolóval indul."
     }
   },
   "understanding": {

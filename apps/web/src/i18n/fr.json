@@ -234,7 +234,6 @@
       "aiShort": "IA"
     },
     "prompts": "Prompts",
-    "experimental": "Expérimental",
     "advanced": "Avancé"
   },
   "llm": {
@@ -611,7 +610,8 @@
     "source": "Code source sur GitHub",
     "notices": "Composants tiers et licences",
     "noticesIntro": "SprachAnker est construit avec ces composants, chacun sous sa propre licence ; les textes des licences suivent la liste.",
-    "noticesMissing": "Cette version ne contient pas la liste : elle accompagne les versions distribuées — le programme, l'app Mac et l'app Android."
+    "noticesMissing": "Cette version ne contient pas la liste : elle accompagne les versions distribuées — le programme, l'app Mac et l'app Android.",
+    "experimental": "Mode expérimental (--experimental) : les cours et examens pas encore prêts pour apprendre sont aussi affichés. Ne compte pas dessus pour te préparer."
   },
   "addresses": {
     "title": "Autres appareils",
@@ -670,7 +670,8 @@
       "body": "Ses leçons et ses médias sont supprimés du disque (les médias qu’un autre cours utilise restent). Ta progression, ton carnet et tes mots restent ; télécharge-le à nouveau pour continuer.",
       "bodyExam": "Ses questions et ses médias sont supprimés du disque (les médias qu’un autre cours utilise restent). Tes examens blancs, ton entraînement et ton carnet restent ; télécharge-le à nouveau pour continuer.",
       "confirm": "Retirer"
-    }
+    },
+    "experimental": "Expérimental : pas encore prêt pour apprendre"
   },
   "storage": {
     "title": "Stockage",
@@ -982,7 +983,6 @@
       "title": "Bienvenue",
       "text": "SprachAnker réunit de vrais cours de langue dans un seul lecteur, vérifie tes réponses, fait revenir tes mots par répétition espacée et peut faire appel à un tuteur IA. Tout reste sur cet appareil.",
       "sources": "Les cours sont téléchargés directement depuis les sites de leurs éditeurs (Deutsche Welle et d’autres), pour ton usage personnel. Respecte leurs conditions ; SprachAnker n’est pas lié à eux.",
-      "experimental": "Les cours et examens encore à l’essai restent masqués tant que tu ne les actives pas dans Réglages → Général → Expérimental.",
       "name": "Comment veux-tu qu’on t’appelle ?"
     },
     "assistant": {
@@ -1611,20 +1611,6 @@
     },
     "choose": "Choisir un examen"
   },
-  "experimental": {
-    "disclaimerTitle": "Une expérience, pas un moyen de se préparer",
-    "disclaimer": "Ce que tu actives ici est à l’essai : son contenu peut être incomplet ou mal lu, sa notation peut différer de la réalité. Ne compte pas dessus pour préparer un cours ou un examen.",
-    "section": {
-      "courses": "Cours",
-      "exams": "Examens"
-    },
-    "sectionHint": {
-      "courses": "D’autres cours à télécharger, affichés dans Cours",
-      "exams": "D’autres examens à télécharger, affichés dans Examens"
-    },
-    "none": "Rien d’expérimental ici.",
-    "more": "{count, plural, one {# de plus} many {# de plus} other {# de plus}}"
-  },
   "examples": {
     "newWords": "Nouveau ici :",
     "by": "Exemples de l’IA · {model}"
@@ -1666,8 +1652,7 @@
       "replaced": "« {title} » est maintenant la version du fichier ; ta progression est conservée.",
       "verified": "Vérifié : tous les fichiers sont là.",
       "problems": "Vérifié : {count, plural, one {# problème trouvé} many {# de problèmes trouvés} other {# problèmes trouvés}} — « Vérifier » sur sa carte les liste.",
-      "experimental": "C’est une expérience : elle n’apparaît pas tant que sa source n’est pas activée.",
-      "turnOn": "Réglages → Général → Expériences"
+      "hidden": "Il n’est pas encore prêt pour apprendre : il n’apparaît que si SprachAnker est lancé avec --experimental."
     }
   },
   "understanding": {

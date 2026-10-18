@@ -101,13 +101,14 @@ test("every provider keeps the contract: its own id and series, courses offered 
   }
 });
 
-test("what is ready for learning is declared by the providers: Nicos Weg in every edition, Leben in Deutschland, Goethe A1 alone of its source", () => {
+test("what is ready for learning is declared by the providers: Nicos Weg in every edition, Leben in Deutschland, every Goethe exam; the rest experimental", () => {
   const offers = courseInstaller("/nowhere").offers();
   const stable = new Set(offers.filter((o) => !o.experimental).map((o) => o.series));
   expect([...stable].sort()).toEqual(["bamf.lid", "dw.nicos-weg", "goethe.zertifikat"]);
   const goethe = offers.filter((o) => o.series === "goethe.zertifikat");
-  expect(goethe.filter((o) => !o.experimental).map((o) => o.course)).toEqual(["a1"]);
-  expect(goethe.filter((o) => o.experimental).length).toBeGreaterThan(0);
+  expect(goethe.filter((o) => !o.experimental).map((o) => o.course)).toEqual(["a1", "a2", "b1"]);
+  // Of the ready series none is experimental in part; every other series is wholly experimental.
+  for (const o of offers) expect(!!o.experimental, o.series).toBe(!stable.has(o.series));
 });
 
 test("a download's end: invalid files are an error, media missing leave it incomplete, else done", () => {

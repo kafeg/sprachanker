@@ -48,6 +48,8 @@ declare const SPRACHANKER_WEB_FILES: string[];
 /** The notification's words while the app is open to other devices, by language (the catalogs'
  *  `desktop` section). */
 declare const SPRACHANKER_HOST_WORDS: Record<string, { hosting: string; quit: string }>;
+/** The server's `--experimental`, chosen when the page is built (`SPRACHANKER_EXPERIMENTAL=1`). */
+declare const SPRACHANKER_EXPERIMENTAL: boolean;
 
 const netFetch = globalThis.fetch.bind(globalThis);
 setNetFetch(netFetch);
@@ -220,6 +222,7 @@ async function start() {
     deckTransfers: storage?.deckTransfers ?? notOnPhone("deck files"),
     practice: storage?.practice,
     installer: storage?.installer,
+    experimental: SPRACHANKER_EXPERIMENTAL,
     appVersion: SPRACHANKER_VERSION,
     secretKey,
     // An LLM provider's requests through the native side too (any address the learner sets).

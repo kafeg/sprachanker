@@ -285,27 +285,20 @@ test("an exam removed from my exams: asked first, its runs gone, still downloade
   await expect(page.getByRole("link", { name: /Mini test|Model test/ }).first()).toBeVisible();
 });
 
-test("experimental exams: off until their section and source are turned on in Settings → General → Experimental; a source's ready ones shown always", async ({
+test("without --experimental only what is ready for learning is offered: Nicos Weg, Leben in Deutschland, every Goethe exam; no Experimental section", async ({
   page,
-  request,
 }) => {
-  await put(request, "/api/settings", { key: "experimental.on", value: [] });
   await page.goto("/exams/catalog");
   await expect(page.getByText("Leben in Deutschland").first()).toBeVisible();
-  // Goethe's A1 is ready, its A2 and B1 experimental.
-  await expect(page.getByText(/Goethe-Zertifikat A1/).first()).toBeVisible();
-  await expect(page.getByText(/Goethe-Zertifikat (A2|B1)/)).toHaveCount(0);
-  await page.goto("/settings#experimental");
-  await expect(page.getByText("An experiment, not a way to prepare")).toBeVisible();
-  const goethe = page.getByRole("checkbox", { name: /Goethe-Institut/ });
-  await expect(goethe).toBeDisabled();
-  // Each saved as it is ticked.
-  const exams = page.getByRole("checkbox", { name: /^Exams/ });
-  await exams.click();
-  await expect(exams).toBeChecked();
-  await goethe.click();
-  await expect(goethe).toBeChecked();
-  await page.goto("/exams/catalog");
-  await expect(page.getByText(/Goethe-Zertifikat B1/).first()).toBeVisible();
-  await put(request, "/api/settings", { key: "experimental.on", value: [] });
+  for (const level of ["A1", "A2", "B1"])
+    await expect(page.getByText(`Goethe-Zertifikat ${level}`).first()).toBeVisible();
+  await page.goto("/catalog");
+  await expect(page.getByText(/Nicos Weg A1/).first()).toBeVisible();
+  await expect(page.getByText(/Deutschtrainer|Deutsch im Blick|Let's Learn English/)).toHaveCount(
+    0,
+  );
+  await expect(page.getByText(/Experimental: not ready for learning/)).toHaveCount(0);
+  await page.goto("/settings#about");
+  await expect(page.getByRole("heading", { name: "About SprachAnker" })).toBeVisible();
+  await expect(page.getByText(/Experimental/)).toHaveCount(0);
 });

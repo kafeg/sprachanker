@@ -234,7 +234,6 @@
       "aiShort": "AI"
     },
     "prompts": "Maagizo",
-    "experimental": "Majaribio",
     "advanced": "Kina zaidi"
   },
   "llm": {
@@ -611,7 +610,8 @@
     "source": "Msimbo chanzo kwenye GitHub",
     "notices": "Vipengele vya wahusika wengine na leseni",
     "noticesIntro": "SprachAnker imejengwa kwa vipengele hivi, kila kimoja chini ya leseni yake; maandishi ya leseni yanafuata baada ya orodha.",
-    "noticesMissing": "Toleo hili halina orodha: inakuja na matoleo yanayosambazwa — programu, programu ya Mac na programu ya Android."
+    "noticesMissing": "Toleo hili halina orodha: inakuja na matoleo yanayosambazwa — programu, programu ya Mac na programu ya Android.",
+    "experimental": "Hali ya majaribio (--experimental): kozi na mitihani ambayo bado haiko tayari kwa kujifunza inaonyeshwa pia. Usiitegemee kujiandaa."
   },
   "addresses": {
     "title": "Vifaa vingine",
@@ -670,7 +670,8 @@
       "body": "Masomo na media yake yanafutwa kwenye diski (media zinazotumiwa na kozi nyingine zinabaki). Maendeleo yako, daftari na maneno yako yanabaki; ipakue tena ili uendelee.",
       "bodyExam": "Maswali na media yake yanafutwa kwenye diski (media zinazotumiwa na kozi nyingine zinabaki). Mitihani yako ya majaribio, mazoezi na daftari lako vinabaki; ipakue tena ili uendelee.",
       "confirm": "Ondoa"
-    }
+    },
+    "experimental": "Ya majaribio: bado haiko tayari kwa kujifunza"
   },
   "storage": {
     "title": "Hifadhi",
@@ -982,7 +983,6 @@
       "title": "Karibu",
       "text": "SprachAnker huweka kozi halisi za lugha katika kicheza kimoja, hukagua majibu yako, huhifadhi maneno yako kwa marudio yaliyopangwa kwa vipindi na inaweza kuleta mkufunzi wa AI. Kila kitu kinabaki kwenye kifaa hiki.",
       "sources": "Kozi hupakuliwa moja kwa moja kutoka kwenye tovuti za wachapishaji wake (Deutsche Welle na wengine) kwa matumizi yako binafsi. Heshimu masharti yao; SprachAnker haihusiani nao.",
-      "experimental": "Kozi na mitihani ambayo bado inajaribiwa hufichwa hadi uiwashe katika Mipangilio → Jumla → Majaribio.",
       "name": "Tukuite nani?"
     },
     "assistant": {
@@ -1611,20 +1611,6 @@
     },
     "choose": "Chagua mtihani"
   },
-  "experimental": {
-    "disclaimerTitle": "Ni jaribio, si njia ya kujiandaa",
-    "disclaimer": "Unachowasha hapa bado kinajaribiwa: maudhui yake yanaweza kuwa pungufu au kusomwa vibaya, na alama zake zinaweza kutofautiana na za halisi. Usikitegemee kujiandaa kwa kozi au mtihani.",
-    "section": {
-      "courses": "Kozi",
-      "exams": "Mitihani"
-    },
-    "sectionHint": {
-      "courses": "Kozi zaidi za kupakua, zinaonyeshwa katika Kozi",
-      "exams": "Mitihani zaidi ya kupakua, inaonyeshwa katika Mitihani"
-    },
-    "none": "Hakuna cha majaribio hapa.",
-    "more": "{count, plural, one {# zaidi} other {# zaidi}}"
-  },
   "examples": {
     "newWords": "Mapya hapa:",
     "by": "Mifano ya AI · {model}"
@@ -1666,8 +1652,7 @@
       "replaced": "“{title}” sasa ni toleo la faili; maendeleo yako yamebaki.",
       "verified": "Imekaguliwa: faili zote zipo.",
       "problems": "Imekaguliwa: {count, plural, one {tatizo # limepatikana} other {matatizo # yamepatikana}} — “Kagua” kwenye kadi yake inayaonyesha.",
-      "experimental": "Hili ni jaribio: halionyeshwi hadi chanzo chake kiwashwe.",
-      "turnOn": "Mipangilio → Jumla → Majaribio"
+      "hidden": "Bado haiko tayari kwa kujifunza, kwa hivyo inaonyeshwa tu SprachAnker ikianzishwa na --experimental."
     }
   },
   "understanding": {

@@ -90,6 +90,7 @@ export function createLessons({
   content,
   heard = content.heard,
   started,
+  listed = () => true,
 }: {
   store: RunStore;
   content: Content;
@@ -98,6 +99,8 @@ export function createLessons({
   heard?: (series: string, course: string) => Promise<Record<string, string>>;
   /** Told once a lesson's new run is started — not when one is resumed (its AI practice's next variants taken). */
   started?: (lesson: LessonStart) => void;
+  /** Whether an installed course is listed (an experimental one only on a server started so). */
+  listed?: (key: string) => boolean;
 }) {
   /** A lesson run by id (the lesson endpoints take no other kind). */
   const getRun = (id: string) => {
@@ -303,11 +306,11 @@ export function createLessons({
     standing,
     studied,
 
-    /** The installed courses (not the exams: the Exams section's) with the learner's progress and
-     *  the lesson to go on with, as its card shows it (its title in each edition, exercises worked). */
+    /** The installed courses listed (not the exams: the Exams section's) with the learner's progress
+     *  and the lesson to go on with, as its card shows it (its title in each edition, exercises worked). */
     async courses() {
       const byLesson = await progress();
-      const courses = (await content.courses()).filter((c) => c.kind === "course");
+      const courses = (await content.courses()).filter((c) => c.kind === "course" && listed(c.key));
       return Promise.all(
         courses.map(async ({ lessons, exams: _, kind: __, ...course }) => {
           const at = courseProgress(lessons, byLesson);

@@ -146,24 +146,25 @@ test("Import from a file: a file of two courses, each said with its check", asyn
   expect(view.getByText("Checked: 1 problem found — “Check” on its card lists them.")).toBeTruthy();
 });
 
-test("Import from a file: an experiment not turned on is here but not listed — said, with the way to turn it on", async () => {
-  const series: string[] = [];
-  const view = await renderApp(
-    <CourseImport
-      hidden={(s) => {
-        series.push(s);
-        return true;
-      }}
-      upload={async () => result("added")}
-    />,
-    { path: "/exams/downloaded" },
-  );
+test("Import from a file: an experimental course the server does not list is here — said, with how it is shown", async () => {
+  const hidden = result("added");
+  hidden.courses = hidden.courses.map((c) => ({ ...c, hidden: true as const }));
+  const view = await renderApp(<CourseImport upload={async () => hidden} />, {
+    path: "/exams/downloaded",
+  });
   choose(view);
-  await waitFor(() => expect(view.getByText(/It is an experiment/)).toBeTruthy());
-  expect(series).toContain("dw.nicos-weg");
-  expect(
-    view.getByRole("link", { name: "Settings → General → Experimental" }).getAttribute("href"),
-  ).toBe("/settings#experimental");
+  await waitFor(() =>
+    expect(
+      view.getByText(/listed only when SprachAnker is started with --experimental/),
+    ).toBeTruthy(),
+  );
+});
+
+test("Import from a file: a course listed says nothing of --experimental", async () => {
+  const view = await renderApp(<CourseImport upload={async () => result("added")} />);
+  choose(view);
+  await waitFor(() => expect(view.getByText("“Nicos Weg A1” is here.")).toBeTruthy());
+  expect(view.queryByText(/--experimental/)).toBeNull();
 });
 
 test("Import from a file: a refused file said in words", async () => {

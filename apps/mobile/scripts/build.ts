@@ -59,6 +59,8 @@ const built = await Bun.build({
     SPRACHANKER_VERSION: JSON.stringify(version),
     SPRACHANKER_WEB_FILES: JSON.stringify(webFiles),
     SPRACHANKER_HOST_WORDS: JSON.stringify(hostWords),
+    // The server's --experimental on the phone: a build made with SPRACHANKER_EXPERIMENTAL=1.
+    SPRACHANKER_EXPERIMENTAL: JSON.stringify(process.env.SPRACHANKER_EXPERIMENTAL === "1"),
   },
   target: "browser",
   format: "esm",

@@ -234,7 +234,6 @@
       "aiShort": "YZ"
     },
     "prompts": "İstemler",
-    "experimental": "Deneysel",
     "advanced": "Gelişmiş"
   },
   "llm": {
@@ -611,7 +610,8 @@
     "source": "GitHub’da kaynak kodu",
     "notices": "Üçüncü taraf bileşenler ve lisanslar",
     "noticesIntro": "SprachAnker bu bileşenlerle oluşturulmuştur, her biri kendi lisansıyla; lisans metinleri listeden sonra gelir.",
-    "noticesMissing": "Bu derlemede liste yok: dağıtılan derlemelerde bulunur — program, Mac uygulaması ve Android uygulaması."
+    "noticesMissing": "Bu derlemede liste yok: dağıtılan derlemelerde bulunur — program, Mac uygulaması ve Android uygulaması.",
+    "experimental": "Deneysel mod (--experimental): henüz öğrenmeye hazır olmayan kurslar ve sınavlar da gösterilir. Hazırlanırken bunlara güvenme."
   },
   "addresses": {
     "title": "Diğer cihazlar",
@@ -670,7 +670,8 @@
       "body": "Dersleri ve medyası diskten silinir (başka bir kursun kullandığı medya kalır). İlerlemen, defterin ve kelimelerin kalır; devam etmek için yeniden indir.",
       "bodyExam": "Soruları ve medyası diskten silinir (başka bir kursun kullandığı medya kalır). Deneme sınavların, alıştırmaların ve defterin kalır; devam etmek için yeniden indir.",
       "confirm": "Kaldır"
-    }
+    },
+    "experimental": "Deneysel: henüz öğrenmeye hazır değil"
   },
   "storage": {
     "title": "Depolama",
@@ -982,7 +983,6 @@
       "title": "Hoş geldin",
       "text": "SprachAnker gerçek dil kurslarını tek bir oynatıcıda toplar, cevaplarını kontrol eder, kelimelerini aralıklı tekrarla çalıştırır ve bir yapay zekâ öğretmenini de devreye alabilir. Her şey bu cihazda kalır.",
       "sources": "Kurslar doğrudan yayıncılarının web sitelerinden (Deutsche Welle ve diğerleri) kişisel kullanımın için indirilir. Onların kullanım koşullarına uy; SprachAnker’ın onlarla bir bağlantısı yoktur.",
-      "experimental": "Hâlâ denenmekte olan kurslar ve sınavlar, Ayarlar → Genel → Deneysel bölümünden açana kadar gizli kalır.",
       "name": "Sana nasıl hitap edelim?"
     },
     "assistant": {
@@ -1611,20 +1611,6 @@
     },
     "choose": "Bir sınav seç"
   },
-  "experimental": {
-    "disclaimerTitle": "Bir deney, hazırlık yolu değil",
-    "disclaimer": "Burada açtığın şeyler deneme aşamasında: içerikleri eksik ya da hatalı okunmuş olabilir, puanlamaları gerçeğinden farklı olabilir. Bir kursa ya da sınava hazırlanmak için bunlara güvenme.",
-    "section": {
-      "courses": "Kurslar",
-      "exams": "Sınavlar"
-    },
-    "sectionHint": {
-      "courses": "İndirilebilecek daha fazla kurs, Kurslar’da gösterilir",
-      "exams": "İndirilebilecek daha fazla sınav, Sınavlar’da gösterilir"
-    },
-    "none": "Burada deneysel bir şey yok.",
-    "more": "{count, plural, one {# tane daha} other {# tane daha}}"
-  },
   "examples": {
     "newWords": "Burada yeni:",
     "by": "Yapay zekâ örnekleri · {model}"
@@ -1666,8 +1652,7 @@
       "replaced": "“{title}” artık dosyadaki sürüm; ilerlemen korunuyor.",
       "verified": "Denetlendi: bütün dosyalar burada.",
       "problems": "Denetlendi: {count, plural, one {# sorun bulundu} other {# sorun bulundu}} — kartındaki “Kontrol et” onları listeler.",
-      "experimental": "Bu bir deneme; kaynağı açılana kadar listelenmez.",
-      "turnOn": "Ayarlar → Genel → Denemeler"
+      "hidden": "Henüz öğrenmeye hazır değil, bu yüzden yalnızca SprachAnker --experimental ile başlatıldığında listelenir."
     }
   },
   "understanding": {
