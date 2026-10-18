@@ -41,8 +41,9 @@ src/
   speech/         # voices.ts: a server voice's gender and age; a text's people given voices
                   # (castVoices), a speaker's gender by name (speakerVoices, older texts); a text's
                   # pieces read aloud (readingPieces: the web's requests, the server's read ahead)
-  srs/            # ts-fsrs wrapper, Anki's study queue (limits, the day's start hour, learn ahead),
-                  # interval text; state.ts: a face's FSRS state by name (never its number); day.ts: the day's card answers (limits used, undo, the face just taken back);
+  srs/            # ts-fsrs wrapper made to schedule as Anki (fsrs-rs's same-day Hard, Anki's steps, Easy
+                  # above Good, days counted from 4 AM), Anki's study queue (limits, the day's start hour,
+                  # learn ahead, new cards mixed in as Anki orders the day), interval text; state.ts: a face's FSRS state by name (never its number); day.ts: the day's card answers (limits used, undo, the face just taken back);
                   # deck.ts: a deck's standing for the Notebook (words by state, due, the month's answers)
 ```
 
@@ -59,5 +60,8 @@ src/
 - Keep functions small and pure; side effects belong to the server.
 - How a word is compared (heard, typed, misspelt) is language-specific only in data (`text/language-forms.ts`,
   the article lists in `text/normalise.ts`); a language without an entry gets the plain comparison.
+- A ts-fsrs update means comparing review with Anki again (its Python library, the tests' numbers):
+  `srs/index.ts` hard-codes FSRS-6's same-day stability, re-does its Hard step and Easy fuzz, and
+  `dayShift` assumes ts-fsrs counts days by UTC dates.
 - Folders depend one way: `learner/` may read `srs/`, never the reverse (dependency-cruiser
   `engine-folders-one-way`).
