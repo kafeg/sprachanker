@@ -46,11 +46,29 @@ export function AudioPlayer({
   useEffect(() => {
     if (audio.current) audio.current.playbackRate = rate;
   }, [rate]);
-  // Smooth progress while playing: timeupdate alone moves the thumb in jumps on short clips.
+  // Smooth progress while playing: the position the element reports moves in steps (WebKit's by a
+  // quarter of a second, unevenly), so between two reports it is counted on from the last one at the
+  // speed it plays, never going back. Its length is read again each frame: WebKit first guesses a
+  // file's length and corrects it at the end without a durationchange.
   useEffect(() => {
     if (paused) return;
-    let frame = requestAnimationFrame(function tick() {
-      if (audio.current) setTime(audio.current.currentTime);
+    let last = { at: performance.now(), pos: audio.current?.currentTime ?? 0 };
+    let shownPos = last.pos;
+    let frame = requestAnimationFrame(function tick(now) {
+      const a = audio.current;
+      if (a) {
+        if (a.currentTime !== last.pos) {
+          // A jump (a seek, back or ahead) is taken as it is; a step forward is counted on from.
+          if (Math.abs(a.currentTime - shownPos) > 0.5) shownPos = a.currentTime;
+          last = { at: now, pos: a.currentTime };
+        }
+        const length = Number.isFinite(a.duration) ? a.duration : Number.POSITIVE_INFINITY;
+        const counted = last.pos + ((now - last.at) / 1000) * a.playbackRate;
+        // Counted on at most a quarter of a second past the last report (a stall is not run past).
+        shownPos = Math.min(length, Math.max(shownPos, Math.min(counted, last.pos + 0.25)));
+        setTime(shownPos);
+        setDuration(a.duration);
+      }
       frame = requestAnimationFrame(tick);
     });
     return () => cancelAnimationFrame(frame);
@@ -153,14 +171,22 @@ export function AudioPlayer({
           e.currentTarget.playbackRate = rate;
         }}
         onDurationChange={(e) => setDuration(e.currentTarget.duration)}
-        onTimeUpdate={(e) => setTime(e.currentTarget.currentTime)}
+        onTimeUpdate={(e) => {
+          // While it plays, the frames above move the thumb; a report here would pull it back.
+          if (e.currentTarget.paused) setTime(e.currentTarget.currentTime);
+        }}
         onPlay={(e) => {
           claimPlayback(e.currentTarget);
           setPaused(false);
           onHeard?.();
         }}
         onPause={() => setPaused(true)}
-        onEnded={() => setPaused(true)}
+        onEnded={(e) => {
+          // At its end, its true length (WebKit's guess corrected without an event) and all of it.
+          setDuration(e.currentTarget.duration);
+          setTime(e.currentTarget.duration);
+          setPaused(true);
+        }}
         onError={() => {
           setFailed(true);
           onHeard?.();
