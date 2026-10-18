@@ -177,7 +177,8 @@ function examProblems(exam: Exam, key: string): CourseProblem[] {
   if (modules.size !== (exam.modules ?? []).length)
     out.push(inconsistent(key, "a module listed twice"));
   if (exam.modules) {
-    const together = exam.modules.reduce((n, m) => n + m.timeLimitSec, 0);
+    // Each module's time with its preparation's.
+    const together = exam.modules.reduce((n, m) => n + m.timeLimitSec + (m.preparationSec ?? 0), 0);
     if (together !== exam.timeLimitSec)
       out.push(inconsistent(key, `time ${exam.timeLimitSec} s, its modules' ${together} s`));
   }

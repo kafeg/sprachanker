@@ -10,10 +10,11 @@ import type {
   ExamMode,
   ExamRun,
   LocaleExam,
+  RespondAnswer,
   TypedEvent,
 } from "@sprachanker/schema";
 import { useNavigate } from "@tanstack/react-router";
-import { Check, X } from "lucide-react";
+import { Check, Keyboard, X } from "lucide-react";
 import { useMemo, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { mediaUrl } from "@/api/client.ts";
@@ -255,7 +256,7 @@ export function ExamResultView({
           </p>
           <ol className="space-y-6">
             {open.map((item) => {
-              const given = answers.get(item.key)?.answer as { text?: string } | undefined;
+              const given = answers.get(item.key)?.answer as RespondAnswer | undefined;
               const criteria = item.criteria ?? [];
               return (
                 <li key={item.key} className="space-y-3">
@@ -263,7 +264,7 @@ export function ExamResultView({
                     {t("exams.question", { n: items.indexOf(item) + 1, total: items.length })}
                   </p>
                   {item.prompt && <p className="font-semibold">{item.prompt}</p>}
-                  <p className="whitespace-pre-line rounded-xl bg-muted/60 p-4">{given?.text}</p>
+                  <GivenText answer={given} />
                   <OpenAnswerRating
                     runId={run.id}
                     item={{ ...item, criteria }}
@@ -317,6 +318,32 @@ export function ExamResultView({
         </ol>
       ) : (
         <EmptyState className="p-6">{t("exams.noMistakes")}</EmptyState>
+      )}
+    </div>
+  );
+}
+
+/** An open answer as given: a speaking part's lines each with whether it was typed instead of said,
+ *  and whether the examiner ended the part when its time ran out; else its text. */
+function GivenText({ answer }: { answer?: RespondAnswer }) {
+  const { t } = useTranslation();
+  if (!answer?.lines)
+    return <p className="whitespace-pre-line rounded-xl bg-muted/60 p-4">{answer?.text}</p>;
+  return (
+    <div className="space-y-1 rounded-xl bg-muted/60 p-4">
+      {answer.lines.map((l, i) => (
+        // biome-ignore lint/suspicious/noArrayIndexKey: the lines said, in order
+        <p key={i} className="whitespace-pre-line">
+          {l.transcript}
+          {l.typed && (
+            <span className="ms-2 inline-flex items-center gap-1 text-xs text-muted-foreground">
+              <Keyboard className="size-3.5" /> {t("exams.conversation.typed")}
+            </span>
+          )}
+        </p>
+      ))}
+      {answer.timeUp && (
+        <p className="text-sm text-muted-foreground">{t("exams.conversation.ended")}</p>
       )}
     </div>
   );

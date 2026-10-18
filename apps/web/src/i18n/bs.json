@@ -1621,9 +1621,22 @@
       "partner": "Partner",
       "examiner": "Ispitivač",
       "intro": "Ispitivač i tvoj partner govore naglas; ti govoriš kad dođe tvoj red. Ono što kažeš je tvoj odgovor, koji se poslije ocjenjuje po kriterijima dijela.",
-      "start": "Počni dio"
+      "start": "Počni dio",
+      "left": "Za ovaj dio ostalo je {time}",
+      "ended": "Vrijeme je isteklo: ispitivač je završio dio.",
+      "overPractice": "Vrijeme je isteklo — na ispitu bi ispitivač ovdje završio dio.",
+      "typed": "Otkucano, nije izgovoreno"
     },
-    "choose": "Izaberi ispit"
+    "choose": "Izaberi ispit",
+    "preparation": {
+      "title": "Priprema: {module}",
+      "text": "Za pripremu dijelova imaš {minutes, plural, one {# minutu} few {# minute} other {# minuta}}. Pravi bilješke za svaki: dok govoriš možeš ih pogledati, ali govori slobodno.",
+      "left": "Za pripremu ostalo je {time}",
+      "over": "Vrijeme za pripremu je isteklo.",
+      "notes": "Tvoje bilješke",
+      "yourNotes": "Tvoje bilješke iz pripreme",
+      "begin": "Počni dijelove"
+    }
   },
   "examples": {
     "newWords": "Novo ovdje:",

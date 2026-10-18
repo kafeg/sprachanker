@@ -1621,9 +1621,22 @@
       "partner": "Gesprächspartner",
       "examiner": "Prüfer",
       "intro": "Die Prüferin und dein Partner sprechen; du sprichst, wenn du dran bist. Was du sagst, ist deine Antwort und wird danach nach den Kriterien des Teils bewertet.",
-      "start": "Teil beginnen"
+      "start": "Teil beginnen",
+      "left": "Für diesen Teil bleiben {time}",
+      "ended": "Die Zeit ist um: Der Prüfer hat den Teil beendet.",
+      "overPractice": "Die Zeit ist um – in der Prüfung würde der Prüfer den Teil hier beenden.",
+      "typed": "Getippt, nicht gesprochen"
     },
-    "choose": "Prüfung wählen"
+    "choose": "Prüfung wählen",
+    "preparation": {
+      "title": "Vorbereitung: {module}",
+      "text": "Du hast {minutes, plural, one {# Minute} other {# Minuten}}, um die Teile vorzubereiten. Mach dir zu jedem Notizen: Beim Sprechen darfst du hineinschauen, sprich aber frei.",
+      "left": "Noch {time} zur Vorbereitung",
+      "over": "Die Vorbereitungszeit ist um.",
+      "notes": "Deine Notizen",
+      "yourNotes": "Deine Notizen aus der Vorbereitung",
+      "begin": "Teile beginnen"
+    }
   },
   "examples": {
     "newWords": "Neu hier:",

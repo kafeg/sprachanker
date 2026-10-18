@@ -1621,9 +1621,22 @@
       "partner": "Pasangan",
       "examiner": "Penguji",
       "intro": "Penguji dan pasanganmu berbicara dengan suara; kamu berbicara saat giliranmu. Yang kamu ucapkan adalah jawabanmu, dinilai kemudian menurut kriteria bagian itu.",
-      "start": "Mulai bagian ini"
+      "start": "Mulai bagian ini",
+      "left": "Tersisa {time} untuk bagian ini",
+      "ended": "Waktu habis: penguji mengakhiri bagian ini.",
+      "overPractice": "Waktu habis — dalam ujian penguji akan mengakhiri bagian di sini.",
+      "typed": "Diketik, tidak diucapkan"
     },
-    "choose": "Pilih ujian"
+    "choose": "Pilih ujian",
+    "preparation": {
+      "title": "Persiapan: {module}",
+      "text": "Kamu punya {minutes, plural, other {# menit}} untuk menyiapkan bagian-bagiannya. Buat catatan untuk masing-masing: kamu boleh melihatnya saat berbicara, tetapi bicaralah dengan bebas.",
+      "left": "Tersisa {time} untuk persiapan",
+      "over": "Waktu persiapan sudah habis.",
+      "notes": "Catatanmu",
+      "yourNotes": "Catatanmu dari persiapan",
+      "begin": "Mulai bagian-bagiannya"
+    }
   },
   "examples": {
     "newWords": "Baru di sini:",

@@ -1621,9 +1621,22 @@
       "partner": "Partner",
       "examiner": "Vizsgáztató",
       "intro": "A vizsgáztató és a partnered hangosan beszél; te akkor beszélsz, amikor rád kerül a sor. Amit mondasz, az a válaszod, amit utána a rész feltételei szerint értékelnek.",
-      "start": "A rész indítása"
+      "start": "A rész indítása",
+      "left": "Erre a részre {time} maradt",
+      "ended": "Lejárt az idő: a vizsgáztató befejezte a részt.",
+      "overPractice": "Lejárt az idő — a vizsgán a vizsgáztató itt befejezné a részt.",
+      "typed": "Begépelve, nem elmondva"
     },
-    "choose": "Válassz vizsgát"
+    "choose": "Válassz vizsgát",
+    "preparation": {
+      "title": "Felkészülés: {module}",
+      "text": "{minutes, plural, one {# perced} other {# perced}} van a részek felkészülésére. Készíts jegyzetet mindegyikhez: beszéd közben belenézhetsz, de beszélj szabadon.",
+      "left": "{time} maradt a felkészülésre",
+      "over": "Lejárt a felkészülési idő.",
+      "notes": "Jegyzeteid",
+      "yourNotes": "Jegyzeteid a felkészülésből",
+      "begin": "Részek indítása"
+    }
   },
   "examples": {
     "newWords": "Új itt:",

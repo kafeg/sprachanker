@@ -40,6 +40,10 @@ export interface ConversationContext {
   said?: RespondAnswer;
   /** Checked (practice): each line said shown with the script's good line, nothing more to say. */
   checked: boolean;
+  /** The Teil's time (seconds): shown as it runs at the learner's turns. */
+  seconds?: number;
+  /** The examiner ends the part when its time is over (a mock exam); practice only says so. */
+  timed?: boolean;
 }
 
 const Slots = createContext<ExamSlots>({});

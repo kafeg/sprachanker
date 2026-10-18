@@ -4,10 +4,14 @@
 // their gender as they come, up to the learner's next place; the learner says it (its hint shown in
 // practice, never in a mock exam) and keeps it, the next lines coming. Once every place is said the
 // part is the answer: practice sends it with Check in the step bar, a mock exam as it is. Answered,
-// each line said is shown with the script's good line under it. The router provides it to the exam
-// run (exams/slots.ts); without an assistant the part is answered aloud as any open answer.
-import type { ExamPart, RespondAnswer } from "@sprachanker/schema";
-import { Mic } from "lucide-react";
+// each line said is shown with the script's good line under it; a line typed (nothing could hear
+// it) is marked typed. The Teil's time (owner, 2026-10-18) runs while it is the learner's turn — not
+// while the others' lines are read, nor while a take is heard — and is shown; in a mock exam the
+// examiner ends the part when it is over (what is being said taken as it is), in practice it is
+// only said. The router provides it to the exam run (exams/slots.ts); without an assistant the part
+// is answered aloud as any open answer.
+import type { ExamPart, RespondAnswer, SaidLine } from "@sprachanker/schema";
+import { Keyboard, Mic, Timer } from "lucide-react";
 import { useEffect, useRef, useState } from "react";
 import { useTranslation } from "react-i18next";
 import type { SpokenPart } from "@/audio/speak.ts";
@@ -16,28 +20,30 @@ import { useSpeaker } from "@/audio/speaker.ts";
 import type { ConversationContext } from "@/exams/slots.ts";
 import { Button } from "@/ui/components/button.tsx";
 import { inLang } from "@/ui/direction.tsx";
+import { clock } from "@/ui/format.ts";
 import { Panel } from "@/ui/panel.tsx";
 import { useRequiredTargetLang } from "@/ui/target-lang.ts";
 import { cn } from "@/ui/utils.ts";
 import { useExamPart } from "./api.ts";
-import { DialogueLine } from "./dialogue-line.tsx";
+import { DialogueLine, type LineState } from "./dialogue-line.tsx";
 import { ErrorLine, StartPrompt, Thinking } from "./parts.tsx";
 import { PromptButton } from "./prompt-view.tsx";
 
-/** A learner's line said: as heard (or typed), with its take. */
-type Said = { transcript: string; recording?: string };
-
-/** A place for the learner to talk at length (a monologue, a presentation): a longer take. */
-const LONG_LINE = 160;
+/** A place for the learner to talk at length (a monologue, a presentation): a take as long as the
+ *  Teil's time (3 minutes where it has none). */
+const LONG_LINE = 120;
 const LONG_MS = 180_000;
 
-/** The part's answer: the lines said, a line each, with their takes. */
-const answerOf = (said: Said[]): RespondAnswer => ({
+/** The time each part has used, by its script: kept while the page is open (a mock exam's part left
+ *  and opened again goes on with its time). */
+const used = new Map<string, number>();
+
+/** The part's answer: the lines said, a line each, with their takes (typed ones marked); ended by
+ *  the examiner when its time ran out. */
+const answerOf = (said: SaidLine[], timeUp: boolean): RespondAnswer => ({
   text: said.map((s) => s.transcript.trim()).join("\n"),
-  lines: said.map((s) => ({
-    transcript: s.transcript,
-    ...(s.recording && { recording: s.recording }),
-  })),
+  lines: said,
+  ...(timeUp && { timeUp: true }),
 });
 
 export function ExamPartView({
@@ -49,6 +55,8 @@ export function ExamPartView({
   hints,
   said,
   checked,
+  seconds,
+  timed,
 }: ConversationContext) {
   const { t, i18n } = useTranslation();
   const make = useExamPart();
@@ -86,6 +94,8 @@ export function ExamPartView({
       checked={checked}
       onSaid={onSaid}
       prompt={request}
+      {...(seconds ? { seconds } : {})}
+      timed={!!timed}
     />
   );
 }
@@ -98,6 +108,8 @@ function Said({
   checked,
   onSaid,
   prompt,
+  seconds,
+  timed,
 }: {
   part: ExamPart;
   id: string;
@@ -107,6 +119,10 @@ function Said({
   checked: boolean;
   onSaid(answer: RespondAnswer | undefined): void;
   prompt: { runId: string; itemKey: string; language: string };
+  /** The Teil's time. */
+  seconds?: number;
+  /** The examiner ends the part when its time is over (a mock exam). */
+  timed: boolean;
 }) {
   const { t } = useTranslation();
   const lang = useRequiredTargetLang();
@@ -114,11 +130,21 @@ function Said({
   const engine = speaker.serverVoices(lang)?.engine;
   const places = part.lines.flatMap((l, n) => (l.speaker === "learner" ? [n] : []));
   // What was said: as it was (an answer given, a draft), then as it is said now.
-  const [said, setSaid] = useState<Said[]>(() => initial?.lines ?? []);
+  const [said, setSaid] = useState<SaidLine[]>(() => initial?.lines ?? []);
+  // Ended by the examiner, its time over (a mock exam's): no place more.
+  const [ended, setEnded] = useState(!!initial?.timeUp);
   const done = checked;
-  const next = done ? undefined : places[said.length];
-  // The lines up to the learner's next place (all of them once every place is said).
-  const upTo = next ?? part.lines.length;
+  const next = done || ended ? undefined : places[said.length];
+  // The lines shown: up to the learner's next place (all of them once every place is said); a part
+  // ended there, then its closing line (the script's last, where it is the examiner's).
+  const cut = ended ? places[said.length] : undefined;
+  const closing = part.lines.length - 1;
+  const shown = part.lines.flatMap((l, n) =>
+    n < (cut ?? next ?? part.lines.length) ||
+    (cut !== undefined && n === closing && l.speaker === "examiner")
+      ? [n]
+      : [],
+  );
   const voiceOf = (speaker: "examiner" | "partner"): SpokenPart["voice"] =>
     part.voices && part.voices.engine === engine ? part.voices[speaker] : undefined;
   const spoken = (line: ExamPart["lines"][number]): SpokenPart => {
@@ -128,14 +154,57 @@ function Said({
     return { text: line.text, lang, ...(gender && { alt: gender }), ...(voice && { voice }) };
   };
   // The newest lines read aloud as they come (the opening once the part begins: a tap began it);
-  // those shown when the page came back are not read again.
-  const heard = useRef(said.length ? upTo - 1 : -1);
+  // those shown when the page came back are not read again. While they are read, the learner's time
+  // does not run.
+  const heard = useRef(said.length || ended ? (shown.at(-1) ?? -1) : -1);
+  const [reading, setReading] = useState(false);
   useEffect(() => {
-    if (done || upTo <= heard.current + 1) return;
-    const lines = part.lines.slice(heard.current + 1, upTo).filter((l) => l.speaker !== "learner");
-    heard.current = upTo - 1;
-    if (lines.length) void speaker.say(`${id}-${upTo}`, lines.map(spoken));
+    if (done) return;
+    const last = shown.at(-1) ?? -1;
+    if (last <= heard.current) return;
+    const lines = shown
+      .filter((n) => n > heard.current)
+      .map((n) => part.lines[n] as ExamPart["lines"][number])
+      .filter((l) => l.speaker !== "learner");
+    heard.current = last;
+    if (!lines.length) return;
+    setReading(true);
+    void speaker.say(`${id}-${last}`, lines.map(spoken)).finally(() => setReading(false));
   });
+
+  // The Teil's time: it runs at the learner's turn, but while a take is heard.
+  const limit = seconds ? seconds * 1000 : undefined;
+  const [spent, setSpent] = useState(() => used.get(id) ?? 0);
+  const [line, setLine] = useState<LineState>("idle");
+  const running = limit !== undefined && next !== undefined && !reading && line !== "hearing";
+  useEffect(() => {
+    if (!running) return;
+    let last = Date.now();
+    const add = () => {
+      const now = Date.now();
+      const by = now - last;
+      last = now;
+      setSpent((s) => {
+        used.set(id, s + by);
+        return s + by;
+      });
+    };
+    const tick = setInterval(add, 250);
+    return () => {
+      clearInterval(tick);
+      add();
+    };
+  }, [running, id]);
+  const left = limit === undefined ? undefined : Math.max(0, limit - spent);
+  const over = left === 0;
+  // Over in a mock exam: what is being said is taken as it is, then the examiner ends the part.
+  const ending = timed && over && next !== undefined;
+  // biome-ignore lint/correctness/useExhaustiveDependencies: once the line is taken
+  useEffect(() => {
+    if (!ending || line !== "idle") return;
+    setEnded(true);
+    onSaid(answerOf(said, true));
+  }, [ending, line]);
 
   const name = (speaker: string) =>
     speaker === "partner"
@@ -144,16 +213,34 @@ function Said({
   const nextLine = next === undefined ? undefined : part.lines[next];
   return (
     <div className="space-y-3">
-      <div className="flex justify-end">
+      <div className="flex items-center justify-between gap-2">
+        {left !== undefined && !done ? (
+          <p
+            role="timer"
+            className={cn(
+              "flex items-center gap-1.5 text-sm tabular-nums",
+              over ? "font-medium text-destructive" : "text-muted-foreground",
+            )}
+          >
+            <Timer className="size-4 shrink-0" />
+            {over
+              ? timed
+                ? t("exams.conversation.ended")
+                : t("exams.conversation.overPractice")
+              : t("exams.conversation.left", { time: clock(Math.ceil(left / 1000)) })}
+          </p>
+        ) : (
+          <span />
+        )}
         <PromptButton request={{ conversation: prompt }} />
       </div>
       <ol className="space-y-3">
-        {part.lines.slice(0, upTo).map((l, n) => {
+        {shown.map((n) => {
+          const l = part.lines[n] as ExamPart["lines"][number];
           const mine = l.speaker === "learner";
           const place = places.indexOf(n);
-          const line = mine ? said[place] : undefined;
+          const said_ = mine ? said[place] : undefined;
           return (
-            // biome-ignore lint/suspicious/noArrayIndexKey: the script's lines, fixed order
             <li key={n} className={cn("flex", mine && "justify-end")}>
               <div
                 className={cn(
@@ -165,8 +252,13 @@ function Said({
                   <>
                     {hints && l.hint && <p className="text-sm text-muted-foreground">{l.hint}</p>}
                     <p {...inLang(lang)} className="text-lg">
-                      {line?.transcript}
+                      {said_?.transcript}
                     </p>
+                    {said_?.typed && (
+                      <p className="flex items-center gap-1 text-xs text-muted-foreground">
+                        <Keyboard className="size-3.5" /> {t("exams.conversation.typed")}
+                      </p>
+                    )}
                     {done && (
                       <p className="text-sm text-muted-foreground">
                         {t("talk.model")}:{" "}
@@ -202,26 +294,37 @@ function Said({
             lang={lang}
             busy={false}
             sendLabel={t("talk.keep")}
-            {...(nextLine.text.length > LONG_LINE && { maxMs: LONG_MS })}
+            {...(nextLine.text.length > LONG_LINE && { maxMs: limit ?? LONG_MS })}
+            onState={setLine}
+            keepAtOnce={ending}
             onSend={(heard, sent) => {
-              const now = [
+              const now: SaidLine[] = [
                 ...said,
-                { transcript: heard.text, ...(heard.recording && { recording: heard.recording }) },
+                {
+                  transcript: heard.text,
+                  ...(heard.recording && { recording: heard.recording }),
+                  ...(!heard.spoken && { typed: true as const }),
+                },
               ];
               setSaid(now);
               // Every place said: the part is the answer (practice: sent with Check).
-              if (now.length === places.length) onSaid(answerOf(now));
+              if (now.length === places.length) onSaid(answerOf(now, false));
               sent();
             }}
           />
         </Panel>
       )}
-      {!done && said.length > 0 && (
+      {!done && !ended && said.length > 0 && (
         <Button
           variant="outline"
           onClick={() => {
             heard.current = -1;
             setSaid([]);
+            // Practice begins its time again; a mock exam's goes on.
+            if (!timed) {
+              used.delete(id);
+              setSpent(0);
+            }
             onSaid(undefined);
           }}
         >

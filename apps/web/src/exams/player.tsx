@@ -5,10 +5,20 @@
 // nothing checked before (then the result, 4B), Next in the step bar; practice (D) as a lesson: an
 // answer kept until Check in the step bar sends it and shows it checked, then Next; Skip passes a
 // question by; its tally above.
-import { answerComplete, checkQuestion, contentPoints, questionLine } from "@sprachanker/engine";
+import {
+  answerComplete,
+  checkQuestion,
+  contentPoints,
+  preparationIn,
+  preparationLeft,
+  preparationOf,
+  questionLine,
+  teilTime,
+} from "@sprachanker/engine";
 import {
   type Exam,
   type ExamItem,
+  type ExamNotesPayload,
   examLang,
   type LocaleExam,
   type Outcome,
@@ -17,7 +27,7 @@ import {
 } from "@sprachanker/schema";
 import { useNavigate } from "@tanstack/react-router";
 import { ArrowLeft, Timer } from "lucide-react";
-import { useMemo, useRef, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { ApiError, mediaUrl } from "@/api/client.ts";
 import { useExamPage, useExamRun, useKeepRunEvents } from "@/api/exams.ts";
@@ -33,17 +43,18 @@ import { StepBack, StepNext } from "@/ui/step-buttons.tsx";
 import { TargetLang } from "@/ui/target-lang.ts";
 import { useWindowPlace } from "@/ui/window-title.ts";
 import { type ListedQuestion, QuestionList } from "./navigator.tsx";
+import { Preparation, TeilNotes } from "./preparation.tsx";
 import { examExercise, inTeile, latestAnswers, takesOf } from "./questions.ts";
 import { OpenAnswerRating } from "./rating.tsx";
 import { ExamResultView } from "./result.tsx";
-import { questionState, runTally, useQuestionPlace, useTimeLeft } from "./run-state.ts";
+import { questionState, runTally, useNow, useQuestionPlace, useTimeLeft } from "./run-state.ts";
 import { useExamSlots } from "./slots.ts";
 import { QuestionCard, TeilHeader, TeilMaterial } from "./teil.tsx";
 
 export function ExamPlayer({ params, runId }: { params: ExamParams; runId: string }) {
   const navigate = useNavigate();
   const key = examKeyOf(params);
-  const { query, answer, finish, eventsNow } = useExamRun(runId);
+  const { query, answer, prepare, finish, eventsNow } = useExamRun(runId);
   const run = query.data?.run;
   const page = useExamPage(key, run?.edition ?? undefined);
   const toExam = () => void navigate({ to: "/exam/$series/$course/$exam", params });
@@ -79,6 +90,7 @@ export function ExamPlayer({ params, runId }: { params: ExamParams; runId: strin
           series={params.series}
           lang={target}
           onAnswer={answer}
+          onPrepare={prepare}
           eventsNow={eventsNow}
           finishing={finish.isPending}
           onFinish={() => finish.mutate()}
@@ -115,6 +127,7 @@ function Running({
   series,
   lang,
   onAnswer,
+  onPrepare,
   eventsNow,
   finishing,
   onFinish,
@@ -136,6 +149,8 @@ function Running({
   series: string;
   lang: string;
   onAnswer(itemKey: string, answer: unknown, ms: number, outcome?: Outcome): void;
+  /** A module's preparation kept as it stands. */
+  onPrepare(preparation: ExamNotesPayload): void;
   /** The answers as they are when asked (a typed one taken as the page is left). */
   eventsNow(): TypedEvent[];
   finishing: boolean;
@@ -198,7 +213,30 @@ function Running({
     else handIn();
   };
 
+  // A module's preparation before its Teile (Goethe B1 Sprechen): shown at its first question met
+  // until the Teile are begun — or, in a mock exam, its time is over.
   const here = teile[current] ?? teile[0];
+  const prepModule = here?.section?.module;
+  const prepSeconds = preparationOf(exam, prepModule);
+  const preparation = useMemo(
+    () => (prepModule ? preparationIn(events, prepModule) : undefined),
+    [events, prepModule],
+  );
+  const preparing = !!prepSeconds && !!preparation && !preparation.done;
+  const now = useNow(preparing);
+  const prepLeft =
+    preparation && prepSeconds ? preparationLeft(preparation, prepSeconds, now + skew) : undefined;
+  const prepOn = preparing && (mode === "practice" || prepLeft !== undefined);
+  // Begun as it is first shown; over in a mock exam: the Teile begin by themselves.
+  const began = useRef<string>(undefined);
+  useEffect(() => {
+    if (!prepModule || !preparing || !preparation || handedIn.current) return;
+    if (!preparation.began && began.current !== prepModule) {
+      began.current = prepModule;
+      onPrepare({ module: prepModule, notes: {} });
+    } else if (mode === "test" && preparation.began && prepLeft === undefined)
+      onPrepare({ module: prepModule, notes: preparation.notes, done: true });
+  }, [prepModule, preparing, preparation, prepLeft, mode, onPrepare]);
   if (!here) return null;
   const { item, section } = here;
   const given = answers.get(item.key);
@@ -246,6 +284,8 @@ function Running({
           hints: mode === "practice",
           said: (given?.answer as RespondAnswer | undefined) ?? (drafts[item.key] as RespondAnswer),
           checked: mode === "practice" && !!given,
+          ...(teilTime(exam, section?.key) && { seconds: teilTime(exam, section?.key) }),
+          timed: mode === "test",
         })
       : undefined;
   const conversation = spokenPart ?? undefined;
@@ -255,10 +295,12 @@ function Running({
   const ready =
     checking &&
     (conversation ? draft !== undefined : answerComplete(examExercise(item, false), 0, draft));
+  const notes = prepSeconds ? <TeilNotes text={preparation?.notes[item.key]} /> : null;
   const question = conversation ? (
     <section key={item.key} aria-label={label}>
       <p className="mb-1.5 text-sm text-muted-foreground">{label}</p>
       {item.prompt && <p className="mb-3 font-semibold">{item.prompt}</p>}
+      {notes}
       {conversation}
     </section>
   ) : (
@@ -394,7 +436,21 @@ function Running({
         }
       >
         <main className="pb-20 sm:pb-0">
-          {beside && section ? (
+          {prepOn && prepModule && preparation && prepSeconds ? (
+            <Preparation
+              key={prepModule}
+              module={prepModule}
+              title={moduleTitle(prepModule) ?? prepModule}
+              teile={teile.filter((x) => x.section?.module === prepModule)}
+              locale={locale}
+              notes={preparation.notes}
+              {...(prepLeft !== undefined && { left: prepLeft })}
+              minutes={Math.round(prepSeconds / 60)}
+              url={url}
+              onNotes={(notes) => onPrepare({ module: prepModule, notes })}
+              onBegin={(notes) => onPrepare({ module: prepModule, notes, done: true })}
+            />
+          ) : beside && section ? (
             <div className="grid gap-6 xl:grid-cols-2">
               {/* On a phone the question comes first, what it is about under it; on a wide screen the
                   material is beside it, on the left as on the paper. */}
@@ -414,12 +470,14 @@ function Running({
               {rating}
             </>
           )}
-          <div className="mt-6 hidden justify-between gap-3 sm:flex">{moves}</div>
+          {!prepOn && <div className="mt-6 hidden justify-between gap-3 sm:flex">{moves}</div>}
         </main>
       </SideLayout>
-      <footer className="fixed inset-x-0 bottom-0 z-10 flex items-center justify-between gap-3 border-t bg-background/95 px-4 py-3 pb-[max(0.75rem,env(safe-area-inset-bottom))] backdrop-blur sm:hidden">
-        {moves}
-      </footer>
+      {!prepOn && (
+        <footer className="fixed inset-x-0 bottom-0 z-10 flex items-center justify-between gap-3 border-t bg-background/95 px-4 py-3 pb-[max(0.75rem,env(safe-area-inset-bottom))] backdrop-blur sm:hidden">
+          {moves}
+        </footer>
+      )}
       <ConfirmDialog
         open={confirm > 0}
         onOpenChange={(open) => !open && setConfirm(0)}

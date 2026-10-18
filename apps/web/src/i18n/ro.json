@@ -1621,9 +1621,22 @@
       "partner": "Partener",
       "examiner": "Examinator",
       "intro": "Examinatorul și partenerul vorbesc cu voce tare; tu vorbești când îți vine rândul. Ce spui este răspunsul tău, evaluat apoi după criteriile părții.",
-      "start": "Începe proba"
+      "start": "Începe proba",
+      "left": "Au mai rămas {time} pentru această parte",
+      "ended": "Timpul a expirat: examinatorul a încheiat partea.",
+      "overPractice": "Timpul a expirat — la examen examinatorul ar încheia partea aici.",
+      "typed": "Tastat, nu spus"
     },
-    "choose": "Alege un examen"
+    "choose": "Alege un examen",
+    "preparation": {
+      "title": "Pregătire: {module}",
+      "text": "Ai {minutes, plural, one {# minut} few {# minute} other {# de minute}} ca să pregătești părțile. Ia notițe pentru fiecare: te poți uita la ele când vorbești, dar vorbește liber.",
+      "left": "Au mai rămas {time} pentru pregătire",
+      "over": "Timpul de pregătire a expirat.",
+      "notes": "Notițele tale",
+      "yourNotes": "Notițele tale din pregătire",
+      "begin": "Începe părțile"
+    }
   },
   "examples": {
     "newWords": "Nou aici:",

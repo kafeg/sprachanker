@@ -1621,9 +1621,22 @@
       "partner": "Partner",
       "examiner": "Sınav görevlisi",
       "intro": "Sınav görevlisi ve partnerin sesli konuşur; sıra sana gelince sen konuş. Söylediklerin cevabındır, sonra bölümün ölçütlerine göre değerlendirilir.",
-      "start": "Bölüme başla"
+      "start": "Bölüme başla",
+      "left": "Bu bölüm için {time} kaldı",
+      "ended": "Süre doldu: sınav görevlisi bölümü bitirdi.",
+      "overPractice": "Süre doldu — sınavda sınav görevlisi bölümü burada bitirirdi.",
+      "typed": "Yazıldı, söylenmedi"
     },
-    "choose": "Bir sınav seç"
+    "choose": "Bir sınav seç",
+    "preparation": {
+      "title": "Hazırlık: {module}",
+      "text": "Bölümleri hazırlamak için {minutes, plural, one {# dakikan} other {# dakikan}} var. Her biri için not al: konuşurken bakabilirsin ama serbestçe konuş.",
+      "left": "Hazırlık için {time} kaldı",
+      "over": "Hazırlık süresi doldu.",
+      "notes": "Notların",
+      "yourNotes": "Hazırlıktan notların",
+      "begin": "Bölümlere başla"
+    }
   },
   "examples": {
     "newWords": "Burada yeni:",

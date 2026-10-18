@@ -1621,9 +1621,22 @@
       "partner": "Partner",
       "examiner": "Egzaminator",
       "intro": "Egzaminator i partner mówią na głos; ty mówisz, gdy przyjdzie twoja kolej. To, co powiesz, jest twoją odpowiedzią, ocenianą potem według kryteriów części.",
-      "start": "Zacznij część"
+      "start": "Zacznij część",
+      "left": "Na tę część zostało {time}",
+      "ended": "Czas minął: egzaminator zakończył część.",
+      "overPractice": "Czas minął — na egzaminie egzaminator zakończyłby tu część.",
+      "typed": "Wpisane, nie powiedziane"
     },
-    "choose": "Wybierz egzamin"
+    "choose": "Wybierz egzamin",
+    "preparation": {
+      "title": "Przygotowanie: {module}",
+      "text": "Na przygotowanie części jest {minutes, plural, one {# minuta} few {# minuty} many {# minut} other {# minuty}}. Rób notatki do każdej: podczas mówienia można do nich zaglądać, ale mów swobodnie.",
+      "left": "Na przygotowanie zostało {time}",
+      "over": "Czas na przygotowanie minął.",
+      "notes": "Twoje notatki",
+      "yourNotes": "Twoje notatki z przygotowania",
+      "begin": "Zacznij części"
+    }
   },
   "examples": {
     "newWords": "Nowe tutaj:",

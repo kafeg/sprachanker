@@ -30,7 +30,14 @@ const script = {
 };
 
 const view = (
-  props: { hints?: boolean; said?: RespondAnswer; checked?: boolean },
+  props: {
+    hints?: boolean;
+    said?: RespondAnswer;
+    checked?: boolean;
+    seconds?: number;
+    timed?: boolean;
+    events?: unknown[];
+  },
   onSaid: (a: RespondAnswer | undefined) => void = () => {},
 ) =>
   renderApp(
@@ -38,12 +45,14 @@ const view = (
       <ExamPartView
         runId="R"
         itemKey="q"
-        events={[script] as never}
+        events={(props.events ?? [script]) as never}
         onStored={() => {}}
         onSaid={onSaid}
         hints={props.hints ?? true}
         checked={props.checked ?? false}
         {...(props.said && { said: props.said })}
+        {...(props.seconds && { seconds: props.seconds })}
+        timed={props.timed ?? false}
       />
     </TargetLang>,
     { data: [[["llm"], { provider: "custom", model: "m" }]] },
@@ -69,9 +78,14 @@ test("practice: the examiner, the learner's hint; each line kept, the partner's 
   expect(given).toEqual([
     {
       text: "Was machst du am Wochenende?\nToll!",
-      lines: [{ transcript: "Was machst du am Wochenende?" }, { transcript: "Toll!" }],
+      lines: [
+        { transcript: "Was machst du am Wochenende?", typed: true },
+        { transcript: "Toll!", typed: true },
+      ],
     },
   ]);
+  // Typed where nothing hears: each line marked typed.
+  expect(v.getAllByText("Typed, not said")).toHaveLength(2);
   v.unmount();
 });
 
@@ -92,4 +106,48 @@ test("a mock exam shows no hints; what was said shows again as it was; checked, 
   expect(checked.getAllByText(/A good way to say it/)).toHaveLength(2);
   expect(checked.queryByPlaceholderText("Your line…")).toBeNull();
   checked.unmount();
+});
+
+/** The script kept under another id: a part's time is kept by its script while the page is open. */
+const scriptAs = (id: string) => [{ ...script, id }];
+
+test("the Teil's time runs at the learner's turn and is shown; practice only says when it is over", async () => {
+  const given: Array<RespondAnswer | undefined> = [];
+  const v = await view({ seconds: 1, events: scriptAs("01K7A0Z8ZQ4J1V2W3X4Y5Z6A72") }, (a) =>
+    given.push(a),
+  );
+  expect(v.getByRole("timer").textContent).toContain("0:01 left for this part");
+  await v.findByText(/Time is up — in the exam/, {}, { timeout: 3000 });
+  // Nothing cut: the line is still the learner's to say.
+  say(v, "Was machst du am Wochenende?");
+  expect(v.getByText("Ich gehe schwimmen.")).toBeTruthy();
+  expect(given).toEqual([]);
+  v.unmount();
+});
+
+test("a mock exam: the examiner ends the part when its time is over — what was said kept, then the closing line", async () => {
+  const given: Array<RespondAnswer | undefined> = [];
+  const v = await view(
+    { hints: false, seconds: 1, timed: true, events: scriptAs("01K7A0Z8ZQ4J1V2W3X4Y5Z6A73") },
+    (a) => given.push(a),
+  );
+  say(v, "Was machst du am Wochenende?");
+  await v.findByText("Time is up: the examiner ended the part.", {}, { timeout: 3000 });
+  expect(v.getByText("Danke.")).toBeTruthy();
+  expect(v.queryByPlaceholderText("Your line…")).toBeNull();
+  expect(v.queryByText("Start again")).toBeNull();
+  expect(given).toEqual([
+    {
+      text: "Was machst du am Wochenende?",
+      lines: [{ transcript: "Was machst du am Wochenende?", typed: true }],
+      timeUp: true,
+    },
+  ]);
+  v.unmount();
+  // Shown again: ended as it was.
+  const again = await view({ hints: false, seconds: 1, timed: true, said: given[0] });
+  expect(again.getByText("Danke.")).toBeTruthy();
+  expect(again.queryByText("Ich gehe schwimmen.")).toBeTruthy();
+  expect(again.queryByPlaceholderText("Your line…")).toBeNull();
+  again.unmount();
 });

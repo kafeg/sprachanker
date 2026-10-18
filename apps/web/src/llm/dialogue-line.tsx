@@ -1,7 +1,8 @@
 // The learner's next line in a Dialogue: the microphone — a tap
 // records, another stops —, then what was heard, sent as heard or said again (never edited), kept
 // until it is stored (a send that failed is sent again). Where nothing can hear it (no microphone, no
-// recognition) the line is typed, with a line why.
+// recognition) the line is typed, with a line why. An exam's part whose time ran out takes the line
+// as it is (`keepAtOnce`): a take heard is sent as heard, a line typed as typed.
 import { Send } from "lucide-react";
 import { useEffect, useRef, useState } from "react";
 import { useTranslation } from "react-i18next";
@@ -20,6 +21,10 @@ export interface DialogueLineInput {
   recording?: string;
 }
 
+/** Where the line is: nothing yet (or nothing heard), a take recording, being heard, heard and
+ *  waiting to be sent. */
+export type LineState = "idle" | "recording" | "hearing" | "heard";
+
 /** A take heard: its text and where it plays from; kept as a recording when that worked. */
 interface Heard {
   text: string;
@@ -33,6 +38,8 @@ export function DialogueLine({
   onSend,
   maxMs,
   sendLabel,
+  onState,
+  keepAtOnce = false,
 }: {
   /** The language spoken (never detected). */
   lang: string;
@@ -44,6 +51,10 @@ export function DialogueLine({
   maxMs?: number;
   /** What sending is called here (Speaking's: the line kept until Check). */
   sendLabel?: string;
+  /** Where the line is, as it changes (an exam's part times the learner's turn by it). */
+  onState?(state: LineState): void;
+  /** Sends what there is at once — a take heard, a line typed —, with no choice to say it again. */
+  keepAtOnce?: boolean;
 }) {
   const { t } = useTranslation();
   const host = useSpeechHost();
@@ -88,7 +99,28 @@ export function DialogueLine({
   });
 
   const problem = micProblem(micState(), recorder.state);
-  if (!host?.recognition || problem)
+  const typing = !host?.recognition || !!problem;
+  const state: LineState =
+    recorder.state === "recording" ? "recording" : hearing ? "hearing" : heard ? "heard" : "idle";
+  // biome-ignore lint/correctness/useExhaustiveDependencies: told as it changes, not as the callback does
+  useEffect(() => onState?.(state), [state]);
+  const sendHeard = (h: Heard) =>
+    onSend({ text: h.text, spoken: true, recording: h.recording }, () =>
+      setHeard((now) => (now === h ? undefined : now)),
+    );
+  const sendTyped = () => {
+    if (!typed.trim() || busy) return;
+    onSend({ text: typed.trim() }, () => setTyped(""));
+  };
+  // Taken as it is: a take being recorded stopped (then heard), what was heard, or typed.
+  // biome-ignore lint/correctness/useExhaustiveDependencies: once as it comes, by what there is then
+  useEffect(() => {
+    if (!keepAtOnce || busy) return;
+    if (recorder.state === "recording") recorder.stop();
+    else if (heard) sendHeard(heard);
+    else if (typing) sendTyped();
+  }, [keepAtOnce, heard, busy, recorder.state]);
+  if (typing)
     return (
       <div className="space-y-1">
         <p className="px-4 pt-3 text-sm text-muted-foreground">
@@ -98,10 +130,7 @@ export function DialogueLine({
           lang={lang}
           value={typed}
           onChange={setTyped}
-          onSend={() => {
-            if (!typed.trim() || busy) return;
-            onSend({ text: typed.trim() }, () => setTyped(""));
-          }}
+          onSend={sendTyped}
           placeholder={t("scene.placeholder")}
           sendLabel={sendLabel}
         />
@@ -126,13 +155,7 @@ export function DialogueLine({
             <Button variant="outline" onClick={again}>
               {t("scene.again")}
             </Button>
-            <Button
-              onClick={() =>
-                onSend({ text: heard.text, spoken: true, recording: heard.recording }, () =>
-                  setHeard((h) => (h === heard ? undefined : h)),
-                )
-              }
-            >
+            <Button onClick={() => sendHeard(heard)}>
               <Send className="size-4 rtl:-scale-x-100" /> {sendLabel ?? t("tutor.send")}
             </Button>
           </div>

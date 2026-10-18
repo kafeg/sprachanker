@@ -1621,9 +1621,22 @@
       "partner": "Partenaire",
       "examiner": "Examinateur",
       "intro": "L’examinateur et ton partenaire parlent à voix haute ; tu parles quand c’est ton tour. Ce que tu dis est ta réponse, évaluée ensuite selon les critères de la partie.",
-      "start": "Commencer l’épreuve"
+      "start": "Commencer l’épreuve",
+      "left": "Il reste {time} pour cette partie",
+      "ended": "Temps écoulé : l'examinateur a terminé la partie.",
+      "overPractice": "Temps écoulé — à l'examen, l'examinateur terminerait la partie ici.",
+      "typed": "Tapé, pas dit"
     },
-    "choose": "Choisir un examen"
+    "choose": "Choisir un examen",
+    "preparation": {
+      "title": "Préparation : {module}",
+      "text": "Tu as {minutes, plural, one {# minute} other {# minutes}} pour préparer les parties. Prends des notes pour chacune : tu peux les regarder en parlant, mais parle librement.",
+      "left": "Il reste {time} pour préparer",
+      "over": "Le temps de préparation est écoulé.",
+      "notes": "Tes notes",
+      "yourNotes": "Tes notes de la préparation",
+      "begin": "Commencer les parties"
+    }
   },
   "examples": {
     "newWords": "Nouveau ici :",

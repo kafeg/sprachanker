@@ -1621,9 +1621,22 @@
       "partner": "Partner",
       "examiner": "Examiner",
       "intro": "The examiner and your partner speak by voice; say your part where it is your turn. What you say is your answer, rated afterwards by the part's criteria.",
-      "start": "Begin the part"
+      "start": "Begin the part",
+      "left": "{time} left for this part",
+      "ended": "Time is up: the examiner ended the part.",
+      "overPractice": "Time is up — in the exam the examiner would end the part here.",
+      "typed": "Typed, not said"
     },
-    "choose": "Choose an exam"
+    "choose": "Choose an exam",
+    "preparation": {
+      "title": "Preparation: {module}",
+      "text": "You have {minutes, plural, one {# minute} other {# minutes}} to prepare the parts. Make notes on each: you may look at them while you speak, but speak freely.",
+      "left": "{time} left to prepare",
+      "over": "The time to prepare is over.",
+      "notes": "Your notes",
+      "yourNotes": "Your notes from the preparation",
+      "begin": "Begin the parts"
+    }
   },
   "examples": {
     "newWords": "New here:",

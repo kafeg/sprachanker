@@ -1621,9 +1621,22 @@
       "partner": "Mwenzako",
       "examiner": "Mtahini",
       "intro": "Mtahini na mwenzako wanazungumza kwa sauti; wewe zungumza zamu yako ikifika. Unachosema ndiyo jibu lako, linalotathminiwa baadaye kwa vigezo vya sehemu.",
-      "start": "Anza sehemu"
+      "start": "Anza sehemu",
+      "left": "Zimebaki {time} kwa sehemu hii",
+      "ended": "Muda umekwisha: mtahini amemaliza sehemu.",
+      "overPractice": "Muda umekwisha — katika mtihani mtahini angemaliza sehemu hapa.",
+      "typed": "Imeandikwa, haikusemwa"
     },
-    "choose": "Chagua mtihani"
+    "choose": "Chagua mtihani",
+    "preparation": {
+      "title": "Maandalizi: {module}",
+      "text": "Una {minutes, plural, one {dakika #} other {dakika #}} za kuandaa sehemu. Andika maelezo kwa kila moja: unaweza kuyaangalia unapozungumza, lakini zungumza kwa uhuru.",
+      "left": "Zimebaki {time} za maandalizi",
+      "over": "Muda wa maandalizi umekwisha.",
+      "notes": "Maelezo yako",
+      "yourNotes": "Maelezo yako ya maandalizi",
+      "begin": "Anza sehemu"
+    }
   },
   "examples": {
     "newWords": "Mapya hapa:",

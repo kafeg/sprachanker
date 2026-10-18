@@ -105,3 +105,14 @@ export function useTimeLeft(deadline: number | null, skew: number, onEnd: () => 
   }, [left]);
   return left;
 }
+
+/** The time now, a second at a time while `on` (a preparation's time running down). */
+export function useNow(on: boolean) {
+  const [now, setNow] = useState(Date.now());
+  useEffect(() => {
+    if (!on) return;
+    const timer = setInterval(() => setNow(Date.now()), 1000);
+    return () => clearInterval(timer);
+  }, [on]);
+  return now;
+}

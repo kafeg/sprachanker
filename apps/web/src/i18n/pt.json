@@ -1621,9 +1621,22 @@
       "partner": "Parceiro",
       "examiner": "Examinador",
       "intro": "O examinador e o seu parceiro falam em voz alta; você fala na sua vez. O que você diz é a sua resposta, avaliada depois pelos critérios da parte.",
-      "start": "Começar a parte"
+      "start": "Começar a parte",
+      "left": "Faltam {time} para esta parte",
+      "ended": "O tempo acabou: o examinador encerrou a parte.",
+      "overPractice": "O tempo acabou — no exame o examinador encerraria a parte aqui.",
+      "typed": "Digitado, não falado"
     },
-    "choose": "Escolha um exame"
+    "choose": "Escolha um exame",
+    "preparation": {
+      "title": "Preparação: {module}",
+      "text": "Você tem {minutes, plural, one {# minuto} other {# minutos}} para preparar as partes. Faça notas para cada uma: pode consultá-las enquanto fala, mas fale livremente.",
+      "left": "Faltam {time} para preparar",
+      "over": "O tempo de preparação acabou.",
+      "notes": "Suas notas",
+      "yourNotes": "Suas notas da preparação",
+      "begin": "Começar as partes"
+    }
   },
   "examples": {
     "newWords": "Novas aqui:",

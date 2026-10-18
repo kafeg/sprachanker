@@ -1621,9 +1621,22 @@
       "partner": "搭档",
       "examiner": "考官",
       "intro": "考官和你的搭档会开口说话；轮到你时你再说。你说的内容就是你的回答，之后按这一部分的评分标准评分。",
-      "start": "开始这一部分"
+      "start": "开始这一部分",
+      "left": "这一部分还剩 {time}",
+      "ended": "时间到：考官结束了这一部分。",
+      "overPractice": "时间到——在考试中考官会在这里结束这一部分。",
+      "typed": "打字输入，未说出"
     },
-    "choose": "选择考试"
+    "choose": "选择考试",
+    "preparation": {
+      "title": "准备：{module}",
+      "text": "你有 {minutes, plural, other {# 分钟}} 来准备各部分。为每一部分做笔记：说话时可以看，但要自由地说。",
+      "left": "准备时间还剩 {time}",
+      "over": "准备时间已到。",
+      "notes": "你的笔记",
+      "yourNotes": "你准备时的笔记",
+      "begin": "开始各部分"
+    }
   },
   "examples": {
     "newWords": "新单词：",
