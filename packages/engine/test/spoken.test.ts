@@ -90,23 +90,98 @@ describe("judgeSpoken", () => {
   if (!framed || !free) throw new Error("no answers");
   test.each<[string, string, string | undefined]>([
     ["the source's answer said", "Guten Abend. Danke, gut. Und Ihnen?", "correct"],
-    ["the frame completed otherwise", "Guten Abend. Danke, gut. Wie geht es Ihnen?", "partial"],
+    ["the frame completed otherwise", "Guten Abend. Danke, gut. Wie geht es Ihnen?", "correct"],
     // The question said back: the frame's words missed.
     ["the question repeated", "Guten Abend! Wie geht es Ihnen?", "wrong"],
   ])("a frame: %s", (_, said, verdict) =>
     expect(judgeSpoken("de", framed, said).verdict).toBe(verdict as never),
   );
-  test("a frame completed otherwise says so", () =>
-    expect(
-      judgeSpoken("de", framed, "Guten Abend. Danke, gut. Und wie geht es dir?").otherwise,
-    ).toBe(true));
+  test("a frame completed otherwise is right, in one's own words (a note)", () => {
+    const own = judgeSpoken("de", framed, "Guten Abend. Danke, gut. Und wie geht es dir?");
+    expect([own.verdict, own.ownWords]).toEqual(["correct", true]);
+    expect(judgeSpoken("de", framed, "Guten Abend. Danke, gut. Und Ihnen?").ownWords).toBe(
+      undefined,
+    );
+  });
   test.each<[string, string | undefined]>([
     ["Ich trinke gern Tee", "correct"],
     // Unlike the source's answer: maybe the learner's own — not judged (the AI's, where set up).
     ["Ich mag Kaffee", undefined],
+    // A word more than the source's: not judged either, never "words missing".
+    ["Ich trinke sehr gern Tee", undefined],
   ])("no frame: %j", (said, verdict) =>
     expect(judgeSpoken("de", free, said).verdict).toBe(verdict as never),
   );
+});
+
+describe("a right answer is never wrong", () => {
+  const judge = (reference: string, heard: string, said: string) => {
+    const target = spokenAnswers("de", { reference: [reference] }, heard);
+    if (!target) throw new Error(`no answers for ${reference}`);
+    return judgeSpoken("de", target, said).verdict;
+  };
+  test.each<[string, string, string, string | undefined]>([
+    // One's own words in the gap, the other branch, a choice in brackets: right.
+    ["Ich heiße ...", "Ich heiße Nico.", "Ich heiße Anna.", "correct"],
+    ["Ja, ich ... / Nein, ich ...", "Ja, ich spiele gern.", "Nein, ich spiele nicht.", "correct"],
+    ["Das ist (falsch/richtig).", "Das ist richtig.", "Das ist falsch.", "correct"],
+    [
+      "Ich mache … Urlaub.",
+      "Ich mache einmal Urlaub.",
+      "Ich mache zweimal im Jahr Urlaub.",
+      "correct",
+    ],
+    // Words around the frame, another order: not judged (the AI checks).
+    ["Ich trinke ...", "Ich trinke Kaffee.", "Ja, ich trinke Tee.", undefined],
+    ["Ich trinke ...", "Ich trinke Kaffee.", "Am liebsten trinke ich Tee.", undefined],
+    [
+      "Ich heiße ... und komme aus ...",
+      "Ich heiße Nico und komme aus Spanien.",
+      "Ich heiße Anna und ich komme aus Polen.",
+      undefined,
+    ],
+    // How it is written is not heard: ß and ss, "geht's", numbers in digits.
+    ["Wie geht es ...?", "Wie geht es dir?", "Wie geht's dir?", "correct"],
+    ["Ich heiße ...", "Ich heiße Nico.", "Ich heisse Nico.", "correct"],
+    [
+      "Das kostet ... Euro ...",
+      "Das kostet zwei Euro fünfzig.",
+      "Das kostet 2 Euro 50.",
+      "correct",
+    ],
+    // The frame's words mostly missed: wrong.
+    ["Ich heiße ...", "Ich heiße Nico.", "Wie heißt du?", "wrong"],
+  ])("%j said as %j", (reference, heard, said, verdict) =>
+    expect(judge(reference, heard, said)).toBe(verdict as never),
+  );
+  test("a frame of gaps only is none: the source's answer as heard, unlike it not judged", () => {
+    const target = spokenAnswers(
+      "de",
+      { reference: ["(seit – zwei Monate)"] },
+      "Seit zwei Monaten.",
+    );
+    expect(target).toMatchObject({ answers: ["Seit zwei Monaten."], frames: [] });
+    if (!target) return;
+    expect(judgeSpoken("de", target, "Seit zwei Monaten").verdict).toBe("correct");
+    expect(judgeSpoken("de", target, "Ich weiß nicht").verdict).toBeUndefined();
+  });
+  test('" / " inside brackets is the hint\'s, not two frames', () => {
+    const target = spokenAnswers(
+      "de",
+      { reference: ["Ich trinke (Kaffee / Tee)."] },
+      "Ich trinke Tee.",
+    );
+    expect(target?.frames).toEqual([["Ich", "trinke", null]]);
+  });
+  test("a recording of more sentences than an answer has is not used", () => {
+    const long = Array.from({ length: 30 }, (_, i) => `Ich heiße Nummer ${i}.`).join(" ");
+    expect(spokenAnswers("de", { reference: ["Ich heiße ..."] }, long)).toBeUndefined();
+  });
+  test("a line with no gap beside a frame is an answer too", () => {
+    const target = spokenAnswers("de", { reference: ["Nein.", "Ja, ich ..."] }, "Ja, ich komme.");
+    expect(target?.answers).toEqual(["Ja, ich komme.", "Nein."]);
+    if (target) expect(judgeSpoken("de", target, "Nein").verdict).toBe("correct");
+  });
 });
 
 const exercise = {
@@ -138,6 +213,19 @@ describe("checkItem with the source's answers heard", () => {
       "media/audio/answer-2.mp3",
       undefined,
     ]);
+  });
+  test("a source's answer no frame reads is not heard: spelled, choices joined by a slash", () => {
+    const of = (reference: string[]) =>
+      answerToHear(
+        {
+          ...exercise,
+          items: [{ key: "k#1", reference, answerAudio: "media/audio/a.mp3" }],
+        } as never,
+        0,
+      );
+    expect(of(["E-M-M-A"])).toBeUndefined();
+    expect(of(["Ich mag den Frühling/den Sommer/…"])).toBeUndefined();
+    expect(of(["Das ist (falsch/richtig)."])).toBe("media/audio/a.mp3");
   });
   test("judged into `spoken`, in no score; nothing heard of the source: not judged", () => {
     const wrong = checkItem(
@@ -209,6 +297,28 @@ describe("the mark of a spoken answer", () => {
       ),
     ];
     expect(exerciseMark(exercise, exerciseResults(events)[exercise.key])).toBe("correct");
+  });
+  test("a wrong answer heard late is the mistake the step is marked by", () => {
+    const unheard = { result: "unscored", score: 0 } as Outcome;
+    const late = "Guten Abend! Wie geht es Ihnen?";
+    const events = [
+      answered(key, { recording: "r1" }, unheard),
+      answered(key, { recording: "r1", ...said(late) }, outcome(late)),
+    ];
+    expect(exerciseMark(exercise, exerciseResults(events)[exercise.key])).toBe("wrong");
+    const [mistake] = mistakesOf([{ events }]);
+    expect([mistake?.result, mistake?.answer]).toEqual([
+      "wrong",
+      { recording: "r1", transcript: late },
+    ]);
+  });
+  test("answers in one's own words mark the exercise right, and are no mistakes", () => {
+    const own = "Guten Abend. Danke, gut. Und wie geht es dir?";
+    const o = outcome(own);
+    expect([o.spoken, o.ownWords]).toEqual(["correct", true]);
+    const events = [answered(key, said(own), o)];
+    expect(exerciseMark(exercise, exerciseResults(events)[exercise.key])).toBe("correct");
+    expect(mistakesOf([{ events }])).toEqual([]);
   });
   test("the model's check marks what the engine did not judge", () => {
     const k2 = "s.x/c/00-01/ex-02#2";

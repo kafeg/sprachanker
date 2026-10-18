@@ -102,9 +102,17 @@ function spokenMark(
   return check && SPOKEN_RESULT[check.verdict];
 }
 
-/** Answers and skips of a run per exercise key. An answer said aloud kept before it was heard (a
- *  take heard late) gives way as the first attempt to the item's first answer that was heard. Its
- *  first attempt marked by the model's check of it carries that mark as `spoken`. */
+/** Whether an answer takes the place of an item's first attempt so far: an answer said aloud kept
+ *  before it was heard (a take heard late) gives way to the item's first answer that was heard. One
+ *  reading for the exercise's mark and the mistakes. */
+export const replacesFirst = (first: { answer: unknown; outcome?: Outcome }, answer: unknown) =>
+  first.outcome?.result === "unscored" &&
+  transcriptOf(first.answer) === undefined &&
+  transcriptOf(answer) !== undefined;
+
+/** Answers and skips of a run per exercise key. The first attempt is the item's first answer, or
+ *  the one that replaces it (`replacesFirst`). Its first attempt marked by the model's check of it
+ *  carries that mark as `spoken`. */
 export function exerciseResults(events: TypedEvent[]): Record<string, ExerciseResult> {
   const results: Record<string, ExerciseResult> = {};
   const firstAnswers = new Map<string, unknown>();
@@ -121,9 +129,7 @@ export function exerciseResults(events: TypedEvent[]): Record<string, ExerciseRe
     const { answer, outcome } = e.payload;
     const unheard =
       e.itemKey in r.first &&
-      r.first[e.itemKey]?.result === "unscored" &&
-      transcriptOf(firstAnswers.get(e.itemKey)) === undefined &&
-      transcriptOf(answer) !== undefined;
+      replacesFirst({ answer: firstAnswers.get(e.itemKey), outcome: r.first[e.itemKey] }, answer);
     // Only the first attempt counts; skipping an item first is its first attempt.
     if (outcome && (unheard || (!(e.itemKey in r.first) && !r.skippedFirst.includes(e.itemKey)))) {
       r.first[e.itemKey] = outcome;

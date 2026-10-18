@@ -210,6 +210,7 @@ export function checkItem(
         score: 0,
         ...(judged && { diff: judged.diff }),
         ...(judged?.verdict && { spoken: judged.verdict }),
+        ...(judged?.ownWords && { ownWords: true as const }),
       };
     }
     case "unknown":

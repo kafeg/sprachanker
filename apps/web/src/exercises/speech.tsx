@@ -28,15 +28,16 @@ function Heard({
   transcript,
 }: {
   lang?: string;
-  check?: { verdict?: "correct" | "partial" | "wrong"; otherwise?: true; diff: TokenDiff[] };
+  check?: { verdict?: "correct" | "partial" | "wrong"; ownWords?: true; diff?: TokenDiff[] };
   exact: boolean;
   transcript: string;
 }) {
   const { t } = useTranslation();
   const verdict = check?.verdict;
   const Icon = verdict === "correct" ? Check : verdict === "partial" ? CircleDot : RotateCcw;
+  // Right in one's own words: said as a note.
   const said =
-    verdict === "partial" && check?.otherwise
+    verdict === "correct" && check?.ownWords
       ? "otherwise"
       : verdict === "wrong" && !exact
         ? "wrongAnswer"
@@ -59,7 +60,7 @@ function Heard({
           {transcript || t("speech.heardNothing")}
         </span>
       </p>
-      {check && verdict && verdict !== "correct" && (
+      {check?.diff && verdict && verdict !== "correct" && (
         <p {...inLang(lang)} className="flex flex-wrap gap-x-1.5 gap-y-1 text-lg leading-relaxed">
           {check.diff
             .filter((d) => d.op !== "extra")

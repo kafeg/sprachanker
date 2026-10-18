@@ -60,7 +60,25 @@ export function answerComplete(exercise: Exercise, index: number, answer: unknow
 export const FRAME = /…|\.\.\.|_{2,}|[([]/;
 /** A word spelled letter by letter ("E-M-M-A"): no word diff hears it so. */
 export const SPELLED = /(?<![\p{L}-])\p{L}(?:-\p{L}){2,}(?![\p{L}-])/u;
-const ALTERNATIVES = /\s+\/\s+/;
+
+/** A line's alternatives (" / "), parted only outside brackets: "Ich trinke (Kaffee / Tee)" is one
+ *  line, its brackets a hint. */
+export function alternativesOf(line: string): string[] {
+  const out: string[] = [];
+  let depth = 0;
+  let start = 0;
+  for (let i = 0; i < line.length; i++) {
+    const c = line[i];
+    if (c === "(" || c === "[") depth++;
+    else if ((c === ")" || c === "]") && depth > 0) depth--;
+    else if (c === "/" && !depth && /\s/.test(line[i - 1] ?? "") && /\s/.test(line[i + 1] ?? "")) {
+      out.push(line.slice(start, i));
+      start = i + 1;
+    }
+  }
+  out.push(line.slice(start));
+  return out.map((s) => s.trim());
+}
 
 /**
  * The lines a speaking item is said as: the source's answer (`reference`) when it has one, each
@@ -74,18 +92,9 @@ export function linesToSay(item: { text?: string; reference?: string[] }): strin
   if (reference?.some((s) => FRAME.test(s))) return undefined;
   const said = reference ?? (text ? [text] : []);
   const lines = said
-    .flatMap((s) => (reference || !s.includes("\n") ? s.split(ALTERNATIVES) : [s]))
+    .flatMap((s) => (reference || !s.includes("\n") ? alternativesOf(s) : [s]))
     .map((s) => s.trim());
   return lines.length && lines.every((s) => s && !SPELLED.test(s)) ? lines : undefined;
-}
-
-/** The recording of the source's answer a speaking item's answers are checked by, once heard
- *  (`heardTexts`): an item with no line to say that has one. */
-export function answerToHear(exercise: Exercise, index: number): string | undefined {
-  const item = exercise.items[index] as ItemOf<"speech_selfrate"> | undefined;
-  if (exercise.type !== "speech_selfrate" || !item?.answerAudio || linesToSay(item))
-    return undefined;
-  return item.answerAudio;
 }
 
 /** What was heard of an answer said aloud to a speaking item with no line to say (`linesToSay`) whose

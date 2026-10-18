@@ -158,6 +158,28 @@
           ]
         }
       }
+    },
+    {
+      "since": "2026-10-18",
+      "payload": {
+        "answer": {
+          "recording": "01HZY0000000000000000000AD",
+          "transcript": "Ich heiße Anna."
+        },
+        "attempt": 1,
+        "ms": 3000,
+        "outcome": {
+          "result": "unscored",
+          "score": 0,
+          "spoken": "correct",
+          "ownWords": true,
+          "diff": [
+            { "op": "equal", "expected": "Ich", "actual": "Ich" },
+            { "op": "equal", "expected": "heiße", "actual": "heiße" },
+            { "op": "wrong", "expected": "Nico.", "actual": "Anna." }
+          ]
+        }
+      }
     }
   ],
   "item_skipped": [

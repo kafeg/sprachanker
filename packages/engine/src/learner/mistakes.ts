@@ -1,6 +1,7 @@
 // The learner's mistakes: items whose first attempt in the
 // latest run that answered them was wrong or partly right, with whether a later answer got them right.
-// "First attempt" is the run's first answer to the item — the same reading as the lesson score. An
+// "First attempt" is read as the lesson score reads it (progress.ts `replacesFirst`: a take kept
+// before it was heard gives way to the first one heard). A right answer in one's own words is none. An
 // answer said aloud is read by its mark (progress.ts `answerMark`): the engine's judgement of what was
 // heard, else the model's check of it — minor errors partly right, major errors or off the task
 // wrong, good right; unchecked, it is no mistake.
@@ -12,7 +13,7 @@ import {
   type TokenDiff,
   type TypedEvent,
 } from "@sprachanker/schema";
-import { answerMark, spokenChecks } from "./progress.ts";
+import { answerMark, replacesFirst, spokenChecks } from "./progress.ts";
 
 export interface Mistake {
   itemKey: ItemKey;
@@ -58,9 +59,14 @@ export function mistakesOf(runs: Array<{ events: TypedEvent[] }>): Mistake[] {
     for (const e of events) {
       if (e.type !== "answered" || !e.itemKey) continue;
       const read = { event: e, ...resultOf(e, checks) };
-      // The run's first answer to an item replaces an older run's; every answer is the latest so far.
-      if (!seen.has(e.itemKey)) items.set(e.itemKey, { first: read, latest: read });
-      else (items.get(e.itemKey) as { latest: Read }).latest = read;
+      const known = items.get(e.itemKey);
+      // The run's first answer to an item replaces an older run's (and a take heard late, the first
+      // heard: replacesFirst); every answer is the latest so far.
+      if (!seen.has(e.itemKey) || !known) items.set(e.itemKey, { first: read, latest: read });
+      else {
+        if (replacesFirst(known.first.event.payload, e.payload.answer)) known.first = read;
+        known.latest = read;
+      }
       seen.add(e.itemKey);
     }
   }

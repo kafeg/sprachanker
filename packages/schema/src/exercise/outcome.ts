@@ -21,5 +21,8 @@ export const Outcome = z.object({
    *  to say or the source's answer as heard (`unscored` still: a spoken check counts in no score,
    *  only in the exercise's mark). None: nothing to judge it by, or the engine could not decide. */
   spoken: z.enum(["correct", "partial", "wrong"]).optional(),
+  /** A spoken answer right by completing the source's frame with the learner's own words (a note
+   *  beside `spoken: correct`, never a mistake). */
+  ownWords: z.literal(true).optional(),
 });
 export type Outcome = z.infer<typeof Outcome>;

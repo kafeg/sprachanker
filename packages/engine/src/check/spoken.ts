@@ -1,12 +1,14 @@
 // An answer said aloud to a speaking item, checked by the engine without a model: against its line
 // to say, or against the source's own answer as heard from its recording (schema `heard.ts`: Whisper's
 // text, made once into the course). Tolerant as every spoken check is (`wordDiff`'s `spoken`: case,
-// marks and how words are joined not heard). A frame of the source ("Ich trinke …") checks both: the
-// source's recording is used only where it completes the frame, and an answer that completes it
-// otherwise — the learner's own name, number, taste — is told apart from one that misses it.
-import type { TokenDiff } from "@sprachanker/schema";
+// marks, how words are joined, "ß"/"ss", numbers in digits not heard). A frame of the source ("Ich
+// trinke …") checks both: the source's recording is used only where it completes the frame, and an
+// answer that completes it otherwise — the learner's own name, number, taste — is right too. A false
+// "wrong" must never punish a right answer (owner, 2026-10-18): where the engine is not sure, it gives
+// no verdict and the AI checks.
+import type { Exercise, ItemOf, TokenDiff } from "@sprachanker/schema";
 import { gradedWords, wordAsHeard } from "../text/diff.ts";
-import { FRAME, linesToSay, SPELLED } from "./answers.ts";
+import { alternativesOf, FRAME, linesToSay, SPELLED } from "./answers.ts";
 import { spokenCheck } from "./outcome.ts";
 
 /** A frame's words in order, a gap (`null`) where the learner completes it; a gap is one or more
@@ -16,27 +18,57 @@ type Frame = Array<string | null>;
 const GAPS = /…|\.{3,}|_{2,}|\([^)]*\)|\[[^\]]*\]/g;
 /** A gap's place in a line while it is read (a private-use character: no word, no mark). */
 const GAP = "";
-const ALTERNATIVES = /\s+\/\s+/;
 
-/** A source's answer read as frames, one for each of its alternatives (" / "); gaps side by side
- *  ("... (die Brille)") are one. */
-function framesOf(reference: string[]): Frame[] {
-  return reference
-    .flatMap((r) => r.split(ALTERNATIVES))
-    .map((line) => {
-      const frame: Frame = [];
-      for (const token of gradedWords(line.replace(GAPS, ` ${GAP} `))) {
-        const gap = token.includes(GAP);
-        if (!gap) frame.push(token);
-        else if (frame[frame.length - 1] !== null) frame.push(null);
-      }
-      return frame;
-    })
-    .filter((f) => f.includes(null));
+/** A source's answer read: its alternatives (" / ", outside brackets) with a gap as frames — gaps
+ *  side by side ("... (die Brille)") one —, those without one as lines to say (`plain`). A frame of
+ *  gaps only ("(seit – zwei Monate)") is none: every answer completes it. */
+function framesOf(reference: string[]): { frames: Frame[]; plain: string[] } {
+  const frames: Frame[] = [];
+  const plain: string[] = [];
+  for (const line of reference.flatMap(alternativesOf)) {
+    const frame: Frame = [];
+    for (const token of gradedWords(line.replace(GAPS, ` ${GAP} `))) {
+      const gap = token.includes(GAP);
+      if (!gap) frame.push(token);
+      else if (frame[frame.length - 1] !== null) frame.push(null);
+    }
+    if (!frame.includes(null)) {
+      if (frame.length) plain.push(line);
+    } else if (frame.some((w) => w !== null)) frames.push(frame);
+  }
+  return { frames, plain };
 }
 
+/** Choices joined by a slash with no space ("den Frühling/den Sommer/…"): no frame reads them. */
+const SLASHED = /\p{L}\/\p{L}/u;
+
+/** Whether a speaking item's answers are checked by the source's answer as heard: one with no line
+ *  to say whose source's answer, if it has one, is a frame the engine reads (not spelled, no
+ *  choices joined by a slash). */
+const checkedByHeard = (item: { text?: string; reference?: string[] }) =>
+  !linesToSay(item) &&
+  ![item.text, ...(item.reference ?? [])].some((s) => s && SPELLED.test(s)) &&
+  (!item.reference ||
+    (item.reference.some((r) => FRAME.test(r)) &&
+      !item.reference.some((r) => SLASHED.test(r.replace(GAPS, " ")))));
+
+/** The recording of the source's answer a speaking item's answers are checked by, once heard
+ *  (`heardTexts`): an item checked by it (`checkedByHeard`) that has one. */
+export function answerToHear(exercise: Exercise, index: number): string | undefined {
+  const item = exercise.items[index] as ItemOf<"speech_selfrate"> | undefined;
+  if (exercise.type !== "speech_selfrate" || !item?.answerAudio || !checkedByHeard(item))
+    return undefined;
+  return item.answerAudio;
+}
+
+/** The most sentences of a recording read, and of one answer in it: a recording saying more is no
+ *  answer to check by (and the runs tried grow with their square). */
+const MAX_SENTENCES = 24;
+const MAX_RUN = 6;
+
 /** The words filling each gap of a frame in `text`, if `text` completes it: every word of the frame
- *  said, in order, nothing else said but in its gaps, each gap one word or more. */
+ *  said, in order — two of them heard as one or one as two ("geht's", "geht es") —, nothing else said
+ *  but in its gaps, each gap one word or more. */
 export function completes(lang: string, frame: Frame, text: string): string[][] | undefined {
   const said = gradedWords(text);
   const sound = said.map((w) => wordAsHeard(lang, w));
@@ -46,9 +78,16 @@ export function completes(lang: string, frame: Frame, text: string): string[][] 
     if (f === want.length) return s === said.length ? [] : undefined;
     if (failed.has(`${f},${s}`)) return undefined;
     const w = want[f];
-    if (w !== null) {
-      const rest = sound[s] === w ? match(f + 1, s + 1) : undefined;
-      if (rest) return rest;
+    if (w !== null && w !== undefined) {
+      const next = want[f + 1];
+      const steps: Array<[number, number]> = [];
+      if (sound[s] === w) steps.push([1, 1]);
+      if (typeof next === "string" && sound[s] === w + next) steps.push([2, 1]);
+      if (s + 1 < said.length && `${sound[s]}${sound[s + 1]}` === w) steps.push([1, 2]);
+      for (const [df, ds] of steps) {
+        const rest = match(f + df, s + ds);
+        if (rest) return rest;
+      }
     } else
       for (let end = s + 1; end <= said.length; end++) {
         const rest = match(f + 1, end);
@@ -60,6 +99,18 @@ export function completes(lang: string, frame: Frame, text: string): string[][] 
   return match(0, 0);
 }
 
+/** The share of a frame's own words said in `text`, in any order (one heard joined to the next
+ *  counts). */
+function frameWordsSaid(lang: string, frame: Frame, text: string) {
+  const sounds = new Set(gradedWords(text).map((w) => wordAsHeard(lang, w)));
+  const fixed = frame.flatMap((w) => (w === null ? [] : [wordAsHeard(lang, w)]));
+  const said = fixed.filter(
+    (w, i) =>
+      sounds.has(w) || sounds.has(w + (fixed[i + 1] ?? "")) || sounds.has((fixed[i - 1] ?? "") + w),
+  );
+  return said.length / fixed.length;
+}
+
 /** A text's sentences, as written: each ends at its final mark (quotes after it kept with it). */
 export const sentencesOf = (text: string) =>
   text
@@ -69,9 +120,11 @@ export const sentencesOf = (text: string) =>
 
 /** What an answer said aloud to a speaking item is checked against: its lines to say (`exact`);
  *  else the source's answer as heard from its recording (`heard`) — the shortest runs of its
- *  sentences that complete the item's frame, or, with no frame, the whole text and each sentence
- *  (a recording often says several answers one after the other). Undefined: nothing to check it by
- *  (no recording heard, or what was heard completes none of the frame — not used, never trusted). */
+ *  sentences that complete the item's frame (with the source's lines without a gap), or, with no
+ *  frame (none, or one of gaps only), the whole text and each sentence (a recording often says
+ *  several answers one after the other). Undefined: nothing to check it by (no recording heard, one
+ *  of more sentences than an answer has, or what was heard completes none of the frame — not used,
+ *  never trusted). */
 export function spokenAnswers(
   lang: string,
   item: { text?: string; reference?: string[] },
@@ -79,43 +132,54 @@ export function spokenAnswers(
 ): { answers: string[]; frames: Frame[]; exact: boolean } | undefined {
   const lines = linesToSay(item);
   if (lines) return { answers: lines, frames: [], exact: true };
-  if (!heard?.trim() || SPELLED.test(heard)) return undefined;
+  if (!heard?.trim() || SPELLED.test(heard) || !checkedByHeard(item)) return undefined;
   const sentences = sentencesOf(heard);
-  if (!item.reference) {
-    const answers = [...new Set([heard.trim(), ...(sentences.length > 1 ? sentences : [])])];
-    return { answers, frames: [], exact: false };
+  if (sentences.length > MAX_SENTENCES) return undefined;
+  const { frames, plain } = item.reference
+    ? framesOf(item.reference)
+    : { frames: [], plain: [] as string[] };
+  if (!frames.length) {
+    const answers = [...plain, heard.trim(), ...(sentences.length > 1 ? sentences : [])];
+    return { answers: [...new Set(answers)], frames, exact: false };
   }
-  if (!item.reference.some((r) => FRAME.test(r))) return undefined;
-  const frames = framesOf(item.reference);
   const fits = (text: string) => frames.some((f) => completes(lang, f, text));
-  const answers: string[] = [];
+  const runs: string[] = [];
   for (let start = 0; start < sentences.length; start++)
-    for (let end = start + 1; end <= sentences.length; end++) {
+    for (let end = start + 1; end <= Math.min(sentences.length, start + MAX_RUN); end++) {
       const run = sentences.slice(start, end).join(" ");
       if (!fits(run)) continue;
-      answers.push(run);
+      runs.push(run);
       break;
     }
-  return answers.length ? { answers, frames, exact: false } : undefined;
+  return runs.length
+    ? { answers: [...new Set([...runs, ...plain])], frames, exact: false }
+    : undefined;
 }
 export type SpokenAnswers = NonNullable<ReturnType<typeof spokenAnswers>>;
 
+/** At most this share of a frame's own words said: the frame missed (the question said back). */
+const FRAME_MISSED = 0.5;
+
 /**
- * What was heard of an answer judged against what it is checked by: `correct` when it says one of
- * the answers, `partial` when most of its words (spokenCheck) — or when it completes the item's frame
- * otherwise than the source did (`otherwise`: the learner's own words in its gaps) —, `wrong` when
- * it misses the line or the frame. With neither a line nor a frame (the source's answer only), an
- * answer unlike it is not judged (`verdict` undefined): it may be the learner's own. `diff` against
- * the closest answer.
+ * What was heard of an answer judged against what it is checked by. A line to say: `correct` when
+ * it is said, `partial` most of its words (spokenCheck), else `wrong`. A frame: `correct` when the
+ * answer says one of the answers or completes the frame — any of its alternatives, a choice in
+ * brackets, the learner's own words in its gaps (`ownWords`: a note, not a mistake) —, `wrong` only
+ * when at most half of the frame's own words are said; between, not judged (`verdict` undefined: the
+ * words around the frame may be right — "Ja, ich trinke Tee.", another order —; the AI checks it).
+ * The source's answer only (no line, no frame): `correct` when said, else not judged — it may be the
+ * learner's own. `diff` against the closest answer.
  */
 export function judgeSpoken(
   lang: string,
   target: SpokenAnswers,
   transcript: string,
-): { verdict?: "correct" | "partial" | "wrong"; otherwise?: true; diff: TokenDiff[] } {
+): { verdict?: "correct" | "partial" | "wrong"; ownWords?: true; diff: TokenDiff[] } {
   const { diff, verdict } = spokenCheck(lang, target.answers, transcript);
-  if (verdict !== "wrong") return { verdict, diff };
+  if (verdict === "correct" || target.exact) return { verdict, diff };
+  if (!target.frames.length) return { diff };
   if (target.frames.some((f) => completes(lang, f, transcript)))
-    return { verdict: "partial", otherwise: true, diff };
-  return target.exact || target.frames.length ? { verdict: "wrong", diff } : { diff };
+    return { verdict: "correct", ownWords: true, diff };
+  const said = Math.max(...target.frames.map((f) => frameWordsSaid(lang, f, transcript)));
+  return said > FRAME_MISSED ? { diff } : { verdict: "wrong", diff };
 }

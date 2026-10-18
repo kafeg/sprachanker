@@ -71,6 +71,22 @@ describe("word diff", () => {
     expect(score).toBe(2 / 3);
   });
 
+  test("spoken German: ß and ss, 's and es, numbers in digits are one word said", () => {
+    for (const [ref, heard] of [
+      ["Ich heiße Nico.", "ich heisse Nico"],
+      ["Wie geht es dir?", "Wie geht's dir?"],
+      ["Das kostet zwei Euro fünfzig.", "Das kostet 2 Euro 50."],
+      ["Er ist einundzwanzig.", "Er ist 21"],
+      ["Einhundertzwei Seiten", "102 Seiten"],
+      ["Zimmer eins", "Zimmer 1"],
+      ["Im Jahr tausendneunhundertneunzig", "Im Jahr 1990"],
+      ["Dreißig Tage", "30 Tage"],
+    ] as const) {
+      const { score } = wordDiff("de", ref, heard, true);
+      expect([ref, score]).toEqual([ref, 1]);
+    }
+  });
+
   test("words as written: the final mark kept to show, not graded", () => {
     const { diff, score } = wordDiff("de", "Ich lerne Deutsch.", "ich lerne Deutsch");
     expect(diff.at(-1)).toEqual({ op: "equal", expected: "Deutsch.", actual: "Deutsch" });

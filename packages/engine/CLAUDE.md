@@ -13,12 +13,14 @@ src/
                   # one case per type; itemScored; outcome.ts: graders and words against references
                   # (spokenCheck); spoken.ts: an answer said aloud judged against the line to say or
                   # the source's answer as heard (a frame completed, the shortest runs of sentences:
-                  # spokenAnswers, judgeSpoken); answers.ts: checked or not, an answer complete, the
-                  # words said, the recording an item is checked by (answerToHear);
+                  # spokenAnswers, judgeSpoken; no verdict where unsure), the recording an item is
+                  # checked by (answerToHear); answers.ts: checked or not, an answer complete, the
+                  # words said (a line's alternatives);
                   # understanding.ts: Understanding's questions as items of their types, its stage;
                   # mistake-items.ts: going over mistakes' new items as items of their types, a
                   # review's items numbered across its groups, where the learner is
-  text/           # normalisation and word diff used by checkers and speech; words (a sentence's words
+  text/           # normalisation and word diff used by checkers and speech (a word as heard: "ß"/"ss",
+                  # "'s", numbers.ts: German numbers in digits as words); words (a sentence's words
                   # met or new against a vocabulary; whether it uses a word, or a form given of it —
                   # irregular-verbs: the commonest German ones' forms no stem finds)
   learner/        # mistakes, practice (how each AI practice step went: its first work marked as an
