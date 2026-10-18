@@ -39,14 +39,17 @@ and mockups: the owner's page "Goethe в SprachAnker"; background: `docs/researc
   the project's key, latest.json; the apps say when a newer version is out and update themselves
   (desktop: Tauri's updater, signed; Android: the APK to the system's installer). Tried: the Mac's build
   and its update from a local endpoint (a changed file, an older version, a wrong signature refused);
-  Linux (arm64, in a container) built, e2e, the .deb started; the release APK on an Android 15 emulator
-  (WebView 124): it opens and runs, the next release installs over it with the profile kept, an older
-  one and a debug-signed one are refused; the APK download's checks on the emulator (only the
-  project's release downloads, HTTPS, size and sha256, then Android's installer). Remaining: the
-  owner's Actions secrets and the first release of them all (the release skill); Windows tried in a VM
-  (the app opens, a lesson plays, speech heard) — the lab's VMs could not be started from here — and
-  Linux on x64; the owner's phone moved from its debug-signed build to the release key (profile and
-  course files off the phone, uninstall, the release APK, files back — or the debug build kept there).
+  the release APK on an Android 15 emulator (it runs, the next release installs over it with the
+  profile kept, older and debug-signed ones refused; the APK download's checks); on the lab's Windows 10
+  VM: engines, binary, e2e (Chromium desktop and phone: 115 passed), the installer for the user, the
+  window, the next installer over it, a profile file in and out, Piper reading; in Ubuntu 22.04 (the
+  runner's, a container on the lab's Debian VM): engines, e2e (all four browsers: 229 passed), the .deb
+  installed, the window under Xvfb, a voice downloaded, a sentence read by Piper and heard back word for
+  word by Whisper (0.7 s, 3 s). Remaining: the owner's Actions secrets and the first release of them
+  all (the release skill); Whisper on Windows (the VM's CPU type has no AVX2), the desktop updater's
+  refusals on Windows and Linux (tried on macOS only); the owner's phone moved from its debug-signed
+  build to the release key (profile and course files off the phone, uninstall, the release APK, files
+  back — or the debug build kept there).
 - v0.2: a Docker image (engines inside, data in a volume) for a home server.
 - Later: an AppImage (its bundled libraries in the notices), Linux and Windows on arm64, the engines on a
   PC's GPU (Vulkan), Developer ID and Windows code signing (if the owner wants them).

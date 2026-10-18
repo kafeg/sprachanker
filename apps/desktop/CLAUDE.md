@@ -64,6 +64,9 @@ test/                  # latest.json's making
 
 - Keep Rust minimal: process start/stop, window, tray, the update. Everything else via the local API.
 - What differs by system goes into system.rs; main.rs stays the same everywhere.
+- The app's own start page is `tauri://localhost` (macOS, Linux) and `http://tauri.localhost` (Windows'
+  WebView2): the window's navigation guard takes each for the app's only where it is (else Windows sent
+  it to the browser and the window stayed blank).
 - The server refuses a port something answers on at 127.0.0.1 (a dev server beside the app would
   otherwise share it and take the window); the window trusts only its own server's answer.
 - The page may call one command, `install_update`, and only the server's page (capabilities/); a new

@@ -40,5 +40,10 @@ scripts/   # build.ts (`bun run build:speech [whisper|piper|qwen]`): clones each
   log probabilities summed, over all tokens) and the server's thresholds are set by it
   (`packages/server/src/services/silence.ts`).
 - Builds are reproducible from scripts.
+- sherpa-onnx links a prebuilt static ONNX Runtime: on Linux x64 built for glibc 2.17 with the old C++ ABI
+  (so Piper is compiled with `_GLIBCXX_USE_CXX11_ABI=0` there, else it aborts on its first reading); on
+  Windows built with a newer Visual Studio than 17.12 (an older one cannot link it; the runners' can).
+- The x64 engines need AVX2: on a CPU without it (an old PC, a VM whose CPU type hides it) they stop at
+  their first model.
 - Model and voice files are downloaded at runtime by the server, never committed or bundled.
 - The server talks to these binaries only over their HTTP/stdio interfaces.
