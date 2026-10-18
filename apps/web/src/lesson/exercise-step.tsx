@@ -120,6 +120,8 @@ export function ExerciseStep({
   });
   const speaking = exercise.type === "speech_selfrate";
   const { answers, outcomes, checking, waiting } = ex;
+  // A spoken answer heard and judged: the exercise may be begun again from the bar.
+  const heardAny = speaking && exercise.items.some((_, i) => heardOf(answers[i]) !== undefined);
   const primary = () => {
     if (checking) return ex.check();
     ex.leave();
@@ -241,14 +243,6 @@ export function ExerciseStep({
               {ex.explaining.has(i) && !said && askable && heardAnswer && (
                 <div className="col-start-1">{spoken(i, heardAnswer)}</div>
               )}
-              {/* Heard and checked: said again from the start (its first take keeps the mark). */}
-              {heardAnswer && !readOnly && (
-                <div className="col-start-1 pt-2">
-                  <Button variant="outline" onClick={() => ex.answerAgain(i)}>
-                    <RotateCcw className="size-4" /> {t("speech.tryAgain")}
-                  </Button>
-                </div>
-              )}
             </li>
           );
         })}
@@ -277,9 +271,9 @@ export function ExerciseStep({
             : undefined
         }
         extra={
-          // A spoken answer has its own "Try again", under it.
-          outcomes &&
-          !speaking &&
+          // Checked — a spoken answer heard too —: the exercise again, in the bar as every exercise has it
+          // (its first try keeps the mark).
+          (outcomes || (speaking && heardAny)) &&
           !readOnly && (
             <Button
               variant="outline"

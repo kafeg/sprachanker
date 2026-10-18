@@ -209,7 +209,8 @@ test("an answer said aloud checked against the source's answer as heard, without
   await expect(card.getByText("Correct answer:")).toBeVisible();
   await expect(card.getByText(E2E_HEARD.text)).toBeVisible();
   await expect(card.getByRole("button", { name: "Hear the right answer" })).toBeVisible();
-  await card.getByRole("button", { name: "Try again" }).click();
+  // Try again sits in the step bar, as every exercise has it.
+  await page.getByRole("button", { name: "Try again", exact: true }).click();
   await say();
   await expect(card.getByText("You said it")).toBeVisible();
   // The server's outcomes alike: the first take wrong (the step's mark), the second right.
