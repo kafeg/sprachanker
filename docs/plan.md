@@ -100,7 +100,8 @@ engine against the source's answer heard into the course (the AI only where it c
 - The old Dialogue's routes, service and prompts removed (no screen reaches them).
 - `exam_rating` and `speaking_check` without thinking, as the other checks the learner waits for.
 Follow-ups of the spoken check: numbers as words in a frame ("von acht … zwölf") do not meet
-Whisper's digits — such recordings are not used yet; the right answer's text in the Notebook's pass
+Whisper's digits, nor choices inside a word ("einmal/zweimal/…") — such recordings are not used yet
+(8 of Nicos Weg A1's 360); the right answer's text in the Notebook's pass
 and item history (its recording is there).
 
 ## Open items in built areas

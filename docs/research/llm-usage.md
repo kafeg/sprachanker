@@ -37,9 +37,14 @@ no model.
 
 ## The spoken check (#2) as replaced
 
-- Which items: speaking items with no line to say whose source's answer was recorded — in DW Nicos
-  Weg A1 (ru) 547 of its 572 speaking items with a recording; DW is the only source with such
-  recordings (`answerAudio`), on closed items too, which the engine checks already.
-- Measured on Nicos Weg A1 (ru) with Whisper large-v3 turbo on an M2: numbers in the owner's report.
+- Which items: speaking items with no line to say whose source's answer was recorded. DW is the only
+  source with such recordings (`answerAudio`); it has them on closed items too, which the engine
+  checks already. Nicos Weg A1 (ru): 572 speaking items have one; 212 have a line to say (checked
+  as before), 360 are heard.
+- Measured on a clone of Nicos Weg A1 (ru), 2026-10-18, Whisper large-v3 turbo on the owner's Mac:
+  359 recordings in 252 s (0.7 s each); 342 of the 360 items are checked by the engine, 18 are not:
+  6 names spelled letter by letter, 4 name frames whose recording leaves the name out, 4 frames with
+  numbers as words heard as digits ("von acht … zwölf" → "von 8 bis 12"), 4 frames with choices
+  inside a word ("einmal/zweimal/…"). A1 (uk) afterwards: 358 of 359 taken from A1 (ru), 1 s.
 - What stays the model's: items whose recording does not complete their frame, items with no frame
   whose answer differs from the source's (it may be the learner's own), and "Why is this wrong?".

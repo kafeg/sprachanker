@@ -184,7 +184,8 @@ export function ExerciseStep({
           const freely = spokenFreely(exercise, i, answers[i], outcome);
           const said = spoken && !heard?.pending && freely;
           const askable = spoken && heardAnswer && !linesToSay(item as ItemOf<"speech_selfrate">);
-          const why = marked && !right && (speaking ? askable && !freely : explain);
+          // "Why?" is the explaining place's (`explain` given while the AI answers there).
+          const why = marked && !right && explain && (!speaking || (askable && !freely));
           return (
             // Card · controls: the card keeps its size when checked; only an explanation asked
             // for adds a panel under it.

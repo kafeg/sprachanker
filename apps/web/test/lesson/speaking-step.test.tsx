@@ -70,6 +70,7 @@ const render = (transcript: string, spoken = (_: number, said: string) => <p>AI:
             onBack={() => {}}
             onNext={() => {}}
             spoken={spoken}
+            explain={() => <p>explain</p>}
             heard={heard}
           />
         </HeardAnswers.Provider>

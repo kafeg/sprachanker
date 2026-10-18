@@ -151,10 +151,12 @@ export function ItemCard({
   const item = exercise.items[index];
   if (!item) return null;
   const loc = locale?.items[`#${index + 1}`];
-  const marked = outcome && outcome.result !== "unscored";
+  // An answer said aloud is marked by its check, though it scores nothing.
+  const mark = outcome && (outcome.result !== "unscored" ? outcome.result : outcome.spoken);
+  const marked = !!mark;
   const right = correctAnswer(exercise, index, outcome);
-  const shown = marked && outcome.result !== "correct" ? right : undefined;
-  const ok = outcome?.result === "correct";
+  const shown = marked && mark !== "correct" ? right : undefined;
+  const ok = mark === "correct";
   // A speaking item's prompts are what it asks, above as any item's; its hint comes after the line to
   // say, in the renderer. The prompt shown above the items is in neither.
   const speaking = exercise.type === "speech_selfrate";
@@ -177,7 +179,7 @@ export function ItemCard({
           {t(
             ok
               ? "lesson.correct"
-              : outcome.result === "partial"
+              : mark === "partial"
                 ? "lesson.partial"
                 : answer === undefined
                   ? "lesson.unanswered"
