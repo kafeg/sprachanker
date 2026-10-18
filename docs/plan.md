@@ -4,6 +4,21 @@ What is left to build. The owner adds features a few at a time: an item comes in
 for it and leaves when it is built — its decisions go to `docs/decisions.md`, its structure to the
 area's CLAUDE.md. How the parts fit: `docs/architecture.md`.
 
+## Ready: what is left (owner, 2026-10-18)
+The product is finished when these are done; nothing else is taken before them.
+1. Only what is ready is shown: the Nicos Weg courses, Leben in Deutschland, the Goethe exams A1–B1;
+   everything experimental behind the launch parameter `--experimental`, off by default.
+2. Goethe A1–B1 complete as non-experimental exams (item 1 below: what is left of it).
+3. Spoken answers checked against the source's answers as heard: a run over every speaking item of
+   Nicos Weg A1 with right answers and the usual variants (own words, another order, "Ja, …") —
+   no right answer judged wrong; hearing a course one of its preparation steps beside AI practice.
+4. AI practice made for Nicos Weg A2 and B1 — after its making is measured and made cheaper (the
+   CLI's thinking, drafts, context sent).
+5. Releases for every system with updates from the app (item 2 below); the owner's phone moved to
+   the release-signed app (its profile exported and imported).
+- **Accept**: a clean machine of each system (macOS, Windows, Linux, Android) goes from the release
+  to a Nicos Weg lesson with speech checked and AI practice, and takes the next release as an update.
+
 ## Next
 
 ### 1. Goethe exams: Sprechen and Schreiben as the real exam (owner, 2026-10-12)
@@ -32,23 +47,27 @@ and mockups: the owner's page "Goethe в SprachAnker"; background: `docs/researc
   without turning on experimental sources.
 
 ### 2. Releases
-- In progress, paused (owner, 2026-10-18), on the local branch `releases-wip` (not merged): the app
-  says when a newer version is out (Settings → About); the desktop app updates itself (Tauri's updater,
-  minisign-signed; refused: a changed file, an older version, a wrong signature — tried on macOS);
-  Windows and Linux desktop builds in CI; Android downloads the newer APK and hands it to the system
-  installer, the release APK signed; README per system; the release skill's new flow. Checked: macOS
-  update 0.1.900 → 0.1.901 from a local server; Linux arm64 in Docker (e2e, .deb, a phrase read by Piper
-  and heard by Whisper); the release APK on an emulator. Left: the APK on an Android 15 emulator (an
-  Android 11 emulator's WebView 91 shows a blank page — say the minimum WebView in the README), Windows
-  (Proxmox API refused the token, ghr-* runners off — owllab), `bun run check` + e2e, merge with main,
-  the owner's GitHub secrets (keys in owlproj `secrets/sprachanker`: the APK keystore, the updater's
-  minisign key) and the first release.
 - v0.1 for the owner's family (owner, 2026-10-12: Apple Silicon, macOS 13 and later): released.
-  Remaining: the app saying when a newer version is out; tried on another, clean Mac.
-- v0.2: Linux builds and a Docker image (engines inside, data in a volume) for a home server.
-- The desktop app (`apps/desktop`, Tauri): macOS built (owner, 2026-10-15; unsigned by choice).
-  Remaining: tried from a release on a clean Mac; Windows and Linux (the engines built there, the
-  e2e on their builds); updates from the app.
+  Remaining: tried on another, clean Mac.
+- Every system from one tag (owner, 2026-10-18), on the local branch `releases-continue` (not merged):
+  built — the program and the desktop app for macOS, Windows and Linux (x64), the Android APK signed with
+  the project's key, latest.json; the apps say when a newer version is out and update themselves
+  (desktop: Tauri's updater, signed; Android: the APK to the system's installer). Tried: the Mac's build
+  and its update from a local endpoint (a changed file, an older version, a wrong signature refused);
+  the release APK on an Android 15 emulator (it runs, the next release installs over it with the
+  profile kept, older and debug-signed ones refused; the APK download's checks); on the lab's Windows 10
+  VM: engines, binary, e2e (Chromium desktop and phone: 115 passed), the installer for the user, the
+  window, the next installer over it, a profile file in and out, Piper reading; in Ubuntu 22.04 (the
+  runner's, a container on the lab's Debian VM): engines, e2e (all four browsers: 229 passed), the .deb
+  installed, the window under Xvfb, a voice downloaded, a sentence read by Piper and heard back word for
+  word by Whisper (0.7 s, 3 s). Remaining: the owner's Actions secrets and the first release of them
+  all (the release skill); Whisper on Windows (the VM's CPU type has no AVX2), the desktop updater's
+  refusals on Windows and Linux (tried on macOS only); the owner's phone moved from its debug-signed
+  build to the release key (profile and course files off the phone, uninstall, the release APK, files
+  back — or the debug build kept there).
+- v0.2: a Docker image (engines inside, data in a volume) for a home server.
+- Later: an AppImage (its bundled libraries in the notices), Linux and Windows on arm64, the engines on a
+  PC's GPU (Vulkan), Developer ID and Windows code signing (if the owner wants them).
 - **Accept** (v0.1): a clean Mac goes from the install command to a lesson with speech checked.
 
 ### 3. AI practice: follow-ups
@@ -84,9 +103,6 @@ and mockups: the owner's page "Goethe в SprachAnker"; background: `docs/researc
   chosen in tts-server (system, Turnip, CPU) are in commit 1caf52fb, taken out until measured there;
   or ggml's OpenCL with those two fixed upstream. iOS: Piper and Qwen3-TTS cannot run as programs
   there (in the app's process instead).
-- Reading aloud on the phone with its screen off: the phone sleeps and Qwen3-TTS takes 60–90 s a
-  word instead of 7–11 s (measured on the POCO, 2026-10-18) — hold a partial wake lock while an engine
-  reads (a deck's words, practice made on the phone), let go when idle.
 
 ### 5. Fewer model calls where the course or the engine can answer (owner, 2026-10-18)
 The audit of every model call: `docs/research/llm-usage.md`. Done: a spoken answer is checked by the

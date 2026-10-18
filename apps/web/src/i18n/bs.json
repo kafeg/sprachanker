@@ -611,7 +611,18 @@
     "source": "Izvorni kod na GitHubu",
     "notices": "Komponente trećih strana i licence",
     "noticesIntro": "SprachAnker je izgrađen od ovih komponenti, svaka pod svojom licencom; tekstovi licenci slijede nakon liste.",
-    "noticesMissing": "Ova verzija nema listu: nose je verzije koje se dijele — program, aplikacija za Mac i aplikacija za Android."
+    "noticesMissing": "Ova verzija nema listu: nose je verzije koje se dijele — program, aplikacije za računar i aplikacija za Android.",
+    "newer": "Izašao je SprachAnker {version}.",
+    "whatsNew": "Šta je novo",
+    "updateRestart": "Ažuriraj i ponovo pokreni",
+    "updating": "Ažuriranje…",
+    "updateOnComputer": "Ažuriraj ga u aplikaciji SprachAnker na računaru na kojem radi.",
+    "updateInstall": "Preuzmi i instaliraj",
+    "updateInstallHint": "Prvi put Android traži da dozvoliš SprachAnkeru instaliranje aplikacija; tvoji kursevi i napredak ostaju.",
+    "updateIos": "Napravi novu verziju u Xcodeu, kako piše u README.",
+    "updateArchive": "Preuzmi novu arhivu za Windows i raspakuj je preko starog programa dok je program zaustavljen.",
+    "updateCommand": "Pokreni ovo na računaru, u terminalu:",
+    "copyCommand": "Kopiraj naredbu"
   },
   "addresses": {
     "title": "Drugi uređaji",
@@ -1467,7 +1478,9 @@
     "understanding_busy": "Tekst za ovu lekciju se upravo piše. Sačekaj.",
     "talk_busy": "Za ovu lekciju se već priprema zadatak ili provjera. Sačekaj.",
     "practice_busy": "Vježbe kursa se upravo prave. Sačekaj da se završe.",
-    "practice_needs_voice": "Tekstovi za slušanje i igre uloga snimaju se pomoću Qwen3-TTS. Podesi ga u Postavke → Govor."
+    "practice_needs_voice": "Tekstovi za slušanje i igre uloga snimaju se pomoću Qwen3-TTS. Podesi ga u Postavke → Govor.",
+    "no_update": "Nema novije verzije za instaliranje.",
+    "update_failed": "Ažuriranje se nije moglo preuzeti ili instalirati. Pokušaj ponovo kasnije."
   },
   "exams": {
     "tabs": {

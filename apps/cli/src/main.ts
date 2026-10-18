@@ -110,13 +110,16 @@ export function serveOptions(args: string[]) {
   return { hostname: values.host, port, dataRoot: resolveDataRoot(values.data), allowHosts };
 }
 
-async function serve(args: string[], webAssets: WebAssets, profileDbWorker?: string) {
+async function serve(args: string[], webAssets: WebAssets, embedded?: Embedded) {
   const options = serveOptions(args);
   const server = await startServer({
     ...options,
     webAssets,
     appVersion: VERSION,
-    profileDbWorker,
+    profileDbWorker: embedded?.profileDbWorker,
+    // The desktop app runs its server with SPRACHANKER_DESKTOP set: it updates itself. From the
+    // sources nothing is asked.
+    updatedBy: embedded ? (process.env.SPRACHANKER_DESKTOP ? "desktop" : "program") : undefined,
   });
   console.log(`SprachAnker is running at ${server.url} (data: ${options.dataRoot})`);
 }
@@ -589,7 +592,7 @@ async function run(argv: string[], embedded?: Embedded): Promise<void> {
         embedded
           ? fileAssets(embedded.webFiles)
           : directoryAssets(resolve(import.meta.dir, "../../web/dist")),
-        embedded?.profileDbWorker,
+        embedded,
       );
       break;
     case "import":

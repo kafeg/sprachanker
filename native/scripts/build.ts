@@ -5,14 +5,17 @@
 // - sherpa-onnx's `sherpa-onnx-offline-tts` (reading aloud with Piper voices): static, ONNX Runtime in;
 // - qwentts.cpp's `tts-server` (reading aloud with Qwen3-TTS): static, Metal on macOS with its shaders
 //   embedded; pinned by commit (the project has no tags).
+// On Windows and Linux (x64) on the CPU, for any CPU with AVX2 (not only the one building them), no
+// OpenMP, and on Windows the C runtime linked in (`.exe`, nothing to install beside them).
 // The sources and builds live in ~/.cache/sprachanker, out of the repository (their own tests must not
 // run with ours). Needs git, cmake and a C++ toolchain.
 //   bun native/scripts/build.ts [whisper|piper|qwen]
 // For an Android phone (arm64, the NDK's toolchain: ANDROID_NDK_HOME or the SDK's newest): Piper's and
 // Qwen3-TTS's programs, stripped, to <engine>/out/<program>-aarch64-linux-android — the phone app
 // carries them as libraries and runs them as the server runs them here (apps/mobile/CLAUDE.md);
-// Whisper runs in the app's own process there.
-//   bun native/scripts/build.ts android [piper|qwen]
+// Whisper runs in the app's own process there: its static libraries, which the app links, built in
+// build-android-arm64 (with Ninja, as `bun run speech:android` builds them).
+//   bun native/scripts/build.ts android [whisper|piper|qwen]
 import {
   copyFileSync,
   existsSync,
@@ -50,6 +53,8 @@ async function sources(repo: string, name: string, version: string) {
 }
 
 const android = process.argv[2] === "android";
+/** A program's suffix where it is built: Windows names programs `.exe`. */
+const exe = process.platform === "win32" && !android ? ".exe" : "";
 /** The phone's target triple, as Rust names it. */
 const ANDROID = "aarch64-linux-android";
 
@@ -94,8 +99,11 @@ async function build(
     vars,
   );
   mkdirSync(join(root, "out"), { recursive: true });
-  const out = join(root, "out", `${target}-${android ? ANDROID : triple}`);
-  const built = [join(dir, "bin", target), join(dir, target)].find(existsSync);
+  const out = join(root, "out", `${target}-${android ? ANDROID : triple}${exe}`);
+  // Where its build puts it: bin/ or the build's root, in Release/ with Visual Studio's generator.
+  const built = ["bin", "bin/Release", "", "Release"]
+    .map((sub) => join(dir, sub, `${target}${exe}`))
+    .find(existsSync);
   if (!built) throw new Error(`${target} not found in ${dir}`);
   if (android) {
     const hosts = join(ndk(), "toolchains", "llvm", "prebuilt");
@@ -141,19 +149,36 @@ const only = process.argv[android ? 3 : 2];
 const macos =
   process.platform === "darwin" && !android ? ["-DCMAKE_OSX_DEPLOYMENT_TARGET=13.0"] : [];
 const metal = macos.length ? [...macos, "-DGGML_METAL=ON", "-DGGML_METAL_EMBED_LIBRARY=ON"] : [];
+// Windows and Linux on x64 (the releases'): ggml for any CPU with AVX2 (2013 on), not the builder's
+// own, without OpenMP (no runtime library beside the program); on Windows the C runtime linked in (/MT).
+const pc = process.platform !== "darwin" && !android && process.arch === "x64";
+const portable = pc
+  ? [
+      "-DGGML_NATIVE=OFF",
+      "-DGGML_AVX=ON",
+      "-DGGML_AVX2=ON",
+      "-DGGML_FMA=ON",
+      "-DGGML_F16C=ON",
+      "-DGGML_OPENMP=OFF",
+      ...(exe
+        ? ["-DCMAKE_MSVC_RUNTIME_LIBRARY=MultiThreaded", "-DCMAKE_POLICY_DEFAULT_CMP0091=NEW"]
+        : []),
+    ]
+  : [];
+const ggml = [...metal, ...portable];
 // A phone's ggml: ARM's dot product and fp16 (every arm64 phone of recent years; Whisper's alike).
 const phoneGgml = [
   "-DGGML_OPENMP=OFF",
   "-DGGML_NATIVE=OFF",
   "-DGGML_CPU_ARM_ARCH=armv8.2-a+dotprod+fp16",
 ];
-if (!android && (!only || only === "whisper"))
+if (!only || only === "whisper")
   await build("whisper", "https://github.com/ggml-org/whisper.cpp", [
     "-DWHISPER_BUILD_SERVER=ON",
     "-DWHISPER_BUILD_EXAMPLES=ON",
     "-DWHISPER_BUILD_TESTS=OFF",
     "-DWHISPER_SDL2=OFF",
-    ...metal,
+    ...(android ? ["-G", "Ninja", ...phoneGgml] : ggml),
   ]);
 if (!only || only === "piper")
   await build(
@@ -178,12 +203,14 @@ if (!only || only === "piper")
             "-DBUILD_ESPEAK_NG_EXE=OFF",
           ]
         : macos),
+      // Linux x64: the static ONNX Runtime sherpa-onnx takes is built for glibc 2.17 with the old C++
+      // ABI; compiled with the new one, the program freed what it did not own on the first reading
+      // ("free(): invalid pointer"; found on Ubuntu 22.04, 2026-10-18).
+      ...(pc && process.platform === "linux"
+        ? ["-DCMAKE_CXX_FLAGS=-D_GLIBCXX_USE_CXX11_ABI=0"]
+        : []),
     ],
     android ? onnxRuntimeAndroid : undefined,
   );
 if (!only || only === "qwen")
-  await build(
-    "qwen",
-    "https://github.com/ServeurpersoCom/qwentts.cpp",
-    android ? phoneGgml : metal,
-  );
+  await build("qwen", "https://github.com/ServeurpersoCom/qwentts.cpp", android ? phoneGgml : ggml);

@@ -43,6 +43,7 @@ src/
   errors.ts          # ERROR_CODES: what the server refuses, shared with the web
   network.ts         # the addresses the app is reached at (this machine, the local network, the
                      # tailnet), each with whether it is a secure context
+  update.ts          # whether a newer version is out (UpdateStatus) and what updates this build
   profile-file.ts    # a profile file (`.sprachanker-profile`): its manifest, the paths it may hold,
                      # the content a profile used, its size limit
   course-bundle.ts   # a course bundle (`.sprachanker-course`, version 3 with recordings heard, else 2):

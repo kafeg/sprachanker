@@ -611,7 +611,18 @@
     "source": "Msimbo chanzo kwenye GitHub",
     "notices": "Vipengele vya wahusika wengine na leseni",
     "noticesIntro": "SprachAnker imejengwa kwa vipengele hivi, kila kimoja chini ya leseni yake; maandishi ya leseni yanafuata baada ya orodha.",
-    "noticesMissing": "Toleo hili halina orodha: inakuja na matoleo yanayosambazwa — programu, programu ya Mac na programu ya Android."
+    "noticesMissing": "Toleo hili halina orodha: inakuja na matoleo yanayosambazwa — programu, programu za kompyuta na programu ya Android.",
+    "newer": "SprachAnker {version} imetoka.",
+    "whatsNew": "Kipya ni nini",
+    "updateRestart": "Sasisha na uanzishe upya",
+    "updating": "Inasasisha…",
+    "updateOnComputer": "Isasishe kwenye programu ya SprachAnker kwenye kompyuta inayoiendesha.",
+    "updateInstall": "Pakua na usakinishe",
+    "updateInstallHint": "Mara ya kwanza, Android inaomba ruhusa SprachAnker isakinishe programu; kozi na maendeleo yako yanabaki.",
+    "updateIos": "Jenga toleo jipya kwa Xcode, kama README inavyoeleza.",
+    "updateArchive": "Pakua kumbukumbu mpya ya Windows na uifungue juu ya programu ya zamani, programu ikiwa imesimamishwa.",
+    "updateCommand": "Endesha hii kwenye kompyuta, katika terminal:",
+    "copyCommand": "Nakili amri"
   },
   "addresses": {
     "title": "Vifaa vingine",
@@ -1467,7 +1478,9 @@
     "understanding_busy": "Maandishi ya somo hili yanaandikwa. Subiri.",
     "talk_busy": "Kazi ya somo hili inaandaliwa au kukaguliwa. Subiri.",
     "practice_busy": "Mazoezi ya kozi yanaandaliwa sasa. Subiri yakamilike.",
-    "practice_needs_voice": "Maandishi ya kusikiliza na michezo ya kuigiza hurekodiwa kwa Qwen3-TTS. Iweke katika Mipangilio → Sauti."
+    "practice_needs_voice": "Maandishi ya kusikiliza na michezo ya kuigiza hurekodiwa kwa Qwen3-TTS. Iweke katika Mipangilio → Sauti.",
+    "no_update": "Hakuna toleo jipya zaidi la kusakinisha.",
+    "update_failed": "Sasisho halikuweza kupakuliwa au kusakinishwa. Jaribu tena baadaye."
   },
   "exams": {
     "tabs": {

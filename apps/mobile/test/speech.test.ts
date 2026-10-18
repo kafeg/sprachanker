@@ -88,10 +88,13 @@ function programs(answer: (path: string, body: string | null) => [number, Uint8A
   const asked: Array<{ port: number; method: string; path: string; body: string | null }> = [];
   const ends = new Map<number, (r: { code: number; log: string }) => void>();
   const killed: number[] = [];
+  /** The phone kept awake (true) or let go, in turn. */
+  const awake: boolean[] = [];
   return {
     started,
     asked,
     killed,
+    awake,
     end: (pid: number, code: number, log = "") => ends.get(pid)?.({ code, log }),
     programs: {
       spawn: async (engine: "piper" | "qwen", args: string[]) => {
@@ -101,6 +104,7 @@ function programs(answer: (path: string, body: string | null) => [number, Uint8A
       wait: (pid: number) => new Promise<{ code: number; log: string }>((r) => ends.set(pid, r)),
       kill: async (pid: number) => void killed.push(pid),
       freePort: async () => 4242,
+      awake: (on: boolean) => void awake.push(on),
       http: async (port: number, method: string, path: string, body: string | null) => {
         asked.push({ port, method, path, body });
         const [status, bytes] = answer(path, body);
@@ -246,6 +250,9 @@ test("Piper on the phone: a voice downloaded and checked, unpacked, put in place
   p.end(1, 0);
   expect([...(await reading)]).toEqual([82, 73, 70, 70]);
 
+  // Awake while the program read, let go at its end.
+  expect(p.awake).toEqual([true, false]);
+
   // A program that fails: no reading.
   const failed = piper.run({
     binary: "in-app",
@@ -257,7 +264,55 @@ test("Piper on the phone: a voice downloaded and checked, unpacked, put in place
   await Bun.sleep(1);
   p.end(2, 1, "no espeak data");
   await expect(failed).rejects.toThrow(/no espeak data/);
+  expect(p.awake).toEqual([true, false, true, false]);
 
   piper.remove(voice.id);
   expect(piper.voiceDir(voice.id)).toBeUndefined();
+});
+
+test("the phone kept awake while an engine reads: each request to Qwen3-TTS's program till it answers — one the page gave up on too —, let go after", async () => {
+  let answer: (() => void) | undefined;
+  const p = programs(() => [200, new Uint8Array([1])]);
+  const http = p.programs.http;
+  p.programs.http = async (...args) => {
+    await new Promise<void>((r) => {
+      answer = r;
+    });
+    return http(...args);
+  };
+  const models = { path: () => undefined, download: async () => {}, remove() {} };
+  const { host, fetchVia, idle } = phoneSpeech(models, {
+    whisper: false,
+    engines: ["qwen"],
+    android: true,
+    programs: p.programs,
+  });
+  host.qwen?.spawn("in-app", { talker: "t", codec: "c" }, 4242);
+  const fetch = fetchVia((async () => new Response("net")) as unknown as typeof globalThis.fetch);
+  const said = fetch("http://127.0.0.1:4242/v1/audio/speech", { method: "POST", body: "{}" });
+  await Bun.sleep(1);
+  expect(p.awake).toEqual([true]);
+  expect(idle()).toBe(false);
+  answer?.();
+  expect((await said).status).toBe(200);
+  expect(p.awake).toEqual([true, false]);
+  expect(idle()).toBe(true);
+
+  // Given up by the page: the engine still reads, the phone stays awake till it answers.
+  const gone = new AbortController();
+  const left = fetch("http://127.0.0.1:4242/v1/audio/speech", {
+    method: "POST",
+    body: "{}",
+    signal: gone.signal,
+  });
+  await Bun.sleep(1);
+  gone.abort();
+  await expect(left).rejects.toThrow();
+  expect(p.awake).toEqual([true, false, true]);
+  answer?.();
+  await Bun.sleep(1);
+  expect(p.awake).toEqual([true, false, true, false]);
+  // Another host's request (an LLM): not a reading.
+  await fetch("https://example.test/x");
+  expect(p.awake).toHaveLength(4);
 });

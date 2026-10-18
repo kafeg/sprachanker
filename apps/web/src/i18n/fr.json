@@ -611,7 +611,18 @@
     "source": "Code source sur GitHub",
     "notices": "Composants tiers et licences",
     "noticesIntro": "SprachAnker est construit avec ces composants, chacun sous sa propre licence ; les textes des licences suivent la liste.",
-    "noticesMissing": "Cette version ne contient pas la liste : elle accompagne les versions distribuées — le programme, l'app Mac et l'app Android."
+    "noticesMissing": "Cette version ne contient pas la liste : elle accompagne les versions distribuées — le programme, les apps de bureau et l’app Android.",
+    "newer": "SprachAnker {version} est disponible.",
+    "whatsNew": "Nouveautés",
+    "updateRestart": "Mettre à jour et redémarrer",
+    "updating": "Mise à jour…",
+    "updateOnComputer": "Mets-le à jour dans l’app SprachAnker de l’ordinateur où il tourne.",
+    "updateInstall": "Télécharger et installer",
+    "updateInstallHint": "La première fois, Android demande d’autoriser SprachAnker à installer des apps ; tes cours et ta progression restent.",
+    "updateIos": "Compile la nouvelle version avec Xcode, comme l’indique le README.",
+    "updateArchive": "Télécharge la nouvelle archive pour Windows et décompresse-la par-dessus l’ancien programme, programme arrêté.",
+    "updateCommand": "Lance ceci sur l’ordinateur, dans un terminal :",
+    "copyCommand": "Copier la commande"
   },
   "addresses": {
     "title": "Autres appareils",
@@ -1467,7 +1478,9 @@
     "understanding_busy": "Un texte pour cette leçon est en cours d’écriture. Patiente.",
     "talk_busy": "Une tâche de cette leçon est en préparation ou en vérification. Patiente.",
     "practice_busy": "La pratique du cours est en cours de création. Attends qu'elle soit terminée.",
-    "practice_needs_voice": "Les textes à écouter et les jeux de rôle sont enregistrés avec Qwen3-TTS. Configure-le dans Réglages → Parole."
+    "practice_needs_voice": "Les textes à écouter et les jeux de rôle sont enregistrés avec Qwen3-TTS. Configure-le dans Réglages → Parole.",
+    "no_update": "Il n’y a pas de version plus récente à installer.",
+    "update_failed": "La mise à jour n’a pas pu être téléchargée ou installée. Réessaie plus tard."
   },
   "exams": {
     "tabs": {

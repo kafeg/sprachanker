@@ -6,7 +6,7 @@
 import type { DataFs } from "@sprachanker/course-kit";
 import { downloadChecked, type PiperHost, removeParts } from "@sprachanker/server/portable";
 import { native } from "./native.ts";
-import { type EnginePrograms, nativePrograms, programProcess } from "./speech.ts";
+import { awakeFor, type EnginePrograms, nativePrograms, programProcess } from "./speech.ts";
 
 /** A reading takes a second or two; one that takes longer is stuck. */
 const RUN_MS = 60_000;
@@ -68,27 +68,28 @@ export function phonePiper(
       fs.remove(`${voices}/${id}`);
       leave(id);
     },
-    async run({ dir, id, text, lengthScale, signal }) {
-      const name = `piper-${Date.now()}-${made++}.wav`;
-      const proc = programProcess(programs, "piper", [
-        `--vits-model=${dir}/${id}.onnx`,
-        `--vits-tokens=${dir}/tokens.txt`,
-        `--vits-data-dir=${dir}/espeak-ng-data`,
-        `--vits-length-scale=${lengthScale}`,
-        `--num-threads=${THREADS}`,
-        `--output-filename=${await files.outputs()}/${name}`,
-        text,
-      ]);
-      const timer = setTimeout(proc.kill, RUN_MS);
-      // The request gone (and no other waiting for it): stopped.
-      signal?.addEventListener("abort", proc.kill, { once: true });
-      const code = await proc.exited.finally(() => {
-        clearTimeout(timer);
-        signal?.removeEventListener("abort", proc.kill);
-      });
-      const wav = await files.output(name).catch(() => undefined);
-      if (code !== 0 || !wav) throw new Error(`reading aloud failed (${code}): ${proc.stderr()}`);
-      return new Uint8Array(wav);
-    },
+    run: ({ dir, id, text, lengthScale, signal }) =>
+      awakeFor(programs, async () => {
+        const name = `piper-${Date.now()}-${made++}.wav`;
+        const proc = programProcess(programs, "piper", [
+          `--vits-model=${dir}/${id}.onnx`,
+          `--vits-tokens=${dir}/tokens.txt`,
+          `--vits-data-dir=${dir}/espeak-ng-data`,
+          `--vits-length-scale=${lengthScale}`,
+          `--num-threads=${THREADS}`,
+          `--output-filename=${await files.outputs()}/${name}`,
+          text,
+        ]);
+        const timer = setTimeout(proc.kill, RUN_MS);
+        // The request gone (and no other waiting for it): stopped.
+        signal?.addEventListener("abort", proc.kill, { once: true });
+        const code = await proc.exited.finally(() => {
+          clearTimeout(timer);
+          signal?.removeEventListener("abort", proc.kill);
+        });
+        const wav = await files.output(name).catch(() => undefined);
+        if (code !== 0 || !wav) throw new Error(`reading aloud failed (${code}): ${proc.stderr()}`);
+        return new Uint8Array(wav);
+      }),
   };
 }

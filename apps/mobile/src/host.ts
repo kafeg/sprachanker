@@ -87,6 +87,19 @@ const concat = (parts: Uint8Array[]) => {
 
 type Server = { fetch(request: Request): Response | Promise<Response> };
 
+/** Whether a request asks for the newer version's install — its path as the server's router sees it
+ *  (the Request's normalised URL, decoded; any case, slashes doubled or trailing), any method but a
+ *  read; one that cannot be decoded is taken for it. */
+export function asksInstall(request: Request) {
+  if (request.method === "GET" || request.method === "HEAD") return false;
+  try {
+    const path = decodeURIComponent(new URL(request.url).pathname);
+    return path.toLowerCase().replace(/\/+/g, "/").replace(/\/$/, "") === "/api/update/install";
+  } catch {
+    return true;
+  }
+}
+
 /** Answers the listener's requests with `server` (once it is ready): the handler of its messages.
  *  `changed` runs after a request that may change something (the databases written at once: a page
  *  put away writes them late, and the app may be closed meanwhile). */
@@ -110,6 +123,11 @@ export function answerOthers(
       if (!request) {
         answered = true;
         return await native.answer(m.id, 400, [], null, false);
+      }
+      // A newer version is installed from the phone's own page only, never at another device's word.
+      if (asksInstall(request)) {
+        answered = true;
+        return await native.answer(m.id, 403, [], null, false);
       }
       const response = await (await server()).fetch(request);
       answered = true;

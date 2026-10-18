@@ -69,8 +69,10 @@ test("a lesson's answer recordings heard the first time it asks, written into th
     [FRAMED]: "Guten Abend! Danke, gut. Und dir?",
     [FREE]: "Hallo! Guten Tag!",
   });
-  await until(() => existsSync(fileOf(root)));
-  const stored = CourseHeard.parse(JSON.parse(readFileSync(fileOf(root), "utf8")));
+  // Written as heard: a request meanwhile may write the first before the second is heard.
+  const read = () => CourseHeard.parse(JSON.parse(readFileSync(fileOf(root), "utf8")));
+  await until(() => existsSync(fileOf(root)) && Object.keys(read().recordings).length === 2);
+  const stored = read();
   expect(stored).toMatchObject({ course: `${FIXTURE_SERIES}/demo`, lang: "de" });
   expect(stored.recordings[FRAMED]?.model).toBe(MODEL);
   // Asked again: from the course, nothing heard anew.
