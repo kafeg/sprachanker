@@ -203,6 +203,12 @@ if (!only || only === "piper")
             "-DBUILD_ESPEAK_NG_EXE=OFF",
           ]
         : macos),
+      // Linux x64: the static ONNX Runtime sherpa-onnx takes is built for glibc 2.17 with the old C++
+      // ABI; compiled with the new one, the program freed what it did not own on the first reading
+      // ("free(): invalid pointer"; found on Ubuntu 22.04, 2026-10-18).
+      ...(pc && process.platform === "linux"
+        ? ["-DCMAKE_CXX_FLAGS=-D_GLIBCXX_USE_CXX11_ABI=0"]
+        : []),
     ],
     android ? onnxRuntimeAndroid : undefined,
   );

@@ -53,6 +53,18 @@ gh secret set ANDROID_KEYSTORE_PASSWORD -R kafeg/sprachanker < <secrets>/android
    ```
 7. Update the owner's own server: the app itself, the install command (installed by it) or `deploy-local`.
 
+## Trying a build on the lab's VMs (before a tag)
+The lab's Windows 10 VM `ghr-win10` and Debian 11 VM `ghr-deb11` are the owner's work build machines: one VM at a time, started and shut down through the Proxmox API, reached over SSH (how, and the keys: the owner's private lab notes). Toolchains in the user's profile; the checkout stays for the next run:
+- `ghr-win10`: `~\sprachanker` (Bun in `~\.bun`, Rust in `~\.cargo`; Visual Studio 2022 and CMake are the VM's own); its log `~\sprachanker-build.log`.
+  ```powershell
+  $env:PATH="$env:USERPROFILE\.bun\bin;$env:USERPROFILE\.cargo\bin;$env:PATH"; cd ~\sprachanker
+  git fetch <bundle or origin> <branch>; git checkout -B <branch> FETCH_HEAD
+  bun install; bun native/scripts/build.ts; $env:E2E_ALL='1'; bun run e2e; bun run --filter @sprachanker/desktop build
+  ```
+  Then the installer from `apps/desktop/dist` with `/S` (for the user, no administrator), the app started in the desktop session (a scheduled task with `/IT`: SSH has no screen).
+- `ghr-deb11`: the release runner's Ubuntu 22.04 in Docker (Debian 11 has no WebKitGTK 4.1): `~/sprachanker` mounted into the image `sprachanker-build:22.04` (`~/sprachanker-env/Dockerfile`: Bun, Rust, WebKitGTK, Xvfb), caches in `~/.cache/sprachanker-docker`; `~/sprachanker-env/build.sh` runs the same steps.
+- Not the runners: the Windows VM's Visual Studio 17.12 cannot link sherpa-onnx's prebuilt ONNX Runtime (the runner's 17.14 can), so Piper there is sherpa-onnx's own Windows build; its CPU type has no AVX2, so the x64 engines stop at their first model — speech is tried where the CPU has AVX2.
+
 ## Gotchas
 - The build stops at the notices (`scripts/notices`) → an engine, Bun, a crate or a Gradle library moved without its inventory entry → update `scripts/notices/inventory.ts` (Bun: `bun scripts/notices/bun.ts`); `bun run check` shows which.
 - "publish" fails at latest.ts "has no signature" → `TAURI_SIGNING_PRIVATE_KEY` (or its password) is not set → set the secrets, run the release again.
