@@ -1,5 +1,6 @@
 import { describe, expect, test } from "bun:test";
-import { headword, normalise, sameText, wordDiff } from "../src/index.ts";
+import { headword, normalise, sameText, wordAsHeard, wordDiff } from "../src/index.ts";
+import { NUMBER_WORDS } from "../src/text/numbers.ts";
 
 describe("normalise", () => {
   test.each([
@@ -85,6 +86,50 @@ describe("word diff", () => {
       const { score } = wordDiff("de", ref, heard, true);
       expect([ref, score]).toEqual([ref, 1]);
     }
+  });
+
+  test("spoken English: numbers in digits are their words, short forms are said in full", () => {
+    for (const [ref, heard] of [
+      ["She is twenty-one.", "She is 21"],
+      ["Room one hundred", "Room 100"],
+      ["It is three o'clock.", "It's 3 o'clock"],
+      ["I do not know.", "I don't know"],
+      ["I cannot swim.", "I can't swim"],
+      ["We are late, I am sorry.", "We're late, I'm sorry"],
+      ["I will go. They have gone.", "I'll go. They've gone."],
+      ["I would like tea.", "I'd like tea"],
+      ["Let us go!", "Let's go"],
+      ["It won't rain.", "It will not rain"],
+    ] as const) {
+      const { score } = wordDiff("en", ref, heard, true);
+      expect([ref, score]).toEqual([ref, 1]);
+    }
+  });
+
+  test("numbers said in German and English with their words (0–9999)", () => {
+    const said = (lang: string, n: number) => NUMBER_WORDS[lang]?.(n);
+    for (const [lang, n, words] of [
+      ["de", 0, "null"],
+      ["de", 1, "eins"],
+      ["de", 21, "einundzwanzig"],
+      ["de", 101, "hunderteins"],
+      ["de", 1990, "tausendneunhundertneunzig"],
+      ["en", 0, "zero"],
+      ["en", 13, "thirteen"],
+      ["en", 21, "twentyone"],
+      ["en", 100, "onehundred"],
+      ["en", 105, "onehundredfive"],
+      ["en", 2024, "twothousandtwentyfour"],
+    ] as const)
+      expect([lang, n, said(lang, n)]).toEqual([lang, n, words]);
+    // As heard: a number of a language without words is left in digits; the language's region aside.
+    expect(wordAsHeard("ru", "21")).toBe("21");
+    expect(wordAsHeard("de-AT", "21")).toBe("einundzwanzig");
+    expect(wordAsHeard("en", "Twenty-one")).toBe(wordAsHeard("en", "21"));
+    // A short form is a language's: "'s" is "es" in German, "is" in English, nothing elsewhere.
+    expect(wordAsHeard("de", "geht's")).toBe("gehtes");
+    expect(wordAsHeard("en", "it's")).toBe("itis");
+    expect(wordAsHeard("es", "it's")).toBe("it's");
   });
 
   test("words as written: the final mark kept to show, not graded", () => {

@@ -1794,5 +1794,25 @@
     "had": "E deja în cardurile tale",
     "audioMaking": "Se pregătește sunetul",
     "listen": "Ascultă"
+  },
+  "prep": {
+    "title": "Pregătirea cursului",
+    "intro": "Făcută o dată pe acest dispozitiv după instalarea cursului și păstrată cu el, ca lecțiile să o aibă gata.",
+    "stop": "Oprește",
+    "heard": {
+      "title": "Răspunsuri înregistrate",
+      "what": "Răspunsurile înregistrate ale cursului, auzite o dată de recunoașterea vorbirii: ce spui e comparat cu ele fără AI.",
+      "ready": "Răspunsuri gata: {heard, number} din {total, number}",
+      "short": "răspunsuri {heard, number} din {total, number}",
+      "running": "Se aude: lecția {done, number} din {total, number}",
+      "queued": "Așteaptă cât se aude alt curs.",
+      "waiting": "Așteaptă un model de vorbire (Setări → Vorbire): de îndată ce unul e descărcat, continuă singur.",
+      "stopped": "Oprit.",
+      "continue": "Continuă",
+      "failed": "{count, plural, one {Nu s-au putut auzi: #} few {Nu s-au putut auzi: #} other {Nu s-au putut auzi: #}}",
+      "retry": "Încearcă din nou",
+      "start": "Ascultă-le",
+      "missing": "{count, plural, one {Înregistrări încă nedescărcate: #} few {Înregistrări încă nedescărcate: #} other {Înregistrări încă nedescărcate: #}}"
+    }
   }
 }

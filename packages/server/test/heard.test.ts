@@ -11,9 +11,9 @@ import { ulid } from "ulid";
 import { mediaBlob } from "../src/runtime/bun.ts";
 import { createContent } from "../src/services/content.ts";
 import { createHeard, type HeardFiles } from "../src/services/heard.ts";
-import type { SpeechHost } from "../src/services/local-engines.ts";
 import { createSpeech } from "../src/services/speech.ts";
 import { setup } from "./setup.ts";
+import { whisper as machine, SAID } from "./speech-fakes.ts";
 import { heardFiles, withSeriesLock } from "./storage.ts";
 
 const LESSON = `${FIXTURE_SERIES}/demo/00-02`;
@@ -22,37 +22,6 @@ const FRAMED = "media/audio/guten-abend-danke.mp3";
 const FREE = "media/audio/hallo-guten-tag.mp3";
 const MODEL = "large-v3-turbo-q5_0";
 const url = `/api/lesson/heard?${new URLSearchParams({ series: FIXTURE_SERIES, key: LESSON })}`;
-
-/** Whisper installed: what it hears of a fixture recording is said by its name (`said`); one named
- *  in `failing` it fails to hear. */
-function machine(said: Record<string, string>, failing: string[] = []) {
-  const heard: string[] = [];
-  const speech: SpeechHost = {
-    freePort: async () => 9913,
-    whisper: {
-      binary: () => "/opt/whisper-server",
-      spawn: () => ({ exited: new Promise(() => {}), kill() {} }),
-    },
-    models: { path: (file) => `/models/${file}`, async download() {}, remove() {} },
-  };
-  const fetch = (async (url: string, init: RequestInit) => {
-    if (url === "http://127.0.0.1:9913/health") return new Response("ok");
-    if (url === "http://127.0.0.1:9913/inference") {
-      const file = (init.body as FormData).get("file") as Blob;
-      const name = (await file.text()).replace("sprachanker-fixture:", "");
-      heard.push(name);
-      if (failing.includes(name)) return new Response("no", { status: 500 });
-      return Response.json({ text: ` ${said[name] ?? ""}\n` });
-    }
-    return new Response("no", { status: 500 });
-  }) as unknown as typeof globalThis.fetch;
-  return { speech, fetch, heard };
-}
-
-const SAID = {
-  "guten-abend-danke.mp3": "Guten Abend! Danke, gut. Und dir?",
-  "hallo-guten-tag.mp3": "Hallo! Guten Tag!",
-};
 
 /** Until `done` holds (the background's work), a few seconds at most. */
 async function until(done: () => boolean | Promise<boolean>) {
@@ -100,8 +69,10 @@ test("a lesson's answer recordings heard the first time it asks, written into th
     [FRAMED]: "Guten Abend! Danke, gut. Und dir?",
     [FREE]: "Hallo! Guten Tag!",
   });
-  await until(() => existsSync(fileOf(root)));
-  const stored = CourseHeard.parse(JSON.parse(readFileSync(fileOf(root), "utf8")));
+  // Written as heard: a request meanwhile may write the first before the second is heard.
+  const read = () => CourseHeard.parse(JSON.parse(readFileSync(fileOf(root), "utf8")));
+  await until(() => existsSync(fileOf(root)) && Object.keys(read().recordings).length === 2);
+  const stored = read();
   expect(stored).toMatchObject({ course: `${FIXTURE_SERIES}/demo`, lang: "de" });
   expect(stored.recordings[FRAMED]?.model).toBe(MODEL);
   // Asked again: from the course, nothing heard anew.
@@ -179,6 +150,7 @@ test("a write another process refused is kept and tried again; a recording that 
   const m = machine(SAID, ["hallo-guten-tag.mp3"]);
   let busy = true;
   const { root, lesson } = await service(m, (root) => ({
+    ...heardFiles(root),
     add: (series, heard) =>
       busy
         ? Promise.reject(Object.assign(new Error("busy"), { code: "SERIES_BUSY" }))

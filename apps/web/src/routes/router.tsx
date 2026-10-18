@@ -16,29 +16,31 @@ import { WhoIsStudying } from "@/app/who-is-studying.tsx";
 import { SpeechProvider } from "@/audio/context.ts";
 import { type Picked, SelectionMenu } from "@/audio/selection-menu.tsx";
 import { useSpeechHostValue } from "@/audio/use-speech-host.ts";
+import type { CoursePrepStep } from "@/library/course-prep.tsx";
 import { useAiIn, useLlm } from "@/llm/setup-api.ts";
 import type { LessonView } from "@/notebook/lesson.tsx";
 import type { CardExample } from "@/study/examples.tsx";
 import { type DeckSlot, StudySlotsProvider } from "@/study/slots.ts";
 import { ErrorState, Loading } from "@/ui/page.tsx";
 import { PlaybackRate } from "@/ui/playback.tsx";
-import type { CourseExtra } from "./course.tsx";
 import { CoursesPage } from "./courses.tsx";
 import { ExamsPage } from "./exams.tsx";
 import { opening, page, RouteError } from "./page.tsx";
 import type { ReviewTab } from "./review.tsx";
 
 const CoursePage = page(() => import("./course.tsx").then((m) => m.CoursePage));
-// The course's AI practice on its page — a button among its actions, what it opens —: loaded when a
-// course is opened.
-const coursePractice: CourseExtra = {
-  Button: lazy(() =>
-    import("@/llm/course-practice.tsx").then((m) => ({ default: m.CoursePracticeButton })),
-  ),
-  Panel: lazy(() =>
-    import("@/llm/course-practice.tsx").then((m) => ({ default: m.CoursePractice })),
-  ),
-};
+// The course's AI practice, a step of its preparation — its progress on the button, its section —:
+// loaded when a course is opened.
+const coursePractice: CoursePrepStep[] = [
+  {
+    Running: lazy(() =>
+      import("@/llm/course-practice.tsx").then((m) => ({ default: m.CoursePracticeRunning })),
+    ),
+    Section: lazy(() =>
+      import("@/llm/course-practice.tsx").then((m) => ({ default: m.CoursePractice })),
+    ),
+  },
+];
 const ReviewPage = page(() => import("./review.tsx").then((m) => m.ReviewPage));
 const SettingsPage = page(() => import("./settings.tsx").then((m) => m.SettingsPage));
 const ExamPage = page(() => import("@/exams/page.tsx").then((m) => m.ExamPage));
@@ -173,7 +175,7 @@ const course = createRoute({ getParentRoute: () => shell, path: "/course/$series
 course.update({
   component: opening(CoursePage, function Course() {
     const params = course.useParams();
-    return <CoursePage series={params.series} course={params.course} extra={coursePractice} />;
+    return <CoursePage series={params.series} course={params.course} prep={coursePractice} />;
   }),
 });
 // Review in three tabs, each its own address.

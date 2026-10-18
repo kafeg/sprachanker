@@ -1794,5 +1794,25 @@
     "had": "Already in your cards",
     "audioMaking": "Audio being made",
     "listen": "Listen"
+  },
+  "prep": {
+    "title": "Course preparation",
+    "intro": "Made once on this device after the course is installed and kept with it, so its lessons have it ready.",
+    "stop": "Stop",
+    "heard": {
+      "title": "Recorded answers",
+      "what": "The course's recorded answers, heard once by speech recognition: what you say is checked against them without an AI.",
+      "ready": "{heard, number} of {total, number} answers ready",
+      "short": "answers {heard, number} of {total, number}",
+      "running": "Hearing: lesson {done, number} of {total, number}",
+      "queued": "Waiting while another course is heard.",
+      "waiting": "Waiting for a speech model (Settings → Speech): once one is downloaded, it goes on by itself.",
+      "stopped": "Stopped.",
+      "continue": "Continue",
+      "failed": "{count, plural, one {# could not be heard} other {# could not be heard}}",
+      "retry": "Try again",
+      "start": "Hear them",
+      "missing": "{count, plural, one {# recording is not downloaded yet} other {# recordings are not downloaded yet}}"
+    }
   }
 }

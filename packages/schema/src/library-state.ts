@@ -85,3 +85,13 @@ export const DownloadMarker = z.strictObject({
   error: z.string().optional(),
 });
 export type DownloadMarker = z.infer<typeof DownloadMarker>;
+
+/** The hearing step's marker of a course on this machine (`<series>/.heard/<course>.json`): stopped by
+ *  the learner (not started again by itself), and the recordings that could not be heard, with the
+ *  model each failed with (not tried again with it by itself). Not in a bundle: another machine hears
+ *  with its own. */
+export const HeardMarker = z.strictObject({
+  stopped: z.literal(true).optional(),
+  failed: z.record(z.string(), z.strictObject({ model: z.string(), at: z.number() })).optional(),
+});
+export type HeardMarker = z.infer<typeof HeardMarker>;

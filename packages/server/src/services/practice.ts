@@ -19,12 +19,34 @@ import {
   type WritingTask,
 } from "@sprachanker/schema";
 import { ServiceError } from "../errors.ts";
+import type { CourseJob } from "./course-jobs.ts";
 import type { RunStore } from "./run-store.ts";
 import { keepVerdict, type Verdict, verdicts } from "./verdicts.ts";
 
 /** The steps a course's practice holds, in a lesson's order. */
 export const PRACTICE_STEPS = ["reading", "listening", "writing", "speaking"] as const;
 export type PracticeStepName = (typeof PRACTICE_STEPS)[number];
+
+/** The course preparation step of AI practice (course-jobs.ts): a job per course and edition — its
+ *  lessons in course order, each step filled up to `count` (1–3) by the profile that started it (its
+ *  model, its voices), several units at a time. */
+export type PracticeTarget = {
+  series: string;
+  course: string;
+  edition: string;
+  steps: PracticeStepName[];
+  count: number;
+};
+/** One lesson's step to make: how many of it. */
+export interface PracticeUnit {
+  lessonKey: LessonKey;
+  step: PracticeStepName;
+  count: number;
+}
+export type PracticeJob = CourseJob<PracticeTarget, PracticeUnit>;
+/** Units made at a time on a provider that answers several calls at once (each unit's drafts are
+ *  side by side already). */
+export const PRACTICE_PARALLEL = 3;
 
 /** A variant to add, its id and time still to be given. */
 export type PracticeAdd =

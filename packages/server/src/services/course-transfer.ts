@@ -14,8 +14,10 @@ import {
   CourseBundleManifest,
   type CourseKey,
   courseBundleVersion,
+  courseIdOf,
   type KeyMapFile,
   type MediaIndex,
+  seriesOf,
 } from "@sprachanker/schema";
 import { ServiceError } from "../errors.ts";
 import { createOnce } from "../once.ts";
@@ -103,8 +105,8 @@ export function createCourseTransfer(deps: {
   files: CourseTransferFiles;
   appVersion: string;
   now: () => number;
-  /** Called when a course was installed from a bundle: its files may have changed. */
-  onInstalled?: () => void;
+  /** Called when courses were installed from a bundle: their files may have changed. */
+  onInstalled?: (courses: Array<{ series: string; course: string }>) => void;
   /** Whether an installed course is listed (an experimental one only on a server started so). */
   listed?: (key: string) => boolean;
 }) {
@@ -160,7 +162,9 @@ export function createCourseTransfer(deps: {
       throw new ServiceError("course_bundle_damaged", 422);
     }
     const installed = await files.install(id, manifest);
-    deps.onInstalled?.();
+    deps.onInstalled?.(
+      manifest.courses.map((c) => ({ series: seriesOf(c.course), course: courseIdOf(c.course) })),
+    );
     const done = new Map(installed.courses.map((c) => [c.course, c]));
     return {
       courses: manifest.courses.map((c) => ({

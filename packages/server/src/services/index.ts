@@ -6,11 +6,13 @@ import type { ApkgRuntime } from "@sprachanker/anki-export";
 import type { LibraryView } from "@sprachanker/course-kit/view";
 import {
   courseDeckFolder,
+  courseKey,
   editionSetting,
   type LessonKey,
   lessonOrder,
   parseEditionId,
   parseLessonKey,
+  type SeriesKey,
 } from "@sprachanker/schema";
 import type { ProfileDb } from "../db/profile/db.ts";
 import type { ServerDb } from "../db/server/db.ts";
@@ -19,6 +21,7 @@ import { secretBox } from "../security/secrets.ts";
 import { createCardStore } from "./card-store.ts";
 import { createCards } from "./cards.ts";
 import { type Content, createContent } from "./content.ts";
+import { type CourseJobs, createCourseJobs } from "./course-jobs.ts";
 import {
   type CourseTransfer,
   type CourseTransferFiles,
@@ -45,6 +48,7 @@ import { createExplain } from "./explain.ts";
 import { createFinds } from "./finds.ts";
 import { createGoingOver } from "./going-over.ts";
 import { createHeard, type Heard, type HeardFiles } from "./heard.ts";
+import { createHearing, type Hearing } from "./hearing.ts";
 import { createLessonContext } from "./lesson-context.ts";
 import { createLessonJournal } from "./lesson-journal.ts";
 import { createLessons, type LessonStart } from "./lessons.ts";
@@ -55,16 +59,13 @@ import { createNetwork, type ListensOn, type NetworkHost } from "./network.ts";
 import { createNotebook } from "./notebook.ts";
 import {
   createPractice,
+  PRACTICE_PARALLEL,
   PRACTICE_STEPS,
   type PracticeFiles,
   type PracticeStepName,
-} from "./practice.ts";
-import {
-  createPracticeJobs,
-  PRACTICE_PARALLEL,
-  type PracticeJobs,
+  type PracticeTarget,
   type PracticeUnit,
-} from "./practice-jobs.ts";
+} from "./practice.ts";
 import { createPracticePrep } from "./practice-prep.ts";
 import { createProfileSpeech } from "./profile-speech.ts";
 import { contentUsed, createProfileTransfer, type TransferFiles } from "./profile-transfer.ts";
@@ -149,8 +150,9 @@ function profileServices(
     readAloud: ReadAloud;
     qwenTts: QwenTts;
     wordVoice: WordVoice;
-    practiceJobs: PracticeJobs;
+    practiceJobs: CourseJobs<PracticeTarget, PracticeUnit>;
     heard: Heard;
+    hearing: Hearing;
     /** Whether an installed course is listed (an experimental one only with `--experimental`). */
     listed: (key: string) => boolean;
   },
@@ -410,6 +412,8 @@ function profileServices(
         return shared.heard.lesson(series, lessonKey, (recognition && model) || undefined);
       },
     },
+    /** The course preparation step hearing the source's answers: the server's, every profile's. */
+    hearing: shared.hearing,
     examRating,
     examConversation,
     examples,
@@ -459,7 +463,7 @@ function profileServices(
           made,
           variants,
           voice: !!reader(parseEditionId(edition).target),
-          job: shared.practiceJobs.get(series, course, edition),
+          job: shared.practiceJobs.get({ series, course, edition }),
         };
       },
       async start(
@@ -499,7 +503,7 @@ function profileServices(
         );
       },
       stop: (series: string, course: string, edition: string) =>
-        shared.practiceJobs.stop(series, course, edition),
+        shared.practiceJobs.stop({ series, course, edition }),
     },
     talk,
     goingOver,
@@ -529,12 +533,17 @@ export function createServices(config: ServicesConfig) {
   const downloads = createDownloads({
     installer,
     now,
-    onEnd: () => {
+    // A download ended: the course's recordings of the source's answers heard (its next step).
+    onEnd: (series, course) => {
       for (const s of open.values()) void relink(s);
+      hearing.installed(series, course);
     },
     // A course removed: its deck folder's jobs stop, saving nothing more (deck-extras writes no
     // course folder of a course not installed); what they made stays for the course's return.
-    onRemoved: (series, course) => deckExtras.forget(courseDeckFolder(`${series}/${course}`)),
+    onRemoved: (series, course) => {
+      deckExtras.forget(courseDeckFolder(`${series}/${course}`));
+      hearing.forget(series, course);
+    },
   });
   const decks = createDecks({
     files: config.decks,
@@ -565,7 +574,7 @@ export function createServices(config: ServicesConfig) {
   // What the server makes for a deck's words (audio read aloud, examples), kept beside the deck.
   const deckExtras = createDeckExtras({ files: config.decks, decks, library: config.library, now });
   // Cards take the audio read aloud for their decks' words.
-  const practiceJobs = createPracticeJobs({ now });
+  const practiceJobs = createCourseJobs<PracticeTarget, PracticeUnit>({ now });
   const deckAudio = createDeckAudio({
     extras: deckExtras,
     onRead: async () => {
@@ -577,7 +586,12 @@ export function createServices(config: ServicesConfig) {
   const deckExamples = createDeckExamples({ extras: deckExtras, now });
   // Downloads a restart interrupted go on.
   downloads.resume().catch((error: unknown) => console.error("resuming downloads:", error));
-  const speech = createSpeech({ host: config.speech, fetch: config.fetch });
+  // A Whisper model downloaded: the courses waiting to be heard go on.
+  const speech = createSpeech({
+    host: config.speech,
+    fetch: config.fetch,
+    installed: () => void hearing.modelReady(),
+  });
   // The source's answers heard once into the courses, the same for every profile.
   const heard = createHeard({
     library: config.library,
@@ -587,6 +601,21 @@ export function createServices(config: ServicesConfig) {
     mediaBlob: config.mediaBlob,
     now,
   });
+  // The course preparation step after every install: the source's answers heard (hearing.ts), with
+  // the model the engine runs, else the best installed for this machine; none without heard files.
+  const heardFiles = config.heard;
+  const hearing = createHearing({
+    heard,
+    files: heardFiles ?? { marker: () => undefined, mark() {} },
+    engine: () => !!heardFiles && speech.built(),
+    model: () => (heardFiles && speech.built() ? speech.modelFor(speech.loaded()) : undefined),
+    // The courses listed only: an experimental one is not prepared without --experimental.
+    courses: () =>
+      config.library.courses().filter((c) => listed(courseKey(c.series as SeriesKey, c.course))),
+    now,
+  });
+  // A server that installs courses looks at every installed one once (not a command beside it).
+  if (config.installer) void hearing.sweep();
   const readAloud = createReadAloud({ host: config.piper, readings: config.readings });
   const qwenTts = createQwenTts({
     host: config.speech,
@@ -623,8 +652,9 @@ export function createServices(config: ServicesConfig) {
     files: config.courseTransfers,
     appVersion: config.appVersion,
     now,
-    onInstalled: () => {
+    onInstalled: (courses) => {
       for (const s of open.values()) void relink(s);
+      for (const c of courses) hearing.installed(c.series, c.course);
     },
     listed,
   });
@@ -662,6 +692,7 @@ export function createServices(config: ServicesConfig) {
     courseTransfer,
     profileTransfer,
     heard,
+    hearing,
     speech,
     network: createNetwork({ host: config.network, listensOn: config.listensOn, now }),
     updates: createUpdates({
@@ -698,6 +729,7 @@ export function createServices(config: ServicesConfig) {
             readAloud,
             practiceJobs,
             heard,
+            hearing,
             qwenTts,
             wordVoice,
             listed,

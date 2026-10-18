@@ -41,6 +41,43 @@ export const useLessonHeard = (series: string, key: string, enabled: boolean) =>
     queryFn: () => json(api.lesson.heard.$get({ query: { series, key: key as LessonKey } })),
   });
 
+const fetchCourseHeard = (series: string, course: string) =>
+  json(api.course.heard.$get({ query: { series, course } }));
+export type CourseHeardState = Awaited<ReturnType<typeof fetchCourseHeard>>;
+/** Whether the server works on a course's answers (or is about to: some left, nothing holding them). */
+const hearingGoes = (s: CourseHeardState | undefined) =>
+  !!s &&
+  (s.job?.state === "queued" ||
+    s.job?.state === "running" ||
+    s.job?.state === "stopping" ||
+    (!s.job && !s.waiting && !s.stopped && s.recordings > s.heard + s.failed + s.missing));
+
+/** The course preparation step hearing the source's answers: how many are ready, its job; asked
+ *  again while it works. */
+export const useCourseHeard = (series: string, course: string) =>
+  useQuery({
+    queryKey: ["course-heard", series, course],
+    queryFn: () => fetchCourseHeard(series, course),
+    // While it waits for a model, slowly: one downloaded in Settings starts it.
+    refetchInterval: (q) =>
+      hearingGoes(q.state.data) ? 1500 : q.state.data?.waiting === "model" ? 10_000 : false,
+  });
+
+/** Starts hearing a course's answers (those that failed tried again) or stops it. */
+export function useCourseHeardAction() {
+  const client = useQueryClient();
+  return useMutation({
+    mutationFn: ({ stop, ...target }: { series: string; course: string; stop?: boolean }) =>
+      json(
+        stop
+          ? api.course.heard.stop.$post({ json: target })
+          : api.course.heard.$post({ json: target }),
+      ),
+    onSuccess: (state, { series, course }) =>
+      client.setQueryData(["course-heard", series, course], state),
+  });
+}
+
 /** A course's check (files on disk, consistent); `enabled` false until asked for (a check found
  *  before shows all the same). */
 export const useCourseCheck = (series: string, course: string, enabled = true) =>
