@@ -96,10 +96,13 @@ rmSync(out, { recursive: true, force: true });
 mkdirSync(out, { recursive: true });
 /** A bundle's file into dist/ under its release name. */
 const take = (from: string, name: string) => copyFileSync(from, join(out, name));
-/** The one file of a bundle's folder ending so. */
+/** This version's file of a bundle's folder ending so (Tauri names it `SprachAnker_<version>_…`; the
+ *  folder keeps the builds before it). */
 function found(folder: string, ending: string) {
-  const name = readdirSync(join(bundled, folder)).find((n) => n.endsWith(ending));
-  if (!name) throw new Error(`no *${ending} in ${join(bundled, folder)}`);
+  const name = readdirSync(join(bundled, folder)).find(
+    (n) => n.endsWith(ending) && n.includes(`_${version}_`),
+  );
+  if (!name) throw new Error(`no *_${version}_*${ending} in ${join(bundled, folder)}`);
   return join(bundled, folder, name);
 }
 

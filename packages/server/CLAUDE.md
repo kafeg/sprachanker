@@ -28,7 +28,7 @@ src/
                      # nodeDataRoot over Node's files); process-name.ts (`ps`, `tasklist` name a pid); lmstudio.ts (detect, `lms server start`);
                      # engines.ts (the engines built in native/ — also read by the build scripts —, their processes going with the
                      # server), model-files.ts (storage's over Node), speech.ts (whisper-server, Qwen3-TTS's tts-server), piper.ts
-                     # (Piper's voices and runs), readings.ts (storage's reading cache over Node); backup.ts (a copy of each database a day; a backup on request); profile-sql.ts (ProfileSql
+                     # (Piper's voices and runs; bzip2.ts undoes their .tar.bz2 — Windows' tar cannot), readings.ts (storage's reading cache over Node); backup.ts (a copy of each database a day; a backup on request); profile-sql.ts (ProfileSql
                      # over bun:sqlite: VACUUM INTO, a received database made ready in a Worker — profile-db-worker.ts); network.ts
                      # (IPv4 addresses, `.local` name, `tailscale status` / `serve status`); cli.ts (`claude` / `codex` for the
                      # command-line LLM providers); apkg.ts (what an .apkg needs: SQLite from bytes, zstd)
