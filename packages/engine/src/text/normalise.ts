@@ -1,4 +1,5 @@
 // Text normalisation for checking typed and spoken answers.
+import { formsOf } from "./language-forms.ts";
 
 const DASHES = /[‐‑‒–—―]/g;
 
@@ -35,12 +36,13 @@ const SENTENCE_END = /[.!?:]$/;
 export const endsSentence = (text: string) => SENTENCE_END.test(text.trimEnd());
 
 /**
- * Whether the reference word at `index` keeps its case when compared: German capitalises nouns and
- * the formal "Sie", so a capitalised word that does not start a sentence must match exactly.
+ * Whether the reference word at `index` keeps its case when compared: where nouns are capitalised
+ * (German: nouns and the formal "Sie"), a capitalised word that does not start a sentence must match
+ * exactly.
  * `startsSentence`: whether the first word starts a sentence (a gap in mid-sentence does not).
  */
 function caseMatters(lang: string, words: string[], index: number, startsSentence = true): boolean {
-  if (lang !== "de") return false;
+  if (!formsOf(lang).nounsCapitalised) return false;
   const word = words[index] ?? "";
   const starts = index === 0 ? startsSentence : endsSentence(words[index - 1] ?? "");
   return !starts && /^\p{Lu}/u.test(word);

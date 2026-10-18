@@ -1808,5 +1808,25 @@
     "had": "Déjà dans tes cartes",
     "audioMaking": "Audio en préparation",
     "listen": "Écouter"
+  },
+  "prep": {
+    "title": "Préparation du cours",
+    "intro": "Faite une fois sur cet appareil après l’installation du cours et gardée avec lui, pour que ses leçons l’aient prête.",
+    "stop": "Arrêter",
+    "heard": {
+      "title": "Réponses enregistrées",
+      "what": "Les réponses enregistrées du cours, entendues une fois par la reconnaissance vocale : ce que vous dites est comparé à elles sans IA.",
+      "ready": "{heard, number} sur {total, number} réponses prêtes",
+      "short": "réponses {heard, number} sur {total, number}",
+      "running": "Écoute : leçon {done, number} sur {total, number}",
+      "queued": "En attente pendant qu’un autre cours est écouté.",
+      "waiting": "En attente d’un modèle vocal (Réglages → Parole) : dès qu’un modèle est téléchargé, cela reprend tout seul.",
+      "stopped": "Arrêté.",
+      "continue": "Continuer",
+      "failed": "{count, plural, one {# n’a pas pu être entendue} many {# n’ont pas pu être entendues} other {# n’ont pas pu être entendues}}",
+      "retry": "Réessayer",
+      "start": "Les écouter",
+      "missing": "{count, plural, one {# enregistrement pas encore téléchargé} many {# enregistrements pas encore téléchargés} other {# enregistrements pas encore téléchargés}}"
+    }
   }
 }

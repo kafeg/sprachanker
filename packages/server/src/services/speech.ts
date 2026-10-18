@@ -45,7 +45,12 @@ const START_MS = 120_000;
 /** A 30 s take is heard in a few seconds; an engine that takes longer is stuck. */
 const TRANSCRIBE_MS = 60_000;
 
-export function createSpeech(deps: { host?: SpeechHost; fetch: typeof fetch }) {
+export function createSpeech(deps: {
+  host?: SpeechHost;
+  fetch: typeof fetch;
+  /** A model's download ended with it installed (what waits for a model goes on). */
+  installed?: (id: string) => void;
+}) {
   const { host } = deps;
   const binary = () => host?.whisper?.binary();
   const downloads = createModelDownloads();
@@ -140,9 +145,10 @@ export function createSpeech(deps: { host?: SpeechHost; fetch: typeof fetch }) {
       if (!host) throw new ServiceError("speech_unavailable", 409);
       if (installed(offer)) return;
       const model = ofHere(offer);
-      downloads.start(id, (progress, signal) =>
-        host.models.download(`${MODEL_URL}${model.file}`, model, progress, signal),
-      );
+      downloads.start(id, async (progress, signal) => {
+        await host.models.download(`${MODEL_URL}${model.file}`, model, progress, signal);
+        deps.installed?.(id);
+      });
     },
 
     /** Removes a model (stopping a download of it, or the engine running it). */
@@ -152,6 +158,13 @@ export function createSpeech(deps: { host?: SpeechHost; fetch: typeof fetch }) {
       if (engine.setup() === id) engine.stop();
       host?.models.remove(model.file);
     },
+
+    /** Whether whisper-server is built here (a model aside). */
+    built: () => !!binary(),
+
+    /** The model the engine runs now (a learner's: work in the background takes it rather than swap
+     *  in another), if any. */
+    loaded: () => engine.setup(),
 
     /** Starts the engine ahead of a recording (loading the model takes seconds). */
     warm(model: string) {

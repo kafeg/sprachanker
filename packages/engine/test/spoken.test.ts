@@ -154,6 +154,16 @@ describe("a right answer is never wrong", () => {
   ])("%j said as %j", (reference, heard, said, verdict) =>
     expect(judge(reference, heard, said)).toBe(verdict as never),
   );
+  test.each<[string, string, string, string | undefined]>([
+    // English as German: numbers in digits and short forms are not heard.
+    ["I am ... years old.", "I am twenty-one years old.", "I'm 21 years old.", "correct"],
+    ["It costs ... dollars.", "It costs five dollars.", "It costs 5 dollars.", "correct"],
+    ["I don't like ...", "I do not like coffee.", "I don't like tea.", "correct"],
+  ])("English: %j said as %j", (reference, heard, said, verdict) => {
+    const target = spokenAnswers("en", { reference: [reference] }, heard);
+    if (!target) throw new Error(`no answers for ${reference}`);
+    expect(judgeSpoken("en", target, said).verdict).toBe(verdict as never);
+  });
   test("a frame of gaps only is none: the source's answer as heard, unlike it not judged", () => {
     const target = spokenAnswers(
       "de",

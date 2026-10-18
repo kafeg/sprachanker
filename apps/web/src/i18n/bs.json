@@ -1808,5 +1808,25 @@
     "had": "Već je u tvojim karticama",
     "audioMaking": "Zvuk se pravi",
     "listen": "Poslušaj"
+  },
+  "prep": {
+    "title": "Priprema kursa",
+    "intro": "Radi se jednom na ovom uređaju nakon instaliranja kursa i čuva se uz njega, da lekcije to imaju spremno.",
+    "stop": "Zaustavi",
+    "heard": {
+      "title": "Snimljeni odgovori",
+      "what": "Snimljeni odgovori kursa, jednom prepoznati prepoznavanjem govora: ono što kažeš poredi se s njima bez AI-ja.",
+      "ready": "Spremno odgovora: {heard, number} od {total, number}",
+      "short": "odgovori {heard, number} od {total, number}",
+      "running": "Prepoznavanje: lekcija {done, number} od {total, number}",
+      "queued": "Čeka dok se prepoznaje drugi kurs.",
+      "waiting": "Čeka model za govor (Postavke → Govor): čim se jedan preuzme, nastavlja samo.",
+      "stopped": "Zaustavljeno.",
+      "continue": "Nastavi",
+      "failed": "{count, plural, one {Nije prepoznato: #} few {Nije prepoznato: #} other {Nije prepoznato: #}}",
+      "retry": "Pokušaj ponovo",
+      "start": "Prepoznaj",
+      "missing": "{count, plural, one {Još nije preuzeto snimaka: #} few {Još nije preuzeto snimaka: #} other {Još nije preuzeto snimaka: #}}"
+    }
   }
 }

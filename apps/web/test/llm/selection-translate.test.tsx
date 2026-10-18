@@ -101,7 +101,9 @@ test("with a model the bar has one action, Translate: the card shown at once, ke
     await view.findByText("Added to Finds", {}, { timeout: 3000 });
     expect(view.getByText("die Situation").getAttribute("lang")).toBe("de");
     expect(view.getByText(/— ситуация/)).toBeTruthy();
-    expect(view.getByRole("status", { name: "Audio being made" })).toBeTruthy();
+    // The audio asked for right after the card is shown: waited for, not assumed (a loaded machine).
+    await view.findByRole("status", { name: "Audio being made" }, { timeout: 3000 });
+    await waitFor(() => expect(asked).toHaveLength(2), { timeout: 3000 });
     expect(asked).toEqual([
       `POST /api/llm/finds ${JSON.stringify({
         text: "Situation",

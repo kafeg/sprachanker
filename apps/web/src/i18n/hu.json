@@ -1808,5 +1808,25 @@
     "had": "Már megvan a kártyáid között",
     "audioMaking": "A hang készül",
     "listen": "Meghallgatás"
+  },
+  "prep": {
+    "title": "A kurzus előkészítése",
+    "intro": "A kurzus telepítése után egyszer készül el ezen az eszközön, és vele együtt marad, hogy a leckék készen kapják.",
+    "stop": "Leállítás",
+    "heard": {
+      "title": "Felvett válaszok",
+      "what": "A kurzus felvett válaszai, amelyeket a beszédfelismerés egyszer meghallgat: amit mondasz, MI nélkül vetjük össze velük.",
+      "ready": "{heard, number} / {total, number} válasz kész",
+      "short": "válaszok {heard, number} / {total, number}",
+      "running": "Meghallgatás: {done, number} / {total, number} lecke",
+      "queued": "Vár, amíg egy másik kurzust hallgat meg.",
+      "waiting": "Beszédmodellre vár (Beállítások → Beszéd): amint letöltődik egy, magától folytatja.",
+      "stopped": "Leállítva.",
+      "continue": "Folytatás",
+      "failed": "{count, plural, one {# nem sikerült meghallgatni} other {# nem sikerült meghallgatni}}",
+      "retry": "Újra",
+      "start": "Meghallgatás",
+      "missing": "{count, plural, one {# felvétel még nincs letöltve} other {# felvétel még nincs letöltve}}"
+    }
   }
 }

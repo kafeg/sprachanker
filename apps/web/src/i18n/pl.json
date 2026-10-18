@@ -1808,5 +1808,25 @@
     "had": "Już jest w twoich fiszkach",
     "audioMaking": "Dźwięk jest przygotowywany",
     "listen": "Posłuchaj"
+  },
+  "prep": {
+    "title": "Przygotowanie kursu",
+    "intro": "Robione raz na tym urządzeniu po zainstalowaniu kursu i przechowywane razem z nim, żeby lekcje miały to gotowe.",
+    "stop": "Zatrzymaj",
+    "heard": {
+      "title": "Nagrane odpowiedzi",
+      "what": "Nagrane odpowiedzi kursu, raz rozpoznane przez rozpoznawanie mowy: to, co mówisz, jest z nimi porównywane bez AI.",
+      "ready": "Gotowe odpowiedzi: {heard, number} z {total, number}",
+      "short": "odpowiedzi {heard, number} z {total, number}",
+      "running": "Rozpoznawanie: lekcja {done, number} z {total, number}",
+      "queued": "Czeka, aż zostanie rozpoznany inny kurs.",
+      "waiting": "Czeka na model mowy (Ustawienia → Mowa): gdy tylko zostanie pobrany, ruszy samo.",
+      "stopped": "Zatrzymano.",
+      "continue": "Kontynuuj",
+      "failed": "{count, plural, one {Nie udało się rozpoznać: #} few {Nie udało się rozpoznać: #} many {Nie udało się rozpoznać: #} other {Nie udało się rozpoznać: #}}",
+      "retry": "Spróbuj ponownie",
+      "start": "Rozpoznaj",
+      "missing": "{count, plural, one {Jeszcze nie pobrane nagrania: #} few {Jeszcze nie pobrane nagrania: #} many {Jeszcze nie pobrane nagrania: #} other {Jeszcze nie pobrane nagrania: #}}"
+    }
   }
 }

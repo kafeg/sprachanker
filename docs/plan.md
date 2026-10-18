@@ -127,9 +127,13 @@ engine against the source's answer heard into the course (the AI only where it c
 - The old Dialogue's routes, service and prompts removed (no screen reaches them).
 - `exam_rating` and `speaking_check` without thinking, as the other checks the learner waits for.
 Follow-ups of the spoken check: choices joined by a slash with no space ("einmal/zweimal/…") read
-as alternatives of a frame (such items are not heard for checking yet: the AI checks them); numbers
-in digits heard as words in languages other than German; the right answer's text in the Notebook's
-pass and item history (its recording is there).
+as alternatives of a frame (such items are not heard for checking yet: the AI checks them); the right
+answer's text in the Notebook's pass and item history (its recording is there); numbers and short
+forms (engine `text/language-forms.ts`) for a language once a course of it checks answers said aloud;
+the course preparation's hearing giving way to a learner's take (a take now waits for the recording
+being heard, a second or two); a course imported by the command line heard by a running server before
+its page is opened (today: at the next start, or when the page asks); the German participle's "ge-" and
+irregular verbs of engine `text/words.ts` (a model's word form checked) as language data too.
 
 ## Open items in built areas
 Taken along when an item above touches the area, or on request.

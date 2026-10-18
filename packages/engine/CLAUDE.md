@@ -19,8 +19,10 @@ src/
                   # understanding.ts: Understanding's questions as items of their types, its stage;
                   # mistake-items.ts: going over mistakes' new items as items of their types, a
                   # review's items numbered across its groups, where the learner is
-  text/           # normalisation and word diff used by checkers and speech (a word as heard: "ß"/"ss",
-                  # "'s", numbers.ts: German numbers in digits as words); words (a sentence's words
+  text/           # normalisation and word diff used by checkers and speech (a word as heard: wordAsHeard);
+                  # language-forms.ts: what each language writes two ways and says one way, data by
+                  # language (numbers in digits — numbers.ts: de, en —, short forms "geht's",
+                  # "don't", spellings "ß"/"ss", nouns capitalised); words (a sentence's words
                   # met or new against a vocabulary; whether it uses a word, or a form given of it —
                   # irregular-verbs: the commonest German ones' forms no stem finds)
   learner/        # mistakes, practice (how each AI practice step went: its first work marked as an
@@ -54,5 +56,7 @@ src/
 - Derivations from events (learner/, exam/, srs/day.ts) are deterministic: same events → same result; they
   read `TypedEvent`s and narrow on `type`, never casting a payload.
 - Keep functions small and pure; side effects belong to the server.
+- How a word is compared (heard, typed, misspelt) is language-specific only in data (`text/language-forms.ts`,
+  the article lists in `text/normalise.ts`); a language without an entry gets the plain comparison.
 - Folders depend one way: `learner/` may read `srs/`, never the reverse (dependency-cruiser
   `engine-folders-one-way`).

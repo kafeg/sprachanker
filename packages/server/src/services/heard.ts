@@ -2,14 +2,16 @@
 // checked by (engine `answerToHear`: DW's "Lösungsaudio" of an item with no line to say) heard once
 // by Whisper on this machine and written into the course (`heard/<course>.json`), so the engine
 // checks an answer said aloud against them, offline, without a model. Server-wide, like the course
-// content: a lesson's are heard as the lesson asks for them (the first time a learner who hears
-// speech meets it: with that learner's model, the one loaded), in the background, the lesson asking
-// again for what is heard by then; a whole course's by `sprachanker heard` (the best model
-// installed). A recording another course of the series had heard by the same model is taken from it.
-// What is heard is kept in memory until it is written: a write waits for the series' lock (a course
+// content. A course's are heard by the install's hearing step (hearing.ts, over `unheard`, `hearPaths`
+// and `finish`) and by `sprachanker heard` (`course`: the best model installed); a lesson's, the
+// fallback, as the lesson asks for them (the first time a learner who hears speech meets it: with that
+// learner's model, the one loaded), in the background, the lesson asking again for what is heard by
+// then. A recording another course of the series had heard by the same model is taken from it. What
+// is heard is kept in memory until it is written: a write waits for the series' lock (a course
 // download of the series holds it) without keeping a request waiting, and one another process holds
-// it against is tried again. A recording that fails is not tried again while the server runs. Kept as
-// practice is: in the course's bundles, kept when it is removed. Never the reference text given.
+// it against is tried again. A recording that fails is not tried again by a lesson while the server
+// runs. Kept as practice is: in the course's bundles, kept when it is removed. Never the reference
+// text given.
 import type { LibraryView } from "@sprachanker/course-kit/view";
 import { answerToHear, spokenAnswers } from "@sprachanker/engine";
 import {
@@ -17,6 +19,7 @@ import {
   type CourseKey,
   courseKey,
   type EditionId,
+  type HeardMarker,
   HeardRecording,
   type ItemOf,
   type Lang,
@@ -33,12 +36,16 @@ import type { Content } from "./content.ts";
 import { said } from "./silence.ts";
 import type { Speech } from "./speech.ts";
 
-/** A course's recordings heard written (runtime adapter: under the series' lock). */
+/** A course's recordings heard written (runtime adapter: under the series' lock), and the hearing
+ *  step's marker of a course on this machine (none: never stopped, nothing failed). */
 export interface HeardFiles {
   add(
     series: string,
     heard: { course: CourseKey; lang: Lang; recordings: Record<string, HeardRecording> },
   ): Promise<CourseHeard>;
+  marker(series: string, course: string): HeardMarker | undefined;
+  /** Written; one holding nothing (or none) removed. */
+  mark(series: string, course: string, marker: HeardMarker | undefined): void;
 }
 
 /** Recordings heard before what is heard so far is written (a job stopped keeps what it heard). */
@@ -177,6 +184,9 @@ export function createHeard(deps: {
       retry?: boolean;
       write: () => Promise<void>;
       onDone?: (path: string) => void;
+      onFailed?: (path: string) => void;
+      /** Asked before each recording: true stops (what was heard is kept to write). */
+      stopped?: () => boolean;
     },
   ) {
     if (!deps.files) throw new ServiceError("speech_unavailable", 409);
@@ -195,10 +205,12 @@ export function createHeard(deps: {
     const key = courseOf(series, course);
     let fresh = 0;
     for (const path of missing) {
+      if (options.stopped?.()) break;
       const recording = others.get(path) ?? (await hearOne(series, path, lang, model));
       if (!recording) {
         failed.add(`${series}|${path}|${model}`);
         counts.failed++;
+        options.onFailed?.(path);
       } else {
         const pending = unwritten.get(key) ?? { lang, recordings: {} };
         pending.recordings[path] = recording;
@@ -216,6 +228,30 @@ export function createHeard(deps: {
 
   /** The best model installed here, if any. */
   const bestModel = () => speech.modelFor(undefined);
+
+  /** A course's items checked by a recording heard, in lesson order: its lessons read from the
+   *  library, not kept (a course's are many). */
+  async function courseItems(series: string, course: string) {
+    const index = await content.courseIndex(series, course);
+    const items = [];
+    for (const key of lessonOrder(index)) items.push(...itemsOf(await library.lesson(series, key)));
+    return items;
+  }
+  const pathsOf = (items: Array<{ path: string }>) => [...new Set(items.map((i) => i.path))];
+  /** A course's recordings by lesson, by course and its file's stamp. */
+  const recordingsOf = createOnce<Array<{ lessonKey: LessonKey; paths: string[] }>>({ keep: true });
+
+  /** The last write of a course: it waits a little for another process holding the series' lock. */
+  async function finish(series: string, course: string) {
+    for (let n = 1; ; n++) {
+      try {
+        return await flush(series, course);
+      } catch (error) {
+        if (n >= LAST_WRITE.tries) throw error;
+        await sleep(LAST_WRITE.ms);
+      }
+    }
+  }
 
   return {
     /**
@@ -259,6 +295,57 @@ export function createHeard(deps: {
      *  answer said aloud). */
     texts,
 
+    /** A course's recordings of the source's answers by lesson, in lesson order (a recording several
+     *  lessons use in the first): what its hearing step hears. Read once while the course's files
+     *  stay the same (normalised again: read anew). */
+    async recordings(series: string, course: string) {
+      const lessons = lessonOrder(await content.courseIndex(series, course));
+      const stamp = [
+        library.courseStamp(series, course),
+        ...lessons.map((k) => library.lessonStamp(series, k)),
+      ].join("|");
+      return recordingsOf(
+        `${series}|${course}`,
+        async () => {
+          const seen = new Set<string>();
+          const out: Array<{ lessonKey: LessonKey; paths: string[] }> = [];
+          for (const lessonKey of lessons) {
+            const paths = pathsOf(itemsOf(await library.lesson(series, lessonKey))).filter(
+              (p) => !seen.has(p) && seen.add(p),
+            );
+            if (paths.length) out.push({ lessonKey, paths });
+          }
+          return out;
+        },
+        stamp,
+      );
+    },
+
+    /** Whether a recording's file is on disk (a download that has not ended may lack it). */
+    onDisk: (series: string, path: string) => !!library.mediaFile(series, path),
+
+    /** Hears `paths` of a course with `model` (those that failed before too), written every few as
+     *  they are heard, in the background (the series' lock may be held a while); `stopped` asked
+     *  before each. The course's last write: `finish`. */
+    hearPaths: (
+      series: string,
+      course: string,
+      paths: string[],
+      model: string,
+      options: {
+        onDone?: (path: string) => void;
+        onFailed?: (path: string) => void;
+        stopped?: () => boolean;
+      } = {},
+    ) =>
+      hear(series, course, paths, model, {
+        ...options,
+        retry: true,
+        write: async () => void flushLogged(series, course),
+      }),
+
+    finish,
+
     /** A whole course's recordings heard with the best model installed (`again`: every one heard
      *  anew; those that failed before tried again); `progress` as each is done. */
     async course(
@@ -269,11 +356,8 @@ export function createHeard(deps: {
       const started = deps.now();
       const model = bestModel();
       if (!model) throw new ServiceError("speech_unavailable", 409);
-      const index = await content.courseIndex(series, course);
-      const items = [];
-      for (const key of lessonOrder(index))
-        items.push(...itemsOf(await content.lesson(series, key)));
-      const paths = [...new Set(items.map((i) => i.path))];
+      const items = await courseItems(series, course);
+      const paths = pathsOf(items);
       let done = 0;
       const counts = await hear(series, course, paths, model, {
         again: options.again,
@@ -281,16 +365,7 @@ export function createHeard(deps: {
         write: () => flushLogged(series, course),
         onDone: () => options.progress?.(++done, paths.length),
       });
-      // The last write waits a little for another process holding the series' lock.
-      for (let n = 1; ; n++) {
-        try {
-          await flush(series, course);
-          break;
-        } catch (error) {
-          if (n >= LAST_WRITE.tries) throw error;
-          await sleep(LAST_WRITE.ms);
-        }
-      }
+      await finish(series, course);
       const lang = langOf(series, course);
       const all = await texts(series, course);
       const used = items.filter(({ item, path }) => spokenAnswers(lang, item, all[path])).length;

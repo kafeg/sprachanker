@@ -1808,5 +1808,25 @@
     "had": "你的卡片里已有",
     "audioMaking": "正在生成音频",
     "listen": "试听"
+  },
+  "prep": {
+    "title": "课程准备",
+    "intro": "课程安装后在本设备上做一次，并与课程一起保存，让课程里的课直接用上。",
+    "stop": "停止",
+    "heard": {
+      "title": "录制的答案",
+      "what": "课程录制的答案，由语音识别听一次：你说的话不用 AI 就能与它们对照。",
+      "ready": "{total, number} 个答案中 {heard, number} 个已就绪",
+      "short": "答案 {heard, number}/{total, number}",
+      "running": "正在听：第 {done, number} 课，共 {total, number} 课",
+      "queued": "正在等待另一门课程听完。",
+      "waiting": "正在等待语音模型（设置 → 语音）：下载好一个后会自动继续。",
+      "stopped": "已停止。",
+      "continue": "继续",
+      "failed": "{count, plural, other {# 个未能听出}}",
+      "retry": "重试",
+      "start": "开始听",
+      "missing": "{count, plural, other {# 个录音尚未下载}}"
+    }
   }
 }

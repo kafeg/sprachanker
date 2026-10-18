@@ -1808,5 +1808,25 @@
     "had": "Tayari iko kwenye kadi zako",
     "audioMaking": "Sauti inatengenezwa",
     "listen": "Sikiliza"
+  },
+  "prep": {
+    "title": "Maandalizi ya kozi",
+    "intro": "Hufanywa mara moja kwenye kifaa hiki baada ya kusakinisha kozi na huhifadhiwa nayo, ili masomo yake yawe tayari.",
+    "stop": "Simamisha",
+    "heard": {
+      "title": "Majibu yaliyorekodiwa",
+      "what": "Majibu yaliyorekodiwa ya kozi, husikilizwa mara moja na utambuzi wa sauti: unachosema hulinganishwa nayo bila AI.",
+      "ready": "Majibu {heard, number} kati ya {total, number} yako tayari",
+      "short": "majibu {heard, number} kati ya {total, number}",
+      "running": "Inasikiliza: somo {done, number} kati ya {total, number}",
+      "queued": "Inasubiri kozi nyingine isikilizwe.",
+      "waiting": "Inasubiri modeli ya sauti (Mipangilio → Sauti): ikishapakuliwa moja, inaendelea yenyewe.",
+      "stopped": "Imesimamishwa.",
+      "continue": "Endelea",
+      "failed": "{count, plural, one {# haikuweza kusikika} other {# hazikuweza kusikika}}",
+      "retry": "Jaribu tena",
+      "start": "Yasikilize",
+      "missing": "{count, plural, one {Rekodi # bado haijapakuliwa} other {Rekodi # bado hazijapakuliwa}}"
+    }
   }
 }

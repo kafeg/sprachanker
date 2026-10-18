@@ -1808,5 +1808,25 @@
     "had": "Schon in deinen Karten",
     "audioMaking": "Audio wird erstellt",
     "listen": "Anhören"
+  },
+  "prep": {
+    "title": "Kursvorbereitung",
+    "intro": "Wird nach der Installation des Kurses einmal auf diesem Gerät gemacht und mit ihm aufbewahrt, damit seine Lektionen es fertig haben.",
+    "stop": "Anhalten",
+    "heard": {
+      "title": "Aufgenommene Antworten",
+      "what": "Die aufgenommenen Antworten des Kurses, einmal von der Spracherkennung gehört: Was du sagst, wird ohne KI mit ihnen verglichen.",
+      "ready": "{heard, number} von {total, number} Antworten bereit",
+      "short": "Antworten {heard, number} von {total, number}",
+      "running": "Wird gehört: Lektion {done, number} von {total, number}",
+      "queued": "Wartet, während ein anderer Kurs gehört wird.",
+      "waiting": "Wartet auf ein Sprachmodell (Einstellungen → Sprechen): Sobald eines heruntergeladen ist, geht es von selbst weiter.",
+      "stopped": "Angehalten.",
+      "continue": "Weiter",
+      "failed": "{count, plural, one {# nicht verstanden} other {# nicht verstanden}}",
+      "retry": "Erneut versuchen",
+      "start": "Jetzt hören",
+      "missing": "{count, plural, one {# Aufnahme noch nicht heruntergeladen} other {# Aufnahmen noch nicht heruntergeladen}}"
+    }
   }
 }

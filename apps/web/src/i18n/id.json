@@ -1808,5 +1808,25 @@
     "had": "Sudah ada di kartumu",
     "audioMaking": "Audio sedang dibuat",
     "listen": "Dengarkan"
+  },
+  "prep": {
+    "title": "Persiapan kursus",
+    "intro": "Dibuat sekali di perangkat ini setelah kursus dipasang dan disimpan bersamanya, agar pelajarannya sudah siap.",
+    "stop": "Hentikan",
+    "heard": {
+      "title": "Jawaban terekam",
+      "what": "Jawaban terekam kursus, didengar sekali oleh pengenalan ucapan: ucapanmu dibandingkan dengannya tanpa AI.",
+      "ready": "{heard, number} dari {total, number} jawaban siap",
+      "short": "jawaban {heard, number} dari {total, number}",
+      "running": "Mendengarkan: pelajaran {done, number} dari {total, number}",
+      "queued": "Menunggu selagi kursus lain didengarkan.",
+      "waiting": "Menunggu model ucapan (Pengaturan → Ucapan): begitu satu diunduh, berlanjut sendiri.",
+      "stopped": "Dihentikan.",
+      "continue": "Lanjutkan",
+      "failed": "{count, plural, other {# tidak bisa didengar}}",
+      "retry": "Coba lagi",
+      "start": "Dengarkan",
+      "missing": "{count, plural, other {# rekaman belum diunduh}}"
+    }
   }
 }
