@@ -699,3 +699,19 @@ test("a bundle's recordings heard are checked: their schema and their course", a
     "heard/basic.json: not where its keys put it",
   );
 });
+
+test("a file of ours that does not read is replaced by the bundle's, and is back as it was when the install is undone", async () => {
+  const { root, series } = await library();
+  put(join(series, "heard/basic.json"), heardOf({ "media/audio/a.mp3": "Theirs a." }));
+  const other = dir();
+  await install(other, await bundled((await library()).root, ["ru-de"]));
+  const ours = join(other, MINI_SERIES, "heard/basic.json");
+  put(ours, '{"format": 9}');
+  const bundle = await bundled(root);
+  const plan = await planBundle(nodeFs, other, bundle.manifest);
+  rmSync(join(bundle.files, "locale/en-de/basic"), { recursive: true });
+  await expect(
+    installBundle({ fs: nodeFs, libraryRoot: other, ...bundle, plan }),
+  ).rejects.toThrow();
+  expect(readFileSync(ours, "utf8")).toBe('{"format": 9}');
+});

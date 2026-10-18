@@ -90,6 +90,17 @@ const readJson = async (fs: DataFs, file: string): Promise<unknown> => {
   return JSON.parse(text);
 };
 
+/** A file of ours a bundle merges into: whether it is there, and what it holds when it reads (one
+ *  that does not read is replaced by the bundle's, kept aside for an undo all the same). */
+async function oursOf<T>(fs: DataFs, file: string, schema: z.ZodType<T>) {
+  if (!fs.stat(file)) return { had: false, ours: undefined };
+  const ours = await readJson(fs, file).then(
+    (value) => schema.safeParse(value).data,
+    () => undefined,
+  );
+  return { had: true, ours };
+}
+
 /** A series' media index and key map, as stored (none yet: empty); one that does not read throws. */
 async function seriesState(fs: DataFs, seriesDir: string) {
   const read = async (name: string) => {
@@ -680,25 +691,19 @@ export async function installBundle(options: {
   for (const f of manifest.files) {
     if (isHeardJson(f.path)) {
       const theirs = CourseHeard.parse(await readJson(fs, joinPath(files, f.path)));
-      const target = joinPath(seriesDir, f.path);
-      const ours = fs.stat(target)
-        ? CourseHeard.safeParse(await readJson(fs, target)).data
-        : undefined;
+      const { had, ours } = await oursOf(fs, joinPath(seriesDir, f.path), CourseHeard);
       const value = ours ? mergeHeard(ours, theirs) : theirs;
       const count = (h?: CourseHeard) => Object.keys(h?.recordings ?? {}).length;
-      if (!ours || count(value) > count(ours)) practice.push({ path: f.path, had: !!ours, value });
+      if (!ours || count(value) > count(ours)) practice.push({ path: f.path, had, value });
       continue;
     }
     if (!isPracticeJson(f.path)) continue;
     const theirs = PracticeLesson.parse(await readJson(fs, joinPath(files, f.path)));
-    const target = joinPath(seriesDir, f.path);
-    const ours = fs.stat(target)
-      ? PracticeLesson.safeParse(await readJson(fs, target)).data
-      : undefined;
+    const { had, ours } = await oursOf(fs, joinPath(seriesDir, f.path), PracticeLesson);
     const value = ours ? mergePractice(ours, theirs) : theirs;
     const added = variants(value) - variants(ours);
     if (!added && ours) continue;
-    practice.push({ path: f.path, had: !!ours, value });
+    practice.push({ path: f.path, had, value });
     const course = `${series}/${bundlePathCourse(f.path)}`;
     brought.set(course, (brought.get(course) ?? 0) + added);
   }
