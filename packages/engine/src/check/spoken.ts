@@ -181,6 +181,15 @@ export function spokenFreely(
  *  missed (the question said back). */
 const MISSED = 0.5;
 
+/** A line that is only a word spelled, its letters joined by hyphens ("E-M-M-A"). */
+const SPELLED_LINE = /^\p{L}(?:-\p{L})+[.!?]?$/u;
+/** A text's letters alone, upper-cased: how a word spelled is compared. */
+const lettersOf = (s: string) =>
+  s
+    .normalize("NFC")
+    .replace(/[^\p{L}]/gu, "")
+    .toLocaleUpperCase();
+
 /**
  * What was heard of an answer judged against what it is checked by. A line to say: `correct` when
  * it is said, `partial` most of its words (spokenCheck), else `wrong`. A frame: `correct` when the
@@ -198,6 +207,18 @@ export function judgeSpoken(
   target: SpokenAnswers,
   transcript: string,
 ): { verdict: "correct" | "partial" | "wrong"; ownWords?: true; diff: TokenDiff[] } {
+  // A line spelled ("E-M-M-A"): its letters, however the recogniser wrote them ("E M M A", "E, M, M, A.",
+  // "Emma"); other letters "almost", never wrong (a letter misheard is the recogniser's as often).
+  const spelled = target.exact ? target.answers.filter((a) => SPELLED_LINE.test(a.trim())) : [];
+  if (spelled.length) {
+    const said = lettersOf(transcript);
+    if (spelled.some((a) => lettersOf(a) === said)) return { verdict: "correct", diff: [] };
+    const letters = (s: string) => [...lettersOf(s)].join(" ");
+    return {
+      verdict: "partial",
+      diff: spokenCheck(lang, spelled.map(letters), letters(transcript)).diff,
+    };
+  }
   const { diff, verdict, score } = spokenCheck(lang, target.answers, transcript);
   if (verdict === "correct" || target.exact) return { verdict, diff };
   if (target.frames.some((f) => completes(lang, f, transcript)))

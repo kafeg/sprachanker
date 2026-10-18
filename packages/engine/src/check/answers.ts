@@ -84,8 +84,9 @@ export function alternativesOf(line: string): string[] {
  * The lines a speaking item is said as: the source's answer (`reference`) when it has one, each
  * split into its alternatives (" / "), none when it is a frame; else its phrase to repeat (`text`),
  * said as written — words in brackets too —, split into alternatives only when it is one line (a
- * text of several lines is read whole: its " / " may part words or speakers). None when the item has
- * neither or a line is spelled — the answer is then the learner's own, for the AI to check.
+ * text of several lines is read whole: its " / " may part words or speakers). A spelled line
+ * ("E-M-M-A") is one too, said letter by letter (judgeSpoken compares its letters). None when the item
+ * has neither — the answer is then the learner's own, for the AI to check.
  */
 export function linesToSay(item: { text?: string; reference?: string[] }): string[] | undefined {
   const { text, reference } = item;
@@ -94,5 +95,5 @@ export function linesToSay(item: { text?: string; reference?: string[] }): strin
   const lines = said
     .flatMap((s) => (reference || !s.includes("\n") ? alternativesOf(s) : [s]))
     .map((s) => s.trim());
-  return lines.length && lines.every((s) => s && !SPELLED.test(s)) ? lines : undefined;
+  return lines.length && lines.every((s) => s) ? lines : undefined;
 }

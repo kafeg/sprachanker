@@ -507,3 +507,15 @@ describe("answers said aloud kept from before the engine judged them", () => {
     expect(exerciseMark(lines, exerciseResults(judged)[lines.key])).toBe("correct");
   });
 });
+
+test("a name spelled: its letters, however the recogniser wrote them; others almost, never wrong", () => {
+  const target = spokenAnswers("de", {
+    reference: ["E-M-M-A"],
+    prompt: "Emma? Wie schreibt man das?",
+  });
+  if (!target) throw new Error("no answers");
+  for (const said of ["E-M-M-A", "E M M A", "E, M, M, A.", "Emma"])
+    expect(judgeSpoken("de", target, said).verdict).toBe("correct");
+  expect(judgeSpoken("de", target, "E-M-A").verdict).toBe("partial");
+  expect(judgeSpoken("de", target, "L-I-S-A").verdict).toBe("partial");
+});

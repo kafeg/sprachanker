@@ -56,8 +56,11 @@ test("a speaking item's line to say: the source's answer, else its phrase; a fra
     expect(linesToSay({ reference: [reference] })).toBeUndefined();
   expect(linesToSay({})).toBeUndefined();
   // A spelled answer is no words to diff.
-  expect(linesToSay({ reference: ["E-M-M-A"] })).toBeUndefined();
-  expect(linesToSay({ reference: ["Mein Name: G-O-N-Z-A-L-E-Z"] })).toBeUndefined();
+  // Spelled: a line to say letter by letter (its letters compared).
+  expect(linesToSay({ reference: ["E-M-M-A"] })).toEqual(["E-M-M-A"]);
+  expect(linesToSay({ reference: ["Mein Name: G-O-N-Z-A-L-E-Z"] })).toEqual([
+    "Mein Name: G-O-N-Z-A-L-E-Z",
+  ]);
   expect(linesToSay({ reference: ["Ich schreibe eine E-Mail im U-Bahn-Zug."] })).toEqual([
     "Ich schreibe eine E-Mail im U-Bahn-Zug.",
   ]);
