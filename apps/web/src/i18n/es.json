@@ -611,7 +611,18 @@
     "source": "Código fuente en GitHub",
     "notices": "Componentes de terceros y licencias",
     "noticesIntro": "SprachAnker está construido con estos componentes, cada uno con su propia licencia; los textos de las licencias siguen a la lista.",
-    "noticesMissing": "Esta compilación no incluye la lista: la llevan las compilaciones que se distribuyen — el programa, la app para Mac y la app para Android."
+    "noticesMissing": "Esta compilación no incluye la lista: la llevan las compilaciones que se distribuyen — el programa, las apps de escritorio y la app para Android.",
+    "newer": "Ya está disponible SprachAnker {version}.",
+    "whatsNew": "Novedades",
+    "updateRestart": "Actualizar y reiniciar",
+    "updating": "Actualizando…",
+    "updateOnComputer": "Actualízalo en la app SprachAnker del ordenador donde se ejecuta.",
+    "updateInstall": "Descargar e instalar",
+    "updateInstallHint": "La primera vez, Android pide permitir que SprachAnker instale apps; tus cursos y tu progreso se conservan.",
+    "updateIos": "Compila la nueva versión con Xcode, como indica el README.",
+    "updateArchive": "Descarga el nuevo archivo para Windows y descomprímelo sobre el programa anterior, con el programa detenido.",
+    "updateCommand": "Ejecuta esto en el ordenador, en una terminal:",
+    "copyCommand": "Copiar el comando"
   },
   "addresses": {
     "title": "Otros dispositivos",
@@ -1464,7 +1475,9 @@
     "understanding_busy": "Se está escribiendo un texto para esta lección. Espera un momento.",
     "talk_busy": "Ya se está preparando o revisando una tarea de esta lección. Espera.",
     "practice_busy": "Se está preparando la práctica del curso. Espera a que termine.",
-    "practice_needs_voice": "Los textos para escuchar y los juegos de rol se graban con Qwen3-TTS. Configúralo en Ajustes → Voz."
+    "practice_needs_voice": "Los textos para escuchar y los juegos de rol se graban con Qwen3-TTS. Configúralo en Ajustes → Voz.",
+    "no_update": "No hay ninguna versión más reciente que instalar.",
+    "update_failed": "No se pudo descargar ni instalar la actualización. Inténtalo más tarde."
   },
   "exams": {
     "tabs": {

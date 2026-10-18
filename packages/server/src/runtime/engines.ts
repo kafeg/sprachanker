@@ -16,6 +16,9 @@ export const triple = `${process.arch === "arm64" ? "aarch64" : "x86_64"}-${
       : "unknown-linux-gnu"
 }`;
 
+/** A program's suffix on this system (Windows: `.exe`). */
+export const EXE = process.platform === "win32" ? ".exe" : "";
+
 /** Each engine: its folder in native/, its program, the variable that may name it. */
 export const ENGINES = {
   whisper: { folder: "whisper", program: "whisper-server", env: "SPRACHANKER_WHISPER_SERVER" },
@@ -29,9 +32,9 @@ export function engineAt(name: EngineName) {
   const { folder, program, env } = ENGINES[name];
   return [
     process.env[env],
-    join(dirname(process.execPath), `${program}-${triple}`),
-    join(dirname(process.execPath), program),
-    join(import.meta.dir, "../../../../native", folder, "out", `${program}-${triple}`),
+    join(dirname(process.execPath), `${program}-${triple}${EXE}`),
+    join(dirname(process.execPath), `${program}${EXE}`),
+    join(import.meta.dir, "../../../../native", folder, "out", `${program}-${triple}${EXE}`),
   ].find((p): p is string => !!p && existsSync(p));
 }
 

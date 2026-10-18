@@ -611,7 +611,18 @@
     "source": "GitHub’da kaynak kodu",
     "notices": "Üçüncü taraf bileşenler ve lisanslar",
     "noticesIntro": "SprachAnker bu bileşenlerle oluşturulmuştur, her biri kendi lisansıyla; lisans metinleri listeden sonra gelir.",
-    "noticesMissing": "Bu derlemede liste yok: dağıtılan derlemelerde bulunur — program, Mac uygulaması ve Android uygulaması."
+    "noticesMissing": "Bu derlemede liste yok: dağıtılan derlemelerde bulunur — program, masaüstü uygulamaları ve Android uygulaması.",
+    "newer": "SprachAnker {version} çıktı.",
+    "whatsNew": "Yenilikler",
+    "updateRestart": "Güncelle ve yeniden başlat",
+    "updating": "Güncelleniyor…",
+    "updateOnComputer": "Onu, çalıştığı bilgisayardaki SprachAnker uygulamasında güncelle.",
+    "updateInstall": "İndir ve yükle",
+    "updateInstallHint": "İlk seferde Android, SprachAnker’in uygulama yüklemesine izin vermeni ister; kursların ve ilerlemen kalır.",
+    "updateIos": "Yeni sürümü README’de anlatıldığı gibi Xcode ile derle.",
+    "updateArchive": "Windows için yeni arşivi indir ve program kapalıyken eski programın üzerine aç.",
+    "updateCommand": "Bunu bilgisayarda bir terminalde çalıştır:",
+    "copyCommand": "Komutu kopyala"
   },
   "addresses": {
     "title": "Diğer cihazlar",
@@ -1464,7 +1475,9 @@
     "understanding_busy": "Bu ders için bir metin yazılıyor. Biraz bekle.",
     "talk_busy": "Bu ders için bir görev hazırlanıyor ya da kontrol ediliyor. Bekle.",
     "practice_busy": "Kursun alıştırmaları şu anda hazırlanıyor. Bitmesini bekleyin.",
-    "practice_needs_voice": "Dinleme metinleri ve rol oyunları Qwen3-TTS ile kaydedilir. Ayarlar → Konuşma bölümünden kur."
+    "practice_needs_voice": "Dinleme metinleri ve rol oyunları Qwen3-TTS ile kaydedilir. Ayarlar → Konuşma bölümünden kur.",
+    "no_update": "Yüklenecek daha yeni bir sürüm yok.",
+    "update_failed": "Güncelleme indirilemedi veya yüklenemedi. Daha sonra yeniden dene."
   },
   "exams": {
     "tabs": {

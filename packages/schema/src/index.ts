@@ -19,3 +19,4 @@ export * from "./profile-file.ts";
 export * from "./rules.ts";
 export * from "./settings.ts";
 export * from "./stats.ts";
+export * from "./update.ts";

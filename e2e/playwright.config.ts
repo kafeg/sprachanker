@@ -11,7 +11,10 @@ const LOCAL = ["chromium-desktop", "webkit-phone"];
 const phone = { width: 375, height: 812 };
 // The compiled binary (`bun run build:bin`), started from an unrelated folder: everything it serves
 // must come from inside the binary.
-const binary = resolve(import.meta.dirname, "../apps/cli/dist/sprachanker");
+const binary = resolve(
+  import.meta.dirname,
+  `../apps/cli/dist/sprachanker${process.platform === "win32" ? ".exe" : ""}`,
+);
 
 export default defineConfig({
   testDir: ".",
@@ -33,11 +36,12 @@ export default defineConfig({
       command: `"${binary}" serve --port ${PORT} --data "${E2E_DATA}"`,
       cwd: tmpdir(),
       // Piper and Qwen3-TTS on paper (fixture-data.ts): words read aloud, practice recorded, without
-      // the real engines.
+      // the real engines; the latest release asked of the fake, never of GitHub.
       env: {
         ...(process.env as Record<string, string>),
         SPRACHANKER_PIPER: E2E_PIPER,
         SPRACHANKER_QWEN: E2E_QWEN,
+        SPRACHANKER_RELEASES: `http://127.0.0.1:${FAKE_LLM_PORT}/releases/latest`,
       },
       url: `http://127.0.0.1:${PORT}/api/health`,
       reuseExistingServer: !process.env.CI,

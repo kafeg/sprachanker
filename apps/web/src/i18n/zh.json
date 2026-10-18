@@ -611,7 +611,18 @@
     "source": "GitHub上的源代码",
     "notices": "第三方组件与许可证",
     "noticesIntro": "SprachAnker 使用这些组件构建，每个组件都有自己的许可证；许可证全文附在列表之后。",
-    "noticesMissing": "此版本不含该列表：它随对外发布的版本提供——程序、Mac 应用和 Android 应用。"
+    "noticesMissing": "此版本不含该列表：它随对外发布的版本提供——程序、桌面应用和 Android 应用。",
+    "newer": "SprachAnker {version} 已发布。",
+    "whatsNew": "新内容",
+    "updateRestart": "更新并重启",
+    "updating": "正在更新…",
+    "updateOnComputer": "请在运行它的那台电脑上的 SprachAnker 应用中更新。",
+    "updateInstall": "下载并安装",
+    "updateInstallHint": "第一次时，Android 会请你允许 SprachAnker 安装应用；你的课程和进度都会保留。",
+    "updateIos": "请按 README 所述用 Xcode 构建新版本。",
+    "updateArchive": "下载新的 Windows 压缩包，在程序停止后解压覆盖旧程序。",
+    "updateCommand": "在电脑的终端中运行：",
+    "copyCommand": "复制命令"
   },
   "addresses": {
     "title": "其他设备",
@@ -1464,7 +1475,9 @@
     "understanding_busy": "正在为本课写一篇文本。请稍候。",
     "talk_busy": "本课的任务正在准备或检查中，请稍候。",
     "practice_busy": "正在制作课程练习，请等待完成。",
-    "practice_needs_voice": "听力文本和角色扮演由 Qwen3-TTS 录制。请在“设置 → 语音”中进行设置。"
+    "practice_needs_voice": "听力文本和角色扮演由 Qwen3-TTS 录制。请在“设置 → 语音”中进行设置。",
+    "no_update": "没有可安装的新版本。",
+    "update_failed": "无法下载或安装更新。请稍后再试。"
   },
   "exams": {
     "tabs": {

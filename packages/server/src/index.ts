@@ -2,7 +2,7 @@ import { hostname } from "node:os";
 import { join } from "node:path";
 import { openLibrary, verifyLibrary } from "@sprachanker/course-kit";
 import { nodeFs } from "@sprachanker/course-kit/node";
-import { Deck } from "@sprachanker/schema";
+import { type AppSystem, Deck } from "@sprachanker/schema";
 import { createApp, type WebAssets } from "./app.ts";
 import { appDataDir } from "./config.ts";
 import { apkgRuntime } from "./runtime/apkg.ts";
@@ -64,7 +64,16 @@ export interface ServerConfig {
   /** The Worker that makes an imported profile's database ready, as the compiled binary embeds it;
    *  from sources the server finds its own (PROFILE_DB_WORKER). */
   profileDbWorker?: string;
+  /** What updates this build: the desktop app it runs in, or the program itself (the installer's);
+   *  absent: a build from the sources, which asks for no release. */
+  updatedBy?: "desktop" | "program";
 }
+
+/** The system this server runs on, as the update status names it. */
+const SYSTEM =
+  ({ darwin: "macos", win32: "windows", android: "android" } as Record<string, AppSystem>)[
+    process.platform
+  ] ?? "linux";
 
 /** The runtime adapters over a data root: what the app and the command line's services run on. */
 function runtimeOf(dataRoot: string, appVersion: string, profileDbWorker?: string) {
@@ -107,6 +116,12 @@ export async function startServer(config: ServerConfig): Promise<Listening> {
     allowHosts: config.allowHosts,
     listensOn: { hostname: config.hostname, port: config.port },
     network: networkHost(),
+    // SPRACHANKER_RELEASES: where the latest release is asked instead of GitHub (the e2e's fake).
+    update: config.updatedBy && {
+      by: config.updatedBy,
+      system: SYSTEM,
+      releases: process.env.SPRACHANKER_RELEASES,
+    },
   });
   // After the app: its databases exist and are migrated.
   startDailyBackups(config.dataRoot);
@@ -118,7 +133,11 @@ export { type ImportRequest, providerIds } from "./storage/installer.ts";
 /** Runs a provider into `<dataRoot>/library` (the command line's `import`). */
 export const importCourse = (provider: string, request: ImportRequest & { dataRoot: string }) =>
   importInto(nodeDataRoot(request.dataRoot), provider, request);
-export { ENGINES as speechEngines, triple as targetTriple } from "./runtime/engines.ts";
+export {
+  ENGINES as speechEngines,
+  EXE as programSuffix,
+  triple as targetTriple,
+} from "./runtime/engines.ts";
 
 /**
  * A course's practice made from the command line (`sprachanker practice`), by a profile's model and

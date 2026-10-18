@@ -39,6 +39,8 @@ export function queryClient(
     words: {},
   });
   client.setQueryData(["piper-voices"], { engine: false, voices: [], auto: {} });
+  // No newer version (a build from the sources) unless a test gives one.
+  client.setQueryData(["update"], { version: "1.2.3", by: "source", installs: false });
   for (const [key, value] of data) client.setQueryData(key, value);
   for (const [queryKey, error] of failed)
     client.getQueryCache().build(client, { queryKey }).setState({ status: "error", error });

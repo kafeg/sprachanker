@@ -217,7 +217,8 @@ function Command({ text, command }: { text: string; command: string }) {
 
 /** Copies `text`, "Copied" a moment after; absent where the page has no clipboard (no secure context:
  *  the text is selected whole instead). */
-function CopyButton({ text, label }: { text: string; label: string }) {
+/** Copies a text (an address, a command), with a moment's ✓. */
+export function CopyButton({ text, label }: { text: string; label: string }) {
   const { t } = useTranslation();
   const [copied, setCopied] = useState(false);
   useEffect(() => {
