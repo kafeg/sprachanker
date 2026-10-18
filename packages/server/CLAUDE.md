@@ -22,7 +22,7 @@ src/
                      # course-transfer.ts (bundles, one path everywhere: a course or every group (exportAll) zipped as streamed from
                      # the library; read as they come, what the library lacks written as it passes, checked and installed by
                      # course-kit's bundle.ts under the lock, verified; one stopped midway undone at the start); decks.ts (deck folders written whole: replaceFolder; extras.json, media;
-                     # .apkg uploads); deck-transfer.ts (deck files: zipped, read, unpacked, placed); practice.ts (addPractice, locked); heard.ts (addHeard, locked; the hearing's marker); readings.ts (what was read aloud, kept in cache/tts: made once, stopped once no request waits)
+                     # .apkg uploads); deck-transfer.ts (deck files: zipped, read, unpacked, placed; an .apkg's media numbered); practice.ts (addPractice, locked); heard.ts (addHeard, locked; the hearing's marker); readings.ts (what was read aloud, kept in cache/tts: made once, stopped once no request waits)
   runtime/           # Bun/Node adapters: listen, web assets, sqlite, secret key, data-root.ts (one server per data root: server.pid;
                      # nodeDataRoot over Node's files); process-name.ts (`ps`, `tasklist` name a pid); lmstudio.ts (detect, `lms server start`);
                      # engines.ts (the engines built in native/ — also read by the build scripts —, their processes going with the
@@ -30,7 +30,7 @@ src/
                      # (Piper's voices and runs; bzip2.ts undoes their .tar.bz2 — Windows' tar cannot), readings.ts (storage's reading cache over Node); backup.ts (a copy of each database a day; a backup on request); profile-sql.ts (ProfileSql
                      # over bun:sqlite: VACUUM INTO, a received database made ready in a Worker — profile-db-worker.ts); network.ts
                      # (IPv4 addresses, `.local` name, `tailscale status` / `serve status`); cli.ts (`claude` / `codex` for the
-                     # command-line LLM providers); apkg.ts (what an .apkg needs: SQLite from bytes, zstd)
+                     # command-line LLM providers); apkg.ts (what an .apkg needs: SQLite from bytes and in memory, zstd)
   db/
     server/          # Drizzle schema + migrations for server.sqlite
     profile/         # Drizzle schema + migrations for profile.sqlite
@@ -42,7 +42,7 @@ src/
   routes/            # one file per API area, mounted by app.ts: profiles (who is studying, signing in and out, a profile file
                      # imported — before the session check; the profile itself, its export — after it), courses (courses, catalog,
                      # downloads, a course removed, lesson content, a lesson's answers heard, a course's hearing step), lessons (lesson runs: /api/runs), progress (reset), exams, cards
-                     # (a card's examples too), decks (imported: list, preview, import, an upload let go, delete; deck files; read
+                     # (a card's examples too), decks (imported: list, preview, import, an upload let go, delete; deck files; .apkg; read
                      # aloud, examples), settings, notebook, recordings, speech, llm (removable as a whole; words selected kept in
                      # Finds: /api/llm/finds, their audio after: /finds/audio), network (the addresses the app is reached at), updates
                      # (/api/update, its install); env.ts: what a profile's routes read (`c.var.s`, its services; `c.var.profileId`);
@@ -66,7 +66,7 @@ src/
                      #   lexeme: extras.json read once, a job per deck and kind — its media known while it works —, what was made
                      #   removed, a deck file's merged in; no course folder written while its course is not installed), deck-transfer
                      #   (any deck as a file: made ready, previewed — told by content —, merged in; Finds the importer's own),
-                     #   deck-audio (its words without audio read aloud: the engine and voice handed in by index.ts from
+                     #   deck-apkg (any deck as an Anki package: its words as cards show them, their audio), deck-audio (its words without audio read aloud: the engine and voice handed in by index.ts from
                      #   profile-speech, the deck's words — taken or not — from cards.ts), deck-examples (its words given examples by
                      #   a model handed in: five a call, a sentence without its word dropped, a word left without any asked again)
                      # - across modules: notebook (study days, each span's bars, the standings gathered), progress (resets; recordings

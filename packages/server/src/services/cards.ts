@@ -448,7 +448,9 @@ export function createCards(deps: {
         return deck.words.flatMap((w) => {
           if (seen.has(w.lexeme)) return [];
           seen.add(w.lexeme);
-          return [note(w.lexeme, deck.translationLang, deckDisplay(deck, w, false))];
+          return [
+            { ...note(w.lexeme, deck.translationLang, deckDisplay(deck, w, false)), key: w.key },
+          ];
         });
       }
       const course = (await installedCourses()).get(scope);

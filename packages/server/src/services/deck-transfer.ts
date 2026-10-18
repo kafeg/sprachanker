@@ -24,6 +24,9 @@ import type { Decks } from "./decks.ts";
 import { parseJson } from "./stored.ts";
 import { guarded, preparedExports } from "./transfers.ts";
 
+/** A zip's entry made in memory. */
+export type ZipHead = { name: string; bytes: Uint8Array };
+
 /**
  * Deck files on disk (runtime adapter): each export or import works in a transfer folder of its own
  * (`decks/.transfers/<id>/`), removed when it ends. A full disk is an error with code `ENOSPC`.
@@ -33,11 +36,18 @@ export interface DeckTransferFiles {
   sweep(): void;
   /** A deck folder's files (`paths` of it: those there) linked into a new transfer, each hashed. */
   stage(folder: string, paths: string[]): Promise<{ id: string; files: BundleFileEntry[] }>;
+  /** Files of the data root — a deck folder's media (`decks`, `<folder>/media/<name>`), a course's
+   *  recording (`library`, `<series>/<path>`) — linked into a new transfer as the zip's numbered
+   *  entries (`0`, `1`, … as an .apkg names its media), each summed: `staged`, the sources there, by
+   *  their place in `sources` (the n-th staged is entry `n`). */
+  stageNumbered(
+    sources: Array<{ root: "decks" | "library"; path: string }>,
+  ): Promise<{ id: string; staged: number[] }>;
   /** The length of the file `stream` makes. */
-  bytes(id: string, manifest: string, paths: string[]): number;
-  /** A staged deck as a zip: `manifest.json` first, then its files in the order given; the transfer
-   *  goes when the stream ends or is cancelled. */
-  stream(id: string, manifest: string, paths: string[]): ReadableStream<Uint8Array>;
+  bytes(id: string, head: ZipHead[], paths: string[]): number;
+  /** A staged deck as a zip: `head` first (a deck file's manifest, an .apkg's collection), then its
+   *  files in the order given; the transfer goes when the stream ends or is cancelled. */
+  stream(id: string, head: ZipHead[], paths: string[]): ReadableStream<Uint8Array>;
   /** A new, empty transfer. */
   begin(): string;
   /** A file of `length` bytes received into the transfer, the room for it checked first; false when
@@ -210,7 +220,7 @@ export function createDeckTransfer(deps: {
   );
   /** Exports made ready, each the profile's that asked, until downloaded (an hour). */
   const exports = preparedExports<{
-    manifest: string;
+    head: ZipHead[];
     paths: string[];
     fileName: string;
     bytes: number;
@@ -344,7 +354,8 @@ export function createDeckTransfer(deps: {
             files: staged.files,
           } satisfies DeckBundleManifest);
           const kept = staged.files.map((f) => f.path);
-          const bytes = files.bytes(staged.id, manifest, kept);
+          const head = [{ name: "manifest.json", bytes: new TextEncoder().encode(manifest) }];
+          const bytes = files.bytes(staged.id, head, kept);
           if (bytes > DECK_BUNDLE_MAX_BYTES) throw new ServiceError("deck_file_too_large", 422);
           const day = new Date(deps.now()).toISOString().slice(0, 10);
           const name =
@@ -352,7 +363,7 @@ export function createDeckTransfer(deps: {
               ? `finds-${there.deck.translationLang}-${there.deck.lang}`
               : folder.replace(/^course~/, "").replaceAll("~", "-");
           const fileName = `${name}-${day}${DECK_BUNDLE_EXTENSION}`;
-          exports.keep(staged.id, profile, { manifest, paths: kept, fileName, bytes });
+          exports.keep(staged.id, profile, { head, paths: kept, fileName, bytes });
           return { id: staged.id, fileName, bytes };
         } catch (error) {
           files.discard(staged.id);
@@ -371,7 +382,7 @@ export function createDeckTransfer(deps: {
       download(id: string) {
         const p = exports.take(profile, id);
         return {
-          stream: files.stream(id, p.manifest, p.paths),
+          stream: files.stream(id, p.head, p.paths),
           fileName: p.fileName,
           bytes: p.bytes,
         };

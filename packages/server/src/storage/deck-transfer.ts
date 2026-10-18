@@ -3,6 +3,7 @@
 // there (a job writing the deck meanwhile leaves the file whole), each summed, streamed as a zip
 // (course-kit); a received file read by its zip directory, unpacked streaming and hashed, then placed
 // into its deck's folder: a new folder beside it, swapped in whole (decks.ts's replaceFolder).
+// An .apkg's media: files of the decks and the library linked as the zip's numbered entries.
 import {
   aliased,
   bytesEntry,
@@ -21,7 +22,7 @@ import {
 } from "@sprachanker/course-kit";
 import { DECK_BUNDLE_MAX_FILES, DeckBundlePath, DeckFolder } from "@sprachanker/schema";
 import type { BundleFileEntry } from "../services/course-transfer.ts";
-import type { DeckTransferFiles } from "../services/deck-transfer.ts";
+import type { DeckTransferFiles, ZipHead } from "../services/deck-transfer.ts";
 import { replaceFolder } from "./decks.ts";
 import { type DataRoot, under } from "./root.ts";
 import { type TransferOptions, transferFolders } from "./transfers.ts";
@@ -75,11 +76,12 @@ export function deckTransferFiles(
         return undefined;
       return { manifest, others };
     });
-  /** The zip's entries: the manifest first, then the staged files in the order given. */
-  const zipOf = (id: string, manifest: string, paths: string[]) => {
+  /** The zip's entries: those in memory first (a deck file's manifest), then the staged files in the
+   *  order given. */
+  const zipOf = (id: string, head: ZipHead[], paths: string[]) => {
     const of = sums.get(id);
     return [
-      bytesEntry(MANIFEST, new TextEncoder().encode(manifest)),
+      ...head.map((e) => bytesEntry(e.name, e.bytes)),
       ...paths.map((path) => {
         const sum = of?.get(path);
         if (!sum) throw new Error(`${path} is not in transfer ${id}`);
@@ -114,9 +116,35 @@ export function deckTransferFiles(
         throw error;
       }
     },
-    bytes: (id, manifest, paths) => zipLength(zipOf(id, manifest, paths)),
-    stream(id, manifest, paths) {
-      const entries = zipOf(id, manifest, paths);
+    async stageNumbered(sources) {
+      const id = t.begin();
+      try {
+        const staged: number[] = [];
+        const summed = new Map<string, { size: number; crc32: number }>();
+        for (const [i, source] of sources.entries()) {
+          const parts = source.path.split("/");
+          // Only a file under the decks or the library, by a path of plain names.
+          if (parts.some((p) => !p || p === "." || p === ".." || p.includes("\\"))) continue;
+          const file = under(data, source.root, ...parts);
+          if (!isFile(file)) continue;
+          const name = String(staged.length);
+          const to = joinPath(filesOf(id), name);
+          fs.mkdir(dirName(to));
+          linkOrCopy(fs, file, to, () => t.room(root, fs.stat(file)?.size ?? 0));
+          const { size, crc32 } = await fileSums(fs, to);
+          summed.set(name, { size, crc32 });
+          staged.push(i);
+        }
+        sums.set(id, summed);
+        return { id, staged };
+      } catch (error) {
+        discard(id);
+        throw error;
+      }
+    },
+    bytes: (id, head, paths) => zipLength(zipOf(id, head, paths)),
+    stream(id, head, paths) {
+      const entries = zipOf(id, head, paths);
       sums.delete(id);
       return t.zip(id, entries);
     },

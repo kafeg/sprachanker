@@ -25,6 +25,9 @@ export type DeckJobKind = "audio" | "examples";
  *  lexeme — a course's, one per headword its lessons give it as, the word's first one first. */
 export interface DeckNote {
   lexeme: string;
+  /** The word's key in an imported deck (its note's, kept across imports); a course's word is
+   *  known by its lexeme. */
+  key?: string;
   /** The words' language. */
   lang: string;
   translationLang: string;

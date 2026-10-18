@@ -1,8 +1,9 @@
 // /api/decks: imported decks, the server's as the library is — the list, a package
 // uploaded and previewed (the .apkg as the request body, kept until imported or let go), its import,
 // a deck deleted —; any deck as a file (`.sprachanker-deck`): exported, uploaded and previewed, then
-// imported; and any deck's words, taken or not, read aloud or given examples by the AI (what was made
-// removed, or made again). Taking and leaving one is a profile's: /api/cards/decks.
+// imported; any deck as an Anki package (.apkg), exported; and any deck's words, taken or not, read
+// aloud or given examples by the AI (what was made removed, or made again). Taking and leaving one is
+// a profile's: /api/cards/decks.
 import { DeckId, EditionId, Lang } from "@sprachanker/schema";
 import { Hono } from "hono";
 import { z } from "zod";
@@ -57,6 +58,23 @@ export function deckRoutes() {
         if (c.req.method === "HEAD")
           return c.body(null, 200, attachment(c.var.s.deckTransfer.ready(id)));
         const file = c.var.s.deckTransfer.download(id);
+        return c.body(file.stream, 200, attachment(file));
+      })
+      // A deck the profile sees as an Anki package (.apkg): made ready under the name the app gives it
+      // (a course's in an edition), then downloaded once as the deck file is.
+      .post(
+        "/apkg",
+        zod("json", DeckEdition.extend({ title: z.string().trim().min(1).max(200) })),
+        async (c) => {
+          const { scope, title, edition } = c.req.valid("json");
+          return c.json(await c.var.s.deckApkg.prepare(scope, title, edition));
+        },
+      )
+      .get("/apkg/:id", zod("param", z.object({ id: z.uuid() })), (c) => {
+        const { id } = c.req.valid("param");
+        if (c.req.method === "HEAD")
+          return c.body(null, 200, attachment(c.var.s.deckApkg.ready(id)));
+        const file = c.var.s.deckApkg.download(id);
         return c.body(file.stream, 200, attachment(file));
       })
       // A deck file of the app's own previewed (/preview) imported by its upload's id.

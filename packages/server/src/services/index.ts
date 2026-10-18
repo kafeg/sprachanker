@@ -28,6 +28,7 @@ import {
   createCourseTransfer,
 } from "./course-transfer.ts";
 import { createCoursesContext } from "./courses-context.ts";
+import { createDeckApkg, type DeckApkg } from "./deck-apkg.ts";
 import { createDeckAudio, type DeckAudio } from "./deck-audio.ts";
 import { createDeckExamples, type DeckExamples } from "./deck-examples.ts";
 import { createDeckExtras, type DeckExtrasStore } from "./deck-extras.ts";
@@ -146,6 +147,7 @@ function profileServices(
     downloads: Downloads;
     courseTransfer: CourseTransfer;
     deckTransfer: DeckTransfer;
+    deckApkg: DeckApkg;
     speech: Speech;
     readAloud: ReadAloud;
     qwenTts: QwenTts;
@@ -386,6 +388,11 @@ function profileServices(
       const moved = cards.moveDeck(from, deck, keys);
       // Only the words added and those moved: a word whose card the learner left stays without one.
       return cards.takeDeck({ deck }, [...added, ...moved]);
+    }),
+    // Decks this profile sees as Anki packages: their words as its cards show them.
+    deckApkg: shared.deckApkg.of(profileId, {
+      notes: cards.sourceNotes,
+      aiExamples: () => !settings.value("llm.offIn").includes("example"),
     }),
     settings,
     speech: speechOfProfile,
@@ -685,6 +692,15 @@ export function createServices(config: ServicesConfig) {
     appVersion: config.appVersion,
     now,
   });
+  // Decks as Anki packages, with what is played for their words.
+  const deckApkg = createDeckApkg({
+    files: config.deckTransfers,
+    apkg: config.apkg,
+    folderOf: deckExtras.folderOf,
+    readAudio: deckAudio.readAudio,
+    examplesOf: deckExamples.examplesOf,
+    now,
+  });
 
   return {
     content,
@@ -726,6 +742,7 @@ export function createServices(config: ServicesConfig) {
             downloads,
             courseTransfer,
             deckTransfer,
+            deckApkg,
             speech,
             readAloud,
             practiceJobs,
