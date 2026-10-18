@@ -43,9 +43,6 @@ const FORMS: Record<string, LanguageForms> = {
       [/'s$/, "is"],
     ],
   },
-  es: { number: NUMBER_WORDS.es },
-  fr: { number: NUMBER_WORDS.fr },
-  it: { number: NUMBER_WORDS.it },
 };
 
 /** A language's forms by its code ("de", "de-AT"); none: an empty set. */

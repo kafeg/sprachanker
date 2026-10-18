@@ -21,7 +21,7 @@ src/
                   # review's items numbered across its groups, where the learner is
   text/           # normalisation and word diff used by checkers and speech (a word as heard: wordAsHeard);
                   # language-forms.ts: what each language writes two ways and says one way, data by
-                  # language (numbers in digits — numbers.ts: de, en, es, fr, it —, short forms "geht's",
+                  # language (numbers in digits — numbers.ts: de, en —, short forms "geht's",
                   # "don't", spellings "ß"/"ss", nouns capitalised); words (a sentence's words
                   # met or new against a vocabulary; whether it uses a word, or a form given of it —
                   # irregular-verbs: the commonest German ones' forms no stem finds)
