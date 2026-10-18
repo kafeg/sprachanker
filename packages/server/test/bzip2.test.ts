@@ -64,6 +64,18 @@ test("a damaged file is refused, never taken for whole: a changed byte, a cut, n
   await expect(undo(new TextEncoder().encode("not bzip2 at all"))).rejects.toThrow(/not a bzip2/);
 });
 
+test("more than allowed is refused; a stopped one stops between blocks", async () => {
+  const bz = compress(new Uint8Array(3_000_000), 1);
+  await expect(undo2(bz, { maxBytes: 1_000_000 })).rejects.toThrow(/larger than allowed/);
+  const stop = new AbortController();
+  stop.abort();
+  await expect(undo2(bz, { signal: stop.signal })).rejects.toThrow();
+});
+
+async function undo2(bz: Uint8Array, options: Parameters<typeof bunzip2>[1]) {
+  for await (const _ of bunzip2(bz, options));
+}
+
 test("a file undone into another, written as it comes", async () => {
   const dir = mkdtempSync(join(tmpdir(), "sa-bzip2-"));
   const bytes = noise(400_000, 11);

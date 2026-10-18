@@ -68,7 +68,12 @@ export default defineConfig({
       { name: "chromium-phone", use: { ...devices["Pixel 7"], viewport: phone } },
       { name: "webkit-phone", use: { ...devices["iPhone 15"], viewport: phone } },
     ]
-      .filter((p) => (ALL || LOCAL.includes(p.name)) && !(WINDOWS && p.name.startsWith("webkit")))
+      // On Windows a local run takes Chromium on a phone instead of WebKit.
+      .filter((p) =>
+        WINDOWS
+          ? !p.name.startsWith("webkit") && (ALL || p.name.startsWith("chromium"))
+          : ALL || LOCAL.includes(p.name),
+      )
       .map((p) => ({
         ...p,
         dependencies: ["signed-in"],

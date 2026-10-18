@@ -31,10 +31,11 @@ export function piperHost(dataRoot: string): PiperHost {
       try {
         rmSync(unpacked, { recursive: true, force: true });
         mkdirSync(unpacked, { recursive: true });
-        await bunzip2File(archive, plain);
+        // A voice is some hundred megabytes unpacked: more is no voice.
+        await bunzip2File(archive, plain, { maxBytes: 1024 ** 3, signal });
         // The archive holds one folder, vits-piper-<id>: the model, its tokens and espeak-ng data.
         // Unpacked by another process, so the server goes on answering meanwhile.
-        const tar = Bun.spawn(["tar", "-xf", plain, "-C", unpacked], { stderr: "pipe" });
+        const tar = Bun.spawn(["tar", "-xf", plain, "-C", unpacked], { stderr: "pipe", signal });
         if ((await tar.exited) !== 0)
           throw new Error(
             `unpacking failed: ${(await new Response(tar.stderr).text()).slice(0, 200)}`,

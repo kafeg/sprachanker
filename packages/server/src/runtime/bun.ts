@@ -127,9 +127,19 @@ export function profileFiles(dataRoot: string): ProfileFiles {
       opened.get(id)?.close();
       opened.delete(id);
       // SQLite lets the file go once the last statement on it is finalized (they are collected), and
-      // Windows deletes no open file: collected first, the removal tried again while it is held.
+      // Windows deletes no open file: collected first, the removal tried again while it is held (Bun's
+      // rmSync has no retries of its own).
       Bun.gc(true);
-      rmSync(folder(id), { recursive: true, force: true, maxRetries: 10, retryDelay: 100 });
+      for (let attempt = 1; ; attempt++) {
+        try {
+          rmSync(folder(id), { recursive: true, force: true });
+          break;
+        } catch (error) {
+          const code = (error as { code?: string }).code ?? "";
+          if (attempt === 20 || !["EBUSY", "EPERM", "ENOTEMPTY"].includes(code)) throw error;
+          Bun.sleepSync(100);
+        }
+      }
     },
     recordings: (id) => recordingFiles(join(folder(id), "recordings")),
   };

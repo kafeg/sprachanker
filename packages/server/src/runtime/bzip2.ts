@@ -251,10 +251,15 @@ function block(bits: Bits, blockSize: number): { out: Uint8Array; crc: number } 
   return { out: chunk.subarray(0, o), crc };
 }
 
-/** The decompressed bytes of a .bz2's contents, a block at a time (the event loop let go between). */
-export async function* bunzip2(data: Uint8Array): AsyncGenerator<Uint8Array> {
+/** The decompressed bytes of a .bz2's contents, a block at a time (the event loop let go between);
+ *  more than `maxBytes` in all is refused, and `signal` stops it between blocks. */
+export async function* bunzip2(
+  data: Uint8Array,
+  { maxBytes = 4 * 1024 ** 3, signal }: { maxBytes?: number; signal?: AbortSignal } = {},
+): AsyncGenerator<Uint8Array> {
   const bits = new Bits(data);
   let streams = 0;
+  let total = 0;
   while (bits.more()) {
     if (bits.read(8) !== 0x42 || bits.read(8) !== 0x5a || bits.read(8) !== 0x68) {
       if (streams) return; // Trailing bytes after a stream: as bzip2 itself, ignored.
@@ -275,18 +280,25 @@ export async function* bunzip2(data: Uint8Array): AsyncGenerator<Uint8Array> {
       if (hi !== BLOCK_MAGIC_HI || lo !== BLOCK_MAGIC_LO) throw new Error("bzip2: a bad block");
       const { out, crc } = block(bits, blockSize);
       combined = (((combined << 1) | (combined >>> 31)) ^ crc) >>> 0;
+      total += out.length;
+      if (total > maxBytes) throw new Error("bzip2: larger than allowed");
       yield out;
       await new Promise((resolve) => setTimeout(resolve, 0));
+      signal?.throwIfAborted();
     }
     streams++;
   }
 }
 
 /** A .bz2 file decompressed into `to` (written as it comes). */
-export async function bunzip2File(from: string, to: string) {
+export async function bunzip2File(
+  from: string,
+  to: string,
+  options?: { maxBytes?: number; signal?: AbortSignal },
+) {
   const writer = Bun.file(to).writer();
   try {
-    for await (const part of bunzip2(new Uint8Array(await Bun.file(from).arrayBuffer())))
+    for await (const part of bunzip2(new Uint8Array(await Bun.file(from).arrayBuffer()), options))
       writer.write(part);
   } finally {
     await writer.end();
