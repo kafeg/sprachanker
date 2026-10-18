@@ -1,10 +1,12 @@
 // Piper on this machine: sherpa-onnx's `sherpa-onnx-offline-tts` run once per text, its voices in
-// <data-root>/models/voices (each archive checked, unpacked by `tar`, put in place whole), a reading
+// <data-root>/models/voices (each archive checked, its bzip2 undone here — Windows' tar has none —,
+// unpacked by `tar`, put in place whole), a reading
 // written to a temporary folder of its own and read back.
 import { existsSync, mkdirSync, mkdtempSync, renameSync, rmSync } from "node:fs";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
 import type { PiperHost } from "../services/read-aloud.ts";
+import { bunzip2File } from "./bzip2.ts";
 import { engineAt } from "./engines.ts";
 import { downloadChecked, removeParts } from "./model-files.ts";
 
@@ -23,14 +25,17 @@ export function piperHost(dataRoot: string): PiperHost {
     async download(url, voice, onProgress, signal) {
       mkdirSync(voices, { recursive: true });
       const archive = join(voices, `${voice.id}.tar.bz2.part`);
+      const plain = join(voices, `${voice.id}.tar.part`);
       const unpacked = join(voices, `${voice.id}.part`);
       await downloadChecked(url, archive, voice.sha256, onProgress, signal);
       try {
         rmSync(unpacked, { recursive: true, force: true });
         mkdirSync(unpacked, { recursive: true });
+        // A voice is some hundred megabytes unpacked: more is no voice.
+        await bunzip2File(archive, plain, { maxBytes: 1024 ** 3, signal });
         // The archive holds one folder, vits-piper-<id>: the model, its tokens and espeak-ng data.
         // Unpacked by another process, so the server goes on answering meanwhile.
-        const tar = Bun.spawn(["tar", "-xjf", archive, "-C", unpacked], { stderr: "pipe" });
+        const tar = Bun.spawn(["tar", "-xf", plain, "-C", unpacked], { stderr: "pipe", signal });
         if ((await tar.exited) !== 0)
           throw new Error(
             `unpacking failed: ${(await new Response(tar.stderr).text()).slice(0, 200)}`,
@@ -39,6 +44,7 @@ export function piperHost(dataRoot: string): PiperHost {
         renameSync(join(unpacked, `vits-piper-${voice.id}`), join(voices, voice.id));
       } finally {
         rmSync(archive, { force: true });
+        rmSync(plain, { force: true });
         rmSync(unpacked, { recursive: true, force: true });
       }
     },
@@ -46,6 +52,7 @@ export function piperHost(dataRoot: string): PiperHost {
       rmSync(join(voices, id), { recursive: true, force: true });
       rmSync(join(voices, `${id}.part`), { recursive: true, force: true });
       rmSync(join(voices, `${id}.tar.bz2.part`), { force: true });
+      rmSync(join(voices, `${id}.tar.part`), { force: true });
     },
     async run({ binary, dir, id, text, lengthScale, signal }) {
       // A folder per reading, gone after it: nothing to lose to a temp cleaner, nothing left behind.

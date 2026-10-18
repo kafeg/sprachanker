@@ -45,3 +45,59 @@ test("a build without the notices says where they come with", async () => {
   expect(dialog.textContent).toContain("This build carries no list");
   expect(dialog.querySelector("pre")).toBeNull();
 });
+
+const RELEASE = "https://github.com/kafeg/sprachanker/releases/tag/v1.3.40";
+const newer = (status: Record<string, unknown>): [unknown[], unknown] => [
+  ["update"],
+  { version: "1.2.3", installs: false, newer: { version: "1.3.40", url: RELEASE }, ...status },
+];
+const health: [unknown[], unknown] = [["health"], { version: "1.2.3" }];
+
+test("no newer version: nothing about updates", async () => {
+  await renderApp(<AboutSection />, { data: [health] });
+  expect(screen.queryByText(/is out/)).toBeNull();
+});
+
+test("the installer's program says its command again, with what is new", async () => {
+  await renderApp(<AboutSection />, {
+    data: [health, newer({ by: "program", system: "linux" })],
+  });
+  expect(screen.getByText("SprachAnker 1.3.40 is out.")).toBeTruthy();
+  expect(screen.getByText(/releases\/latest\/download\/install\.sh \| bash/)).toBeTruthy();
+  expect(screen.getByRole("link", { name: /What is new/ }).getAttribute("href")).toBe(RELEASE);
+});
+
+test("the program on Windows: a new archive, no command", async () => {
+  await renderApp(<AboutSection />, {
+    data: [health, newer({ by: "program", system: "windows" })],
+  });
+  expect(screen.getByText(/new archive for Windows/)).toBeTruthy();
+  expect(screen.queryByText(/install\.sh/)).toBeNull();
+});
+
+test("the desktop app is updated from its window; elsewhere it says so", async () => {
+  const first = await renderApp(<AboutSection />, {
+    data: [health, newer({ by: "desktop", system: "macos" })],
+  });
+  expect(screen.getByText(/on the computer it runs on/)).toBeTruthy();
+  expect(screen.queryByRole("button", { name: "Update and restart" })).toBeNull();
+  first.unmount();
+  const shell = globalThis as { __TAURI_INTERNALS__?: unknown };
+  shell.__TAURI_INTERNALS__ = { invoke: async () => undefined };
+  try {
+    await renderApp(<AboutSection />, {
+      data: [health, newer({ by: "desktop", system: "windows" })],
+    });
+    expect(screen.getByRole("button", { name: "Update and restart" })).toBeTruthy();
+  } finally {
+    delete shell.__TAURI_INTERNALS__;
+  }
+});
+
+test("the phone app downloads and installs the release itself when it has its file", async () => {
+  await renderApp(<AboutSection />, {
+    data: [health, newer({ by: "phone", system: "android", installs: true })],
+  });
+  expect(screen.getByRole("button", { name: "Download and install" })).toBeTruthy();
+  expect(screen.getByText(/Android asks to let SprachAnker install apps/)).toBeTruthy();
+});

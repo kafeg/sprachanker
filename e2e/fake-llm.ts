@@ -3,6 +3,8 @@
 // Not 4591: that is e2e:real's server, which may run beside this run.
 export const FAKE_LLM_PORT = 4593;
 export const FAKE_TEXT = "FAKE: the verb ends in -e here.";
+/** The release the app is told is the latest (its update check asks here: SPRACHANKER_RELEASES). */
+export const FAKE_RELEASE = "999.0.1";
 
 /** A writing task: a situation and its three points (the length is the app's). */
 const WRITING_TASK = {
@@ -363,6 +365,14 @@ if (import.meta.main) {
             { id: "fake-model" },
             { id: "fake/painter", architecture: { output_modalities: ["image"] } },
           ],
+        });
+      if (pathname === "/releases/latest")
+        return Response.json({
+          tag_name: `v${FAKE_RELEASE}`,
+          html_url: `https://github.com/kafeg/sprachanker/releases/tag/v${FAKE_RELEASE}`,
+          draft: false,
+          prerelease: false,
+          assets: [],
         });
       if (pathname !== "/v1/chat/completions") return new Response("not found", { status: 404 });
       const body = (await req.json()) as {

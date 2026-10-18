@@ -1,14 +1,22 @@
-// About SprachAnker: what it is, its version, licence, source code and the third-party components with
-// their licences (settings, sidebar footer).
+// About SprachAnker: what it is, its version — a newer one when it is out, with the way this build
+// is updated —, licence, source code and the third-party components with their licences (settings,
+// sidebar footer).
+import type { UpdateStatus } from "@sprachanker/schema";
 import { ExternalLink } from "lucide-react";
-import { useState } from "react";
+import { type ReactNode, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { useAppInfo, useThirdPartyNotices } from "@/api/settings.ts";
+import { desktopShell, useDesktopUpdate, useInstallUpdate, useUpdate } from "@/api/update.ts";
+import { Button } from "@/ui/components/button.tsx";
 import { errorText } from "@/ui/error-text.ts";
 import { Panel } from "@/ui/panel.tsx";
 import { SideSheet } from "@/ui/side-sheet.tsx";
+import { CopyButton } from "./other-devices.tsx";
 
 const REPOSITORY = "https://github.com/kafeg/sprachanker";
+/** The installer's program is updated by its install command again (README's Install). */
+export const INSTALL_COMMAND =
+  "curl -fsSL https://github.com/kafeg/sprachanker/releases/latest/download/install.sh | bash";
 
 const linkClass =
   "inline-flex items-center gap-1 font-medium underline-offset-4 hover:underline pointer-coarse:min-h-11";
@@ -52,6 +60,80 @@ function ThirdPartyNotices({
   );
 }
 
+/** How this build takes the newer version: the desktop app's window updates it (elsewhere: on the
+ *  computer), the phone app downloads and installs it, the installer's program runs its command
+ *  again — a new archive on Windows —, iOS's app is built again by hand. */
+function UpdateHow({ status }: { status: UpdateStatus }) {
+  const { t } = useTranslation();
+  const desktop = useDesktopUpdate();
+  const install = useInstallUpdate();
+  const failed = desktop.error ?? install.error;
+  let how: ReactNode = null;
+  if (status.by === "desktop")
+    how = desktopShell() ? (
+      <Button size="sm" loading={desktop.isPending} onClick={() => desktop.mutate()}>
+        {desktop.isPending ? t("about.updating") : t("about.updateRestart")}
+      </Button>
+    ) : (
+      <p>{t("about.updateOnComputer")}</p>
+    );
+  else if (status.by === "phone")
+    how = status.installs ? (
+      <>
+        <Button size="sm" loading={install.isPending} onClick={() => install.mutate()}>
+          {install.isPending ? t("about.updating") : t("about.updateInstall")}
+        </Button>
+        <p className="text-muted-foreground">{t("about.updateInstallHint")}</p>
+      </>
+    ) : status.system === "ios" ? (
+      <p>{t("about.updateIos")}</p>
+    ) : null;
+  else if (status.by === "program")
+    how =
+      status.system === "windows" ? (
+        <p>{t("about.updateArchive")}</p>
+      ) : (
+        <>
+          <p>{t("about.updateCommand")}</p>
+          <div className="flex items-center gap-1">
+            <code
+              dir="ltr"
+              className="min-w-0 break-all rounded bg-muted px-2 py-1 font-mono text-xs"
+            >
+              {INSTALL_COMMAND}
+            </code>
+            <CopyButton text={INSTALL_COMMAND} label={t("about.copyCommand")} />
+          </div>
+        </>
+      );
+  return (
+    <>
+      {how}
+      {failed && (
+        <p role="alert" className="text-destructive">
+          {errorText(t, failed)}
+        </p>
+      )}
+    </>
+  );
+}
+
+/** A newer version, when one is out: its number, how to take it, what is new in it. */
+function UpdateLine() {
+  const { t } = useTranslation();
+  const status = useUpdate().data;
+  if (!status?.newer) return null;
+  return (
+    <li className="space-y-2 rounded-lg border border-primary/40 p-3">
+      <p className="font-medium">{t("about.newer", { version: status.newer.version })}</p>
+      <UpdateHow status={status} />
+      <a href={status.newer.url} target="_blank" rel="noreferrer" className={linkClass}>
+        {t("about.whatsNew")} <ExternalLink className="size-3.5" />
+      </a>
+    </li>
+  );
+}
+
 export function AboutSection() {
   const { t } = useTranslation();
   const info = useAppInfo().data;
@@ -66,6 +148,7 @@ export function AboutSection() {
             {t("about.version")}: <span className="tabular-nums">{version}</span>
           </li>
         )}
+        <UpdateLine />
         {/* Started with --experimental (developers, testers): said, with what it means. */}
         {info?.experimental && <li>{t("about.experimental")}</li>}
         <li>{t("about.licence")}</li>

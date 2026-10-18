@@ -34,19 +34,20 @@ src/                   # runs in the WebView, before the web app (bundled into d
   db.ts                # sql.js databases: read, migrated (the server's migrate.ts), written back after
                        # changes; nested transactions as savepoints
   profiles.ts          # the server's ProfileFiles: profile databases, recordings
-  speech.ts            # the server's SpeechHost: Whisper in the app answering as whisper-server;
-                       # Qwen3-TTS's tts-server a program on a 127.0.0.1 port, asked through the
-                       # native side; a phone's defaults (the small models)
+  speech.ts            # the server's SpeechHost: Whisper in the app answering as whisper-server; Qwen3-TTS's
+                       # tts-server a program on a 127.0.0.1 port, asked through the native side; a phone's
+                       # defaults (the small models); `awakeFor`: an engine's work, the phone kept awake
   piper.ts             # the server's PiperHost: sherpa-onnx's program run per text, its voices
                        # downloaded by the server's storage, unpacked by the native side
   voices.ts            # Android's TextToSpeech (Voices.kt) as the page's speechSynthesis (device voices)
+  update.ts            # the server's UpdateHost: the release's APK, by Updates.kt, to Android's installer
 scripts/
   build.ts             # dist/: the web app's build, boot.js before it, sql.js's wasm, whisper.html;
                        # THIRD_PARTY_NOTICES.txt there and in the Android assets; SPRACHANKER_EXPERIMENTAL=1: --experimental
   dev.ts               # dist/ on this Mac with the native side played over a folder (a browser test)
-  phone.ts             # the phone looked after over adb: install (build + adb install), course (a
-                       # course of this Mac's library pushed), practice (its AI practice brought up
-                       # to date), models (Whisper's q8_0), page (an expression in the app's WebView)
+  phone.ts             # the phone looked after over adb: install (build + adb install), apk (the release's,
+                       # signed: no phone), course (a course of this Mac's library pushed), practice (its AI
+                       # practice brought up to date), models (Whisper's q8_0), page (an expression in the WebView)
 www/                   # the Whisper test page (dist/whisper.html; www/phrases: made by
                        # e2e/speech/phrases.ts, not committed)
 src-tauri/
@@ -63,41 +64,41 @@ src-tauri/
                        # on Android the engines built in native/ packed into jniLibs as libsa_<engine>.so
   tauri.conf.json      # app.sprachanker.mobile; the page from dist/ (capabilities/: what it may call)
   icons/               # from apps/web/public/icon-512.png (`cargo tauri icon`)
-  gen/android/         # the Android project Tauri generated, MainActivity's insets, microphone and
-                       # Back added (its build outputs ignored); Native.kt (the page's bridge: files —
-                       # small things at once —, requests to other hosts by HttpURLConnection, a file
-                       # into Downloads by MediaStore), WorkService.kt (a foreground service while work
-                       # goes on or the app is open to others; its Close ends the app), Voices.kt
-                       # (TextToSpeech for the page: installed voices only)
+  gen/android/         # the Android project Tauri generated, MainActivity's insets, microphone and Back
+                       # added (build outputs ignored); Native.kt (the page's bridge: files — small things at
+                       # once —, requests to other hosts, a file into Downloads, `reading`), WorkService.kt (a
+                       # foreground service while work goes on or the app is open to others, its Close ends
+                       # the app; `awake`: the CPU's wake locks), Voices.kt (TextToSpeech: installed voices),
+                       # Updates.kt (a newer APK: downloaded, checked, to the installer); the release build
+                       # unsigned (phone.ts `sign` signs it apart, the key in no build's environment)
   gen/apple/           # the iOS project Tauri generated (`cargo tauri ios init`; xcodegen, CocoaPods)
 ```
 
 ## Build and run (Android)
 
-- Once: Rust with the Android targets, the NDK, `cargo install tauri-cli` (2.x), whisper.cpp built for the
-  phone by `bun run speech:android` (the server's version, `native/whisper/VERSION`); Piper's and Qwen3-TTS's
-  programs for the phone — `bun native/scripts/build.ts android` (`phone.ts install` builds them once).
-- `ANDROID_HOME`, `NDK_HOME` and `JAVA_HOME` (17) set, from `apps/mobile`: `bun scripts/build.ts`,
-  `cargo tauri android build --debug --apk --target aarch64`, then
-  `adb install -r -d src-tauri/gen/android/app/build/outputs/apk/universal/debug/app-universal-debug.apk`
-  (`-d`: the build number may be below the one there; never uninstall — it deletes the app's files).
-- `bun scripts/phone.ts install|course|practice|models` does the above (`ANDROID_SERIAL`: which phone).
-  The app lists its files as it starts: files pushed show after it is started again.
-- The data root is `/sdcard/Android/data/app.sprachanker.mobile/files/` (`adb push` reaches it):
-  `library/<series>/` as on the Mac (a course bundle unpacked), `models/` (q8_0 on Android),
-  `profiles/`, `server.sqlite`, `secret.key`.
-- Only the page changed: touch `src-tauri/src/lib.rs` — the page is built into the binary, and cargo
-  rebuilds it only when the Rust does.
+- Once: Rust with the Android targets, the NDK, `cargo install tauri-cli` (2.x); whisper.cpp's libraries
+  and Piper's and Qwen3-TTS's programs for the phone — `bun native/scripts/build.ts android`
+  (`native/<engine>/out/<program>-aarch64-linux-android`; `phone.ts install` builds them once).
+- `ANDROID_HOME`, `NDK_HOME`, `JAVA_HOME` (17) set, from `apps/mobile`: `bun scripts/build.ts`, `cargo tauri android
+  build --debug --apk --target aarch64`, `adb install -r -d <its universal/debug APK>` (`-d`: the build
+  number may be below the one there; never uninstall — it deletes the app's files).
+- A release-signed APK installs over a debug-signed one only after an uninstall (another key): move a
+  learner's courses and profiles off first (profile and course files), or keep the debug build there.
+- `bun scripts/phone.ts install|course|practice|models` does the above (`ANDROID_SERIAL`: which phone); `apk`: the
+  release's APK into apk/, unsigned; `sign`: signed with the project's key, its certificate checked. The app lists its
+  files as it starts: files pushed show after it is started again.
+- The data root is `/sdcard/Android/data/app.sprachanker.mobile/files/` (`adb push` reaches it): `library/<series>/`
+  as on the Mac (a course bundle unpacked), `models/` (q8_0 on Android), `profiles/`, `server.sqlite`, `secret.key`.
+- Only the page changed: touch `src-tauri/src/lib.rs` (the page is in the binary; cargo follows the Rust).
 - The debug build's WebView: Chrome's DevTools after `adb forward tcp:9334 localabstract:webview_devtools_remote_<pid>`.
 - An engine timed over adb: with the screen on — off, the phone sleeps between packets (a reading took minutes).
 
 ## Build and run (iOS simulator)
 
-- `bun scripts/build.ts`, `cargo tauri ios build --debug --target aarch64-sim`, then
-  `xcrun simctl install <device> src-tauri/gen/apple/build/arm64-sim/SprachAnker.app` and
-  `xcrun simctl launch <device> app.sprachanker.mobile`.
-- The data root is the app's Documents (`xcrun simctl get_app_container <device> <id> data`).
-- iOS names the schemes, not hosts: the page is `tauri://localhost`, the files `media://localhost`.
+- `bun scripts/build.ts`, `cargo tauri ios build --debug --target aarch64-sim`, `xcrun simctl install <device>
+  src-tauri/gen/apple/build/arm64-sim/SprachAnker.app`, `xcrun simctl launch <device> app.sprachanker.mobile`.
+- The data root is the app's Documents (`xcrun simctl get_app_container <device> <id> data`); iOS names
+  the schemes, not hosts: the page is `tauri://localhost`, the files `media://localhost`.
 - Its WKWebView: `ios_webkit_debug_proxy -s unix:<the simulator's webinspectord_sim.socket>`.
 - Whisper for iOS: whisper.cpp's static libraries with Metal (and Accelerate), built from the same
   sources into `build-ios-sim` (`-DCMAKE_SYSTEM_NAME=iOS -DCMAKE_OSX_SYSROOT=iphonesimulator
@@ -116,35 +117,34 @@ src-tauri/
   from the app's native library folder, so they are packed as `lib*.so` and installed unpacked
   (`useLegacyPackaging`). A crash ends their process alone, but they keep the app's standing with the
   memory killer (an app may not change it): the page stops them a minute after the app is put away
-  while none is asked anything; on a phone one Qwen3-TTS model at a time.
+  while none is asked anything; on a phone one Qwen3-TTS model at a time. While one reads (a request
+  to Qwen3-TTS, a Piper run) a partial wake lock keeps the CPU running, the screen off too (asleep, a
+  word took minutes); let go 2 s after the last reading, at most 5 min after the last began.
 - The device's voices: only those installed on the phone are offered or used — a language set
   without one is read by Google's server, which would send the text away.
-- Android's WebView plays nothing from a range answered by the app's scheme: films go to the player
-  whole (blob URLs); it applies a Range header to the scheme's answer itself: parts are asked by
-  `?part=`; a page's Request and Response carry no cookie: the session goes in a header; a page's
-  Request drops Content-Length: a file sent sets it on the Headers boot.ts hands the server.
-- The shared code's files go through the DataFs (phone-fs.ts), never the tree or Tauri commands
-  (iOS only), so one view of the files is kept; its requests to other hosts through net.ts, the
-  page's own `fetch` stays the WebView's.
-- What the bridge answers at once blocks the page while it works: a call each for small things only;
-  a large file is read by the scheme, written in 1 MB parts, summed later (`sums`).
-- A file read or written whole through the bridge (`readBytes` without a length, `writeFile`, a
-  profile's or an .apkg's database in sql.js) is held whole three times — Java's bytes, its string,
-  the page's —: about 100–200 MB is the most (the app's Java heap); larger ones go by the stream.
-- The WebView is the app's alone: lib.rs lets it navigate only to the app's own pages, the CSP
-  (tauri.conf.json) lets in the app, the `media` scheme, blob:, data: pictures, WebAssembly and
-  Tauri's IPC — no frame, no other host (the server's code reaches them through Native.kt) —, and
-  Native.kt answers only while the app's own page is in the main frame (`guard`; a new bridge
-  method calls it too). A new need (a host, a frame) goes into the CSP, checked on the phone.
-- Android 11 (API 30) and later (`minSdk`, tauri.conf.json's `minSdkVersion`): no older code.
-- Open to other devices (Android): files the native side sends (`NativeFile`), the rest is the
-  server's answer in the page — no route, check or cookie of its own here; a foreground service
-  (`desktop.hosting`) keeps it alive. The WebView's scheme serves one request at a time: no long wait.
-- A link fails on the phone's storage (EPERM): what the storage links on a computer it copies here
-  (a course's export: its JSON only — its media are streamed from where they are).
+- Android's WebView plays nothing from a range answered by the app's scheme: films go to the player whole
+  (blob URLs); it applies a Range header to the scheme's answer itself: parts are asked by `?part=`; a page's
+  Request and Response carry no cookie: the session goes in a header; a page's Request drops Content-Length:
+  a file sent sets it on the Headers boot.ts hands the server.
+- The shared code's files go through the DataFs (phone-fs.ts), never the tree or Tauri commands (iOS only),
+  so one view of the files is kept; its requests to other hosts through net.ts, the page's `fetch` the WebView's.
+- What the bridge answers at once blocks the page while it works: a call each for small things only; a large
+  file is read by the scheme, written in 1 MB parts, summed later (`sums`). A file read or written whole
+  through it (`readBytes` without a length, `writeFile`, a profile's or an .apkg's database in sql.js) is held
+  whole three times — Java's bytes, its string, the page's —: 100–200 MB at most; larger ones by the stream.
+- The WebView is the app's alone: lib.rs lets it navigate only to the app's own pages, the CSP (tauri.conf.json)
+  lets in the app, the `media` scheme, blob:, data: pictures, WebAssembly and Tauri's IPC — no frame, no other
+  host (the server's code reaches them through Native.kt) —, and Native.kt answers only while the app's own
+  page is in the main frame (`guard`; a new bridge method calls it too). A new need goes into the CSP.
+- Android 11 (API 30) and later (`minSdk`, tauri.conf.json's `minSdkVersion`): no older code; the WebView
+  111 or later (the web build's target: Vite's, Chrome 111) — an older one shows a blank page.
+- Open to other devices (Android): files the native side sends (`NativeFile`), the rest is the server's answer
+  in the page — no route, check or cookie of its own here; a foreground service (`desktop.hosting`) keeps it
+  alive. The WebView's scheme serves one request at a time: no long wait.
+- A link fails on the phone's storage (EPERM): what the storage links on a computer it copies here (a course's
+  export: its JSON only — its media are streamed from where they are).
 
 ## Planned
 
-- iOS: the bridge in Swift (files at once, requests, Downloads) — till then iOS has the course and
-  practice offline only; on an iPhone whisper.cpp built for `iphoneos` (Metal), signing with an Apple ID.
-- Sync with the Mac's server (`docs/decisions.md`). iOS open to other devices (no listener there yet).
+- iOS: the bridge in Swift (files, requests, Downloads; till then a course and practice offline only), whisper.cpp
+  for `iphoneos` (Metal), Apple ID signing, a listener for other devices. Sync with the Mac (`docs/decisions.md`).

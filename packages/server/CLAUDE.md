@@ -25,10 +25,10 @@ src/
                      # .apkg uploads); deck-transfer.ts (deck files: zipped, read, unpacked, placed); practice.ts (addPractice, locked); heard.ts (addHeard, locked);
                      # readings.ts (what was read aloud, kept in cache/tts: made once, stopped once no request waits)
   runtime/           # Bun/Node adapters: listen, web assets, sqlite, secret key, data-root.ts (one server per data root: server.pid;
-                     # nodeDataRoot over Node's files); process-name.ts (`ps` names a pid); lmstudio.ts (detect, `lms server start`);
+                     # nodeDataRoot over Node's files); process-name.ts (`ps`, `tasklist` name a pid); lmstudio.ts (detect, `lms server start`);
                      # engines.ts (the engines built in native/ — also read by the build scripts —, their processes going with the
                      # server), model-files.ts (storage's over Node), speech.ts (whisper-server, Qwen3-TTS's tts-server), piper.ts
-                     # (Piper's voices and runs), readings.ts (storage's reading cache over Node); backup.ts (a copy of each database a day; a backup on request); profile-sql.ts (ProfileSql
+                     # (Piper's voices and runs; bzip2.ts undoes their .tar.bz2 — Windows' tar cannot), readings.ts (storage's reading cache over Node); backup.ts (a copy of each database a day; a backup on request); profile-sql.ts (ProfileSql
                      # over bun:sqlite: VACUUM INTO, a received database made ready in a Worker — profile-db-worker.ts); network.ts
                      # (IPv4 addresses, `.local` name, `tailscale status` / `serve status`); cli.ts (`claude` / `codex` for the
                      # command-line LLM providers); apkg.ts (what an .apkg needs: SQLite from bytes, zstd)
@@ -45,9 +45,9 @@ src/
                      # downloads, a course removed, lesson content, a lesson's answers heard), lessons (lesson runs: /api/runs), progress (reset), exams, cards
                      # (a card's examples too), decks (imported: list, preview, import, an upload let go, delete; deck files; read
                      # aloud, examples), settings, notebook, recordings, speech, llm (removable as a whole; words selected kept in
-                     # Finds: /api/llm/finds, their audio after: /finds/audio), network (the addresses the app is reached at); env.ts:
-                     # what a profile's routes read (`c.var.s`, its services; `c.var.profileId`); params.ts: what several take alike
-                     # (a run's id in the path, a batch of events, a deck taken)
+                     # Finds: /api/llm/finds, their audio after: /finds/audio), network (the addresses the app is reached at), updates
+                     # (/api/update, its install); env.ts: what a profile's routes read (`c.var.s`, its services; `c.var.profileId`);
+                     # params.ts: what several take alike (a run's id in the path, a batch of events, a deck taken)
   services/          # index.ts wires them: shared (content, decks, downloads, profiles, devices, network — this machine's tailnet
                      # name for the Host check, the addresses) and each profile's own (`of(id)`, made on first use; what one module
                      # needs of another is a function handed in here). By area:
@@ -95,7 +95,7 @@ src/
                      #   a WAV the page decoded —, its reader), local-engines (SpeechHost, VoiceStore, ReadingCache, engineSidecar),
                      #   model-downloads, sidecar (the supervisor), profile-speech, recordings (the learner's audio), heard (the source's
                      #   answers heard into the course: a lesson's in the background, kept until written; a course's: `sprachanker heard`)
-                     # - downloads: course installs (queue, progress, resume; the installer injected); experimentalSwitch (`--experimental`)
+                     # - downloads: course installs (queue, progress, resume; the installer injected); experimentalSwitch (`--experimental`); updates (a later release)
   security/          # secrets.ts (AES-GCM sealing of API keys), host.ts (Host check, CSP and security headers), encoding.ts (base64, base64url, SHA-256)
   media.ts           # Range responses for library and deck folders' media and profile recordings (a type fixed by extension,
                      # sandboxed: mediaType); body limits (JSON 1 MB — every route but those taking a file —, audio); a large file's

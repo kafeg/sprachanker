@@ -17,6 +17,7 @@ export type { NetworkHost } from "./services/network.ts";
 export type { ProfileFiles, RecordingFiles } from "./services/profiles.ts";
 export type { PiperHost } from "./services/read-aloud.ts";
 export type { SidecarProcess } from "./services/sidecar.ts";
+export type { ReleaseFile, UpdateConfig, UpdateHost } from "./services/updates.ts";
 export { courseTransferFiles } from "./storage/course-transfer.ts";
 export { deckTransferFiles } from "./storage/deck-transfer.ts";
 export { deckFiles } from "./storage/decks.ts";

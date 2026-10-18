@@ -610,7 +610,18 @@
     "source": "Forráskód a GitHubon",
     "notices": "Külső összetevők és licencek",
     "noticesIntro": "A SprachAnker ezekből az összetevőkből épül, mindegyik a saját licence alatt; a licencszövegek a lista után következnek.",
-    "noticesMissing": "Ebben a buildben nincs lista: a terjesztett buildek tartalmazzák — a program, a Mac-app és az Android-app.",
+    "noticesMissing": "Ebben a buildben nincs lista: a terjesztett buildek tartalmazzák — a program, az asztali appok és az Android-app.",
+    "newer": "Megjelent a SprachAnker {version}.",
+    "whatsNew": "Újdonságok",
+    "updateRestart": "Frissítés és újraindítás",
+    "updating": "Frissítés…",
+    "updateOnComputer": "Frissítsd a SprachAnker appban azon a számítógépen, amelyen fut.",
+    "updateInstall": "Letöltés és telepítés",
+    "updateInstallHint": "Első alkalommal az Android megkérdezi, telepíthet-e appokat a SprachAnker; a kurzusaid és a haladásod megmaradnak.",
+    "updateIos": "Építsd meg az új verziót Xcode-dal, ahogy a README leírja.",
+    "updateArchive": "Töltsd le az új Windows-archívumot, és csomagold ki a régi program fölé, leállított programmal.",
+    "updateCommand": "Futtasd ezt a számítógépen, egy terminálban:",
+    "copyCommand": "Parancs másolása",
     "experimental": "Kísérleti mód (--experimental): a még tanulásra nem kész kurzusok és vizsgák is látszanak. Ne ezekre építs a felkészülésben."
   },
   "addresses": {
@@ -1467,7 +1478,9 @@
     "understanding_busy": "Épp készül egy szöveg ehhez a leckéhez. Várj egy kicsit.",
     "talk_busy": "Ehhez a leckéhez már készül vagy ellenőrzés alatt van egy feladat. Várj.",
     "practice_busy": "A kurzus gyakorlatai most készülnek. Várd meg, amíg elkészülnek.",
-    "practice_needs_voice": "A hallgatási szövegeket és a szerepjátékokat a Qwen3-TTS veszi fel. Állítsd be: Beállítások → Beszéd."
+    "practice_needs_voice": "A hallgatási szövegeket és a szerepjátékokat a Qwen3-TTS veszi fel. Állítsd be: Beállítások → Beszéd.",
+    "no_update": "Nincs telepíthető újabb verzió.",
+    "update_failed": "A frissítést nem sikerült letölteni vagy telepíteni. Próbáld újra később."
   },
   "exams": {
     "tabs": {

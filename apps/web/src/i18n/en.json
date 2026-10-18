@@ -610,7 +610,18 @@
     "source": "Source code on GitHub",
     "notices": "Third-party components and licences",
     "noticesIntro": "SprachAnker is built with these components, each under its own licence; the licence texts follow the list.",
-    "noticesMissing": "This build carries no list: it is made by the builds that are given out — the program, the Mac app and the Android app.",
+    "noticesMissing": "This build carries no list: it is made by the builds that are given out — the program, the desktop apps and the Android app.",
+    "newer": "SprachAnker {version} is out.",
+    "whatsNew": "What is new",
+    "updateRestart": "Update and restart",
+    "updating": "Updating…",
+    "updateOnComputer": "Update it in the SprachAnker app on the computer it runs on.",
+    "updateInstall": "Download and install",
+    "updateInstallHint": "The first time, Android asks to let SprachAnker install apps; your courses and progress stay.",
+    "updateIos": "Build the new version with Xcode, as the README says.",
+    "updateArchive": "Download the new archive for Windows and unpack it over the old program, with the program stopped.",
+    "updateCommand": "Run this on the computer, in a terminal:",
+    "copyCommand": "Copy the command",
     "experimental": "Experimental mode (--experimental): courses and exams not ready for learning are shown too. Don't rely on them to prepare."
   },
   "addresses": {
@@ -1467,7 +1478,9 @@
     "understanding_busy": "A text for this lesson is being written. Wait for it.",
     "talk_busy": "A task for this lesson is being made or checked. Wait for it.",
     "practice_busy": "The course's practice is being made now. Wait for it to finish.",
-    "practice_needs_voice": "Texts to hear and role-plays are recorded with Qwen3-TTS. Set it up in Settings → Speech."
+    "practice_needs_voice": "Texts to hear and role-plays are recorded with Qwen3-TTS. Set it up in Settings → Speech.",
+    "no_update": "There is no newer version to install.",
+    "update_failed": "The update could not be downloaded or installed. Try again later."
   },
   "exams": {
     "tabs": {

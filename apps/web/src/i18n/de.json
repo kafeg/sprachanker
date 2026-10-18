@@ -610,7 +610,18 @@
     "source": "Quellcode auf GitHub",
     "notices": "Komponenten von Dritten und Lizenzen",
     "noticesIntro": "SprachAnker ist aus diesen Komponenten gebaut, jede unter ihrer eigenen Lizenz; die Lizenztexte folgen nach der Liste.",
-    "noticesMissing": "Dieser Build enthält keine Liste: Sie kommt mit den Builds, die weitergegeben werden — dem Programm, der Mac-App und der Android-App.",
+    "noticesMissing": "Dieser Build enthält keine Liste: Sie kommt mit den Builds, die weitergegeben werden — dem Programm, den Desktop-Apps und der Android-App.",
+    "newer": "SprachAnker {version} ist erschienen.",
+    "whatsNew": "Was ist neu",
+    "updateRestart": "Aktualisieren und neu starten",
+    "updating": "Wird aktualisiert…",
+    "updateOnComputer": "Aktualisiere es in der SprachAnker-App auf dem Computer, auf dem es läuft.",
+    "updateInstall": "Herunterladen und installieren",
+    "updateInstallHint": "Beim ersten Mal fragt Android, ob SprachAnker Apps installieren darf; deine Kurse und dein Fortschritt bleiben.",
+    "updateIos": "Baue die neue Version mit Xcode, wie in der README beschrieben.",
+    "updateArchive": "Lade das neue Archiv für Windows herunter und entpacke es über das alte Programm, während das Programm beendet ist.",
+    "updateCommand": "Führe das auf dem Computer in einem Terminal aus:",
+    "copyCommand": "Befehl kopieren",
     "experimental": "Experimenteller Modus (--experimental): Auch Kurse und Prüfungen, die noch nicht bereit zum Lernen sind, werden angezeigt. Verlass dich bei der Vorbereitung nicht darauf."
   },
   "addresses": {
@@ -1467,7 +1478,9 @@
     "understanding_busy": "Ein Text für diese Lektion wird gerade geschrieben. Warte darauf.",
     "talk_busy": "Für diese Lektion wird gerade eine Aufgabe erstellt oder geprüft. Warte darauf.",
     "practice_busy": "Die Übungen des Kurses werden gerade erstellt. Warte, bis sie fertig sind.",
-    "practice_needs_voice": "Hörtexte und Rollenspiele werden mit Qwen3-TTS aufgenommen. Richte es unter Einstellungen → Sprechen ein."
+    "practice_needs_voice": "Hörtexte und Rollenspiele werden mit Qwen3-TTS aufgenommen. Richte es unter Einstellungen → Sprechen ein.",
+    "no_update": "Es gibt keine neuere Version zum Installieren.",
+    "update_failed": "Das Update konnte nicht heruntergeladen oder installiert werden. Versuche es später noch einmal."
   },
   "exams": {
     "tabs": {

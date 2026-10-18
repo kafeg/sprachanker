@@ -50,17 +50,18 @@ apps/web/src/
   api/             # client (Hono RPC, hono/client; no codegen) + TanStack Query hooks by area: settings
                    # (the app and its addresses, the profile's settings), courses, downloads, cards, decks (imported; deck files
                    # exported and imported; a deck's words read aloud, polled while read), notebook,
-                   # recordings, speech, exams, session (profiles, signing in and out, devices, a profile's file), files (sent with progress, downloaded); outbox (events in
+                   # recordings, speech, exams, session (profiles, signing in and out, devices, a profile's file), files (sent with progress, downloaded), update (a newer
+                   # version; the desktop shell's install_update — Tauri's IPC, the one command it allows the page); outbox (events in
                    # order, retried, a refused batch dropped; tested), run-events (a lesson's or exam's
                    # run's events over it: per profile, the server's outcomes, on page close); edition:
                    # the edition a course is shown in; cache: pure cache updates
   app/             # the app around the screens, with data: shell (navigation — an optional feature's section
-                   # after the modules —, cards due, downloads, the profile chip — profile-chip; what is experimental is the server's to list: `--experimental`), language-switch (who-is-studying's, kept on the device;
+                   # after the modules —, cards due, a newer version's dot on Settings, downloads, the profile chip — profile-chip; what is experimental is the server's to list: `--experimental`), language-switch (who-is-studying's, kept on the device;
                    # Settings → General's, kept in the profile), who-is-studying (five tiles to a page; "New
                    # profile" starts the onboarding; profile-import: a profile file sent, the new one), onboarding (name and colour — the profile made at its
                    # Next —, the AI step a slot from the router, speech, tour — app/tour.tsx: the sections,
                    # an icon and a line each), name-colour (the onboarding's and Settings → Profile's),
-                   # profile-settings (profile-export: its file), device-name, about (the build's third-party notices in a sheet; the server's --experimental said), other-devices (Settings → General's addresses to copy or scan; the sidebar's "On a phone"), preferences (language, theme, playback speed),
+                   # profile-settings (profile-export: its file), device-name, about (a newer version and how this build takes it — the desktop shell's update, the phone's install, the program's command —; the build's third-party notices in a sheet; the server's --experimental said), other-devices (Settings → General's addresses to copy or scan; the sidebar's "On a phone"), preferences (language, theme, playback speed),
   llm/             # AI assistant: settings (AssistantSetup: provider-cards, key-state, model-list over the
                    # pure model-filter; LM Studio), "Why is this wrong?", tutor (the chat view; the lesson's
                    # header panel — History: tutor-history), going-over (the run's mistakes, in the summary), tutor-section (the Tutor

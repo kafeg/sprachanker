@@ -7,11 +7,18 @@ import { E2E_DATA, E2E_PIPER, E2E_QWEN, SIGNED_IN } from "./paths.ts";
 const PORT = 4590;
 const ALL = !!process.env.CI || !!process.env.E2E_ALL;
 const LOCAL = ["chromium-desktop", "webkit-phone"];
+// Playwright's WebKit for Windows has no media (no microphone, no recorder, sounds not played) and
+// no Windows browser is WebKit: there the app is Chromium's (WebView2, Edge, Chrome) — WebKit is
+// tried on macOS and Linux.
+const WINDOWS = process.platform === "win32";
 // Phone width required by apps/web/CLAUDE.md.
 const phone = { width: 375, height: 812 };
 // The compiled binary (`bun run build:bin`), started from an unrelated folder: everything it serves
 // must come from inside the binary.
-const binary = resolve(import.meta.dirname, "../apps/cli/dist/sprachanker");
+const binary = resolve(
+  import.meta.dirname,
+  `../apps/cli/dist/sprachanker${process.platform === "win32" ? ".exe" : ""}`,
+);
 
 export default defineConfig({
   testDir: ".",
@@ -33,11 +40,12 @@ export default defineConfig({
       command: `"${binary}" serve --port ${PORT} --data "${E2E_DATA}"`,
       cwd: tmpdir(),
       // Piper and Qwen3-TTS on paper (fixture-data.ts): words read aloud, practice recorded, without
-      // the real engines.
+      // the real engines; the latest release asked of the fake, never of GitHub.
       env: {
         ...(process.env as Record<string, string>),
         SPRACHANKER_PIPER: E2E_PIPER,
         SPRACHANKER_QWEN: E2E_QWEN,
+        SPRACHANKER_RELEASES: `http://127.0.0.1:${FAKE_LLM_PORT}/releases/latest`,
       },
       url: `http://127.0.0.1:${PORT}/api/health`,
       reuseExistingServer: !process.env.CI,
@@ -60,7 +68,12 @@ export default defineConfig({
       { name: "chromium-phone", use: { ...devices["Pixel 7"], viewport: phone } },
       { name: "webkit-phone", use: { ...devices["iPhone 15"], viewport: phone } },
     ]
-      .filter((p) => ALL || LOCAL.includes(p.name))
+      // On Windows a local run takes Chromium on a phone instead of WebKit.
+      .filter((p) =>
+        WINDOWS
+          ? !p.name.startsWith("webkit") && (ALL || p.name.startsWith("chromium"))
+          : ALL || LOCAL.includes(p.name),
+      )
       .map((p) => ({
         ...p,
         dependencies: ["signed-in"],

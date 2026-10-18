@@ -22,6 +22,7 @@ import { progressRoutes } from "./routes/progress.ts";
 import { recordingsRoutes } from "./routes/recordings.ts";
 import { settingsRoutes } from "./routes/settings.ts";
 import { speechRoutes } from "./routes/speech.ts";
+import { updateRoutes } from "./routes/updates.ts";
 import { hostGuard } from "./security/host.ts";
 import type { CourseTransferFiles } from "./services/course-transfer.ts";
 import type { DeckTransferFiles } from "./services/deck-transfer.ts";
@@ -36,6 +37,7 @@ import type { PracticeFiles } from "./services/practice.ts";
 import type { TransferFiles } from "./services/profile-transfer.ts";
 import type { ProfileFiles } from "./services/profiles.ts";
 import type { PiperHost } from "./services/read-aloud.ts";
+import type { UpdateConfig } from "./services/updates.ts";
 import { serveWeb, type WebAssets } from "./web.ts";
 
 export type { WebAssets } from "./web.ts";
@@ -97,6 +99,9 @@ export interface AppConfig {
   sessionInHeader?: boolean;
   /** This machine's networks and Tailscale; without it, no tailnet and no local network addresses. */
   network?: NetworkHost;
+  /** What updates this build and how a release is installed here; absent: a build from the
+   *  sources, which asks for no release. */
+  update?: UpdateConfig;
 }
 
 /** The routes that take a file, each with its own body limit: a recording, audio to hear, a deck file,
@@ -141,6 +146,7 @@ export function createApp(config: AppConfig) {
     .use("*", requireSession(svc, { inHeader: config.sessionInHeader }))
     .route("/", profileRoutes(svc, { inHeader: config.sessionInHeader }))
     .route("/", networkRoutes(svc))
+    .route("/", updateRoutes(svc))
     .route("/", courseRoutes())
     .route("/", lessonRoutes())
     .route("/progress", progressRoutes())

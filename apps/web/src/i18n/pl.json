@@ -610,7 +610,18 @@
     "source": "Kod źródłowy na GitHubie",
     "notices": "Komponenty innych firm i licencje",
     "noticesIntro": "SprachAnker zbudowano z tych komponentów, każdy na własnej licencji; teksty licencji są po liście.",
-    "noticesMissing": "Ta kompilacja nie zawiera listy: dodają ją kompilacje przeznaczone do udostępniania — program, aplikacja na Maca i aplikacja na Androida.",
+    "noticesMissing": "Ta kompilacja nie zawiera listy: dodają ją kompilacje przeznaczone do udostępniania — program, aplikacje na komputer i aplikacja na Androida.",
+    "newer": "Wyszedł SprachAnker {version}.",
+    "whatsNew": "Co nowego",
+    "updateRestart": "Zaktualizuj i uruchom ponownie",
+    "updating": "Aktualizowanie…",
+    "updateOnComputer": "Zaktualizuj go w aplikacji SprachAnker na komputerze, na którym działa.",
+    "updateInstall": "Pobierz i zainstaluj",
+    "updateInstallHint": "Za pierwszym razem Android poprosi o zgodę na instalowanie aplikacji przez SprachAnker; twoje kursy i postępy zostają.",
+    "updateIos": "Zbuduj nową wersję w Xcode, jak opisuje README.",
+    "updateArchive": "Pobierz nowe archiwum dla Windows i rozpakuj je na stary program, gdy program jest zatrzymany.",
+    "updateCommand": "Uruchom to na komputerze, w terminalu:",
+    "copyCommand": "Kopiuj polecenie",
     "experimental": "Tryb eksperymentalny (--experimental): widać też kursy i egzaminy jeszcze niegotowe do nauki. Nie polegaj na nich, przygotowując się."
   },
   "addresses": {
@@ -1467,7 +1478,9 @@
     "understanding_busy": "Tekst do tej lekcji jest właśnie pisany. Poczekaj.",
     "talk_busy": "Dla tej lekcji trwa przygotowanie zadania lub sprawdzanie. Poczekaj.",
     "practice_busy": "Trwa przygotowywanie ćwiczeń kursu. Poczekaj, aż się zakończy.",
-    "practice_needs_voice": "Teksty do słuchania i scenki są nagrywane przez Qwen3-TTS. Skonfiguruj go w Ustawieniach → Mowa."
+    "practice_needs_voice": "Teksty do słuchania i scenki są nagrywane przez Qwen3-TTS. Skonfiguruj go w Ustawieniach → Mowa.",
+    "no_update": "Nie ma nowszej wersji do zainstalowania.",
+    "update_failed": "Nie udało się pobrać ani zainstalować aktualizacji. Spróbuj później."
   },
   "exams": {
     "tabs": {

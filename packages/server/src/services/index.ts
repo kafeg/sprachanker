@@ -84,6 +84,7 @@ import { createTextMaker } from "./text-maker.ts";
 import { createTutor } from "./tutor.ts";
 import { createTutorTools } from "./tutor-tools.ts";
 import { createUnderstanding } from "./understanding.ts";
+import { createUpdates, type UpdateConfig } from "./updates.ts";
 import { createWordVoice, type WordVoice } from "./word-voice.ts";
 import { createWords } from "./words.ts";
 import { createWriting } from "./writing.ts";
@@ -123,6 +124,8 @@ export interface ServicesConfig {
   /** Where the server listens, and this machine's networks and Tailscale (runtime adapter). */
   listensOn: ListensOn;
   network?: NetworkHost;
+  /** What updates this build (absent: a build from the sources). */
+  update?: UpdateConfig;
   now: () => number;
   random: () => number;
 }
@@ -660,6 +663,12 @@ export function createServices(config: ServicesConfig) {
     heard,
     speech,
     network: createNetwork({ host: config.network, listensOn: config.listensOn, now }),
+    updates: createUpdates({
+      version: config.appVersion,
+      update: config.update,
+      fetch: config.fetch,
+      now,
+    }),
     profiles,
     devices: createDevices({ db: config.server, now }),
     /** Deletes a profile with all it holds — its database and its daily copies, recordings, devices —

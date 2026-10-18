@@ -17,6 +17,7 @@ import type { ReadingCache, SpeechHost } from "../src/services/local-engines.ts"
 import type { ListensOn, NetworkHost } from "../src/services/network.ts";
 import type { TransferFiles } from "../src/services/profile-transfer.ts";
 import type { PiperHost } from "../src/services/read-aloud.ts";
+import type { UpdateConfig } from "../src/services/updates.ts";
 import {
   courseTransferFiles,
   deckFiles,
@@ -63,6 +64,9 @@ export async function setup(
     random?: () => number;
     /** The session also in a header both ways, as the phone app runs the server. */
     sessionInHeader?: boolean;
+    /** What updates the build (absent: a build from the sources), and its version ("test"). */
+    update?: UpdateConfig;
+    appVersion?: string;
   } = {},
 ) {
   const root = mkdtempSync(join(tmpdir(), "sprachanker-data-"));
@@ -83,7 +87,7 @@ export async function setup(
     deckTransfers: deckTransferFiles(root, ROOMY),
     practice: practiceFiles(root),
     heard: heardFiles(root),
-    appVersion: "test",
+    appVersion: options.appVersion ?? "test",
     secretKey: new Uint8Array(32).fill(7),
     fetch: options.fetch,
     lmStudio: options.lmStudio,
@@ -99,6 +103,7 @@ export async function setup(
     now: () => (clock += 1000),
     random: options.random,
     sessionInHeader: options.sessionInHeader,
+    update: options.update,
   });
   const json = { "content-type": "application/json", ...CLIENT_HEADERS };
   // The first profile, signed in on this "device".

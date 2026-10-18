@@ -610,7 +610,18 @@
     "source": "Codul sursă pe GitHub",
     "notices": "Componente terțe și licențe",
     "noticesIntro": "SprachAnker este construit cu aceste componente, fiecare sub propria licență; textele licențelor urmează după listă.",
-    "noticesMissing": "Această versiune nu conține lista: o au versiunile distribuite — programul, aplicația pentru Mac și aplicația pentru Android.",
+    "noticesMissing": "Această versiune nu conține lista: o au versiunile distribuite — programul, aplicațiile pentru computer și aplicația pentru Android.",
+    "newer": "A apărut SprachAnker {version}.",
+    "whatsNew": "Ce este nou",
+    "updateRestart": "Actualizează și repornește",
+    "updating": "Se actualizează…",
+    "updateOnComputer": "Actualizează-l în aplicația SprachAnker de pe computerul pe care rulează.",
+    "updateInstall": "Descarcă și instalează",
+    "updateInstallHint": "Prima dată, Android cere să permiți SprachAnker să instaleze aplicații; cursurile și progresul tău rămân.",
+    "updateIos": "Construiește noua versiune cu Xcode, cum scrie în README.",
+    "updateArchive": "Descarcă noua arhivă pentru Windows și dezarhiveaz-o peste programul vechi, cu programul oprit.",
+    "updateCommand": "Rulează asta pe computer, într-un terminal:",
+    "copyCommand": "Copiază comanda",
     "experimental": "Mod experimental (--experimental): apar și cursurile și examenele care încă nu sunt gata pentru învățat. Nu te baza pe ele ca să te pregătești."
   },
   "addresses": {
@@ -1467,7 +1478,9 @@
     "understanding_busy": "Se scrie un text pentru această lecție. Așteaptă.",
     "talk_busy": "O sarcină pentru această lecție se pregătește sau se verifică. Așteaptă.",
     "practice_busy": "Exercițiile cursului se pregătesc acum. Așteaptă să se termine.",
-    "practice_needs_voice": "Textele de ascultat și jocurile de rol sunt înregistrate cu Qwen3-TTS. Configurează-l în Setări → Vorbire."
+    "practice_needs_voice": "Textele de ascultat și jocurile de rol sunt înregistrate cu Qwen3-TTS. Configurează-l în Setări → Vorbire.",
+    "no_update": "Nu există o versiune mai nouă de instalat.",
+    "update_failed": "Actualizarea nu a putut fi descărcată sau instalată. Încearcă mai târziu."
   },
   "exams": {
     "tabs": {

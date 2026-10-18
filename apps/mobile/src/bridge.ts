@@ -7,6 +7,10 @@
 export interface NativeBridge {
   root(): string;
   work(on: boolean, text: string): void;
+  /** An engine began reading aloud (`on`) or ended: the phone kept awake meanwhile. */
+  reading(on: boolean): void;
+  /** The page started: a page before it (a reload) ends no work or reading of its own any more. */
+  pageStarted(): void;
   stat(path: string): string;
   list(path: string): string;
   walk(path: string): string;

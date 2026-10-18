@@ -6,6 +6,7 @@
 // phone's files (downloaded in the app, the service's list: q8_0 on Android, docs/decisions.md); a
 // phone's defaults are the small models, every one offered.
 import type { SpeechHost } from "@sprachanker/server/portable";
+import { bridge } from "./bridge.ts";
 import { native } from "./native.ts";
 
 /** As many threads as a phone's big cores (docs/decisions.md). */
@@ -28,6 +29,9 @@ export interface EnginePrograms {
     body: string | null,
     timeout: number,
   ): Promise<ArrayBuffer>;
+  /** An engine began reading (true) or ended: the CPU kept running meanwhile, the screen off too
+   *  (Android: a partial wake lock, Native.kt `reading`). */
+  awake(on: boolean): void;
 }
 
 export const nativePrograms: EnginePrograms = {
@@ -36,7 +40,18 @@ export const nativePrograms: EnginePrograms = {
   kill: native.engineKill,
   freePort: native.freePort,
   http: native.localHttp,
+  awake: (on) => bridge?.reading(on),
 };
+
+/** An engine's `work` (a request, a run) with the phone kept awake until it ends. */
+export async function awakeFor<T>(programs: EnginePrograms, work: () => Promise<T>): Promise<T> {
+  programs.awake(true);
+  try {
+    return await work();
+  } finally {
+    programs.awake(false);
+  }
+}
 
 /** A program run as an engine of the sidecar supervisor: its end, stopped, what it said. */
 export function programProcess(programs: EnginePrograms, engine: "piper" | "qwen", args: string[]) {
@@ -144,7 +159,10 @@ export function phoneSpeech(
       const signal = init?.signal ?? request.signal;
       signal?.throwIfAborted();
       const path = url.pathname + url.search;
-      const asked = programs.http(Number(url.port), request.method, path, body, timeout);
+      // Awake till the engine answers, even when the page gives up waiting: it is still at work.
+      const asked = awakeFor(programs, () =>
+        programs.http(Number(url.port), request.method, path, body, timeout),
+      );
       asking++;
       const answer = await (signal ? Promise.race([asked, aborted(signal)]) : asked).finally(
         () => asking--,

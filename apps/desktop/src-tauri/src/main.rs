@@ -1,11 +1,15 @@
-// SprachAnker on a computer: the `sprachanker` server bundled beside this program, started on the data
-// folder (~/SprachAnker) and kept running — restarted if it stops — while the app runs, and its page in
-// the window. The app is the server (owner, 2026-10-15): it starts at login (its window hidden) and
-// stays in the tray when its window is closed, so phones reach the server as before; the LaunchAgent the
-// installer made for the same folder is taken over, its port and address kept. Links to other sites
-// open in the browser; downloads go to Downloads. A run on another folder (`SPRACHANKER_HOME`: a
+// SprachAnker on a computer (macOS, Windows, Linux): the `sprachanker` server bundled beside this
+// program, started on the data folder (~/SprachAnker) and kept running — restarted if it stops — while
+// the app runs, and its page in the window. The app is the server (owner, 2026-10-15): it starts at
+// login (its window hidden) and stays in the tray when its window is closed, so phones reach the server
+// as before; the installer's service for the same folder is taken over, its port and address kept.
+// Links to other sites open in the browser; downloads go to Downloads; the microphone is the server's
+// page's. It updates itself from its page (update.rs). A run on another folder (`SPRACHANKER_HOME`: a
 // test's) is a second app beside it: no login start, no single instance.
 #![cfg_attr(not(debug_assertions), windows_subsystem = "windows")]
+
+mod system;
+mod update;
 
 use std::{
     fs::{self, OpenOptions},
@@ -21,25 +25,21 @@ use std::{
     time::{Duration, Instant},
 };
 
+use system::{is_server, log_file, quiet, terminate, user_home};
 use tauri::{
     menu::{Menu, MenuItem},
     tray::TrayIconBuilder,
+    webview::{PermissionKind, PermissionResponse},
     AppHandle, Manager, RunEvent, Url, WebviewUrl, WebviewWindowBuilder, WindowEvent,
 };
 use tauri_plugin_autostart::{MacosLauncher, ManagerExt};
 use tauri_plugin_opener::OpenerExt;
 
-/// The LaunchAgent `install.sh` makes for the server.
-const SERVICE: &str = "app.sprachanker.server";
 /// A server that stops this soon after starting, this many times in a row, is not started again.
 const QUICK_STOP: Duration = Duration::from_secs(15);
 const QUICK_STOPS: u32 = 5;
 /// Started at login: the window stays hidden until asked for.
 const HIDDEN: &str = "--hidden";
-
-fn user_home() -> PathBuf {
-    PathBuf::from(std::env::var("HOME").unwrap_or_default())
-}
 
 /// Where the server runs: the data folder, the port, the address it listens on (all, for phones).
 #[derive(Clone)]
@@ -50,23 +50,6 @@ struct Place {
     /// `serve --experimental`: `"experimental": true` in desktop.json (or `SPRACHANKER_EXPERIMENTAL=1`,
     /// which the server reads itself).
     experimental: bool,
-}
-
-/// The installer's LaunchAgent for this folder, if there is one: its file, port and address.
-fn service(home: &Path) -> Option<(PathBuf, Option<u16>, Option<String>)> {
-    let plist = user_home().join(format!("Library/LaunchAgents/{SERVICE}.plist"));
-    let body = fs::read_to_string(&plist).ok()?;
-    if !body.contains(&format!("<string>{}</string>", home.display())) {
-        return None;
-    }
-    // ProgramArguments: <string>--port</string><string>4600</string>, alike --host.
-    let after = |flag: &str| {
-        let tag = format!("<string>{flag}</string>");
-        let rest = &body[body.find(&tag)? + tag.len()..];
-        let rest = &rest[rest.find("<string>")? + "<string>".len()..];
-        Some(rest[..rest.find("</string>")?].to_string())
-    };
-    Some((plist, after("--port").and_then(|p| p.parse().ok()), after("--host")))
 }
 
 /// The place: `SPRACHANKER_HOME`, `SPRACHANKER_PORT`, `SPRACHANKER_HOST` as the installer reads them,
@@ -109,15 +92,6 @@ fn place(taken_over: Option<(Option<u16>, Option<String>)>) -> Place {
     }
 }
 
-/// The server's log: ~/Library/Logs/SprachAnker on a Mac; a run on another folder (a test's) keeps
-/// its own there, never mixed into the app's.
-fn log_file() -> PathBuf {
-    match std::env::var_os("SPRACHANKER_HOME") {
-        Some(home) => PathBuf::from(home).join("serve.log"),
-        None => user_home().join("Library/Logs/SprachAnker/serve.log"),
-    }
-}
-
 /// The shell's words (`desktop.*`) in the system's language (English where a catalog lacks one), from
 /// the web app's catalogs (build.rs).
 fn text(key: &str) -> String {
@@ -133,35 +107,9 @@ fn text(key: &str) -> String {
         .to_string()
 }
 
-/// The installer's LaunchAgent stopped and removed: the app runs the folder's server now.
-fn take_over_service(plist: &Path) {
-    let uid = Command::new("id").arg("-u").output().ok();
-    if let Some(uid) = uid.map(|o| String::from_utf8_lossy(&o.stdout).trim().to_string()) {
-        let _ = Command::new("launchctl")
-            .args(["bootout", &format!("gui/{uid}/{SERVICE}")])
-            .status();
-    }
-    let _ = fs::remove_file(plist);
-}
-
 /// The pid in the folder's `server.pid` (the server's own lock: one per folder).
 fn served_by(home: &Path) -> Option<u32> {
     fs::read_to_string(home.join("server.pid")).ok()?.trim().parse().ok()
-}
-
-/// Whether `pid` is a `sprachanker` server: its program is named so (not this app,
-/// `sprachanker-desktop`).
-fn is_server(pid: u32) -> bool {
-    pid != std::process::id()
-        && Command::new("ps")
-            .args(["-p", &pid.to_string(), "-o", "comm="])
-            .output()
-            .is_ok_and(|o| {
-                let comm = String::from_utf8_lossy(&o.stdout);
-                Path::new(comm.trim())
-                    .file_name()
-                    .is_some_and(|name| name.eq_ignore_ascii_case("sprachanker"))
-            })
 }
 
 /// A server left on the data folder — the app force-quit, or one started by hand — stopped: the app
@@ -171,7 +119,7 @@ fn stop_stray(home: &Path) {
     if !is_server(pid) {
         return;
     }
-    let _ = Command::new("kill").args(["-TERM", &pid.to_string()]).status();
+    terminate(pid);
     let until = Instant::now() + Duration::from_secs(8);
     while is_server(pid) && Instant::now() < until {
         thread::sleep(Duration::from_millis(200));
@@ -208,7 +156,7 @@ struct State {
 }
 
 /// The server, kept running until the app quits.
-struct Server {
+pub struct Server {
     state: Mutex<State>,
     /// It kept stopping at once: not started again.
     gave_up: AtomicBool,
@@ -216,11 +164,12 @@ struct Server {
 
 impl Server {
     fn start(place: &Place) -> std::io::Result<Child> {
-        let program = std::env::current_exe()?.with_file_name("sprachanker");
+        let program = std::env::current_exe()?.with_file_name(system::SERVER);
         let log = log_file();
         fs::create_dir_all(log.parent().unwrap())?;
         fs::create_dir_all(&place.home)?;
         let out = OpenOptions::new().create(true).append(true).open(&log)?;
+        // SPRACHANKER_DESKTOP: the server says this app updates it (Settings → About).
         let mut command = Command::new(program);
         command
             .args(["serve", "--data"])
@@ -229,11 +178,14 @@ impl Server {
         if place.experimental {
             command.arg("--experimental");
         }
-        command
-            .current_dir(&place.home)
-            .stdout(out.try_clone()?)
-            .stderr(out)
-            .spawn()
+        quiet(
+            command
+                .env("SPRACHANKER_DESKTOP", "1")
+                .current_dir(&place.home)
+                .stdout(out.try_clone()?)
+                .stderr(out),
+        )
+        .spawn()
     }
 
     /// The pid of this app's server while it runs.
@@ -280,15 +232,15 @@ impl Server {
         }
     }
 
-    /// Stopped as a service is (SIGTERM: its databases closed), killed if it does not go.
-    fn stop(&self) {
+    /// Stopped as a service is (system::terminate), killed if it does not go; not started again.
+    pub fn stop(&self) {
         let child = {
             let mut state = lock(&self.state);
             state.quitting = true;
             state.child.take()
         };
         let Some(mut child) = child else { return };
-        let _ = Command::new("kill").args(["-TERM", &child.id().to_string()]).status();
+        terminate(child.id());
         let until = Instant::now() + Duration::from_secs(8);
         while Instant::now() < until {
             if let Ok(Some(_)) = child.try_wait() {
@@ -305,6 +257,8 @@ impl Server {
 fn local(url: &Url, port: u16) -> bool {
     match url.scheme() {
         "tauri" | "about" | "blob" | "data" => true,
+        // Windows' WebView2 serves the app's own pages (its start page) at http://tauri.localhost.
+        "http" if cfg!(windows) && url.host_str() == Some("tauri.localhost") => url.port().is_none(),
         "http" => {
             matches!(url.host_str(), Some("127.0.0.1" | "localhost")) && url.port() == Some(port)
         }
@@ -345,19 +299,11 @@ fn failed(app: &AppHandle) {
     }
 }
 
-/// Whether this program is installed (in Applications): only then is it what starts at login — not a
-/// copy run from the disk image or a build folder.
-fn installed() -> bool {
-    std::env::current_exe().is_ok_and(|exe| {
-        exe.starts_with("/Applications") || exe.starts_with(user_home().join("Applications"))
-    })
-}
-
 fn main() {
     let test_run = std::env::var_os("SPRACHANKER_HOME").is_some();
     let default_home = user_home().join("SprachAnker");
-    let service = if test_run { None } else { service(&default_home) };
-    let place = place(service.as_ref().map(|(_, port, host)| (*port, host.clone())));
+    let service = if test_run { None } else { system::service(&default_home) };
+    let place = place(service.as_ref().map(|s| (s.port, s.host.clone())));
     let port = place.port;
     let hidden = std::env::args().any(|a| a == HIDDEN);
     let server = Arc::new(Server {
@@ -374,11 +320,14 @@ fn main() {
     }
     let app = builder
         .plugin(tauri_plugin_opener::init())
+        .plugin(tauri_plugin_updater::Builder::new().build())
+        .invoke_handler(tauri::generate_handler![update::install_update])
         .setup({
             let server = server.clone();
             move |app| {
+                app.manage(server.clone());
                 // The app is the service: started at login, its path kept current.
-                if !test_run && installed() {
+                if !test_run && system::installed() {
                     let _ = app.autolaunch().enable();
                 }
                 let window =
@@ -406,7 +355,25 @@ fn main() {
                         })
                         // Downloads (a course's or a profile's file) go to Downloads.
                         .on_download(|_, _| true)
+                        // The microphone for the server's page (answers said aloud), asked of no one
+                        // else; the system still asks the learner once (macOS).
+                        .on_permission_request(move |webview, kind| {
+                            let ours = webview.url().is_ok_and(|url| local(&url, port));
+                            if ours && kind == PermissionKind::Microphone {
+                                PermissionResponse::Allow
+                            } else {
+                                PermissionResponse::Default
+                            }
+                        })
                         .build()?;
+                // WebKitGTK gives a page no microphone until its settings let media streams in.
+                #[cfg(target_os = "linux")]
+                let _ = window.with_webview(|webview| {
+                    use webkit2gtk::{SettingsExt, WebViewExt};
+                    if let Some(settings) = webview.inner().settings() {
+                        settings.set_enable_media_stream(true);
+                    }
+                });
 
                 let open = MenuItem::with_id(app, "open", text("desktop.open"), true, None::<&str>)?;
                 let browser =
@@ -431,10 +398,9 @@ fn main() {
                 let supervised = server.clone();
                 let home = place.home.clone();
                 let place = place.clone();
-                let plist = service.map(|(plist, _, _)| plist);
                 thread::spawn(move || {
-                    if let Some(plist) = plist {
-                        take_over_service(&plist);
+                    if let Some(service) = service {
+                        system::take_over(&service);
                     }
                     stop_stray(&place.home);
                     supervised.supervise(&place);

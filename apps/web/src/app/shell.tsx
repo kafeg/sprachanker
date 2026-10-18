@@ -15,6 +15,7 @@ import { useTranslation } from "react-i18next";
 import { useDecks } from "@/api/cards.ts";
 import { inPhoneApp } from "@/api/client.ts";
 import { useDownloads, useDownloadsWatch } from "@/api/downloads.ts";
+import { useUpdate } from "@/api/update.ts";
 import { cn } from "@/ui/utils.ts";
 import { useWindowBusy } from "@/ui/window-title.ts";
 import { AboutLine } from "./about.tsx";
@@ -60,6 +61,8 @@ export function AppShell({ extra }: { extra?: ExtraSection }) {
     (n, d) => n + d.counts.new + d.counts.learning + d.counts.review,
     0,
   );
+  // A newer version out: a dot on Settings, where About says how to take it.
+  const newer = useUpdate().data?.newer?.version;
   const running = useDownloads().data?.jobs.find((j) => j.status === "running");
   const media = running?.progress?.phase === "media" ? running.progress.media : undefined;
   useWindowBusy(
@@ -88,6 +91,7 @@ export function AppShell({ extra }: { extra?: ExtraSection }) {
           >
             <Icon className="size-5" /> {t(key)}
             {to === "/review" && due > 0 && <DueBadge count={due} />}
+            {to === "/settings" && newer && <UpdateDot version={newer} />}
           </Link>
         ))}
         <div className="mt-auto space-y-3 px-1">
@@ -124,6 +128,7 @@ export function AppShell({ extra }: { extra?: ExtraSection }) {
               <span className="relative">
                 <Icon className="size-5" />
                 {to === "/review" && due > 0 && <DueBadge count={due} corner />}
+                {to === "/settings" && newer && <UpdateDot version={newer} corner />}
               </span>
               {short !== label ? (
                 <>
@@ -138,6 +143,23 @@ export function AppShell({ extra }: { extra?: ExtraSection }) {
         })}
       </nav>
     </div>
+  );
+}
+
+/** A newer version is out: a quiet dot on the Settings entry (in the corner of its icon on a phone). */
+function UpdateDot({ version, corner = false }: { version: string; corner?: boolean }) {
+  const { t } = useTranslation();
+  const said = t("about.newer", { version });
+  return (
+    <span
+      role="img"
+      aria-label={said}
+      title={said}
+      className={cn(
+        "size-2 rounded-full bg-primary",
+        corner ? "absolute -top-0.5 -end-1" : "ms-auto",
+      )}
+    />
   );
 }
 
