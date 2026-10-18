@@ -177,15 +177,17 @@ export function spokenFreely(
   return spokenAnswers(lang, item, said) ? undefined : transcript;
 }
 
-/** At most this share of a frame's own words said: the frame missed (the question said back). */
-const FRAME_MISSED = 0.5;
+/** At most this share of a frame's own words said, and of the closest answer's words: the frame
+ *  missed (the question said back). */
+const MISSED = 0.5;
 
 /**
  * What was heard of an answer judged against what it is checked by. A line to say: `correct` when
  * it is said, `partial` most of its words (spokenCheck), else `wrong`. A frame: `correct` when the
  * answer says one of the answers or completes the frame — any of its alternatives, a choice in
  * brackets, the learner's own words in its gaps (`ownWords`: a note, not a mistake) —, `wrong` only
- * when at most half of the frame's own words are said (the question said back); between — words
+ * when at most half of the frame's own words are said and at most half of the closest answer's (the
+ * question said back: "Danke, gut. Und Ihnen?" leaves out the greeting, not the answer); between — words
  * around the frame, another order, a word misheard —, the words compared with the closest answer:
  * `partial`, never `wrong` (owner, 2026-10-18: they may be right). The source's answer only (no line,
  * no frame): `correct` when said, else `partial` — the words may be the learner's own. `diff`
@@ -196,12 +198,13 @@ export function judgeSpoken(
   target: SpokenAnswers,
   transcript: string,
 ): { verdict: "correct" | "partial" | "wrong"; ownWords?: true; diff: TokenDiff[] } {
-  const { diff, verdict } = spokenCheck(lang, target.answers, transcript);
+  const { diff, verdict, score } = spokenCheck(lang, target.answers, transcript);
   if (verdict === "correct" || target.exact) return { verdict, diff };
   if (target.frames.some((f) => completes(lang, f, transcript)))
     return { verdict: "correct", ownWords: true, diff };
   const missed =
     target.frames.length &&
-    Math.max(...target.frames.map((f) => frameWordsSaid(lang, f, transcript))) <= FRAME_MISSED;
+    score <= MISSED &&
+    Math.max(...target.frames.map((f) => frameWordsSaid(lang, f, transcript))) <= MISSED;
   return { verdict: missed ? "wrong" : "partial", diff };
 }

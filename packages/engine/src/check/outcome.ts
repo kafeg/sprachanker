@@ -35,9 +35,9 @@ export function textOutcome(lang: string, references: string[], actual: string, 
 type SpokenVerdict = "correct" | "partial" | "wrong";
 
 /** What was heard against the line to say (or the closest of its alternatives): the words matched
- *  and missed, and the verdict. */
+ *  and missed, the verdict, and the share of the line's words said (`score`). */
 export function spokenCheck(lang: string, reference: string | string[], transcript: string) {
   const references = typeof reference === "string" ? [reference] : reference;
-  const { diff, result } = textOutcome(lang, references, transcript, true);
-  return { diff, verdict: result as SpokenVerdict };
+  const { diff, result, score } = textOutcome(lang, references, transcript, true);
+  return { diff, verdict: result as SpokenVerdict, score };
 }

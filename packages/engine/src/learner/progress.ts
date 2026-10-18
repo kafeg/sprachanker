@@ -81,6 +81,14 @@ export interface SpokenJudge {
   exercise(exerciseKey: string): Exercise | undefined;
 }
 
+/** An answer kept with what was heard but without a verdict of the engine's (`judgedOutcome`). */
+const unjudged = (answer: unknown, outcome: Outcome) =>
+  outcome.result === "unscored" && !outcome.spoken && !!transcriptOf(answer)?.trim();
+
+/** Whether a run's events hold an answer `judgedEvents` would judge (else they are read as kept). */
+export const holdsUnjudged = (events: TypedEvent[]) =>
+  events.some((e) => e.type === "answered" && unjudged(e.payload.answer, e.payload.outcome));
+
 /**
  * An answer said aloud as the engine judges it now: one kept with what was heard but without the
  * engine's verdict (`spoken`) — given before the engine judged such answers, or before it judged
@@ -93,8 +101,7 @@ export function judgedOutcome(
   answer: unknown,
   outcome: Outcome,
 ): Outcome {
-  if (outcome.result !== "unscored" || outcome.spoken || !transcriptOf(answer)?.trim())
-    return outcome;
+  if (!unjudged(answer, outcome)) return outcome;
   const { exercise: key, n } = parseItemKey(itemKey as ItemKey);
   const exercise = judge.exercise(key);
   if (exercise?.type !== "speech_selfrate") return outcome;

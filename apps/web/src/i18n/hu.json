@@ -1343,6 +1343,7 @@
     "verdict": {
       "correct": "Sikerült",
       "partial": "Majdnem: néhány szó hiányzik",
+      "close": "Majdnem: hasonlítsd össze a szavaidat a helyes válasszal",
       "wrong": "Próbáld újra: hallgasd meg, és mondd el még egyszer",
       "otherwise": "A szerkezet jó, a szavak a sajátjaid: vesd össze a helyes válasszal",
       "wrongAnswer": "Nem ez a kérdezett válasz: vesd össze a helyessel"

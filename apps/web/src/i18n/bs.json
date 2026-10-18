@@ -1343,6 +1343,7 @@
     "verdict": {
       "correct": "Tačno izgovoreno",
       "partial": "Skoro: nedostaje nekoliko riječi",
+      "close": "Skoro: uporedi svoje riječi s tačnim odgovorom",
       "wrong": "Pokušaj ponovo: poslušaj i izgovori još jednom",
       "otherwise": "Oblik je tačan, riječi su tvoje: uporedi s tačnim odgovorom",
       "wrongAnswer": "To nije traženi odgovor: uporedi s tačnim"

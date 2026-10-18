@@ -113,7 +113,7 @@ test("a lesson's answer recordings heard the first time it asks, written into th
   expect(Object.values(right.outcomes)[0]).toMatchObject({ spoken: "correct" });
 
   // Kept as before the engine judged spoken answers (no `spoken`): judged as the run is read —
-  // the player's run, the Notebook's pass and item, the mistakes.
+  // the player's run, the Notebook's pass and item (the mistakes and the tutor read it alike).
   new Database(join(root, "profiles/local/profile.sqlite"))
     .query(
       "UPDATE events SET payload_json = json_set(payload_json, '$.outcome', json('{\"result\":\"unscored\",\"score\":0}')) WHERE type = 'answered'",

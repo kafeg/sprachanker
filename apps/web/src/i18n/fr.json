@@ -1343,6 +1343,7 @@
     "verdict": {
       "correct": "Tu l’as dit",
       "partial": "Presque : il manque quelques mots",
+      "close": "Presque : compare tes mots avec la bonne réponse",
       "wrong": "Réessaie : écoute et redis-le",
       "otherwise": "La forme est juste, les mots sont les tiens : compare avec la bonne réponse",
       "wrongAnswer": "Ce n’est pas la réponse demandée : compare avec la bonne"

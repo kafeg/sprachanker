@@ -151,6 +151,32 @@ describe("a right answer is never wrong", () => {
     ],
     // The frame's words mostly missed: wrong.
     ["Ich heiße ...", "Ich heiße Nico.", "Wie heißt du?", "wrong"],
+    // Nicos Weg A1 0-3's exercise 9: the question said back, the greeting alone wrong; the answer
+    // without the greeting almost.
+    [
+      "Guten Morgen. Danke, gut ...?",
+      "Guten Morgen! Danke! Gut! Und Ihnen?",
+      "Guten Morgen! Wie geht es Ihnen?",
+      "wrong",
+    ],
+    [
+      "Guten Morgen. Danke, gut ...?",
+      "Guten Morgen! Danke! Gut! Und Ihnen?",
+      "Guten Morgen",
+      "wrong",
+    ],
+    [
+      "Guten Morgen. Danke, gut ...?",
+      "Guten Morgen! Danke! Gut! Und Ihnen?",
+      "Danke, gut. Und Ihnen?",
+      "partial",
+    ],
+    [
+      "Guten Morgen. Danke, gut ...?",
+      "Guten Morgen! Danke! Gut! Und Ihnen?",
+      "Guten Morgen, danke, sehr gut, und Ihnen?",
+      "partial",
+    ],
   ])("%j said as %j", (reference, heard, said, verdict) =>
     expect(judge(reference, heard, said)).toBe(verdict as never),
   );

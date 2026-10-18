@@ -1343,6 +1343,7 @@
     "verdict": {
       "correct": "Geschafft",
       "partial": "Fast: ein paar Wörter fehlen",
+      "close": "Fast: Vergleiche deine Wörter mit der richtigen Antwort",
       "wrong": "Noch einmal: hör zu und sprich nach",
       "otherwise": "Die Form stimmt, die Wörter sind deine: vergleiche mit der richtigen Antwort",
       "wrongAnswer": "Nicht die gefragte Antwort: vergleiche mit der richtigen"

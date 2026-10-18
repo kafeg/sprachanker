@@ -1343,6 +1343,7 @@
     "verdict": {
       "correct": "Kamu berhasil mengucapkannya",
       "partial": "Hampir: ada beberapa kata yang kurang",
+      "close": "Hampir: bandingkan kata-katamu dengan jawaban yang benar",
       "wrong": "Coba lagi: dengarkan dan ucapkan sekali lagi",
       "otherwise": "Bentuknya benar, kata-katanya milikmu: bandingkan dengan jawaban yang benar",
       "wrongAnswer": "Bukan jawaban yang diminta: bandingkan dengan jawaban yang benar"

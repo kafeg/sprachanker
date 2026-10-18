@@ -361,6 +361,23 @@ test("the right answer only once the answer is checked: not while the take is he
   expect(view.getByText("Correct answer:")).toBeTruthy();
   expect(view.getByRole("button", { name: "Hear the right answer" })).toBeTruthy();
   view.unmount();
+
+  // Hearing failed: the take is kept, said again — nothing checked, no right answer.
+  const failing = slowHost();
+  const failed = await renderApp(
+    <SpeechProvider value={failing.value}>
+      <TargetLang value="de">
+        <HeardAnswers.Provider value={heard}>
+          <Held />
+        </HeardAnswers.Provider>
+      </TargetLang>
+    </SpeechProvider>,
+  );
+  await recordTake(failed);
+  await act(async () => failing.hear(new Error("no engine")));
+  expect(failed.getByRole("button", { name: /^Mine/ })).toBeTruthy();
+  expect(failed.queryByText("Correct answer:")).toBeNull();
+  failed.unmount();
   mic.restore();
 });
 

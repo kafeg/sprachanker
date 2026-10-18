@@ -1343,6 +1343,7 @@
     "verdict": {
       "correct": "Você disse",
       "partial": "Quase: faltam algumas palavras",
+      "close": "Quase: compara as tuas palavras com a resposta certa",
       "wrong": "Tente de novo: ouça e diga mais uma vez",
       "otherwise": "A forma está certa, as palavras são suas: compare com a resposta certa",
       "wrongAnswer": "Não é a resposta pedida: compare com a certa"
