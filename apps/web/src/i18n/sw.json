@@ -1343,6 +1343,7 @@
     "verdict": {
       "correct": "Umeitamka",
       "partial": "Karibu: maneno machache yamekosekana",
+      "close": "Karibu: linganisha maneno yako na jibu sahihi",
       "wrong": "Jaribu tena: sikiliza na uitamke mara nyingine",
       "otherwise": "Muundo ni sahihi, maneno ni yako: linganisha na jibu sahihi",
       "wrongAnswer": "Si jibu lililoulizwa: linganisha na jibu sahihi"

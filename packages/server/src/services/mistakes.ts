@@ -25,9 +25,10 @@ export function createMistakes(
       // Of all lessons, only the runs with an answer are read.
       const answered = some ? undefined : new Set(store.lastActivity(["answered"]).keys());
       const lessonRuns = answered ? runs.filter((r) => answered.has(r.id)) : runs;
+      // With the exercises as each run showed them, which its answers said aloud are judged against.
       const answers = store.eventsOf(
         lessonRuns.map((r) => r.id),
-        ["answered"],
+        ["answered", "page_shown"],
       );
       const all = mistakesOf(
         await Promise.all(

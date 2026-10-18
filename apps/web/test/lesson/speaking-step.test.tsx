@@ -98,7 +98,7 @@ test("a wrong spoken answer: its verdict and the right answer, Try again, the AI
 
 test("an answer neither right nor the question said back: its words against the closest answer, almost — never the AI by itself", async () => {
   const near = await render("Guten Abend. Danke, sehr gut. Und dir?");
-  expect(near.getByText("Almost: a few words missing")).toBeTruthy();
+  expect(near.getByText("Almost: compare your words with the right answer")).toBeTruthy();
   // The word said beyond the answer marked, struck through.
   expect(near.getByText("sehr").className).toContain("line-through");
   expect(near.queryByText(/^AI:/)).toBeNull();

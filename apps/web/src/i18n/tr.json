@@ -1343,6 +1343,7 @@
     "verdict": {
       "correct": "Doğru söyledin",
       "partial": "Neredeyse: birkaç kelime eksik",
+      "close": "Neredeyse: sözcüklerini doğru cevapla karşılaştır",
       "wrong": "Tekrar dene: dinle ve bir kez daha söyle",
       "otherwise": "Kalıp doğru, kelimeler senin: doğru cevapla karşılaştır",
       "wrongAnswer": "İstenen cevap bu değil: doğru cevapla karşılaştır"

@@ -290,7 +290,7 @@ test("an answer said aloud: its words against the source's answer, almost; the A
   await expect(free.getByText("Hallo gute Tag")).toBeVisible();
   // Checked by its words, as a line repeated (owner, 2026-10-18): almost, the word misheard marked;
   // the right answer after the check. The AI not by itself.
-  await expect(free.getByText("Almost: a few words missing")).toBeVisible();
+  await expect(free.getByText("Almost: compare your words with the right answer")).toBeVisible();
   await expect(free.getByRole("button", { name: "Hear the right answer" })).toBeVisible();
   const runs = await (
     await request.get(`/api/runs/lesson?series=sprachanker.fixture&lessonKey=${lesson}`)

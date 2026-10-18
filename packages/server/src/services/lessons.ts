@@ -4,6 +4,7 @@ import {
   checkItem,
   courseProgress,
   exerciseResults,
+  holdsUnjudged,
   judgedEvents,
   LESSON_WORK,
   lessonCoverage,
@@ -144,14 +145,7 @@ export function createLessons({
    * the run is read. The lesson no longer installed: its exercises as the run showed them.
    */
   async function judged(row: RunRow, events: TypedEvent[]): Promise<TypedEvent[]> {
-    // Answers heard (a transcript) are judged on every read: their kept verdict is that day's check.
-    const unjudged = events.some(
-      (e) =>
-        e.type === "answered" &&
-        e.payload.outcome.result === "unscored" &&
-        !!(e.payload.answer as { transcript?: string } | undefined)?.transcript?.trim(),
-    );
-    if (!row.edition || !unjudged) return events;
+    if (!row.edition || !holdsUnjudged(events)) return events;
     const key = row.contextKey as LessonKey;
     const series = seriesOf(key);
     const [lesson, texts] = await Promise.all([

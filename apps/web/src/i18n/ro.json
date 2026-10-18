@@ -1343,6 +1343,7 @@
     "verdict": {
       "correct": "Ai spus-o",
       "partial": "Aproape: lipsesc câteva cuvinte",
+      "close": "Aproape: compară-ți cuvintele cu răspunsul corect",
       "wrong": "Încearcă din nou: ascultă și spune încă o dată",
       "otherwise": "Forma e corectă, cuvintele sunt ale tale: compară cu răspunsul corect",
       "wrongAnswer": "Nu e răspunsul cerut: compară cu cel corect"

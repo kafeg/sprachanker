@@ -160,10 +160,33 @@ describe("a right answer is never wrong", () => {
     ["Das ist ... (die Brille)", "Das ist die Brille.", "Die Brille.", "partial"],
     // No prompt to compare with: never wrong.
     ["Ich heiße ...", "Ich heiße Nico.", "Wie heißt du?", "partial"],
+    // Nicos Weg A1 0-3's exercise 9 without its prompt: the answer without the greeting almost.
+    [
+      "Guten Morgen. Danke, gut ...?",
+      "Guten Morgen! Danke! Gut! Und Ihnen?",
+      "Danke, gut. Und Ihnen?",
+      "partial",
+    ],
+    [
+      "Guten Morgen. Danke, gut ...?",
+      "Guten Morgen! Danke! Gut! Und Ihnen?",
+      "Guten Morgen, danke, sehr gut, und Ihnen?",
+      "partial",
+    ],
   ])("%j said as %j", (reference, heard, said, verdict) =>
     expect(judge(reference, heard, said)).toBe(verdict as never),
   );
   test("wrong only for the question said back (like the item's prompt)", () => {
+    const ex9 = (said: string) =>
+      judge(
+        "Guten Morgen. Danke, gut ...?",
+        "Guten Morgen! Danke! Gut! Und Ihnen?",
+        said,
+        "Guten Morgen. Wie geht es Ihnen?",
+      );
+    expect(ex9("Guten Morgen! Wie geht es Ihnen?")).toBe("wrong");
+    expect(ex9("Danke, gut. Und Ihnen?")).toBe("partial");
+    expect(ex9("Guten Morgen! Danke! Gut! Und Ihnen?")).toBe("correct");
     expect(judge("Ich heiße ...", "Ich heiße Nico.", "Wie heißt du?", "Wie heißt du?")).toBe(
       "wrong",
     );

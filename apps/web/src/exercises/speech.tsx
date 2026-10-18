@@ -19,8 +19,8 @@ import { HeardAnswers } from "./shared.tsx";
 import type { RendererProps } from "./types.ts";
 
 /** What the recogniser heard: judged against the line to say or the source's answer (the closest of
- *  them), its words matched and missed with a verdict; not judged (an answer of one's own), just the
- *  words heard. In no score. `exact`: against a line to say (said again after the original). */
+ *  them), its words matched and missed with a verdict; nothing to judge it by (the AI's to check),
+ *  just the words heard. In no score. `exact`: against a line to say (said again after the original). */
 function Heard({
   lang,
   check,
@@ -41,7 +41,9 @@ function Heard({
       ? "otherwise"
       : verdict === "wrong" && !exact
         ? "wrongAnswer"
-        : verdict;
+        : verdict === "partial" && !exact
+          ? "close"
+          : verdict;
   return (
     <div className="space-y-1.5 rounded-xl bg-muted/60 px-4 py-3" aria-live="polite">
       {said && (
@@ -290,9 +292,16 @@ export function SpeechSelfrate({
 
   const attempted = answer !== undefined || !!take;
   const textShown = readOnly || !listen || attempted || reveal;
-  // Checked: the answer as it stays — what was heard shown with its verdict, or a take kept with
-  // nothing to hear in it —, not while it is being heard.
-  const checked = readOnly || (answer !== undefined && !saving && !takes.late);
+  // Checked: the answer as it stays — what was heard shown with its verdict, or, nothing hearing
+  // takes (recognition off), the take kept —; not while a take is said or heard, nor a take kept
+  // whose hearing failed (it is said again).
+  const checked =
+    readOnly ||
+    (answer !== undefined &&
+      !saving &&
+      !takes.late &&
+      (recorder.state === "idle" || recorder.state === "denied" || recorder.state === "failed") &&
+      (transcript !== undefined || !host?.recognition));
   // The right answer once the answer is checked, as other exercises reveal theirs after Check: the
   // source's as heard — its runs that complete the frame, or the whole of it — and its recording.
   const rightText =

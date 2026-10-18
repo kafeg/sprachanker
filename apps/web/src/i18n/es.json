@@ -1343,6 +1343,7 @@
     "verdict": {
       "correct": "Lo dijiste",
       "partial": "Casi: faltan algunas palabras",
+      "close": "Casi: compara tus palabras con la respuesta correcta",
       "wrong": "Inténtalo otra vez: escucha y dilo de nuevo",
       "otherwise": "La forma es correcta, las palabras son tuyas: compárala con la respuesta correcta",
       "wrongAnswer": "No es la respuesta pedida: compárala con la correcta"

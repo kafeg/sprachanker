@@ -171,8 +171,12 @@ export function createLessonJournal(deps: {
       const passes = await Promise.all(
         store.list("lesson", lessonKey).map(async (row) => {
           const own = answered.filter((e) => e.runId === row.id);
-          const answers = (await deps.judged(row, own)).map((e) => payloadOf<AnsweredPayload>(e));
-          if (!answers.length) return [];
+          if (!own.length) return [];
+          // Judged against the exercises as the run showed them.
+          const shown = store.events(row.id, ["page_shown"]);
+          const answers = (await deps.judged(row, [...shown, ...own]))
+            .filter((e) => e.type === "answered")
+            .map((e) => payloadOf<AnsweredPayload>(e));
           return [
             {
               runId: row.id,

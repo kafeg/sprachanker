@@ -1343,6 +1343,7 @@
     "verdict": {
       "correct": "Udało się",
       "partial": "Prawie: brakuje kilku słów",
+      "close": "Prawie: porównaj swoje słowa z poprawną odpowiedzią",
       "wrong": "Spróbuj ponownie: posłuchaj i powiedz to jeszcze raz",
       "otherwise": "Forma jest dobra, słowa twoje: porównaj z prawidłową odpowiedzią",
       "wrongAnswer": "To nie ta odpowiedź: porównaj z prawidłową"
